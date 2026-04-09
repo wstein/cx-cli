@@ -7,7 +7,7 @@ A **repomix bundle** is a self-describing directory that collects one or more re
 | Term | Description |
 |---|---|
 | **Bundle directory** | The root folder that holds all bundle content. |
-| **Repomix file** | A repomix output file (`repomix-output.xml`, `repomix-output.json`, etc.) packed into the bundle. |
+| **Repomix file** | A repomix output file (`repomix-output.xml.txt`, `repomix-output.json`, etc.) packed into the bundle. |
 | **Binary asset** | Any non-text file that is part of the bundle (images, fonts, compiled artefacts, …). |
 | `SHA256SUMS` | GNU-compatible SHA-256 checksum file for all data files in the bundle. |
 | `manifest.json` | JSON index that records the path, size, SHA-256 hash, and type of every file in the bundle. |
@@ -19,7 +19,7 @@ A **repomix bundle** is a self-describing directory that collects one or more re
 cx init
 
 # 2. Run repomix to produce output
-cx repomix --output bundles/repomix-output.xml
+cx repomix --output bundles/repomix-output.xml.txt
 
 # 3. Process the bundle directory
 cx bundle ./bundles
@@ -28,7 +28,7 @@ cx bundle ./bundles
 cx list ./bundles
 
 # 5. Inspect a specific repomix output file
-cx list ./bundles/repomix-output.xml --verbose
+cx list ./bundles/repomix-output.xml.txt --verbose
 
 # 6. Clean up generated metadata
 cx cleanup ./bundles --force
@@ -57,7 +57,7 @@ This command does not interpret repomix-specific flags itself. It forwards the a
 unchanged to the local `repomix` binary that is installed as a dependency of `cx-cli`.
 
 ```
-cx repomix --output bundles/repomix-output.xml
+cx repomix --output bundles/repomix-output.xml.txt
 cx repomix --help
 ```
 
@@ -101,7 +101,7 @@ Options:
 cx list ./my-bundle
 
 # List source files packed inside a specific repomix output
-cx list ./my-bundle/repomix-output.xml
+cx list ./my-bundle/repomix-output.xml.txt
 
 # Show full details
 cx list ./my-bundle --verbose
@@ -162,7 +162,7 @@ cx cleanup ./my-bundle --force --zip
   "bundlePath": "/absolute/path/to/bundle",
   "files": [
     {
-      "path": "repomix-output.xml",
+      "path": "repomix-output.xml.txt",
       "size": 204800,
       "sha256": "a1b2c3d4...",
       "type": "repomix"
@@ -197,7 +197,7 @@ cx cleanup ./my-bundle --force --zip
 Standard GNU sha256sum format — one line per data file, two spaces between digest and path:
 
 ```
-a1b2c3d4e5f6...  repomix-output.xml
+a1b2c3d4e5f6...  repomix-output.xml.txt
 deadbeef1234...  assets/logo.png
 ```
 
@@ -233,7 +233,7 @@ cd ./my-bundle && sha256sum --check SHA256SUMS
 {
   "$schema": "https://repomix.com/schemas/latest/schema.json",
   "output": {
-    "filePath": "repomix-output.xml",
+    "filePath": "repomix-output.xml.txt",
     "style": "xml",
     "parsableStyle": true,
     "fileSummary": true,
@@ -271,7 +271,7 @@ const manifest = await processBundle('./my-bundle', { createZip: true });
 const existing = await readManifest('./my-bundle');
 
 // Parse entries from a repomix output file
-const parsed = await parseRepomixFile('./my-bundle/repomix-output.xml');
+const parsed = await parseRepomixFile('./my-bundle/repomix-output.xml.txt');
 for (const entry of parsed.entries) {
   console.log(entry.path, entry.content.length, 'chars');
 }

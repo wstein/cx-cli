@@ -67,7 +67,7 @@ The `cx` CLI provides five commands for bundle management:
 ## Workflow
 
 ```
-repo/ ──[npx repomix]──▶ bundles/repomix-output.xml
+repo/ ──[npx repomix]──▶ bundles/repomix-output.xml.txt
 assets/ ──────────────▶ bundles/logo.png
 
 bundles/ ──[cx bundle]──▶ bundles/SHA256SUMS

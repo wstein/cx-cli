@@ -102,7 +102,7 @@ const DEFAULT_REPOMIX_CONFIG: RepomixConfig = {
     maxFileSize: 52428800,
   },
   output: {
-    filePath: 'repomix-output.xml',
+    filePath: 'repomix-output.xml.txt',
     style: 'xml',
     parsableStyle: false,
     fileSummary: true,

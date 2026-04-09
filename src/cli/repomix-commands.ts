@@ -95,14 +95,14 @@ export function registerRepomixCommands(cli: CAC): void {
     .command('list <path>', 'List files in a bundle directory or entries in a repomix output file')
     .option('--verbose', 'Show SHA-256 digests, sizes, and line counts', { default: false })
     .example('  cx list ./my-bundle')
-    .example('  cx list ./my-bundle/repomix-output.xml --verbose')
+    .example('  cx list ./my-bundle/repomix-output.xml.txt --verbose')
     .action(action((targetPath: string, opts: { verbose: boolean }) => runList(targetPath, opts)));
 
   // ── repomix ──────────────────────────────────────────────────────────────
   cli
     .command('repomix [...args]', 'Forward all arguments to the repomix CLI parser')
     .allowUnknownOptions()
-    .example('  cx repomix --output bundles/repomix-output.xml')
+    .example('  cx repomix --output bundles/repomix-output.xml.txt')
     .example('  cx repomix --help')
     .action(action((args: string[]) => runRepomix(args)));
 

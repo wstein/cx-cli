@@ -12,13 +12,13 @@ bun install -g cx-cli   # once published
 cx init
 
 # 2. Generate repomix output
-cx repomix --output bundles/repomix-output.xml
+cx repomix --output bundles/repomix-output.xml.txt
 
 # 3. Bundle the output
 cx bundle ./bundles
 
 # 4. List what's inside a repomix file
-cx list bundles/repomix-output.xml
+cx list bundles/repomix-output.xml.txt
 
 # 5. Clean up generated files
 cx cleanup ./bundles --force --zip
