@@ -1,5 +1,6 @@
 # cx-cli
-
+[![CI](https://github.com/wstein/cx-cli/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wstein/cx-cli/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
 `cx` (context) is a repomix umbrella tool for managing **bundles** — folders of repomix output files plus optional binary assets, combined with a manifest and SHA256 checksums.
 
 ## Quick start
