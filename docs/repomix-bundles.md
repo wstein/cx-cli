@@ -18,8 +18,8 @@ A **repomix bundle** is a self-describing directory that collects one or more re
 # 1. Initialise project configuration
 cx init
 
-# 2. Run repomix to produce output (or place existing output files in the bundle directory)
-npx repomix --output bundles/repomix-output.xml
+# 2. Run repomix to produce output
+cx repomix --output bundles/repomix-output.xml
 
 # 3. Process the bundle directory
 cx bundle ./bundles
@@ -48,6 +48,23 @@ Options:
   --zip-output <path>    Output path for the ZIP archive (implies --zip)
   --exclude <pattern>    Glob pattern to exclude; may be repeated
 ```
+
+### `cx repomix [...args]`
+
+Forward all arguments directly to the repomix CLI dependency.
+
+This command does not interpret repomix-specific flags itself. It forwards the arguments
+unchanged to the local `repomix` binary that is installed as a dependency of `cx-cli`.
+
+```
+cx repomix --output bundles/repomix-output.xml
+cx repomix --help
+```
+
+Use this command when you want `cx` to manage repomix invocation while preserving the
+full repomix CLI surface.
+
+### `cx list <path>`
 
 **Example:**
 

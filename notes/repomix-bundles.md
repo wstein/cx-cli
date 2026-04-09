@@ -9,10 +9,11 @@
 
 A repomix bundle is a self-describing directory that groups one or more repomix output files (packed repository snapshots) with binary assets, a SHA-256 checksum file, and a JSON manifest.
 
-The `cx` CLI provides four commands for bundle management:
+The `cx` CLI provides five commands for bundle management:
 
 | Command | Purpose |
 |---|---|
+| `cx repomix [...args]` | Forward raw arguments to the repomix CLI dependency |
 | `cx bundle <path>` | Compute SHA-256s, write `manifest.json` and `SHA256SUMS`, optionally create a ZIP |
 | `cx list <path>` | Show bundle contents (from `manifest.json`) or source entries inside a repomix file |
 | `cx init` | Scaffold `cx.json` and `repomix.config.json` in the current project |
