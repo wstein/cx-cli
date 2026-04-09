@@ -25,6 +25,7 @@ import { runBundle } from '../commands/bundle.js';
 import { runCleanup } from '../commands/cleanup.js';
 import { runInit } from '../commands/init.js';
 import { runList } from '../commands/list.js';
+import { runRepomix } from '../commands/repomix.js';
 
 // ---------------------------------------------------------------------------
 // Error handler
@@ -49,11 +50,12 @@ function action<T extends unknown[]>(fn: (...args: T) => Promise<void>): (...arg
 // ---------------------------------------------------------------------------
 
 /**
- * Register the four repomix-bundle commands with the provided `cac` instance.
+ * Register the repomix-bundle commands with the provided `cac` instance.
  *
  * Commands registered:
  *   - `bundle <path>`  — process a bundle directory
  *   - `list <path>`    — list bundle contents or repomix file entries
+ *   - `repomix [...args]` — forward raw arguments to the repomix CLI dependency
  *   - `init`           — create default configuration files
  *   - `cleanup <path>` — remove generated metadata files
  */
@@ -95,6 +97,14 @@ export function registerRepomixCommands(cli: CAC): void {
     .example('  cx list ./my-bundle')
     .example('  cx list ./my-bundle/repomix-output.xml --verbose')
     .action(action((targetPath: string, opts: { verbose: boolean }) => runList(targetPath, opts)));
+
+  // ── repomix ──────────────────────────────────────────────────────────────
+  cli
+    .command('repomix [...args]', 'Forward all arguments to the repomix CLI parser')
+    .allowUnknownOptions()
+    .example('  cx repomix --output bundles/repomix-output.xml')
+    .example('  cx repomix --help')
+    .action(action((args: string[]) => runRepomix(args)));
 
   // ── init ─────────────────────────────────────────────────────────────────
   cli
