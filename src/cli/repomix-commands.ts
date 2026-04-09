@@ -26,6 +26,7 @@ import { runCleanup } from '../commands/cleanup.js';
 import { runInit } from '../commands/init.js';
 import { runList } from '../commands/list.js';
 import { runRepomix } from '../commands/repomix.js';
+import { runRepomixSections } from '../commands/repomixSections.js';
 
 // ---------------------------------------------------------------------------
 // Error handler
@@ -66,14 +67,28 @@ export function registerRepomixCommands(cli: CAC): void {
     .option('--zip', 'Create a ZIP archive of the completed bundle', { default: false })
     .option('--zip-output <path>', 'Output path for the ZIP archive (implies --zip)')
     .option('--exclude <pattern>', 'Glob pattern to exclude; may be repeated')
+    .option('--sections', 'Generate repomix section outputs from cx.json before bundling', { default: false })
+    .option('--cx-config <path>', 'CX configuration file', { default: 'cx.json' })
+    .option('--repomix-config <path>', 'Repomix configuration file')
+    .option('--section-checksum-file <path>', 'Checksum file path for generated section outputs')
+    .option('--section-verbose', 'Show verbose progress during section generation', { default: false })
     .example('  cx bundle ./my-bundle')
     .example('  cx bundle ./my-bundle --zip')
-    .example('  cx bundle ./my-bundle --zip --zip-output ./dist/bundle.zip')
+    .example('  cx bundle ./my-bundle --sections')
     .action(
       action(
         (
           bundlePath: string,
-          opts: { zip: boolean; zipOutput?: string; exclude?: string | string[] },
+          opts: {
+            zip: boolean;
+            zipOutput?: string;
+            exclude?: string | string[];
+            sections: boolean;
+            cxConfig: string;
+            repomixConfig?: string;
+            sectionChecksumFile?: string;
+            sectionVerbose: boolean;
+          },
         ) => {
           const exclude =
             opts.exclude === undefined
@@ -85,6 +100,11 @@ export function registerRepomixCommands(cli: CAC): void {
             zip: opts.zip || opts.zipOutput !== undefined,
             ...(opts.zipOutput !== undefined && { zipOutput: opts.zipOutput }),
             ...(exclude !== undefined && { exclude }),
+            sections: opts.sections,
+            cxConfig: opts.cxConfig,
+            ...(opts.repomixConfig ? { repomixConfig: opts.repomixConfig } : {}),
+            ...(opts.sectionChecksumFile ? { sectionChecksumFile: opts.sectionChecksumFile } : {}),
+            sectionVerbose: opts.sectionVerbose,
           });
         },
       ),
@@ -113,6 +133,28 @@ export function registerRepomixCommands(cli: CAC): void {
     .example('  cx init')
     .example('  cx init --cwd ./my-project')
     .action(action((opts: { cwd?: string }) => runInit(opts)));
+
+  // ── repomix-components ────────────────────────────────────────────────────
+  cli
+    .command('repomix-components', 'Generate one repomix output file per component from cx.json sections')
+    .option('--cx-config <path>', 'CX configuration file', { default: 'cx.json' })
+    .option('--config <path>', 'Repomix configuration file')
+    .option('--output-dir <path>', 'Directory for generated component outputs', { default: 'bundles' })
+    .option('--checksum-file <path>', 'Checksum file path')
+    .option('--verbose', 'Show the repomix command line for each component', { default: false })
+    .example('  cx repomix-components')
+    .example('  cx repomix-components --cx-config ./cx.json --config ./repomix.config.json')
+    .action(
+      action((opts: { cxConfig: string; config?: string; outputDir: string; checksumFile?: string; verbose: boolean }) =>
+        runRepomixSections({
+          cxConfig: opts.cxConfig,
+          ...(opts.config ? { config: opts.config } : {}),
+          outputDir: opts.outputDir,
+          ...(opts.checksumFile ? { checksumFile: opts.checksumFile } : {}),
+          verbose: opts.verbose,
+        }),
+      ),
+    );
 
   // ── cleanup ──────────────────────────────────────────────────────────────
   cli

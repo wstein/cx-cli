@@ -14,6 +14,16 @@ export interface BundleCommandOptions {
   zipOutput?: string;
   /** Additional fast-glob ignore patterns. */
   exclude?: string[];
+  /** Generate repomix section outputs before bundling. */
+  sections?: boolean;
+  /** Path to the CX configuration file. */
+  cxConfig?: string;
+  /** Path to the repomix configuration file. */
+  repomixConfig?: string;
+  /** Checksum file path for generated repomix sections. */
+  sectionChecksumFile?: string;
+  /** Show verbose progress during section generation. */
+  sectionVerbose?: boolean;
 }
 
 /**
@@ -29,6 +39,17 @@ export async function runBundle(
   const abs = resolve(bundlePath);
 
   console.log(kleur.cyan(`Bundling: ${abs}`));
+
+  if (options.sections === true) {
+    const { runRepomixSections } = await import('./repomixSections.js');
+    await runRepomixSections({
+      ...(options.cxConfig !== undefined && { cxConfig: options.cxConfig }),
+      ...(options.repomixConfig !== undefined && { config: options.repomixConfig }),
+      outputDir: abs,
+      ...(options.sectionChecksumFile !== undefined && { checksumFile: options.sectionChecksumFile }),
+      ...(options.sectionVerbose !== undefined && { verbose: options.sectionVerbose }),
+    });
+  }
 
   const manifest = await processBundle(abs, {
     ...(options.zip !== undefined && { createZip: options.zip }),

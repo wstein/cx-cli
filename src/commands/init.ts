@@ -26,6 +26,7 @@ export interface CxConfig {
     /** Directory where repomix output files are written. */
     outputDir: string;
   };
+  sections?: Record<string, string | string[] | { name?: string; include: string[] }>;
   bundle: {
     /** Directory where bundle metadata is stored (may be the same as outputDir). */
     outputDir: string;
@@ -42,6 +43,7 @@ const DEFAULT_CX_CONFIG: CxConfig = {
     outputStyle: 'xml',
     outputDir: 'bundles',
   },
+  sections: {},
   bundle: {
     outputDir: 'bundles',
     createZip: false,
