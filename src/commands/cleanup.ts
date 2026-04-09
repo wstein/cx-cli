@@ -56,27 +56,39 @@ export async function runCleanup(
   log(kleur.bold().cyan('Cleaning up generated artefacts…'));
   log(kleur.dim(`  ${resolved}`));
 
-  // Resolve the ZIP name from options.
-  let zipName: string | undefined;
-  if (opts.zip && !opts.zipName) {
-    zipName = `${path.basename(resolved)}.bundle.zip`;
-  } else if (opts.zipName) {
-    zipName = opts.zipName;
+  // Remove generated files from inside the bundle folder.
+  const removedInside = await cleanupBundleGeneratedFiles(resolved);
+
+  // The ZIP archive lives next to the bundle folder (not inside it).
+  let zipRemoved: string | undefined;
+  if (opts.zip || opts.zipName) {
+    const zipFileName =
+      opts.zipName ?? `${path.basename(resolved)}.bundle.zip`;
+    const zipPath = path.join(path.dirname(resolved), zipFileName);
+    try {
+      await fsPromises.unlink(zipPath);
+      zipRemoved = zipPath;
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
   }
 
-  // Determine all candidates so we can report what was not found.
+  // Build removed / not-found lists for output.
+  const removed: string[] = [...removedInside];
   const candidates = ['manifest.json', 'SHA256SUMS'];
-  if (zipName) candidates.push(zipName);
-
-  const removed = await cleanupBundleGeneratedFiles(
-    resolved,
-    zipName !== undefined ? { zipName } : {},
-  );
-  const removedSet = new Set(removed);
+  const removedSet = new Set(removedInside);
   const notFound = candidates.filter(name => !removedSet.has(name));
 
   for (const name of removed) {
     log(kleur.green(`  ✔ Removed ${name}`));
+  }
+  if (zipRemoved) {
+    log(kleur.green(`  ✔ Removed ${path.basename(zipRemoved)}`));
+    removed.push(path.basename(zipRemoved));
+  } else if (opts.zip || opts.zipName) {
+    const zipFileName =
+      opts.zipName ?? `${path.basename(resolved)}.bundle.zip`;
+    notFound.push(zipFileName);
   }
   for (const name of notFound) {
     log(kleur.dim(`  − ${name} not found (skipped)`));

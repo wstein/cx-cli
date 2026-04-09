@@ -18,10 +18,9 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "dev": "tsx src/cli/index.ts",
-    "lint": "eslint src --ext .ts",
-    "test": "node --test --experimental-test-coverage dist/**/*.test.js",
-    "test:src": "tsx --test src/**/*.test.ts",
-    "clean": "rm -rf dist",
+    "lint": "tsc --project tsconfig.json --noEmit",
+    "test": "tsx --test src/**/*.test.ts",
+    "clean": "rm -rf dist dist-test",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

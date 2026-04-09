@@ -45,7 +45,12 @@ export interface CxConfig {
  * @example
  * ```ts
  * import { defineConfig } from 'cx-cli';
- * export default defineConfig({ bundle: { includeHidden: false } });
+ * export default defineConfig({
+ *   bundle: {
+ *     includeHidden: false,
+ *     exclude: ['node_modules/**', '.git/**'],
+ *   },
+ * });
  * ```
  */
 export function defineConfig(config: CxConfig): CxConfig {
