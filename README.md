@@ -5,7 +5,7 @@
 ## Quick start
 
 ```bash
-npm install -g cx-cli   # once published
+bun install -g cx-cli   # once published
 
 # 1. Initialise a project
 cx init
@@ -40,10 +40,9 @@ See [docs/repomix-bundles.md](docs/repomix-bundles.md) for full documentation.
 ## Development
 
 ```bash
-npm install
-npm run build   # TypeScript compile
-npm test        # Jest tests
-npm run lint    # Type-check only
+bun install
+bun run build   # TypeScript compile
+bun run test    # Run the test suite
 ```
 
 ## License
