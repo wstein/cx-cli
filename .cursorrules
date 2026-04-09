@@ -1,0 +1,49 @@
+# .cursorrules
+
+Cursor IDE rules. These rules are applied to every AI interaction in this project.
+
+## Always
+- Read the relevant source files before making changes.
+- Make minimal, targeted edits — avoid reformatting unrelated code.
+- Respect the existing code style (indentation, naming, import order).
+- Break implementation into clear phases and complete each phase cleanly.
+- Keep code production ready; do not write PoC or throwaway code.
+- Preserve manual edits and never revert them without explicit instruction.
+
+## Never
+- Never commit API keys, tokens, or credentials.
+- Never delete tests to make the suite pass.
+- Never use `TODO` comments without a linked issue or explanation.
+- Never make changes outside the scope of the current task without flagging them.
+- Never introduce unnecessary technical debt.
+
+## Project Overview
+**Primary languages:** TypeScript/JavaScript
+**Package manager:** Bun
+**CI:** GitHub Actions
+
+## Build, Test, and Lint Commands
+- `bun install`
+- `bun run build` (`bun tsc`)
+- `bun run test`
+- `bun run lint` (`bun tsc --noEmit`)
+
+## Directory Structure
+**Top-level directories:** `.devcontainer`, `.github`, `.vscode`, `docs`, `notes`, `src`
+**Source roots:** `src`
+**Most-changed directories:** `src`, `README.md`, `.devcontainer`, `.github`, `docs`
+
+## File Patterns
+**Source files:** `src/**`
+**Tests:** `src/**/*.test.ts`
+
+## Conventions Inferred from Codebase
+**Commit prefix style:** `chore(ci)`, `fix`, `docs`, `feat(devcontainer)`, `feat(init)` (follow this pattern)
+**Common file extensions:** `.ts`, `.md`, `.json`, `.yml`, `[no_ext]`
+
+## Context Preferences
+When writing or reviewing code, prefer to include in context:
+- `src/` (primary code locations)
+- The file being edited and its direct imports
+- Relevant test files alongside source files
+- Configuration files when modifying build or tooling behavior
