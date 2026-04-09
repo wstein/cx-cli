@@ -1,0 +1,36 @@
+{
+  "name": "cx-cli",
+  "version": "0.1.0",
+  "description": "cx (context) is a repomix umbrella tool for managing bundles of repomix output files",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "cx": "./dist/cli/index.js"
+  },
+  "main": "./dist/cli/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/index.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "cac": "^6.7.14",
+    "fast-glob": "^3.3.3",
+    "fast-xml-parser": "^5.5.11",
+    "kleur": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^20.17.30",
+    "jest": "^29.7.0",
+    "typescript": "^5.8.3"
+  }
+}
