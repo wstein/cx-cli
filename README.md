@@ -45,6 +45,8 @@ bun run build   # TypeScript compile
 bun run test    # Run the test suite
 ```
 
+A Fedora-based devcontainer is available in `.devcontainer/` for IDE-neutral development with Bun.
+
 ## License
 
 MIT
