@@ -122,6 +122,7 @@ Creates:
 
 - **`cx.json`** — cx CLI configuration (output style, bundle directory, zip settings)
 - **`repomix.config.json`** — repomix configuration (output file path, parsable style, security checks)
+- **`.repomixignore`** — ignore rules for repomix input scanning
 
 Both files are skipped without error if they already exist, making `cx init` safe to re-run.
 

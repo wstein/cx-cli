@@ -90,6 +90,19 @@ const DEFAULT_REPOMIX_CONFIG: RepomixConfig = {
   },
 };
 
+const DEFAULT_REPOMIX_IGNORE = [
+  '.git',
+  'node_modules',
+  'dist',
+  'bun.lock',
+  '.devcontainer',
+  '*.log',
+  '.DS_Store',
+  'coverage',
+  'temp',
+  'tmp',
+].join('\n') + '\n';
+
 // ---------------------------------------------------------------------------
 // Command
 // ---------------------------------------------------------------------------
@@ -133,6 +146,16 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
     );
     console.log(kleur.green('  ✓ repomix.config.json'));
     createdFiles.push('repomix.config.json');
+  }
+
+  // .repomixignore
+  const repomixIgnorePath = join(cwd, '.repomixignore');
+  if (await fileExists(repomixIgnorePath)) {
+    console.log(kleur.dim('  .repomixignore already exists, skipping.'));
+  } else {
+    await writeFile(repomixIgnorePath, DEFAULT_REPOMIX_IGNORE, 'utf8');
+    console.log(kleur.green('  ✓ .repomixignore'));
+    createdFiles.push('.repomixignore');
   }
 
   if (createdFiles.length > 0) {
