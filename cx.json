@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/wstein/cx-cli/main/schemas/cx.schema.json",
+  "version": "1",
+  "repomix": {
+    "configFile": "repomix.config.json",
+    "outputStyle": "xml",
+    "outputDir": "bundles"
+  },
+  "bundle": {
+    "outputDir": "bundles",
+    "createZip": false
+  }
+}
