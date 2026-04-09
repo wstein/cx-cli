@@ -54,54 +54,97 @@ const DEFAULT_CX_CONFIG: CxConfig = {
 
 interface RepomixConfig {
   $schema: string;
+  input: {
+    maxFileSize: number;
+  };
   output: {
     filePath: string;
     style: string;
     parsableStyle: boolean;
     fileSummary: boolean;
     directoryStructure: boolean;
+    files: boolean;
+    removeComments: boolean;
+    removeEmptyLines: boolean;
+    compress: boolean;
+    topFilesLength: number;
+    showLineNumbers: boolean;
+    truncateBase64: boolean;
+    copyToClipboard: boolean;
+    includeFullDirectoryStructure: boolean;
+    tokenCountTree: boolean;
+    git: {
+      sortByChanges: boolean;
+      sortByChangesMaxCommits: number;
+      includeDiffs: boolean;
+      includeLogs: boolean;
+      includeLogsCount: number;
+    };
   };
+  include: string[];
   ignore: {
     useGitignore: boolean;
+    useDotIgnore: boolean;
     useDefaultPatterns: boolean;
     customPatterns: string[];
   };
   security: {
     enableSecurityCheck: boolean;
   };
+  tokenCount: {
+    encoding: string;
+  };
 }
 
 const DEFAULT_REPOMIX_CONFIG: RepomixConfig = {
   $schema: 'https://repomix.com/schemas/latest/schema.json',
+  input: {
+    maxFileSize: 52428800,
+  },
   output: {
     filePath: 'repomix-output.xml',
     style: 'xml',
-    parsableStyle: true,
+    parsableStyle: false,
     fileSummary: true,
     directoryStructure: true,
+    files: true,
+    removeComments: false,
+    removeEmptyLines: false,
+    compress: false,
+    topFilesLength: 5,
+    showLineNumbers: false,
+    truncateBase64: false,
+    copyToClipboard: false,
+    includeFullDirectoryStructure: false,
+    tokenCountTree: false,
+    git: {
+      sortByChanges: true,
+      sortByChangesMaxCommits: 100,
+      includeDiffs: false,
+      includeLogs: false,
+      includeLogsCount: 50,
+    },
   },
+  include: [],
   ignore: {
     useGitignore: true,
+    useDotIgnore: true,
     useDefaultPatterns: true,
     customPatterns: [],
   },
   security: {
     enableSecurityCheck: true,
   },
+  tokenCount: {
+    encoding: 'o200k_base',
+  },
 };
 
-const DEFAULT_REPOMIX_IGNORE = [
-  '.git',
-  'node_modules',
-  'dist',
-  'bun.lock',
-  '.devcontainer',
-  '*.log',
-  '.DS_Store',
-  'coverage',
-  'temp',
-  'tmp',
-].join('\n') + '\n';
+const DEFAULT_REPOMIX_IGNORE = `# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+`;
 
 // ---------------------------------------------------------------------------
 // Command
