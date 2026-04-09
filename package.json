@@ -1,0 +1,41 @@
+{
+  "name": "cx-cli",
+  "version": "0.1.0",
+  "description": "cx (context) is a repomix umbrella CLI for managing multi-file repomix bundles",
+  "type": "module",
+  "license": "MIT",
+  "author": "Werner Stein <werner.stein@gmail.com>",
+  "keywords": ["repomix", "cli", "context", "bundle", "llm"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "cx": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsx src/cli/index.ts",
+    "lint": "eslint src --ext .ts",
+    "test": "node --test --experimental-test-coverage dist/**/*.test.js",
+    "test:src": "tsx --test src/**/*.test.ts",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "cac": "^6.7.14",
+    "fast-glob": "^3.3.3",
+    "fast-xml-parser": "^5.2.5",
+    "kleur": "^4.1.5",
+    "repomix": "^1.13.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^22.15.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}
