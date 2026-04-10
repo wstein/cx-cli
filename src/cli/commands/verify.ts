@@ -1,8 +1,8 @@
 import path from "node:path";
 
-import { CxError } from "../../shared/errors.js";
-import { verifyBundle, VerifyError } from "../../bundle/verify.js";
+import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
+import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface VerifyArgs {

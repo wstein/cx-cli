@@ -306,7 +306,11 @@ describe("bundle workflow", () => {
     }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
 
     expect(
       await runVerifyCommand({
@@ -325,7 +329,9 @@ describe("bundle workflow", () => {
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("source_tree_drift");
     expect(payload.error?.path).toBe("README.md");
-    expect(payload.error?.message).toContain("Source tree mismatch for README.md");
+    expect(payload.error?.message).toContain(
+      "Source tree mismatch for README.md",
+    );
   });
 
   test("emits detailed JSON for validate automation", async () => {

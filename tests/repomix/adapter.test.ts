@@ -4,7 +4,10 @@ import os from "node:os";
 import path from "node:path";
 
 import { mergeConfigs, pack } from "repomix";
-import { getRepomixCapabilities, REPOMIX_ADAPTER_CONTRACT } from "../../src/repomix/render.js";
+import {
+  getRepomixCapabilities,
+  REPOMIX_ADAPTER_CONTRACT,
+} from "../../src/repomix/render.js";
 
 describe("Repomix adapter contract", () => {
   test("exports the public mergeConfigs and pack functions", () => {
@@ -13,7 +16,9 @@ describe("Repomix adapter contract", () => {
   });
 
   test("pack can be invoked with the same public call shape used by cx", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-repomix-adapter-"));
+    const root = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-repomix-adapter-"),
+    );
     await fs.mkdir(path.join(root, "src"), { recursive: true });
     await fs.writeFile(
       path.join(root, "src", "index.ts"),
