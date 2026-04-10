@@ -58,6 +58,14 @@ describe("main", () => {
     expect(payload.config).toContain('project_name = "demo"');
   });
 
+  test("rejects invalid init names", async () => {
+    await expect(
+      main(["init", "--stdout", "--name", 'demo"broken']),
+    ).rejects.toThrow(
+      "project_name must be filesystem-safe and use only letters, numbers, dot, underscore, or hyphen.",
+    );
+  });
+
   test("supports validate JSON output", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-"));
     await fs.mkdir(path.join(root, "src"), { recursive: true });

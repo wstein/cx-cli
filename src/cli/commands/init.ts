@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import { input, select } from "@inquirer/prompts";
 
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
+import { assertSafeProjectName } from "../../config/projectName.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
@@ -50,6 +51,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   let output = DEFAULT_CONFIG_TEMPLATE;
 
   if (resolved.name) {
+    assertSafeProjectName(resolved.name);
     output = output.replace(
       'project_name = "myproject"',
       `project_name = "${resolved.name}"`,

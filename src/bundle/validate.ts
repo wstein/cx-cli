@@ -6,12 +6,25 @@ import { parseManifestToon } from "../manifest/toon.js";
 import { CxError } from "../shared/errors.js";
 import { pathExists } from "../shared/fs.js";
 
-export async function loadManifestFromBundle(bundleDir: string) {
+export async function loadManifestFromBundle(bundleDir: string): Promise<{
+  manifest: ReturnType<typeof parseManifestToon>;
+  manifestName: string;
+}> {
   const entries = await fs.readdir(bundleDir);
-  const manifestName = entries.find((entry) =>
+  const manifestNames = entries.filter((entry) =>
     entry.endsWith("-manifest.toon"),
   );
-  if (!manifestName) {
+  if (manifestNames.length === 0) {
+    throw new CxError("Bundle is missing a manifest file.", 2);
+  }
+  if (manifestNames.length > 1) {
+    throw new CxError(
+      `Bundle must contain exactly one manifest file, found ${manifestNames.length}.`,
+      2,
+    );
+  }
+  const manifestName = manifestNames[0];
+  if (manifestName === undefined) {
     throw new CxError("Bundle is missing a manifest file.", 2);
   }
 

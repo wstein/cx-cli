@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
@@ -220,7 +221,11 @@ describe("bundle workflow", () => {
     ).toBe(0);
     const bundlePayload = JSON.parse(writes.pop() ?? "{}") as {
       checksumFile?: string;
-      repomix?: { supportedRepomixVersion?: string };
+      repomix?: {
+        adapterContract?: string;
+        compatibilityStrategy?: string;
+        supportedRepomixVersion?: string;
+      };
     };
 
     expect(
@@ -241,6 +246,10 @@ describe("bundle workflow", () => {
     };
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
+    expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
+    expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
+      "public-export contract check",
+    );
     expect(bundlePayload.repomix?.supportedRepomixVersion).toBe("1.13.1");
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
@@ -547,5 +556,40 @@ describe("bundle workflow", () => {
         verify: false,
       }),
     ).rejects.toThrow("lossy text transforms");
+  });
+
+  test("fails verify when the checksum file omits an expected artifact", async () => {
+    const project = await createProject();
+    const checksumPath = path.join(project.bundleDir, "demo.sha256");
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await fs.writeFile(
+      checksumPath,
+      (await fs.readFile(checksumPath, "utf8"))
+        .split("\n")
+        .filter((line) => !line.includes("demo-manifest.toon"))
+        .join("\n"),
+      "utf8",
+    );
+
+    await expect(
+      runVerifyCommand({ bundleDir: project.bundleDir, json: false }),
+    ).rejects.toThrow(
+      "Checksum file is missing an entry for demo-manifest.toon.",
+    );
+  });
+
+  test("rejects bundles with multiple manifest files", async () => {
+    const project = await createProject();
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await fs.copyFile(
+      path.join(project.bundleDir, "demo-manifest.toon"),
+      path.join(project.bundleDir, "demo-copy-manifest.toon"),
+    );
+
+    await expect(loadManifestFromBundle(project.bundleDir)).rejects.toThrow(
+      "Bundle must contain exactly one manifest file, found 2.",
+    );
   });
 });

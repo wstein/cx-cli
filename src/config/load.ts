@@ -5,6 +5,7 @@ import path from "node:path";
 import { parse as parseToml } from "smol-toml";
 import { CxError } from "../shared/errors.js";
 import { DEFAULT_CONFIG_VALUES } from "./defaults.js";
+import { assertSafeProjectName } from "./projectName.js";
 import type {
   CxConfig,
   CxConfigInput,
@@ -175,14 +176,6 @@ function resolveConfigPath(
   return path.resolve(configDir, expanded);
 }
 
-function ensureSafeProjectName(projectName: string): void {
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(projectName)) {
-    throw new CxError(
-      "project_name must be filesystem-safe and use only letters, numbers, dot, underscore, or hyphen.",
-    );
-  }
-}
-
 export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   const raw = await fs.readFile(configPath, "utf8");
   const parsed = parseToml(raw) as CxConfigInput;
@@ -194,7 +187,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   }
 
   const projectName = expectString(parsed.project_name, "project_name");
-  ensureSafeProjectName(projectName);
+  assertSafeProjectName(projectName);
 
   const sourceRoot = resolveConfigPath(
     configDir,

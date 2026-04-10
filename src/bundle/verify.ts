@@ -63,6 +63,9 @@ export async function verifyBundle(
     ...selectedSections.map((section) => section.outputFile),
     ...selectedAssets.map((asset) => asset.storedPath),
   ]);
+  const listedFiles = new Set(
+    checksums.map((checksum) => checksum.relativePath),
+  );
 
   for (const checksum of checksums) {
     if (!expectedFiles.has(checksum.relativePath)) {
@@ -80,6 +83,15 @@ export async function verifyBundle(
     );
     if (actualHash !== checksum.hash) {
       throw new CxError(`Checksum mismatch for ${checksum.relativePath}.`, 10);
+    }
+  }
+
+  for (const expectedFile of expectedFiles) {
+    if (!listedFiles.has(expectedFile)) {
+      throw new CxError(
+        `Checksum file is missing an entry for ${expectedFile}.`,
+        10,
+      );
     }
   }
 
