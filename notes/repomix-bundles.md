@@ -16,6 +16,7 @@ The `cx` CLI provides five commands for bundle management:
 | `cx repomix [...args]` | Forward raw arguments to the repomix CLI dependency |
 | `cx bundle <path>` | Compute SHA-256s, write `manifest.json` and `SHA256SUMS`, optionally create a ZIP |
 | `cx list <path>` | Show bundle contents (from `manifest.json`) or source entries inside a repomix file |
+| `cx verify [path]` | Verify bundle metadata and SHA256 checksums |
 | `cx init` | Scaffold `cx.json`, `repomix.config.json`, and `.repomixignore` in the current project |
 | `cx cleanup <path>` | Remove generated metadata; dry-run by default, requires `--force` to delete |
 

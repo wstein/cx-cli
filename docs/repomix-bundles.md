@@ -73,6 +73,23 @@ cx repomix --output bundles/repomix-output.xml.txt
 cx repomix --help
 ```
 
+### `cx verify [path]`
+
+Verify a bundle directory by checking that `manifest.json` and `SHA256SUMS` are present and consistent.
+
+This command performs the following checks:
+
+- `manifest.json` parses successfully and contains a file index
+- `SHA256SUMS` is present and parseable
+- each manifest file record has a matching checksum entry in `SHA256SUMS`
+- each recorded data file hashes to the expected SHA-256 value
+- `manifest.json` records the correct SHA-256 hash for `SHA256SUMS`
+
+```
+cx verify ./bundles
+cx verify --cx-config ./cx.json
+```
+
 Use this command when you want `cx` to manage repomix invocation while preserving the
 full repomix CLI surface.
 

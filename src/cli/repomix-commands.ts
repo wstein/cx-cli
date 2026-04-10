@@ -13,6 +13,7 @@ import { runInit } from '../commands/init.js';
 import { runList } from '../commands/list.js';
 import { runRepomix } from '../commands/repomix.js';
 import { runRepomixSections } from '../commands/repomixSections.js';
+import { runVerify } from '../commands/verify.js';
 
 // ---------------------------------------------------------------------------
 // Error handler
@@ -144,6 +145,28 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
           .example('cx list ./my-bundle')
           .example('cx list ./my-bundle/repomix-output.xml.txt --verbose'),
       action(async (argv: any) => runList(argv.path as string, { verbose: argv.verbose as boolean })),
+    )
+    .command(
+      'verify [path]',
+      'Verify a bundle directory by checking manifest.json and SHA256SUMS',
+      (command: any) =>
+        command
+          .option('verbose', {
+            type: 'boolean',
+            describe: 'Print verbose verification output',
+            default: false,
+          })
+          .option('cx-config', {
+            type: 'string',
+            describe: 'CX configuration file',
+            default: 'cx.json',
+          })
+          .example('cx verify ./bundles')
+          .example('cx verify --cx-config ./cx.json'),
+      action(async (argv: any) => runVerify(argv.path as string | undefined, {
+        verbose: argv.verbose as boolean,
+        cxConfig: argv.cxConfig as string,
+      })),
     )
     .command(
       'repomix [args..]',

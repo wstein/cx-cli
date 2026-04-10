@@ -414,6 +414,104 @@ export async function readManifest(bundlePath: string): Promise<BundleManifest> 
   return JSON.parse(raw) as BundleManifest;
 }
 
+export interface VerifyBundleResult {
+  valid: boolean;
+  checkedFiles: number;
+  totalManifestFiles: number;
+  totalChecksumEntries: number;
+  errors: string[];
+  warnings: string[];
+}
+
+export async function verifyBundle(bundlePath: string): Promise<VerifyBundleResult> {
+  const abs = resolve(bundlePath);
+  const manifest = await readManifest(abs);
+  const sha256sumsPath = join(abs, SHA256SUMS_FILENAME);
+  const sha256sumsText = await readFile(sha256sumsPath, 'utf8');
+  const checksums = parseSha256Sums(sha256sumsText);
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const dataFiles = manifest.files.filter((f) => f.type !== 'checksum' && f.type !== 'manifest');
+  const checksumPaths = Object.keys(checksums);
+  const manifestPaths = new Set(dataFiles.map((f) => f.path));
+
+  for (const file of dataFiles) {
+    if (!checksums[file.path]) {
+      errors.push(`Missing SHA256SUMS entry for ${file.path}`);
+      continue;
+    }
+    if (checksums[file.path] !== file.sha256) {
+      errors.push(
+        `Manifest SHA256 mismatch for ${file.path}: manifest=${file.sha256} SHA256SUMS=${checksums[file.path]}`,
+      );
+    }
+  }
+
+  for (const path of checksumPaths) {
+    if (!manifestPaths.has(path)) {
+      warnings.push(`SHA256SUMS contains an extra path not listed in manifest: ${path}`);
+    }
+  }
+
+  let checkedFiles = 0;
+  for (const file of dataFiles) {
+    const filePath = join(abs, file.path);
+    let actualHash: string;
+    try {
+      actualHash = await computeSha256(filePath);
+    } catch (err) {
+      errors.push(`Failed to read ${file.path}: ${String(err)}`);
+      continue;
+    }
+    checkedFiles += 1;
+    const expectedHash = checksums[file.path];
+    if (expectedHash === undefined) continue;
+    if (actualHash !== expectedHash) {
+      errors.push(`SHA256 checksum mismatch for ${file.path}: expected=${expectedHash} actual=${actualHash}`);
+    }
+  }
+
+  const checksumFileEntry = manifest.files.find((f) => f.type === 'checksum');
+  if (!checksumFileEntry) {
+    errors.push(`${SHA256SUMS_FILENAME} is missing from manifest.json`);
+  } else {
+    const checksumHash = await computeSha256(sha256sumsPath);
+    if (checksumHash !== checksumFileEntry.sha256) {
+      errors.push(
+        `manifest.json contains wrong SHA256 for ${SHA256SUMS_FILENAME}: manifest=${checksumFileEntry.sha256} actual=${checksumHash}`,
+      );
+    }
+  }
+
+  const valid = errors.length === 0;
+  return {
+    valid,
+    checkedFiles,
+    totalManifestFiles: manifest.files.length,
+    totalChecksumEntries: checksumPaths.length,
+    errors,
+    warnings,
+  };
+}
+
+function parseSha256Sums(content: string): Record<string, string> {
+  const lines = content.split(/\r?\n/);
+  const result: Record<string, string> = {};
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0) continue;
+    const match = /^([0-9a-f]{64})\s+(.+)$/.exec(trimmed);
+    if (!match) continue;
+    const hash = match[1]!;
+    const path = match[2]!;
+    result[path] = hash;
+  }
+
+  return result;
+}
+
 // ---------------------------------------------------------------------------
 // ZIP archive creation
 // ---------------------------------------------------------------------------
