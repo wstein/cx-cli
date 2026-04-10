@@ -24,6 +24,7 @@ The shipped command set in this repository is:
 - `src/bundle/` validates and verifies emitted bundles independently of the original config file.
 - `src/bundle/` validates bundles, verifies emitted artifacts, and can compare a bundle directly against a source tree with `verify --against`.
 - `src/cli/` exposes the workflow through `yargs` and keeps command handlers thin.
+- `scripts/repomix-version-smoke.ts` provides a CI smoke path for supported and unsupported Repomix version checks.
 
 ## Review Minutes
 
@@ -42,8 +43,8 @@ The current test suite covers config loading, deterministic planning, overlap fa
 ## Mid-Term Improvements
 
 - Add exact span capture if Repomix exposes the right public hooks.
-- Add CI coverage across multiple Repomix versions.
 - Expand list and inspect output modes for richer automation.
+- Add CI coverage across a broader Repomix version range once the supported policy expands beyond a single pinned version.
 
 ## Specification Notes
 

@@ -6,12 +6,40 @@ export interface InspectArgs {
   json: boolean;
 }
 
+function buildInspectSummary(
+  plan: Awaited<ReturnType<typeof buildBundlePlan>>,
+) {
+  return {
+    projectName: plan.projectName,
+    sourceRoot: plan.sourceRoot,
+    bundleDir: plan.bundleDir,
+    sectionCount: plan.sections.length,
+    assetCount: plan.assets.length,
+    unmatchedCount: plan.unmatchedFiles.length,
+    textFileCount: plan.sections.reduce(
+      (total, section) => total + section.files.length,
+      0,
+    ),
+  };
+}
+
 export async function runInspectCommand(args: InspectArgs): Promise<number> {
   const config = await loadCxConfig(args.config ?? "cx.toml");
   const plan = await buildBundlePlan(config);
 
   if (args.json) {
-    process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          summary: buildInspectSummary(plan),
+          sections: plan.sections,
+          assets: plan.assets,
+          unmatchedFiles: plan.unmatchedFiles,
+        },
+        null,
+        2,
+      )}\n`,
+    );
     return 0;
   }
 

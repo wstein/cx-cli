@@ -5,6 +5,7 @@ import path from "node:path";
 
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
+import { runInspectCommand } from "../../src/cli/commands/inspect.js";
 import { runListCommand } from "../../src/cli/commands/list.js";
 import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { runVerifyCommand } from "../../src/cli/commands/verify.js";
@@ -102,6 +103,42 @@ describe("bundle workflow", () => {
     expect(
       await fs.stat(path.join(project.bundleDir, "demo.sha256")),
     ).toBeDefined();
+  });
+
+  test("emits structured JSON for list and inspect automation", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runInspectCommand({ config: project.configPath, json: true }),
+    ).toBe(0);
+    const inspectPayload = JSON.parse(writes.pop() ?? "{}") as {
+      summary?: { sectionCount?: number; assetCount?: number };
+    };
+
+    expect(
+      await runListCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(0);
+    process.stdout.write = stdoutWrite;
+    const listPayload = JSON.parse(writes.pop() ?? "{}") as {
+      summary?: { fileCount?: number; textFileCount?: number };
+      sections?: Array<{ name: string }>;
+    };
+
+    expect(inspectPayload.summary?.sectionCount).toBe(2);
+    expect(inspectPayload.summary?.assetCount).toBe(1);
+    expect(listPayload.summary?.fileCount).toBe(4);
+    expect(listPayload.summary?.textFileCount).toBe(3);
+    expect(listPayload.sections?.map((section) => section.name)).toEqual([
+      "docs",
+      "src",
+    ]);
   });
 
   test("round-trips extracted files exactly for xml bundles", async () => {

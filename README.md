@@ -13,6 +13,7 @@ The repository currently implements:
 - lint, build, test, and CI verification workflows
 
 `cx verify` also supports `--against <source-dir>` to compare bundle contents directly against a source tree.
+`cx inspect --json` and `cx list --json` emit structured automation-friendly summaries.
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
 

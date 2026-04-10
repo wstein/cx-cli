@@ -11,6 +11,7 @@
       "src/**/*.ts",
       "tests/**/*.ts",
       "docs/**/*.md",
+      "scripts/**/*.ts",
       "README.md",
       "package.json",
       "tsconfig*.json",

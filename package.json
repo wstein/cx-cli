@@ -2,10 +2,24 @@
   "name": "cx-cli",
   "version": "0.1.0",
   "description": "Deterministic context bundler built on top of Repomix.",
+  "license": "MIT",
   "type": "module",
   "packageManager": "bun@1.3.11",
+  "keywords": [
+    "repomix",
+    "bundler",
+    "context",
+    "cli",
+    "llm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "cx": "./bin/cx.js"
+  },
+  "exports": {
+    ".": "./dist/src/index.js"
   },
   "files": [
     "bin",
@@ -18,7 +32,8 @@
     "lint": "biome check .",
     "test": "bun test tests",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "verify": "bun run lint && bun run check && bun run build && bun test tests"
+    "verify": "bun run lint && bun run check && bun run build && bun test tests",
+    "smoke:repomix-version": "bun scripts/repomix-version-smoke.ts"
   },
   "engines": {
     "node": ">=25.0.0"
