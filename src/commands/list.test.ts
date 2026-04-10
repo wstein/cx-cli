@@ -25,16 +25,31 @@ describe('list command', () => {
   });
 
   it('groups repomix component outputs by section when listing a bundle', async () => {
+    const componentContent = `<repomix>
+  <files>
+    <file path="src/utils/output.ts">export function outputJson() {}</file>
+    <file path=".beads/hooks/post-checkout">#!/bin/sh</file>
+  </files>
+</repomix>`;
+    await writeFile(join(bundleDir, 'repomix-component-group-repo.xml.txt'), componentContent, 'utf8');
+
+    const repomixOutputContent = `<repomix>
+  <files>
+    <file path="src/commands/list.ts">export async function runList() {}</file>
+  </files>
+</repomix>`;
+    await writeFile(join(bundleDir, 'repomix-output.xml.txt'), repomixOutputContent, 'utf8');
+
     const manifest = createManifest(bundleDir, [
       {
         path: 'repomix-component-group-repo.xml.txt',
-        size: 151000,
+        size: Buffer.byteLength(componentContent, 'utf8'),
         sha256: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         type: 'repomix',
       },
       {
         path: 'repomix-output.xml.txt',
-        size: 1200,
+        size: Buffer.byteLength(repomixOutputContent, 'utf8'),
         sha256: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
         type: 'repomix',
       },
@@ -59,11 +74,28 @@ describe('list command', () => {
 
     assert.ok(logs.some((line) => line.includes('Section: group-repo')));
     assert.ok(logs.some((line) => line.includes('repomix-component-group-repo.xml.txt')));
-    assert.ok(logs.some((line) => line.includes('repomix-output.xml.txt')));
+    assert.ok(logs.some((line) => line.includes('  src/utils/output.ts')));
     assert.ok(logs.some((line) => line.includes('.DS_Store')));
   });
 
   it('includes section metadata in JSON output for repomix component files', async () => {
+    const componentContent = `<repomix>
+  <files>
+    <file path="src/utils/output.ts">export function outputJson() {}</file>
+  </files>
+</repomix>`;
+    await writeFile(join(bundleDir, 'repomix-component-group-repo.xml.txt'), componentContent, 'utf8');
+
+    const manifest = createManifest(bundleDir, [
+      {
+        path: 'repomix-component-group-repo.xml.txt',
+        size: Buffer.byteLength(componentContent, 'utf8'),
+        sha256: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        type: 'repomix',
+      },
+    ]);
+    await writeManifest(bundleDir, manifest);
+
     const writes: string[] = [];
     const originalWrite = process.stdout.write;
     process.stdout.write = ((chunk: string | Uint8Array) => {
@@ -81,5 +113,6 @@ describe('list command', () => {
     assert.equal(result.type, 'bundle');
     assert.ok(Array.isArray(result.files));
     assert.ok(result.files.some((file: any) => file.path === 'repomix-component-group-repo.xml.txt' && file.section === 'group-repo'));
+    assert.ok(result.files.some((file: any) => Array.isArray(file.entries)));
   });
 });

@@ -7,7 +7,7 @@
 import { extname, resolve } from 'node:path';
 import kleur from 'kleur';
 import { outputJson } from '../utils/output.js';
-import { parseRepomixFile, readManifest, type BundleFile } from '../adapters/repomixAdapter.js';
+import { parseRepomixFile, readManifest, type BundleFile, type RepomixEntry } from '../adapters/repomixAdapter.js';
 
 export interface ListCommandOptions {
   /** Print SHA-256 digests, sizes, and line counts alongside each entry. */
@@ -127,17 +127,32 @@ async function listBundleDirectory(
     );
   }
 
+  const fileEntries = await Promise.all(
+    manifest.files.map(async (file) => ({
+      file,
+      entries:
+        file.type === 'repomix'
+          ? (await parseRepomixFile(resolve(bundlePath, file.path))).entries
+          : [],
+    })),
+  );
+
   if (options.json === true) {
     outputJson({
       type: 'bundle',
       bundlePath,
       createdAt: manifest.createdAt,
-      files: manifest.files.map((file) => ({
+      files: fileEntries.map(({ file, entries }) => ({
         path: file.path,
         type: file.type,
         size: file.size,
         section: file.type === 'repomix' ? sectionNameFromRepomixPath(file.path) : undefined,
         sha256: options.verbose === true ? file.sha256 : undefined,
+        entries: entries.map((entry) => ({
+          path: entry.path,
+          lines: entry.content.split('\n').length,
+          chars: entry.content.length,
+        })),
       })),
     });
     return;
@@ -155,21 +170,22 @@ async function listBundleDirectory(
     checksum: kleur.green,
   };
 
-  const sectionGroups = new Map<string, BundleFile[]>();
-  const otherFiles: BundleFile[] = [];
+  const sectionGroups = new Map<string, Array<{ file: BundleFile; entries: RepomixEntry[] }>>();
+  const otherFiles: Array<{ file: BundleFile; entries: RepomixEntry[] }> = [];
 
-  for (const file of manifest.files) {
-    const section = file.type === 'repomix' ? sectionNameFromRepomixPath(file.path) : undefined;
+  for (const entry of fileEntries) {
+    const section = entry.file.type === 'repomix' ? sectionNameFromRepomixPath(entry.file.path) : undefined;
     if (section !== undefined) {
       const group = sectionGroups.get(section) ?? [];
-      group.push(file);
+      group.push(entry);
       sectionGroups.set(section, group);
     } else {
-      otherFiles.push(file);
+      otherFiles.push(entry);
     }
   }
 
-  function printFile(file: BundleFile): void {
+  function printFile(entry: { file: BundleFile; entries: RepomixEntry[] }): void {
+    const { file, entries } = entry;
     const colour = typeColour[file.type] ?? kleur.white;
     const tag = colour(`[${file.type}]`);
     const size = kleur.dim(formatBytes(file.size));
@@ -179,21 +195,30 @@ async function listBundleDirectory(
     } else {
       console.log(`  ${file.path}  ${tag}  ${size}`);
     }
+
+    if (entries.length > 0) {
+      for (const child of entries) {
+        const lines = child.content.split('\n').length;
+        const chars = child.content.length;
+        const details = options.verbose === true ? `  ${kleur.dim(`${lines} line(s), ${chars} char(s)`)}` : '';
+        console.log(`    ${child.path}${details}`);
+      }
+    }
   }
 
   if (sectionGroups.size > 0) {
-    for (const [section, files] of sectionGroups) {
+    for (const [section, entries] of sectionGroups) {
       console.log(kleur.bold(`Section: ${section}`));
-      for (const file of files) {
-        printFile(file);
+      for (const entry of entries) {
+        printFile(entry);
       }
       console.log();
     }
 
     if (otherFiles.length > 0) {
       console.log(kleur.bold('Other files:'));
-      for (const file of otherFiles) {
-        printFile(file);
+      for (const entry of otherFiles) {
+        printFile(entry);
       }
       return;
     }
@@ -201,8 +226,8 @@ async function listBundleDirectory(
     return;
   }
 
-  for (const file of manifest.files) {
-    printFile(file);
+  for (const entry of fileEntries) {
+    printFile(entry);
   }
 }
 
