@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import { parse as parseToml } from "smol-toml";
@@ -133,6 +134,47 @@ function resolveTemplate(value: string, projectName: string): string {
   return value.replaceAll("{project}", projectName);
 }
 
+function expandEnvironmentVariables(value: string, label: string): string {
+  return value.replaceAll(
+    /\$(?:\{(?<braced>[A-Za-z_][A-Za-z0-9_]*)\}|(?<bare>[A-Za-z_][A-Za-z0-9_]*))/g,
+    (_match, _braced, _bare, _offset, _input, groups) => {
+      const variableName = String(groups?.braced ?? groups?.bare ?? "");
+      const resolved = process.env[variableName];
+      if (resolved === undefined) {
+        throw new CxError(
+          `${label} references undefined environment variable ${variableName}.`,
+        );
+      }
+      return resolved;
+    },
+  );
+}
+
+function expandHomeDirectory(value: string): string {
+  if (value === "~") {
+    return os.homedir();
+  }
+
+  if (value.startsWith("~/")) {
+    return path.join(os.homedir(), value.slice(2));
+  }
+
+  return value;
+}
+
+function resolveConfigPath(
+  configDir: string,
+  rawValue: unknown,
+  label: string,
+  projectName: string,
+): string {
+  const input = expectString(rawValue, label);
+  const expanded = expandHomeDirectory(
+    resolveTemplate(expandEnvironmentVariables(input, label), projectName),
+  );
+  return path.resolve(configDir, expanded);
+}
+
 function ensureSafeProjectName(projectName: string): void {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(projectName)) {
     throw new CxError(
@@ -154,13 +196,17 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   const projectName = expectString(parsed.project_name, "project_name");
   ensureSafeProjectName(projectName);
 
-  const sourceRoot = path.resolve(
+  const sourceRoot = resolveConfigPath(
     configDir,
-    expectString(parsed.source_root, "source_root"),
+    parsed.source_root,
+    "source_root",
+    projectName,
   );
-  const outputDir = path.resolve(
+  const outputDir = resolveConfigPath(
     configDir,
-    expectString(parsed.output_dir, "output_dir"),
+    parsed.output_dir,
+    "output_dir",
+    projectName,
   );
   const repomix = parsed.repomix ?? {};
   const files = parsed.files ?? {};

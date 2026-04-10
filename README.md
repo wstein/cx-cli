@@ -20,6 +20,8 @@ Exact output span capture remains unavailable with the current pinned Repomix pu
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
 
+Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved.
+
 ## Development
 
 ```bash
