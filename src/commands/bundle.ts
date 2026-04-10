@@ -4,10 +4,11 @@
  */
 
 import { basename, resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import kleur from 'kleur';
 import type { CxConfig } from './init.js';
 import { processBundle } from '../adapters/repomixAdapter.js';
-import { resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
+import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface BundleCommandOptions {
   /** Create a ZIP archive of the completed bundle. */
@@ -41,15 +42,17 @@ export async function runBundle(
   options: BundleCommandOptions = {},
 ): Promise<void> {
   const cxConfigFile = resolveConfigFilePath(process.cwd(), options.cxConfig ?? 'cx.json');
-  const bundleRoot = bundlePath !== undefined ? resolveConfigPath(process.cwd(), bundlePath) : resolve(process.cwd());
-
+  const bundleRoot = bundlePath !== undefined ? resolveConfigPath(process.cwd(), bundlePath) : await resolveDefaultBundlePath(cxConfigFile);
+  const shouldGenerateSections =
+    options.sections === true ||
+    (bundlePath === undefined && (await cxConfigHasSections(cxConfigFile)));
   console.log(kleur.cyan(`Bundling: ${bundleRoot}`));
 
   if (options.verbose === true) {
     console.log(kleur.dim('Verbose mode enabled: emitting bundle diagnostics.'));
   }
 
-  if (options.sections === true) {
+  if (shouldGenerateSections) {
     const { runRepomixSections } = await import('./repomixSections.js');
     await runRepomixSections({
       ...(options.cxConfig !== undefined && { cxConfig: options.cxConfig }),
@@ -89,6 +92,34 @@ export async function runBundle(
   if (options.zip === true) {
     const zipName = options.zipOutput ?? `${basename(bundleRoot)}.zip`;
     console.log(kleur.dim(`  archive → ${zipName}`));
+  }
+}
+
+async function resolveDefaultBundlePath(cxConfigFile: string): Promise<string> {
+  try {
+    const cxConfigSource = await readFile(cxConfigFile, 'utf8');
+    const cxConfig = JSON.parse(cxConfigSource) as CxConfig;
+    const outputDir = cxConfig.bundle?.outputDir;
+    if (typeof outputDir === 'string' && outputDir.length > 0) {
+      return resolveConfigPath(configDirectory(cxConfigFile), outputDir);
+    }
+  } catch {
+    // Fall back to the current working directory if no valid cx.json is available.
+  }
+
+  return resolve('.');
+}
+
+async function cxConfigHasSections(cxConfigFile: string): Promise<boolean> {
+  try {
+    const cxConfigSource = await readFile(cxConfigFile, 'utf8');
+    const cxConfig = JSON.parse(cxConfigSource) as CxConfig;
+    return cxConfig.sections !== undefined &&
+      cxConfig.sections !== null &&
+      typeof cxConfig.sections === 'object' &&
+      Object.keys(cxConfig.sections).length > 0;
+  } catch {
+    return false;
   }
 }
 

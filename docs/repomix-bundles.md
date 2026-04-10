@@ -38,7 +38,7 @@ cx cleanup ./bundles --force
 
 ### `cx bundle [path]`
 
-Scan a directory (defaults to the current working directory), compute SHA-256 for every file, and write `SHA256SUMS` and `manifest.json`.
+Scan a directory (defaults to the current working directory or `bundle.outputDir` from `cx.json` when configured), compute SHA-256 for every file, and write `SHA256SUMS` and `manifest.json`.
 
 ```
 cx bundle [path] [options]

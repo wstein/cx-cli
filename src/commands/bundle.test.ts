@@ -34,11 +34,10 @@ describe('bundle command', () => {
     assert.ok(logs.some((line) => line.includes('logo.png')));
   });
 
-  it('defaults to the current working directory when no path is provided', async () => {
+  it('resolves bundle outputDir from cx.json when no path is provided', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'cx-bundle-config-'));
-    const bundleDir = join(tempRoot, 'repo');
+    const bundleDir = join(tempRoot, 'bundle-dir');
     await mkdir(bundleDir, { recursive: true });
-    await writeFile(join(bundleDir, 'hello.txt'), 'hello', 'utf8');
     await writeFile(
       join(tempRoot, 'cx.json'),
       JSON.stringify({
@@ -48,7 +47,6 @@ describe('bundle command', () => {
           outputStyle: 'xml',
           outputDir: 'bundles',
         },
-        sections: {},
         bundle: {
           outputDir: 'bundle-dir',
           createZip: false,
@@ -57,16 +55,13 @@ describe('bundle command', () => {
       'utf8',
     );
 
-    const originalCwd = process.cwd();
-    process.chdir(bundleDir);
-    const expectedBundleRoot = resolve(process.cwd());
+    const expectedBundleRoot = resolve(bundleDir);
     logs.length = 0;
 
     await runBundle(undefined, { cxConfig: join(tempRoot, 'cx.json') });
 
     assert.ok(logs.some((line) => line.includes(`Bundling: ${expectedBundleRoot}`)));
 
-    process.chdir(originalCwd);
     await rm(tempRoot, { recursive: true, force: true });
   });
 });
