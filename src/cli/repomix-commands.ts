@@ -111,7 +111,7 @@ export function registerRepomixCommands(cli: CAC, version: string): void {
               : Array.isArray(opts.exclude)
                 ? opts.exclude
                 : [opts.exclude];
-          return runBundle(bundlePath ?? '.', {
+          return runBundle(bundlePath, {
             zip: opts.zip || opts.zipOutput !== undefined,
             ...(opts.zipOutput !== undefined && { zipOutput: opts.zipOutput }),
             ...(exclude !== undefined && { exclude }),

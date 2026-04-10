@@ -13,6 +13,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import kleur from 'kleur';
 import { computeSha256 } from '../adapters/repomixAdapter.js';
 import { runRepomix } from './repomix.js';
+import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface RepomixSectionsOptions {
   /** Path to the CX configuration file. */
@@ -133,7 +134,7 @@ function safeComponentName(name: string): string {
 
 export async function runRepomixSections(options: RepomixSectionsOptions = {}): Promise<void> {
   const repoRoot = resolve(process.cwd());
-  const cxConfigFile = resolve(repoRoot, options.cxConfig ?? 'cx.json');
+  const cxConfigFile = resolveConfigFilePath(repoRoot, options.cxConfig ?? 'cx.json');
 
   console.log(kleur.cyan('Starting repomix component generation'));
   console.log(`Repository root: ${repoRoot}`);
@@ -149,13 +150,14 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
     throw new Error('No sections found in `sections`.');
   }
 
-  const repomixConfigFile = resolve(
-    repoRoot,
+  const configDir = configDirectory(cxConfigFile);
+  const repomixConfigFile = resolveConfigPath(
+    configDir,
     options.config ?? cxConfig.repomix?.configFile ?? 'repomix.config.json',
   );
-  const outputDir = resolve(repoRoot, options.outputDir ?? cxConfig.repomix?.outputDir ?? 'bundles');
+  const outputDir = resolveConfigPath(configDir, options.outputDir ?? cxConfig.repomix?.outputDir ?? 'bundles');
   const checksumFile = options.checksumFile
-    ? resolve(repoRoot, options.checksumFile)
+    ? resolveConfigPath(configDir, options.checksumFile)
     : join(outputDir, 'repomix-components.SHA256SUM');
 
   console.log(`Repomix config file: ${repomixConfigFile}`);

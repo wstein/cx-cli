@@ -4,8 +4,11 @@
  */
 
 import { basename, resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import kleur from 'kleur';
+import type { CxConfig } from './init.js';
 import { processBundle } from '../adapters/repomixAdapter.js';
+import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface BundleCommandOptions {
   /** Create a ZIP archive of the completed bundle. */
@@ -35,12 +38,13 @@ export interface BundleCommandOptions {
  * @param options     Command options.
  */
 export async function runBundle(
-  bundlePath: string,
+  bundlePath: string | undefined,
   options: BundleCommandOptions = {},
 ): Promise<void> {
-  const abs = resolve(bundlePath);
+  const cxConfigFile = resolveConfigFilePath(process.cwd(), options.cxConfig ?? 'cx.json');
+  const bundleRoot = bundlePath !== undefined ? resolveConfigPath(process.cwd(), bundlePath) : await resolveDefaultBundlePath(cxConfigFile);
 
-  console.log(kleur.cyan(`Bundling: ${abs}`));
+  console.log(kleur.cyan(`Bundling: ${bundleRoot}`));
 
   if (options.verbose === true) {
     console.log(kleur.dim('Verbose mode enabled: emitting bundle diagnostics.'));
@@ -51,13 +55,13 @@ export async function runBundle(
     await runRepomixSections({
       ...(options.cxConfig !== undefined && { cxConfig: options.cxConfig }),
       ...(options.repomixConfig !== undefined && { config: options.repomixConfig }),
-      outputDir: abs,
+      outputDir: bundleRoot,
       ...(options.sectionChecksumFile !== undefined && { checksumFile: options.sectionChecksumFile }),
       verbose: options.sectionVerbose === true || options.verbose === true,
     });
   }
 
-  const manifest = await processBundle(abs, {
+  const manifest = await processBundle(bundleRoot, {
     ...(options.zip !== undefined && { createZip: options.zip }),
     ...(options.zipOutput !== undefined && { zipOutputPath: options.zipOutput }),
     ...(options.exclude !== undefined && { exclude: options.exclude }),
@@ -73,7 +77,7 @@ export async function runBundle(
   if (binaryCount > 0) console.log(kleur.dim(`  ${binaryCount} binary asset(s)`));
   console.log(kleur.dim('  manifest → manifest.json'));
   console.log(kleur.dim('  checksums → SHA256SUMS'));
-  console.log(kleur.dim(`  written to ${abs}`));
+  console.log(kleur.dim(`  written to ${bundleRoot}`));
 
   if (options.verbose === true) {
     console.log(kleur.dim('Detailed bundle contents:'));
@@ -84,9 +88,24 @@ export async function runBundle(
   }
 
   if (options.zip === true) {
-    const zipName = options.zipOutput ?? `${basename(abs)}.zip`;
+    const zipName = options.zipOutput ?? `${basename(bundleRoot)}.zip`;
     console.log(kleur.dim(`  archive → ${zipName}`));
   }
+}
+
+async function resolveDefaultBundlePath(cxConfigFile: string): Promise<string> {
+  try {
+    const cxConfigSource = await readFile(cxConfigFile, 'utf8');
+    const cxConfig = JSON.parse(cxConfigSource) as CxConfig;
+    const outputDir = cxConfig.bundle?.outputDir;
+    if (typeof outputDir === 'string' && outputDir.length > 0) {
+      return resolveConfigPath(configDirectory(cxConfigFile), outputDir);
+    }
+  } catch {
+    // Fall back to the current working directory if no valid cx.json is available.
+  }
+
+  return resolve('.');
 }
 
 // ---------------------------------------------------------------------------
