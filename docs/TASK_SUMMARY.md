@@ -32,7 +32,7 @@ Rachel Brooks:
 The team agreed to favor deterministic, complete slices over broad speculative scaffolding.
 
 Julian Vance:
-The documentation was tightened to reflect shipped behavior only, and the manifest format was constrained to a canonical writable and parseable subset.
+The documentation was tightened to reflect shipped behavior only, and the manifest format was constrained to a canonical writable and parseable subset. Structured `--json` outputs now cover the command surface needed for CI consumers.
 
 Marcus Chen:
 Security-sensitive decisions were kept conservative. The tool never shells out to Repomix, never trusts guessed output spans, and verifies emitted artifacts through hashes.

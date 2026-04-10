@@ -68,5 +68,5 @@ Status:
 ## Next Phase Candidates
 
 - richer bundle inspection and machine-readable reporting
-- CI matrix against multiple Repomix versions
+- CI matrix against more supported Repomix versions once support broadens beyond the current pinned release
 - packaging and release automation
