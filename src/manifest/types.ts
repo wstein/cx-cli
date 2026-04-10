@@ -17,6 +17,7 @@ export interface SectionOutputRecord {
   outputFile: string;
   outputSha256: string;
   fileCount: number;
+  losslessTextExtraction: boolean;
 }
 
 export interface AssetRecord {

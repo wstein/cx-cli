@@ -19,7 +19,7 @@ The shipped command set in this repository is:
 - `src/config/` loads strict TOML configuration, applies defaults, resolves templates, and rejects ambiguous or unsafe values early.
 - `src/planning/` builds a deterministic bundle plan with overlap detection, asset conflict detection, and lexical output ordering.
 - `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports.
-- `src/extract/` restores XML and JSON bundles exactly when the manifest marks text extraction as lossless.
+- `src/extract/` restores XML, JSON, Markdown, and Plain bundles exactly when the manifest marks text extraction as lossless.
 - `src/manifest/` writes a canonical TOON manifest plus a lexical SHA-256 sidecar.
 - `src/bundle/` validates and verifies emitted bundles independently of the original config file.
 - `src/cli/` exposes the workflow through `yargs` and keeps command handlers thin.
@@ -36,7 +36,7 @@ Marcus Chen:
 Security-sensitive decisions were kept conservative. The tool never shells out to Repomix, never trusts guessed output spans, and verifies emitted artifacts through hashes.
 
 Samir Patel:
-The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML and JSON round-trips, and lossy-extraction rejection.
+The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML, JSON, Markdown, and Plain round-trips, and lossy-extraction rejection.
 
 ## Mid-Term Improvements
 

@@ -6,6 +6,7 @@ import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestToon } from "../../manifest/toon.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import type { PlannedSourceFile } from "../../planning/types.js";
 import {
   CX_VERSION,
   REPOMIX_VERSION,
@@ -16,6 +17,21 @@ import { sha256File } from "../../shared/hashing.js";
 
 export interface BundleArgs {
   config: string;
+}
+
+function supportsLosslessExtraction(
+  style: "xml" | "markdown" | "json" | "plain",
+  files: PlannedSourceFile[],
+): boolean {
+  if (style === "plain") {
+    const ambiguousPattern =
+      /(?:^|\n)================\nFile: .+\n================(?:\n|$)/;
+    return !files.some((file) =>
+      ambiguousPattern.test(file.trimmedContent ?? ""),
+    );
+  }
+
+  return true;
 }
 
 export async function runBundleCommand(args: BundleArgs): Promise<number> {
@@ -45,6 +61,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputFile: section.outputFile,
       outputSha256: await sha256File(outputPath),
       fileCount: section.files.length,
+      losslessTextExtraction: supportsLosslessExtraction(
+        section.style,
+        section.files,
+      ),
     });
     void outputText;
   }

@@ -8,7 +8,7 @@ The repository currently implements:
 - deterministic file discovery and planning
 - Repomix-backed section rendering
 - manifest and checksum generation
-- lossless `extract` for XML and JSON bundles created without lossy text transforms
+- lossless `extract` for XML, JSON, Markdown, and Plain bundles created without lossy text transforms
 - `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, and `verify`
 - lint, build, test, and CI verification workflows
 

@@ -91,6 +91,11 @@ function parseSectionRecord(section: Record<string, string>) {
     outputFile: requireToken(section.output_file, "section output_file"),
     outputSha256: requireToken(section.output_sha256, "section output_sha256"),
     fileCount: Number(requireToken(section.file_count, "section file_count")),
+    losslessTextExtraction:
+      requireToken(
+        section.lossless_text_extraction,
+        "section lossless_text_extraction",
+      ) === "true",
   };
 }
 
@@ -170,6 +175,9 @@ export function renderManifestToon(manifest: CxManifest): string {
     lines.push(`  output_file ${encodeScalar(section.outputFile)}`);
     lines.push(`  output_sha256 ${section.outputSha256}`);
     lines.push(`  file_count ${section.fileCount}`);
+    lines.push(
+      `  lossless_text_extraction ${String(section.losslessTextExtraction)}`,
+    );
     lines.push("");
   }
 

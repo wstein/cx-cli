@@ -19,13 +19,21 @@ async function createProject(): Promise<{
   const bundleDir = path.join(root, "dist", "demo-bundle");
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.mkdir(path.join(root, "docs"), { recursive: true });
-  await fs.writeFile(path.join(root, "README.md"), "# Demo\n", "utf8");
   await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    "export const demo = 1;\n",
+    path.join(root, "README.md"),
+    "# Demo\n\n```\ncode fence\n```\n",
     "utf8",
   );
-  await fs.writeFile(path.join(root, "docs", "guide.md"), "hello\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    'export const demo = "================";\n',
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "docs", "guide.md"),
+    "hello\n================\nstill content\n",
+    "utf8",
+  );
   await fs.writeFile(path.join(root, "logo.png"), "fakepng", "utf8");
   const configPath = path.join(root, "cx.toml");
   await fs.writeFile(
@@ -133,6 +141,80 @@ describe("bundle workflow", () => {
       (await fs.readFile(project.configPath, "utf8")).replace(
         'style = "xml"',
         'style = "json"',
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: undefined,
+        assetsOnly: false,
+        overwrite: false,
+        verify: true,
+      }),
+    ).toBe(0);
+
+    for (const relativePath of [
+      "README.md",
+      "docs/guide.md",
+      "src/index.ts",
+      "logo.png",
+    ]) {
+      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
+        await sha256File(path.join(project.root, relativePath)),
+      );
+    }
+  });
+
+  test("round-trips extracted files exactly for markdown bundles", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-markdown");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        'style = "xml"',
+        'style = "markdown"',
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: undefined,
+        assetsOnly: false,
+        overwrite: false,
+        verify: true,
+      }),
+    ).toBe(0);
+
+    for (const relativePath of [
+      "README.md",
+      "docs/guide.md",
+      "src/index.ts",
+      "logo.png",
+    ]) {
+      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
+        await sha256File(path.join(project.root, relativePath)),
+      );
+    }
+  });
+
+  test("round-trips extracted files exactly for plain bundles", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-plain");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        'style = "xml"',
+        'style = "plain"',
       ),
       "utf8",
     );

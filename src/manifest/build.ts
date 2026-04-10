@@ -70,7 +70,10 @@ export function buildManifest(params: {
         !params.config.repomix.removeComments &&
         !params.config.repomix.removeEmptyLines &&
         !params.config.repomix.compress &&
-        !params.config.repomix.showLineNumbers,
+        !params.config.repomix.showLineNumbers &&
+        params.sectionOutputs.every(
+          (section) => section.losslessTextExtraction,
+        ),
     },
     sections: params.sectionOutputs,
     assets: params.plan.assets.map((asset) => ({

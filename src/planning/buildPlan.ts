@@ -193,6 +193,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       mediaType: detectMediaType(relativePath, "text"),
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
+      trimmedContent: trimmedText,
       leadingWhitespaceBase64: Buffer.from(leadingWhitespace, "utf8").toString(
         "base64",
       ),

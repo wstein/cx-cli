@@ -6,7 +6,12 @@ import type { ManifestFileRow } from "../manifest/types.js";
 import { CxError } from "../shared/errors.js";
 import { ensureDir } from "../shared/fs.js";
 import { sha256File, sha256Text } from "../shared/hashing.js";
-import { parseJsonSection, parseXmlSection } from "./parsers.js";
+import {
+  parseJsonSection,
+  parseMarkdownSection,
+  parsePlainSection,
+  parseXmlSection,
+} from "./parsers.js";
 
 function restoreContent(row: ManifestFileRow, trimmedContent: string): string {
   if (row.exactContentBase64 !== "-") {
@@ -71,12 +76,6 @@ export async function extractBundle(params: {
   verify: boolean;
 }): Promise<void> {
   const { manifest } = await loadManifestFromBundle(params.bundleDir);
-  if (!params.assetsOnly && !manifest.settings.losslessTextExtraction) {
-    throw new CxError(
-      "This bundle was produced with lossy text transforms, so exact text extraction is not supported.",
-      8,
-    );
-  }
   const selectedRows = manifest.files.filter((row) => {
     if (params.assetsOnly && row.kind !== "asset") {
       return false;
@@ -99,6 +98,16 @@ export async function extractBundle(params: {
     return true;
   });
 
+  if (
+    selectedRows.some(isTextRow) &&
+    !manifest.settings.losslessTextExtraction
+  ) {
+    throw new CxError(
+      "This bundle was produced with lossy text transforms, so exact text extraction is not supported.",
+      8,
+    );
+  }
+
   const sectionNames = new Set(
     selectedRows
       .filter(isTextRow)
@@ -111,6 +120,12 @@ export async function extractBundle(params: {
     if (!sectionNames.has(section.name)) {
       continue;
     }
+    if (!section.losslessTextExtraction) {
+      throw new CxError(
+        `Section ${section.name} was produced with a format or transform that does not support exact extraction.`,
+        8,
+      );
+    }
     const source = await fs.readFile(
       path.join(params.bundleDir, section.outputFile),
       "utf8",
@@ -120,12 +135,16 @@ export async function extractBundle(params: {
         ? parseXmlSection(source)
         : section.style === "json"
           ? parseJsonSection(source)
-          : (() => {
-              throw new CxError(
-                `Extract does not support section style ${section.style} yet.`,
-                8,
-              );
-            })();
+          : section.style === "markdown"
+            ? parseMarkdownSection(source)
+            : section.style === "plain"
+              ? parsePlainSection(source)
+              : (() => {
+                  throw new CxError(
+                    `Extract does not support section style ${section.style} yet.`,
+                    8,
+                  );
+                })();
     sectionContents.set(
       section.name,
       new Map(extractedFiles.map((file) => [file.path, file.content])),
