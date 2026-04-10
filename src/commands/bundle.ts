@@ -81,16 +81,16 @@ export async function runBundle(
     const repomixSummary = await summarizeRepomixStats(bundleRoot, repomixFiles);
     console.log(kleur.cyan('📊 Bundle Summary:'));
     console.log(kleur.cyan('────────────────'));
-    console.log(`  Total Files: ${manifest.files.length} file(s)`);
-    console.log(` Total Tokens: ${formatNumber(repomixSummary.totalTokens)} tokens`);
-    console.log(`  Total Chars: ${formatNumber(repomixSummary.totalChars)} chars`);
+    console.log(`Total Files: ${manifest.files.length} file(s)`);
+    console.log('');
     for (const artifact of repomixSummary.artifacts) {
       console.log(
-        kleur.dim(
-          `  ${artifact.path}: ${artifact.tokens !== undefined ? `${formatNumber(artifact.tokens)} tokens` : 'unknown'}, ${formatNumber(artifact.chars)} chars`,
-        ),
+        `  ${kleur.bold(artifact.path)}  ${kleur.cyan(`${formatNumber(artifact.tokens)} tokens`)}  ${kleur.yellow(`${formatNumber(artifact.bytes)} bytes`)}  ${kleur.green(`${artifact.portion}%`)}`,
       );
     }
+    console.log('');
+    console.log(`  Total Tokens: ${formatNumber(repomixSummary.totalTokens)} tokens`);
+    console.log(`  Total Chars: ${formatNumber(repomixSummary.totalChars)} chars`);
   }
 
   if (binaryCount > 0) console.log(kleur.dim(`  ${binaryCount} binary asset(s)`));
@@ -147,7 +147,9 @@ async function cxConfigHasSections(cxConfigFile: string): Promise<boolean> {
 type RepomixArtifactSummary = {
   path: string;
   tokens: number;
+  bytes: number;
   chars: number;
+  portion: number;
 };
 
 type RepomixStatsSummary = {
@@ -158,11 +160,11 @@ type RepomixStatsSummary = {
 
 async function summarizeRepomixStats(
   bundleRoot: string,
-  repomixFiles: Array<{ path: string }> | undefined,
+  repomixFiles: Array<{ path: string; size: number }> | undefined,
 ): Promise<RepomixStatsSummary> {
-  const artifacts: RepomixArtifactSummary[] = [];
+  const artifacts: Array<Omit<RepomixArtifactSummary, 'portion'>> = [];
   if (repomixFiles === undefined) {
-    return { totalTokens: 0, totalChars: 0, artifacts };
+    return { totalTokens: 0, totalChars: 0, artifacts: [] };
   }
 
   for (const file of repomixFiles) {
@@ -172,6 +174,7 @@ async function summarizeRepomixStats(
     artifacts.push({
       path: file.path,
       tokens: tokenCount,
+      bytes: file.size,
       chars: fileContent.length,
     });
   }
@@ -179,7 +182,14 @@ async function summarizeRepomixStats(
   const totalTokens = artifacts.reduce((sum, artifact) => sum + artifact.tokens, 0);
   const totalChars = artifacts.reduce((sum, artifact) => sum + artifact.chars, 0);
 
-  return { totalTokens, totalChars, artifacts };
+  return {
+    totalTokens,
+    totalChars,
+    artifacts: artifacts.map((artifact) => ({
+      ...artifact,
+      portion: totalTokens === 0 ? 0 : Number(((artifact.tokens / totalTokens) * 100).toFixed(0)),
+    })),
+  };
 }
 
 function formatNumber(value: number): string {

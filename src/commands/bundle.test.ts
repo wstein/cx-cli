@@ -46,7 +46,10 @@ describe('bundle command', () => {
     assert.ok(logs.some((line) => line.includes('📊 Bundle Summary:')));
     assert.ok(logs.some((line) => line.includes(`Total Tokens: ${expectedTokens.toLocaleString()} tokens`)));
     assert.ok(logs.some((line) => line.includes('Total Chars:')));
-    assert.ok(logs.some((line) => line.includes('repomix-output.xml:')));
+    assert.ok(logs.some((line) => line.includes('repomix-output.xml')));
+    assert.ok(logs.some((line) => line.includes('tokens')));
+    assert.ok(logs.some((line) => line.includes('bytes')));
+    assert.ok(logs.some((line) => line.includes('%')));
   });
 
   it('resolves bundle outputDir from cx.json when no path is provided', async () => {
