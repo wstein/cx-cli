@@ -21,6 +21,9 @@
     "node": ">=25.0.0"
   },
   "dependencies": {
+    "picomatch": "^4.0.4",
+    "repomix": "^1.13.1",
+    "smol-toml": "^1.6.1",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
