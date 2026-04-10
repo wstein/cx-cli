@@ -12,6 +12,9 @@ const FILE_TABLE_COLUMNS = [
   'output_file',
   'output_start_line',
   'output_end_line',
+  'leading_ws_b64',
+  'trailing_ws_b64',
+  'exact_content_b64',
 ] as const;
 
 function encodeScalar(value: number | string): string {
@@ -92,6 +95,9 @@ function renderFileRow(row: ManifestFileRow): string {
     row.outputFile,
     row.outputStartLine,
     row.outputEndLine,
+    row.leadingWhitespaceBase64,
+    row.trailingWhitespaceBase64,
+    row.exactContentBase64,
   ].map(encodeScalar).join(' ');
 }
 
@@ -227,6 +233,9 @@ export function parseManifestToon(source: string): CxManifest {
         outputFile: fields[7] as ManifestFileRow['outputFile'],
         outputStartLine: parseMaybeNumber(fields[8]!),
         outputEndLine: parseMaybeNumber(fields[9]!),
+        leadingWhitespaceBase64: fields[10] as ManifestFileRow['leadingWhitespaceBase64'],
+        trailingWhitespaceBase64: fields[11] as ManifestFileRow['trailingWhitespaceBase64'],
+        exactContentBase64: fields[12] as ManifestFileRow['exactContentBase64'],
       });
       continue;
     }

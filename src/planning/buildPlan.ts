@@ -117,14 +117,24 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
 
     const sectionName = matchingSections[0]!;
     const stat = await fs.stat(absolutePath);
-    sectionFiles.get(sectionName)!.push({
+    const sourceText = await fs.readFile(absolutePath, 'utf8');
+    const trimmedText = sourceText.trim();
+    const leadingWhitespace = sourceText.slice(0, sourceText.length - sourceText.trimStart().length);
+    const trailingWhitespace = sourceText.slice(sourceText.trimEnd().length);
+    const plannedFile: PlannedSourceFile = {
       relativePath,
       absolutePath,
       kind: 'text',
       mediaType: detectMediaType(relativePath, 'text'),
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
-    });
+      leadingWhitespaceBase64: Buffer.from(leadingWhitespace, 'utf8').toString('base64'),
+      trailingWhitespaceBase64: Buffer.from(trailingWhitespace, 'utf8').toString('base64'),
+    };
+    if (trimmedText.length === 0) {
+      plannedFile.exactContentBase64 = Buffer.from(sourceText, 'utf8').toString('base64');
+    }
+    sectionFiles.get(sectionName)!.push(plannedFile);
   }
 
   if (config.files.unmatched === 'fail' && unmatchedFiles.length > 0) {

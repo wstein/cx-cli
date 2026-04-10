@@ -2,6 +2,7 @@ import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 
 import { runBundleCommand } from './commands/bundle.js';
+import { runExtractCommand } from './commands/extract.js';
 import { runInitCommand } from './commands/init.js';
 import { runInspectCommand } from './commands/inspect.js';
 import { runListCommand } from './commands/list.js';
@@ -56,6 +57,29 @@ export async function main(argv: string[]): Promise<number> {
       (command) => command.option('config', { type: 'string', default: 'cx.toml' }),
       async (args) => {
         exitCode = await runBundleCommand({ config: args.config });
+      },
+    )
+    .command(
+      'extract <bundleDir>',
+      'Restore files from a bundle.',
+      (command) => command
+        .positional('bundleDir', { type: 'string', demandOption: true })
+        .option('to', { type: 'string', demandOption: true })
+        .option('section', { type: 'array', string: true })
+        .option('file', { type: 'array', string: true })
+        .option('assets-only', { type: 'boolean', default: false })
+        .option('overwrite', { type: 'boolean', default: false })
+        .option('verify', { type: 'boolean', default: false }),
+      async (args) => {
+        exitCode = await runExtractCommand({
+          bundleDir: args.bundleDir,
+          destinationDir: args.to,
+          sections: args.section as string[] | undefined,
+          files: args.file as string[] | undefined,
+          assetsOnly: args['assets-only'],
+          overwrite: args.overwrite,
+          verify: args.verify,
+        });
       },
     )
     .command(

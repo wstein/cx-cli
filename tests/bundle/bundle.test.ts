@@ -8,6 +8,8 @@ import { runBundleCommand } from '../../src/cli/commands/bundle.js';
 import { runValidateCommand } from '../../src/cli/commands/validate.js';
 import { runVerifyCommand } from '../../src/cli/commands/verify.js';
 import { runListCommand } from '../../src/cli/commands/list.js';
+import { runExtractCommand } from '../../src/cli/commands/extract.js';
+import { sha256File } from '../../src/shared/hashing.js';
 
 async function createProject(): Promise<{ root: string; configPath: string; bundleDir: string }> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cx-bundle-'));
@@ -79,5 +81,54 @@ describe('bundle workflow', () => {
     expect(writes.join('')).toContain('README.md');
     expect(await fs.stat(path.join(project.bundleDir, 'demo-manifest.toon'))).toBeDefined();
     expect(await fs.stat(path.join(project.bundleDir, 'demo.sha256'))).toBeDefined();
+  });
+
+  test('round-trips extracted files exactly for xml bundles', async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, 'restored');
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runExtractCommand({
+      bundleDir: project.bundleDir,
+      destinationDir: restoreDir,
+      sections: undefined,
+      files: undefined,
+      assetsOnly: false,
+      overwrite: false,
+      verify: true,
+    })).toBe(0);
+
+    for (const relativePath of ['README.md', 'docs/guide.md', 'src/index.ts', 'logo.png']) {
+      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
+        await sha256File(path.join(project.root, relativePath)),
+      );
+    }
+  });
+
+  test('round-trips extracted files exactly for json bundles', async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, 'restored-json');
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, 'utf8')).replace('style = "xml"', 'style = "json"'),
+      'utf8',
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runExtractCommand({
+      bundleDir: project.bundleDir,
+      destinationDir: restoreDir,
+      sections: undefined,
+      files: undefined,
+      assetsOnly: false,
+      overwrite: false,
+      verify: true,
+    })).toBe(0);
+
+    for (const relativePath of ['README.md', 'docs/guide.md', 'src/index.ts', 'logo.png']) {
+      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
+        await sha256File(path.join(project.root, relativePath)),
+      );
+    }
   });
 });

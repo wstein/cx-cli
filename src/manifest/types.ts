@@ -27,6 +27,9 @@ export interface ManifestFileRow {
   outputFile: string | '-';
   outputStartLine: number | '-';
   outputEndLine: number | '-';
+  leadingWhitespaceBase64: string | '-';
+  trailingWhitespaceBase64: string | '-';
+  exactContentBase64: string | '-';
 }
 
 export interface CxManifest {
