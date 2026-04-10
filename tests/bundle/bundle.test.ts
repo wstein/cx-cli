@@ -258,6 +258,76 @@ describe("bundle workflow", () => {
     );
   });
 
+  test("emits structured JSON failure payload for checksum omission", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const checksumPath = path.join(project.bundleDir, "demo.sha256");
+    await fs.writeFile(
+      checksumPath,
+      (await fs.readFile(checksumPath, "utf8"))
+        .split("\n")
+        .filter((line) => !line.includes("demo-manifest.toon"))
+        .join("\n"),
+      "utf8",
+    );
+
+    expect(
+      await runVerifyCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(10);
+    process.stdout.write = stdoutWrite;
+
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      valid?: boolean;
+      error?: { type?: string; message?: string; path?: string };
+    };
+
+    expect(payload.valid).toBe(false);
+    expect(payload.error?.type).toBe("checksum_omission");
+    expect(payload.error?.path).toBe("demo-manifest.toon");
+    expect(payload.error?.message).toContain(
+      "Checksum file is missing an entry for demo-manifest.toon.",
+    );
+  });
+
+  test("emits structured JSON failure payload for source-tree drift", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+
+    expect(
+      await runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        json: true,
+      }),
+    ).toBe(10);
+    process.stdout.write = stdoutWrite;
+
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      valid?: boolean;
+      error?: { type?: string; message?: string; path?: string };
+    };
+
+    expect(payload.valid).toBe(false);
+    expect(payload.error?.type).toBe("source_tree_drift");
+    expect(payload.error?.path).toBe("README.md");
+    expect(payload.error?.message).toContain("Source tree mismatch for README.md");
+  });
+
   test("emits detailed JSON for validate automation", async () => {
     const project = await createProject();
     const writes: string[] = [];

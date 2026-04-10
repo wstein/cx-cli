@@ -24,6 +24,8 @@ The implementation intentionally refuses to shell out to `repomix`. The renderer
 
 Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved.
 
+For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
+
 ## Development
 
 ```bash

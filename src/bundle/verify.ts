@@ -10,6 +10,28 @@ import {
 } from "../shared/verifyFilters.js";
 import { loadManifestFromBundle, validateBundle } from "./validate.js";
 
+export type VerifyFailureType =
+  | "checksum_omission"
+  | "checksum_mismatch"
+  | "unexpected_checksum_reference"
+  | "source_tree_drift";
+
+export class VerifyError extends CxError {
+  readonly type: VerifyFailureType;
+  readonly relativePath?: string;
+
+  constructor(
+    type: VerifyFailureType,
+    message: string,
+    relativePath?: string,
+    exitCode = 10,
+  ) {
+    super(message, exitCode);
+    this.type = type;
+    this.relativePath = relativePath;
+  }
+}
+
 async function verifyBundleAgainstSourceTree(
   bundleDir: string,
   sourceDir: string,
@@ -23,9 +45,10 @@ async function verifyBundleAgainstSourceTree(
     try {
       const sourceHash = await sha256File(sourcePath);
       if (sourceHash !== file.sha256) {
-        throw new CxError(
+        throw new VerifyError(
+          "source_tree_drift",
           `Source tree mismatch for ${file.path}: bundle and source hashes differ.`,
-          10,
+          file.path,
         );
       }
     } catch (error) {
@@ -34,7 +57,11 @@ async function verifyBundleAgainstSourceTree(
         "code" in error &&
         error.code === "ENOENT"
       ) {
-        throw new CxError(`Source tree is missing ${file.path}.`, 10);
+        throw new VerifyError(
+          "source_tree_drift",
+          `Source tree is missing ${file.path}.`,
+          file.path,
+        );
       }
       throw error;
     }
@@ -72,9 +99,10 @@ export async function verifyBundle(
       if (selection.sections?.length || selection.files?.length) {
         continue;
       }
-      throw new CxError(
+      throw new VerifyError(
+        "unexpected_checksum_reference",
         `Checksum file references an unexpected path: ${checksum.relativePath}.`,
-        10,
+        checksum.relativePath,
       );
     }
 
@@ -82,15 +110,20 @@ export async function verifyBundle(
       path.join(bundleDir, checksum.relativePath),
     );
     if (actualHash !== checksum.hash) {
-      throw new CxError(`Checksum mismatch for ${checksum.relativePath}.`, 10);
+      throw new VerifyError(
+        "checksum_mismatch",
+        `Checksum mismatch for ${checksum.relativePath}.`,
+        checksum.relativePath,
+      );
     }
   }
 
   for (const expectedFile of expectedFiles) {
     if (!listedFiles.has(expectedFile)) {
-      throw new CxError(
+      throw new VerifyError(
+        "checksum_omission",
         `Checksum file is missing an entry for ${expectedFile}.`,
-        10,
+        expectedFile,
       );
     }
   }
