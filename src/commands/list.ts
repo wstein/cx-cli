@@ -7,7 +7,7 @@
 import { extname, resolve } from 'node:path';
 import kleur from 'kleur';
 import { outputJson } from '../utils/output.js';
-import { parseRepomixFile, readManifest } from '../adapters/repomixAdapter.js';
+import { parseRepomixFile, readManifest, type BundleFile } from '../adapters/repomixAdapter.js';
 
 export interface ListCommandOptions {
   /** Print SHA-256 digests, sizes, and line counts alongside each entry. */
@@ -18,6 +18,13 @@ export interface ListCommandOptions {
 
 /** Extensions that indicate a potential repomix output file. */
 const REPOMIX_FILE_EXTENSIONS = new Set(['.xml', '.json', '.txt', '.md']);
+const SECTION_FILE_PREFIX = 'repomix-component-';
+const SECTION_FILE_PATTERN = /^repomix-component-(.+)\.(xml|json)\.txt$/;
+
+function sectionNameFromRepomixPath(filePath: string): string | undefined {
+  const match = SECTION_FILE_PATTERN.exec(filePath.replace(/.*[\/]/, ''));
+  return match ? match[1] : undefined;
+}
 
 /**
  * Execute the `list` command.
@@ -110,7 +117,7 @@ async function listBundleDirectory(
   bundlePath: string,
   options: ListCommandOptions,
 ): Promise<void> {
-  let manifest;
+  let manifest: Awaited<ReturnType<typeof readManifest>>;
   try {
     manifest = await readManifest(bundlePath);
   } catch {
@@ -129,6 +136,7 @@ async function listBundleDirectory(
         path: file.path,
         type: file.type,
         size: file.size,
+        section: file.type === 'repomix' ? sectionNameFromRepomixPath(file.path) : undefined,
         sha256: options.verbose === true ? file.sha256 : undefined,
       })),
     });
@@ -147,7 +155,21 @@ async function listBundleDirectory(
     checksum: kleur.green,
   };
 
+  const sectionGroups = new Map<string, BundleFile[]>();
+  const otherFiles: BundleFile[] = [];
+
   for (const file of manifest.files) {
+    const section = file.type === 'repomix' ? sectionNameFromRepomixPath(file.path) : undefined;
+    if (section !== undefined) {
+      const group = sectionGroups.get(section) ?? [];
+      group.push(file);
+      sectionGroups.set(section, group);
+    } else {
+      otherFiles.push(file);
+    }
+  }
+
+  function printFile(file: BundleFile): void {
     const colour = typeColour[file.type] ?? kleur.white;
     const tag = colour(`[${file.type}]`);
     const size = kleur.dim(formatBytes(file.size));
@@ -157,6 +179,30 @@ async function listBundleDirectory(
     } else {
       console.log(`  ${file.path}  ${tag}  ${size}`);
     }
+  }
+
+  if (sectionGroups.size > 0) {
+    for (const [section, files] of sectionGroups) {
+      console.log(kleur.bold(`Section: ${section}`));
+      for (const file of files) {
+        printFile(file);
+      }
+      console.log();
+    }
+
+    if (otherFiles.length > 0) {
+      console.log(kleur.bold('Other files:'));
+      for (const file of otherFiles) {
+        printFile(file);
+      }
+      return;
+    }
+
+    return;
+  }
+
+  for (const file of manifest.files) {
+    printFile(file);
   }
 }
 

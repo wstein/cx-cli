@@ -116,6 +116,8 @@ cx bundle ./my-bundle --exclude "**/*.log" --exclude "**/tmp/**"
 
 List the contents of a bundle directory or the source-file entries inside a repomix output file.
 
+When a bundle contains `repomix-component-*` section outputs generated from `cx.json`, `cx list` groups those files by section name for easier inspection.
+
 ```
 cx list <path> [options]
 
