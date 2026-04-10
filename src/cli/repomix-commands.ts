@@ -63,7 +63,7 @@ function action<T extends unknown[]>(fn: (...args: T) => Promise<void>): (...arg
 export function registerRepomixCommands(cli: CAC): void {
   // ── bundle ──────────────────────────────────────────────────────────────
   cli
-    .command('bundle <path>', 'Process a bundle directory: compute SHA-256 digests, write manifest.json and SHA256SUMS')
+    .command('bundle [path]', 'Process a bundle directory (defaults to current working directory): compute SHA-256 digests, write manifest.json and SHA256SUMS')
     .option('--zip', 'Create a ZIP archive of the completed bundle', { default: false })
     .option('--zip-output <path>', 'Output path for the ZIP archive (implies --zip)')
     .option('--exclude <pattern>', 'Glob pattern to exclude; may be repeated')
@@ -72,13 +72,13 @@ export function registerRepomixCommands(cli: CAC): void {
     .option('--repomix-config <path>', 'Repomix configuration file')
     .option('--section-checksum-file <path>', 'Checksum file path for generated section outputs')
     .option('--section-verbose', 'Show verbose progress during section generation', { default: false })
-    .example('  cx bundle ./my-bundle')
+    .example('  cx bundle')
     .example('  cx bundle ./my-bundle --zip')
     .example('  cx bundle ./my-bundle --sections')
     .action(
       action(
         (
-          bundlePath: string,
+          bundlePath: string | undefined,
           opts: {
             zip: boolean;
             zipOutput?: string;
@@ -96,7 +96,7 @@ export function registerRepomixCommands(cli: CAC): void {
               : Array.isArray(opts.exclude)
                 ? opts.exclude
                 : [opts.exclude];
-          return runBundle(bundlePath, {
+          return runBundle(bundlePath ?? '.', {
             zip: opts.zip || opts.zipOutput !== undefined,
             ...(opts.zipOutput !== undefined && { zipOutput: opts.zipOutput }),
             ...(exclude !== undefined && { exclude }),
