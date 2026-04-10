@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/wstein/cx-cli/main/schemas/cx.schema.json",
+  "title": "cx-cli configuration",
+  "description": "Schema for cx CLI project configuration files.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version": {
+      "type": "string",
+      "const": "1"
+    },
+    "repomix": {
+      "type": "object",
+      "properties": {
+        "configFile": { "type": "string" },
+        "outputStyle": {
+          "type": "string",
+          "enum": ["xml", "json", "plain", "markdown"]
+        },
+        "outputDir": { "type": "string" }
+      },
+      "required": ["configFile", "outputStyle", "outputDir"],
+      "additionalProperties": false
+    },
+    "sections": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "string" },
+          {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "include": {
+                "type": "array",
+                "items": { "type": "string" },
+                "minItems": 1
+              }
+            },
+            "required": ["include"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "properties": {
+        "outputDir": { "type": "string" },
+        "createZip": { "type": "boolean" }
+      },
+      "required": ["outputDir", "createZip"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["version", "repomix", "bundle"],
+  "additionalProperties": false
+}
