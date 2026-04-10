@@ -23,6 +23,10 @@ Exit criteria:
 - project builds cleanly
 - docs describe the implemented architecture
 
+Status:
+
+- complete
+
 ## Phase 2
 
 Scope:
@@ -38,6 +42,10 @@ Exit criteria:
 - overlap and config failures are well-diagnosed
 - tests cover the core planning rules
 
+Status:
+
+- complete
+
 ## Phase 3
 
 Scope:
@@ -52,6 +60,10 @@ Exit criteria:
 - bundles are structurally valid
 - verification catches checksum and structure drift
 - missing renderer capability fails cleanly
+
+Status:
+
+- complete for bundle, list, validate, and verify
 
 ## Next Phase Candidates
 

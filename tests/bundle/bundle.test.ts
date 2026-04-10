@@ -1,0 +1,83 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+
+import { describe, expect, test } from 'bun:test';
+
+import { runBundleCommand } from '../../src/cli/commands/bundle.js';
+import { runValidateCommand } from '../../src/cli/commands/validate.js';
+import { runVerifyCommand } from '../../src/cli/commands/verify.js';
+import { runListCommand } from '../../src/cli/commands/list.js';
+
+async function createProject(): Promise<{ root: string; configPath: string; bundleDir: string }> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'cx-bundle-'));
+  const bundleDir = path.join(root, 'dist', 'demo-bundle');
+  await fs.mkdir(path.join(root, 'src'), { recursive: true });
+  await fs.mkdir(path.join(root, 'docs'), { recursive: true });
+  await fs.writeFile(path.join(root, 'README.md'), '# Demo\n', 'utf8');
+  await fs.writeFile(path.join(root, 'src', 'index.ts'), 'export const demo = 1;\n', 'utf8');
+  await fs.writeFile(path.join(root, 'docs', 'guide.md'), 'hello\n', 'utf8');
+  await fs.writeFile(path.join(root, 'logo.png'), 'fakepng', 'utf8');
+  const configPath = path.join(root, 'cx.toml');
+  await fs.writeFile(
+    configPath,
+    `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+compress = false
+remove_comments = false
+remove_empty_lines = false
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[assets]
+include = ["**/*.png"]
+exclude = []
+mode = "copy"
+target_dir = "{project}-assets"
+
+[sections.docs]
+include = ["README.md", "docs/**"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+    'utf8',
+  );
+
+  return { root, configPath, bundleDir };
+}
+
+describe('bundle workflow', () => {
+  test('creates, validates, lists, and verifies a bundle', async () => {
+    const project = await createProject();
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
+    expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
+
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+    expect(await runListCommand({ bundleDir: project.bundleDir, json: false })).toBe(0);
+    process.stdout.write = stdoutWrite;
+
+    expect(writes.join('')).toContain('README.md');
+    expect(await fs.stat(path.join(project.bundleDir, 'demo-manifest.toon'))).toBeDefined();
+    expect(await fs.stat(path.join(project.bundleDir, 'demo.sha256'))).toBeDefined();
+  });
+});

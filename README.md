@@ -6,11 +6,12 @@ The repository currently implements:
 
 - strict configuration loading and validation
 - deterministic file discovery and planning
+- Repomix-backed section rendering
 - manifest and checksum generation
 - `init`, `inspect`, `list`, `validate`, and `verify`
-- `bundle` plumbing with a public adapter boundary for Repomix integration
+- `bundle` with a public adapter boundary for Repomix integration
 
-The current implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
+The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
 
 ## Development
 

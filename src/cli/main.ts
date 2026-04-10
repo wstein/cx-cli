@@ -1,8 +1,12 @@
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 
+import { runBundleCommand } from './commands/bundle.js';
 import { runInitCommand } from './commands/init.js';
 import { runInspectCommand } from './commands/inspect.js';
+import { runListCommand } from './commands/list.js';
+import { runValidateCommand } from './commands/validate.js';
+import { runVerifyCommand } from './commands/verify.js';
 import { asError, CxError } from '../shared/errors.js';
 
 export async function main(argv: string[]): Promise<number> {
@@ -44,6 +48,43 @@ export async function main(argv: string[]): Promise<number> {
           config: args.config,
           json: args.json,
         });
+      },
+    )
+    .command(
+      'bundle',
+      'Create a bundle directory from a project.',
+      (command) => command.option('config', { type: 'string', default: 'cx.toml' }),
+      async (args) => {
+        exitCode = await runBundleCommand({ config: args.config });
+      },
+    )
+    .command(
+      'list <bundleDir>',
+      'List bundle contents.',
+      (command) => command
+        .positional('bundleDir', { type: 'string', demandOption: true })
+        .option('json', { type: 'boolean', default: false }),
+      async (args) => {
+        exitCode = await runListCommand({
+          bundleDir: args.bundleDir,
+          json: args.json,
+        });
+      },
+    )
+    .command(
+      'validate <bundleDir>',
+      'Validate bundle structure and schema.',
+      (command) => command.positional('bundleDir', { type: 'string', demandOption: true }),
+      async (args) => {
+        exitCode = await runValidateCommand({ bundleDir: args.bundleDir });
+      },
+    )
+    .command(
+      'verify <bundleDir>',
+      'Verify bundle integrity.',
+      (command) => command.positional('bundleDir', { type: 'string', demandOption: true }),
+      async (args) => {
+        exitCode = await runVerifyCommand({ bundleDir: args.bundleDir });
       },
     )
     .demandCommand(1)
