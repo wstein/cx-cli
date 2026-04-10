@@ -21,9 +21,9 @@ The shipped command set in this repository is:
 - `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports.
 - `src/extract/` restores XML, JSON, Markdown, and Plain bundles exactly when the manifest marks text extraction as lossless.
 - `src/manifest/` writes a canonical TOON manifest plus a lexical SHA-256 sidecar.
-- `src/bundle/` validates and verifies emitted bundles independently of the original config file.
-- `src/bundle/` validates bundles, verifies emitted artifacts, and can compare a bundle directly against a source tree with `verify --against`.
+- `src/bundle/` validates and verifies emitted bundles independently of the original config file, and can compare a bundle directly against a source tree with `verify --against`.
 - `src/cli/` exposes the workflow through `yargs` and keeps command handlers thin.
+- `src/shared/manifestSummary.ts` provides stable manifest-derived summaries so `list`, `extract`, and `validate` can expose consistent machine-readable counts and selections.
 - `scripts/repomix-version-smoke.ts` provides a CI smoke path for supported and unsupported Repomix version checks.
 
 ## Review Minutes
@@ -32,18 +32,18 @@ Rachel Brooks:
 The team agreed to favor deterministic, complete slices over broad speculative scaffolding.
 
 Julian Vance:
-The documentation was tightened to reflect shipped behavior only, and the manifest format was constrained to a canonical writable and parseable subset. Structured `--json` outputs now cover the command surface needed for CI consumers.
+The documentation was tightened to reflect shipped behavior only, and the manifest format was constrained to a canonical writable and parseable subset. Structured `--json` outputs now cover the full command surface needed for CI consumers, including filtered summaries for `list`, `extract`, and `validate`.
 
 Marcus Chen:
 Security-sensitive decisions were kept conservative. The tool never shells out to Repomix, never trusts guessed output spans, and verifies emitted artifacts through hashes.
 
 Samir Patel:
-The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML, JSON, Markdown, and Plain round-trips, source-tree verification, and lossy-extraction rejection.
+The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML, JSON, Markdown, and Plain round-trips, source-tree verification, filtered JSON command output, and lossy-extraction rejection.
 
 ## Mid-Term Improvements
 
 - Add exact span capture if Repomix exposes the right public hooks.
-- Expand list and inspect output modes for richer automation.
+- Add richer `validate --json` and `verify --json` detail only if downstream automation needs more than the current manifest-oriented summaries.
 - Add CI coverage across a broader Repomix version range once the supported policy expands beyond a single pinned version.
 
 ## Specification Notes

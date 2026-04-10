@@ -67,6 +67,6 @@ Status:
 
 ## Next Phase Candidates
 
-- richer bundle inspection and machine-readable reporting
+- richer machine-readable validation and verification detail if CI consumers need more than the current manifest summaries
 - CI matrix against more supported Repomix versions once support broadens beyond the current pinned release
 - packaging and release automation

@@ -12,9 +12,9 @@ The repository currently implements:
 - `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, and `verify`
 - lint, build, test, and CI verification workflows
 
-`cx verify` also supports `--against <source-dir>` to compare bundle contents directly against a source tree.
-`cx inspect --json` and `cx list --json` emit structured automation-friendly summaries.
-`cx bundle`, `cx extract`, `cx validate`, `cx verify`, and `cx init` also support `--json` for CI consumers.
+`cx verify` also supports `--against <source-dir>` to compare bundle contents directly against a source tree, with optional `--section` and `--file` filters.
+Every command now supports `--json` for CI consumers.
+`cx list --json` supports `--section` and `--file` filtering, and `cx extract --json` and `cx validate --json` now emit detailed manifest-aware summaries instead of bare success flags.
 
 Exact output span capture remains unavailable with the current pinned Repomix public API. The tool now reports that limitation explicitly in structured command output instead of fabricating spans.
 
