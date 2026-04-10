@@ -36,6 +36,7 @@ The `cx` CLI provides five commands for bundle management:
 - Streaming ZIP — `archiver` package pipes files directly into the archive.
 - Deterministic order — all file lists are sorted lexicographically before processing.
 - No circular hashes — `SHA256SUMS` covers data files only; `manifest.json` records `SHA256SUMS` hash.
+- Stale section regeneration — repomix component outputs are regenerated only when source files or config files are newer than the existing component output.
 - ESM TypeScript — `"type": "module"`, `"module": "Node16"`, strict mode.
 
 ---
@@ -60,7 +61,8 @@ The `cx` CLI provides five commands for bundle management:
 | `archiver` | Stream-based ZIP creation |
 | `fast-glob` | Efficient directory scanning with glob patterns |
 | `kleur` | Zero-dependency ANSI colour output |
-| `cac` | Lightweight CLI framework |
+| `yargs` | CLI parser and command registration |
+| `yargs` | CLI parser and command registration |
 
 ---
 

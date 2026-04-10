@@ -57,6 +57,10 @@ Options:
   --section-verbose      Print verbose repomix section generation output
 ```
 
+Notes:
+- If `cx.json` contains `sections` and no explicit bundle path is provided, repomix section outputs are generated automatically.
+- Component outputs are regenerated only when section source files or relevant config files have changed since the last generation.
+
 ### `cx repomix [...args]`
 
 Forward all arguments directly to the repomix CLI dependency.
@@ -290,7 +294,7 @@ for (const entry of parsed.entries) {
 ```
 cx-cli/
 ├── src/
-│   ├── index.ts                     # CLI entry point (cac)
+│   ├── index.ts                     # CLI entry point (yargs)
 │   ├── adapters/
 │   │   └── repomixAdapter.ts        # Core: scan, hash, parse, zip
 │   ├── commands/
@@ -299,7 +303,7 @@ cx-cli/
 │   │   ├── init.ts                  # cx init
 │   │   └── cleanup.ts               # cx cleanup
 │   └── cli/
-│       └── repomix-commands.ts      # cac command registration
+│       └── repomix-commands.ts      # yargs command registration
 └── docs/
     └── repomix-bundles.md           # This file
 ```
@@ -308,6 +312,8 @@ cx-cli/
 
 - **Deterministic ordering** — All file lists are sorted lexicographically before hashing and writing, ensuring that the same directory always produces the same `manifest.json` and `SHA256SUMS`.
 - **Streaming SHA-256** — Large files are hashed via Node.js streams rather than reading the entire file into memory.
+- **Stale repomix section generation** — Component outputs are regenerated only when section sources, `cx.json`, or `repomix.config.json` change.
+- **CLI implementation** — The command parser is implemented with `yargs`, not `cac`, to match the current codebase.
 - **Streaming ZIP** — The `archiver` library streams files into the ZIP archive without buffering the full archive in RAM.
 - **No circular hashes** — `SHA256SUMS` contains hashes for data files only. `manifest.json` contains the hash of `SHA256SUMS`. There is no circular dependency.
 - **Idempotent `cx init`** — Configuration files are never overwritten; re-running `cx init` is safe.
