@@ -80,6 +80,7 @@ export function registerRepomixCommands(cli: CAC, version: string): void {
     .option('--zip', 'Create a ZIP archive of the completed bundle', { default: false })
     .option('--zip-output <path>', 'Output path for the ZIP archive (implies --zip)')
     .option('--exclude <pattern>', 'Glob pattern to exclude; may be repeated')
+    .option('--verbose', 'Print detailed bundle diagnostics', { default: false })
     .option('--sections', 'Generate repomix section outputs from cx.json before bundling', { default: false })
     .option('--cx-config <path>', 'CX configuration file', { default: 'cx.json' })
     .option('--repomix-config <path>', 'Repomix configuration file')
@@ -96,6 +97,7 @@ export function registerRepomixCommands(cli: CAC, version: string): void {
             zip: boolean;
             zipOutput?: string;
             exclude?: string | string[];
+            verbose: boolean;
             sections: boolean;
             cxConfig: string;
             repomixConfig?: string;
@@ -113,6 +115,7 @@ export function registerRepomixCommands(cli: CAC, version: string): void {
             zip: opts.zip || opts.zipOutput !== undefined,
             ...(opts.zipOutput !== undefined && { zipOutput: opts.zipOutput }),
             ...(exclude !== undefined && { exclude }),
+            verbose: opts.verbose,
             sections: opts.sections,
             cxConfig: opts.cxConfig,
             ...(opts.repomixConfig ? { repomixConfig: opts.repomixConfig } : {}),

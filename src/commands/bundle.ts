@@ -14,6 +14,8 @@ export interface BundleCommandOptions {
   zipOutput?: string;
   /** Additional fast-glob ignore patterns. */
   exclude?: string[];
+  /** Print detailed bundle diagnostics. */
+  verbose?: boolean;
   /** Generate repomix section outputs before bundling. */
   sections?: boolean;
   /** Path to the CX configuration file. */
@@ -40,6 +42,10 @@ export async function runBundle(
 
   console.log(kleur.cyan(`Bundling: ${abs}`));
 
+  if (options.verbose === true) {
+    console.log(kleur.dim('Verbose mode enabled: emitting bundle diagnostics.'));
+  }
+
   if (options.sections === true) {
     const { runRepomixSections } = await import('./repomixSections.js');
     await runRepomixSections({
@@ -47,7 +53,7 @@ export async function runBundle(
       ...(options.repomixConfig !== undefined && { config: options.repomixConfig }),
       outputDir: abs,
       ...(options.sectionChecksumFile !== undefined && { checksumFile: options.sectionChecksumFile }),
-      ...(options.sectionVerbose !== undefined && { verbose: options.sectionVerbose }),
+      verbose: options.sectionVerbose === true || options.verbose === true,
     });
   }
 
@@ -67,6 +73,15 @@ export async function runBundle(
   if (binaryCount > 0) console.log(kleur.dim(`  ${binaryCount} binary asset(s)`));
   console.log(kleur.dim('  manifest → manifest.json'));
   console.log(kleur.dim('  checksums → SHA256SUMS'));
+  console.log(kleur.dim(`  written to ${abs}`));
+
+  if (options.verbose === true) {
+    console.log(kleur.dim('Detailed bundle contents:'));
+    for (const file of manifest.files) {
+      console.log(kleur.dim(`  ${file.type.padEnd(9)} ${file.path} (${file.size} bytes)`));
+      console.log(kleur.dim(`    sha256 ${file.sha256}`));
+    }
+  }
 
   if (options.zip === true) {
     const zipName = options.zipOutput ?? `${basename(abs)}.zip`;

@@ -17,7 +17,6 @@ const cli = cac('cx');
 const CLI_VERSION = '0.1.0';
 
 cli.version(CLI_VERSION);
-cli.help();
 
 if (process.argv[2] === 'repomix') {
   void runRepomix(process.argv.slice(3)).catch((err: unknown) => {
@@ -27,11 +26,12 @@ if (process.argv[2] === 'repomix') {
   });
 } else {
   registerRepomixCommands(cli, CLI_VERSION);
+  cli.help();
 
   if (process.argv.length <= 2) {
     cli.outputHelp();
     process.exit(0);
   }
 
-  cli.parse(process.argv.slice(2));
+  cli.parse();
 }

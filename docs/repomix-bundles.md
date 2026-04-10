@@ -47,6 +47,14 @@ Options:
   --zip                  Create a ZIP archive of the completed bundle
   --zip-output <path>    Output path for the ZIP archive (implies --zip)
   --exclude <pattern>    Glob pattern to exclude; may be repeated
+  --verbose              Print detailed bundle diagnostics
+  --sections             Generate repomix outputs from cx.json before bundling
+  --cx-config <path>     CX configuration file (default: cx.json)
+  --repomix-config <path>
+                         Repomix configuration file
+  --section-checksum-file <path>
+                         Checksum file for generated section outputs
+  --section-verbose      Print verbose repomix section generation output
 ```
 
 ### `cx repomix [...args]`
