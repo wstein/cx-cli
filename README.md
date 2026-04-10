@@ -51,7 +51,7 @@ bun run test    # Run the test suite
 
 The local CLI shim is implemented in `bin/cx` as a Node-based wrapper. It resolves `dist/index.js` and runs it with Bun if available, otherwise with Node directly, making the package entrypoint platform-neutral. It also automatically rebuilds `dist/index.js` when source files or TypeScript configuration files are newer than the build output.
 
-Use `make rebuild` to force a fresh build, or `make dev` to run the TypeScript compiler in watch mode.
+Use `make rebuild` to force a fresh build, or `make dev` to run the TypeScript compiler in watch mode. Use `make format` or `bun x oxfmt --write .` to format source files.
 
 A Fedora-based devcontainer is available in `.devcontainer/` for IDE-neutral development with Bun.
 

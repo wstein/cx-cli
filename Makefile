@@ -7,7 +7,7 @@ BUN := bun
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install build rebuild dev test lint ci clean
+.PHONY: help install build rebuild dev format test lint ci clean
 
 help:
 	@echo "Usage: make <target>"
@@ -20,6 +20,7 @@ help:
 	@echo "  test         Run the test suite"
 	@echo "  lint         Run type-check linting"
 	@echo "  ci           Run install, build, test, lint"
+	@echo "  format       Format source files with Oxfmt"
 	@echo "  clean        Remove generated artifacts"
 
 install:
@@ -34,6 +35,9 @@ rebuild:
 
 dev:
 	$(BUN) run dev
+
+format:
+	$(BUN) x oxfmt --write .
 
 test:
 	$(BUN) run test
