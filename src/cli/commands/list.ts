@@ -2,42 +2,44 @@ import path from "node:path";
 
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
+import {
+  selectManifestAssets,
+  selectManifestSections,
+  summarizeManifest,
+} from "../../shared/manifestSummary.js";
 import { writeJson } from "../../shared/output.js";
+import { selectManifestRows } from "../../shared/verifyFilters.js";
 
 export interface ListArgs {
   bundleDir: string;
   json: boolean;
-}
-
-function buildListSummary(
-  manifestName: string,
-  manifest: Awaited<ReturnType<typeof loadManifestFromBundle>>["manifest"],
-) {
-  return {
-    manifestName,
-    projectName: manifest.projectName,
-    sectionCount: manifest.sections.length,
-    assetCount: manifest.assets.length,
-    fileCount: manifest.files.length,
-    textFileCount: manifest.files.filter((file) => file.kind === "text").length,
-    assetFileCount: manifest.files.filter((file) => file.kind === "asset")
-      .length,
-  };
+  sections?: string[] | undefined;
+  files?: string[] | undefined;
 }
 
 export async function runListCommand(args: ListArgs): Promise<number> {
   const { manifest, manifestName } = await loadManifestFromBundle(
     path.resolve(args.bundleDir),
   );
+  const rows = selectManifestRows(manifest.files, {
+    sections: args.sections,
+    files: args.files,
+  });
+  const sections = selectManifestSections(manifest, rows);
+  const assets = selectManifestAssets(manifest, rows);
 
   if (args.json) {
     writeJson({
-      summary: buildListSummary(manifestName, manifest),
+      summary: summarizeManifest(manifestName, manifest, rows),
       repomix: getRepomixCapabilities(),
       settings: manifest.settings,
-      sections: manifest.sections,
-      assets: manifest.assets,
-      files: manifest.files,
+      selection: {
+        sections: args.sections ?? [],
+        files: args.files ?? [],
+      },
+      sections,
+      assets,
+      files: rows,
     });
     return 0;
   }
@@ -45,7 +47,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   const lines = [
     `manifest: ${manifestName}`,
     "kind\tsection\tstored_in\tpath",
-    ...manifest.files.map(
+    ...rows.map(
       (file) => `${file.kind}\t${file.section}\t${file.storedIn}\t${file.path}`,
     ),
   ];

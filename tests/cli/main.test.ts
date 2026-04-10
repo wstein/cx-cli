@@ -112,7 +112,101 @@ exclude = []
     process.stdout.write = write;
     process.chdir(cwd);
 
-    const payload = JSON.parse(output) as { valid?: boolean };
+    const payload = JSON.parse(output) as {
+      valid?: boolean;
+      checksumFile?: string;
+      summary?: {
+        manifestName?: string;
+        sectionCount?: number;
+        fileCount?: number;
+      };
+    };
     expect(payload.valid).toBe(true);
+    expect(payload.checksumFile).toBe("demo.sha256");
+    expect(payload.summary?.manifestName).toBe("demo-manifest.toon");
+    expect(payload.summary?.sectionCount).toBe(1);
+    expect(payload.summary?.fileCount).toBe(1);
+  });
+
+  test("supports list JSON filters from the command line", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-list-"));
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.mkdir(path.join(root, "docs"), { recursive: true });
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "docs", "guide.md"),
+      "# Guide\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "cx.toml"),
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+compress = false
+remove_comments = false
+remove_empty_lines = false
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.docs]
+include = ["docs/**"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const cwd = process.cwd();
+    process.chdir(root);
+    await expect(main(["bundle"])).resolves.toBe(0);
+
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    await expect(
+      main([
+        "list",
+        "dist/demo-bundle",
+        "--json",
+        "--section",
+        "src",
+        "--file",
+        "src/index.ts",
+      ]),
+    ).resolves.toBe(0);
+
+    process.stdout.write = write;
+    process.chdir(cwd);
+
+    const payload = JSON.parse(output) as {
+      summary?: { fileCount?: number; sectionCount?: number };
+      selection?: { sections?: string[]; files?: string[] };
+    };
+    expect(payload.summary?.fileCount).toBe(1);
+    expect(payload.summary?.sectionCount).toBe(1);
+    expect(payload.selection?.sections).toEqual(["src"]);
+    expect(payload.selection?.files).toEqual(["src/index.ts"]);
   });
 });

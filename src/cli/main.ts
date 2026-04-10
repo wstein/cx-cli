@@ -104,11 +104,15 @@ export async function main(argv: string[]): Promise<number> {
       (command) =>
         command
           .positional("bundleDir", { type: "string", demandOption: true })
+          .option("section", { type: "array", string: true })
+          .option("file", { type: "array", string: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runListCommand({
           bundleDir: args.bundleDir,
+          files: args.file as string[] | undefined,
           json: args.json,
+          sections: args.section as string[] | undefined,
         });
       },
     )

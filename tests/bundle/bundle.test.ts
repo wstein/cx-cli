@@ -143,6 +143,69 @@ describe("bundle workflow", () => {
     ]);
   });
 
+  test("emits filtered JSON for list and extract automation", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-filtered");
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runListCommand({
+        bundleDir: project.bundleDir,
+        files: ["src/index.ts"],
+        json: true,
+        sections: ["src"],
+      }),
+    ).toBe(0);
+    const listPayload = JSON.parse(writes.pop() ?? "{}") as {
+      summary?: { fileCount?: number; sectionCount?: number };
+      selection?: { sections?: string[]; files?: string[] };
+      files?: Array<{ path: string }>;
+    };
+
+    expect(
+      await runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: ["src"],
+        files: undefined,
+        assetsOnly: false,
+        overwrite: false,
+        verify: true,
+        json: true,
+      }),
+    ).toBe(0);
+    process.stdout.write = stdoutWrite;
+
+    const extractPayload = JSON.parse(writes.pop() ?? "{}") as {
+      summary?: { fileCount?: number; textFileCount?: number };
+      extractedSections?: string[];
+      extractedFiles?: string[];
+      selection?: { sections?: string[] };
+    };
+
+    expect(listPayload.summary?.fileCount).toBe(1);
+    expect(listPayload.summary?.sectionCount).toBe(1);
+    expect(listPayload.selection?.sections).toEqual(["src"]);
+    expect(listPayload.selection?.files).toEqual(["src/index.ts"]);
+    expect(listPayload.files?.map((file) => file.path)).toEqual([
+      "src/index.ts",
+    ]);
+    expect(extractPayload.summary?.fileCount).toBe(2);
+    expect(extractPayload.summary?.textFileCount).toBe(1);
+    expect(extractPayload.extractedSections).toEqual(["src"]);
+    expect(extractPayload.extractedFiles?.sort()).toEqual([
+      "logo.png",
+      "src/index.ts",
+    ]);
+    expect(extractPayload.selection?.sections).toEqual(["src"]);
+  });
+
   test("emits structured JSON for bundle and verify automation", async () => {
     const project = await createProject();
     const writes: string[] = [];
@@ -184,6 +247,38 @@ describe("bundle workflow", () => {
     expect(verifyPayload.repomix?.exactSpanCaptureReason).toContain(
       "public exports",
     );
+  });
+
+  test("emits detailed JSON for validate automation", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runValidateCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(0);
+    process.stdout.write = stdoutWrite;
+
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      valid?: boolean;
+      checksumFile?: string;
+      summary?: {
+        manifestName?: string;
+        sectionCount?: number;
+        fileCount?: number;
+      };
+    };
+
+    expect(payload.valid).toBe(true);
+    expect(payload.checksumFile).toBe("demo.sha256");
+    expect(payload.summary?.manifestName).toBe("demo-manifest.toon");
+    expect(payload.summary?.sectionCount).toBe(2);
+    expect(payload.summary?.fileCount).toBe(4);
   });
 
   test("round-trips extracted files exactly for xml bundles", async () => {
