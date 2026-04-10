@@ -5,10 +5,12 @@ import { input, select } from "@inquirer/prompts";
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
+import { writeJson } from "../../shared/output.js";
 
 export interface InitArgs {
   force: boolean;
   interactive: boolean;
+  json?: boolean | undefined;
   name: string | undefined;
   stdout: boolean;
   style: "xml" | "markdown" | "json" | "plain" | undefined;
@@ -63,7 +65,16 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   if (args.stdout) {
-    process.stdout.write(output);
+    if (args.json ?? false) {
+      writeJson({
+        config: output,
+        projectName: resolved.name ?? "myproject",
+        style: resolved.style ?? "xml",
+        path: null,
+      });
+    } else {
+      process.stdout.write(output);
+    }
     return 0;
   }
 
@@ -75,5 +86,12 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   await fs.writeFile("cx.toml", output, "utf8");
+  if (args.json ?? false) {
+    writeJson({
+      projectName: resolved.name ?? "myproject",
+      style: resolved.style ?? "xml",
+      path: "cx.toml",
+    });
+  }
   return 0;
 }

@@ -12,6 +12,21 @@ const require = createRequire(import.meta.url);
 export const CX_VERSION = "0.1.0";
 export const SUPPORTED_REPOMIX_VERSION = "1.13.1";
 export let REPOMIX_VERSION = SUPPORTED_REPOMIX_VERSION;
+export const EXACT_SPAN_CAPTURE_SUPPORTED = false;
+export const EXACT_SPAN_CAPTURE_REASON =
+  "Repomix public exports do not expose stable render-context hooks for exact output span calculation.";
+
+export function getRepomixCapabilities(): {
+  exactSpanCaptureSupported: boolean;
+  exactSpanCaptureReason: string;
+  supportedRepomixVersion: string;
+} {
+  return {
+    exactSpanCaptureSupported: EXACT_SPAN_CAPTURE_SUPPORTED,
+    exactSpanCaptureReason: EXACT_SPAN_CAPTURE_REASON,
+    supportedRepomixVersion: SUPPORTED_REPOMIX_VERSION,
+  };
+}
 
 async function resolveRepomixVersion(): Promise<string> {
   const packageEntry = require.resolve("repomix");

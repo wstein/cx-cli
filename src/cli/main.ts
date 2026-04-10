@@ -27,6 +27,7 @@ export async function main(argv: string[]): Promise<number> {
         command
           .option("force", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
+          .option("json", { type: "boolean", default: false })
           .option("name", { type: "string" })
           .option("stdout", { type: "boolean", default: false })
           .option("style", {
@@ -36,6 +37,7 @@ export async function main(argv: string[]): Promise<number> {
         exitCode = await runInitCommand({
           force: args.force,
           interactive: args.interactive,
+          json: args.json,
           name: args.name,
           stdout: args.stdout,
           style: args.style,
@@ -60,9 +62,14 @@ export async function main(argv: string[]): Promise<number> {
       "bundle",
       "Create a bundle directory from a project.",
       (command) =>
-        command.option("config", { type: "string", default: "cx.toml" }),
+        command
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runBundleCommand({ config: args.config });
+        exitCode = await runBundleCommand({
+          config: args.config,
+          json: args.json,
+        });
       },
     )
     .command(
@@ -75,6 +82,7 @@ export async function main(argv: string[]): Promise<number> {
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
           .option("assets-only", { type: "boolean", default: false })
+          .option("json", { type: "boolean", default: false })
           .option("overwrite", { type: "boolean", default: false })
           .option("verify", { type: "boolean", default: false }),
       async (args) => {
@@ -84,6 +92,7 @@ export async function main(argv: string[]): Promise<number> {
           sections: args.section as string[] | undefined,
           files: args.file as string[] | undefined,
           assetsOnly: args["assets-only"],
+          json: args.json,
           overwrite: args.overwrite,
           verify: args.verify,
         });
@@ -107,9 +116,14 @@ export async function main(argv: string[]): Promise<number> {
       "validate <bundleDir>",
       "Validate bundle structure and schema.",
       (command) =>
-        command.positional("bundleDir", { type: "string", demandOption: true }),
+        command
+          .positional("bundleDir", { type: "string", demandOption: true })
+          .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runValidateCommand({ bundleDir: args.bundleDir });
+        exitCode = await runValidateCommand({
+          bundleDir: args.bundleDir,
+          json: args.json,
+        });
       },
     )
     .command(
@@ -118,11 +132,17 @@ export async function main(argv: string[]): Promise<number> {
       (command) =>
         command
           .positional("bundleDir", { type: "string", demandOption: true })
+          .option("json", { type: "boolean", default: false })
+          .option("section", { type: "array", string: true })
+          .option("file", { type: "array", string: true })
           .option("against", { type: "string" }),
       async (args) => {
         exitCode = await runVerifyCommand({
           bundleDir: args.bundleDir,
           againstDir: args.against,
+          files: args.file as string[] | undefined,
+          json: args.json,
+          sections: args.section as string[] | undefined,
         });
       },
     )

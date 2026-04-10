@@ -4,15 +4,21 @@ import path from "node:path";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
+import {
+  selectManifestRows,
+  type VerifySelection,
+} from "../shared/verifyFilters.js";
 import { loadManifestFromBundle, validateBundle } from "./validate.js";
 
 async function verifyBundleAgainstSourceTree(
   bundleDir: string,
   sourceDir: string,
+  selection: VerifySelection,
 ): Promise<void> {
   const { manifest } = await loadManifestFromBundle(bundleDir);
+  const selectedFiles = selectManifestRows(manifest.files, selection);
 
-  for (const file of manifest.files) {
+  for (const file of selectedFiles) {
     const sourcePath = path.join(sourceDir, file.path);
     try {
       const sourceHash = await sha256File(sourcePath);
@@ -38,20 +44,31 @@ async function verifyBundleAgainstSourceTree(
 export async function verifyBundle(
   bundleDir: string,
   againstDir?: string,
+  selection: VerifySelection = { sections: undefined, files: undefined },
 ): Promise<void> {
   const { manifestName } = await validateBundle(bundleDir);
   const { manifest } = await loadManifestFromBundle(bundleDir);
+  const selectedFiles = selectManifestRows(manifest.files, selection);
+  const selectedSections = manifest.sections.filter((section) =>
+    selectedFiles.some((file) => file.section === section.name),
+  );
+  const selectedAssets = manifest.assets.filter((asset) =>
+    selectedFiles.some((file) => file.path === asset.sourcePath),
+  );
   const checksums = parseChecksumFile(
     await fs.readFile(path.join(bundleDir, manifest.checksumFile), "utf8"),
   );
   const expectedFiles = new Set([
     manifestName,
-    ...manifest.sections.map((section) => section.outputFile),
-    ...manifest.assets.map((asset) => asset.storedPath),
+    ...selectedSections.map((section) => section.outputFile),
+    ...selectedAssets.map((asset) => asset.storedPath),
   ]);
 
   for (const checksum of checksums) {
     if (!expectedFiles.has(checksum.relativePath)) {
+      if (selection.sections?.length || selection.files?.length) {
+        continue;
+      }
       throw new CxError(
         `Checksum file references an unexpected path: ${checksum.relativePath}.`,
         10,
@@ -67,6 +84,6 @@ export async function verifyBundle(
   }
 
   if (againstDir) {
-    await verifyBundleAgainstSourceTree(bundleDir, againstDir);
+    await verifyBundleAgainstSourceTree(bundleDir, againstDir, selection);
   }
 }

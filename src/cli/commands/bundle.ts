@@ -9,14 +9,17 @@ import { buildBundlePlan } from "../../planning/buildPlan.js";
 import type { PlannedSourceFile } from "../../planning/types.js";
 import {
   CX_VERSION,
+  getRepomixCapabilities,
   REPOMIX_VERSION,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
 import { ensureDir } from "../../shared/fs.js";
 import { sha256File } from "../../shared/hashing.js";
+import { writeJson } from "../../shared/output.js";
 
 export interface BundleArgs {
   config: string;
+  json?: boolean | undefined;
 }
 
 function supportsLosslessExtraction(
@@ -89,5 +92,17 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   ]);
 
   await validateBundle(plan.bundleDir);
+  if (args.json ?? false) {
+    writeJson({
+      projectName: plan.projectName,
+      bundleDir: plan.bundleDir,
+      manifestName,
+      checksumFile: plan.checksumFile,
+      sectionCount: plan.sections.length,
+      assetCount: plan.assets.length,
+      unmatchedCount: plan.unmatchedFiles.length,
+      repomix: getRepomixCapabilities(),
+    });
+  }
   return 0;
 }

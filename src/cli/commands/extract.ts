@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import { extractBundle } from "../../extract/extract.js";
+import { writeJson } from "../../shared/output.js";
 
 export interface ExtractArgs {
   bundleDir: string;
@@ -10,6 +11,7 @@ export interface ExtractArgs {
   assetsOnly: boolean;
   overwrite: boolean;
   verify: boolean;
+  json?: boolean | undefined;
 }
 
 export async function runExtractCommand(args: ExtractArgs): Promise<number> {
@@ -22,5 +24,15 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
     overwrite: args.overwrite,
     verify: args.verify,
   });
+  if (args.json ?? false) {
+    writeJson({
+      bundleDir: path.resolve(args.bundleDir),
+      destinationDir: path.resolve(args.destinationDir),
+      sections: args.sections ?? [],
+      files: args.files ?? [],
+      assetsOnly: args.assetsOnly,
+      verify: args.verify,
+    });
+  }
   return 0;
 }

@@ -1,6 +1,8 @@
 import path from "node:path";
 
 import { loadManifestFromBundle } from "../../bundle/validate.js";
+import { getRepomixCapabilities } from "../../repomix/render.js";
+import { writeJson } from "../../shared/output.js";
 
 export interface ListArgs {
   bundleDir: string;
@@ -29,19 +31,14 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   );
 
   if (args.json) {
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          summary: buildListSummary(manifestName, manifest),
-          settings: manifest.settings,
-          sections: manifest.sections,
-          assets: manifest.assets,
-          files: manifest.files,
-        },
-        null,
-        2,
-      )}\n`,
-    );
+    writeJson({
+      summary: buildListSummary(manifestName, manifest),
+      repomix: getRepomixCapabilities(),
+      settings: manifest.settings,
+      sections: manifest.sections,
+      assets: manifest.assets,
+      files: manifest.files,
+    });
     return 0;
   }
 

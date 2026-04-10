@@ -1,5 +1,7 @@
 import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import { getRepomixCapabilities } from "../../repomix/render.js";
+import { writeJson } from "../../shared/output.js";
 
 export interface InspectArgs {
   config: string;
@@ -28,18 +30,13 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
   const plan = await buildBundlePlan(config);
 
   if (args.json) {
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          summary: buildInspectSummary(plan),
-          sections: plan.sections,
-          assets: plan.assets,
-          unmatchedFiles: plan.unmatchedFiles,
-        },
-        null,
-        2,
-      )}\n`,
-    );
+    writeJson({
+      summary: buildInspectSummary(plan),
+      repomix: getRepomixCapabilities(),
+      sections: plan.sections,
+      assets: plan.assets,
+      unmatchedFiles: plan.unmatchedFiles,
+    });
     return 0;
   }
 

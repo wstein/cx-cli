@@ -128,6 +128,7 @@ describe("bundle workflow", () => {
     process.stdout.write = stdoutWrite;
     const listPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { fileCount?: number; textFileCount?: number };
+      repomix?: { exactSpanCaptureSupported?: boolean };
       sections?: Array<{ name: string }>;
     };
 
@@ -135,10 +136,54 @@ describe("bundle workflow", () => {
     expect(inspectPayload.summary?.assetCount).toBe(1);
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
+    expect(listPayload.repomix?.exactSpanCaptureSupported).toBe(false);
     expect(listPayload.sections?.map((section) => section.name)).toEqual([
       "docs",
       "src",
     ]);
+  });
+
+  test("emits structured JSON for bundle and verify automation", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(
+      await runBundleCommand({ config: project.configPath, json: true }),
+    ).toBe(0);
+    const bundlePayload = JSON.parse(writes.pop() ?? "{}") as {
+      checksumFile?: string;
+      repomix?: { supportedRepomixVersion?: string };
+    };
+
+    expect(
+      await runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: ["src/index.ts"],
+        json: true,
+        sections: undefined,
+      }),
+    ).toBe(0);
+    process.stdout.write = stdoutWrite;
+
+    const verifyPayload = JSON.parse(writes.pop() ?? "{}") as {
+      valid?: boolean;
+      files?: string[];
+      repomix?: { exactSpanCaptureReason?: string };
+    };
+
+    expect(bundlePayload.checksumFile).toBe("demo.sha256");
+    expect(bundlePayload.repomix?.supportedRepomixVersion).toBe("1.13.1");
+    expect(verifyPayload.valid).toBe(true);
+    expect(verifyPayload.files).toEqual(["src/index.ts"]);
+    expect(verifyPayload.repomix?.exactSpanCaptureReason).toContain(
+      "public exports",
+    );
   });
 
   test("round-trips extracted files exactly for xml bundles", async () => {
@@ -289,6 +334,9 @@ describe("bundle workflow", () => {
       await runVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
+        files: undefined,
+        json: false,
+        sections: undefined,
       }),
     ).toBe(0);
   });
@@ -307,6 +355,75 @@ describe("bundle workflow", () => {
       runVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
+        files: undefined,
+        json: false,
+        sections: undefined,
+      }),
+    ).rejects.toThrow("Source tree mismatch");
+  });
+
+  test("supports selective verify --against by file", async () => {
+    const project = await createProject();
+
+    expect(
+      await runBundleCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
+
+    expect(
+      await runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: ["src/index.ts"],
+        json: false,
+        sections: undefined,
+      }),
+    ).toBe(0);
+
+    await expect(
+      runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: ["README.md"],
+        json: false,
+        sections: undefined,
+      }),
+    ).rejects.toThrow("Source tree mismatch");
+  });
+
+  test("supports selective verify --against by section", async () => {
+    const project = await createProject();
+
+    expect(
+      await runBundleCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
+
+    expect(
+      await runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: undefined,
+        json: false,
+        sections: ["src"],
+      }),
+    ).toBe(0);
+
+    await expect(
+      runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: undefined,
+        json: false,
+        sections: ["docs"],
       }),
     ).rejects.toThrow("Source tree mismatch");
   });
