@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+
 import { validateBundle } from "../../bundle/validate.js";
 import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
@@ -13,6 +14,16 @@ import {
   REPOMIX_VERSION,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
+import {
+  estimateTokenCount,
+  formatBytes,
+  formatNumber,
+  printDivider,
+  printHeader,
+  printSubheader,
+  printSuccess,
+  printTable,
+} from "../../shared/format.js";
 import { ensureDir } from "../../shared/fs.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
@@ -58,6 +69,14 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputPath,
       explicitFiles: section.files.map((file) => file.absolutePath),
     });
+    const totalSectionBytes = section.files.reduce(
+      (sum, file) => sum + file.sizeBytes,
+      0,
+    );
+    const estimatedSectionTokens = section.files.reduce(
+      (sum, file) => sum + estimateTokenCount(file.trimmedContent ?? ""),
+      0,
+    );
     sectionOutputs.push({
       name: section.name,
       style: section.style,
@@ -68,6 +87,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         section.style,
         section.files,
       ),
+      sizeBytes: totalSectionBytes,
+      estimatedTokens: estimatedSectionTokens,
     });
     void outputText;
   }
@@ -92,15 +113,74 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   ]);
 
   await validateBundle(plan.bundleDir);
+
+  // Calculate total statistics
+  const totalAssetBytes = plan.assets.reduce(
+    (sum, asset) => sum + asset.sizeBytes,
+    0,
+  );
+  const totalSectionBytes = sectionOutputs.reduce(
+    (sum, section) => sum + section.sizeBytes,
+    0,
+  );
+  const totalTokens = sectionOutputs.reduce(
+    (sum, section) => sum + section.estimatedTokens,
+    0,
+  );
+
+  // Print human-friendly report
+  if (!(args.json ?? false)) {
+    printHeader("Bundle Summary");
+    printTable([
+      ["Project", plan.projectName],
+      ["Location", plan.bundleDir],
+    ]);
+    printDivider();
+    printTable([
+      ["Sections", plan.sections.length],
+      ["Assets", plan.assets.length],
+      ["Unmatched files", plan.unmatchedFiles.length],
+    ]);
+    printDivider();
+
+    // Section details
+    printSubheader("Sections");
+    for (const section of sectionOutputs) {
+      printTable([
+        [`  ${section.name}`, ""],
+        ["    Files", section.fileCount],
+        ["    Size", formatBytes(section.sizeBytes)],
+        ["    Tokens (est.)", formatNumber(section.estimatedTokens)],
+      ]);
+    }
+
+    printDivider();
+    printTable([
+      ["Total sections size", formatBytes(totalSectionBytes)],
+      ["Total assets size", formatBytes(totalAssetBytes)],
+      ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
+      ["Estimated tokens", formatNumber(totalTokens)],
+    ]);
+    printDivider();
+    printSuccess("Bundle created successfully");
+  }
+
   if (args.json ?? false) {
     writeJson({
       projectName: plan.projectName,
       bundleDir: plan.bundleDir,
-      manifestName,
+      manifestName: `${plan.projectName}-manifest.toon`,
       checksumFile: plan.checksumFile,
+      sections: sectionOutputs,
       sectionCount: plan.sections.length,
       assetCount: plan.assets.length,
       unmatchedCount: plan.unmatchedFiles.length,
+      statistics: {
+        totalSectionBytes,
+        totalAssetBytes,
+        totalBytes: totalSectionBytes + totalAssetBytes,
+        estimatedTokens: totalTokens,
+      },
       repomix: getRepomixCapabilities(),
     });
   }

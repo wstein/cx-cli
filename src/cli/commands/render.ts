@@ -6,6 +6,15 @@ import type { CxStyle } from "../../config/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { renderSection } from "../../repomix/section.js";
 import { CxError } from "../../shared/errors.js";
+import {
+  estimateTokenCount,
+  formatBytes,
+  formatNumber,
+  printDivider,
+  printHeader,
+  printSuccess,
+  printTable,
+} from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface RenderArgs {
@@ -73,6 +82,8 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
     style: CxStyle;
     outputFile: string;
     fileCount: number;
+    sizeBytes: number;
+    estimatedTokens: number;
   }> = [];
 
   for (const sectionName of selectedSectionNames) {
@@ -100,11 +111,25 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
       files: selectedFiles,
     });
 
+    const selectedSectionFiles = section.files.filter((f) =>
+      selectedFiles.includes(f.relativePath),
+    );
+    const totalSizeBytes = selectedSectionFiles.reduce(
+      (sum, f) => sum + f.sizeBytes,
+      0,
+    );
+    const estimatedTokens = selectedSectionFiles.reduce(
+      (sum, f) => sum + estimateTokenCount(f.trimmedContent ?? ""),
+      0,
+    );
+
     outputs.push({
       section: sectionName,
       style,
       outputFile: `${config.projectName}-repomix-${sectionName}.${styleExtension(style)}`,
       fileCount: selectedFiles.length,
+      sizeBytes: totalSizeBytes,
+      estimatedTokens,
     });
 
     if (args.stdout && outputs.length === 1) {
@@ -116,6 +141,34 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
       );
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, result.content, "utf8");
+    }
+  }
+
+  // Print colored summary if not in stdout mode and not JSON
+  if (!(args.stdout && outputs.length === 1) && !(args.json ?? false)) {
+    printHeader("Render Complete");
+    for (const output of outputs) {
+      printTable([
+        [`📄 ${output.section}`, ""],
+        ["  Files", output.fileCount],
+        ["  Size", formatBytes(output.sizeBytes)],
+        ["  Tokens (est.)", formatNumber(output.estimatedTokens)],
+      ]);
+    }
+    if (outputs.length > 0) {
+      printDivider();
+      const totalSize = outputs.reduce((sum, o) => sum + o.sizeBytes, 0);
+      const totalTokens = outputs.reduce(
+        (sum, o) => sum + o.estimatedTokens,
+        0,
+      );
+      printTable([
+        ["Total size", formatBytes(totalSize)],
+        ["Total tokens", formatNumber(totalTokens)],
+      ]);
+      printSuccess(
+        `Rendered ${outputs.length} section${outputs.length === 1 ? "" : "s"}`,
+      );
     }
   }
 

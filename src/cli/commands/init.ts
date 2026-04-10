@@ -1,12 +1,18 @@
 import fs from "node:fs/promises";
 
-import { input, select } from "@inquirer/prompts";
-
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
+import {
+  printWizardComplete,
+  printWizardHeader,
+  printWizardStep,
+  wizardConfirm,
+  wizardInput,
+  wizardSelect,
+} from "../../shared/wizard.js";
 
 export interface InitArgs {
   force: boolean;
@@ -24,24 +30,44 @@ async function resolveInteractiveValues(
     return { name: args.name, style: args.style };
   }
 
+  printWizardHeader("Initialize new cx project");
+  printWizardStep(1, 3, "Project name");
+
   const name =
     args.name ??
-    (await input({
-      message: "Project name",
+    (await wizardInput("Project name", {
       default: "myproject",
+      description:
+        "  Alphanumeric, dots, hyphens, underscores. Must start with letter or number.",
     }));
+
+  printWizardStep(2, 3, "Output style");
+
   const style =
     args.style ??
-    (await select<InitArgs["style"]>({
-      message: "Repomix output style",
-      choices: [
-        { name: "XML", value: "xml" },
-        { name: "JSON", value: "json" },
-        { name: "Markdown", value: "markdown" },
-        { name: "Plain", value: "plain" },
-      ],
-      default: "xml",
-    }));
+    (await wizardSelect<InitArgs["style"]>("Repomix output style", [
+      { name: "XML (recommended for LLMs)", value: "xml" },
+      { name: "JSON (structured data)", value: "json" },
+      { name: "Markdown (human-readable)", value: "markdown" },
+      { name: "Plain text (simple)", value: "plain" },
+    ]));
+
+  printWizardStep(3, 3, "Confirmation");
+
+  const confirmed = await wizardConfirm(
+    `Create cx.toml with project "${name}" and style "${style}"?`,
+    {
+      default: true,
+      description:
+        "  This will create a configuration file in the current directory.",
+    },
+  );
+
+  if (!confirmed) {
+    throw new CxError("Init cancelled by user.", 1);
+  }
+
+  printWizardComplete("Configuration setup");
 
   return { name, style };
 }
@@ -88,6 +114,14 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   await fs.writeFile("cx.toml", output, "utf8");
+
+  if (!(args.json ?? false)) {
+    const { printSuccess, printInfo } = await import("../../shared/format.js");
+    printSuccess("Created cx.toml");
+    printInfo(`Project name: ${resolved.name ?? "myproject"}`);
+    printInfo(`Output style: ${resolved.style ?? "xml"}`);
+  }
+
   if (args.json ?? false) {
     writeJson({
       projectName: resolved.name ?? "myproject",

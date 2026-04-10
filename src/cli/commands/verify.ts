@@ -3,6 +3,12 @@ import path from "node:path";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
+import {
+  printDivider,
+  printHeader,
+  printSuccess,
+  printTable,
+} from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface VerifyArgs {
@@ -25,6 +31,17 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
 
   try {
     await verifyBundle(bundleDir, againstDir, selection);
+
+    if (!(args.json ?? false)) {
+      printHeader("Verfication Complete");
+      printTable([["Bundle", bundleDir]]);
+      if (againstDir) {
+        printTable([["Against", againstDir]]);
+      }
+      printDivider();
+      printSuccess("Bundle is valid");
+    }
+
     if (args.json ?? false) {
       writeJson({
         bundleDir,
