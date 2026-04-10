@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "archiver": "^7.0.1",
-    "cac": "^7.0.0",
     "fast-glob": "^3.3.3",
     "fast-xml-parser": "^5.5.11",
     "kleur": "^4.1.5",

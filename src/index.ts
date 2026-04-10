@@ -3,35 +3,23 @@
 /**
  * cx — umbrella CLI for code context tooling.
  *
- * Entry point: wires up the `cac` application and delegates command
+ * Entry point: wires up the `yargs` application and delegates command
  * registration to dedicated modules.
  */
 
-import process from 'node:process';
 import kleur from 'kleur';
-import { cac } from 'cac';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { registerRepomixCommands } from './cli/repomix-commands.js';
-import { runRepomix } from './commands/repomix.js';
 
-const cli = cac('cx');
 const CLI_VERSION = '0.1.0';
 
-cli.version(CLI_VERSION);
-
-if (process.argv[2] === 'repomix') {
-  void runRepomix(process.argv.slice(3)).catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(kleur.red(`Error: ${message}`));
-    process.exitCode = 1;
-  });
-} else {
-  registerRepomixCommands(cli, CLI_VERSION);
-  cli.help();
-
-  if (process.argv.length <= 2) {
-    cli.outputHelp();
-    process.exit(0);
-  }
-
-  cli.parse();
-}
+registerRepomixCommands(yargs(hideBin(process.argv)), CLI_VERSION)
+  .help()
+  .alias('h', 'help')
+  .version(CLI_VERSION)
+  .alias('v', 'version')
+  .strictCommands()
+  .recommendCommands()
+  .demandCommand(1, 'Use --help to view available commands.')
+  .parse();
