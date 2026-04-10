@@ -244,6 +244,36 @@ describe("bundle workflow", () => {
     }
   });
 
+  test("verifies a bundle against the original source tree", async () => {
+    const project = await createProject();
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+      }),
+    ).toBe(0);
+  });
+
+  test("fails verify --against when the source tree drifts", async () => {
+    const project = await createProject();
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
+
+    await expect(
+      runVerifyCommand({
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+      }),
+    ).rejects.toThrow("Source tree mismatch");
+  });
+
   test("rejects text extraction for bundles created with lossy transforms", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");

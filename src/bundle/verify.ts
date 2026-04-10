@@ -6,7 +6,39 @@ import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
 import { loadManifestFromBundle, validateBundle } from "./validate.js";
 
-export async function verifyBundle(bundleDir: string): Promise<void> {
+async function verifyBundleAgainstSourceTree(
+  bundleDir: string,
+  sourceDir: string,
+): Promise<void> {
+  const { manifest } = await loadManifestFromBundle(bundleDir);
+
+  for (const file of manifest.files) {
+    const sourcePath = path.join(sourceDir, file.path);
+    try {
+      const sourceHash = await sha256File(sourcePath);
+      if (sourceHash !== file.sha256) {
+        throw new CxError(
+          `Source tree mismatch for ${file.path}: bundle and source hashes differ.`,
+          10,
+        );
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
+        throw new CxError(`Source tree is missing ${file.path}.`, 10);
+      }
+      throw error;
+    }
+  }
+}
+
+export async function verifyBundle(
+  bundleDir: string,
+  againstDir?: string,
+): Promise<void> {
   const { manifestName } = await validateBundle(bundleDir);
   const { manifest } = await loadManifestFromBundle(bundleDir);
   const checksums = parseChecksumFile(
@@ -32,5 +64,9 @@ export async function verifyBundle(bundleDir: string): Promise<void> {
     if (actualHash !== checksum.hash) {
       throw new CxError(`Checksum mismatch for ${checksum.relativePath}.`, 10);
     }
+  }
+
+  if (againstDir) {
+    await verifyBundleAgainstSourceTree(bundleDir, againstDir);
   }
 }

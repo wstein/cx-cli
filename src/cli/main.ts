@@ -116,9 +116,14 @@ export async function main(argv: string[]): Promise<number> {
       "verify <bundleDir>",
       "Verify bundle integrity.",
       (command) =>
-        command.positional("bundleDir", { type: "string", demandOption: true }),
+        command
+          .positional("bundleDir", { type: "string", demandOption: true })
+          .option("against", { type: "string" }),
       async (args) => {
-        exitCode = await runVerifyCommand({ bundleDir: args.bundleDir });
+        exitCode = await runVerifyCommand({
+          bundleDir: args.bundleDir,
+          againstDir: args.against,
+        });
       },
     )
     .demandCommand(1)

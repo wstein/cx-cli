@@ -12,6 +12,8 @@ The repository currently implements:
 - `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, and `verify`
 - lint, build, test, and CI verification workflows
 
+`cx verify` also supports `--against <source-dir>` to compare bundle contents directly against a source tree.
+
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
 
 ## Development
