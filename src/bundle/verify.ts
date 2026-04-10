@@ -18,7 +18,7 @@ export type VerifyFailureType =
 
 export class VerifyError extends CxError {
   readonly type: VerifyFailureType;
-  readonly relativePath?: string;
+  readonly relativePath: string | undefined;
 
   constructor(
     type: VerifyFailureType,

@@ -1,11 +1,13 @@
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { asError, CxError } from "../shared/errors.js";
+import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
 import { runInspectCommand } from "./commands/inspect.js";
 import { runListCommand } from "./commands/list.js";
+import { runRenderCommand } from "./commands/render.js";
 import { runValidateCommand } from "./commands/validate.js";
 import { runVerifyCommand } from "./commands/verify.js";
 
@@ -147,6 +149,56 @@ export async function main(argv: string[]): Promise<number> {
           files: args.file as string[] | undefined,
           json: args.json,
           sections: args.section as string[] | undefined,
+        });
+      },
+    )
+    .command(
+      "render",
+      "Render planned sections as standard Repomix output.",
+      (command) =>
+        command
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("section", { type: "array", string: true })
+          .option("file", { type: "array", string: true })
+          .option("all-sections", { type: "boolean", default: false })
+          .option("style", {
+            choices: ["xml", "markdown", "json", "plain"] as const,
+          })
+          .option("stdout", { type: "boolean", default: false })
+          .option("output-dir", { type: "string" })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runRenderCommand({
+          config: args.config,
+          sections: args.section as string[] | undefined,
+          files: args.file as string[] | undefined,
+          allSections: args["all-sections"],
+          style: args.style,
+          stdout: args.stdout,
+          outputDir: args["output-dir"],
+          json: args.json,
+        });
+      },
+    )
+    .command(
+      "adapter <subcommand>",
+      "Inspect Repomix adapter capabilities and runtime state.",
+      (command) =>
+        command
+          .positional("subcommand", {
+            type: "string",
+            choices: ["capabilities", "inspect", "doctor"],
+            demandOption: true,
+          })
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("section", { type: "array", string: true })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runAdapterCommand({
+          config: args.config,
+          subcommand: args.subcommand as "capabilities" | "inspect" | "doctor",
+          sections: args.section as string[] | undefined,
+          json: args.json,
         });
       },
     )
