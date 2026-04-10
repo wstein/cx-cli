@@ -4,11 +4,10 @@
  */
 
 import { basename, resolve } from 'node:path';
-import { readFile } from 'node:fs/promises';
 import kleur from 'kleur';
 import type { CxConfig } from './init.js';
 import { processBundle } from '../adapters/repomixAdapter.js';
-import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
+import { resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface BundleCommandOptions {
   /** Create a ZIP archive of the completed bundle. */
@@ -42,7 +41,7 @@ export async function runBundle(
   options: BundleCommandOptions = {},
 ): Promise<void> {
   const cxConfigFile = resolveConfigFilePath(process.cwd(), options.cxConfig ?? 'cx.json');
-  const bundleRoot = bundlePath !== undefined ? resolveConfigPath(process.cwd(), bundlePath) : await resolveDefaultBundlePath(cxConfigFile);
+  const bundleRoot = bundlePath !== undefined ? resolveConfigPath(process.cwd(), bundlePath) : resolve(process.cwd());
 
   console.log(kleur.cyan(`Bundling: ${bundleRoot}`));
 
@@ -91,21 +90,6 @@ export async function runBundle(
     const zipName = options.zipOutput ?? `${basename(bundleRoot)}.zip`;
     console.log(kleur.dim(`  archive → ${zipName}`));
   }
-}
-
-async function resolveDefaultBundlePath(cxConfigFile: string): Promise<string> {
-  try {
-    const cxConfigSource = await readFile(cxConfigFile, 'utf8');
-    const cxConfig = JSON.parse(cxConfigSource) as CxConfig;
-    const outputDir = cxConfig.bundle?.outputDir;
-    if (typeof outputDir === 'string' && outputDir.length > 0) {
-      return resolveConfigPath(configDirectory(cxConfigFile), outputDir);
-    }
-  } catch {
-    // Fall back to the current working directory if no valid cx.json is available.
-  }
-
-  return resolve('.');
 }
 
 // ---------------------------------------------------------------------------
