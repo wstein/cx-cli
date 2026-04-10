@@ -1,24 +1,33 @@
-import path from 'node:path';
-import fs from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import fs from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
 
-import { mergeConfigs, pack } from 'repomix';
+import { mergeConfigs, pack } from "repomix";
 
-import type { CxConfig, CxStyle } from '../config/types.js';
-import { CxError } from '../shared/errors.js';
+import type { CxConfig, CxStyle } from "../config/types.js";
+import { CxError } from "../shared/errors.js";
 
 const require = createRequire(import.meta.url);
 
-export const CX_VERSION = '0.1.0';
-export const SUPPORTED_REPOMIX_VERSION = '1.13.1';
+export const CX_VERSION = "0.1.0";
+export const SUPPORTED_REPOMIX_VERSION = "1.13.1";
 export let REPOMIX_VERSION = SUPPORTED_REPOMIX_VERSION;
 
 async function resolveRepomixVersion(): Promise<string> {
-  const packageEntry = require.resolve('repomix');
-  const packageJsonPath = path.join(path.dirname(packageEntry), '..', 'package.json');
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as { version?: unknown };
-  if (typeof packageJson.version !== 'string' || packageJson.version.length === 0) {
-    throw new CxError('Unable to resolve the installed Repomix version.', 5);
+  const packageEntry = require.resolve("repomix");
+  const packageJsonPath = path.join(
+    path.dirname(packageEntry),
+    "..",
+    "package.json",
+  );
+  const packageJson = JSON.parse(
+    await fs.readFile(packageJsonPath, "utf8"),
+  ) as { version?: unknown };
+  if (
+    typeof packageJson.version !== "string" ||
+    packageJson.version.length === 0
+  ) {
+    throw new CxError("Unable to resolve the installed Repomix version.", 5);
   }
   return packageJson.version;
 }
@@ -43,15 +52,15 @@ export async function renderSectionWithRepomix(params: {
   await assertSupportedRepomixVersion();
 
   if (params.explicitFiles.length === 0) {
-    await fs.writeFile(params.outputPath, '', 'utf8');
-    return '';
+    await fs.writeFile(params.outputPath, "", "utf8");
+    return "";
   }
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {
       filePath: params.outputPath,
       style: params.style,
-      parsableStyle: params.style === 'xml' || params.style === 'json',
+      parsableStyle: params.style === "xml" || params.style === "json",
       fileSummary: true,
       directoryStructure: true,
       files: true,
@@ -94,5 +103,5 @@ export async function renderSectionWithRepomix(params: {
     params.explicitFiles,
   );
 
-  return fs.readFile(params.outputPath, 'utf8');
+  return fs.readFile(params.outputPath, "utf8");
 }

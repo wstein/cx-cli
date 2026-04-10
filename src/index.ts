@@ -1,1 +1,1 @@
-export { main } from './cli/main.js';
+export { main } from "./cli/main.js";

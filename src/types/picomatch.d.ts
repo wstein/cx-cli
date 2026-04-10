@@ -1,4 +1,4 @@
-declare module 'picomatch' {
+declare module "picomatch" {
   export interface PicomatchOptions {
     dot?: boolean;
   }

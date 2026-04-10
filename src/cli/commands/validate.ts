@@ -1,6 +1,6 @@
-import path from 'node:path';
+import path from "node:path";
 
-import { validateBundle } from '../../bundle/validate.js';
+import { validateBundle } from "../../bundle/validate.js";
 
 export interface ValidateArgs {
   bundleDir: string;

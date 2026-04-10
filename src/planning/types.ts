@@ -1,9 +1,9 @@
-import type { CxStyle } from '../config/types.js';
+import type { CxStyle } from "../config/types.js";
 
 export interface PlannedSourceFile {
   relativePath: string;
   absolutePath: string;
-  kind: 'text' | 'asset';
+  kind: "text" | "asset";
   mediaType: string;
   sizeBytes: number;
   sha256: string;

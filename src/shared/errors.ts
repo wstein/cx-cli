@@ -3,7 +3,7 @@ export class CxError extends Error {
 
   constructor(message: string, exitCode = 2, options?: { cause?: unknown }) {
     super(message, options);
-    this.name = 'CxError';
+    this.name = "CxError";
     this.exitCode = exitCode;
   }
 }

@@ -8,8 +8,9 @@ The repository currently implements:
 - deterministic file discovery and planning
 - Repomix-backed section rendering
 - manifest and checksum generation
-- `init`, `inspect`, `list`, `validate`, and `verify`
-- `bundle` with a public adapter boundary for Repomix integration
+- lossless `extract` for XML and JSON bundles created without lossy text transforms
+- `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, and `verify`
+- lint, build, test, and CI verification workflows
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable.
 
@@ -17,6 +18,8 @@ The implementation intentionally refuses to shell out to `repomix`. The renderer
 
 ```bash
 bun install
+bun run format
+bun run lint
 bun run build
 bun test
 bun run verify

@@ -67,7 +67,7 @@ Status:
 
 ## Next Phase Candidates
 
-- full Repomix runtime integration
-- extraction for supported styles
-- JSON and plain-style parsing
+- markdown and plain extractors once exact round-trips are proven
+- richer bundle inspection and machine-readable reporting
 - CI matrix against multiple Repomix versions
+- packaging and release automation

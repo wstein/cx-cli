@@ -1,16 +1,18 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-
-import { loadCxConfig } from '../../config/load.js';
-import { buildBundlePlan } from '../../planning/buildPlan.js';
-import { ensureDir } from '../../shared/fs.js';
-import { renderSectionWithRepomix } from '../../repomix/render.js';
-import { sha256File } from '../../shared/hashing.js';
-import { buildManifest } from '../../manifest/build.js';
-import { renderManifestToon } from '../../manifest/toon.js';
-import { writeChecksumFile } from '../../manifest/checksums.js';
-import { CX_VERSION, REPOMIX_VERSION } from '../../repomix/render.js';
-import { validateBundle } from '../../bundle/validate.js';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { validateBundle } from "../../bundle/validate.js";
+import { loadCxConfig } from "../../config/load.js";
+import { buildManifest } from "../../manifest/build.js";
+import { writeChecksumFile } from "../../manifest/checksums.js";
+import { renderManifestToon } from "../../manifest/toon.js";
+import { buildBundlePlan } from "../../planning/buildPlan.js";
+import {
+  CX_VERSION,
+  REPOMIX_VERSION,
+  renderSectionWithRepomix,
+} from "../../repomix/render.js";
+import { ensureDir } from "../../shared/fs.js";
+import { sha256File } from "../../shared/hashing.js";
 
 export interface BundleArgs {
   config: string;
@@ -55,16 +57,16 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     repomixVersion: REPOMIX_VERSION,
   });
   const manifestName = `${plan.projectName}-manifest.toon`;
-  await fs.writeFile(path.join(plan.bundleDir, manifestName), renderManifestToon(manifest), 'utf8');
-  await writeChecksumFile(
-    plan.bundleDir,
-    plan.checksumFile,
-    [
-      manifestName,
-      ...plan.sections.map((section) => section.outputFile),
-      ...plan.assets.map((asset) => asset.storedPath),
-    ],
+  await fs.writeFile(
+    path.join(plan.bundleDir, manifestName),
+    renderManifestToon(manifest),
+    "utf8",
   );
+  await writeChecksumFile(plan.bundleDir, plan.checksumFile, [
+    manifestName,
+    ...plan.sections.map((section) => section.outputFile),
+    ...plan.assets.map((asset) => asset.storedPath),
+  ]);
 
   await validateBundle(plan.bundleDir);
   return 0;

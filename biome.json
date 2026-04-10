@@ -1,0 +1,21 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true
+  },
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "tests/**/*.ts",
+      "docs/**/*.md",
+      "README.md",
+      "package.json",
+      "tsconfig*.json",
+      "bin/**/*.js",
+      ".github/workflows/*.yml"
+    ]
+  }
+}

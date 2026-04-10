@@ -1,4 +1,4 @@
-import type { CxStyle } from '../config/types.js';
+import type { CxStyle } from "../config/types.js";
 
 export interface ManifestSettings {
   globalStyle: CxStyle;
@@ -29,18 +29,18 @@ export interface AssetRecord {
 
 export interface ManifestFileRow {
   path: string;
-  kind: 'text' | 'asset';
-  section: string | '-';
-  storedIn: 'packed' | 'copied';
+  kind: "text" | "asset";
+  section: string | "-";
+  storedIn: "packed" | "copied";
   sha256: string;
   sizeBytes: number;
   mediaType: string;
-  outputFile: string | '-';
-  outputStartLine: number | '-';
-  outputEndLine: number | '-';
-  leadingWhitespaceBase64: string | '-';
-  trailingWhitespaceBase64: string | '-';
-  exactContentBase64: string | '-';
+  outputFile: string | "-";
+  outputStartLine: number | "-";
+  outputEndLine: number | "-";
+  leadingWhitespaceBase64: string | "-";
+  trailingWhitespaceBase64: string | "-";
+  exactContentBase64: string | "-";
 }
 
 export interface CxManifest {
@@ -53,7 +53,7 @@ export interface CxManifest {
   createdAt: string;
   cxVersion: string;
   repomixVersion: string;
-  checksumAlgorithm: 'sha256';
+  checksumAlgorithm: "sha256";
   settings: ManifestSettings;
   sections: SectionOutputRecord[];
   assets: AssetRecord[];

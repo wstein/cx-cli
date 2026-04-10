@@ -1,6 +1,6 @@
-import path from 'node:path';
+import path from "node:path";
 
-import { extractBundle } from '../../extract/extract.js';
+import { extractBundle } from "../../extract/extract.js";
 
 export interface ExtractArgs {
   bundleDir: string;

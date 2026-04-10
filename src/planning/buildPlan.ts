@@ -1,49 +1,69 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import fs from "node:fs/promises";
+import path from "node:path";
 
-import picomatch from 'picomatch';
+import picomatch from "picomatch";
 
-import type { CxConfig, CxSectionConfig, CxStyle } from '../config/types.js';
-import { detectMediaType } from '../shared/mime.js';
-import { CxError } from '../shared/errors.js';
-import { listFilesRecursive, relativePosix, sortLexically } from '../shared/fs.js';
-import { isSubpath } from '../shared/paths.js';
-import { sha256File } from '../shared/hashing.js';
-import type { BundlePlan, PlannedAsset, PlannedSection, PlannedSourceFile } from './types.js';
+import type { CxConfig, CxSectionConfig, CxStyle } from "../config/types.js";
+import { CxError } from "../shared/errors.js";
+import {
+  listFilesRecursive,
+  relativePosix,
+  sortLexically,
+} from "../shared/fs.js";
+import { sha256File } from "../shared/hashing.js";
+import { detectMediaType } from "../shared/mime.js";
+import { isSubpath } from "../shared/paths.js";
+import type {
+  BundlePlan,
+  PlannedAsset,
+  PlannedSection,
+  PlannedSourceFile,
+} from "./types.js";
 
 function outputExtension(style: CxStyle): string {
   switch (style) {
-    case 'markdown':
-      return 'md';
-    case 'json':
-      return 'json';
-    case 'plain':
-      return 'txt';
-    case 'xml':
-      return 'xml.txt';
+    case "markdown":
+      return "md";
+    case "json":
+      return "json";
+    case "plain":
+      return "txt";
+    case "xml":
+      return "xml.txt";
   }
 }
 
-function compileMatchers(patterns: string[]): Array<(value: string) => boolean> {
+function compileMatchers(
+  patterns: string[],
+): Array<(value: string) => boolean> {
   return patterns.map((pattern) => picomatch(pattern, { dot: true }));
 }
 
-function matchesAny(matchers: Array<(value: string) => boolean>, value: string): boolean {
+function matchesAny(
+  matchers: Array<(value: string) => boolean>,
+  value: string,
+): boolean {
   return matchers.some((matcher) => matcher(value));
 }
 
 function getSectionOrder(config: CxConfig): string[] {
   const names = Object.keys(config.sections);
-  return config.dedup.order === 'lexical' ? sortLexically(names) : names;
+  return config.dedup.order === "lexical" ? sortLexically(names) : names;
 }
 
-function getMatchingSections(relativePath: string, sections: Map<string, CxSectionConfig>): string[] {
+function getMatchingSections(
+  relativePath: string,
+  sections: Map<string, CxSectionConfig>,
+): string[] {
   const matches: string[] = [];
 
   for (const [name, section] of sections.entries()) {
     const include = compileMatchers(section.include);
     const exclude = compileMatchers(section.exclude);
-    if (matchesAny(include, relativePath) && !matchesAny(exclude, relativePath)) {
+    if (
+      matchesAny(include, relativePath) &&
+      !matchesAny(exclude, relativePath)
+    ) {
       matches.push(name);
     }
   }
@@ -51,9 +71,33 @@ function getMatchingSections(relativePath: string, sections: Map<string, CxSecti
   return matches;
 }
 
+function getRequiredSection(
+  sections: Record<string, CxSectionConfig>,
+  sectionName: string,
+): CxSectionConfig {
+  const section = sections[sectionName];
+  if (!section) {
+    throw new CxError(`Missing section definition for ${sectionName}.`, 2);
+  }
+  return section;
+}
+
+function getRequiredSectionFiles(
+  sectionFiles: Map<string, PlannedSourceFile[]>,
+  sectionName: string,
+): PlannedSourceFile[] {
+  const files = sectionFiles.get(sectionName);
+  if (!files) {
+    throw new CxError(`Missing planned file set for ${sectionName}.`, 2);
+  }
+  return files;
+}
+
 export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const allFiles = await listFilesRecursive(config.sourceRoot);
-  const outputExcluded = isSubpath(config.sourceRoot, config.outputDir) ? relativePosix(config.sourceRoot, config.outputDir) : undefined;
+  const outputExcluded = isSubpath(config.sourceRoot, config.outputDir)
+    ? relativePosix(config.sourceRoot, config.outputDir)
+    : undefined;
   const globalExcludeMatchers = compileMatchers([
     ...config.files.exclude,
     ...(outputExcluded ? [`${outputExcluded}/**`] : []),
@@ -61,7 +105,12 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const assetIncludeMatchers = compileMatchers(config.assets.include);
   const assetExcludeMatchers = compileMatchers(config.assets.exclude);
   const sectionNames = getSectionOrder(config);
-  const sectionEntries = new Map(sectionNames.map((name) => [name, config.sections[name]!]));
+  const sectionEntries = new Map(
+    sectionNames.map((name) => [
+      name,
+      getRequiredSection(config.sections, name),
+    ]),
+  );
   const sectionFiles = new Map<string, PlannedSourceFile[]>(
     sectionNames.map((sectionName) => [sectionName, []]),
   );
@@ -71,38 +120,48 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const relativePaths = sortLexically(
     allFiles
       .map((filePath) => relativePosix(config.sourceRoot, filePath))
-      .filter((relativePath) => !matchesAny(globalExcludeMatchers, relativePath)),
+      .filter(
+        (relativePath) => !matchesAny(globalExcludeMatchers, relativePath),
+      ),
   );
 
   for (const relativePath of relativePaths) {
     const absolutePath = path.join(config.sourceRoot, relativePath);
     const matchingSections = getMatchingSections(relativePath, sectionEntries);
-    const isAsset = matchesAny(assetIncludeMatchers, relativePath) && !matchesAny(assetExcludeMatchers, relativePath);
+    const isAsset =
+      matchesAny(assetIncludeMatchers, relativePath) &&
+      !matchesAny(assetExcludeMatchers, relativePath);
 
-    if (matchingSections.length > 1 && config.dedup.mode === 'fail') {
+    if (matchingSections.length > 1 && config.dedup.mode === "fail") {
       throw new CxError(
-        `Section overlap detected for ${relativePath}: ${matchingSections.join(', ')}.`,
+        `Section overlap detected for ${relativePath}: ${matchingSections.join(", ")}.`,
         4,
       );
     }
 
     if (isAsset && matchingSections.length > 0) {
-      throw new CxError(`Asset conflict detected for ${relativePath}: file matches both an asset rule and section ${matchingSections[0]}.`, 4);
+      throw new CxError(
+        `Asset conflict detected for ${relativePath}: file matches both an asset rule and section ${matchingSections[0]}.`,
+        4,
+      );
     }
 
     if (matchingSections.length === 0) {
       if (isAsset) {
-        if (config.assets.mode === 'fail') {
-          throw new CxError(`Asset ${relativePath} matched an asset rule while assets.mode=fail.`, 4);
+        if (config.assets.mode === "fail") {
+          throw new CxError(
+            `Asset ${relativePath} matched an asset rule while assets.mode=fail.`,
+            4,
+          );
         }
 
-        if (config.assets.mode === 'copy') {
+        if (config.assets.mode === "copy") {
           const stat = await fs.stat(absolutePath);
           assets.push({
             relativePath,
             absolutePath,
-            kind: 'asset',
-            mediaType: detectMediaType(relativePath, 'asset'),
+            kind: "asset",
+            mediaType: detectMediaType(relativePath, "asset"),
             sizeBytes: stat.size,
             sha256: await sha256File(absolutePath),
             storedPath: `${config.assets.targetDir}/${relativePath}`,
@@ -115,40 +174,58 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       continue;
     }
 
-    const sectionName = matchingSections[0]!;
+    const sectionName = matchingSections[0];
+    if (!sectionName) {
+      throw new CxError(`Missing resolved section for ${relativePath}.`, 2);
+    }
     const stat = await fs.stat(absolutePath);
-    const sourceText = await fs.readFile(absolutePath, 'utf8');
+    const sourceText = await fs.readFile(absolutePath, "utf8");
     const trimmedText = sourceText.trim();
-    const leadingWhitespace = sourceText.slice(0, sourceText.length - sourceText.trimStart().length);
+    const leadingWhitespace = sourceText.slice(
+      0,
+      sourceText.length - sourceText.trimStart().length,
+    );
     const trailingWhitespace = sourceText.slice(sourceText.trimEnd().length);
     const plannedFile: PlannedSourceFile = {
       relativePath,
       absolutePath,
-      kind: 'text',
-      mediaType: detectMediaType(relativePath, 'text'),
+      kind: "text",
+      mediaType: detectMediaType(relativePath, "text"),
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
-      leadingWhitespaceBase64: Buffer.from(leadingWhitespace, 'utf8').toString('base64'),
-      trailingWhitespaceBase64: Buffer.from(trailingWhitespace, 'utf8').toString('base64'),
+      leadingWhitespaceBase64: Buffer.from(leadingWhitespace, "utf8").toString(
+        "base64",
+      ),
+      trailingWhitespaceBase64: Buffer.from(
+        trailingWhitespace,
+        "utf8",
+      ).toString("base64"),
     };
     if (trimmedText.length === 0) {
-      plannedFile.exactContentBase64 = Buffer.from(sourceText, 'utf8').toString('base64');
+      plannedFile.exactContentBase64 = Buffer.from(sourceText, "utf8").toString(
+        "base64",
+      );
     }
-    sectionFiles.get(sectionName)!.push(plannedFile);
+    getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
   }
 
-  if (config.files.unmatched === 'fail' && unmatchedFiles.length > 0) {
-    throw new CxError(`Unmatched files detected: ${unmatchedFiles.join(', ')}.`, 2);
+  if (config.files.unmatched === "fail" && unmatchedFiles.length > 0) {
+    throw new CxError(
+      `Unmatched files detected: ${unmatchedFiles.join(", ")}.`,
+      2,
+    );
   }
 
   const sections: PlannedSection[] = sectionNames.map((name) => {
-    const section = config.sections[name]!;
+    const section = getRequiredSection(config.sections, name);
     const style = section.style ?? config.repomix.style;
     return {
       name,
       style,
       outputFile: `${config.projectName}-repomix-${name}.${outputExtension(style)}`,
-      files: sectionFiles.get(name)!.sort((left, right) => left.relativePath.localeCompare(right.relativePath, 'en')),
+      files: getRequiredSectionFiles(sectionFiles, name).sort((left, right) =>
+        left.relativePath.localeCompare(right.relativePath, "en"),
+      ),
     };
   });
 
@@ -158,7 +235,9 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     bundleDir: config.outputDir,
     checksumFile: config.checksums.fileName,
     sections,
-    assets: assets.sort((left, right) => left.relativePath.localeCompare(right.relativePath, 'en')),
+    assets: assets.sort((left, right) =>
+      left.relativePath.localeCompare(right.relativePath, "en"),
+    ),
     unmatchedFiles,
   };
 }

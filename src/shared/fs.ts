@@ -1,7 +1,7 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import fs from "node:fs/promises";
+import path from "node:path";
 
-import { toPosixPath } from './paths.js';
+import { toPosixPath } from "./paths.js";
 
 export async function ensureDir(dirPath: string): Promise<void> {
   await fs.mkdir(dirPath, { recursive: true });
@@ -37,7 +37,7 @@ export async function listFilesRecursive(rootDir: string): Promise<string[]> {
 }
 
 export function sortLexically(values: readonly string[]): string[] {
-  return [...values].sort((left, right) => left.localeCompare(right, 'en'));
+  return [...values].sort((left, right) => left.localeCompare(right, "en"));
 }
 
 export function relativePosix(rootDir: string, filePath: string): string {

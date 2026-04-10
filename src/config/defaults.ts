@@ -1,6 +1,6 @@
-import type { CxConfig, CxStyle } from './types.js';
+import type { CxConfig, CxStyle } from "./types.js";
 
-export const DEFAULT_STYLE: CxStyle = 'xml';
+export const DEFAULT_STYLE: CxStyle = "xml";
 
 export const DEFAULT_CONFIG_TEMPLATE = `schema_version = 1
 project_name = "myproject"
@@ -51,9 +51,12 @@ include = ["src/**"]
 exclude = []
 `;
 
-export const DEFAULT_CONFIG_VALUES: Omit<CxConfig, 'schemaVersion' | 'projectName' | 'sourceRoot' | 'outputDir' | 'sections'> = {
+export const DEFAULT_CONFIG_VALUES: Omit<
+  CxConfig,
+  "schemaVersion" | "projectName" | "sourceRoot" | "outputDir" | "sections"
+> = {
   repomix: {
-    style: 'xml',
+    style: "xml",
     compress: false,
     removeComments: false,
     removeEmptyLines: false,
@@ -62,29 +65,29 @@ export const DEFAULT_CONFIG_VALUES: Omit<CxConfig, 'schemaVersion' | 'projectNam
     securityCheck: true,
   },
   files: {
-    exclude: ['.git/**', 'node_modules/**', 'dist/**'],
+    exclude: [".git/**", "node_modules/**", "dist/**"],
     followSymlinks: false,
-    unmatched: 'ignore',
+    unmatched: "ignore",
   },
   dedup: {
-    mode: 'fail',
-    order: 'config',
+    mode: "fail",
+    order: "config",
   },
   manifest: {
-    format: 'toon',
+    format: "toon",
     includeFileSha256: true,
     includeOutputSha256: true,
     includeOutputSpans: false,
     includeSourceMetadata: true,
   },
   checksums: {
-    algorithm: 'sha256',
-    fileName: '{project}.sha256',
+    algorithm: "sha256",
+    fileName: "{project}.sha256",
   },
   assets: {
-    include: ['**/*.{png,jpg,jpeg,gif,webp,svg,pdf}'],
+    include: ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"],
     exclude: [],
-    mode: 'copy',
-    targetDir: '{project}-assets',
+    mode: "copy",
+    targetDir: "{project}-assets",
   },
 };

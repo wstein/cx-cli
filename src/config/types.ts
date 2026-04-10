@@ -1,7 +1,7 @@
-export type CxStyle = 'xml' | 'markdown' | 'json' | 'plain';
-export type CxDedupMode = 'fail' | 'first-wins';
-export type CxUnmatchedMode = 'ignore' | 'fail';
-export type CxAssetsMode = 'copy' | 'ignore' | 'fail';
+export type CxStyle = "xml" | "markdown" | "json" | "plain";
+export type CxDedupMode = "fail" | "first-wins";
+export type CxUnmatchedMode = "ignore" | "fail";
+export type CxAssetsMode = "copy" | "ignore" | "fail";
 
 export interface CxSectionConfig {
   include: string[];
@@ -27,11 +27,11 @@ export interface CxFilesConfig {
 
 export interface CxDedupConfig {
   mode: CxDedupMode;
-  order: 'config' | 'lexical';
+  order: "config" | "lexical";
 }
 
 export interface CxManifestConfig {
-  format: 'toon';
+  format: "toon";
   includeFileSha256: boolean;
   includeOutputSha256: boolean;
   includeOutputSpans: boolean;
@@ -39,7 +39,7 @@ export interface CxManifestConfig {
 }
 
 export interface CxChecksumsConfig {
-  algorithm: 'sha256';
+  algorithm: "sha256";
   fileName: string;
 }
 
