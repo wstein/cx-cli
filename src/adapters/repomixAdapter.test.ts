@@ -11,6 +11,8 @@ import { describe, it, before, after } from 'node:test';
 import {
   classifyFile,
   computeSha256,
+  countFileTokens,
+  extractTotalTokens,
   MANIFEST_FILENAME,
   SHA256SUMS_FILENAME,
   parseRepomixFile,
@@ -95,6 +97,30 @@ describe('computeSha256', () => {
     await writeFile(f1, 'content A', 'utf8');
     await writeFile(f2, 'content B', 'utf8');
     assert.notEqual(await computeSha256(f1), await computeSha256(f2));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// extractTotalTokens
+// ---------------------------------------------------------------------------
+
+describe('extractTotalTokens', () => {
+  it('returns the last reported total token count in repomix output', () => {
+    const content = `Total tokens: 1\nconst x = 2;\nTotal tokens: 34,739 tokens`;
+    assert.equal(extractTotalTokens(content), 34739);
+  });
+
+  it('returns undefined when no total token summary is present', () => {
+    const content = 'No token summary here';
+    assert.equal(extractTotalTokens(content), undefined);
+  });
+});
+
+describe('countFileTokens', () => {
+  it('counts tokens for arbitrary repomix output content', () => {
+    const content = '<repomix><files><file path="a.ts">const x = 1;</file></files></repomix>';
+    const count = countFileTokens(content);
+    assert.ok(count > 0, 'expected a positive token count');
   });
 });
 

@@ -12,7 +12,7 @@ import fg from 'fast-glob';
 import { access, constants, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import kleur from 'kleur';
-import { computeSha256 } from '../adapters/repomixAdapter.js';
+import { computeSha256, countFileTokens } from '../adapters/repomixAdapter.js';
 import { runRepomix } from './repomix.js';
 import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
@@ -254,8 +254,7 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
 
     const fileStat = await stat(outputFile);
     const fileContent = await readFile(outputFile, 'utf8');
-    const tokenMatch = /Total tokens:\s*(\d+)/i.exec(fileContent);
-    const tokenCount = tokenMatch?.[1] ?? 'unknown';
+    const tokenCount = countFileTokens(fileContent);
 
     console.log(`✅ Generated: ${outputFile}`);
     console.log(`   Size:   ${fileStat.size} bytes`);

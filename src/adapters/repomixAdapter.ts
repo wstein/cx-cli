@@ -20,6 +20,8 @@ import { pipeline } from 'node:stream/promises';
 import archiver from 'archiver';
 import fg from 'fast-glob';
 import { XMLParser } from 'fast-xml-parser';
+import { TokenCounter } from 'repomix';
+import type { TiktokenEncoding } from 'tiktoken';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -302,6 +304,37 @@ function parseRepomixJson(content: string): ParsedRepomixOutput {
       directoryStructure: doc.directoryStructure,
     }),
   };
+}
+
+/**
+ * Extract the final reported token count from repomix output content.
+ *
+ * Repomix output files may include embedded source text with incidental
+ * occurrences of "Total tokens:". We therefore prefer the last reported
+ * value in the file, which corresponds to the actual repomix summary.
+ */
+export function extractTotalTokens(fileContent: string): number | undefined {
+  const pattern = /Total tokens:\s*([\d,]+)/gi;
+  let lastMatch: RegExpExecArray | null = null;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(fileContent)) !== null) {
+    lastMatch = match;
+  }
+
+  if (lastMatch === null) return undefined;
+  const tokenText = lastMatch[1] ?? '';
+  if (tokenText.length === 0) return undefined;
+  return Number(tokenText.replace(/,/g, ''));
+}
+
+export function countFileTokens(content: string, encoding: TiktokenEncoding = 'o200k_base'): number {
+  const counter = new TokenCounter(encoding);
+  try {
+    return counter.countTokens(content);
+  } finally {
+    counter.free();
+  }
 }
 
 // ---------------------------------------------------------------------------

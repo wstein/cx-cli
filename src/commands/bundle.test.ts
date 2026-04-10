@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { runBundle } from './bundle.js';
+import { countFileTokens } from '../adapters/repomixAdapter.js';
 
 describe('bundle command', () => {
   let bundleDir: string;
@@ -32,6 +33,20 @@ describe('bundle command', () => {
     assert.ok(logs.some((line) => line.includes('Detailed bundle contents:')));
     assert.ok(logs.some((line) => line.includes('repomix-output.xml')));
     assert.ok(logs.some((line) => line.includes('logo.png')));
+  });
+
+  it('prints repomix artifact stats in the bundle summary', async () => {
+    logs.length = 0;
+    const tokenFile = `Total tokens: 1\n<repomix><files><file path="a.ts">x</file></files></repomix>`;
+    const expectedTokens = countFileTokens(tokenFile);
+    await writeFile(join(bundleDir, 'repomix-output.xml'), tokenFile, 'utf8');
+
+    await runBundle(bundleDir, {});
+
+    assert.ok(logs.some((line) => line.includes('📊 Bundle Summary:')));
+    assert.ok(logs.some((line) => line.includes(`Total Tokens: ${expectedTokens.toLocaleString()} tokens`)));
+    assert.ok(logs.some((line) => line.includes('Total Chars:')));
+    assert.ok(logs.some((line) => line.includes('repomix-output.xml:')));
   });
 
   it('resolves bundle outputDir from cx.json when no path is provided', async () => {

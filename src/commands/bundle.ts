@@ -7,7 +7,7 @@ import { basename, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import kleur from 'kleur';
 import type { CxConfig } from './init.js';
-import { processBundle } from '../adapters/repomixAdapter.js';
+import { countFileTokens, processBundle } from '../adapters/repomixAdapter.js';
 import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface BundleCommandOptions {
@@ -69,13 +69,30 @@ export async function runBundle(
     ...(options.exclude !== undefined && { exclude: options.exclude }),
   });
 
-  const repomixCount = manifest.files.filter((f) => f.type === 'repomix').length;
+  const repomixFiles = manifest.files.filter((f) => f.type === 'repomix');
+  const repomixCount = repomixFiles.length;
   const binaryCount = manifest.files.filter((f) => f.type === 'binary').length;
   const totalBytes = manifest.files.reduce((acc, f) => acc + f.size, 0);
 
   console.log(kleur.green(`✓ Bundle complete — ${manifest.files.length} file(s), ${formatBytes(totalBytes)}`));
 
-  if (repomixCount > 0) console.log(kleur.dim(`  ${repomixCount} repomix file(s)`));
+  if (repomixCount > 0) {
+    console.log(kleur.dim(`  ${repomixCount} repomix file(s)`));
+    const repomixSummary = await summarizeRepomixStats(bundleRoot, repomixFiles);
+    console.log(kleur.cyan('📊 Bundle Summary:'));
+    console.log(kleur.cyan('────────────────'));
+    console.log(`  Total Files: ${manifest.files.length} file(s)`);
+    console.log(` Total Tokens: ${formatNumber(repomixSummary.totalTokens)} tokens`);
+    console.log(`  Total Chars: ${formatNumber(repomixSummary.totalChars)} chars`);
+    for (const artifact of repomixSummary.artifacts) {
+      console.log(
+        kleur.dim(
+          `  ${artifact.path}: ${artifact.tokens !== undefined ? `${formatNumber(artifact.tokens)} tokens` : 'unknown'}, ${formatNumber(artifact.chars)} chars`,
+        ),
+      );
+    }
+  }
+
   if (binaryCount > 0) console.log(kleur.dim(`  ${binaryCount} binary asset(s)`));
   console.log(kleur.dim('  manifest → manifest.json'));
   console.log(kleur.dim('  checksums → SHA256SUMS'));
@@ -126,6 +143,48 @@ async function cxConfigHasSections(cxConfigFile: string): Promise<boolean> {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+type RepomixArtifactSummary = {
+  path: string;
+  tokens: number;
+  chars: number;
+};
+
+type RepomixStatsSummary = {
+  totalTokens: number;
+  totalChars: number;
+  artifacts: RepomixArtifactSummary[];
+};
+
+async function summarizeRepomixStats(
+  bundleRoot: string,
+  repomixFiles: Array<{ path: string }> | undefined,
+): Promise<RepomixStatsSummary> {
+  const artifacts: RepomixArtifactSummary[] = [];
+  if (repomixFiles === undefined) {
+    return { totalTokens: 0, totalChars: 0, artifacts };
+  }
+
+  for (const file of repomixFiles) {
+    const filePath = resolve(bundleRoot, file.path);
+    const fileContent = await readFile(filePath, 'utf8');
+    const tokenCount = countFileTokens(fileContent);
+    artifacts.push({
+      path: file.path,
+      tokens: tokenCount,
+      chars: fileContent.length,
+    });
+  }
+
+  const totalTokens = artifacts.reduce((sum, artifact) => sum + artifact.tokens, 0);
+  const totalChars = artifacts.reduce((sum, artifact) => sum + artifact.chars, 0);
+
+  return { totalTokens, totalChars, artifacts };
+}
+
+function formatNumber(value: number): string {
+  return value.toLocaleString('en-US');
+}
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
