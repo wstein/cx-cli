@@ -14,8 +14,9 @@ import { registerRepomixCommands } from './cli/repomix-commands.js';
 import { runRepomix } from './commands/repomix.js';
 
 const cli = cac('cx');
+const CLI_VERSION = '0.1.0';
 
-cli.version('0.1.0');
+cli.version(CLI_VERSION);
 cli.help();
 
 if (process.argv[2] === 'repomix') {
@@ -25,6 +26,12 @@ if (process.argv[2] === 'repomix') {
     process.exitCode = 1;
   });
 } else {
-  registerRepomixCommands(cli);
-  cli.parse(process.argv);
+  registerRepomixCommands(cli, CLI_VERSION);
+
+  if (process.argv.length <= 2) {
+    cli.outputHelp();
+    process.exit(0);
+  }
+
+  cli.parse(process.argv.slice(2));
 }

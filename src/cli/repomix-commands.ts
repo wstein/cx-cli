@@ -60,7 +60,20 @@ function action<T extends unknown[]>(fn: (...args: T) => Promise<void>): (...arg
  *   - `init`           — create default configuration files
  *   - `cleanup <path>` — remove generated metadata files
  */
-export function registerRepomixCommands(cli: CAC): void {
+export function registerRepomixCommands(cli: CAC, version: string): void {
+  // ── help / version ───────────────────────────────────────────────────────
+  cli
+    .command('help', 'Show CLI help')
+    .action(() => {
+      cli.outputHelp();
+    });
+
+  cli
+    .command('version', 'Show CLI version')
+    .action(() => {
+      console.log(version);
+    });
+
   // ── bundle ──────────────────────────────────────────────────────────────
   cli
     .command('bundle [path]', 'Process a bundle directory (defaults to current working directory): compute SHA-256 digests, write manifest.json and SHA256SUMS')
