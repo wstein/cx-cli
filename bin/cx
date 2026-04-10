@@ -1,0 +1,118 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = resolve(__dirname, '..');
+const ENTRY_POINT = join(ROOT_DIR, 'dist', 'index.js');
+const SOURCE_DIR = join(ROOT_DIR, 'src');
+const PACKAGE_JSON = join(ROOT_DIR, 'package.json');
+const TSCONFIG = join(ROOT_DIR, 'tsconfig.json');
+const LOCAL_TSC = join(ROOT_DIR, 'node_modules', 'typescript', 'bin', 'tsc');
+
+function mtimeMs(path) {
+  return fs.statSync(path, { bigint: false }).mtimeMs;
+}
+
+function latestSourceTime(path) {
+  if (!fs.existsSync(path)) return 0;
+  const stats = fs.statSync(path);
+  if (stats.isFile()) return stats.mtimeMs;
+  if (!stats.isDirectory()) return 0;
+
+  let latest = stats.mtimeMs;
+  for (const entry of fs.readdirSync(path, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git') continue;
+    latest = Math.max(latest, latestSourceTime(join(path, entry.name)));
+  }
+  return latest;
+}
+
+function shouldRebuild() {
+  if (!fs.existsSync(ENTRY_POINT)) return true;
+
+  const distMtime = mtimeMs(ENTRY_POINT);
+  const sourceMtime = Math.max(
+    latestSourceTime(SOURCE_DIR),
+    fs.existsSync(PACKAGE_JSON) ? mtimeMs(PACKAGE_JSON) : 0,
+    fs.existsSync(TSCONFIG) ? mtimeMs(TSCONFIG) : 0,
+  );
+
+  return sourceMtime > distMtime;
+}
+
+function commandExists(command) {
+  const result = spawnSync(command, ['--version'], {
+    stdio: 'ignore',
+    cwd: ROOT_DIR,
+  });
+  return result.status === 0;
+}
+
+function runCommand(command, args) {
+  const result = spawnSync(command, args, { stdio: 'inherit', cwd: ROOT_DIR });
+  if (result.error !== undefined) {
+    throw result.error;
+  }
+  if (result.signal !== null) {
+    process.kill(process.pid, result.signal);
+  }
+  return result.status ?? 1;
+}
+
+function rebuild() {
+  console.log('cx: detected stale build, running rebuild...');
+
+  if (commandExists('bun')) {
+    return runCommand('bun', ['run', 'build']);
+  }
+
+  if (fs.existsSync(LOCAL_TSC)) {
+    return runCommand(process.execPath, [LOCAL_TSC]);
+  }
+
+  console.error('cx: rebuild requested but no build tool is available.');
+  console.error('Install Bun or ensure local TypeScript is installed with `bun install`.');
+  process.exit(1);
+}
+
+const candidates = ['bun', process.execPath];
+const args = [ENTRY_POINT, ...process.argv.slice(2)];
+
+if (shouldRebuild()) {
+  const status = rebuild();
+  if (status !== 0) {
+    process.exit(status);
+  }
+  if (!fs.existsSync(ENTRY_POINT)) {
+    console.error('cx: rebuild completed but dist/index.js is still missing.');
+    process.exit(1);
+  }
+}
+
+for (const command of candidates) {
+  const result = spawnSync(command, args, { stdio: 'inherit' });
+
+  if (result.error !== undefined) {
+    if (result.error.code === 'ENOENT') {
+      continue;
+    }
+
+    console.error(`cx: failed to spawn ${command}: ${result.error.message}`);
+    process.exit(1);
+  }
+
+  if (result.signal !== null) {
+    process.kill(process.pid, result.signal);
+  }
+
+  if (result.status !== null) {
+    process.exit(result.status);
+  }
+}
+
+console.error('cx: neither bun nor node is installed or available on PATH.');
+process.exit(127);

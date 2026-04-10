@@ -31,5 +31,11 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Verify cx shim portability
+        run: node scripts/check-cx-portability.js
+
+      - name: Verify cx shim rebuild behavior
+        run: node scripts/check-cx-rebuild.js
+
       - name: Test
         run: bun run test

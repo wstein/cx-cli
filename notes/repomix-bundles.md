@@ -77,6 +77,14 @@ bundles/ ──[cx bundle]──▶ bundles/SHA256SUMS
 
 ---
 
+## Tooling Notes
+
+- `bin/cx` is a Node-based shim that launches `dist/index.js`.
+- The shim prefers `bun` when available, but falls back to the current Node runtime.
+- It automatically rebuilds `dist/index.js` when `src/`, `package.json`, or `tsconfig.json` are newer than the existing build output.
+- CI now runs runtime verification for stale-build detection and shim portability using `scripts/check-cx-rebuild.js` and `scripts/check-cx-portability.js`.
+- This keeps the CLI entry point platform-neutral and avoids POSIX shell-only wrappers.
+
 ## Follow-up Ideas
 
 - JSON Schema for `manifest.json` (schemaVersion 1).
