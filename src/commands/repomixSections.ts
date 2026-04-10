@@ -8,6 +8,7 @@
  * and prints a compact summary for each generated output.
  */
 
+import fg from 'fast-glob';
 import { access, constants, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import kleur from 'kleur';
@@ -132,6 +133,44 @@ function safeComponentName(name: string): string {
   return candidate.length > 0 ? candidate : 'component';
 }
 
+async function resolveSectionSources(repoRoot: string, includePatterns: string[]): Promise<string[]> {
+  const matched = await fg(includePatterns, {
+    cwd: repoRoot,
+    onlyFiles: true,
+    dot: true,
+    unique: true,
+    followSymbolicLinks: true,
+  });
+  return matched.map((filePath) => resolve(repoRoot, filePath));
+}
+
+async function getLatestMTime(paths: string[]): Promise<number> {
+  if (paths.length === 0) {
+    return 0;
+  }
+  const stats = await Promise.all(paths.map((path) => stat(path).then((s) => s.mtimeMs)));
+  return Math.max(...stats);
+}
+
+export async function shouldGenerateComponent(
+  outputFile: string,
+  repoRoot: string,
+  includePatterns: string[],
+  cxConfigFile: string,
+  repomixConfigFile: string,
+): Promise<boolean> {
+  if (!(await fileExists(outputFile))) {
+    return true;
+  }
+
+  const outputMtime = (await stat(outputFile)).mtimeMs;
+  const sourceFiles = await resolveSectionSources(repoRoot, includePatterns);
+  const sourceMtime = await getLatestMTime(sourceFiles);
+  const configMtime = await getLatestMTime([cxConfigFile, repomixConfigFile].filter(Boolean) as string[]);
+
+  return sourceMtime > outputMtime || configMtime > outputMtime;
+}
+
 export async function runRepomixSections(options: RepomixSectionsOptions = {}): Promise<void> {
   const repoRoot = resolve(process.cwd());
   const cxConfigFile = resolveConfigFilePath(repoRoot, options.cxConfig ?? 'cx.json');
@@ -176,16 +215,6 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
   for (const component of sections) {
     const sanitizedName = safeComponentName(component.name);
     const outputFile = join(outputDir, `repomix-component-${sanitizedName}.${fileExtension}`);
-
-    console.log();
-    console.log('════════════════════════════════════════════════════════════');
-    console.log(`Generating component: ${component.name}`);
-    console.log('════════════════════════════════════════════════════════════');
-
-    if (await fileExists(outputFile).catch(() => false)) {
-      await rm(outputFile, { force: true });
-    }
-
     const repomixArgs = [
       '--config',
       repomixConfigFile,
@@ -193,6 +222,29 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
       outputFile,
       ...component.include.flatMap((pattern: string) => ['--include', pattern]),
     ];
+
+    console.log();
+    console.log('════════════════════════════════════════════════════════════');
+    console.log(`Generating component: ${component.name}`);
+    console.log('════════════════════════════════════════════════════════════');
+
+    const componentNeedsRebuild = await shouldGenerateComponent(
+      outputFile,
+      repoRoot,
+      component.include,
+      cxConfigFile,
+      repomixConfigFile,
+    );
+
+    if (!componentNeedsRebuild) {
+      console.log(kleur.dim('Skipping component generation — no section source files changed since last bundle.'));
+      generatedFiles.push(outputFile);
+      continue;
+    }
+
+    if (await fileExists(outputFile).catch(() => false)) {
+      await rm(outputFile, { force: true });
+    }
 
     if (options.verbose) {
       console.log(`Running repomix with args: ${repomixArgs.join(' ')}`);
