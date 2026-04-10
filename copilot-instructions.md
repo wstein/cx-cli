@@ -31,6 +31,7 @@ GitHub Copilot context for this repository. Copilot uses this file to tailor sug
 - Do not remove or silence tests to make CI pass.
 
 ## Task Execution Guidance
+- Use `bd` for task tracking and workflow management.
 - Break work into multiple phases with focused scope.
 - Prefer production-ready implementation over prototypes.
 - Avoid backward compatibility unless requested.

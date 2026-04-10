@@ -36,12 +36,12 @@ cx cleanup ./bundles --force
 
 ## Commands
 
-### `cx bundle <path>`
+### `cx bundle [path]`
 
-Scan a directory, compute SHA-256 for every file, and write `SHA256SUMS` and `manifest.json`.
+Scan a directory (defaults to the current working directory), compute SHA-256 for every file, and write `SHA256SUMS` and `manifest.json`.
 
 ```
-cx bundle <path> [options]
+cx bundle [path] [options]
 
 Options:
   --zip                  Create a ZIP archive of the completed bundle

@@ -30,7 +30,7 @@ cx cleanup ./bundles --force --zip
 
 | Command | Description |
 |---------|-------------|
-| `cx bundle <path> [--zip [name]]` | Scan folder, write `manifest.json` + `SHA256SUMS`, optional zip; `--sections` generates repomix outputs from `cx.json` before bundling |
+| `cx bundle [path] [--zip [name]]` | Scan folder (default current directory), write `manifest.json` + `SHA256SUMS`, optional zip; `--sections` generates repomix outputs from `cx.json` before bundling |
 | `cx list <repomix-file>` | List file paths in a bundle directory or repomix output file |
 | `cx repomix [...args]` | Forward arguments directly to the repomix CLI dependency |
 | `cx repomix-components` | Generate one repomix output file per component from `cx.json` sections |

@@ -1,13 +1,13 @@
 {
-  "$schema": "https://raw.githubusercontent.com/wstein/cx-cli/main/schemas/cx.schema.json",
+  "$schema": "schemas/cx.schema.json",
   "version": "1",
   "repomix": {
     "configFile": "repomix.config.json",
     "outputStyle": "xml",
-    "outputDir": "bundles"
+    "outputDir": "~/Downloads/cx-cx-cli/"
   },
   "bundle": {
-    "outputDir": "bundles",
+    "outputDir": "~/Downloads/cx-cx-cli/",
     "createZip": false
   }
 }
