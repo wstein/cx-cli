@@ -31,6 +31,7 @@ The Codex sandbox has network access disabled by default during code execution.
 - Do not write PoC or MVP quality code; produce production-ready implementation.
 - Preserve manual edits and do not revert or undo them.
 - Keep the codebase clean and focused; avoid introducing technical debt.
+- Use `bd` for task tracking and workflow management.
 - Polish language, fix typos, and keep documentation accurate.
 
 ## Conventions Inferred from Codebase
