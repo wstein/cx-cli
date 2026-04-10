@@ -9,6 +9,7 @@ import kleur from 'kleur';
 import type { CxConfig } from './init.js';
 import { countFileTokens, processBundle } from '../adapters/repomixAdapter.js';
 import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
+import { outputJson } from '../utils/output.js';
 
 export interface BundleCommandOptions {
   /** Create a ZIP archive of the completed bundle. */
@@ -29,6 +30,8 @@ export interface BundleCommandOptions {
   sectionChecksumFile?: string;
   /** Show verbose progress during section generation. */
   sectionVerbose?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 /**
@@ -74,11 +77,31 @@ export async function runBundle(
   const binaryCount = manifest.files.filter((f) => f.type === 'binary').length;
   const totalBytes = manifest.files.reduce((acc, f) => acc + f.size, 0);
 
+  const repomixSummary = await summarizeRepomixStats(bundleRoot, repomixFiles);
+
+  if (options.json === true) {
+    outputJson({
+      bundlePath: bundleRoot,
+      totalFiles: manifest.files.length,
+      totalBytes,
+      repomixFiles: repomixCount,
+      binaryFiles: binaryCount,
+      repomixSummary: {
+        totalTokens: repomixSummary.totalTokens,
+        totalChars: repomixSummary.totalChars,
+        artifacts: repomixSummary.artifacts,
+      },
+      manifest: 'manifest.json',
+      checksums: 'SHA256SUMS',
+      zip: options.zip === true ? (options.zipOutput ?? `${basename(bundleRoot)}.zip`) : undefined,
+    });
+    return;
+  }
+
   console.log(kleur.green(`✓ Bundle complete — ${manifest.files.length} file(s), ${formatBytes(totalBytes)}`));
 
   if (repomixCount > 0) {
     console.log(kleur.dim(`  ${repomixCount} repomix file(s)`));
-    const repomixSummary = await summarizeRepomixStats(bundleRoot, repomixFiles);
     console.log(kleur.cyan('📊 Bundle Summary:'));
     console.log(kleur.cyan('────────────────'));
     console.log(`Total Files: ${manifest.files.length} file(s)`);

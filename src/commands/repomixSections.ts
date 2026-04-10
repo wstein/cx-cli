@@ -13,6 +13,7 @@ import { access, constants, mkdir, readFile, rm, stat, writeFile } from 'node:fs
 import { basename, dirname, join, resolve } from 'node:path';
 import kleur from 'kleur';
 import { computeSha256, countFileTokens } from '../adapters/repomixAdapter.js';
+import { outputJson } from '../utils/output.js';
 import { runRepomix } from './repomix.js';
 import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
@@ -27,6 +28,8 @@ export interface RepomixSectionsOptions {
   checksumFile?: string;
   /** Whether to print verbose progress information. */
   verbose?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 interface SectionEntryObject {
@@ -211,6 +214,7 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
   const fileExtension = style === 'json' ? 'json.txt' : 'xml.txt';
 
   const generatedFiles: string[] = [];
+  const componentStats: Array<{ path: string; size: number; tokens: number }> = [];
 
   for (const component of sections) {
     const sanitizedName = safeComponentName(component.name);
@@ -261,6 +265,7 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
     console.log(`   Tokens: ${tokenCount}`);
 
     generatedFiles.push(outputFile);
+    componentStats.push({ path: outputFile, size: fileStat.size, tokens: tokenCount });
   }
 
   if (checksumFile !== undefined) {
@@ -269,6 +274,15 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
     );
 
     await writeFile(checksumFile, checksumLines.join('\n') + '\n', 'utf8');
+
+    if (options.json === true) {
+      outputJson({
+        outputDir,
+        generatedFiles: componentStats,
+        checksumFile,
+      });
+      return;
+    }
 
     console.log();
     console.log('════════════════════════════════════════════════════════════');
@@ -279,11 +293,21 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
     console.log('To verify integrity:');
     console.log(`  cd ${dirname(checksumFile)} && sha256sum -c ${basename(checksumFile)}`);
     console.log();
-  } else {
-    console.log();
-    console.log('════════════════════════════════════════════════════════════');
-    console.log('✅ All components generated successfully');
-    console.log('════════════════════════════════════════════════════════════');
-    console.log();
+    return;
   }
+
+  if (options.json === true) {
+    outputJson({
+      outputDir,
+      generatedFiles: componentStats,
+      checksumFile: null,
+    });
+    return;
+  }
+
+  console.log();
+  console.log('════════════════════════════════════════════════════════════');
+  console.log('✅ All components generated successfully');
+  console.log('════════════════════════════════════════════════════════════');
+  console.log();
 }

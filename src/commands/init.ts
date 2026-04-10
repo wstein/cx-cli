@@ -10,6 +10,7 @@
 import { access, constants, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import kleur from 'kleur';
+import { outputJson } from '../utils/output.js';
 
 // ---------------------------------------------------------------------------
 // cx.json schema
@@ -180,6 +181,8 @@ export interface InitCommandOptions {
   cwd?: string;
   /** Generate a default TypeScript configuration file. */
   ts?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 /**
@@ -193,11 +196,13 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
   console.log(kleur.cyan(`Initialising in: ${cwd}`));
 
   const createdFiles: string[] = [];
+  const skippedFiles: string[] = [];
 
   // cx.json
   const cxConfigPath = join(cwd, 'cx.json');
   if (await fileExists(cxConfigPath)) {
     console.log(kleur.dim('  cx.json already exists, skipping.'));
+    skippedFiles.push('cx.json');
   } else {
     await writeFile(cxConfigPath, JSON.stringify(DEFAULT_CX_CONFIG, null, 2) + '\n', 'utf8');
     console.log(kleur.green('  ✓ cx.json'));
@@ -208,6 +213,7 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
   const repomixConfigPath = join(cwd, 'repomix.config.json');
   if (await fileExists(repomixConfigPath)) {
     console.log(kleur.dim('  repomix.config.json already exists, skipping.'));
+    skippedFiles.push('repomix.config.json');
   } else {
     await writeFile(
       repomixConfigPath,
@@ -222,6 +228,7 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
   const repomixIgnorePath = join(cwd, '.repomixignore');
   if (await fileExists(repomixIgnorePath)) {
     console.log(kleur.dim('  .repomixignore already exists, skipping.'));
+    skippedFiles.push('.repomixignore');
   } else {
     await writeFile(repomixIgnorePath, DEFAULT_REPOMIX_IGNORE, 'utf8');
     console.log(kleur.green('  ✓ .repomixignore'));
@@ -232,11 +239,23 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
     const tsConfigPath = join(cwd, 'tsconfig.json');
     if (await fileExists(tsConfigPath)) {
       console.log(kleur.dim('  tsconfig.json already exists, skipping.'));
+      skippedFiles.push('tsconfig.json');
     } else {
       await writeFile(tsConfigPath, JSON.stringify(DEFAULT_TS_CONFIG, null, 2) + '\n', 'utf8');
       console.log(kleur.green('  ✓ tsconfig.json'));
       createdFiles.push('tsconfig.json');
     }
+  }
+
+  const result = {
+    createdFiles,
+    skippedFiles,
+    directory: cwd,
+  };
+
+  if (options.json === true) {
+    outputJson(result);
+    return;
   }
 
   if (createdFiles.length > 0) {

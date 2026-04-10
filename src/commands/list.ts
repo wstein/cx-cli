@@ -6,11 +6,14 @@
 
 import { extname, resolve } from 'node:path';
 import kleur from 'kleur';
+import { outputJson } from '../utils/output.js';
 import { parseRepomixFile, readManifest } from '../adapters/repomixAdapter.js';
 
 export interface ListCommandOptions {
   /** Print SHA-256 digests, sizes, and line counts alongside each entry. */
   verbose?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 /** Extensions that indicate a potential repomix output file. */
@@ -59,6 +62,21 @@ async function tryListRepomixFile(
   try {
     const parsed = await parseRepomixFile(filePath);
 
+    if (options.json === true) {
+      const entries = parsed.entries.map((entry) => ({
+        path: entry.path,
+        lines: entry.content.split('\n').length,
+        chars: entry.content.length,
+      }));
+      outputJson({
+        type: 'repomix',
+        filePath,
+        format: parsed.style,
+        entries,
+      });
+      return true;
+    }
+
     console.log(kleur.cyan(`Repomix file: ${filePath}`));
     console.log(
       kleur.dim(`Format: ${parsed.style}  ·  ${parsed.entries.length} source file(s)`),
@@ -100,6 +118,21 @@ async function listBundleDirectory(
       `Cannot list "${bundlePath}": no manifest.json found and the path is not a repomix file.\n` +
         'Run `cx bundle <path>` first to generate bundle metadata.',
     );
+  }
+
+  if (options.json === true) {
+    outputJson({
+      type: 'bundle',
+      bundlePath,
+      createdAt: manifest.createdAt,
+      files: manifest.files.map((file) => ({
+        path: file.path,
+        type: file.type,
+        size: file.size,
+        sha256: options.verbose === true ? file.sha256 : undefined,
+      })),
+    });
+    return;
   }
 
   console.log(kleur.cyan(`Bundle: ${bundlePath}`));

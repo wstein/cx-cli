@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import kleur from 'kleur';
 import type { CxConfig } from './init.js';
 import { verifyBundle } from '../adapters/repomixAdapter.js';
+import { outputJson } from '../utils/output.js';
 import { configDirectory, resolveConfigFilePath, resolveConfigPath } from '../utils/paths.js';
 
 export interface VerifyCommandOptions {
@@ -13,6 +14,8 @@ export interface VerifyCommandOptions {
   cxConfig?: string;
   /** Print verbose verification details. */
   verbose?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 export async function runVerify(
@@ -27,6 +30,23 @@ export async function runVerify(
   console.log(kleur.cyan(`Verifying bundle: ${bundleRoot}`));
 
   const result = await verifyBundle(bundleRoot);
+
+  if (options.json === true) {
+    outputJson({
+      bundlePath: bundleRoot,
+      valid: result.valid,
+      checkedFiles: result.checkedFiles,
+      totalManifestFiles: result.totalManifestFiles,
+      totalChecksumEntries: result.totalChecksumEntries,
+      errors: result.errors,
+      warnings: result.warnings,
+    });
+
+    if (!result.valid) {
+      throw new Error('Bundle verification failed');
+    }
+    return;
+  }
 
   if (result.warnings.length > 0) {
     console.log(kleur.yellow('Warnings:'));
@@ -43,7 +63,7 @@ export async function runVerify(
     throw new Error('Bundle verification failed');
   }
 
-  console.log(kleur.green('✓ Bundle verified successfully')); 
+  console.log(kleur.green('✓ Bundle verified successfully'));
   console.log(`  Data files checked: ${result.checkedFiles}`);
   console.log(`  Manifest files:   ${result.totalManifestFiles}`);
   console.log(`  Checksum entries: ${result.totalChecksumEntries}`);

@@ -11,6 +11,7 @@ import { unlink, access, constants } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import fg from 'fast-glob';
 import kleur from 'kleur';
+import { outputJson } from '../utils/output.js';
 import { MANIFEST_FILENAME, SHA256SUMS_FILENAME } from '../adapters/repomixAdapter.js';
 
 export interface CleanupCommandOptions {
@@ -18,6 +19,8 @@ export interface CleanupCommandOptions {
   force?: boolean;
   /** Also remove ZIP archives found in the bundle directory. */
   removeZip?: boolean;
+  /** Output machine-readable JSON. */
+  json?: boolean;
 }
 
 /**
@@ -43,6 +46,17 @@ export async function runCleanup(
   }
 
   const toRemove = await filterExisting(candidates);
+
+  if (options.json === true) {
+    outputJson({
+      bundlePath: abs,
+      force: options.force === true,
+      removeZip: options.removeZip === true,
+      dryRun: options.force !== true,
+      files: toRemove.map((filePath) => relative(abs, filePath)),
+    });
+    return;
+  }
 
   if (toRemove.length === 0) {
     console.log(kleur.yellow('Nothing to clean up — no generated files found.'));

@@ -52,6 +52,28 @@ describe('bundle command', () => {
     assert.ok(logs.some((line) => line.includes('%')));
   });
 
+  it('outputs machine-readable JSON when --json is enabled', async () => {
+    const writes: string[] = [];
+    const originalWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(typeof chunk === 'string' ? chunk : chunk.toString());
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await runBundle(bundleDir, { json: true });
+    } finally {
+      process.stdout.write = originalWrite;
+    }
+
+    const result = JSON.parse(writes.join('')) as any;
+    assert.equal(result.bundlePath, bundleDir);
+    assert.equal(result.totalFiles, 3);
+    assert.equal(result.repomixFiles, 1);
+    assert.equal(result.binaryFiles, 1);
+    assert.ok(typeof result.repomixSummary === 'object' && result.repomixSummary !== null);
+  });
+
   it('resolves bundle outputDir from cx.json when no path is provided', async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), 'cx-bundle-config-'));
     const bundleDir = join(tempRoot, 'bundle-dir');

@@ -85,6 +85,11 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             describe: 'Print detailed bundle diagnostics',
             default: false,
           })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
+            default: false,
+          })
           .option('sections', {
             type: 'boolean',
             describe: 'Generate repomix section outputs from cx.json before bundling',
@@ -142,9 +147,14 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             describe: 'Show SHA-256 digests, sizes, and line counts',
             default: false,
           })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
+            default: false,
+          })
           .example('cx list ./my-bundle')
           .example('cx list ./my-bundle/repomix-output.xml.txt --verbose'),
-      action(async (argv: any) => runList(argv.path as string, { verbose: argv.verbose as boolean })),
+      action(async (argv: any) => runList(argv.path as string, { verbose: argv.verbose as boolean, json: argv.json as boolean })),
     )
     .command(
       'verify [path]',
@@ -154,6 +164,11 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
           .option('verbose', {
             type: 'boolean',
             describe: 'Print verbose verification output',
+            default: false,
+          })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
             default: false,
           })
           .option('cx-config', {
@@ -166,6 +181,7 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
       action(async (argv: any) => runVerify(argv.path as string | undefined, {
         verbose: argv.verbose as boolean,
         cxConfig: argv.cxConfig as string,
+        json: argv.json as boolean,
       })),
     )
     .command(
@@ -198,12 +214,18 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             describe: 'Generate a tsconfig.json file for TypeScript projects',
             default: false,
           })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
+            default: false,
+          })
           .example('cx init')
           .example('cx init --cwd ./my-project')
           .example('cx init --ts'),
       action(async (argv: any) => {
-        const initOptions: { cwd?: string; ts: boolean } = {
+        const initOptions: { cwd?: string; ts: boolean; json?: boolean } = {
           ts: argv.ts as boolean,
+          json: argv.json as boolean,
         };
         if (argv.cwd !== undefined) {
           initOptions.cwd = argv.cwd as string;
@@ -239,6 +261,11 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             describe: 'Show the repomix command line for each component',
             default: false,
           })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
+            default: false,
+          })
           .example('cx repomix-components')
           .example('cx repomix-components --cx-config ./cx.json --config ./repomix.config.json'),
       action(async (argv: any) =>
@@ -248,6 +275,7 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
           outputDir: argv.outputDir as string,
           ...(argv.checksumFile !== undefined && { checksumFile: argv.checksumFile as string }),
           verbose: argv.verbose as boolean,
+          json: argv.json as boolean,
         }),
       ),
     )
@@ -266,11 +294,20 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             describe: 'Also remove ZIP archives found in the bundle directory',
             default: false,
           })
+          .option('json', {
+            type: 'boolean',
+            describe: 'Output machine-readable JSON',
+            default: false,
+          })
           .example('cx cleanup ./my-bundle')
           .example('cx cleanup ./my-bundle --force')
           .example('cx cleanup ./my-bundle --force --zip'),
       action(async (argv: any) =>
-        runCleanup(argv.path as string, { force: argv.force as boolean, removeZip: argv.zip as boolean }),
+        runCleanup(argv.path as string, {
+          force: argv.force as boolean,
+          removeZip: argv.zip as boolean,
+          json: argv.json as boolean,
+        }),
       ),
     );
 }
