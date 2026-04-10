@@ -37,7 +37,18 @@ cx cleanup ./bundles --force --zip
 
 ## Packaging
 
-A Homebrew tap template is available at `homebrew-cx/cx.rb`.
+A Homebrew tap is available at `https://github.com/wstein/homebrew-cx`.
+The formula file is `homebrew-cx/cx.rb` in this repo, and the published tap installs with:
+
+```bash
+brew install wstein/cx
+```
+
+For local testing before publishing the tap, use:
+
+```bash
+brew install --formula ./homebrew-cx/cx.rb
+```
 | `cx repomix-components` | Generate one repomix output file per component from `cx.json` sections || `cx verify [path]` | Verify bundle integrity by checking `manifest.json` and `SHA256SUMS` || `cx init [--cwd <path>] [--ts]` | Create `cx.json`, `repomix.config.json`, `.repomixignore`, and optional `tsconfig.json` scaffolds |
 | `cx cleanup <path> [--zip-name \| --all-zips]` | Remove generated bundle artefacts |
 
