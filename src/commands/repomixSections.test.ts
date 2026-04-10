@@ -1,9 +1,18 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { extractSections, shouldGenerateComponent } from './repomixSections.js';
+import { extractSections, runRepomixSections, shouldGenerateComponent } from './repomixSections.js';
+
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 describe('repomix sections extraction', () => {
   it('parses string section entries correctly', () => {
@@ -114,6 +123,33 @@ describe('repomix sections extraction', () => {
     );
 
     assert.equal(fresh, true);
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  it('does not write repomix-components.SHA256SUM by default', async () => {
+    const tempRoot = await mkdtemp(join(tmpdir(), 'cx-sections-'));
+    const sourceDir = join(tempRoot, 'src');
+    await mkdir(sourceDir, { recursive: true });
+    const sourceFile = join(sourceDir, 'file.txt');
+    await writeFile(sourceFile, 'hello', 'utf8');
+
+    const cxConfigFile = join(tempRoot, 'cx.json');
+    await writeFile(cxConfigFile, JSON.stringify({ sections: { test: 'src/file.txt' } }, null, 2), 'utf8');
+
+    const repomixConfigFile = join(tempRoot, 'repomix.config.json');
+    await writeFile(repomixConfigFile, JSON.stringify({ output: { style: 'xml' } }, null, 2), 'utf8');
+
+    const outputDir = join(tempRoot, 'bundles');
+
+    await runRepomixSections({
+      cxConfig: cxConfigFile,
+      outputDir,
+      verbose: false,
+    });
+
+    const checksumPath = join(outputDir, 'repomix-components.SHA256SUM');
+    assert.equal(await fileExists(checksumPath), false);
+
     await rm(tempRoot, { recursive: true, force: true });
   });
 });

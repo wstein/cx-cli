@@ -23,7 +23,7 @@ export interface RepomixSectionsOptions {
   config?: string;
   /** Output directory for section repomix files. */
   outputDir?: string;
-  /** Path to the generated checksum file. */
+  /** Optional path to write a separate checksum file for section outputs. */
   checksumFile?: string;
   /** Whether to print verbose progress information. */
   verbose?: boolean;
@@ -197,7 +197,7 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
   const outputDir = resolveConfigPath(configDir, options.outputDir ?? cxConfig.repomix?.outputDir ?? 'bundles');
   const checksumFile = options.checksumFile
     ? resolveConfigPath(configDir, options.checksumFile)
-    : join(outputDir, 'repomix-components.SHA256SUM');
+    : undefined;
 
   console.log(`Repomix config file: ${repomixConfigFile}`);
   console.log(`Output directory: ${outputDir}`);
@@ -264,19 +264,27 @@ export async function runRepomixSections(options: RepomixSectionsOptions = {}): 
     generatedFiles.push(outputFile);
   }
 
-  const checksumLines = await Promise.all(
-    generatedFiles.map(async (file) => `${await computeSha256(file)}  ${basename(file)}`),
-  );
+  if (checksumFile !== undefined) {
+    const checksumLines = await Promise.all(
+      generatedFiles.map(async (file) => `${await computeSha256(file)}  ${basename(file)}`),
+    );
 
-  await writeFile(checksumFile, checksumLines.join('\n') + '\n', 'utf8');
+    await writeFile(checksumFile, checksumLines.join('\n') + '\n', 'utf8');
 
-  console.log();
-  console.log('════════════════════════════════════════════════════════════');
-  console.log(`✅ Checksum file generated: ${checksumFile}`);
-  console.log('════════════════════════════════════════════════════════════');
-  console.log('✅ All components generated successfully');
-  console.log();
-  console.log('To verify integrity:');
-  console.log(`  cd ${dirname(checksumFile)} && sha256sum -c ${basename(checksumFile)}`);
-  console.log();
+    console.log();
+    console.log('════════════════════════════════════════════════════════════');
+    console.log(`✅ Checksum file generated: ${checksumFile}`);
+    console.log('════════════════════════════════════════════════════════════');
+    console.log('✅ All components generated successfully');
+    console.log();
+    console.log('To verify integrity:');
+    console.log(`  cd ${dirname(checksumFile)} && sha256sum -c ${basename(checksumFile)}`);
+    console.log();
+  } else {
+    console.log();
+    console.log('════════════════════════════════════════════════════════════');
+    console.log('✅ All components generated successfully');
+    console.log('════════════════════════════════════════════════════════════');
+    console.log();
+  }
 }
