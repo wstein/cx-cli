@@ -1,0 +1,3 @@
+[submodule "homebrew-cx"]
+	path = homebrew-cx
+	url = https://github.com/wstein/homebrew-cx
