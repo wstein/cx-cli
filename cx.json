@@ -9,5 +9,10 @@
   "bundle": {
     "outputDir": "~/Downloads/cx-cx-cli/",
     "createZip": false
+  },
+  "sections": {
+    "repo": [
+      "**/*"
+    ]
   }
 }
