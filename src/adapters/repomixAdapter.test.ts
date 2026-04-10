@@ -171,6 +171,23 @@ describe('parseRepomixFile', () => {
     assert.equal(result.entries[1]?.path, 'src/util.ts');
   });
 
+  it('parses component-style XML output with raw file content containing XML-like characters', async () => {
+    const xml = `This file is a merged representation of a subset of the codebase.
+
+<files>
+  <file path="src/app.ts">const x = a < b ? 1 : 2;</file>
+  <file path="src/index.html"><div class=\"test\">hello</div></file>
+</files>`;
+    const file = join(tmpDir, 'repomix-component-raw.xml.txt');
+    await writeFile(file, xml, 'utf8');
+    const result = await parseRepomixFile(file);
+    assert.equal(result.style, 'xml');
+    assert.equal(result.entries.length, 2);
+    assert.equal(result.entries[0]?.path, 'src/app.ts');
+    assert.equal(result.entries[0]?.content, 'const x = a < b ? 1 : 2;');
+    assert.equal(result.entries[1]?.path, 'src/index.html');
+  });
+
   it('parses JSON output with files as object', async () => {
     const json = JSON.stringify({
       files: { 'src/index.ts': 'export default 42;', 'README.md': '# Hello' },

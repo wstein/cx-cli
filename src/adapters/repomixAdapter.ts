@@ -235,19 +235,68 @@ export async function parseRepomixFile(filePath: string): Promise<ParsedRepomixO
   );
 }
 
+function extractFileEntriesFromXmlLike(content: string): RepomixEntry[] {
+  const entries: RepomixEntry[] = [];
+  const fileStartRegex = /(?:^|\n)[ \t]*<file\s+path="([^"]+)">/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = fileStartRegex.exec(content)) !== null) {
+    const path = String(match[1]);
+    const openTagIndex = content.indexOf('<file', match.index);
+    if (openTagIndex === -1) continue;
+
+    const start = content.indexOf('>', openTagIndex);
+    if (start === -1) break;
+
+    let depth = 1;
+    const nestedRegex = /(?:^|\n)[ \t]*<file\s+path="([^"]+)">|<\/file>/g;
+    nestedRegex.lastIndex = start + 1;
+    let nestedMatch: RegExpExecArray | null = null;
+    let closeIndex = -1;
+
+    while ((nestedMatch = nestedRegex.exec(content)) !== null) {
+      if (nestedMatch[0].startsWith('</file>')) {
+        depth -= 1;
+      } else {
+        depth += 1;
+      }
+      if (depth === 0) {
+        closeIndex = nestedMatch.index;
+        break;
+      }
+    }
+
+    if (closeIndex === -1) break;
+
+    entries.push({
+      path,
+      content: content.slice(start + 1, closeIndex),
+    });
+    fileStartRegex.lastIndex = closeIndex + '</file>'.length;
+  }
+
+  return entries;
+}
+
 function parseRepomixXml(content: string): ParsedRepomixOutput {
   const clean = content.replace(/^\uFEFF/, '');
 
-  // Locate the first XML element.  The parsable style starts with <repomix>;
-  // the handlebar style starts with a text preamble followed by XML fragments.
-  const xmlStart = clean.search(/<(?:repomix|files|file_summary|directory_structure)\b/);
+  const xmlStart = clean.search(/</);
   if (xmlStart === -1) return { style: 'xml', entries: [] };
 
   let xmlContent = clean.slice(xmlStart);
-
-  // Wrap non-rooted XML fragments so the parser sees a single root.
   if (!xmlContent.trimStart().startsWith('<repomix')) {
     xmlContent = `<repomix>${xmlContent}</repomix>`;
+  }
+
+  const entries = extractFileEntriesFromXmlLike(xmlContent);
+  if (entries.length > 0) {
+    const dirMatch = xmlContent.match(/<directory_structure>([\s\S]*?)<\/directory_structure>/i);
+    return {
+      style: 'xml',
+      entries,
+      ...(dirMatch ? { directoryStructure: dirMatch[1] } : {}),
+    };
   }
 
   type FileNode = { '@_path'?: string; '#text'?: string };
@@ -285,7 +334,7 @@ function parseRepomixXml(content: string): ParsedRepomixOutput {
     return Object.values(obj).flatMap(extractFileNodes);
   }
 
-  const entries = extractFileNodes(doc);
+  const fallbackEntries = extractFileNodes(doc);
 
   const dirStructure =
     typeof doc.repomix?.directory_structure === 'string'
@@ -294,7 +343,7 @@ function parseRepomixXml(content: string): ParsedRepomixOutput {
 
   return {
     style: 'xml',
-    entries,
+    entries: fallbackEntries,
     ...(dirStructure !== undefined && { directoryStructure: dirStructure }),
   };
 }
