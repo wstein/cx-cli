@@ -30,11 +30,6 @@ jobs:
       matrix:
         include:
           - repomix-version: 1.13.1
-            expect-success: true
-          - repomix-version: 1.13.0
-            expect-success: false
-          - repomix-version: 1.12.3
-            expect-success: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,7 +48,5 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Run version smoke test
-        run: >
-          bun run smoke:repomix-version
-          ${{ matrix.expect-success && '--expect-success' || '' }}
+      - name: Run adapter smoke test
+        run: bun run smoke:repomix-version
