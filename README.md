@@ -8,7 +8,8 @@
 ## Quick start
 
 ```bash
-bun install -g cx-cli   # once published
+# Install via Homebrew tap
+brew install wstein/cx
 
 # 1. Initialise a project
 cx init
@@ -33,6 +34,10 @@ cx cleanup ./bundles --force --zip
 | `cx bundle [path] [--zip [name]] [--verbose]` | Scan folder (defaults to the current directory or `bundle.outputDir` from `cx.json` when configured), write `manifest.json` + `SHA256SUMS`, optional zip; `--sections` generates repomix outputs from `cx.json` before bundling |
 | `cx list <path>` | List file paths in a bundle directory or repomix output file; bundle listings expand `repomix-component-*` section outputs into contained source entries |
 | `cx repomix [...args]` | Forward arguments directly to the repomix CLI dependency |
+
+## Packaging
+
+A Homebrew tap template is available at `homebrew-cx/cx.rb`.
 | `cx repomix-components` | Generate one repomix output file per component from `cx.json` sections || `cx verify [path]` | Verify bundle integrity by checking `manifest.json` and `SHA256SUMS` || `cx init [--cwd <path>] [--ts]` | Create `cx.json`, `repomix.config.json`, `.repomixignore`, and optional `tsconfig.json` scaffolds |
 | `cx cleanup <path> [--zip-name \| --all-zips]` | Remove generated bundle artefacts |
 
