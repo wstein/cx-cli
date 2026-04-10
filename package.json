@@ -30,12 +30,13 @@
     "fast-glob": "^3.3.3",
     "fast-xml-parser": "^5.5.11",
     "kleur": "^4.1.5",
-    "repomix": "^1.13.1"
+    "repomix": "^1.13.1",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",
     "@types/node": "^25.5.2",
     "oxfmt": "^0.44.0",
-    "typescript": "^5.8.0"
+    "typescript": "^6.0.2"
   }
 }
