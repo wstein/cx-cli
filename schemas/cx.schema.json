@@ -2,61 +2,94 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/wstein/cx-cli/main/schemas/cx.schema.json",
   "title": "cx-cli configuration",
-  "description": "Schema for cx CLI project configuration files.",
+  "description": "Schema for cx CLI project configuration files used by the cx tooling.",
   "type": "object",
   "properties": {
     "$schema": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "description": "JSON schema URL for editor validation."
     },
     "version": {
       "type": "string",
-      "const": "1"
+      "const": "1",
+      "description": "Configuration version."
     },
     "repomix": {
       "type": "object",
+      "description": "Configuration for repomix output generation.",
       "properties": {
-        "configFile": { "type": "string" },
+        "configFile": {
+          "type": "string",
+          "description": "Path to the repomix configuration file.",
+          "default": "repomix.config.json"
+        },
         "outputStyle": {
           "type": "string",
-          "enum": ["xml", "json", "plain", "markdown"]
+          "enum": ["xml", "json", "plain", "markdown"],
+          "description": "Default output format for repomix generation.",
+          "default": "xml"
         },
-        "outputDir": { "type": "string" }
+        "outputDir": {
+          "type": "string",
+          "description": "Default directory where repomix outputs are written.",
+          "default": "bundles"
+        }
       },
       "required": ["configFile", "outputStyle", "outputDir"],
       "additionalProperties": false
     },
     "sections": {
       "type": "object",
+      "description": "Optional named repomix sections for componentized output generation.",
       "additionalProperties": {
         "anyOf": [
-          { "type": "string" },
+          {
+            "type": "string",
+            "description": "Single include pattern or path for the section."
+          },
           {
             "type": "array",
             "items": { "type": "string" },
-            "minItems": 1
+            "minItems": 1,
+            "description": "List of include patterns for the section."
           },
           {
             "type": "object",
+            "description": "Named section with explicit include paths.",
             "properties": {
-              "name": { "type": "string" },
+              "name": {
+                "type": "string",
+                "description": "Optional section name used for output file names."
+              },
               "include": {
                 "type": "array",
                 "items": { "type": "string" },
-                "minItems": 1
+                "minItems": 1,
+                "description": "Required file include patterns for this section."
               }
             },
             "required": ["include"],
             "additionalProperties": false
           }
         ]
-      }
+      },
+      "default": {}
     },
     "bundle": {
       "type": "object",
+      "description": "Bundle metadata settings for cx bundle operations.",
       "properties": {
-        "outputDir": { "type": "string" },
-        "createZip": { "type": "boolean" }
+        "outputDir": {
+          "type": "string",
+          "description": "Directory where bundle metadata is written.",
+          "default": "bundles"
+        },
+        "createZip": {
+          "type": "boolean",
+          "description": "Whether to create a ZIP archive after bundling.",
+          "default": false
+        }
       },
       "required": ["outputDir", "createZip"],
       "additionalProperties": false
