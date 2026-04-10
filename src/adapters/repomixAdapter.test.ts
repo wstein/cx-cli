@@ -155,6 +155,22 @@ describe('parseRepomixFile', () => {
     assert.equal(result.entries[1]?.path, 'src/b.ts');
   });
 
+  it('parses component-style XML output with standalone file entries', async () => {
+    const xml = `This file is a merged representation of a subset of the codebase.
+
+<file_summary>
+  <file path="src/app.ts">console.log('hello');</file>
+  <file path="src/util.ts">export const x = 1;</file>
+</file_summary>`;
+    const file = join(tmpDir, 'repomix-component-group-repo.xml.txt');
+    await writeFile(file, xml, 'utf8');
+    const result = await parseRepomixFile(file);
+    assert.equal(result.style, 'xml');
+    assert.equal(result.entries.length, 2);
+    assert.equal(result.entries[0]?.path, 'src/app.ts');
+    assert.equal(result.entries[1]?.path, 'src/util.ts');
+  });
+
   it('parses JSON output with files as object', async () => {
     const json = JSON.stringify({
       files: { 'src/index.ts': 'export default 42;', 'README.md': '# Hello' },

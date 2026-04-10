@@ -219,6 +219,10 @@ export async function parseRepomixFile(filePath: string): Promise<ParsedRepomixO
     return parseRepomixJson(content);
   }
 
+  if (trimmed.includes('<')) {
+    return parseRepomixXml(content);
+  }
+
   // Plain/Markdown repomix output — not machine-parsable into file entries.
   // We return an empty entries list so callers can still identify the format.
   if (trimmed.includes('This file is a merged representation')) {
@@ -261,10 +265,27 @@ function parseRepomixXml(content: string): ParsedRepomixOutput {
     return { style: 'xml', entries: [] };
   }
 
-  const rawFiles = doc.repomix?.files?.file ?? [];
-  const entries: RepomixEntry[] = rawFiles
-    .filter((f): f is FileNode & { '@_path': string } => typeof f['@_path'] === 'string')
-    .map((f) => ({ path: f['@_path'], content: f['#text'] ?? '' }));
+  function extractFileNodes(node: unknown): RepomixEntry[] {
+    if (node === null || node === undefined) return [];
+    if (Array.isArray(node)) {
+      return node.flatMap(extractFileNodes);
+    }
+    if (typeof node !== 'object') return [];
+
+    const obj = node as Record<string, unknown>;
+    if (typeof obj['@_path'] === 'string') {
+      return [
+        {
+          path: obj['@_path'],
+          content: typeof obj['#text'] === 'string' ? obj['#text'] : '',
+        },
+      ];
+    }
+
+    return Object.values(obj).flatMap(extractFileNodes);
+  }
+
+  const entries = extractFileNodes(doc);
 
   const dirStructure =
     typeof doc.repomix?.directory_structure === 'string'
