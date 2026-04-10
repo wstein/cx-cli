@@ -118,6 +118,8 @@ List the contents of a bundle directory or the source-file entries inside a repo
 
 When a bundle contains `repomix-component-*` section outputs generated from `cx.json`, `cx list` groups those files by section name and expands each section file into its contained source-file entries.
 
+The parser is robust to component-style repomix outputs that include raw source text with XML-like characters (for example, `a < b` or HTML fragments).
+
 ```
 cx list <path> [options]
 

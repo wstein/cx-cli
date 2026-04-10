@@ -28,6 +28,7 @@ The `cx` CLI provides five commands for bundle management:
 - **`SHA256SUMS`** — GNU sha256sum format; covers all data files (repomix outputs + binary assets); verified offline with `sha256sum --check`.
 - **`manifest.json`** — machine-readable index: path, size, SHA-256, and semantic file type for every file in the bundle. Includes the hash of `SHA256SUMS` itself.
 - **File classification** — binary extensions are detected by file extension (`.png`, `.zip`, etc.); repomix files are detected by content markers (`<repomix>`, `"files":`, `This file is a merged representation`).
+- **Section output expansion** — `cx list` now parses `repomix-component-*` files inside bundle directories and expands their embedded `<file path="...">` entries, even when source content contains XML-like characters.
 
 ---
 
@@ -47,7 +48,7 @@ The `cx` CLI provides five commands for bundle management:
 | Format | Detection | Notes |
 |---|---|---|
 | Parsable XML | Starts with `<repomix>` | Best option; fully structured |
-| Handlebar XML fragment | Contains `<files>` without root | Wrapped in `<repomix>` before parsing |
+| Handlebar XML fragment | Contains `<files>` without root | Wrapped in `<repomix>` before parsing; top-level `<file path="...">` extraction also supports raw source contents |
 | JSON | Starts with `{`, contains `"files"` | Files as `{ "path": "content" }` or array |
 | Plain / Markdown | Contains repomix header text | Detected but not entry-parsable |
 
