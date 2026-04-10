@@ -1,5 +1,16 @@
 import type { CxStyle } from '../config/types.js';
 
+export interface ManifestSettings {
+  globalStyle: CxStyle;
+  removeComments: boolean;
+  removeEmptyLines: boolean;
+  compress: boolean;
+  showLineNumbers: boolean;
+  includeEmptyDirectories: boolean;
+  securityCheck: boolean;
+  losslessTextExtraction: boolean;
+}
+
 export interface SectionOutputRecord {
   name: string;
   style: CxStyle;
@@ -43,6 +54,7 @@ export interface CxManifest {
   cxVersion: string;
   repomixVersion: string;
   checksumAlgorithm: 'sha256';
+  settings: ManifestSettings;
   sections: SectionOutputRecord[];
   assets: AssetRecord[];
   files: ManifestFileRow[];

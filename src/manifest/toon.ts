@@ -117,6 +117,16 @@ export function renderManifestToon(manifest: CxManifest): string {
     `  repomix_version ${encodeScalar(manifest.repomixVersion)}`,
     `  checksum_algorithm ${manifest.checksumAlgorithm}`,
     '',
+    'settings',
+    `  global_style ${manifest.settings.globalStyle}`,
+    `  remove_comments ${String(manifest.settings.removeComments)}`,
+    `  remove_empty_lines ${String(manifest.settings.removeEmptyLines)}`,
+    `  compress ${String(manifest.settings.compress)}`,
+    `  show_line_numbers ${String(manifest.settings.showLineNumbers)}`,
+    `  include_empty_directories ${String(manifest.settings.includeEmptyDirectories)}`,
+    `  security_check ${String(manifest.settings.securityCheck)}`,
+    `  lossless_text_extraction ${String(manifest.settings.losslessTextExtraction)}`,
+    '',
   ];
 
   for (const section of manifest.sections) {
@@ -155,9 +165,10 @@ export function parseManifestToon(source: string): CxManifest {
   const files: CxManifest['files'] = [];
   const bundleFields = new Map<string, string>();
   const toolingFields = new Map<string, string>();
+  const settingsFields = new Map<string, string>();
   let currentAsset: Record<string, string> | null = null;
   let currentSection: Record<string, string> | null = null;
-  let state: 'idle' | 'bundle' | 'tooling' | 'section' | 'asset' | 'table' = 'idle';
+  let state: 'idle' | 'bundle' | 'tooling' | 'settings' | 'section' | 'asset' | 'table' = 'idle';
 
   for (const rawLine of lines) {
     const line = rawLine.trimEnd();
@@ -192,6 +203,10 @@ export function parseManifestToon(source: string): CxManifest {
     }
     if (line === 'tooling') {
       state = 'tooling';
+      continue;
+    }
+    if (line === 'settings') {
+      state = 'settings';
       continue;
     }
     if (line.startsWith('section ')) {
@@ -253,6 +268,9 @@ export function parseManifestToon(source: string): CxManifest {
       case 'tooling':
         toolingFields.set(key, value);
         break;
+      case 'settings':
+        settingsFields.set(key, value);
+        break;
       case 'section':
         currentSection![key] = rest[0]!;
         break;
@@ -295,6 +313,16 @@ export function parseManifestToon(source: string): CxManifest {
     cxVersion: toolingFields.get('cx_version')!,
     repomixVersion: toolingFields.get('repomix_version')!,
     checksumAlgorithm: 'sha256',
+    settings: {
+      globalStyle: settingsFields.get('global_style') as CxManifest['settings']['globalStyle'],
+      removeComments: settingsFields.get('remove_comments') === 'true',
+      removeEmptyLines: settingsFields.get('remove_empty_lines') === 'true',
+      compress: settingsFields.get('compress') === 'true',
+      showLineNumbers: settingsFields.get('show_line_numbers') === 'true',
+      includeEmptyDirectories: settingsFields.get('include_empty_directories') === 'true',
+      securityCheck: settingsFields.get('security_check') === 'true',
+      losslessTextExtraction: settingsFields.get('lossless_text_extraction') === 'true',
+    },
     sections,
     assets,
     files,

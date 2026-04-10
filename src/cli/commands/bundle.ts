@@ -48,6 +48,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   }
 
   const manifest = buildManifest({
+    config,
     plan,
     sectionOutputs,
     cxVersion: CX_VERSION,

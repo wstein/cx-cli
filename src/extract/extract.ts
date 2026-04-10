@@ -59,6 +59,12 @@ export async function extractBundle(params: {
   verify: boolean;
 }): Promise<void> {
   const { manifest } = await loadManifestFromBundle(params.bundleDir);
+  if (!params.assetsOnly && !manifest.settings.losslessTextExtraction) {
+    throw new CxError(
+      'This bundle was produced with lossy text transforms, so exact text extraction is not supported.',
+      8,
+    );
+  }
   const selectedRows = manifest.files.filter((row) => {
     if (params.assetsOnly && row.kind !== 'asset') {
       return false;

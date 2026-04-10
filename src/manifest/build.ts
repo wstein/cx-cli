@@ -1,7 +1,9 @@
 import type { BundlePlan } from '../planning/types.js';
+import type { CxConfig } from '../config/types.js';
 import type { CxManifest, ManifestFileRow, SectionOutputRecord } from './types.js';
 
 export function buildManifest(params: {
+  config: CxConfig;
   plan: BundlePlan;
   sectionOutputs: SectionOutputRecord[];
   cxVersion: string;
@@ -52,6 +54,19 @@ export function buildManifest(params: {
     cxVersion: params.cxVersion,
     repomixVersion: params.repomixVersion,
     checksumAlgorithm: 'sha256',
+    settings: {
+      globalStyle: params.config.repomix.style,
+      removeComments: params.config.repomix.removeComments,
+      removeEmptyLines: params.config.repomix.removeEmptyLines,
+      compress: params.config.repomix.compress,
+      showLineNumbers: params.config.repomix.showLineNumbers,
+      includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
+      securityCheck: params.config.repomix.securityCheck,
+      losslessTextExtraction: !params.config.repomix.removeComments
+        && !params.config.repomix.removeEmptyLines
+        && !params.config.repomix.compress
+        && !params.config.repomix.showLineNumbers,
+    },
     sections: params.sectionOutputs,
     assets: params.plan.assets.map((asset) => ({
       sourcePath: asset.relativePath,

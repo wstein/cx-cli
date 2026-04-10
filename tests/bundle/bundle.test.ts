@@ -131,4 +131,25 @@ describe('bundle workflow', () => {
       );
     }
   });
+
+  test('rejects text extraction for bundles created with lossy transforms', async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, 'restored-lossy');
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, 'utf8')).replace('remove_empty_lines = false', 'remove_empty_lines = true'),
+      'utf8',
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await expect(runExtractCommand({
+      bundleDir: project.bundleDir,
+      destinationDir: restoreDir,
+      sections: undefined,
+      files: undefined,
+      assetsOnly: false,
+      overwrite: false,
+      verify: false,
+    })).rejects.toThrow('lossy text transforms');
+  });
 });
