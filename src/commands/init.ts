@@ -148,6 +148,29 @@ const DEFAULT_REPOMIX_IGNORE = `# Add patterns to ignore here, one per line
 # tmp/
 `;
 
+const DEFAULT_TS_CONFIG = {
+  compilerOptions: {
+    target: 'ES2022',
+    module: 'Node16',
+    moduleResolution: 'Node16',
+    lib: ['ES2022'],
+    outDir: 'dist',
+    rootDir: 'src',
+    strict: true,
+    noUncheckedIndexedAccess: true,
+    exactOptionalPropertyTypes: true,
+    noImplicitOverride: true,
+    noPropertyAccessFromIndexSignature: true,
+    forceConsistentCasingInFileNames: true,
+    skipLibCheck: true,
+    declaration: true,
+    declarationMap: true,
+    sourceMap: true,
+  },
+  include: ['src'],
+  exclude: ['node_modules', 'dist'],
+};
+
 // ---------------------------------------------------------------------------
 // Command
 // ---------------------------------------------------------------------------
@@ -155,6 +178,8 @@ const DEFAULT_REPOMIX_IGNORE = `# Add patterns to ignore here, one per line
 export interface InitCommandOptions {
   /** Working directory; defaults to `process.cwd()`. */
   cwd?: string;
+  /** Generate a default TypeScript configuration file. */
+  ts?: boolean;
 }
 
 /**
@@ -201,6 +226,17 @@ export async function runInit(options: InitCommandOptions = {}): Promise<void> {
     await writeFile(repomixIgnorePath, DEFAULT_REPOMIX_IGNORE, 'utf8');
     console.log(kleur.green('  ✓ .repomixignore'));
     createdFiles.push('.repomixignore');
+  }
+
+  if (options.ts === true) {
+    const tsConfigPath = join(cwd, 'tsconfig.json');
+    if (await fileExists(tsConfigPath)) {
+      console.log(kleur.dim('  tsconfig.json already exists, skipping.'));
+    } else {
+      await writeFile(tsConfigPath, JSON.stringify(DEFAULT_TS_CONFIG, null, 2) + '\n', 'utf8');
+      console.log(kleur.green('  ✓ tsconfig.json'));
+      createdFiles.push('tsconfig.json');
+    }
   }
 
   if (createdFiles.length > 0) {

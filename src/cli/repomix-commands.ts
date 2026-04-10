@@ -170,11 +170,23 @@ export function registerRepomixCommands(cli: Argv, version: string): Argv {
             type: 'string',
             describe: 'Target directory (defaults to process.cwd())',
           })
+          .option('ts', {
+            type: 'boolean',
+            describe: 'Generate a tsconfig.json file for TypeScript projects',
+            default: false,
+          })
           .example('cx init')
-          .example('cx init --cwd ./my-project'),
-      action(async (argv: any) =>
-        runInit(argv.cwd !== undefined ? { cwd: argv.cwd as string } : {}),
-      ),
+          .example('cx init --cwd ./my-project')
+          .example('cx init --ts'),
+      action(async (argv: any) => {
+        const initOptions: { cwd?: string; ts: boolean } = {
+          ts: argv.ts as boolean,
+        };
+        if (argv.cwd !== undefined) {
+          initOptions.cwd = argv.cwd as string;
+        }
+        await runInit(initOptions);
+      }),
     )
     .command(
       'repomix-components',

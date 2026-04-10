@@ -128,6 +128,7 @@ cx init [options]
 
 Options:
   --cwd <path>   Target directory (defaults to process.cwd())
+  --ts           Generate a `tsconfig.json` file for TypeScript projects
 ```
 
 Creates:

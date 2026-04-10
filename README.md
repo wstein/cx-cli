@@ -34,7 +34,7 @@ cx cleanup ./bundles --force --zip
 | `cx list <repomix-file>` | List file paths in a bundle directory or repomix output file |
 | `cx repomix [...args]` | Forward arguments directly to the repomix CLI dependency |
 | `cx repomix-components` | Generate one repomix output file per component from `cx.json` sections |
-| `cx init [--ts]` | Create `cx.json`, `repomix.config.json`, and `.repomixignore` scaffolds |
+| `cx init [--cwd <path>] [--ts]` | Create `cx.json`, `repomix.config.json`, `.repomixignore`, and optional `tsconfig.json` scaffolds |
 | `cx cleanup <path> [--zip-name \| --all-zips]` | Remove generated bundle artefacts |
 
 ## Documentation
