@@ -26,7 +26,7 @@ mode = "fail"
 order = "config"
 
 [manifest]
-format = "toon"
+format = "json"
 include_file_sha256 = true
 include_output_sha256 = true
 include_output_spans = false
@@ -86,7 +86,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     order: "config",
   },
   manifest: {
-    format: "toon",
+    format: "json",
     includeFileSha256: true,
     includeOutputSha256: true,
     includeOutputSpans: false,

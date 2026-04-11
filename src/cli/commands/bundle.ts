@@ -5,7 +5,7 @@ import { validateBundle } from "../../bundle/validate.js";
 import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
-import { renderManifestToon } from "../../manifest/toon.js";
+import { renderManifestJson } from "../../manifest/json.js";
 import type { SectionSpanMaps } from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
@@ -85,10 +85,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     repomixVersion: (await getRepomixCapabilities()).packageVersion,
     sectionSpanMaps,
   });
-  const manifestName = `${plan.projectName}-manifest.toon`;
+  const manifestName = `${plan.projectName}-manifest.json`;
   await fs.writeFile(
     path.join(plan.bundleDir, manifestName),
-    renderManifestToon(manifest),
+    renderManifestJson(manifest),
     "utf8",
   );
   await writeChecksumFile(plan.bundleDir, plan.checksumFile, [
@@ -154,7 +154,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     writeJson({
       projectName: plan.projectName,
       bundleDir: plan.bundleDir,
-      manifestName: `${plan.projectName}-manifest.toon`,
+      manifestName: `${plan.projectName}-manifest.json`,
       checksumFile: plan.checksumFile,
       sections: sectionOutputs,
       sectionCount: plan.sections.length,

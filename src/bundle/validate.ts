@@ -2,17 +2,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { parseChecksumFile } from "../manifest/checksums.js";
-import { parseManifestToon } from "../manifest/toon.js";
+import { parseManifestJson } from "../manifest/json.js";
 import { CxError } from "../shared/errors.js";
 import { pathExists } from "../shared/fs.js";
 
 export async function loadManifestFromBundle(bundleDir: string): Promise<{
-  manifest: ReturnType<typeof parseManifestToon>;
+  manifest: ReturnType<typeof parseManifestJson>;
   manifestName: string;
 }> {
   const entries = await fs.readdir(bundleDir);
   const manifestNames = entries.filter((entry) =>
-    entry.endsWith("-manifest.toon"),
+    entry.endsWith("-manifest.json"),
   );
   if (manifestNames.length === 0) {
     throw new CxError("Bundle is missing a manifest file.", 2);
@@ -32,7 +32,7 @@ export async function loadManifestFromBundle(bundleDir: string): Promise<{
     path.join(bundleDir, manifestName),
     "utf8",
   );
-  return { manifest: parseManifestToon(manifestSource), manifestName };
+  return { manifest: parseManifestJson(manifestSource), manifestName };
 }
 
 export async function validateBundle(

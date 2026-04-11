@@ -114,10 +114,12 @@ function requireArray(value: unknown, label: string): unknown[] {
 // DTO validation — file table (2D array with header)
 // ---------------------------------------------------------------------------
 
+type FileRowWithoutSection = Omit<ManifestFileRow, "section">;
+
 function parseFileTable(
   raw: unknown,
   sectionLabel: string,
-): ManifestFileRow[] {
+): FileRowWithoutSection[] {
   const table = requireArray(raw, `${sectionLabel}.files`);
 
   if (table.length === 0) {
@@ -166,7 +168,7 @@ function parseFileTable(
 // DTO validation — sections and assets
 // ---------------------------------------------------------------------------
 
-function parseSectionDto(raw: unknown, index: number): { section: SectionDto; rows: ManifestFileRow[] } {
+function parseSectionDto(raw: unknown, index: number): { section: SectionDto; rows: FileRowWithoutSection[] } {
   const obj = requireObject(raw, `section[${index}]`);
   const label = `section[${index}]`;
   const rows = parseFileTable(obj.files, label);
@@ -197,7 +199,7 @@ function parseAssetDto(raw: unknown, index: number): AssetRecord {
 
 function parseManifestDto(raw: unknown): {
   dto: ManifestDto;
-  sectionRows: ManifestFileRow[][];
+  sectionRows: FileRowWithoutSection[][];
 } {
   const obj = requireObject(raw, "manifest root");
   const settingsRaw = requireObject(obj.settings, "settings");
@@ -205,7 +207,7 @@ function parseManifestDto(raw: unknown): {
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
 
-  const sectionRows: ManifestFileRow[][] = [];
+  const sectionRows: FileRowWithoutSection[][] = [];
   const sections: SectionDto[] = sectionsRaw.map((s, i) => {
     const { section, rows } = parseSectionDto(s, i);
     sectionRows.push(rows);

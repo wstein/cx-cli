@@ -435,7 +435,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       ),
     },
     manifest: {
-      format: "toon",
+      format: "json",
       includeFileSha256: expectBoolean(
         manifest.include_file_sha256,
         "manifest.include_file_sha256",
