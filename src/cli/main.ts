@@ -5,6 +5,7 @@ import { CX_VERSION } from "../repomix/render.js";
 import { asError, CxError } from "../shared/errors.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
+import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
 import { runInspectCommand } from "./commands/inspect.js";
@@ -211,6 +212,38 @@ export async function main(argv: string[]): Promise<number> {
           files: args.file as string[] | undefined,
           json: args.json,
           sections: args.section as string[] | undefined,
+        });
+      },
+    )
+    .command(
+      "doctor <subcommand>",
+      "Diagnose and resolve config issues such as section overlaps.",
+      (command) =>
+        command
+          .example(
+            "$0 doctor overlaps --config cx.toml",
+            "Show section overlap diagnostics.",
+          )
+          .example(
+            "$0 doctor fix-overlaps --dry-run",
+            "Preview exact exclude updates without writing cx.toml.",
+          )
+          .positional("subcommand", {
+            type: "string",
+            choices: ["overlaps", "fix-overlaps"],
+            demandOption: true,
+          })
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("dry-run", { type: "boolean", default: false })
+          .option("interactive", { type: "boolean", default: false })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runDoctorCommand({
+          config: args.config,
+          subcommand: args.subcommand as "overlaps" | "fix-overlaps",
+          dryRun: args["dry-run"],
+          interactive: args.interactive,
+          json: args.json,
         });
       },
     )

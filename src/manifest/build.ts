@@ -1,5 +1,6 @@
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
+import { MANIFEST_SCHEMA_VERSION } from "./json.js";
 import type {
   CxManifest,
   CxSection,
@@ -8,7 +9,6 @@ import type {
   SectionSpanMaps,
   SectionTokenMaps,
 } from "./types.js";
-import { MANIFEST_SCHEMA_VERSION } from "./json.js";
 
 export function buildManifest(params: {
   config: CxConfig;

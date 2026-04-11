@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 
-import { get_encoding } from "tiktoken";
 import type { TiktokenEncoding } from "tiktoken";
+import { get_encoding } from "tiktoken";
 
 import { CxError } from "./errors.js";
 

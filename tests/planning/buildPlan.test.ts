@@ -108,7 +108,7 @@ describe("buildBundlePlan", () => {
     config.sections.mixed = { include: ["src/**"], exclude: [] };
 
     await expect(buildBundlePlan(config)).rejects.toThrow(
-      "Section overlap detected",
+      /Section overlap detected for src\/index\.ts\.[\s\S]*Matching sections: src, mixed\.[\s\S]*Recommended owner: src\.[\s\S]*Suggested exclude rules:/,
     );
   });
 });

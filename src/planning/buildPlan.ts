@@ -1,18 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import picomatch from "picomatch";
-
 import type { CxConfig, CxSectionConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
-import {
-  listFilesRecursive,
-  relativePosix,
-  sortLexically,
-} from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
-import { isSubpath } from "../shared/paths.js";
+import {
+  analyzeSectionOverlaps,
+  compileMatchers,
+  formatOverlapConflictMessage,
+  getMatchingSections,
+  getSectionEntries,
+  getSectionOrder,
+  listPlannableRelativePaths,
+  matchesAny,
+} from "./overlaps.js";
 import type {
   BundlePlan,
   PlannedAsset,
@@ -31,44 +33,6 @@ function outputExtension(style: CxStyle): string {
     case "xml":
       return "xml.txt";
   }
-}
-
-function compileMatchers(
-  patterns: string[],
-): Array<(value: string) => boolean> {
-  return patterns.map((pattern) => picomatch(pattern, { dot: true }));
-}
-
-function matchesAny(
-  matchers: Array<(value: string) => boolean>,
-  value: string,
-): boolean {
-  return matchers.some((matcher) => matcher(value));
-}
-
-function getSectionOrder(config: CxConfig): string[] {
-  const names = Object.keys(config.sections);
-  return config.dedup.order === "lexical" ? sortLexically(names) : names;
-}
-
-function getMatchingSections(
-  relativePath: string,
-  sections: Map<string, CxSectionConfig>,
-): string[] {
-  const matches: string[] = [];
-
-  for (const [name, section] of sections.entries()) {
-    const include = compileMatchers(section.include);
-    const exclude = compileMatchers(section.exclude);
-    if (
-      matchesAny(include, relativePath) &&
-      !matchesAny(exclude, relativePath)
-    ) {
-      matches.push(name);
-    }
-  }
-
-  return matches;
 }
 
 function getRequiredSection(
@@ -94,36 +58,24 @@ function getRequiredSectionFiles(
 }
 
 export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
-  const allFiles = await listFilesRecursive(config.sourceRoot);
-  const outputExcluded = isSubpath(config.sourceRoot, config.outputDir)
-    ? relativePosix(config.sourceRoot, config.outputDir)
-    : undefined;
-  const globalExcludeMatchers = compileMatchers([
-    ...config.files.exclude,
-    ...(outputExcluded ? [`${outputExcluded}/**`] : []),
-  ]);
+  if (config.dedup.mode === "fail") {
+    const [conflict] = await analyzeSectionOverlaps(config);
+    if (conflict) {
+      throw new CxError(formatOverlapConflictMessage(conflict), 4);
+    }
+  }
+
   const assetIncludeMatchers = compileMatchers(config.assets.include);
   const assetExcludeMatchers = compileMatchers(config.assets.exclude);
   const sectionNames = getSectionOrder(config);
-  const sectionEntries = new Map(
-    sectionNames.map((name) => [
-      name,
-      getRequiredSection(config.sections, name),
-    ]),
-  );
+  const sectionEntries = getSectionEntries(config);
   const sectionFiles = new Map<string, PlannedSourceFile[]>(
     sectionNames.map((sectionName) => [sectionName, []]),
   );
   const assets: PlannedAsset[] = [];
   const unmatchedFiles: string[] = [];
 
-  const relativePaths = sortLexically(
-    allFiles
-      .map((filePath) => relativePosix(config.sourceRoot, filePath))
-      .filter(
-        (relativePath) => !matchesAny(globalExcludeMatchers, relativePath),
-      ),
-  );
+  const relativePaths = await listPlannableRelativePaths(config);
 
   for (const relativePath of relativePaths) {
     const absolutePath = path.join(config.sourceRoot, relativePath);
@@ -131,13 +83,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     const isAsset =
       matchesAny(assetIncludeMatchers, relativePath) &&
       !matchesAny(assetExcludeMatchers, relativePath);
-
-    if (matchingSections.length > 1 && config.dedup.mode === "fail") {
-      throw new CxError(
-        `Section overlap detected for ${relativePath}: ${matchingSections.join(", ")}.`,
-        4,
-      );
-    }
 
     if (isAsset && matchingSections.length > 0) {
       throw new CxError(
