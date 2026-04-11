@@ -7,7 +7,6 @@ export interface PlannedSourceFile {
   mediaType: string;
   sizeBytes: number;
   sha256: string;
-  trimmedContent?: string;
 }
 
 export interface PlannedSection {

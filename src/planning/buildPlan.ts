@@ -179,8 +179,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       throw new CxError(`Missing resolved section for ${relativePath}.`, 2);
     }
     const stat = await fs.stat(absolutePath);
-    const sourceText = await fs.readFile(absolutePath, "utf8");
-    const trimmedText = sourceText.trim();
     const plannedFile: PlannedSourceFile = {
       relativePath,
       absolutePath,
@@ -188,7 +186,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       mediaType: detectMediaType(relativePath, "text"),
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
-      trimmedContent: trimmedText,
     };
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
   }

@@ -118,10 +118,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
       (sum, f) => sum + f.sizeBytes,
       0,
     );
-    const estimatedTokens = selectedSectionFiles.reduce(
-      (sum, f) => sum + estimateTokenCount(f.trimmedContent ?? ""),
-      0,
-    );
+    const estimatedTokens = estimateTokenCount(result.content);
 
     outputs.push({
       section: sectionName,
