@@ -2,6 +2,7 @@ import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
 import type {
   CxManifest,
+  CxSection,
   ManifestFileRow,
   SectionOutputRecord,
   SectionSpanMaps,
@@ -15,24 +16,29 @@ export function buildManifest(params: {
   repomixVersion: string;
   sectionSpanMaps?: SectionSpanMaps;
 }): CxManifest {
-  const textRows: ManifestFileRow[] = params.plan.sections.flatMap((section) =>
-    section.files.map((file) => {
-      const sectionSpans = params.sectionSpanMaps?.get(section.name);
+  const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
+    const planSection = params.plan.sections.find(
+      (s) => s.name === sectionOutput.name,
+    );
+    const sectionSpans = params.sectionSpanMaps?.get(sectionOutput.name);
+    const files: ManifestFileRow[] = (planSection?.files ?? []).map((file) => {
       const fileSpan = sectionSpans?.get(file.relativePath);
       return {
         path: file.relativePath,
         kind: "text",
-        section: section.name,
+        section: sectionOutput.name,
         storedIn: "packed",
         sha256: file.sha256,
         sizeBytes: file.sizeBytes,
         mediaType: file.mediaType,
-        outputFile: section.outputFile,
-        outputStartLine: fileSpan ? fileSpan.outputStartLine : "-",
-        outputEndLine: fileSpan ? fileSpan.outputEndLine : "-",
+        outputStartLine: fileSpan?.outputStartLine ?? null,
+        outputEndLine: fileSpan?.outputEndLine ?? null,
       };
-    }),
-  );
+    });
+    return { ...sectionOutput, files };
+  });
+
+  const textRows = sections.flatMap((s) => s.files);
 
   const assetRows: ManifestFileRow[] = params.plan.assets.map((asset) => ({
     path: asset.relativePath,
@@ -42,9 +48,8 @@ export function buildManifest(params: {
     sha256: asset.sha256,
     sizeBytes: asset.sizeBytes,
     mediaType: asset.mediaType,
-    outputFile: "-",
-    outputStartLine: "-",
-    outputEndLine: "-",
+    outputStartLine: null,
+    outputEndLine: null,
   }));
 
   return {
@@ -75,7 +80,7 @@ export function buildManifest(params: {
           (section) => section.losslessTextExtraction,
         ),
     },
-    sections: params.sectionOutputs,
+    sections,
     assets: params.plan.assets.map((asset) => ({
       sourcePath: asset.relativePath,
       storedPath: asset.storedPath,

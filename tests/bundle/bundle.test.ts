@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import { renderManifestToon } from "../../src/manifest/toon.js";
+import type { CxManifest } from "../../src/manifest/types.js";
+import { parseManifestToon, renderManifestToon } from "../../src/manifest/toon.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
@@ -196,15 +197,14 @@ include_source_metadata = true`;
 
     // Spans are based on bare file content, not wrapper markup.
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
-    const docsSectionFiles = manifest.files
-      .filter((row) => row.section === "docs")
-      .sort(
-        (left, right) =>
-          (left.outputStartLine as number) - (right.outputStartLine as number),
-      );
+    const docsSection = manifest.sections.find((s) => s.name === "docs");
+    const docsSectionFiles = (docsSection?.files ?? []).sort(
+      (left, right) =>
+        (left.outputStartLine as number) - (right.outputStartLine as number),
+    );
     const docsOutputPath = path.join(
       project.bundleDir,
-      docsSectionFiles[0]?.outputFile as string,
+      docsSection?.outputFile ?? "",
     );
     const docsOutput = await fs.readFile(docsOutputPath, "utf8");
     const expectedLengths = [
@@ -290,17 +290,17 @@ include_source_metadata = true`;
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const textRows = manifest.files.filter((row) => row.kind === "text");
+    const sectionOutputFileMap = new Map(
+      manifest.sections.map((s) => [s.name, s.outputFile]),
+    );
     const outputByFile = new Map<string, string>();
     for (const row of textRows) {
-      if (typeof row.outputFile !== "string") {
-        continue;
-      }
-      if (outputByFile.has(row.outputFile)) {
-        continue;
-      }
+      const outputFile = sectionOutputFileMap.get(row.section);
+      if (outputFile === undefined) continue;
+      if (outputByFile.has(outputFile)) continue;
       outputByFile.set(
-        row.outputFile,
-        await fs.readFile(path.join(project.bundleDir, row.outputFile), "utf8"),
+        outputFile,
+        await fs.readFile(path.join(project.bundleDir, outputFile), "utf8"),
       );
     }
     const sortedRows = [...textRows].sort(
@@ -316,15 +316,16 @@ include_source_metadata = true`;
     for (const row of sortedRows) {
       const expectedLineCount = expectedLineCounts.get(row.path);
       expect(expectedLineCount).toBeDefined();
-      expect(row.outputStartLine).not.toBe("-");
-      expect(row.outputEndLine).not.toBe("-");
+      expect(row.outputStartLine).not.toBeNull();
+      expect(row.outputEndLine).not.toBeNull();
       if (expectedLineCount === undefined) {
         throw new Error(`Missing expected line count for ${row.path}`);
       }
       expect(
         (row.outputEndLine as number) - (row.outputStartLine as number) + 1,
       ).toBe(expectedLineCount);
-      const output = outputByFile.get(row.outputFile as string);
+      const outputFile = sectionOutputFileMap.get(row.section);
+      const output = outputFile !== undefined ? outputByFile.get(outputFile) : undefined;
       expect(output).toBeDefined();
       expect(row.outputStartLine).toBe(
         findExpectedContentStartLine({
@@ -337,8 +338,8 @@ include_source_metadata = true`;
     },
   );
 
-  test("groups table files by output_file in Toon manifest", () => {
-    const manifest = {
+  test("nests files inside their section in the TOON manifest", () => {
+    const manifest: CxManifest = {
       schemaVersion: 1,
       bundleVersion: 1,
       projectName: "demo",
@@ -359,63 +360,54 @@ include_source_metadata = true`;
         securityCheck: false,
         losslessTextExtraction: true,
       },
-      sections: [],
-      assets: [],
-      files: [
+      sections: [
         {
-          path: "docs/a.md",
-          kind: "text",
-          section: "docs",
-          storedIn: "packed",
-          sha256: "sha1",
-          sizeBytes: 1,
-          mediaType: "text/markdown",
+          name: "docs",
+          style: "xml",
           outputFile: "myproject-repomix-docs.xml.txt",
-          outputStartLine: 5,
-          outputEndLine: 5,
+          outputSha256: "aaa",
+          fileCount: 2,
+          losslessTextExtraction: true,
+          files: [
+            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
+            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
+          ],
         },
         {
-          path: "docs/b.md",
-          kind: "text",
-          section: "docs",
-          storedIn: "packed",
-          sha256: "sha2",
-          sizeBytes: 1,
-          mediaType: "text/markdown",
-          outputFile: "myproject-repomix-docs.xml.txt",
-          outputStartLine: 6,
-          outputEndLine: 6,
-        },
-        {
-          path: "src/c.ts",
-          kind: "text",
-          section: "src",
-          storedIn: "packed",
-          sha256: "sha3",
-          sizeBytes: 1,
-          mediaType: "text/typescript",
+          name: "src",
+          style: "xml",
           outputFile: "myproject-repomix-src.xml.txt",
-          outputStartLine: 10,
-          outputEndLine: 10,
+          outputSha256: "bbb",
+          fileCount: 1,
+          losslessTextExtraction: true,
+          files: [
+            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
+          ],
         },
       ],
-    } as const;
+      assets: [],
+      files: [],
+    };
 
-    const rendered = renderManifestToon(manifest as any);
-    expect(rendered).toContain("output_file myproject-repomix-docs.xml.txt");
-    expect(rendered).toContain("output_file myproject-repomix-src.xml.txt");
-    expect(
-      rendered.indexOf("output_file myproject-repomix-docs.xml.txt"),
-    ).toBeLessThan(
-      rendered.indexOf("output_file myproject-repomix-src.xml.txt"),
+    const rendered = renderManifestToon(manifest);
+    // docs section appears before src section
+    expect(rendered.indexOf("docs")).toBeLessThan(rendered.indexOf("src"));
+    // files are nested under their section
+    expect(rendered.indexOf("myproject-repomix-docs.xml.txt")).toBeLessThan(
+      rendered.indexOf("docs/a.md"),
     );
     expect(rendered.indexOf("docs/a.md")).toBeLessThan(
       rendered.indexOf("docs/b.md"),
     );
-    expect(
-      rendered.indexOf("output_file myproject-repomix-docs.xml.txt") <
-        rendered.indexOf("docs/a.md"),
-    ).toBe(true);
+    expect(rendered.indexOf("myproject-repomix-src.xml.txt")).toBeLessThan(
+      rendered.indexOf("src/c.ts"),
+    );
+    // round-trip
+    const reparsed = parseManifestToon(rendered);
+    expect(reparsed.sections).toHaveLength(2);
+    expect(reparsed.sections[0]?.files).toHaveLength(2);
+    expect(reparsed.sections[1]?.files).toHaveLength(1);
+    expect(reparsed.sections[0]?.files[0]?.path).toBe("docs/a.md");
   });
 
   test("emits structured JSON for list and inspect automation", async () => {

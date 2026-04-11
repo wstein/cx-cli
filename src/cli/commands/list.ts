@@ -11,7 +11,7 @@ import {
 import { writeJson } from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
 import { estimateTokenCount } from "../../shared/format.js";
-import type { ManifestFileRow } from "../../manifest/types.js";
+import type { CxManifest, ManifestFileRow } from "../../manifest/types.js";
 
 export interface ListArgs {
   bundleDir: string;
@@ -23,20 +23,22 @@ export interface ListArgs {
 async function readOutputFiles(
   bundleDir: string,
   rows: ManifestFileRow[],
+  sectionOutputFileMap: Map<string, string>,
   assetStoredPaths: Map<string, string>,
 ) {
   const outputs = new Map<string, string>();
   const mtimes = new Map<string, string>();
 
   for (const row of rows) {
-    if (row.storedIn === "packed" && row.outputFile !== "-") {
-      const outputPath = path.join(bundleDir, row.outputFile);
-      if (!outputs.has(row.outputFile)) {
-        outputs.set(row.outputFile, await fs.readFile(outputPath, "utf8"));
+    const outputFile = sectionOutputFileMap.get(row.section);
+    if (row.storedIn === "packed" && outputFile !== undefined) {
+      const outputPath = path.join(bundleDir, outputFile);
+      if (!outputs.has(outputFile)) {
+        outputs.set(outputFile, await fs.readFile(outputPath, "utf8"));
       }
-      if (!mtimes.has(row.outputFile)) {
+      if (!mtimes.has(outputFile)) {
         const stat = await fs.stat(outputPath);
-        mtimes.set(row.outputFile, stat.mtime.toISOString());
+        mtimes.set(outputFile, stat.mtime.toISOString());
       }
     }
 
@@ -60,15 +62,17 @@ function extractLines(content: string, startLine: number, endLine: number): stri
 
 function estimateTokensForRow(
   row: ManifestFileRow,
+  sectionOutputFileMap: Map<string, string>,
   outputs: Map<string, string>,
 ): number {
+  const outputFile = sectionOutputFileMap.get(row.section);
   if (
     row.storedIn === "packed" &&
-    row.outputFile !== "-" &&
-    row.outputStartLine !== "-" &&
-    row.outputEndLine !== "-"
+    outputFile !== undefined &&
+    row.outputStartLine !== null &&
+    row.outputEndLine !== null
   ) {
-    const outputText = outputs.get(row.outputFile);
+    const outputText = outputs.get(outputFile);
     if (outputText !== undefined) {
       return estimateTokenCount(
         extractLines(outputText, row.outputStartLine, row.outputEndLine),
@@ -81,10 +85,12 @@ function estimateTokensForRow(
 
 function formatMtime(
   row: ManifestFileRow,
+  sectionOutputFileMap: Map<string, string>,
   mtimes: Map<string, string>,
 ): string {
-  if (row.storedIn === "packed" && row.outputFile !== "-") {
-    return mtimes.get(row.outputFile) ?? "-";
+  const outputFile = sectionOutputFileMap.get(row.section);
+  if (row.storedIn === "packed" && outputFile !== undefined) {
+    return mtimes.get(outputFile) ?? "-";
   }
 
   if (row.storedIn === "copied") {
@@ -92,6 +98,10 @@ function formatMtime(
   }
 
   return "-";
+}
+
+function buildSectionOutputFileMap(manifest: CxManifest): Map<string, string> {
+  return new Map(manifest.sections.map((s) => [s.name, s.outputFile]));
 }
 
 export async function runListCommand(args: ListArgs): Promise<number> {
@@ -104,20 +114,22 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   });
   const sections = selectManifestSections(manifest, rows);
   const assets = selectManifestAssets(manifest, rows);
+  const sectionOutputFileMap = buildSectionOutputFileMap(manifest);
   const assetStoredPaths = new Map(
     manifest.assets.map((a) => [a.sourcePath, a.storedPath]),
   );
   const { outputs, mtimes } = await readOutputFiles(
     path.resolve(args.bundleDir),
     rows,
+    sectionOutputFileMap,
     assetStoredPaths,
   );
 
   const rowsWithMeta = rows.map((file) => ({
     ...file,
     bytes: file.sizeBytes,
-    tokens: estimateTokensForRow(file, outputs),
-    mtime: formatMtime(file, mtimes),
+    tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs),
+    mtime: formatMtime(file, sectionOutputFileMap, mtimes),
   }));
 
   if (args.json) {

@@ -1,392 +1,311 @@
+import { decode, encode } from "@toon-format/toon";
+
 import { CxError } from "../shared/errors.js";
-import type { CxManifest, ManifestFileRow } from "./types.js";
+import type {
+  AssetRecord,
+  CxManifest,
+  CxSection,
+  ManifestFileRow,
+  ManifestSettings,
+  SectionOutputRecord,
+} from "./types.js";
 
-const FILE_TABLE_COLUMNS = [
-  "path",
-  "kind",
-  "section",
-  "stored_in",
-  "sha256",
-  "size_bytes",
-  "media_type",
-  "output_file",
-  "output_start_line",
-  "output_end_line",
-] as const;
+// ---------------------------------------------------------------------------
+// DTO types – mirror the JSON/TOON structure on disk.
+// ---------------------------------------------------------------------------
 
-function encodeScalar(value: number | string): string {
-  if (typeof value === "number") {
-    return String(value);
-  }
-
-  if (value === "-" || /^[A-Za-z0-9._/:+-]+$/.test(value)) {
-    return value;
-  }
-
-  return JSON.stringify(value);
+interface FileRowDto {
+  path: string;
+  kind: string;
+  storedIn: string;
+  sha256: string;
+  sizeBytes: number;
+  mediaType: string;
+  outputStartLine: number | null;
+  outputEndLine: number | null;
 }
 
-function tokenize(line: string): string[] {
-  const tokens: string[] = [];
-  let index = 0;
-
-  while (index < line.length) {
-    while (line[index] === " ") {
-      index += 1;
-    }
-
-    if (index >= line.length) {
-      break;
-    }
-
-    if (line[index] === '"') {
-      let cursor = index + 1;
-      let escaped = false;
-      while (cursor < line.length) {
-        const character = line[cursor];
-        if (character === undefined) {
-          throw new CxError(`Invalid quoted token: ${line}`);
-        }
-        if (!escaped && character === '"') {
-          break;
-        }
-        escaped = !escaped && character === "\\";
-        cursor += 1;
-      }
-
-      tokens.push(JSON.parse(line.slice(index, cursor + 1)) as string);
-      index = cursor + 1;
-      continue;
-    }
-
-    let cursor = index;
-    while (cursor < line.length && line[cursor] !== " ") {
-      cursor += 1;
-    }
-
-    tokens.push(line.slice(index, cursor));
-    index = cursor;
-  }
-
-  return tokens;
+interface SectionDto extends Omit<SectionOutputRecord, "style"> {
+  style: string;
+  files: FileRowDto[];
 }
 
-function requireToken(value: string | undefined, label: string): string {
-  if (value === undefined || value.length === 0) {
-    throw new CxError(`Missing ${label} in manifest.`);
+interface ManifestDto {
+  schemaVersion: number;
+  bundleVersion: number;
+  projectName: string;
+  sourceRoot: string;
+  bundleDir: string;
+  checksumFile: string;
+  createdAt: string;
+  cxVersion: string;
+  repomixVersion: string;
+  checksumAlgorithm: string;
+  settings: ManifestSettings;
+  sections: SectionDto[];
+  assets: AssetRecord[];
+}
+
+// ---------------------------------------------------------------------------
+// Validation helpers
+// ---------------------------------------------------------------------------
+
+function requireString(value: unknown, label: string): string {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
   }
   return value;
 }
 
-function parseSectionRecord(section: Record<string, string>) {
+function requireNumber(value: unknown, label: string): number {
+  if (typeof value !== "number") {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
+  }
+  return value;
+}
+
+function requireBool(value: unknown, label: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
+  }
+  return value;
+}
+
+function requireNumberOrNull(value: unknown, label: string): number | null {
+  if (value === null) return null;
+  return requireNumber(value, label);
+}
+
+function requireObject(value: unknown, label: string): Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function requireArray(value: unknown, label: string): unknown[] {
+  if (!Array.isArray(value)) {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
+  }
+  return value;
+}
+
+// ---------------------------------------------------------------------------
+// DTO validation / coercion
+// ---------------------------------------------------------------------------
+
+function parseFileRowDto(raw: unknown, index: number): FileRowDto {
+  const obj = requireObject(raw, `file row [${index}]`);
   return {
-    name: requireToken(section.name, "section name"),
-    style: requireToken(
-      section.style,
-      "section style",
-    ) as CxManifest["sections"][number]["style"],
-    outputFile: requireToken(section.output_file, "section output_file"),
-    outputSha256: requireToken(section.output_sha256, "section output_sha256"),
-    fileCount: Number(requireToken(section.file_count, "section file_count")),
-    losslessTextExtraction:
-      requireToken(
-        section.lossless_text_extraction,
-        "section lossless_text_extraction",
-      ) === "true",
+    path: requireString(obj.path, `file[${index}].path`),
+    kind: requireString(obj.kind, `file[${index}].kind`),
+    storedIn: requireString(obj.storedIn, `file[${index}].storedIn`),
+    sha256: requireString(obj.sha256, `file[${index}].sha256`),
+    sizeBytes: requireNumber(obj.sizeBytes, `file[${index}].sizeBytes`),
+    mediaType: requireString(obj.mediaType, `file[${index}].mediaType`),
+    outputStartLine: requireNumberOrNull(
+      obj.outputStartLine,
+      `file[${index}].outputStartLine`,
+    ),
+    outputEndLine: requireNumberOrNull(
+      obj.outputEndLine,
+      `file[${index}].outputEndLine`,
+    ),
   };
 }
 
-function parseAssetRecord(asset: Record<string, string>) {
+function parseSectionDto(raw: unknown, index: number): SectionDto {
+  const obj = requireObject(raw, `section[${index}]`);
+  const filesRaw = requireArray(obj.files, `section[${index}].files`);
   return {
-    sourcePath: requireToken(asset.source_path, "asset source_path"),
-    storedPath: requireToken(asset.stored_path, "asset stored_path"),
-    sha256: requireToken(asset.sha256, "asset sha256"),
-    sizeBytes: Number(requireToken(asset.size_bytes, "asset size_bytes")),
-    mediaType: requireToken(asset.media_type, "asset media_type"),
+    name: requireString(obj.name, `section[${index}].name`),
+    style: requireString(obj.style, `section[${index}].style`),
+    outputFile: requireString(obj.outputFile, `section[${index}].outputFile`),
+    outputSha256: requireString(
+      obj.outputSha256,
+      `section[${index}].outputSha256`,
+    ),
+    fileCount: requireNumber(obj.fileCount, `section[${index}].fileCount`),
+    losslessTextExtraction: requireBool(
+      obj.losslessTextExtraction,
+      `section[${index}].losslessTextExtraction`,
+    ),
+    files: filesRaw.map((f, fi) => parseFileRowDto(f, fi)),
   };
 }
 
-function parseMaybeNumber(value: string): number | "-" {
-  if (value === "-") {
-    return "-";
-  }
-
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed)) {
-    throw new CxError(`Invalid numeric field in manifest: ${value}.`);
-  }
-  return parsed;
+function parseAssetDto(raw: unknown, index: number): AssetRecord {
+  const obj = requireObject(raw, `asset[${index}]`);
+  return {
+    sourcePath: requireString(obj.sourcePath, `asset[${index}].sourcePath`),
+    storedPath: requireString(obj.storedPath, `asset[${index}].storedPath`),
+    sha256: requireString(obj.sha256, `asset[${index}].sha256`),
+    sizeBytes: requireNumber(obj.sizeBytes, `asset[${index}].sizeBytes`),
+    mediaType: requireString(obj.mediaType, `asset[${index}].mediaType`),
+  };
 }
 
-function renderFileRow(row: ManifestFileRow): string {
-  return [
-    row.path,
-    row.kind,
-    row.section,
-    row.storedIn,
-    row.sha256,
-    row.sizeBytes,
-    row.mediaType,
-    row.outputFile,
-    row.outputStartLine,
-    row.outputEndLine,
-  ]
-    .map(encodeScalar)
-    .join(" ");
+function parseManifestDto(raw: unknown): ManifestDto {
+  const obj = requireObject(raw, "manifest root");
+  const settingsRaw = requireObject(obj.settings, "settings");
+  const sectionsRaw = requireArray(obj.sections, "sections");
+  const assetsRaw = requireArray(obj.assets ?? [], "assets");
+
+  return {
+    schemaVersion: requireNumber(obj.schemaVersion, "schemaVersion"),
+    bundleVersion: requireNumber(obj.bundleVersion, "bundleVersion"),
+    projectName: requireString(obj.projectName, "projectName"),
+    sourceRoot: requireString(obj.sourceRoot, "sourceRoot"),
+    bundleDir: requireString(obj.bundleDir, "bundleDir"),
+    checksumFile: requireString(obj.checksumFile, "checksumFile"),
+    createdAt: requireString(obj.createdAt, "createdAt"),
+    cxVersion: requireString(obj.cxVersion, "cxVersion"),
+    repomixVersion: requireString(obj.repomixVersion, "repomixVersion"),
+    checksumAlgorithm: requireString(
+      obj.checksumAlgorithm,
+      "checksumAlgorithm",
+    ),
+    settings: {
+      globalStyle: requireString(
+        settingsRaw.globalStyle,
+        "settings.globalStyle",
+      ) as ManifestSettings["globalStyle"],
+      removeComments: requireBool(
+        settingsRaw.removeComments,
+        "settings.removeComments",
+      ),
+      removeEmptyLines: requireBool(
+        settingsRaw.removeEmptyLines,
+        "settings.removeEmptyLines",
+      ),
+      compress: requireBool(settingsRaw.compress, "settings.compress"),
+      showLineNumbers: requireBool(
+        settingsRaw.showLineNumbers,
+        "settings.showLineNumbers",
+      ),
+      includeEmptyDirectories: requireBool(
+        settingsRaw.includeEmptyDirectories,
+        "settings.includeEmptyDirectories",
+      ),
+      securityCheck: requireBool(
+        settingsRaw.securityCheck,
+        "settings.securityCheck",
+      ),
+      losslessTextExtraction: requireBool(
+        settingsRaw.losslessTextExtraction,
+        "settings.losslessTextExtraction",
+      ),
+    },
+    sections: sectionsRaw.map((s, i) => parseSectionDto(s, i)),
+    assets: assetsRaw.map((a, i) => parseAssetDto(a, i)),
+  };
 }
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 export function renderManifestToon(manifest: CxManifest): string {
-  const lines: string[] = [
-    "bundle",
-    `  schema_version ${manifest.schemaVersion}`,
-    `  bundle_version ${manifest.bundleVersion}`,
-    `  project_name ${encodeScalar(manifest.projectName)}`,
-    `  source_root ${encodeScalar(manifest.sourceRoot)}`,
-    `  bundle_dir ${encodeScalar(manifest.bundleDir)}`,
-    `  checksum_file ${encodeScalar(manifest.checksumFile)}`,
-    `  created_at ${encodeScalar(manifest.createdAt)}`,
-    "",
-    "tooling",
-    `  cx_version ${encodeScalar(manifest.cxVersion)}`,
-    `  repomix_version ${encodeScalar(manifest.repomixVersion)}`,
-    `  checksum_algorithm ${manifest.checksumAlgorithm}`,
-    "",
-    "settings",
-    `  global_style ${manifest.settings.globalStyle}`,
-    `  remove_comments ${String(manifest.settings.removeComments)}`,
-    `  remove_empty_lines ${String(manifest.settings.removeEmptyLines)}`,
-    `  compress ${String(manifest.settings.compress)}`,
-    `  show_line_numbers ${String(manifest.settings.showLineNumbers)}`,
-    `  include_empty_directories ${String(manifest.settings.includeEmptyDirectories)}`,
-    `  security_check ${String(manifest.settings.securityCheck)}`,
-    `  lossless_text_extraction ${String(manifest.settings.losslessTextExtraction)}`,
-    "",
-  ];
-
-  for (const section of manifest.sections) {
-    lines.push(`section ${encodeScalar(section.name)}`);
-    lines.push(`  style ${section.style}`);
-    lines.push(`  output_file ${encodeScalar(section.outputFile)}`);
-    lines.push(`  output_sha256 ${section.outputSha256}`);
-    lines.push(`  file_count ${section.fileCount}`);
-    lines.push(
-      `  lossless_text_extraction ${String(section.losslessTextExtraction)}`,
-    );
-    lines.push("");
-  }
-
-  for (const asset of manifest.assets) {
-    lines.push("asset");
-    lines.push(`  source_path ${encodeScalar(asset.sourcePath)}`);
-    lines.push(`  stored_path ${encodeScalar(asset.storedPath)}`);
-    lines.push(`  sha256 ${asset.sha256}`);
-    lines.push(`  size_bytes ${asset.sizeBytes}`);
-    lines.push(`  media_type ${encodeScalar(asset.mediaType)}`);
-    lines.push("");
-  }
-
-  lines.push("table files");
-  lines.push(`  ${FILE_TABLE_COLUMNS.join(" ")}`);
-
-  const groupedFiles = new Map<string, ManifestFileRow[]>();
-  for (const file of manifest.files) {
-    const group = groupedFiles.get(file.outputFile);
-    if (group) {
-      group.push(file);
-    } else {
-      groupedFiles.set(file.outputFile, [file]);
-    }
-  }
-
-  for (const outputFile of Array.from(groupedFiles.keys()).sort()) {
-    lines.push(`  output_file ${encodeScalar(outputFile)}`);
-    for (const file of groupedFiles.get(outputFile) ?? []) {
-      lines.push(`  ${renderFileRow(file)}`);
-    }
-    lines.push("");
-  }
-
-  lines.push("end");
-
-  return `${lines.join("\n")}\n`;
+  const dto: ManifestDto = {
+    schemaVersion: manifest.schemaVersion,
+    bundleVersion: manifest.bundleVersion,
+    projectName: manifest.projectName,
+    sourceRoot: manifest.sourceRoot,
+    bundleDir: manifest.bundleDir,
+    checksumFile: manifest.checksumFile,
+    createdAt: manifest.createdAt,
+    cxVersion: manifest.cxVersion,
+    repomixVersion: manifest.repomixVersion,
+    checksumAlgorithm: manifest.checksumAlgorithm,
+    settings: manifest.settings,
+    sections: manifest.sections.map((section) => ({
+      name: section.name,
+      style: section.style,
+      outputFile: section.outputFile,
+      outputSha256: section.outputSha256,
+      fileCount: section.fileCount,
+      losslessTextExtraction: section.losslessTextExtraction,
+      files: section.files.map((row) => ({
+        path: row.path,
+        kind: row.kind,
+        storedIn: row.storedIn,
+        sha256: row.sha256,
+        sizeBytes: row.sizeBytes,
+        mediaType: row.mediaType,
+        outputStartLine: row.outputStartLine,
+        outputEndLine: row.outputEndLine,
+      })),
+    })),
+    assets: manifest.assets,
+  };
+  return `${encode(dto)}\n`;
 }
 
 export function parseManifestToon(source: string): CxManifest {
-  const lines = source.split(/\r?\n/);
-  const sections: CxManifest["sections"] = [];
-  const assets: CxManifest["assets"] = [];
-  const files: CxManifest["files"] = [];
-  const bundleFields = new Map<string, string>();
-  const toolingFields = new Map<string, string>();
-  const settingsFields = new Map<string, string>();
-  let currentAsset: Record<string, string> | null = null;
-  let currentSection: Record<string, string> | null = null;
-  let state:
-    | "idle"
-    | "bundle"
-    | "tooling"
-    | "settings"
-    | "section"
-    | "asset"
-    | "table" = "idle";
-
-  for (const rawLine of lines) {
-    const line = rawLine.trimEnd();
-    if (line.length === 0) {
-      if (state === "asset" && currentAsset) {
-        assets.push(parseAssetRecord(currentAsset));
-        currentAsset = null;
-        state = "idle";
-      } else if (state === "section" && currentSection) {
-        sections.push(parseSectionRecord(currentSection));
-        currentSection = null;
-        state = "idle";
-      }
-      continue;
-    }
-
-    if (line === "bundle") {
-      state = "bundle";
-      continue;
-    }
-    if (line === "tooling") {
-      state = "tooling";
-      continue;
-    }
-    if (line === "settings") {
-      state = "settings";
-      continue;
-    }
-    if (line.startsWith("section ")) {
-      state = "section";
-      currentSection = {
-        name: requireToken(
-          tokenize(line.slice("section ".length))[0],
-          "section name",
-        ),
-      };
-      continue;
-    }
-    if (line === "asset") {
-      state = "asset";
-      currentAsset = {};
-      continue;
-    }
-    if (line === "table files") {
-      state = "table";
-      continue;
-    }
-    if (line === "end") {
-      break;
-    }
-
-    if (state === "table") {
-      if (line.trimStart().startsWith(FILE_TABLE_COLUMNS[0])) {
-        continue;
-      }
-
-      if (line.trimStart().startsWith("output_file ")) {
-        continue;
-      }
-
-      const fields = tokenize(line.trim());
-      if (fields.length !== FILE_TABLE_COLUMNS.length) {
-        throw new CxError(`Invalid manifest table row: ${line}`);
-      }
-
-      files.push({
-        path: requireToken(fields[0], "file path"),
-        kind: fields[1] as ManifestFileRow["kind"],
-        section: fields[2] as ManifestFileRow["section"],
-        storedIn: fields[3] as ManifestFileRow["storedIn"],
-        sha256: requireToken(fields[4], "file sha256"),
-        sizeBytes: Number(fields[5]),
-        mediaType: requireToken(fields[6], "file media_type"),
-        outputFile: fields[7] as ManifestFileRow["outputFile"],
-        outputStartLine: parseMaybeNumber(
-          requireToken(fields[8], "file output_start_line"),
-        ),
-        outputEndLine: parseMaybeNumber(
-          requireToken(fields[9], "file output_end_line"),
-        ),
-      });
-      continue;
-    }
-
-    const [key, ...rest] = tokenize(line.trim());
-    const value = rest.join(" ");
-    if (!key || value.length === 0) {
-      throw new CxError(`Invalid manifest line: ${line}`);
-    }
-
-    switch (state) {
-      case "bundle":
-        bundleFields.set(key, value);
-        break;
-      case "tooling":
-        toolingFields.set(key, value);
-        break;
-      case "settings":
-        settingsFields.set(key, value);
-        break;
-      case "section":
-        if (!currentSection) {
-          throw new CxError("Unexpected section state in manifest.");
-        }
-        currentSection[key] = requireToken(rest[0], `section field ${key}`);
-        break;
-      case "asset":
-        if (!currentAsset) {
-          throw new CxError("Unexpected asset state in manifest.");
-        }
-        currentAsset[key] = requireToken(rest[0], `asset field ${key}`);
-        break;
-      default:
-        throw new CxError(`Unexpected manifest content: ${line}`);
-    }
+  let raw: unknown;
+  try {
+    raw = decode(source);
+  } catch (error) {
+    throw new CxError(
+      `Failed to parse manifest: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
-  if (currentSection) {
-    sections.push(parseSectionRecord(currentSection));
-  }
+  const dto = parseManifestDto(raw);
 
-  if (currentAsset) {
-    assets.push(parseAssetRecord(currentAsset));
-  }
+  // Reconstruct the flat files array expected by consumers.
+  const textRows: ManifestFileRow[] = dto.sections.flatMap((section) =>
+    section.files.map((row) => ({
+      path: row.path,
+      kind: row.kind as ManifestFileRow["kind"],
+      section: section.name,
+      storedIn: row.storedIn as ManifestFileRow["storedIn"],
+      sha256: row.sha256,
+      sizeBytes: row.sizeBytes,
+      mediaType: row.mediaType,
+      outputStartLine: row.outputStartLine,
+      outputEndLine: row.outputEndLine,
+    })),
+  );
+
+  const assetRows: ManifestFileRow[] = dto.assets.map((asset) => ({
+    path: asset.sourcePath,
+    kind: "asset",
+    section: "-",
+    storedIn: "copied",
+    sha256: asset.sha256,
+    sizeBytes: asset.sizeBytes,
+    mediaType: asset.mediaType,
+    outputStartLine: null,
+    outputEndLine: null,
+  }));
+
+  const sections: CxSection[] = dto.sections.map((section) => ({
+    name: section.name,
+    style: section.style as CxSection["style"],
+    outputFile: section.outputFile,
+    outputSha256: section.outputSha256,
+    fileCount: section.fileCount,
+    losslessTextExtraction: section.losslessTextExtraction,
+    files: textRows.filter((row) => row.section === section.name),
+  }));
 
   return {
     schemaVersion: 1,
     bundleVersion: 1,
-    projectName: requireToken(bundleFields.get("project_name"), "project_name"),
-    sourceRoot: requireToken(bundleFields.get("source_root"), "source_root"),
-    bundleDir: requireToken(bundleFields.get("bundle_dir"), "bundle_dir"),
-    checksumFile: requireToken(
-      bundleFields.get("checksum_file"),
-      "checksum_file",
-    ),
-    createdAt: requireToken(bundleFields.get("created_at"), "created_at"),
-    cxVersion: requireToken(toolingFields.get("cx_version"), "cx_version"),
-    repomixVersion: requireToken(
-      toolingFields.get("repomix_version"),
-      "repomix_version",
-    ),
+    projectName: dto.projectName,
+    sourceRoot: dto.sourceRoot,
+    bundleDir: dto.bundleDir,
+    checksumFile: dto.checksumFile,
+    createdAt: dto.createdAt,
+    cxVersion: dto.cxVersion,
+    repomixVersion: dto.repomixVersion,
     checksumAlgorithm: "sha256",
-    settings: {
-      globalStyle: settingsFields.get(
-        "global_style",
-      ) as CxManifest["settings"]["globalStyle"],
-      removeComments: settingsFields.get("remove_comments") === "true",
-      removeEmptyLines: settingsFields.get("remove_empty_lines") === "true",
-      compress: settingsFields.get("compress") === "true",
-      showLineNumbers: settingsFields.get("show_line_numbers") === "true",
-      includeEmptyDirectories:
-        settingsFields.get("include_empty_directories") === "true",
-      securityCheck: settingsFields.get("security_check") === "true",
-      losslessTextExtraction:
-        settingsFields.get("lossless_text_extraction") === "true",
-    },
+    settings: dto.settings,
     sections,
-    assets,
-    files,
+    assets: dto.assets,
+    files: [...textRows, ...assetRows].sort((a, b) =>
+      a.path.localeCompare(b.path, "en"),
+    ),
   };
 }

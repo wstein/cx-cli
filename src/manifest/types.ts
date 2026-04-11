@@ -11,6 +11,18 @@ export interface ManifestSettings {
   losslessTextExtraction: boolean;
 }
 
+export interface ManifestFileRow {
+  path: string;
+  kind: "text" | "asset";
+  section: string | "-";
+  storedIn: "packed" | "copied";
+  sha256: string;
+  sizeBytes: number;
+  mediaType: string;
+  outputStartLine: number | null;
+  outputEndLine: number | null;
+}
+
 export interface SectionOutputRecord {
   name: string;
   style: CxStyle;
@@ -36,17 +48,9 @@ export interface AssetRecord {
   mediaType: string;
 }
 
-export interface ManifestFileRow {
-  path: string;
-  kind: "text" | "asset";
-  section: string | "-";
-  storedIn: "packed" | "copied";
-  sha256: string;
-  sizeBytes: number;
-  mediaType: string;
-  outputFile: string | "-";
-  outputStartLine: number | "-";
-  outputEndLine: number | "-";
+/** A section as stored in the manifest, including its file list. */
+export interface CxSection extends SectionOutputRecord {
+  files: ManifestFileRow[];
 }
 
 export interface CxManifest {
@@ -61,7 +65,8 @@ export interface CxManifest {
   repomixVersion: string;
   checksumAlgorithm: "sha256";
   settings: ManifestSettings;
-  sections: SectionOutputRecord[];
+  sections: CxSection[];
   assets: AssetRecord[];
+  /** Flat list of all file rows (text + asset), reconstructed after parsing. */
   files: ManifestFileRow[];
 }
