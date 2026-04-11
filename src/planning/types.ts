@@ -8,8 +8,6 @@ export interface PlannedSourceFile {
   sizeBytes: number;
   sha256: string;
   trimmedContent?: string;
-  leadingWhitespaceBase64?: string;
-  trailingWhitespaceBase64?: string;
   exactContentBase64?: string;
 }
 
