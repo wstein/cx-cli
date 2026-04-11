@@ -27,21 +27,21 @@ source_root = "~/projects/$WORKSPACE/src"
 output_dir = "dist/{project}-bundle"
 ```
 
-## Token Estimation
+## Token Counting
 
-Token estimation is configurable through the `[tokens]` table:
+Exact token counting is configurable through the `[tokens]` table:
 
 ```toml
 [tokens]
-algorithm = "chars_div_4"
+encoding = "o200k_base"
 ```
 
-Supported algorithms:
+Rules:
 
-- `chars_div_4`: estimate tokens as `ceil(characters / 4)`
-- `chars_div_3`: estimate tokens as `ceil(characters / 3)`
+- `encoding` must be a non-empty tokenizer encoding name understood by Repomix and `tiktoken`.
+- `o200k_base` is the default and is a good fit for modern OpenAI models.
 
-The chosen algorithm is stored in the manifest and reused by bundle consumers such as `cx list`.
+`cx bundle` stores the chosen `tokenEncoding` in the manifest and persists exact `tokenCount` values for every section and file. Downstream consumers such as `cx list` read those stored counts directly and never fall back to byte- or character-based guesses.
 
 ## List Display Thresholds
 

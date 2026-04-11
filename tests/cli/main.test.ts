@@ -3,8 +3,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { main } from "../../src/cli/main.js";
+import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 
 describe("main", () => {
   test("prints top-level help when invoked without arguments", async () => {

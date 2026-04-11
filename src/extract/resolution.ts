@@ -22,11 +22,7 @@ export type ExtractabilityReason =
   | "missing_from_section_output"
   | "section_parse_failed";
 
-export type ExtractabilityStatus =
-  | "intact"
-  | "copied"
-  | "degraded"
-  | "blocked";
+export type ExtractabilityStatus = "intact" | "copied" | "degraded" | "blocked";
 
 export interface ExtractabilityRecord {
   path: string;
@@ -106,7 +102,9 @@ export async function resolveExtractability(params: {
         "utf8",
       );
       const parsed = parseSectionSource(section, source);
-      const parsedMap = new Map(parsed.map((file) => [file.path, file.content]));
+      const parsedMap = new Map(
+        parsed.map((file) => [file.path, file.content]),
+      );
 
       for (const row of sectionRows) {
         const content = parsedMap.get(row.path);
@@ -152,8 +150,7 @@ export async function resolveExtractability(params: {
         });
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
       for (const row of sectionRows) {
         records.push({
           path: row.path,

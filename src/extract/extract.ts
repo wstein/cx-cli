@@ -6,10 +6,7 @@ import type { ManifestFileRow } from "../manifest/types.js";
 import { CxError } from "../shared/errors.js";
 import { ensureDir } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
-import {
-  ExtractResolutionError,
-  resolveExtractability,
-} from "./resolution.js";
+import { ExtractResolutionError, resolveExtractability } from "./resolution.js";
 
 async function assertWritable(
   destinationPath: string,
@@ -39,7 +36,10 @@ async function assertWritable(
   }
 }
 
-async function restoreMtime(destinationPath: string, isoTime: string): Promise<void> {
+async function restoreMtime(
+  destinationPath: string,
+  isoTime: string,
+): Promise<void> {
   const value = new Date(isoTime);
   if (Number.isNaN(value.getTime())) {
     throw new CxError(`Invalid manifest mtime for ${destinationPath}.`, 2);

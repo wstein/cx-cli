@@ -31,19 +31,9 @@ function jsonSection(path: string, content: string): string {
 }
 
 /** Build the markdown output that repomix emits (trailing newline stripped). */
-function markdownSection(
-  path: string,
-  content: string,
-  lang = "",
-): string {
+function markdownSection(path: string, content: string, lang = ""): string {
   const body = content.endsWith("\n") ? content.slice(0, -1) : content;
-  return [
-    `## File: ${path}`,
-    `\`\`\`\`${lang}`,
-    body,
-    "````",
-    "",
-  ].join("\n");
+  return [`## File: ${path}`, `\`\`\`\`${lang}`, body, "````", ""].join("\n");
 }
 
 const SEP_SHORT = "=".repeat(16);
@@ -52,8 +42,7 @@ const SEP_LONG = "=".repeat(64);
 /** Build the plain output that repomix emits for a two-file section. */
 function plainSection(files: Array<{ path: string; content: string }>): string {
   const lines: string[] = [SEP_LONG, "Files", SEP_LONG, ""];
-  for (let i = 0; i < files.length; i++) {
-    const { path, content } = files[i]!;
+  for (const { path, content } of files) {
     lines.push(SEP_SHORT, `File: ${path}`, SEP_SHORT);
     // Repomix writes the content as-is; trailing \n produces a blank line
     // before the next separator or the end marker.
@@ -75,7 +64,10 @@ const CASES: Array<{ label: string; content: string }> = [
   { label: "no trailing newline", content: "hello world" },
   { label: "empty file", content: "" },
   { label: "only newlines", content: "\n\n" },
-  { label: "multi-line with trailing newline", content: "line1\nline2\nline3\n" },
+  {
+    label: "multi-line with trailing newline",
+    content: "line1\nline2\nline3\n",
+  },
   {
     label: "content with backtick fence",
     content: "# Title\n\n```ts\nconst x = 1;\n```\n",
@@ -112,7 +104,8 @@ describe("parsers – whitespace preservation", () => {
       const [result] = parseXmlSection(source);
       expect(result).toEqual({
         path: "src/example.ts",
-        content: "export function identity<T>(value: T): T {\n  return value;\n}\n",
+        content:
+          "export function identity<T>(value: T): T {\n  return value;\n}\n",
       });
     });
   });
@@ -121,11 +114,27 @@ describe("parsers – whitespace preservation", () => {
     // Repomix strips the trailing newline when serialising JSON. The parser
     // restores it for non-empty content. Files without trailing \n and empty
     // files are returned exactly as stored.
-    const jsonCases: Array<{ label: string; content: string; expected: string }> = [
-      { label: "single trailing newline", content: "hello world\n", expected: "hello world\n" },
-      { label: "no trailing newline", content: "hello world", expected: "hello world\n" },
+    const jsonCases: Array<{
+      label: string;
+      content: string;
+      expected: string;
+    }> = [
+      {
+        label: "single trailing newline",
+        content: "hello world\n",
+        expected: "hello world\n",
+      },
+      {
+        label: "no trailing newline",
+        content: "hello world",
+        expected: "hello world\n",
+      },
       { label: "empty file", content: "", expected: "" },
-      { label: "multi-line with trailing newline", content: "line1\nline2\n", expected: "line1\nline2\n" },
+      {
+        label: "multi-line with trailing newline",
+        content: "line1\nline2\n",
+        expected: "line1\nline2\n",
+      },
     ];
     for (const { label, content, expected } of jsonCases) {
       test(label, () => {
@@ -137,12 +146,25 @@ describe("parsers – whitespace preservation", () => {
   });
 
   describe("Markdown (repomix strips trailing \\n)", () => {
-    const mdCases: Array<{ label: string; content: string; expected: string }> = [
-      { label: "single trailing newline", content: "hello world\n", expected: "hello world\n" },
-      { label: "no trailing newline", content: "hello world", expected: "hello world\n" },
-      { label: "empty file", content: "", expected: "" },
-      { label: "multi-line with trailing newline", content: "line1\nline2\n", expected: "line1\nline2\n" },
-    ];
+    const mdCases: Array<{ label: string; content: string; expected: string }> =
+      [
+        {
+          label: "single trailing newline",
+          content: "hello world\n",
+          expected: "hello world\n",
+        },
+        {
+          label: "no trailing newline",
+          content: "hello world",
+          expected: "hello world\n",
+        },
+        { label: "empty file", content: "", expected: "" },
+        {
+          label: "multi-line with trailing newline",
+          content: "line1\nline2\n",
+          expected: "line1\nline2\n",
+        },
+      ];
     for (const { label, content, expected } of mdCases) {
       test(label, () => {
         const source = markdownSection("file.txt", content);
@@ -153,11 +175,7 @@ describe("parsers – whitespace preservation", () => {
   });
 
   describe("Plain – non-last file preserves trailing \\n", () => {
-    const trailingNewlineCases = [
-      "hello\n",
-      "multi\nline\n",
-      "no-trailing",
-    ];
+    const trailingNewlineCases = ["hello\n", "multi\nline\n", "no-trailing"];
     for (const first of trailingNewlineCases) {
       test(`first file: ${JSON.stringify(first)}`, () => {
         const source = plainSection([

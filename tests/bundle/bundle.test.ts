@@ -4,19 +4,19 @@ import os from "node:os";
 import path from "node:path";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import type { CxManifest } from "../../src/manifest/types.js";
-import {
-  FILE_ROW_COLUMNS,
-  MANIFEST_SCHEMA_VERSION,
-  parseManifestJson,
-  renderManifestJson,
-} from "../../src/manifest/json.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
 import { runListCommand } from "../../src/cli/commands/list.js";
 import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { runVerifyCommand } from "../../src/cli/commands/verify.js";
+import {
+  FILE_ROW_COLUMNS,
+  MANIFEST_SCHEMA_VERSION,
+  parseManifestJson,
+  renderManifestJson,
+} from "../../src/manifest/json.js";
+import type { CxManifest } from "../../src/manifest/types.js";
 import { sha256File } from "../../src/shared/hashing.js";
 
 function countLogicalLines(content: string): number {
@@ -261,9 +261,10 @@ include_source_metadata = true`;
     "json",
     "markdown",
     "plain",
-  ] as const)(
-    "emits absolute output spans for %s bundles",
-    async (style: "json" | "markdown" | "plain") => {
+  ] as const)("emits absolute output spans for %s bundles", async (style:
+    | "json"
+    | "markdown"
+    | "plain") => {
     const project = await createProject();
     await fs.writeFile(
       path.join(project.root, "README.md"),
@@ -330,7 +331,8 @@ include_source_metadata = true`;
         (row.outputEndLine as number) - (row.outputStartLine as number) + 1,
       ).toBe(expectedLineCount);
       const outputFile = sectionOutputFileMap.get(row.section);
-      const output = outputFile !== undefined ? outputByFile.get(outputFile) : undefined;
+      const output =
+        outputFile !== undefined ? outputByFile.get(outputFile) : undefined;
       expect(output).toBeDefined();
       expect(row.outputStartLine).toBe(
         findExpectedContentStartLine({
@@ -340,8 +342,7 @@ include_source_metadata = true`;
         }),
       );
     }
-    },
-  );
+  });
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
@@ -380,8 +381,32 @@ include_source_metadata = true`;
           fileCount: 2,
           tokenCount: 7,
           files: [
-            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, tokenCount: 3, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
-            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, tokenCount: 4, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
+            {
+              path: "docs/a.md",
+              kind: "text",
+              section: "docs",
+              storedIn: "packed",
+              sha256: "sha1",
+              sizeBytes: 1,
+              tokenCount: 3,
+              mtime: "2026-04-11T00:00:00.000Z",
+              mediaType: "text/markdown",
+              outputStartLine: 5,
+              outputEndLine: 5,
+            },
+            {
+              path: "docs/b.md",
+              kind: "text",
+              section: "docs",
+              storedIn: "packed",
+              sha256: "sha2",
+              sizeBytes: 1,
+              tokenCount: 4,
+              mtime: "2026-04-11T00:00:00.000Z",
+              mediaType: "text/markdown",
+              outputStartLine: 6,
+              outputEndLine: 6,
+            },
           ],
         },
         {
@@ -392,7 +417,19 @@ include_source_metadata = true`;
           fileCount: 1,
           tokenCount: 5,
           files: [
-            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, tokenCount: 5, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
+            {
+              path: "src/c.ts",
+              kind: "text",
+              section: "src",
+              storedIn: "packed",
+              sha256: "sha3",
+              sizeBytes: 1,
+              tokenCount: 5,
+              mtime: "2026-04-11T00:00:00.000Z",
+              mediaType: "text/typescript",
+              outputStartLine: 10,
+              outputEndLine: 10,
+            },
           ],
         },
       ],
@@ -499,8 +536,8 @@ include_source_metadata = true`;
     expect(
       inspectPayload.sections
         ?.flatMap((section) => section.files ?? [])
-        .find((file) => file.relativePath === "src/index.ts")
-        ?.extractability?.status,
+        .find((file) => file.relativePath === "src/index.ts")?.extractability
+        ?.status,
     ).toBe("intact");
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
@@ -517,9 +554,9 @@ include_source_metadata = true`;
           file.extractability?.status === "copied",
       ),
     ).toBe(true);
-    expect(listPayload.files?.find((file) => file.path === "src/index.ts")?.status).toBe(
-      "intact",
-    );
+    expect(
+      listPayload.files?.find((file) => file.path === "src/index.ts")?.status,
+    ).toBe("intact");
     expect(inspectPayload.bundleComparison?.available).toBe(true);
   });
 
@@ -1149,7 +1186,6 @@ include_source_metadata = true`;
     );
   });
 
-
   test("extracts degraded files with explicit opt-in", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-degraded");
@@ -1178,7 +1214,9 @@ include_source_metadata = true`;
 
     expect(
       await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
-    ).not.toBe(await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"));
+    ).not.toBe(
+      await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"),
+    );
   });
 
   test("fails verify when the checksum file omits an expected artifact", async () => {

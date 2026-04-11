@@ -37,7 +37,24 @@ const isoTimestamp: fc.Arbitrary<string> = fc
 /** 64-character lowercase hex string for SHA-256 digests. */
 const sha256Hex: fc.Arbitrary<string> = fc
   .array(
-    fc.constantFrom("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"),
+    fc.constantFrom(
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+    ),
     { minLength: 64, maxLength: 64 },
   )
   .map((chars) => chars.join(""));
@@ -45,7 +62,10 @@ const sha256Hex: fc.Arbitrary<string> = fc
 const nonNegInt = fc.integer({ min: 0, max: 1_000_000 });
 const posInt = fc.integer({ min: 1, max: 1_000_000 });
 const styleArb = fc.constantFrom<"xml" | "markdown" | "json" | "plain">(
-  "xml", "markdown", "json", "plain",
+  "xml",
+  "markdown",
+  "json",
+  "plain",
 );
 const tokenEncodingArb = fc.constantFrom("o200k_base", "cl100k_base");
 
@@ -57,18 +77,20 @@ const nullablePos: fc.Arbitrary<number | null> = fc.option(posInt, {
 
 /** Arbitrary for a single ManifestFileRow with the given section name. */
 function fileRowArb(sectionName: string): fc.Arbitrary<ManifestFileRow> {
-  return fc.record({
-    path: nonEmptyString,
-    kind: fc.constantFrom<"text" | "asset">("text", "asset"),
-    storedIn: fc.constantFrom<"packed" | "copied">("packed", "copied"),
-    sha256: sha256Hex,
-    sizeBytes: nonNegInt,
-    tokenCount: nonNegInt,
-    mtime: isoTimestamp,
-    mediaType: nonEmptyString,
-    outputStartLine: nullablePos,
-    outputEndLine: nullablePos,
-  }).map((row) => ({ ...row, section: sectionName }));
+  return fc
+    .record({
+      path: nonEmptyString,
+      kind: fc.constantFrom<"text" | "asset">("text", "asset"),
+      storedIn: fc.constantFrom<"packed" | "copied">("packed", "copied"),
+      sha256: sha256Hex,
+      sizeBytes: nonNegInt,
+      tokenCount: nonNegInt,
+      mtime: isoTimestamp,
+      mediaType: nonEmptyString,
+      outputStartLine: nullablePos,
+      outputEndLine: nullablePos,
+    })
+    .map((row) => ({ ...row, section: sectionName }));
 }
 
 const listDisplayArb = fc.record({
@@ -222,9 +244,12 @@ describe("manifest round-trip (property-based)", () => {
 
         // Sections and their file rows
         expect(recovered.sections).toHaveLength(manifest.sections.length);
-        for (let i = 0; i < manifest.sections.length; i++) {
-          const orig = manifest.sections[i]!;
-          const recv = recovered.sections[i]!;
+        for (const [i, orig] of manifest.sections.entries()) {
+          const recv = recovered.sections[i];
+          expect(recv).toBeDefined();
+          if (!recv) {
+            continue;
+          }
           expect(recv.name).toBe(orig.name);
           expect(recv.style).toBe(orig.style);
           expect(recv.outputFile).toBe(orig.outputFile);
@@ -232,10 +257,13 @@ describe("manifest round-trip (property-based)", () => {
           expect(recv.fileCount).toBe(orig.fileCount);
           expect(recv.tokenCount).toBe(orig.tokenCount);
           expect(recv.files).toHaveLength(orig.files.length);
-          for (let j = 0; j < orig.files.length; j++) {
-            expect(stripSection(recv.files[j]!)).toEqual(
-              stripSection(orig.files[j]!),
-            );
+          for (const [j, origFile] of orig.files.entries()) {
+            const recvFile = recv.files[j];
+            expect(recvFile).toBeDefined();
+            if (!recvFile) {
+              continue;
+            }
+            expect(stripSection(recvFile)).toEqual(stripSection(origFile));
           }
         }
 
@@ -254,8 +282,12 @@ describe("manifest round-trip (property-based)", () => {
   test("compact and pretty output parse to the same manifest", () => {
     fc.assert(
       fc.property(manifestArb, (manifest) => {
-        const fromPretty = parseManifestJson(renderManifestJson(manifest, true));
-        const fromCompact = parseManifestJson(renderManifestJson(manifest, false));
+        const fromPretty = parseManifestJson(
+          renderManifestJson(manifest, true),
+        );
+        const fromCompact = parseManifestJson(
+          renderManifestJson(manifest, false),
+        );
         expect(fromCompact.projectName).toBe(fromPretty.projectName);
         expect(fromCompact.sections).toHaveLength(fromPretty.sections.length);
         expect(fromCompact.assets).toEqual(fromPretty.assets);

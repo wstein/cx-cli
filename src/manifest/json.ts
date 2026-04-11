@@ -153,7 +153,10 @@ function parseFileTable(
   const tableObj = requireObject(raw, `${sectionLabel}.files`);
 
   // Validate columns array.
-  const columns = requireArray(tableObj.columns, `${sectionLabel}.files.columns`);
+  const columns = requireArray(
+    tableObj.columns,
+    `${sectionLabel}.files.columns`,
+  );
   if (columns.length !== FILE_ROW_COLUMNS.length) {
     throw new CxError(
       `${sectionLabel}.files.columns: expected ${FILE_ROW_COLUMNS.length} columns, got ${columns.length}.`,
@@ -179,15 +182,36 @@ function parseFileTable(
     }
     return {
       path: requireString(row[COL.path], `${rowLabel}[${COL.path}]`),
-      kind: requireString(row[COL.kind], `${rowLabel}[${COL.kind}]`) as ManifestFileRow["kind"],
-      storedIn: requireString(row[COL.storedIn], `${rowLabel}[${COL.storedIn}]`) as ManifestFileRow["storedIn"],
+      kind: requireString(
+        row[COL.kind],
+        `${rowLabel}[${COL.kind}]`,
+      ) as ManifestFileRow["kind"],
+      storedIn: requireString(
+        row[COL.storedIn],
+        `${rowLabel}[${COL.storedIn}]`,
+      ) as ManifestFileRow["storedIn"],
       sha256: requireString(row[COL.sha256], `${rowLabel}[${COL.sha256}]`),
-      sizeBytes: requireNumber(row[COL.sizeBytes], `${rowLabel}[${COL.sizeBytes}]`),
-      tokenCount: requireNumber(row[COL.tokenCount], `${rowLabel}[${COL.tokenCount}]`),
+      sizeBytes: requireNumber(
+        row[COL.sizeBytes],
+        `${rowLabel}[${COL.sizeBytes}]`,
+      ),
+      tokenCount: requireNumber(
+        row[COL.tokenCount],
+        `${rowLabel}[${COL.tokenCount}]`,
+      ),
       mtime: requireString(row[COL.mtime], `${rowLabel}[${COL.mtime}]`),
-      mediaType: requireString(row[COL.mediaType], `${rowLabel}[${COL.mediaType}]`),
-      outputStartLine: requireNumberOrNull(row[COL.outputStartLine], `${rowLabel}[${COL.outputStartLine}]`),
-      outputEndLine: requireNumberOrNull(row[COL.outputEndLine], `${rowLabel}[${COL.outputEndLine}]`),
+      mediaType: requireString(
+        row[COL.mediaType],
+        `${rowLabel}[${COL.mediaType}]`,
+      ),
+      outputStartLine: requireNumberOrNull(
+        row[COL.outputStartLine],
+        `${rowLabel}[${COL.outputStartLine}]`,
+      ),
+      outputEndLine: requireNumberOrNull(
+        row[COL.outputEndLine],
+        `${rowLabel}[${COL.outputEndLine}]`,
+      ),
     };
   });
 }
@@ -245,7 +269,10 @@ function parseManifestDto(raw: unknown): {
   }
 
   const settingsRaw = requireObject(obj.settings, "settings");
-  const listDisplayRaw = requireObject(settingsRaw.listDisplay, "settings.listDisplay");
+  const listDisplayRaw = requireObject(
+    settingsRaw.listDisplay,
+    "settings.listDisplay",
+  );
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
 
@@ -266,7 +293,10 @@ function parseManifestDto(raw: unknown): {
     createdAt: requireString(obj.createdAt, "createdAt"),
     cxVersion: requireString(obj.cxVersion, "cxVersion"),
     repomixVersion: requireString(obj.repomixVersion, "repomixVersion"),
-    checksumAlgorithm: requireString(obj.checksumAlgorithm, "checksumAlgorithm"),
+    checksumAlgorithm: requireString(
+      obj.checksumAlgorithm,
+      "checksumAlgorithm",
+    ),
     settings: {
       globalStyle: requireString(
         settingsRaw.globalStyle,
@@ -276,17 +306,35 @@ function parseManifestDto(raw: unknown): {
         settingsRaw.tokenEncoding,
         "settings.tokenEncoding",
       ),
-      showLineNumbers: requireBool(settingsRaw.showLineNumbers, "settings.showLineNumbers"),
+      showLineNumbers: requireBool(
+        settingsRaw.showLineNumbers,
+        "settings.showLineNumbers",
+      ),
       includeEmptyDirectories: requireBool(
         settingsRaw.includeEmptyDirectories,
         "settings.includeEmptyDirectories",
       ),
-      securityCheck: requireBool(settingsRaw.securityCheck, "settings.securityCheck"),
+      securityCheck: requireBool(
+        settingsRaw.securityCheck,
+        "settings.securityCheck",
+      ),
       listDisplay: {
-        bytesWarm: requireNumber(listDisplayRaw.bytesWarm, "settings.listDisplay.bytesWarm"),
-        bytesHot: requireNumber(listDisplayRaw.bytesHot, "settings.listDisplay.bytesHot"),
-        tokensWarm: requireNumber(listDisplayRaw.tokensWarm, "settings.listDisplay.tokensWarm"),
-        tokensHot: requireNumber(listDisplayRaw.tokensHot, "settings.listDisplay.tokensHot"),
+        bytesWarm: requireNumber(
+          listDisplayRaw.bytesWarm,
+          "settings.listDisplay.bytesWarm",
+        ),
+        bytesHot: requireNumber(
+          listDisplayRaw.bytesHot,
+          "settings.listDisplay.bytesHot",
+        ),
+        tokensWarm: requireNumber(
+          listDisplayRaw.tokensWarm,
+          "settings.listDisplay.tokensWarm",
+        ),
+        tokensHot: requireNumber(
+          listDisplayRaw.tokensHot,
+          "settings.listDisplay.tokensHot",
+        ),
         mtimeWarmMinutes: requireNumber(
           listDisplayRaw.mtimeWarmMinutes,
           "settings.listDisplay.mtimeWarmMinutes",
@@ -324,7 +372,10 @@ function parseManifestDto(raw: unknown): {
  *   spaces. Pass `false` for compact single-line JSON suitable for CI
  *   environments where file size matters more than readability.
  */
-export function renderManifestJson(manifest: CxManifest, pretty = true): string {
+export function renderManifestJson(
+  manifest: CxManifest,
+  pretty = true,
+): string {
   const indent = pretty ? 2 : undefined;
   const out = {
     schemaVersion: manifest.schemaVersion,

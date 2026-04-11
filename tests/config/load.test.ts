@@ -81,7 +81,9 @@ exclude = []
   });
 
   test("rejects invalid time palette shape", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-palette-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-palette-"),
+    );
     const configPath = path.join(tempDir, "cx.toml");
     await fs.writeFile(
       configPath,
@@ -109,7 +111,9 @@ exclude = []
   });
 
   test("rejects invalid list display threshold ordering", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-order-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-order-"),
+    );
     const configPath = path.join(tempDir, "cx.toml");
     await fs.writeFile(
       configPath,

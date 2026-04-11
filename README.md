@@ -36,7 +36,7 @@ When `manifest.include_output_spans = true`, `cx bundle` records `output_start_l
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable. Adapter compatibility is checked against the public exports we actually call, rather than inferred from package-layout assumptions.
 
-Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved. Token estimation is configurable through `[tokens]`, and `cx list` temperature thresholds plus its grayscale time palette are configurable through `[display.list]`.
+Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved. Exact token counting is configurable through `[tokens]` via Repomix tokenizer encodings, and `cx list` temperature thresholds plus its grayscale time palette are configurable through `[display.list]`.
 
 For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
 

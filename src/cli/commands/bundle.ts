@@ -6,7 +6,10 @@ import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
-import type { SectionSpanMaps, SectionTokenMaps } from "../../manifest/types.js";
+import type {
+  SectionSpanMaps,
+  SectionTokenMaps,
+} from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
   CX_VERSION,

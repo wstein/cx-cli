@@ -76,11 +76,7 @@ function expectPositiveInteger(
     return defaultValue;
   }
 
-  if (
-    typeof value !== "number" ||
-    !Number.isInteger(value) ||
-    value <= 0
-  ) {
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
     throw new CxError(`${label} must be a positive integer.`);
   }
 
@@ -116,11 +112,15 @@ function expectTimePalette(
   }
 
   if (!Array.isArray(value)) {
-    throw new CxError(`${label} must be an array of ANSI grayscale color codes.`);
+    throw new CxError(
+      `${label} must be an array of ANSI grayscale color codes.`,
+    );
   }
 
   if (value.length < 8 || value.length > 10) {
-    throw new CxError(`${label} must contain between 8 and 10 grayscale entries.`);
+    throw new CxError(
+      `${label} must contain between 8 and 10 grayscale entries.`,
+    );
   }
 
   const palette = value.map((entry, index) => {
@@ -141,7 +141,9 @@ function expectTimePalette(
     const current = palette[index];
     const previous = palette[index - 1];
     if (current === undefined || previous === undefined) {
-      throw new CxError(`${label} contains an invalid grayscale palette entry.`);
+      throw new CxError(
+        `${label} contains an invalid grayscale palette entry.`,
+      );
     }
     if (current >= previous) {
       throw new CxError(
@@ -347,7 +349,10 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       "display.list.tokens_hot must be greater than display.list.tokens_warm.",
     );
   }
-  if (listDisplayConfig.mtimeHotHours * 60 <= listDisplayConfig.mtimeWarmMinutes) {
+  if (
+    listDisplayConfig.mtimeHotHours * 60 <=
+    listDisplayConfig.mtimeWarmMinutes
+  ) {
     throw new CxError(
       "display.list.mtime_hot_hours must represent a later threshold than display.list.mtime_warm_minutes.",
     );

@@ -1,8 +1,8 @@
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-import { asError, CxError } from "../shared/errors.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
+import { asError, CxError } from "../shared/errors.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runExtractCommand } from "./commands/extract.js";
@@ -21,7 +21,8 @@ export async function main(argv: string[]): Promise<number> {
     .usage("$0 <command> [options]")
     .option("adapter-path", {
       type: "string",
-      description: "Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).",
+      description:
+        "Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).",
       global: true,
     })
     .middleware((args) => {
@@ -40,7 +41,10 @@ export async function main(argv: string[]): Promise<number> {
     .recommendCommands()
     .wrap(null)
     .example("$0 init --stdout", "Print a starter cx.toml to stdout.")
-    .example("$0 bundle --config cx.toml", "Create a bundle from the current project.")
+    .example(
+      "$0 bundle --config cx.toml",
+      "Create a bundle from the current project.",
+    )
     .example(
       "$0 extract dist/myproject-bundle --file src/index.ts --to /tmp/restore",
       "Restore one file from a bundle.",
@@ -54,8 +58,14 @@ export async function main(argv: string[]): Promise<number> {
       "Create a starter cx.toml.",
       (command) =>
         command
-          .example("$0 init --stdout", "Print a starter config without writing a file.")
-          .example("$0 init --name demo --style json", "Customize the starter config.")
+          .example(
+            "$0 init --stdout",
+            "Print a starter config without writing a file.",
+          )
+          .example(
+            "$0 init --name demo --style json",
+            "Customize the starter config.",
+          )
           .option("force", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
           .option("json", { type: "boolean", default: false })
@@ -80,7 +90,10 @@ export async function main(argv: string[]): Promise<number> {
       "Show the computed plan without writing files.",
       (command) =>
         command
-          .example("$0 inspect --config cx.toml", "Show the current bundle plan.")
+          .example(
+            "$0 inspect --config cx.toml",
+            "Show the current bundle plan.",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -142,7 +155,10 @@ export async function main(argv: string[]): Promise<number> {
       "List bundle contents.",
       (command) =>
         command
-          .example("$0 list dist/demo-bundle", "List bundle contents grouped by section.")
+          .example(
+            "$0 list dist/demo-bundle",
+            "List bundle contents grouped by section.",
+          )
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
@@ -161,7 +177,10 @@ export async function main(argv: string[]): Promise<number> {
       "Validate bundle structure and schema.",
       (command) =>
         command
-          .example("$0 validate dist/demo-bundle", "Validate a bundle directory.")
+          .example(
+            "$0 validate dist/demo-bundle",
+            "Validate a bundle directory.",
+          )
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -200,7 +219,10 @@ export async function main(argv: string[]): Promise<number> {
       "Render planned sections as standard Repomix output.",
       (command) =>
         command
-          .example("$0 render --section src --stdout", "Render one section to stdout.")
+          .example(
+            "$0 render --section src --stdout",
+            "Render one section to stdout.",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
@@ -229,7 +251,10 @@ export async function main(argv: string[]): Promise<number> {
       "Inspect Repomix adapter capabilities and runtime state.",
       (command) =>
         command
-          .example("$0 adapter capabilities", "Show adapter and Repomix runtime info.")
+          .example(
+            "$0 adapter capabilities",
+            "Show adapter and Repomix runtime info.",
+          )
           .positional("subcommand", {
             type: "string",
             choices: ["capabilities", "inspect", "doctor"],

@@ -173,7 +173,11 @@ describe("render command", () => {
     const payload = JSON.parse(output) as {
       projectName?: string;
       selection?: { sections?: string[] };
-      outputs?: Array<{ section: string; fileCount: number; tokenCount: number }>;
+      outputs?: Array<{
+        section: string;
+        fileCount: number;
+        tokenCount: number;
+      }>;
     };
 
     expect(payload.projectName).toBe("demo");

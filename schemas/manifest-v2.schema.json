@@ -92,7 +92,7 @@
       "type": "object",
       "required": [
         "globalStyle",
-        "tokenAlgorithm",
+        "tokenEncoding",
         "showLineNumbers",
         "includeEmptyDirectories",
         "securityCheck",
@@ -104,9 +104,10 @@
           "description": "Default Repomix output style for sections.",
           "enum": ["xml", "markdown", "json", "plain"]
         },
-        "tokenAlgorithm": {
-          "description": "Token-estimation algorithm stored for downstream consumers.",
-          "enum": ["chars_div_4", "chars_div_3"]
+        "tokenEncoding": {
+          "description": "Tokenizer encoding used to produce exact token counts.",
+          "type": "string",
+          "minLength": 1
         },
         "showLineNumbers": { "type": "boolean" },
         "includeEmptyDirectories": { "type": "boolean" },
@@ -148,7 +149,7 @@
     "SectionRecord": {
       "description": "A rendered text-file section and its file metadata table.",
       "type": "object",
-      "required": ["name", "style", "outputFile", "outputSha256", "fileCount", "files"],
+      "required": ["name", "style", "outputFile", "outputSha256", "fileCount", "tokenCount", "files"],
       "additionalProperties": false,
       "properties": {
         "name": {
@@ -175,6 +176,11 @@
           "type": "integer",
           "minimum": 0
         },
+        "tokenCount": {
+          "description": "Exact token count of the section's embedded source content.",
+          "type": "integer",
+          "minimum": 0
+        },
         "files": {
           "$ref": "#/$defs/FileTable"
         }
@@ -195,6 +201,7 @@
             "storedIn",
             "sha256",
             "sizeBytes",
+            "tokenCount",
             "mtime",
             "mediaType",
             "outputStartLine",
@@ -213,8 +220,8 @@
     "FileRow": {
       "description": "Positional file-metadata tuple. Indices correspond to FileTable.columns.",
       "type": "array",
-      "minItems": 9,
-      "maxItems": 9,
+      "minItems": 10,
+      "maxItems": 10,
       "prefixItems": [
         {
           "title": "path",
@@ -241,6 +248,12 @@
         {
           "title": "sizeBytes",
           "description": "Original source file size in bytes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "title": "tokenCount",
+          "description": "Exact token count of the source file content.",
           "type": "integer",
           "minimum": 0
         },

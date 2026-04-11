@@ -6,15 +6,12 @@ import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import type { CxManifest, ManifestFileRow } from "../../manifest/types.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
+import { formatBytes, formatNumber } from "../../shared/format.js";
 import {
   selectManifestAssets,
   selectManifestSections,
   summarizeManifest,
 } from "../../shared/manifestSummary.js";
-import {
-  formatBytes,
-  formatNumber,
-} from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
 
@@ -117,18 +114,13 @@ function ansi256(value: string, code: number): string {
   return `\u001B[38;5;${code}m${value}\u001B[39m`;
 }
 
-function colorTime(
-  iso: string,
-  value: string,
-  manifest: CxManifest,
-): string {
+function colorTime(iso: string, value: string, manifest: CxManifest): string {
   if (iso === "-") {
     return kleur.gray(value);
   }
 
   const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
-  const maxAgeMs =
-    manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
+  const maxAgeMs = manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
   const grayscale = manifest.settings.listDisplay.timePalette;
   const thresholds = [
     1 / 120,
@@ -148,7 +140,10 @@ function colorTime(
   return ansi256(value, code);
 }
 
-function colorExtractability(status: RowMeta["extractability"]["status"], value: string): string {
+function colorExtractability(
+  status: RowMeta["extractability"]["status"],
+  value: string,
+): string {
   if (status === "intact") {
     return kleur.green(value);
   }
@@ -279,7 +274,9 @@ export async function runListCommand(args: ListArgs): Promise<number> {
       extractability: {
         status: record?.status ?? "blocked",
         reason: record?.reason ?? "section_parse_failed",
-        message: record?.message ?? `No extractability record was produced for ${file.path}.`,
+        message:
+          record?.message ??
+          `No extractability record was produced for ${file.path}.`,
       },
     };
   });

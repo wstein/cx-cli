@@ -1,4 +1,7 @@
-import { loadManifestFromBundle, validateBundle } from "../../bundle/validate.js";
+import {
+  loadManifestFromBundle,
+  validateBundle,
+} from "../../bundle/validate.js";
 import { loadCxConfig } from "../../config/load.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
@@ -138,13 +141,11 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
     ...(plan.assets.length > 0
       ? [
           "assets",
-          ...plan.assets.map(
-            (asset) => {
-              const record = extractabilityByPath.get(asset.relativePath);
-              const status = (record?.status ?? "planned").padEnd(8);
-              return `  ${status} ${asset.relativePath} -> ${asset.storedPath}`;
-            },
-          ),
+          ...plan.assets.map((asset) => {
+            const record = extractabilityByPath.get(asset.relativePath);
+            const status = (record?.status ?? "planned").padEnd(8);
+            return `  ${status} ${asset.relativePath} -> ${asset.storedPath}`;
+          }),
           "",
         ]
       : []),

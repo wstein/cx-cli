@@ -76,8 +76,7 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
     return {
       hasMergeConfigs: typeof mod.mergeConfigs === "function",
       hasPackStructured: typeof mod.packStructured === "function",
-      supportsStructuredRenderPlan:
-        typeof mod.packStructured === "function",
+      supportsStructuredRenderPlan: typeof mod.packStructured === "function",
       supportsRenderWithMap: typeof mod.packStructured === "function",
     };
   } catch {

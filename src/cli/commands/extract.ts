@@ -3,9 +3,9 @@ import path from "node:path";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { extractBundle } from "../../extract/extract.js";
 import {
+  type ExtractabilityRecord,
   ExtractResolutionError,
   resolveExtractability,
-  type ExtractabilityRecord,
 } from "../../extract/resolution.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
@@ -105,7 +105,8 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
     });
   } catch (error) {
     if (args.json ?? false) {
-      const resolved = error instanceof Error ? error : new Error(String(error));
+      const resolved =
+        error instanceof Error ? error : new Error(String(error));
       const extractResolutionError = isExtractResolutionError(error)
         ? error
         : undefined;
@@ -122,7 +123,8 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
           (record: ExtractabilityRecord) =>
             record.kind === "text" && record.status !== "intact",
         ) ?? [];
-      const extractabilityFiles = extractResolutionError?.files ?? fallbackFiles;
+      const extractabilityFiles =
+        extractResolutionError?.files ?? fallbackFiles;
       const extractabilityType =
         extractabilityFiles.length > 0
           ? "extractability_mismatch"
