@@ -71,14 +71,6 @@ export function buildManifest(params: {
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
-      losslessTextExtraction:
-        !params.config.repomix.removeComments &&
-        !params.config.repomix.removeEmptyLines &&
-        !params.config.repomix.compress &&
-        !params.config.repomix.showLineNumbers &&
-        params.sectionOutputs.every(
-          (section) => section.losslessTextExtraction,
-        ),
     },
     sections,
     assets: params.plan.assets.map((asset) => ({

@@ -1,23 +1,44 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import kleur from "kleur";
+
 import { loadManifestFromBundle } from "../../bundle/validate.js";
+import { resolveExtractability } from "../../extract/resolution.js";
+import type { CxManifest, ManifestFileRow } from "../../manifest/types.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import {
   selectManifestAssets,
   selectManifestSections,
   summarizeManifest,
 } from "../../shared/manifestSummary.js";
+import {
+  estimateTokenCount,
+  formatBytes,
+  formatNumber,
+} from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
-import { estimateTokenCount } from "../../shared/format.js";
-import type { CxManifest, ManifestFileRow } from "../../manifest/types.js";
 
 export interface ListArgs {
   bundleDir: string;
   json: boolean;
   sections?: string[] | undefined;
   files?: string[] | undefined;
+}
+
+interface RowMeta {
+  path: string;
+  section: string;
+  bytes: number;
+  tokens: number;
+  mtime: string;
+  mtimeRelative: string;
+  extractability: {
+    status: "exact" | "blocked" | "copied";
+    reason: string;
+    message: string;
+  };
 }
 
 async function readOutputFiles(
@@ -83,7 +104,7 @@ function estimateTokensForRow(
   return Math.max(1, Math.round(row.sizeBytes / 4));
 }
 
-function formatMtime(
+function formatMtimeIso(
   row: ManifestFileRow,
   sectionOutputFileMap: Map<string, string>,
   mtimes: Map<string, string>,
@@ -101,13 +122,189 @@ function formatMtime(
 }
 
 function buildSectionOutputFileMap(manifest: CxManifest): Map<string, string> {
-  return new Map(manifest.sections.map((s) => [s.name, s.outputFile]));
+  return new Map(manifest.sections.map((section) => [section.name, section.outputFile]));
+}
+
+function formatRelativeTime(iso: string): string {
+  if (iso === "-") {
+    return "-";
+  }
+
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const diffMs = Math.max(0, now - then);
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diffMs < minute) {
+    return "just now";
+  }
+  if (diffMs < hour) {
+    return `${Math.round(diffMs / minute)}m ago`;
+  }
+  if (diffMs < day) {
+    return `${Math.round(diffMs / hour)}h ago`;
+  }
+  if (diffMs < 7 * day) {
+    return `${Math.round(diffMs / day)}d ago`;
+  }
+
+  return iso.slice(0, 10);
+}
+
+function colorByTemperature(
+  value: string,
+  band: "cool" | "warm" | "hot",
+): string {
+  if (band === "cool") {
+    return kleur.green(value);
+  }
+  if (band === "warm") {
+    return kleur.yellow(value);
+  }
+  return kleur.red(value);
+}
+
+function colorBytes(bytes: number, value: string): string {
+  if (bytes <= 4 * 1024) {
+    return colorByTemperature(value, "cool");
+  }
+  if (bytes <= 64 * 1024) {
+    return colorByTemperature(value, "warm");
+  }
+  return colorByTemperature(value, "hot");
+}
+
+function colorTokens(tokens: number, value: string): string {
+  if (tokens <= 512) {
+    return colorByTemperature(value, "cool");
+  }
+  if (tokens <= 2048) {
+    return colorByTemperature(value, "warm");
+  }
+  return colorByTemperature(value, "hot");
+}
+
+function colorMtime(iso: string, value: string): string {
+  if (iso === "-") {
+    return kleur.gray(value);
+  }
+
+  const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
+  const hour = 60 * 60 * 1000;
+  const day = 24 * hour;
+
+  if (ageMs <= hour) {
+    return colorByTemperature(value, "cool");
+  }
+  if (ageMs <= day) {
+    return colorByTemperature(value, "warm");
+  }
+  return colorByTemperature(value, "hot");
+}
+
+function colorExtractability(status: RowMeta["extractability"]["status"], value: string): string {
+  if (status === "exact") {
+    return kleur.green(value);
+  }
+  if (status === "copied") {
+    return kleur.cyan(value);
+  }
+  return kleur.red(value);
+}
+
+function renderGroupedList(manifestName: string, rows: RowMeta[]): string {
+  const groups = new Map<string, RowMeta[]>();
+  for (const row of rows) {
+    const sectionRows = groups.get(row.section) ?? [];
+    sectionRows.push(row);
+    groups.set(row.section, sectionRows);
+  }
+
+  const pathWidth = Math.max(
+    "path".length,
+    ...rows.map((row) => row.path.length),
+  );
+  const bytesWidth = Math.max(
+    "bytes".length,
+    ...rows.map((row) => formatBytes(row.bytes).length),
+  );
+  const tokensWidth = Math.max(
+    "tokens".length,
+    ...rows.map((row) => `${formatNumber(row.tokens)} tok`.length),
+  );
+  const mtimeWidth = Math.max(
+    "mtime".length,
+    ...rows.map((row) => row.mtimeRelative.length),
+  );
+  const extractWidth = "extract".length;
+
+  const orderedSections = [...groups.keys()].sort((left, right) => {
+    if (left === "assets") {
+      return 1;
+    }
+    if (right === "assets") {
+      return -1;
+    }
+    return left.localeCompare(right, "en");
+  });
+
+  const lines = [`manifest: ${kleur.bold().white(manifestName)}`];
+  for (const sectionName of orderedSections) {
+    const sectionRows = groups.get(sectionName) ?? [];
+    lines.push("");
+    lines.push(kleur.bold().cyan(sectionName));
+    lines.push(
+      [
+        "  ",
+        kleur.gray("path".padEnd(pathWidth)),
+        "  ",
+        kleur.gray("bytes".padStart(bytesWidth)),
+        "  ",
+        kleur.gray("tokens".padStart(tokensWidth)),
+        "  ",
+        kleur.gray("mtime".padEnd(mtimeWidth)),
+        "  ",
+        kleur.gray("extract".padEnd(extractWidth)),
+      ].join(""),
+    );
+
+    for (const row of sectionRows) {
+      const pathCell = kleur.white(row.path.padEnd(pathWidth));
+      const bytesRaw = formatBytes(row.bytes).padStart(bytesWidth);
+      const tokensRaw = `${formatNumber(row.tokens)} tok`.padStart(tokensWidth);
+      const mtimeRaw = row.mtimeRelative.padEnd(mtimeWidth);
+      const extractLabel =
+        row.extractability.status === "exact"
+          ? "exact"
+          : row.extractability.status === "copied"
+            ? "copy"
+            : "blocked";
+      const extractRaw = extractLabel.padEnd(extractWidth);
+      lines.push(
+        [
+          "  ",
+          pathCell,
+          "  ",
+          colorBytes(row.bytes, bytesRaw),
+          "  ",
+          colorTokens(row.tokens, tokensRaw),
+          "  ",
+          colorMtime(row.mtime, mtimeRaw),
+          "  ",
+          colorExtractability(row.extractability.status, extractRaw),
+        ].join(""),
+      );
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 export async function runListCommand(args: ListArgs): Promise<number> {
-  const { manifest, manifestName } = await loadManifestFromBundle(
-    path.resolve(args.bundleDir),
-  );
+  const bundleDir = path.resolve(args.bundleDir);
+  const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const rows = selectManifestRows(manifest.files, {
     sections: args.sections,
     files: args.files,
@@ -116,21 +313,37 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   const assets = selectManifestAssets(manifest, rows);
   const sectionOutputFileMap = buildSectionOutputFileMap(manifest);
   const assetStoredPaths = new Map(
-    manifest.assets.map((a) => [a.sourcePath, a.storedPath]),
+    manifest.assets.map((asset) => [asset.sourcePath, asset.storedPath]),
   );
   const { outputs, mtimes } = await readOutputFiles(
-    path.resolve(args.bundleDir),
+    bundleDir,
     rows,
     sectionOutputFileMap,
     assetStoredPaths,
   );
+  const extractability = await resolveExtractability({
+    bundleDir,
+    manifest,
+    rows,
+  });
 
-  const rowsWithMeta = rows.map((file) => ({
-    ...file,
-    bytes: file.sizeBytes,
-    tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs),
-    mtime: formatMtime(file, sectionOutputFileMap, mtimes),
-  }));
+  const rowsWithMeta: RowMeta[] = rows.map((file) => {
+    const mtime = formatMtimeIso(file, sectionOutputFileMap, mtimes);
+    const record = extractability.recordsByPath.get(file.path);
+    return {
+      path: file.path,
+      section: file.section === "-" ? "assets" : file.section,
+      bytes: file.sizeBytes,
+      tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs),
+      mtime,
+      mtimeRelative: formatRelativeTime(mtime),
+      extractability: {
+        status: record?.status ?? "blocked",
+        reason: record?.reason ?? "section_parse_failed",
+        message: record?.message ?? `No extractability record was produced for ${file.path}.`,
+      },
+    };
+  });
 
   if (args.json) {
     writeJson({
@@ -148,14 +361,6 @@ export async function runListCommand(args: ListArgs): Promise<number> {
     return 0;
   }
 
-  const lines = [
-    `manifest: ${manifestName}`,
-    "kind\tsection\tstored_in\tpath\tbytes\ttokens\tmtime",
-    ...rowsWithMeta.map(
-      (file) =>
-        `${file.kind}\t${file.section}\t${file.storedIn}\t${file.path}\t${file.bytes}\t${file.tokens}\t${file.mtime}`,
-    ),
-  ];
-  process.stdout.write(`${lines.join("\n")}\n`);
+  process.stdout.write(renderGroupedList(manifestName, rowsWithMeta));
   return 0;
 }

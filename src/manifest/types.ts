@@ -8,7 +8,6 @@ export interface ManifestSettings {
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
-  losslessTextExtraction: boolean;
 }
 
 export interface ManifestFileRow {
@@ -29,7 +28,6 @@ export interface SectionOutputRecord {
   outputFile: string;
   outputSha256: string;
   fileCount: number;
-  losslessTextExtraction: boolean;
 }
 
 export interface FileSpanRecord {

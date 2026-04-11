@@ -126,10 +126,6 @@ function parseSectionDto(raw: unknown, index: number): SectionDto {
       `section[${index}].outputSha256`,
     ),
     fileCount: requireNumber(obj.fileCount, `section[${index}].fileCount`),
-    losslessTextExtraction: requireBool(
-      obj.losslessTextExtraction,
-      `section[${index}].losslessTextExtraction`,
-    ),
     files: filesRaw.map((f, fi) => parseFileRowDto(f, fi)),
   };
 }
@@ -191,10 +187,6 @@ function parseManifestDto(raw: unknown): ManifestDto {
         settingsRaw.securityCheck,
         "settings.securityCheck",
       ),
-      losslessTextExtraction: requireBool(
-        settingsRaw.losslessTextExtraction,
-        "settings.losslessTextExtraction",
-      ),
     },
     sections: sectionsRaw.map((s, i) => parseSectionDto(s, i)),
     assets: assetsRaw.map((a, i) => parseAssetDto(a, i)),
@@ -224,7 +216,6 @@ export function renderManifestToon(manifest: CxManifest): string {
       outputFile: section.outputFile,
       outputSha256: section.outputSha256,
       fileCount: section.fileCount,
-      losslessTextExtraction: section.losslessTextExtraction,
       files: section.files.map((row) => ({
         path: row.path,
         kind: row.kind,
@@ -286,7 +277,6 @@ export function parseManifestToon(source: string): CxManifest {
     outputFile: section.outputFile,
     outputSha256: section.outputSha256,
     fileCount: section.fileCount,
-    losslessTextExtraction: section.losslessTextExtraction,
     files: textRows.filter((row) => row.section === section.name),
   }));
 

@@ -8,7 +8,6 @@ import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestToon } from "../../manifest/toon.js";
 import type { SectionSpanMaps } from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
-import type { PlannedSection } from "../../planning/types.js";
 import {
   CX_VERSION,
   getRepomixCapabilities,
@@ -25,48 +24,12 @@ import {
   printTable,
 } from "../../shared/format.js";
 import { ensureDir } from "../../shared/fs.js";
-import { sha256File, sha256Text } from "../../shared/hashing.js";
-import {
-  parseJsonSection,
-  parseMarkdownSection,
-  parsePlainSection,
-  parseXmlSection,
-} from "../../extract/parsers.js";
+import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface BundleArgs {
   config: string;
   json?: boolean | undefined;
-}
-
-/**
- * Determines whether a rendered section output supports lossless text
- * extraction by attempting to round-trip each file through the appropriate
- * parser and comparing the result to the known sha256.
- */
-function checkLosslessFromOutput(
-  style: "xml" | "markdown" | "json" | "plain",
-  outputSource: string,
-  section: PlannedSection,
-): boolean {
-  try {
-    const parsed =
-      style === "xml"
-        ? parseXmlSection(outputSource)
-        : style === "json"
-          ? parseJsonSection(outputSource)
-          : style === "markdown"
-            ? parseMarkdownSection(outputSource)
-            : parsePlainSection(outputSource);
-
-    const parsedMap = new Map(parsed.map((f) => [f.path, f.content]));
-    return section.files.every(
-      (file) =>
-        sha256Text(parsedMap.get(file.relativePath) ?? "") === file.sha256,
-    );
-  } catch {
-    return false;
-  }
 }
 
 export async function runBundleCommand(args: BundleArgs): Promise<number> {
@@ -103,11 +66,6 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputFile: section.outputFile,
       outputSha256: await sha256File(outputPath),
       fileCount: section.files.length,
-      losslessTextExtraction: checkLosslessFromOutput(
-        section.style,
-        outputSource,
-        section,
-      ),
       sizeBytes: totalSectionBytes,
       estimatedTokens: estimateTokenCount(outputSource),
     });

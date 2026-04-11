@@ -2,6 +2,9 @@ import path from "node:path";
 
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { extractBundle } from "../../extract/extract.js";
+import { ExtractResolutionError } from "../../extract/resolution.js";
+import { getRepomixCapabilities } from "../../repomix/render.js";
+import { CxError } from "../../shared/errors.js";
 import {
   selectManifestAssets,
   selectManifestSections,
@@ -30,15 +33,57 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
     files: args.files,
   }).filter((row) => !args.assetsOnly || row.kind === "asset");
 
-  await extractBundle({
-    bundleDir,
-    destinationDir,
-    sections: args.sections,
-    files: args.files,
-    assetsOnly: args.assetsOnly,
-    overwrite: args.overwrite,
-    verify: args.verify,
-  });
+  try {
+    await extractBundle({
+      bundleDir,
+      destinationDir,
+      sections: args.sections,
+      files: args.files,
+      assetsOnly: args.assetsOnly,
+      overwrite: args.overwrite,
+      verify: args.verify,
+    });
+  } catch (error) {
+    if (args.json ?? false) {
+      const resolved = error instanceof Error ? error : new Error(String(error));
+      writeJson({
+        bundleDir,
+        destinationDir,
+        selection: {
+          sections: args.sections ?? [],
+          files: args.files ?? [],
+        },
+        assetsOnly: args.assetsOnly,
+        summary: summarizeManifest(manifestName, manifest, rows),
+        verify: args.verify,
+        repomix: await getRepomixCapabilities(),
+        extractedSections: [],
+        extractedAssets: [],
+        extractedFiles: [],
+        valid: false,
+        error: {
+          type:
+            error instanceof ExtractResolutionError
+              ? error.type
+              : "extract_failed",
+          message: resolved.message,
+          files:
+            error instanceof ExtractResolutionError
+              ? error.files.map((file) => ({
+                  path: file.path,
+                  section: file.section,
+                  reason: file.reason,
+                  expectedSha256: file.expectedSha256,
+                  actualSha256: file.actualSha256,
+                  message: file.message,
+                }))
+              : [],
+        },
+      });
+      return error instanceof CxError ? error.exitCode : 1;
+    }
+    throw error;
+  }
   if (args.json ?? false) {
     writeJson({
       bundleDir,
@@ -57,6 +102,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
       extractedFiles: rows.map((row) => row.path),
       summary: summarizeManifest(manifestName, manifest, rows),
       verify: args.verify,
+      valid: true,
     });
   }
   return 0;

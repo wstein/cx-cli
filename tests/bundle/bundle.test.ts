@@ -169,6 +169,9 @@ describe("bundle workflow", () => {
     process.stdout.write = stdoutWrite;
 
     expect(writes.join("")).toContain("README.md");
+    expect(writes.join("")).toContain("docs");
+    expect(writes.join("")).toContain("extract");
+    expect(writes.join("")).not.toContain("kind\tsection\tstored_in");
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.toon")),
     ).toBeDefined();
@@ -358,7 +361,6 @@ include_source_metadata = true`;
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
-        losslessTextExtraction: true,
       },
       sections: [
         {
@@ -367,7 +369,6 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-docs.xml.txt",
           outputSha256: "aaa",
           fileCount: 2,
-          losslessTextExtraction: true,
           files: [
             { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
             { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
@@ -379,7 +380,6 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-src.xml.txt",
           outputSha256: "bbb",
           fileCount: 1,
-          losslessTextExtraction: true,
           files: [
             { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
           ],
@@ -435,6 +435,10 @@ include_source_metadata = true`;
       summary?: { fileCount?: number; textFileCount?: number };
       repomix?: { spanCapability?: string };
       sections?: Array<{ name: string }>;
+      files?: Array<{
+        path?: string;
+        extractability?: { status?: string; reason?: string };
+      }>;
     };
 
     expect(inspectPayload.summary?.sectionCount).toBe(2);
@@ -446,6 +450,13 @@ include_source_metadata = true`;
       "docs",
       "src",
     ]);
+    expect(
+      listPayload.files?.every(
+        (file) =>
+          file.extractability?.status === "exact" ||
+          file.extractability?.status === "copied",
+      ),
+    ).toBe(true);
   });
 
   test("emits filtered JSON for list and extract automation", async () => {
@@ -470,7 +481,10 @@ include_source_metadata = true`;
     const listPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
-      files?: Array<{ path: string }>;
+      files?: Array<{
+        path: string;
+        extractability?: { status?: string; reason?: string };
+      }>;
     };
 
     expect(
@@ -501,6 +515,7 @@ include_source_metadata = true`;
     expect(listPayload.files?.map((file) => file.path)).toEqual([
       "src/index.ts",
     ]);
+    expect(listPayload.files?.[0]?.extractability?.status).toBe("exact");
     expect(extractPayload.summary?.fileCount).toBe(2);
     expect(extractPayload.summary?.textFileCount).toBe(1);
     expect(extractPayload.extractedSections).toEqual(["src"]);
@@ -940,6 +955,103 @@ include_source_metadata = true`;
         verify: false,
       }),
     ).rejects.toThrow("does not match the manifest hash");
+  });
+
+  test("emits structured JSON failure payload for extract mismatches", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-lossy-json");
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        "show_line_numbers = false",
+        "show_line_numbers = true",
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+        json: true,
+      }),
+    ).toBe(8);
+
+    process.stdout.write = stdoutWrite;
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      valid?: boolean;
+      error?: {
+        type?: string;
+        files?: Array<{
+          path?: string;
+          reason?: string;
+          expectedSha256?: string;
+          actualSha256?: string;
+        }>;
+      };
+    };
+
+    expect(payload.valid).toBe(false);
+    expect(payload.error?.type).toBe("extractability_mismatch");
+    expect(payload.error?.files?.[0]?.path).toBe("src/index.ts");
+    expect(payload.error?.files?.[0]?.reason).toBe("manifest_hash_mismatch");
+    expect(payload.error?.files?.[0]?.expectedSha256).toBeDefined();
+    expect(payload.error?.files?.[0]?.actualSha256).toBeDefined();
+  });
+
+  test("surfaces blocked extractability in list JSON before extraction", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        "show_line_numbers = false",
+        "show_line_numbers = true",
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runListCommand({
+        bundleDir: project.bundleDir,
+        files: ["src/index.ts"],
+        json: true,
+      }),
+    ).toBe(0);
+
+    process.stdout.write = stdoutWrite;
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      files?: Array<{
+        path?: string;
+        extractability?: { status?: string; reason?: string };
+      }>;
+    };
+
+    expect(payload.files?.[0]?.path).toBe("src/index.ts");
+    expect(payload.files?.[0]?.extractability?.status).toBe("blocked");
+    expect(payload.files?.[0]?.extractability?.reason).toBe(
+      "manifest_hash_mismatch",
+    );
   });
 
   test("extracts individually lossless files from bundles marked lossy", async () => {

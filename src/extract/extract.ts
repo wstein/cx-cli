@@ -5,13 +5,11 @@ import { loadManifestFromBundle } from "../bundle/validate.js";
 import type { ManifestFileRow } from "../manifest/types.js";
 import { CxError } from "../shared/errors.js";
 import { ensureDir } from "../shared/fs.js";
-import { sha256File, sha256Text } from "../shared/hashing.js";
+import { sha256File } from "../shared/hashing.js";
 import {
-  parseJsonSection,
-  parseMarkdownSection,
-  parsePlainSection,
-  parseXmlSection,
-} from "./parsers.js";
+  ExtractResolutionError,
+  resolveExtractability,
+} from "./resolution.js";
 
 async function assertWritable(
   destinationPath: string,
@@ -81,61 +79,24 @@ export async function extractBundle(params: {
     return true;
   });
 
-  const sectionNames = new Set(
-    selectedRows
-      .filter(isTextRow)
-      .map((row) => row.section)
-      .filter((value): value is string => value !== "-"),
+  const resolution = await resolveExtractability({
+    bundleDir: params.bundleDir,
+    manifest,
+    rows: selectedRows,
+  });
+  const blockedFiles = resolution.records.filter(
+    (record) => record.kind === "text" && record.status === "blocked",
   );
-  const sectionContents = new Map<string, Map<string, string>>();
-
-  for (const section of manifest.sections) {
-    if (!sectionNames.has(section.name)) {
-      continue;
-    }
-    const source = await fs.readFile(
-      path.join(params.bundleDir, section.outputFile),
-      "utf8",
-    );
-    const extractedFiles =
-      section.style === "xml"
-        ? parseXmlSection(source)
-        : section.style === "json"
-          ? parseJsonSection(source)
-          : section.style === "markdown"
-            ? parseMarkdownSection(source)
-            : section.style === "plain"
-              ? parsePlainSection(source)
-              : (() => {
-                  throw new CxError(
-                    `Extract does not support section style ${section.style} yet.`,
-                    8,
-                  );
-                })();
-    sectionContents.set(
-      section.name,
-      new Map(extractedFiles.map((file) => [file.path, file.content])),
-    );
+  if (blockedFiles.length > 0) {
+    throw new ExtractResolutionError(blockedFiles);
   }
 
-  const resolvedTextRows = selectedRows.filter(isTextRow).map((row) => {
-    const contentMap = sectionContents.get(row.section);
-    const content = contentMap?.get(row.path);
+  for (const row of selectedRows.filter(isTextRow)) {
+    const record = resolution.recordsByPath.get(row.path);
+    const content = record?.content;
     if (content === undefined) {
       throw new CxError(`Section output is missing file ${row.path}.`, 8);
     }
-
-    if (sha256Text(content) !== row.sha256) {
-      throw new CxError(
-        `Section output for ${row.path} does not match the manifest hash, so exact extraction is not supported for that file.`,
-        8,
-      );
-    }
-
-    return { row, content };
-  });
-
-  for (const { row, content } of resolvedTextRows) {
     const destinationPath = path.join(params.destinationDir, row.path);
     await assertWritable(destinationPath, params.overwrite);
     await ensureDir(path.dirname(destinationPath));
