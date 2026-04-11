@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
+import { renderManifestToon } from "../../src/manifest/toon.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
@@ -335,6 +336,96 @@ include_source_metadata = true`;
     }
     },
   );
+
+  test("groups table files by output_file in Toon manifest", () => {
+    const manifest = {
+      schemaVersion: 1,
+      bundleVersion: 1,
+      projectName: "demo",
+      sourceRoot: "/tmp",
+      bundleDir: "/tmp/out",
+      checksumFile: "demo.sha256",
+      createdAt: new Date().toISOString(),
+      cxVersion: "0.1.0",
+      repomixVersion: "1.13.1",
+      checksumAlgorithm: "sha256",
+      settings: {
+        globalStyle: "xml",
+        removeComments: false,
+        removeEmptyLines: false,
+        compress: false,
+        showLineNumbers: false,
+        includeEmptyDirectories: false,
+        securityCheck: false,
+        losslessTextExtraction: true,
+      },
+      sections: [],
+      assets: [],
+      files: [
+        {
+          path: "docs/a.md",
+          kind: "text",
+          section: "docs",
+          storedIn: "packed",
+          sha256: "sha1",
+          sizeBytes: 1,
+          mediaType: "text/markdown",
+          outputFile: "myproject-repomix-docs.xml.txt",
+          outputStartLine: 5,
+          outputEndLine: 5,
+          leadingWhitespaceBase64: "-",
+          trailingWhitespaceBase64: "-",
+          exactContentBase64: "-",
+        },
+        {
+          path: "docs/b.md",
+          kind: "text",
+          section: "docs",
+          storedIn: "packed",
+          sha256: "sha2",
+          sizeBytes: 1,
+          mediaType: "text/markdown",
+          outputFile: "myproject-repomix-docs.xml.txt",
+          outputStartLine: 6,
+          outputEndLine: 6,
+          leadingWhitespaceBase64: "-",
+          trailingWhitespaceBase64: "-",
+          exactContentBase64: "-",
+        },
+        {
+          path: "src/c.ts",
+          kind: "text",
+          section: "src",
+          storedIn: "packed",
+          sha256: "sha3",
+          sizeBytes: 1,
+          mediaType: "text/typescript",
+          outputFile: "myproject-repomix-src.xml.txt",
+          outputStartLine: 10,
+          outputEndLine: 10,
+          leadingWhitespaceBase64: "-",
+          trailingWhitespaceBase64: "-",
+          exactContentBase64: "-",
+        },
+      ],
+    } as const;
+
+    const rendered = renderManifestToon(manifest as any);
+    expect(rendered).toContain("output_file myproject-repomix-docs.xml.txt");
+    expect(rendered).toContain("output_file myproject-repomix-src.xml.txt");
+    expect(
+      rendered.indexOf("output_file myproject-repomix-docs.xml.txt"),
+    ).toBeLessThan(
+      rendered.indexOf("output_file myproject-repomix-src.xml.txt"),
+    );
+    expect(rendered.indexOf("docs/a.md")).toBeLessThan(
+      rendered.indexOf("docs/b.md"),
+    );
+    expect(
+      rendered.indexOf("output_file myproject-repomix-docs.xml.txt") <
+        rendered.indexOf("docs/a.md"),
+    ).toBe(true);
+  });
 
   test("emits structured JSON for list and inspect automation", async () => {
     const project = await createProject();

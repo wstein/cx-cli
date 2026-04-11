@@ -193,9 +193,25 @@ export function renderManifestToon(manifest: CxManifest): string {
 
   lines.push("table files");
   lines.push(`  ${FILE_TABLE_COLUMNS.join(" ")}`);
+
+  const groupedFiles = new Map<string, ManifestFileRow[]>();
   for (const file of manifest.files) {
-    lines.push(`  ${renderFileRow(file)}`);
+    const group = groupedFiles.get(file.outputFile);
+    if (group) {
+      group.push(file);
+    } else {
+      groupedFiles.set(file.outputFile, [file]);
+    }
   }
+
+  for (const outputFile of Array.from(groupedFiles.keys()).sort()) {
+    lines.push(`  output_file ${encodeScalar(outputFile)}`);
+    for (const file of groupedFiles.get(outputFile) ?? []) {
+      lines.push(`  ${renderFileRow(file)}`);
+    }
+    lines.push("");
+  }
+
   lines.push("end");
 
   return `${lines.join("\n")}\n`;
@@ -272,6 +288,10 @@ export function parseManifestToon(source: string): CxManifest {
 
     if (state === "table") {
       if (line.trimStart().startsWith(FILE_TABLE_COLUMNS[0])) {
+        continue;
+      }
+
+      if (line.trimStart().startsWith("output_file ")) {
         continue;
       }
 
