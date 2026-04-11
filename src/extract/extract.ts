@@ -17,17 +17,7 @@ function restoreContent(row: ManifestFileRow, trimmedContent: string): string {
   if (row.exactContentBase64 !== "-") {
     return Buffer.from(row.exactContentBase64, "base64").toString("utf8");
   }
-
-  const leadingWhitespace =
-    row.leadingWhitespaceBase64 === "-"
-      ? ""
-      : Buffer.from(row.leadingWhitespaceBase64, "base64").toString("utf8");
-  const trailingWhitespace =
-    row.trailingWhitespaceBase64 === "-"
-      ? ""
-      : Buffer.from(row.trailingWhitespaceBase64, "base64").toString("utf8");
-
-  return `${leadingWhitespace}${trimmedContent}${trailingWhitespace}`;
+  return trimmedContent;
 }
 
 async function assertWritable(
