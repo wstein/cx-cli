@@ -345,7 +345,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 1,
+      schemaVersion: 3,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
@@ -692,7 +692,7 @@ include_source_metadata = true`;
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
-      "capability-aware with renderWithMap support",
+      "core contract with optional structured rendering and span capture",
     );
     expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.1");
     expect(verifyPayload.valid).toBe(true);

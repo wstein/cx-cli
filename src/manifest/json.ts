@@ -12,7 +12,7 @@ import type {
   SectionOutputRecord,
 } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 1 as const;
+export const MANIFEST_SCHEMA_VERSION = 3 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -21,7 +21,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v1.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v3.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {

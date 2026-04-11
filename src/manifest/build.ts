@@ -8,6 +8,7 @@ import type {
   SectionSpanMaps,
   SectionTokenMaps,
 } from "./types.js";
+import { MANIFEST_SCHEMA_VERSION } from "./json.js";
 
 export function buildManifest(params: {
   config: CxConfig;
@@ -60,7 +61,7 @@ export function buildManifest(params: {
   }));
 
   return {
-    schemaVersion: 1,
+    schemaVersion: MANIFEST_SCHEMA_VERSION,
     bundleVersion: 1,
     projectName: params.plan.projectName,
     sourceRoot: params.plan.sourceRoot,

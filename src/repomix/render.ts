@@ -1,9 +1,11 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 
 import type * as RepomixTypes from "@wstein/repomix";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
+import { countTokensForFiles } from "../shared/tokens.js";
 import {
   detectRepomixCapabilities,
   getAdapterModulePath,
@@ -16,6 +18,7 @@ export interface RenderSectionResult {
   outputTokenCount: number;
   fileTokenCounts: Map<string, number>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
+  warnings: string[];
 }
 
 function countNewlines(content: string): number {
@@ -110,6 +113,10 @@ async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
 export const CX_VERSION = "0.1.0";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
 
+function emitWarning(message: string): void {
+  process.stderr.write(`Warning: ${message}\n`);
+}
+
 // Re-export with extended info for backward compatibility
 export async function getRepomixCapabilities() {
   const capabilities = await getRepomixCapabilitiesImpl();
@@ -117,17 +124,23 @@ export async function getRepomixCapabilities() {
 
   // Determine span capability state
   let spanCapability: "supported" | "unsupported" | "partial" = "unsupported";
-  let spanCapabilityReason = "renderWithMap not available in installed package";
+  let spanCapabilityReason =
+    "Structured span capture is unavailable in the installed adapter.";
 
   if (detected.supportsRenderWithMap) {
     spanCapability = "supported";
     spanCapabilityReason = "renderWithMap available and used";
+  } else if (detected.supportsPackStructured) {
+    spanCapability = "partial";
+    spanCapabilityReason =
+      "packStructured is available, but renderWithMap is unavailable.";
   }
 
   return {
     ...capabilities,
     adapterContract: REPOMIX_ADAPTER_CONTRACT,
-    compatibilityStrategy: "capability-aware with renderWithMap support",
+    compatibilityStrategy:
+      "core contract with optional structured rendering and span capture",
     spanCapability,
     spanCapabilityReason,
   };
@@ -159,10 +172,13 @@ export async function renderSectionWithRepomix(params: {
       outputTokenCount: 0,
       fileTokenCounts: new Map(),
       fileSpans: new Map(),
+      warnings: [],
     };
   }
 
-  const { mergeConfigs, packStructured } = await loadRepomixAdapter();
+  const adapter = await loadRepomixAdapter();
+  const { mergeConfigs, pack, packStructured } = adapter;
+  const capabilities = await detectRepomixCapabilities();
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {
@@ -209,61 +225,137 @@ export async function renderSectionWithRepomix(params: {
   };
 
   const mergedConfig = mergeConfigs(params.sourceRoot, {}, cliConfig);
-  const structuredPlan = await packStructured(
-    [params.sourceRoot],
-    mergedConfig,
-    {
-      explicitFiles: params.explicitFiles,
-    },
-  );
+  const warnings: string[] = [];
 
-  const rendered = await structuredPlan.renderWithMap(params.style);
-  await fs.writeFile(params.outputPath, rendered.output, "utf8");
+  if (capabilities.supportsPackStructured && packStructured) {
+    const structuredPlan = await packStructured(
+      [params.sourceRoot],
+      mergedConfig,
+      {
+        explicitFiles: params.explicitFiles,
+      },
+    );
+    const fileTokenCounts = new Map<string, number>();
 
-  const entryByPath = new Map(
-    structuredPlan.entries.map((entry) => [entry.path, entry]),
-  );
-  const fileTokenCounts = new Map<string, number>();
-  const fileSpans = new Map<
-    string,
-    { outputStartLine: number; outputEndLine: number }
-  >();
+    for (const entry of structuredPlan.entries) {
+      fileTokenCounts.set(entry.path, entry.metadata.tokenCount ?? 0);
+    }
 
-  for (const entry of structuredPlan.entries) {
-    fileTokenCounts.set(entry.path, entry.metadata.tokenCount ?? 0);
+    if (
+      params.config.manifest.includeOutputSpans &&
+      typeof structuredPlan.renderWithMap === "function"
+    ) {
+      const rendered = await structuredPlan.renderWithMap(params.style);
+      await fs.writeFile(params.outputPath, rendered.output, "utf8");
+
+      const entryByPath = new Map(
+        structuredPlan.entries.map((entry) => [entry.path, entry]),
+      );
+      const fileSpans = new Map<
+        string,
+        { outputStartLine: number; outputEndLine: number }
+      >();
+
+      for (const span of rendered.files) {
+        const entry = entryByPath.get(span.path);
+        const logicalLineCount = countLogicalLines(entry?.content ?? "");
+        const spanLength = Math.max(logicalLineCount, 1);
+
+        const block = rendered.output.slice(span.startOffset, span.endOffset);
+        const contentStartOffsetInBlock = findContentStartOffset({
+          style: params.style,
+          block,
+          filePath: span.path,
+        });
+        const outputStartLine =
+          span.startLine +
+          countNewlines(block.slice(0, contentStartOffsetInBlock));
+
+        fileSpans.set(span.path, {
+          outputStartLine,
+          outputEndLine: outputStartLine + spanLength - 1,
+        });
+      }
+
+      return {
+        outputText: rendered.output,
+        outputTokenCount: [...fileTokenCounts.values()].reduce(
+          (sum, tokenCount) => sum + tokenCount,
+          0,
+        ),
+        fileTokenCounts,
+        fileSpans,
+        warnings,
+      };
+    }
+
+    if (params.config.manifest.includeOutputSpans) {
+      const message =
+        "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
+      warnings.push(message);
+      emitWarning(message);
+    }
+
+    const outputText = await structuredPlan.render(params.style);
+    await fs.writeFile(params.outputPath, outputText, "utf8");
+
+    return {
+      outputText,
+      outputTokenCount: [...fileTokenCounts.values()].reduce(
+        (sum, tokenCount) => sum + tokenCount,
+        0,
+      ),
+      fileTokenCounts,
+      fileSpans: new Map(),
+      warnings,
+    };
+  }
+
+  if (!pack) {
+    throw new CxError(
+      "Incompatible Repomix adapter: neither packStructured() nor pack() is available for rendering.",
+      5,
+    );
   }
 
   if (params.config.manifest.includeOutputSpans) {
-    // Derive absolute spans for bare content lines inside each rendered file block.
-    for (const span of rendered.files) {
-      const entry = entryByPath.get(span.path);
-      const logicalLineCount = countLogicalLines(entry?.content ?? "");
-      const spanLength = Math.max(logicalLineCount, 1);
+    const message =
+      "Output span capture was requested, but packStructured/renderWithMap is unavailable. Continuing without span metadata.";
+    warnings.push(message);
+    emitWarning(message);
+  }
 
-      const block = rendered.output.slice(span.startOffset, span.endOffset);
-      const contentStartOffsetInBlock = findContentStartOffset({
-        style: params.style,
-        block,
-        filePath: span.path,
-      });
-      const outputStartLine =
-        span.startLine +
-        countNewlines(block.slice(0, contentStartOffsetInBlock));
-
-      fileSpans.set(span.path, {
-        outputStartLine,
-        outputEndLine: outputStartLine + spanLength - 1,
-      });
-    }
+  await pack(
+    [params.sourceRoot],
+    mergedConfig,
+    () => {},
+    {},
+    params.explicitFiles,
+  );
+  const outputText = await fs.readFile(params.outputPath, "utf8");
+  const countsByAbsolutePath = await countTokensForFiles(
+    params.explicitFiles,
+    params.config.tokens.encoding,
+  );
+  const fileTokenCounts = new Map<string, number>();
+  for (const absolutePath of params.explicitFiles) {
+    const relativePath = path
+      .relative(params.sourceRoot, absolutePath)
+      .replaceAll("\\", "/");
+    fileTokenCounts.set(
+      relativePath,
+      countsByAbsolutePath.get(absolutePath) ?? 0,
+    );
   }
 
   return {
-    outputText: rendered.output,
+    outputText,
     outputTokenCount: [...fileTokenCounts.values()].reduce(
       (sum, tokenCount) => sum + tokenCount,
       0,
     ),
     fileTokenCounts,
-    fileSpans,
+    fileSpans: new Map(),
+    warnings,
   };
 }

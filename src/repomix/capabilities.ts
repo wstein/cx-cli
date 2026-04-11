@@ -10,8 +10,8 @@ export interface AdapterRuntimeInfo {
 
 export interface RepomixCapabilities {
   hasMergeConfigs: boolean;
-  hasPackStructured: boolean;
-  supportsStructuredRenderPlan: boolean;
+  hasPack: boolean;
+  supportsPackStructured: boolean;
   supportsRenderWithMap: boolean;
 }
 
@@ -75,15 +75,15 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
     >;
     return {
       hasMergeConfigs: typeof mod.mergeConfigs === "function",
-      hasPackStructured: typeof mod.packStructured === "function",
-      supportsStructuredRenderPlan: typeof mod.packStructured === "function",
+      hasPack: typeof mod.pack === "function",
+      supportsPackStructured: typeof mod.packStructured === "function",
       supportsRenderWithMap: typeof mod.packStructured === "function",
     };
   } catch {
     return {
       hasMergeConfigs: false,
-      hasPackStructured: false,
-      supportsStructuredRenderPlan: false,
+      hasPack: false,
+      supportsPackStructured: false,
       supportsRenderWithMap: false,
     };
   }
@@ -91,7 +91,7 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
 
 /**
  * Validate that the installed adapter meets the minimum contract:
- * mergeConfigs + packStructured.
+ * mergeConfigs.
  */
 export async function validateRepomixContract(): Promise<
   { valid: true } | { valid: false; errors: string[] }
@@ -103,12 +103,6 @@ export async function validateRepomixContract(): Promise<
   if (!capabilities.hasMergeConfigs) {
     errors.push(
       `${adapterPath} does not export mergeConfigs(); this is required by cx-cli.`,
-    );
-  }
-
-  if (!capabilities.hasPackStructured) {
-    errors.push(
-      `${adapterPath} does not export packStructured(); structured render plan support is required by this cx-cli version.`,
     );
   }
 

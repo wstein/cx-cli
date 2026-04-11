@@ -39,11 +39,16 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   // Determine span capability state
   let spanCapabilityState: "supported" | "unsupported" | "partial" =
     "unsupported";
-  let spanCapabilityReason = "renderWithMap not available in installed package";
+  let spanCapabilityReason =
+    "Structured span capture is unavailable in the installed adapter.";
 
   if (detectedCapabilities.supportsRenderWithMap) {
     spanCapabilityState = "supported";
     spanCapabilityReason = "renderWithMap available and used";
+  } else if (detectedCapabilities.supportsPackStructured) {
+    spanCapabilityState = "partial";
+    spanCapabilityReason =
+      "packStructured is available, but renderWithMap is unavailable.";
   }
 
   const payload = {
@@ -91,7 +96,10 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
       `  mergeConfigs:            ${detectedCapabilities.hasMergeConfigs ? "YES" : "NO"}\n`,
     );
     process.stdout.write(
-      `  packStructured:          ${detectedCapabilities.hasPackStructured ? "YES" : "NO"}\n`,
+      `  pack:                    ${detectedCapabilities.hasPack ? "YES" : "NO"}\n`,
+    );
+    process.stdout.write(
+      `  packStructured:          ${detectedCapabilities.supportsPackStructured ? "YES" : "NO"}\n`,
     );
     process.stdout.write(`\nCapabilities:\n`);
     process.stdout.write(
@@ -104,6 +112,11 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
       process.stdout.write(
         `  reason:                  ${payload.capabilities.spanCapabilityReason}\n`,
       );
+      if (payload.capabilities.spanCapability !== "supported") {
+        process.stdout.write(
+          "  warning:                 Bundling still works, but no output span metadata will be recorded.\n",
+        );
+      }
     }
     process.stdout.write(
       `  exact file selection:    ${payload.capabilities.exactFileSelection ? "supported" : "not supported"}\n`,
@@ -186,15 +199,13 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
   const adapterPath = getAdapterModulePath();
   try {
     const adapterCapabilities = await detectRepomixCapabilities();
-    const hasRequired =
-      adapterCapabilities.hasMergeConfigs &&
-      adapterCapabilities.hasPackStructured;
+    const hasRequired = adapterCapabilities.hasMergeConfigs;
     checks.push({
       name: `${adapterPath} available`,
       passed: hasRequired,
       message: hasRequired
-        ? "All required exports are available"
-        : "Missing required exports",
+        ? "Core adapter contract is available"
+        : "mergeConfigs() is missing",
     });
   } catch (error) {
     checks.push({
@@ -237,7 +248,20 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
       : "Contract validation failed",
   });
 
-  // Check 5: Output styles
+  // Check 5: Core rendering
+  checks.push({
+    name: "Core rendering",
+    passed:
+      capabilities.capabilities.hasPack ||
+      capabilities.capabilities.supportsPackStructured,
+    message:
+      capabilities.capabilities.hasPack ||
+      capabilities.capabilities.supportsPackStructured
+        ? "At least one rendering path is available"
+        : "Neither pack() nor packStructured() is available",
+  });
+
+  // Check 6: Output styles
   const styles = ["xml", "markdown", "json", "plain"];
   checks.push({
     name: "Output styles",
