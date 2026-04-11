@@ -55,7 +55,7 @@ export function buildManifest(params: {
   }));
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     bundleVersion: 1,
     projectName: params.plan.projectName,
     sourceRoot: params.plan.sourceRoot,

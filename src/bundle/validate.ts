@@ -39,8 +39,12 @@ export async function validateBundle(
   bundleDir: string,
 ): Promise<{ manifestName: string }> {
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
-  if (manifest.schemaVersion !== 1 || manifest.bundleVersion !== 1) {
-    throw new CxError("Unsupported manifest schema version.", 2);
+  if (manifest.bundleVersion !== 1) {
+    throw new CxError(
+      `Unsupported bundle version ${manifest.bundleVersion}. ` +
+        "This version of cx supports bundle version 1.",
+      2,
+    );
   }
 
   for (const section of manifest.sections) {

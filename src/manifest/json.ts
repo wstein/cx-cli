@@ -9,11 +9,18 @@ import type {
 } from "./types.js";
 
 // ---------------------------------------------------------------------------
+// Schema version
+// ---------------------------------------------------------------------------
+
+/** The schema version produced and accepted by this implementation. */
+export const MANIFEST_SCHEMA_VERSION = 2 as const;
+
+// ---------------------------------------------------------------------------
 // File-row column layout
 // ---------------------------------------------------------------------------
 
-/** Header row written as the first element of every section's files array. */
-export const FILE_ROW_HEADER = [
+/** Ordered column names written to every section's `files.columns` array. */
+export const FILE_ROW_COLUMNS = [
   "path",
   "kind",
   "storedIn",
@@ -42,8 +49,11 @@ const COL = {
 // DTO types — mirror the on-disk JSON structure.
 // ---------------------------------------------------------------------------
 
-/** A section's file list as stored on disk: header row + data rows. */
-type FileTableDto = [typeof FILE_ROW_HEADER, ...unknown[][]];
+/** A section's file table as stored on disk. */
+interface FileTableDto {
+  columns: string[];
+  rows: unknown[][];
+}
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
   style: string;
@@ -111,7 +121,7 @@ function requireArray(value: unknown, label: string): unknown[] {
 }
 
 // ---------------------------------------------------------------------------
-// DTO validation — file table (2D array with header)
+// DTO validation — file table
 // ---------------------------------------------------------------------------
 
 type FileRowWithoutSection = Omit<ManifestFileRow, "section">;
@@ -120,34 +130,31 @@ function parseFileTable(
   raw: unknown,
   sectionLabel: string,
 ): FileRowWithoutSection[] {
-  const table = requireArray(raw, `${sectionLabel}.files`);
+  const tableObj = requireObject(raw, `${sectionLabel}.files`);
 
-  if (table.length === 0) {
-    throw new CxError(`${sectionLabel}.files must contain at least a header row.`);
+  // Validate columns array.
+  const columns = requireArray(tableObj.columns, `${sectionLabel}.files.columns`);
+  if (columns.length !== FILE_ROW_COLUMNS.length) {
+    throw new CxError(
+      `${sectionLabel}.files.columns: expected ${FILE_ROW_COLUMNS.length} columns, got ${columns.length}.`,
+    );
   }
-
-  // Validate header row.
-  const header = requireArray(table[0], `${sectionLabel}.files[0] (header)`);
-  for (let col = 0; col < FILE_ROW_HEADER.length; col++) {
-    if (header[col] !== FILE_ROW_HEADER[col]) {
+  for (let i = 0; i < FILE_ROW_COLUMNS.length; i++) {
+    if (columns[i] !== FILE_ROW_COLUMNS[i]) {
       throw new CxError(
-        `${sectionLabel}.files[0][${col}]: expected header "${FILE_ROW_HEADER[col]}", got "${String(header[col])}"`,
+        `${sectionLabel}.files.columns[${i}]: expected "${FILE_ROW_COLUMNS[i]}", got "${String(columns[i])}"`,
       );
     }
   }
-  if (header.length !== FILE_ROW_HEADER.length) {
-    throw new CxError(
-      `${sectionLabel}.files[0]: header has ${header.length} columns, expected ${FILE_ROW_HEADER.length}.`,
-    );
-  }
 
-  // Parse data rows (indices 1+).
-  return table.slice(1).map((rawRow, dataIndex) => {
-    const rowLabel = `${sectionLabel}.files[${dataIndex + 1}]`;
+  // Parse data rows.
+  const rows = requireArray(tableObj.rows, `${sectionLabel}.files.rows`);
+  return rows.map((rawRow, rowIndex) => {
+    const rowLabel = `${sectionLabel}.files.rows[${rowIndex}]`;
     const row = requireArray(rawRow, rowLabel);
-    if (row.length !== FILE_ROW_HEADER.length) {
+    if (row.length !== FILE_ROW_COLUMNS.length) {
       throw new CxError(
-        `${rowLabel}: expected ${FILE_ROW_HEADER.length} columns, got ${row.length}.`,
+        `${rowLabel}: expected ${FILE_ROW_COLUMNS.length} columns, got ${row.length}.`,
       );
     }
     return {
@@ -168,7 +175,10 @@ function parseFileTable(
 // DTO validation — sections and assets
 // ---------------------------------------------------------------------------
 
-function parseSectionDto(raw: unknown, index: number): { section: SectionDto; rows: FileRowWithoutSection[] } {
+function parseSectionDto(
+  raw: unknown,
+  index: number,
+): { section: SectionDto; rows: FileRowWithoutSection[] } {
   const obj = requireObject(raw, `section[${index}]`);
   const label = `section[${index}]`;
   const rows = parseFileTable(obj.files, label);
@@ -179,7 +189,7 @@ function parseSectionDto(raw: unknown, index: number): { section: SectionDto; ro
     outputFile: requireString(obj.outputFile, `${label}.outputFile`),
     outputSha256: requireString(obj.outputSha256, `${label}.outputSha256`),
     fileCount: requireNumber(obj.fileCount, `${label}.fileCount`),
-    files: [FILE_ROW_HEADER], // placeholder; rows returned separately
+    files: { columns: [...FILE_ROW_COLUMNS], rows: [] }, // placeholder
   };
 
   return { section, rows };
@@ -202,6 +212,16 @@ function parseManifestDto(raw: unknown): {
   sectionRows: FileRowWithoutSection[][];
 } {
   const obj = requireObject(raw, "manifest root");
+
+  // Guard against unknown schema versions before touching any other field.
+  const schemaVersion = requireNumber(obj.schemaVersion, "schemaVersion");
+  if (schemaVersion !== MANIFEST_SCHEMA_VERSION) {
+    throw new CxError(
+      `Unsupported manifest schema version ${schemaVersion}. ` +
+        `This version of cx supports schema version ${MANIFEST_SCHEMA_VERSION}.`,
+    );
+  }
+
   const settingsRaw = requireObject(obj.settings, "settings");
   const listDisplayRaw = requireObject(settingsRaw.listDisplay, "settings.listDisplay");
   const sectionsRaw = requireArray(obj.sections, "sections");
@@ -215,7 +235,7 @@ function parseManifestDto(raw: unknown): {
   });
 
   const dto: ManifestDto = {
-    schemaVersion: requireNumber(obj.schemaVersion, "schemaVersion"),
+    schemaVersion,
     bundleVersion: requireNumber(obj.bundleVersion, "bundleVersion"),
     projectName: requireString(obj.projectName, "projectName"),
     sourceRoot: requireString(obj.sourceRoot, "sourceRoot"),
@@ -278,11 +298,15 @@ function parseManifestDto(raw: unknown): {
 /**
  * Serialise a manifest to JSON.
  *
- * Each section's `files` array uses a 2D layout: the first element is the
- * column header row, and every subsequent element is a data row whose values
- * correspond to those columns in order.
+ * Each section's `files` field is an object with a `columns` array (the
+ * ordered field names) and a `rows` array of positional value arrays.
+ *
+ * @param pretty - When `true` (the default), the output is indented with two
+ *   spaces. Pass `false` for compact single-line JSON suitable for CI
+ *   environments where file size matters more than readability.
  */
-export function renderManifestJson(manifest: CxManifest): string {
+export function renderManifestJson(manifest: CxManifest, pretty = true): string {
+  const indent = pretty ? 2 : undefined;
   const out = {
     schemaVersion: manifest.schemaVersion,
     bundleVersion: manifest.bundleVersion,
@@ -301,9 +325,9 @@ export function renderManifestJson(manifest: CxManifest): string {
       outputFile: section.outputFile,
       outputSha256: section.outputSha256,
       fileCount: section.fileCount,
-      files: [
-        [...FILE_ROW_HEADER],
-        ...section.files.map((row) => [
+      files: {
+        columns: [...FILE_ROW_COLUMNS],
+        rows: section.files.map((row) => [
           row.path,
           row.kind,
           row.storedIn,
@@ -314,17 +338,18 @@ export function renderManifestJson(manifest: CxManifest): string {
           row.outputStartLine,
           row.outputEndLine,
         ]),
-      ],
+      },
     })),
     assets: manifest.assets,
   };
-  return `${JSON.stringify(out, null, 2)}\n`;
+  return `${JSON.stringify(out, null, indent)}\n`;
 }
 
 /**
  * Parse a manifest from JSON produced by {@link renderManifestJson}.
  *
- * Reconstructs the runtime `files` flat list from the per-section 2D tables.
+ * Reconstructs the runtime `files` flat list from the per-section tables.
+ * Throws {@link CxError} for unsupported schema versions or malformed data.
  */
 export function parseManifestJson(source: string): CxManifest {
   let raw: unknown;
@@ -368,7 +393,7 @@ export function parseManifestJson(source: string): CxManifest {
   }));
 
   return {
-    schemaVersion: 1,
+    schemaVersion: MANIFEST_SCHEMA_VERSION,
     bundleVersion: 1,
     projectName: dto.projectName,
     sourceRoot: dto.sourceRoot,

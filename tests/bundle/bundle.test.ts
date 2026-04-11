@@ -343,7 +343,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
