@@ -12,6 +12,15 @@ import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { runVerifyCommand } from "../../src/cli/commands/verify.js";
 import { sha256File } from "../../src/shared/hashing.js";
 
+function countLogicalLines(content: string): number {
+  if (content === "") {
+    return 0;
+  }
+
+  const lines = content.split("\n");
+  return content.endsWith("\n") ? lines.length - 1 : lines.length;
+}
+
 async function createProject(): Promise<{
   root: string;
   configPath: string;
@@ -106,6 +115,124 @@ describe("bundle workflow", () => {
     ).toBeDefined();
   });
 
+  test("emits absolute output spans from renderWithMap for all files", async () => {
+    const project = await createProject();
+    // Add manifest section with span capture enabled
+    const configContents = await fs.readFile(project.configPath, "utf8");
+    const manifestSection = `\n[manifest]
+format = "toon"
+include_file_sha256 = true
+include_output_sha256 = true
+include_output_spans = true
+include_source_metadata = true`;
+    await fs.writeFile(
+      project.configPath,
+      configContents + manifestSection,
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    // Spans are based on bare file content, not wrapper markup.
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const docsSectionFiles = manifest.files
+      .filter((row) => row.section === "docs")
+      .sort(
+        (left, right) =>
+          (left.outputStartLine as number) - (right.outputStartLine as number),
+      );
+    const expectedLengths = [
+      [
+        "docs/guide.md",
+        countLogicalLines(
+          await fs.readFile(path.join(project.root, "docs/guide.md"), "utf8"),
+        ),
+      ],
+      [
+        "README.md",
+        countLogicalLines(
+          await fs.readFile(path.join(project.root, "README.md"), "utf8"),
+        ),
+      ],
+    ] as const;
+
+    expect(docsSectionFiles.map((row) => row.path)).toEqual([
+      "docs/guide.md",
+      "README.md",
+    ]);
+    expect(docsSectionFiles[0]?.outputStartLine).toBe(1);
+    expect(docsSectionFiles[0]?.outputEndLine).toBe(expectedLengths[0][1]);
+    expect(docsSectionFiles[1]?.outputStartLine).toBe(
+      (docsSectionFiles[0]?.outputEndLine as number) + 1,
+    );
+    expect(docsSectionFiles[1]?.outputEndLine).toBe(
+      (docsSectionFiles[1]?.outputStartLine as number) +
+        expectedLengths[1][1] -
+        1,
+    );
+  });
+
+  test.each([
+    "json",
+    "markdown",
+    "plain",
+  ] as const)("emits absolute output spans for %s bundles", async (style) => {
+    const project = await createProject();
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "alpha\nbeta",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(project.root, "docs", "guide.md"),
+      "gamma\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(project.root, "src", "index.ts"),
+      "delta\nepsilon",
+      "utf8",
+    );
+    const configContents = await fs.readFile(project.configPath, "utf8");
+    await fs.writeFile(
+      project.configPath,
+      configContents
+        .replace('style = "xml"', `style = "${style}"`)
+        .concat(
+          `\n[manifest]\nformat = "toon"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
+        ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const textRows = manifest.files.filter((row) => row.kind === "text");
+    const sortedRows = [...textRows].sort(
+      (left, right) =>
+        (left.outputStartLine as number) - (right.outputStartLine as number),
+    );
+    const expectedLineCounts = new Map([
+      ["docs/guide.md", 1],
+      ["README.md", 2],
+      ["src/index.ts", 2],
+    ]);
+
+    expect(sortedRows[0]?.outputStartLine).toBe(1);
+    for (const row of sortedRows) {
+      const expectedLineCount = expectedLineCounts.get(row.path);
+      expect(expectedLineCount).toBeDefined();
+      expect(row.outputStartLine).not.toBe("-");
+      expect(row.outputEndLine).not.toBe("-");
+      if (expectedLineCount === undefined) {
+        throw new Error(`Missing expected line count for ${row.path}`);
+      }
+      expect(
+        (row.outputEndLine as number) - (row.outputStartLine as number) + 1,
+      ).toBe(expectedLineCount);
+    }
+  });
+
   test("emits structured JSON for list and inspect automation", async () => {
     const project = await createProject();
     const writes: string[] = [];
@@ -129,7 +256,7 @@ describe("bundle workflow", () => {
     process.stdout.write = stdoutWrite;
     const listPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { fileCount?: number; textFileCount?: number };
-      repomix?: { exactSpanCaptureSupported?: boolean };
+      repomix?: { spanCapability?: string };
       sections?: Array<{ name: string }>;
     };
 
@@ -137,7 +264,7 @@ describe("bundle workflow", () => {
     expect(inspectPayload.summary?.assetCount).toBe(1);
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
-    expect(listPayload.repomix?.exactSpanCaptureSupported).toBe(false);
+    expect(listPayload.repomix?.spanCapability).toBe("supported");
     expect(listPayload.sections?.map((section) => section.name)).toEqual([
       "docs",
       "src",
@@ -225,6 +352,10 @@ describe("bundle workflow", () => {
         adapterContract?: string;
         compatibilityStrategy?: string;
         supportedRepomixVersion?: string;
+        packageVersion?: string;
+        packageName?: string;
+        spanCapability?: string;
+        spanCapabilityReason?: string;
       };
     };
 
@@ -242,19 +373,19 @@ describe("bundle workflow", () => {
     const verifyPayload = JSON.parse(writes.pop() ?? "{}") as {
       valid?: boolean;
       files?: string[];
-      repomix?: { exactSpanCaptureReason?: string };
+      repomix?: { spanCapabilityReason?: string };
     };
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
-      "runtime-capability detection",
+      "capability-aware with renderWithMap support",
     );
-    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.1");
+    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.2");
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
-    expect(verifyPayload.repomix?.exactSpanCaptureReason).toContain(
-      "public exports",
+    expect(verifyPayload.repomix?.spanCapabilityReason).toContain(
+      "renderWithMap",
     );
   });
 

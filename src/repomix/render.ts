@@ -15,6 +15,15 @@ export interface RenderSectionResult {
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
 }
 
+function countLogicalLines(content: string): number {
+  if (content === "") {
+    return 0;
+  }
+
+  const lines = content.split("\n");
+  return content.endsWith("\n") ? lines.length - 1 : lines.length;
+}
+
 export const CX_VERSION = "0.1.0";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
 
@@ -118,16 +127,23 @@ export async function renderSectionWithRepomix(params: {
     const rendered = await structuredPlan.renderWithMap(params.style);
     await fs.writeFile(params.outputPath, rendered.output, "utf8");
 
-    // Convert fork's AbsoluteRenderedFileSpan to cx-cli's FileSpanMap
+    // Derive spans from bare file content so wrapper lines do not affect line numbers.
     const fileSpans = new Map<
       string,
       { outputStartLine: number; outputEndLine: number }
     >();
+    let currentLine = 1;
     for (const span of rendered.files) {
+      const entry = structuredPlan.entries.find(
+        (file) => file.path === span.path,
+      );
+      const logicalLineCount = countLogicalLines(entry?.content ?? "");
+      const spanLength = Math.max(logicalLineCount, 1);
       fileSpans.set(span.path, {
-        outputStartLine: span.startLine,
-        outputEndLine: span.endLine,
+        outputStartLine: currentLine,
+        outputEndLine: currentLine + spanLength - 1,
       });
+      currentLine += spanLength;
     }
 
     return { outputText: rendered.output, fileSpans };
