@@ -181,11 +181,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     const stat = await fs.stat(absolutePath);
     const sourceText = await fs.readFile(absolutePath, "utf8");
     const trimmedText = sourceText.trim();
-    const leadingWhitespace = sourceText.slice(
-      0,
-      sourceText.length - sourceText.trimStart().length,
-    );
-    const trailingWhitespace = sourceText.slice(sourceText.trimEnd().length);
     const plannedFile: PlannedSourceFile = {
       relativePath,
       absolutePath,
@@ -194,15 +189,8 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
       trimmedContent: trimmedText,
-      leadingWhitespaceBase64: Buffer.from(leadingWhitespace, "utf8").toString(
-        "base64",
-      ),
-      trailingWhitespaceBase64: Buffer.from(
-        trailingWhitespace,
-        "utf8",
-      ).toString("base64"),
     };
-    if (trimmedText.length === 0) {
+    if (trimmedText !== sourceText) {
       plannedFile.exactContentBase64 = Buffer.from(sourceText, "utf8").toString(
         "base64",
       );

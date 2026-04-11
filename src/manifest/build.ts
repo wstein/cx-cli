@@ -30,8 +30,6 @@ export function buildManifest(params: {
         outputFile: section.outputFile,
         outputStartLine: fileSpan ? fileSpan.outputStartLine : "-",
         outputEndLine: fileSpan ? fileSpan.outputEndLine : "-",
-        leadingWhitespaceBase64: file.leadingWhitespaceBase64 ?? "-",
-        trailingWhitespaceBase64: file.trailingWhitespaceBase64 ?? "-",
         exactContentBase64: file.exactContentBase64 ?? "-",
       };
     }),
@@ -48,8 +46,6 @@ export function buildManifest(params: {
     outputFile: "-",
     outputStartLine: "-",
     outputEndLine: "-",
-    leadingWhitespaceBase64: "-",
-    trailingWhitespaceBase64: "-",
     exactContentBase64: "-",
   }));
 
