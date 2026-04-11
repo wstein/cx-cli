@@ -50,6 +50,39 @@ function isExtractResolutionError(
   );
 }
 
+const DIFF_HINTS: Record<string, string> = {
+  manifest_hash_mismatch:
+    "content differs from manifest hash — pass --allow-degraded to write approximate content",
+  missing_from_section_output: "file not found in section output",
+  section_parse_failed: "section could not be parsed",
+  asset_copy: "asset copied directly",
+};
+
+function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
+  const header = `\nEXTRACTION ERRORS (${files.length} file${files.length === 1 ? "" : "s"} cannot be recovered exactly)\n`;
+  process.stderr.write(header);
+
+  const pathW = Math.max(4, ...files.map((f) => f.path.length));
+  const statusW = Math.max(6, ...files.map((f) => f.status.length));
+
+  const pad = (s: string, w: number) => s.padEnd(w);
+  const sep = `  ${"─".repeat(pathW)}  ${"─".repeat(statusW)}  ${"─".repeat(40)}\n`;
+
+  process.stderr.write(
+    `\n  ${pad("PATH", pathW)}  ${pad("STATUS", statusW)}  HINT\n`,
+  );
+  process.stderr.write(sep);
+
+  for (const file of files) {
+    const hint = DIFF_HINTS[file.reason] ?? file.message;
+    process.stderr.write(
+      `  ${pad(file.path, pathW)}  ${pad(file.status, statusW)}  ${hint}\n`,
+    );
+  }
+
+  process.stderr.write("\n");
+}
+
 export async function runExtractCommand(args: ExtractArgs): Promise<number> {
   const bundleDir = path.resolve(args.bundleDir);
   const destinationDir = path.resolve(args.destinationDir);
@@ -116,6 +149,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
           files: extractabilityFiles.map((file: ExtractabilityRecord) => ({
             path: file.path,
             section: file.section,
+            status: file.status,
             reason: file.reason,
             expectedSha256: file.expectedSha256,
             actualSha256: file.actualSha256,
@@ -124,6 +158,11 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
         },
       });
       return error instanceof CxError ? error.exitCode : 1;
+    }
+
+    if (isExtractResolutionError(error)) {
+      writeExtractionErrorTable(error.files);
+      return error.exitCode;
     }
     throw error;
   }
