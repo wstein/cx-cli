@@ -30,7 +30,7 @@ The repository currently implements:
 Every command supports `--json` for CI consumers.
 `cx list --json` supports `--section` and `--file` filtering, reports per-file status, and uses manifest-recorded `time` plus manifest-recorded list display settings, including the configured grayscale `time_palette`. Human `cx inspect` and `cx inspect --json` both annotate planned files with bundle-side status whenever a matching bundle already exists. `cx extract --json` emits dedicated failure payloads that identify the exact file or files blocked by degraded or missing reconstructed content. `cx validate --json` emits detailed manifest-aware summaries instead of bare success flags.
 `cx verify` now fails if the checksum file omits any expected manifest, section-output, or asset entry.
-Bundle loading requires exactly one `*-manifest.toon` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
+Bundle loading requires exactly one `*-manifest.json` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
 
 When `manifest.include_output_spans = true`, `cx bundle` records `output_start_line` / `output_end_line` as absolute line numbers in each section output file, anchored to the first and last bare content lines of each file block. Wrapper markup is never counted as part of a file's span, but wrapper lines that appear before a file still shift that file's absolute start line.
 
