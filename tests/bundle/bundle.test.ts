@@ -5,7 +5,12 @@ import path from "node:path";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import type { CxManifest } from "../../src/manifest/types.js";
-import { parseManifestJson, renderManifestJson } from "../../src/manifest/json.js";
+import {
+  FILE_ROW_COLUMNS,
+  MANIFEST_SCHEMA_VERSION,
+  parseManifestJson,
+  renderManifestJson,
+} from "../../src/manifest/json.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
@@ -418,6 +423,38 @@ include_source_metadata = true`;
     expect(reparsed.sections[0]?.files).toHaveLength(2);
     expect(reparsed.sections[1]?.files).toHaveLength(1);
     expect(reparsed.sections[0]?.files[0]?.path).toBe("docs/a.md");
+  });
+
+  test("manifest file is valid JSON with correct schemaVersion and file-table structure", async () => {
+    const project = await createProject();
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const entries = await fs.readdir(project.bundleDir);
+    const manifestName = entries.find((e) => e.endsWith("-manifest.json"));
+    expect(manifestName).toBeDefined();
+
+    const source = await fs.readFile(
+      path.join(project.bundleDir, manifestName as string),
+      "utf8",
+    );
+
+    // Must be valid JSON.
+    const parsed = JSON.parse(source) as Record<string, unknown>;
+
+    // Schema version matches the exported constant.
+    expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
+
+    // Every section must expose a {columns, rows} file table with the exact
+    // column header, so downstream parsers can rely on the layout.
+    const sections = parsed.sections as Array<{
+      files?: { columns?: unknown[]; rows?: unknown[] };
+    }>;
+    expect(sections.length).toBeGreaterThan(0);
+    for (const section of sections) {
+      expect(section.files).toBeDefined();
+      expect(section.files?.columns).toEqual([...FILE_ROW_COLUMNS]);
+      expect(Array.isArray(section.files?.rows)).toBe(true);
+    }
   });
 
   test("emits structured JSON for list and inspect automation", async () => {
