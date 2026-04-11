@@ -28,7 +28,7 @@ Every command supports `--json` for CI consumers.
 `cx verify` now fails if the checksum file omits any expected manifest, section-output, or asset entry.
 Bundle loading requires exactly one `*-manifest.toon` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
 
-When `manifest.include_output_spans = true`, `cx bundle` records content-only `output_start_line` / `output_end_line` values for each file in the manifest. Those spans exclude XML, Markdown, JSON, and plain-text wrapper lines and track only the bare file content.
+When `manifest.include_output_spans = true`, `cx bundle` records `output_start_line` / `output_end_line` as absolute line numbers in each section output file, anchored to the first and last bare content lines of each file block. Wrapper markup is never counted as part of a file's span, but wrapper lines that appear before a file still shift that file's absolute start line.
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable. Adapter compatibility is checked against the public exports we actually call, rather than inferred from package-layout assumptions.
 

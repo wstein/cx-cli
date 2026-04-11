@@ -39,6 +39,6 @@ A generated bundle must satisfy these invariants:
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
-When `manifest.include_output_spans = true`, `cx bundle` computes content-only per-file spans and records them as `output_start_line` and `output_end_line` in the manifest. The line numbers track bare file content only, so XML, Markdown, JSON, and plain-text wrapper lines are excluded from the reported ranges.
+When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans using absolute line numbers in the rendered section output. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML/Markdown/JSON/plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions.
 
 For details on how `cx` validates and verifies bundles, see `src/bundle/verify.ts` and `src/bundle/validate.ts`.
