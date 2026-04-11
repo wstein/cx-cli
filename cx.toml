@@ -25,7 +25,7 @@ order = "config"
 format = "toon"
 include_file_sha256 = true
 include_output_sha256 = true
-include_output_spans = false
+include_output_spans = true
 include_source_metadata = true
 
 [checksums]
