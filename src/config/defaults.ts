@@ -33,6 +33,8 @@ include_output_sha256 = true
 include_output_spans = false
 include_source_metadata = true
 
+# Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
+
 [checksums]
 algorithm = "sha256"
 file_name = "{project}.sha256"
