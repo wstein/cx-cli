@@ -1,29 +1,43 @@
 import fs from "node:fs/promises";
 
-import { mergeConfigs, pack } from "@wstein/repomix";
+import { mergeConfigs, pack, packStructured } from "@wstein/repomix";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
 import {
+  detectRepomixCapabilities,
   getRepomixCapabilities as getRepomixCapabilitiesImpl,
   validateRepomixContract,
 } from "./capabilities.js";
 
+export interface RenderSectionResult {
+  outputText: string;
+  fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
+}
+
 export const CX_VERSION = "0.1.0";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
-export const EXACT_SPAN_CAPTURE_SUPPORTED = false;
-export const EXACT_SPAN_CAPTURE_REASON =
-  "Repomix public exports do not expose stable render-context hooks for exact output span calculation.";
 
 // Re-export with extended info for backward compatibility
 export async function getRepomixCapabilities() {
   const capabilities = await getRepomixCapabilitiesImpl();
+  const detected = detectRepomixCapabilities();
+
+  // Determine span capability state
+  let spanCapability: "supported" | "unsupported" | "partial" = "unsupported";
+  let spanCapabilityReason = "renderWithMap not available in installed package";
+
+  if (detected.supportsRenderWithMap) {
+    spanCapability = "supported";
+    spanCapabilityReason = "renderWithMap available and used";
+  }
+
   return {
     ...capabilities,
     adapterContract: REPOMIX_ADAPTER_CONTRACT,
-    compatibilityStrategy: "runtime-capability detection",
-    exactSpanCaptureSupported: EXACT_SPAN_CAPTURE_SUPPORTED,
-    exactSpanCaptureReason: EXACT_SPAN_CAPTURE_REASON,
+    compatibilityStrategy: "capability-aware with renderWithMap support",
+    spanCapability,
+    spanCapabilityReason,
   };
 }
 
@@ -43,19 +57,19 @@ export async function renderSectionWithRepomix(params: {
   sourceRoot: string;
   outputPath: string;
   explicitFiles: string[];
-}): Promise<string> {
+}): Promise<RenderSectionResult> {
   assertCompatibleRepomixAdapter();
 
   if (params.explicitFiles.length === 0) {
     await fs.writeFile(params.outputPath, "", "utf8");
-    return "";
+    return { outputText: "", fileSpans: new Map() };
   }
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {
       filePath: params.outputPath,
       style: params.style,
-      parsableStyle: params.style === "xml" || params.style === "json",
+      parsableStyle: params.style === "json",
       fileSummary: true,
       directoryStructure: true,
       files: true,
@@ -90,6 +104,36 @@ export async function renderSectionWithRepomix(params: {
   };
 
   const mergedConfig = mergeConfigs(params.sourceRoot, {}, cliConfig);
+
+  // When span capture is needed, use packStructured with renderWithMap
+  if (params.config.manifest.includeOutputSpans) {
+    const structuredPlan = await packStructured(
+      [params.sourceRoot],
+      mergedConfig,
+      {
+        explicitFiles: params.explicitFiles,
+      },
+    );
+
+    const rendered = await structuredPlan.renderWithMap(params.style);
+    await fs.writeFile(params.outputPath, rendered.output, "utf8");
+
+    // Convert fork's AbsoluteRenderedFileSpan to cx-cli's FileSpanMap
+    const fileSpans = new Map<
+      string,
+      { outputStartLine: number; outputEndLine: number }
+    >();
+    for (const span of rendered.files) {
+      fileSpans.set(span.path, {
+        outputStartLine: span.startLine,
+        outputEndLine: span.endLine,
+      });
+    }
+
+    return { outputText: rendered.output, fileSpans };
+  }
+
+  // For backward compatibility: use pack() when spans are not needed
   await pack(
     [params.sourceRoot],
     mergedConfig,
@@ -98,5 +142,5 @@ export async function renderSectionWithRepomix(params: {
     params.explicitFiles,
   );
 
-  return fs.readFile(params.outputPath, "utf8");
+  return { outputText: await fs.readFile(params.outputPath, "utf8") };
 }

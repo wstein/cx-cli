@@ -39,4 +39,6 @@ A generated bundle must satisfy these invariants:
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
+When `manifest.include_output_spans = true`, `cx bundle` computes exact per-file output spans and records them as `output_start_line` and `output_end_line` in the manifest. For XML section outputs, this mode preserves standard Repomix XML formatting with separate lines for opening/closing tags and blank lines to visually group sections.
+
 For details on how `cx` validates and verifies bundles, see `src/bundle/verify.ts` and `src/bundle/validate.ts`.

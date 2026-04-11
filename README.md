@@ -30,6 +30,8 @@ Bundle loading requires exactly one `*-manifest.toon` file, and `cx init --name`
 
 Exact output span capture remains unavailable with the current pinned Repomix public API. The tool now reports that limitation explicitly in structured command output instead of fabricating spans.
 
+When `manifest.include_output_spans = true`, `cx bundle` uses Repomix structured rendering to preserve standard Repomix XML output style and to emit `output_start_line` / `output_end_line` for files in the manifest.
+
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable. Adapter compatibility is checked against the public exports we actually call, rather than inferred from package-layout assumptions.
 
 Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved.

@@ -20,6 +20,14 @@ export interface SectionOutputRecord {
   losslessTextExtraction: boolean;
 }
 
+export interface FileSpanRecord {
+  outputStartLine: number;
+  outputEndLine: number;
+}
+
+export type FileSpanMap = Map<string, FileSpanRecord>;
+export type SectionSpanMaps = Map<string, FileSpanMap>;
+
 export interface AssetRecord {
   sourcePath: string;
   storedPath: string;

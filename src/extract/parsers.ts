@@ -29,9 +29,14 @@ export function parseXmlSection(source: string): ExtractedTextFile[] {
           | { path?: string; "#text"?: string };
       };
     };
+    files?: {
+      file?:
+        | Array<{ path?: string; "#text"?: string }>
+        | { path?: string; "#text"?: string };
+    };
   };
 
-  const fileNode = parsed.repomix?.files?.file;
+  const fileNode = parsed.repomix?.files?.file ?? parsed.files?.file;
   if (!fileNode) {
     return [];
   }

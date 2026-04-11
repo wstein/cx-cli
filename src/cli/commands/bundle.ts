@@ -6,6 +6,7 @@ import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestToon } from "../../manifest/toon.js";
+import type { SectionSpanMaps } from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import type { PlannedSourceFile } from "../../planning/types.js";
 import {
@@ -59,9 +60,11 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   }
 
   const sectionOutputs = [];
+  const sectionSpanMaps: SectionSpanMaps = new Map();
+
   for (const section of plan.sections) {
     const outputPath = path.join(plan.bundleDir, section.outputFile);
-    const outputText = await renderSectionWithRepomix({
+    const renderResult = await renderSectionWithRepomix({
       config,
       style: section.style,
       sourceRoot: plan.sourceRoot,
@@ -89,7 +92,9 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       sizeBytes: totalSectionBytes,
       estimatedTokens: estimatedSectionTokens,
     });
-    void outputText;
+    if (renderResult.fileSpans) {
+      sectionSpanMaps.set(section.name, renderResult.fileSpans);
+    }
   }
 
   const manifest = buildManifest({
@@ -98,6 +103,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     sectionOutputs,
     cxVersion: CX_VERSION,
     repomixVersion: (await getRepomixCapabilities()).packageVersion,
+    sectionSpanMaps,
   });
   const manifestName = `${plan.projectName}-manifest.toon`;
   await fs.writeFile(

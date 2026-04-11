@@ -26,7 +26,7 @@ export async function renderSection(
   const outputPath = path.join(tmpDir, "output");
 
   try {
-    const content = await renderSectionWithRepomix({
+    const result = await renderSectionWithRepomix({
       config: params.config,
       style: params.style,
       sourceRoot: params.sourceRoot,
@@ -35,7 +35,7 @@ export async function renderSection(
     });
 
     return {
-      content,
+      content: result.outputText,
       fileCount: params.files.length,
       style: params.style,
     };

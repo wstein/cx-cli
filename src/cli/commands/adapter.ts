@@ -35,6 +35,16 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   const runtimeInfo = await getAdapterRuntimeInfo();
   const detectedCapabilities = detectRepomixCapabilities();
 
+  // Determine span capability state
+  let spanCapabilityState: "supported" | "unsupported" | "partial" =
+    "unsupported";
+  let spanCapabilityReason = "renderWithMap not available in installed package";
+
+  if (detectedCapabilities.supportsRenderWithMap) {
+    spanCapabilityState = "supported";
+    spanCapabilityReason = "renderWithMap available and used";
+  }
+
   const payload = {
     cx: {
       version: "0.1.0",
@@ -49,8 +59,8 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
     detectedCapabilities: detectedCapabilities,
     capabilities: {
       styles: ["xml", "markdown", "json", "plain"],
-      exactSpanCapture: capabilities.exactSpanCaptureSupported,
-      exactSpanCaptureReason: capabilities.exactSpanCaptureReason,
+      spanCapability: spanCapabilityState,
+      spanCapabilityReason: spanCapabilityReason,
       exactFileSelection: true,
       sectionPlanning: true,
     },
@@ -90,11 +100,11 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
       `  output styles:           ${payload.capabilities.styles.join(", ")}\n`,
     );
     process.stdout.write(
-      `  exact span capture:      ${payload.capabilities.exactSpanCapture ? "supported" : "not supported"}\n`,
+      `  span capture:            ${payload.capabilities.spanCapability}\n`,
     );
-    if (!payload.capabilities.exactSpanCapture) {
+    if (payload.capabilities.spanCapabilityReason) {
       process.stdout.write(
-        `  reason:                  ${payload.capabilities.exactSpanCaptureReason}\n`,
+        `  reason:                  ${payload.capabilities.spanCapabilityReason}\n`,
       );
     }
     process.stdout.write(

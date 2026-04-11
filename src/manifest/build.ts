@@ -4,6 +4,7 @@ import type {
   CxManifest,
   ManifestFileRow,
   SectionOutputRecord,
+  SectionSpanMaps,
 } from "./types.js";
 
 export function buildManifest(params: {
@@ -12,23 +13,28 @@ export function buildManifest(params: {
   sectionOutputs: SectionOutputRecord[];
   cxVersion: string;
   repomixVersion: string;
+  sectionSpanMaps?: SectionSpanMaps;
 }): CxManifest {
   const textRows: ManifestFileRow[] = params.plan.sections.flatMap((section) =>
-    section.files.map((file) => ({
-      path: file.relativePath,
-      kind: "text",
-      section: section.name,
-      storedIn: "packed",
-      sha256: file.sha256,
-      sizeBytes: file.sizeBytes,
-      mediaType: file.mediaType,
-      outputFile: section.outputFile,
-      outputStartLine: "-",
-      outputEndLine: "-",
-      leadingWhitespaceBase64: file.leadingWhitespaceBase64 ?? "-",
-      trailingWhitespaceBase64: file.trailingWhitespaceBase64 ?? "-",
-      exactContentBase64: file.exactContentBase64 ?? "-",
-    })),
+    section.files.map((file) => {
+      const sectionSpans = params.sectionSpanMaps?.get(section.name);
+      const fileSpan = sectionSpans?.get(file.relativePath);
+      return {
+        path: file.relativePath,
+        kind: "text",
+        section: section.name,
+        storedIn: "packed",
+        sha256: file.sha256,
+        sizeBytes: file.sizeBytes,
+        mediaType: file.mediaType,
+        outputFile: section.outputFile,
+        outputStartLine: fileSpan ? fileSpan.outputStartLine : "-",
+        outputEndLine: fileSpan ? fileSpan.outputEndLine : "-",
+        leadingWhitespaceBase64: file.leadingWhitespaceBase64 ?? "-",
+        trailingWhitespaceBase64: file.trailingWhitespaceBase64 ?? "-",
+        exactContentBase64: file.exactContentBase64 ?? "-",
+      };
+    }),
   );
 
   const assetRows: ManifestFileRow[] = params.plan.assets.map((asset) => ({

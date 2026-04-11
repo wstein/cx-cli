@@ -15,6 +15,7 @@ export interface RepomixCapabilities {
   hasPack: boolean;
   hasPackStructured: boolean;
   supportsStructuredRenderPlan: boolean;
+  supportsRenderWithMap: boolean;
 }
 
 /**
@@ -52,6 +53,7 @@ export function detectRepomixCapabilities(): RepomixCapabilities {
     hasPackStructured: typeof repomixModule.packStructured === "function",
     supportsStructuredRenderPlan:
       typeof repomixModule.packStructured === "function",
+    supportsRenderWithMap: typeof repomixModule.packStructured === "function",
   };
 }
 

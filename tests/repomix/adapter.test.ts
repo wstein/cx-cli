@@ -27,7 +27,7 @@ describe("Repomix adapter contract", () => {
     );
 
     const outputPath = path.join(root, "repomix-output.xml.txt");
-    const cliConfig = {
+    const cliConfig: Parameters<typeof mergeConfigs>[2] = {
       output: {
         filePath: outputPath,
         style: "xml",
