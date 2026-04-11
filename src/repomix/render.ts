@@ -165,9 +165,12 @@ export async function renderSectionWithRepomix(params: {
       fileSummary: true,
       directoryStructure: true,
       files: true,
-      removeComments: params.config.repomix.removeComments,
-      removeEmptyLines: params.config.repomix.removeEmptyLines,
-      compress: params.config.repomix.compress,
+      // Compression transforms must never be delegated to Repomix: they alter line
+      // coordinates, violate cryptographic invariants, and would overwrite source
+      // files with minified content on extraction. These are unconditionally false.
+      removeComments: false,
+      removeEmptyLines: false,
+      compress: false,
       showLineNumbers: params.config.repomix.showLineNumbers,
       copyToClipboard: false,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,

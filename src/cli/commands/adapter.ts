@@ -150,9 +150,6 @@ async function runAdapterInspect(args: AdapterArgs): Promise<number> {
       files: section.files.map((f) => f.relativePath),
     })),
     repomixOptions: {
-      compress: config.repomix.compress,
-      removeComments: config.repomix.removeComments,
-      removeEmptyLines: config.repomix.removeEmptyLines,
       showLineNumbers: config.repomix.showLineNumbers,
       includeEmptyDirectories: config.repomix.includeEmptyDirectories,
       securityCheck: config.repomix.securityCheck,
