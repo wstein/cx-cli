@@ -21,6 +21,66 @@ function countLogicalLines(content: string): number {
   return content.endsWith("\n") ? lines.length - 1 : lines.length;
 }
 
+function countNewlines(content: string): number {
+  let count = 0;
+  for (const character of content) {
+    if (character === "\n") {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function findExpectedContentStartLine(params: {
+  output: string;
+  style: "xml" | "markdown" | "json" | "plain";
+  filePath: string;
+}): number {
+  const { output, style, filePath } = params;
+
+  if (style === "xml") {
+    const marker = `<file path="${filePath}">`;
+    const markerOffset = output.indexOf(marker);
+    if (markerOffset === -1) {
+      throw new Error(`Missing XML marker for ${filePath}`);
+    }
+    const contentStart = markerOffset + marker.length + 1;
+    return countNewlines(output.slice(0, contentStart)) + 1;
+  }
+
+  if (style === "markdown") {
+    const heading = `## File: ${filePath}\n`;
+    const headingOffset = output.indexOf(heading);
+    if (headingOffset === -1) {
+      throw new Error(`Missing Markdown heading for ${filePath}`);
+    }
+    const fenceLineEnd = output.indexOf("\n", headingOffset + heading.length);
+    if (fenceLineEnd === -1) {
+      throw new Error(`Missing Markdown code fence for ${filePath}`);
+    }
+    const contentStart = fenceLineEnd + 1;
+    return countNewlines(output.slice(0, contentStart)) + 1;
+  }
+
+  if (style === "plain") {
+    const marker = `================\nFile: ${filePath}\n================\n`;
+    const markerOffset = output.indexOf(marker);
+    if (markerOffset === -1) {
+      throw new Error(`Missing plain marker for ${filePath}`);
+    }
+    const contentStart = markerOffset + marker.length;
+    return countNewlines(output.slice(0, contentStart)) + 1;
+  }
+
+  const keyMarker = `\n    ${JSON.stringify(filePath)}: `;
+  const keyOffset = output.indexOf(keyMarker);
+  if (keyOffset === -1) {
+    throw new Error(`Missing JSON key for ${filePath}`);
+  }
+  const contentStart = keyOffset + 1;
+  return countNewlines(output.slice(0, contentStart)) + 1;
+}
+
 async function createProject(): Promise<{
   root: string;
   configPath: string;
@@ -141,6 +201,11 @@ include_source_metadata = true`;
         (left, right) =>
           (left.outputStartLine as number) - (right.outputStartLine as number),
       );
+    const docsOutputPath = path.join(
+      project.bundleDir,
+      docsSectionFiles[0]?.outputFile as string,
+    );
+    const docsOutput = await fs.readFile(docsOutputPath, "utf8");
     const expectedLengths = [
       [
         "docs/guide.md",
@@ -160,10 +225,24 @@ include_source_metadata = true`;
       "docs/guide.md",
       "README.md",
     ]);
-    expect(docsSectionFiles[0]?.outputStartLine).toBe(1);
-    expect(docsSectionFiles[0]?.outputEndLine).toBe(expectedLengths[0][1]);
+    expect(docsSectionFiles[0]?.outputStartLine).toBe(
+      findExpectedContentStartLine({
+        output: docsOutput,
+        style: "xml",
+        filePath: "docs/guide.md",
+      }),
+    );
+    expect(docsSectionFiles[0]?.outputEndLine).toBe(
+      (docsSectionFiles[0]?.outputStartLine as number) +
+        expectedLengths[0][1] -
+        1,
+    );
     expect(docsSectionFiles[1]?.outputStartLine).toBe(
-      (docsSectionFiles[0]?.outputEndLine as number) + 1,
+      findExpectedContentStartLine({
+        output: docsOutput,
+        style: "xml",
+        filePath: "README.md",
+      }),
     );
     expect(docsSectionFiles[1]?.outputEndLine).toBe(
       (docsSectionFiles[1]?.outputStartLine as number) +
@@ -176,7 +255,9 @@ include_source_metadata = true`;
     "json",
     "markdown",
     "plain",
-  ] as const)("emits absolute output spans for %s bundles", async (style) => {
+  ] as const)(
+    "emits absolute output spans for %s bundles",
+    async (style: "json" | "markdown" | "plain") => {
     const project = await createProject();
     await fs.writeFile(
       path.join(project.root, "README.md"),
@@ -208,6 +289,19 @@ include_source_metadata = true`;
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const textRows = manifest.files.filter((row) => row.kind === "text");
+    const outputByFile = new Map<string, string>();
+    for (const row of textRows) {
+      if (typeof row.outputFile !== "string") {
+        continue;
+      }
+      if (outputByFile.has(row.outputFile)) {
+        continue;
+      }
+      outputByFile.set(
+        row.outputFile,
+        await fs.readFile(path.join(project.bundleDir, row.outputFile), "utf8"),
+      );
+    }
     const sortedRows = [...textRows].sort(
       (left, right) =>
         (left.outputStartLine as number) - (right.outputStartLine as number),
@@ -218,7 +312,6 @@ include_source_metadata = true`;
       ["src/index.ts", 2],
     ]);
 
-    expect(sortedRows[0]?.outputStartLine).toBe(1);
     for (const row of sortedRows) {
       const expectedLineCount = expectedLineCounts.get(row.path);
       expect(expectedLineCount).toBeDefined();
@@ -230,8 +323,18 @@ include_source_metadata = true`;
       expect(
         (row.outputEndLine as number) - (row.outputStartLine as number) + 1,
       ).toBe(expectedLineCount);
+      const output = outputByFile.get(row.outputFile as string);
+      expect(output).toBeDefined();
+      expect(row.outputStartLine).toBe(
+        findExpectedContentStartLine({
+          output: output as string,
+          style,
+          filePath: row.path,
+        }),
+      );
     }
-  });
+    },
+  );
 
   test("emits structured JSON for list and inspect automation", async () => {
     const project = await createProject();

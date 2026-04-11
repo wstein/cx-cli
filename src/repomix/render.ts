@@ -15,6 +15,16 @@ export interface RenderSectionResult {
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
 }
 
+function countNewlines(content: string): number {
+  let count = 0;
+  for (const character of content) {
+    if (character === "\n") {
+      count += 1;
+    }
+  }
+  return count;
+}
+
 function countLogicalLines(content: string): number {
   if (content === "") {
     return 0;
@@ -22,6 +32,69 @@ function countLogicalLines(content: string): number {
 
   const lines = content.split("\n");
   return content.endsWith("\n") ? lines.length - 1 : lines.length;
+}
+
+function findContentStartOffset(params: {
+  style: CxStyle;
+  block: string;
+  filePath: string;
+}): number {
+  const { style, block, filePath } = params;
+
+  if (style === "xml") {
+    const tag = `<file path="${filePath}">`;
+    const tagStart = block.indexOf(tag);
+    if (tagStart === -1) {
+      throw new CxError(
+        `Unable to locate XML file wrapper while computing output spans for ${filePath}`,
+        5,
+      );
+    }
+
+    let contentStart = tagStart + tag.length;
+    if (block[contentStart] === "\n") {
+      contentStart += 1;
+    }
+
+    return contentStart;
+  }
+
+  if (style === "markdown") {
+    const heading = `## File: ${filePath}\n`;
+    const headingStart = block.indexOf(heading);
+    if (headingStart === -1) {
+      throw new CxError(
+        `Unable to locate Markdown file wrapper while computing output spans for ${filePath}`,
+        5,
+      );
+    }
+
+    const fenceLineEnd = block.indexOf("\n", headingStart + heading.length);
+    if (fenceLineEnd === -1) {
+      throw new CxError(
+        `Unable to locate Markdown fence while computing output spans for ${filePath}`,
+        5,
+      );
+    }
+
+    return fenceLineEnd + 1;
+  }
+
+  if (style === "plain") {
+    const marker = `================\nFile: ${filePath}\n================\n`;
+    const markerStart = block.indexOf(marker);
+    if (markerStart === -1) {
+      throw new CxError(
+        `Unable to locate plain-text file wrapper while computing output spans for ${filePath}`,
+        5,
+      );
+    }
+
+    return markerStart + marker.length;
+  }
+
+  // JSON output stores each file in a single object-property line.
+  return 0;
 }
 
 export const CX_VERSION = "0.1.0";
@@ -127,23 +200,34 @@ export async function renderSectionWithRepomix(params: {
     const rendered = await structuredPlan.renderWithMap(params.style);
     await fs.writeFile(params.outputPath, rendered.output, "utf8");
 
-    // Derive spans from bare file content so wrapper lines do not affect line numbers.
+    // Derive absolute spans for bare content lines inside each rendered file block.
+    const entryByPath = new Map(
+      structuredPlan.entries.map((entry) => [entry.path, entry]),
+    );
     const fileSpans = new Map<
       string,
       { outputStartLine: number; outputEndLine: number }
     >();
-    let currentLine = 1;
+
     for (const span of rendered.files) {
-      const entry = structuredPlan.entries.find(
-        (file) => file.path === span.path,
-      );
+      const entry = entryByPath.get(span.path);
       const logicalLineCount = countLogicalLines(entry?.content ?? "");
       const spanLength = Math.max(logicalLineCount, 1);
-      fileSpans.set(span.path, {
-        outputStartLine: currentLine,
-        outputEndLine: currentLine + spanLength - 1,
+
+      const block = rendered.output.slice(span.startOffset, span.endOffset);
+      const contentStartOffsetInBlock = findContentStartOffset({
+        style: params.style,
+        block,
+        filePath: span.path,
       });
-      currentLine += spanLength;
+      const outputStartLine =
+        span.startLine +
+        countNewlines(block.slice(0, contentStartOffsetInBlock));
+
+      fileSpans.set(span.path, {
+        outputStartLine,
+        outputEndLine: outputStartLine + spanLength - 1,
+      });
     }
 
     return { outputText: rendered.output, fileSpans };
