@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cx-cli.dev/schemas/manifest-v2.schema.json",
+  "title": "cx Manifest v2",
+  "description": "On-disk format for a cx bundle manifest (schemaVersion 2). Each section's file list is stored as a {columns, rows} table for compact, schema-stable serialisation.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "bundleVersion",
+    "projectName",
+    "sourceRoot",
+    "bundleDir",
+    "checksumFile",
+    "createdAt",
+    "cxVersion",
+    "repomixVersion",
+    "checksumAlgorithm",
+    "settings",
+    "sections",
+    "assets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "description": "Manifest schema version. Must be exactly 2.",
+      "const": 2
+    },
+    "bundleVersion": {
+      "description": "Bundle format version. Must be exactly 1.",
+      "const": 1
+    },
+    "projectName": {
+      "description": "Project name as declared in cx.toml.",
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceRoot": {
+      "description": "Absolute path to the source root at bundle time.",
+      "type": "string",
+      "minLength": 1
+    },
+    "bundleDir": {
+      "description": "Absolute path to the bundle output directory.",
+      "type": "string",
+      "minLength": 1
+    },
+    "checksumFile": {
+      "description": "Filename of the SHA-256 checksum sidecar (relative to bundleDir).",
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "description": "ISO 8601 timestamp at which the bundle was created.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "cxVersion": {
+      "description": "Version of the cx CLI that produced this manifest.",
+      "type": "string",
+      "minLength": 1
+    },
+    "repomixVersion": {
+      "description": "Version of the Repomix adapter used during bundling.",
+      "type": "string",
+      "minLength": 1
+    },
+    "checksumAlgorithm": {
+      "description": "Algorithm used in the checksum sidecar.",
+      "const": "sha256"
+    },
+    "settings": {
+      "$ref": "#/$defs/ManifestSettings"
+    },
+    "sections": {
+      "description": "Ordered list of text-file sections in the bundle.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SectionRecord"
+      }
+    },
+    "assets": {
+      "description": "Raw files copied into the bundle without Repomix rendering.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AssetRecord"
+      }
+    }
+  },
+  "$defs": {
+    "ManifestSettings": {
+      "description": "Snapshot of the cx configuration settings used to build this bundle.",
+      "type": "object",
+      "required": [
+        "globalStyle",
+        "tokenAlgorithm",
+        "removeComments",
+        "removeEmptyLines",
+        "compress",
+        "showLineNumbers",
+        "includeEmptyDirectories",
+        "securityCheck",
+        "listDisplay"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "globalStyle": {
+          "description": "Default Repomix output style for sections.",
+          "enum": ["xml", "markdown", "json", "plain"]
+        },
+        "tokenAlgorithm": {
+          "description": "Token-estimation algorithm stored for downstream consumers.",
+          "enum": ["chars_div_4", "chars_div_3"]
+        },
+        "removeComments": { "type": "boolean" },
+        "removeEmptyLines": { "type": "boolean" },
+        "compress": { "type": "boolean" },
+        "showLineNumbers": { "type": "boolean" },
+        "includeEmptyDirectories": { "type": "boolean" },
+        "securityCheck": { "type": "boolean" },
+        "listDisplay": {
+          "$ref": "#/$defs/ListDisplayConfig"
+        }
+      }
+    },
+    "ListDisplayConfig": {
+      "description": "Color-temperature thresholds and time-palette used by cx list.",
+      "type": "object",
+      "required": [
+        "bytesWarm",
+        "bytesHot",
+        "tokensWarm",
+        "tokensHot",
+        "mtimeWarmMinutes",
+        "mtimeHotHours",
+        "timePalette"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "bytesWarm": { "type": "integer", "minimum": 0 },
+        "bytesHot": { "type": "integer", "minimum": 0 },
+        "tokensWarm": { "type": "integer", "minimum": 0 },
+        "tokensHot": { "type": "integer", "minimum": 0 },
+        "mtimeWarmMinutes": { "type": "integer", "minimum": 0 },
+        "mtimeHotHours": { "type": "integer", "minimum": 0 },
+        "timePalette": {
+          "description": "8–10 ANSI 256 grayscale codes in descending bright-to-dark order.",
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "minItems": 8,
+          "maxItems": 10
+        }
+      }
+    },
+    "SectionRecord": {
+      "description": "A rendered text-file section and its file metadata table.",
+      "type": "object",
+      "required": ["name", "style", "outputFile", "outputSha256", "fileCount", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Section name as declared in cx.toml [sections.<name>].",
+          "type": "string",
+          "minLength": 1
+        },
+        "style": {
+          "description": "Repomix output style used to render this section.",
+          "enum": ["xml", "markdown", "json", "plain"]
+        },
+        "outputFile": {
+          "description": "Filename of the rendered section output (relative to bundleDir).",
+          "type": "string",
+          "minLength": 1
+        },
+        "outputSha256": {
+          "description": "SHA-256 hex digest of the rendered section output file.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "fileCount": {
+          "description": "Number of source files embedded in this section.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "files": {
+          "$ref": "#/$defs/FileTable"
+        }
+      }
+    },
+    "FileTable": {
+      "description": "Column-oriented file metadata table. The columns array is always the fixed header; rows holds one positional array per file.",
+      "type": "object",
+      "required": ["columns", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Fixed column header. Must equal the canonical order exactly.",
+          "type": "array",
+          "const": [
+            "path",
+            "kind",
+            "storedIn",
+            "sha256",
+            "sizeBytes",
+            "mtime",
+            "mediaType",
+            "outputStartLine",
+            "outputEndLine"
+          ]
+        },
+        "rows": {
+          "description": "One row per file. Column values match the columns array by position.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FileRow"
+          }
+        }
+      }
+    },
+    "FileRow": {
+      "description": "Positional file-metadata tuple. Indices correspond to FileTable.columns.",
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "prefixItems": [
+        {
+          "title": "path",
+          "description": "Source-relative file path.",
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "title": "kind",
+          "description": "\"text\" for files embedded in section output; \"asset\" for raw-copied files.",
+          "enum": ["text", "asset"]
+        },
+        {
+          "title": "storedIn",
+          "description": "\"packed\" when embedded in a section output; \"copied\" when stored as a raw asset.",
+          "enum": ["packed", "copied"]
+        },
+        {
+          "title": "sha256",
+          "description": "SHA-256 hex digest of the original source file.",
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "title": "sizeBytes",
+          "description": "Original source file size in bytes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "title": "mtime",
+          "description": "ISO 8601 source file modification time.",
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "title": "mediaType",
+          "description": "MIME media type of the source file.",
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "title": "outputStartLine",
+          "description": "First bare content line of the file block in the section output (null when span capture is disabled).",
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "null" }
+          ]
+        },
+        {
+          "title": "outputEndLine",
+          "description": "Last bare content line of the file block in the section output (null when span capture is disabled).",
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "null" }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "AssetRecord": {
+      "description": "A raw file copied into the bundle without Repomix rendering.",
+      "type": "object",
+      "required": ["sourcePath", "storedPath", "sha256", "sizeBytes", "mtime", "mediaType"],
+      "additionalProperties": false,
+      "properties": {
+        "sourcePath": {
+          "description": "Source-relative path of the original file.",
+          "type": "string",
+          "minLength": 1
+        },
+        "storedPath": {
+          "description": "Path where the file is stored in the bundle (relative to bundleDir).",
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "description": "SHA-256 hex digest of the file content.",
+          "type": "string",
+          "minLength": 1
+        },
+        "sizeBytes": {
+          "description": "File size in bytes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "mtime": {
+          "description": "ISO 8601 modification time of the source file.",
+          "type": "string",
+          "minLength": 1
+        },
+        "mediaType": {
+          "description": "MIME media type.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

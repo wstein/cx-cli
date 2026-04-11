@@ -1,3 +1,7 @@
+import { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { CxError } from "../shared/errors.js";
 import type {
   AssetRecord,
@@ -9,11 +13,25 @@ import type {
 } from "./types.js";
 
 // ---------------------------------------------------------------------------
-// Schema version
+// Schema version and schema path
 // ---------------------------------------------------------------------------
 
 /** The schema version produced and accepted by this implementation. */
 export const MANIFEST_SCHEMA_VERSION = 2 as const;
+
+/**
+ * Absolute path to the JSON Schema (draft-2020-12) that describes this
+ * manifest version. Useful for downstream validators or IDE tooling.
+ */
+export const MANIFEST_SCHEMA_PATH: string = (() => {
+  const _require = createRequire(import.meta.url);
+  const packageRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+  );
+  return path.join(packageRoot, "schemas", "manifest-v2.schema.json");
+})();
 
 // ---------------------------------------------------------------------------
 // File-row column layout
