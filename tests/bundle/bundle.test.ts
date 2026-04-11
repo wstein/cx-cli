@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import type { CxManifest } from "../../src/manifest/types.js";
-import { parseManifestToon, renderManifestToon } from "../../src/manifest/toon.js";
+import { parseManifestJson, renderManifestJson } from "../../src/manifest/json.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runInspectCommand } from "../../src/cli/commands/inspect.js";
@@ -173,7 +173,7 @@ describe("bundle workflow", () => {
     expect(writes.join("")).toContain("status");
     expect(writes.join("")).not.toContain("kind\tsection\tstored_in");
     expect(
-      await fs.stat(path.join(project.bundleDir, "demo-manifest.toon")),
+      await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),
     ).toBeDefined();
     expect(
       await fs.stat(path.join(project.bundleDir, "demo.sha256")),
@@ -185,7 +185,7 @@ describe("bundle workflow", () => {
     // Add manifest section with span capture enabled
     const configContents = await fs.readFile(project.configPath, "utf8");
     const manifestSection = `\n[manifest]
-format = "toon"
+format = "json"
 include_file_sha256 = true
 include_output_sha256 = true
 include_output_spans = true
@@ -284,7 +284,7 @@ include_source_metadata = true`;
       configContents
         .replace('style = "xml"', `style = "${style}"`)
         .concat(
-          `\n[manifest]\nformat = "toon"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
+          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
         ),
       "utf8",
     );
@@ -341,7 +341,7 @@ include_source_metadata = true`;
     },
   );
 
-  test("nests files inside their section in the TOON manifest", () => {
+  test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
       schemaVersion: 1,
       bundleVersion: 1,
@@ -399,7 +399,7 @@ include_source_metadata = true`;
       files: [],
     };
 
-    const rendered = renderManifestToon(manifest);
+    const rendered = renderManifestJson(manifest);
     // docs section appears before src section
     expect(rendered.indexOf("docs")).toBeLessThan(rendered.indexOf("src"));
     // files are nested under their section
@@ -413,7 +413,7 @@ include_source_metadata = true`;
       rendered.indexOf("src/c.ts"),
     );
     // round-trip
-    const reparsed = parseManifestToon(rendered);
+    const reparsed = parseManifestJson(rendered);
     expect(reparsed.sections).toHaveLength(2);
     expect(reparsed.sections[0]?.files).toHaveLength(2);
     expect(reparsed.sections[1]?.files).toHaveLength(1);
@@ -652,7 +652,7 @@ include_source_metadata = true`;
       checksumPath,
       (await fs.readFile(checksumPath, "utf8"))
         .split("\n")
-        .filter((line) => !line.includes("demo-manifest.toon"))
+        .filter((line) => !line.includes("demo-manifest.json"))
         .join("\n"),
       "utf8",
     );
@@ -669,9 +669,9 @@ include_source_metadata = true`;
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("checksum_omission");
-    expect(payload.error?.path).toBe("demo-manifest.toon");
+    expect(payload.error?.path).toBe("demo-manifest.json");
     expect(payload.error?.message).toContain(
-      "Checksum file is missing an entry for demo-manifest.toon.",
+      "Checksum file is missing an entry for demo-manifest.json.",
     );
   });
 
@@ -740,7 +740,7 @@ include_source_metadata = true`;
 
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
-    expect(payload.summary?.manifestName).toBe("demo-manifest.toon");
+    expect(payload.summary?.manifestName).toBe("demo-manifest.json");
     expect(payload.summary?.sectionCount).toBe(2);
     expect(payload.summary?.fileCount).toBe(4);
   });
@@ -1187,7 +1187,7 @@ include_source_metadata = true`;
       checksumPath,
       (await fs.readFile(checksumPath, "utf8"))
         .split("\n")
-        .filter((line) => !line.includes("demo-manifest.toon"))
+        .filter((line) => !line.includes("demo-manifest.json"))
         .join("\n"),
       "utf8",
     );
@@ -1195,7 +1195,7 @@ include_source_metadata = true`;
     await expect(
       runVerifyCommand({ bundleDir: project.bundleDir, json: false }),
     ).rejects.toThrow(
-      "Checksum file is missing an entry for demo-manifest.toon.",
+      "Checksum file is missing an entry for demo-manifest.json.",
     );
   });
 
@@ -1204,8 +1204,8 @@ include_source_metadata = true`;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     await fs.copyFile(
-      path.join(project.bundleDir, "demo-manifest.toon"),
-      path.join(project.bundleDir, "demo-copy-manifest.toon"),
+      path.join(project.bundleDir, "demo-manifest.json"),
+      path.join(project.bundleDir, "demo-copy-manifest.json"),
     );
 
     await expect(loadManifestFromBundle(project.bundleDir)).rejects.toThrow(

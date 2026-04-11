@@ -44,7 +44,7 @@ function baseConfig(root: string): CxConfig {
       order: "config",
     },
     manifest: {
-      format: "toon",
+      format: "json",
       includeFileSha256: true,
       includeOutputSha256: true,
       includeOutputSpans: false,
@@ -53,6 +53,20 @@ function baseConfig(root: string): CxConfig {
     checksums: {
       algorithm: "sha256",
       fileName: "demo.sha256",
+    },
+    tokens: {
+      algorithm: "chars_div_4",
+    },
+    display: {
+      list: {
+        bytesWarm: 4096,
+        bytesHot: 65536,
+        tokensWarm: 512,
+        tokensHot: 2048,
+        mtimeWarmMinutes: 60,
+        mtimeHotHours: 24,
+        timePalette: [255, 254, 253, 252, 251, 250, 249, 248, 247, 246],
+      },
     },
     assets: {
       include: ["**/*.png"],

@@ -175,7 +175,7 @@ exclude = []
     };
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
-    expect(payload.summary?.manifestName).toBe("demo-manifest.toon");
+    expect(payload.summary?.manifestName).toBe("demo-manifest.json");
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.summary?.fileCount).toBe(1);
   });
