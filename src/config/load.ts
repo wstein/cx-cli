@@ -371,21 +371,6 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
         VALID_STYLES,
         DEFAULT_CONFIG_VALUES.repomix.style,
       ),
-      compress: expectBoolean(
-        repomix.compress,
-        "repomix.compress",
-        DEFAULT_CONFIG_VALUES.repomix.compress,
-      ),
-      removeComments: expectBoolean(
-        repomix.remove_comments,
-        "repomix.remove_comments",
-        DEFAULT_CONFIG_VALUES.repomix.removeComments,
-      ),
-      removeEmptyLines: expectBoolean(
-        repomix.remove_empty_lines,
-        "repomix.remove_empty_lines",
-        DEFAULT_CONFIG_VALUES.repomix.removeEmptyLines,
-      ),
       showLineNumbers: expectBoolean(
         repomix.show_line_numbers,
         "repomix.show_line_numbers",

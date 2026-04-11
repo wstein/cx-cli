@@ -12,9 +12,6 @@ export interface CxSectionConfig {
 
 export interface CxRepomixConfig {
   style: CxStyle;
-  compress: boolean;
-  removeComments: boolean;
-  removeEmptyLines: boolean;
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;

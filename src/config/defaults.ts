@@ -9,9 +9,6 @@ output_dir = "dist/myproject-bundle"
 
 [repomix]
 style = "xml"
-compress = false
-remove_comments = false
-remove_empty_lines = false
 show_line_numbers = false
 include_empty_directories = false
 security_check = true
@@ -72,9 +69,6 @@ export const DEFAULT_CONFIG_VALUES: Omit<
 > = {
   repomix: {
     style: "xml",
-    compress: false,
-    removeComments: false,
-    removeEmptyLines: false,
     showLineNumbers: false,
     includeEmptyDirectories: false,
     securityCheck: true,
