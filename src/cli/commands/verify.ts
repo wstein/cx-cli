@@ -33,7 +33,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
     await verifyBundle(bundleDir, againstDir, selection);
 
     if (!(args.json ?? false)) {
-      printHeader("Verfication Complete");
+      printHeader("Verification Complete");
       printTable([["Bundle", bundleDir]]);
       if (againstDir) {
         printTable([["Against", againstDir]]);

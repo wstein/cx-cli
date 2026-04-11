@@ -8,7 +8,7 @@ The repository currently implements:
 - deterministic file discovery and planning
 - Repomix-backed section rendering
 - manifest and checksum generation
-- lossless `extract` for XML, JSON, Markdown, and Plain bundles created without lossy text transforms
+- exact `extract` for XML, JSON, Markdown, and Plain bundles, validated per selected file against the manifest hash
 - `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, `verify`, and `render` commands
 - `adapter` diagnostic namespace for Repomix integration inspection
 - lint, build, test, and CI verification workflows
@@ -17,6 +17,8 @@ The repository currently implements:
 `cx verify --json` emits structured error payloads with failure type classification (checksum_omission, checksum_mismatch, source_tree_drift, unexpected_checksum_reference), enabling CI to distinguish and handle different verification failure modes.
 
 `cx render` renders planned sections as standard Repomix output without requiring a full bundle. Use `--section`, `--all-sections`, or `--file` to select sections or specific files, with `--style` to override output format and `--json` for metadata.
+
+`cx extract` treats the manifest as the source of truth for exact recovery. A file is extracted only when the reconstructed bytes match that file's manifest `sha256`, even if the bundle or section is globally marked non-lossless.
 
 `cx adapter` exposes Repomix integration diagnostics via three subcommands:
 - `capabilities`: Show cx and Repomix versions, supported output styles, and exact span support status.
