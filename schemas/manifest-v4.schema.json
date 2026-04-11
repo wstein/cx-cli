@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cx-cli.dev/schemas/manifest-v1.schema.json",
-  "title": "cx Manifest v1",
-  "description": "On-disk format for a cx bundle manifest (schemaVersion 1). Each section stores its file metadata as a standard array of objects.",
+  "$id": "https://cx-cli.dev/schemas/manifest-v4.schema.json",
+  "title": "cx Manifest v4",
+  "description": "On-disk format for a cx bundle manifest (schemaVersion 4). Each section stores its file metadata as a standard array of objects.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -22,8 +22,8 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "description": "Manifest schema version. Must be exactly 1.",
-      "const": 1
+      "description": "Manifest schema version. Must be exactly 4.",
+      "const": 4
     },
     "bundleVersion": {
       "description": "Bundle format version. Must be exactly 1.",
@@ -95,8 +95,7 @@
         "tokenEncoding",
         "showLineNumbers",
         "includeEmptyDirectories",
-        "securityCheck",
-        "listDisplay"
+        "securityCheck"
       ],
       "additionalProperties": false,
       "properties": {
@@ -111,39 +110,7 @@
         },
         "showLineNumbers": { "type": "boolean" },
         "includeEmptyDirectories": { "type": "boolean" },
-        "securityCheck": { "type": "boolean" },
-        "listDisplay": {
-          "$ref": "#/$defs/ListDisplayConfig"
-        }
-      }
-    },
-    "ListDisplayConfig": {
-      "description": "Color-temperature thresholds and time palette used by cx list.",
-      "type": "object",
-      "required": [
-        "bytesWarm",
-        "bytesHot",
-        "tokensWarm",
-        "tokensHot",
-        "mtimeWarmMinutes",
-        "mtimeHotHours",
-        "timePalette"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "bytesWarm": { "type": "integer", "minimum": 0 },
-        "bytesHot": { "type": "integer", "minimum": 0 },
-        "tokensWarm": { "type": "integer", "minimum": 0 },
-        "tokensHot": { "type": "integer", "minimum": 0 },
-        "mtimeWarmMinutes": { "type": "integer", "minimum": 0 },
-        "mtimeHotHours": { "type": "integer", "minimum": 0 },
-        "timePalette": {
-          "description": "8–10 ANSI 256 grayscale codes in descending bright-to-dark order.",
-          "type": "array",
-          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
-          "minItems": 8,
-          "maxItems": 10
-        }
+        "securityCheck": { "type": "boolean" }
       }
     },
     "SectionRecord": {
@@ -182,6 +149,7 @@
           "minimum": 0
         },
         "files": {
+          "description": "Ordered list of source files embedded in this section.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/ManifestFileRow"
@@ -190,7 +158,7 @@
       }
     },
     "ManifestFileRow": {
-      "description": "File metadata stored directly as an object.",
+      "description": "Metadata for one source file represented in the bundle.",
       "type": "object",
       "required": [
         "path",
@@ -207,16 +175,16 @@
       "additionalProperties": false,
       "properties": {
         "path": {
-          "description": "Source-relative file path.",
+          "description": "Source-relative path of the original file.",
           "type": "string",
           "minLength": 1
         },
         "kind": {
-          "description": "\"text\" for files embedded in section output; \"asset\" for raw-copied files.",
+          "description": "Whether this row represents text content or a raw copied asset.",
           "enum": ["text", "asset"]
         },
         "storedIn": {
-          "description": "\"packed\" when embedded in a section output; \"copied\" when stored as a raw asset.",
+          "description": "Whether the file is stored in a section output or copied verbatim.",
           "enum": ["packed", "copied"]
         },
         "sha256": {

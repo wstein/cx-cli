@@ -1,4 +1,5 @@
-import type { CxConfig, CxStyle } from "./types.js";
+import { DEFAULT_LIST_DISPLAY_CONFIG } from "./display.js";
+import type { CxConfig, CxStyle, CxUserConfig } from "./types.js";
 
 export const DEFAULT_STYLE: CxStyle = "xml";
 
@@ -38,15 +39,6 @@ file_name = "{project}.sha256"
 
 [tokens]
 encoding = "o200k_base"
-
-[display.list]
-bytes_warm = 4096
-bytes_hot = 65536
-tokens_warm = 512
-tokens_hot = 2048
-mtime_warm_minutes = 60
-mtime_hot_hours = 24
-time_palette = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246]
 
 [assets]
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
@@ -97,21 +89,31 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   tokens: {
     encoding: "o200k_base",
   },
-  display: {
-    list: {
-      bytesWarm: 4096,
-      bytesHot: 65536,
-      tokensWarm: 512,
-      tokensHot: 2048,
-      mtimeWarmMinutes: 60,
-      mtimeHotHours: 24,
-      timePalette: [255, 254, 253, 252, 251, 250, 249, 248, 247, 246],
-    },
-  },
   assets: {
     include: ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"],
     exclude: [],
     mode: "copy",
     targetDir: "{project}-assets",
+  },
+};
+
+export const DEFAULT_USER_CONFIG_PATH = "~/.config/cx/cx.toml";
+
+export const DEFAULT_USER_CONFIG_TEMPLATE = `[display.list]
+bytes_warm = 4096
+bytes_hot = 65536
+tokens_warm = 512
+tokens_hot = 2048
+mtime_warm_minutes = 60
+mtime_hot_hours = 24
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246]
+`;
+
+export const DEFAULT_USER_CONFIG_VALUES: CxUserConfig = {
+  display: {
+    list: {
+      ...DEFAULT_LIST_DISPLAY_CONFIG,
+      timePalette: [...DEFAULT_LIST_DISPLAY_CONFIG.timePalette],
+    },
   },
 };

@@ -77,7 +77,6 @@ export function buildManifest(params: {
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
-      listDisplay: params.config.display.list,
     },
     sections,
     assets: params.plan.assets.map((asset) => ({

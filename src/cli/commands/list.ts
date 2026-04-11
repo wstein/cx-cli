@@ -3,8 +3,10 @@ import path from "node:path";
 import kleur from "kleur";
 
 import { loadManifestFromBundle } from "../../bundle/validate.js";
+import type { CxListDisplayConfig } from "../../config/types.js";
+import { loadCxUserConfig } from "../../config/user.js";
 import { resolveExtractability } from "../../extract/resolution.js";
-import type { CxManifest, ManifestFileRow } from "../../manifest/types.js";
+import type { ManifestFileRow } from "../../manifest/types.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { formatBytes, formatNumber } from "../../shared/format.js";
 import {
@@ -85,12 +87,12 @@ function colorByTemperature(
 function colorBytes(
   bytes: number,
   value: string,
-  manifest: CxManifest,
+  listDisplay: CxListDisplayConfig,
 ): string {
-  if (bytes <= manifest.settings.listDisplay.bytesWarm) {
+  if (bytes <= listDisplay.bytesWarm) {
     return colorByTemperature(value, "cool");
   }
-  if (bytes <= manifest.settings.listDisplay.bytesHot) {
+  if (bytes <= listDisplay.bytesHot) {
     return colorByTemperature(value, "warm");
   }
   return colorByTemperature(value, "hot");
@@ -99,12 +101,12 @@ function colorBytes(
 function colorTokens(
   tokens: number,
   value: string,
-  manifest: CxManifest,
+  listDisplay: CxListDisplayConfig,
 ): string {
-  if (tokens <= manifest.settings.listDisplay.tokensWarm) {
+  if (tokens <= listDisplay.tokensWarm) {
     return colorByTemperature(value, "cool");
   }
-  if (tokens <= manifest.settings.listDisplay.tokensHot) {
+  if (tokens <= listDisplay.tokensHot) {
     return colorByTemperature(value, "warm");
   }
   return colorByTemperature(value, "hot");
@@ -114,14 +116,18 @@ function ansi256(value: string, code: number): string {
   return `\u001B[38;5;${code}m${value}\u001B[39m`;
 }
 
-function colorTime(iso: string, value: string, manifest: CxManifest): string {
+function colorTime(
+  iso: string,
+  value: string,
+  listDisplay: CxListDisplayConfig,
+): string {
   if (iso === "-") {
     return kleur.gray(value);
   }
 
   const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
-  const maxAgeMs = manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
-  const grayscale = manifest.settings.listDisplay.timePalette;
+  const maxAgeMs = listDisplay.mtimeHotHours * 60 * 60 * 1000;
+  const grayscale = listDisplay.timePalette;
   const thresholds = [
     1 / 120,
     1 / 60,
@@ -159,7 +165,7 @@ function colorExtractability(
 function renderGroupedList(
   manifestName: string,
   rows: RowMeta[],
-  manifest: CxManifest,
+  listDisplay: CxListDisplayConfig,
 ): string {
   const groups = new Map<string, RowMeta[]>();
   for (const row of rows) {
@@ -228,11 +234,11 @@ function renderGroupedList(
       lines.push(
         [
           "  ",
-          colorBytes(row.bytes, bytesRaw, manifest),
+          colorBytes(row.bytes, bytesRaw, listDisplay),
           "  ",
-          colorTokens(row.tokens, tokensRaw, manifest),
+          colorTokens(row.tokens, tokensRaw, listDisplay),
           "  ",
-          colorTime(row.mtime, mtimeRaw, manifest),
+          colorTime(row.mtime, mtimeRaw, listDisplay),
           "  ",
           colorExtractability(row.status, statusRaw),
           "  ",
@@ -248,6 +254,7 @@ function renderGroupedList(
 export async function runListCommand(args: ListArgs): Promise<number> {
   const bundleDir = path.resolve(args.bundleDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
+  const userConfig = await loadCxUserConfig();
   const rows = selectManifestRows(manifest.files, {
     sections: args.sections,
     files: args.files,
@@ -286,6 +293,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
       summary: summarizeManifest(manifestName, manifest, rows),
       repomix: await getRepomixCapabilities(),
       settings: manifest.settings,
+      display: userConfig.display,
       selection: {
         sections: args.sections ?? [],
         files: args.files ?? [],
@@ -297,6 +305,8 @@ export async function runListCommand(args: ListArgs): Promise<number> {
     return 0;
   }
 
-  process.stdout.write(renderGroupedList(manifestName, rowsWithMeta, manifest));
+  process.stdout.write(
+    renderGroupedList(manifestName, rowsWithMeta, userConfig.display.list),
+  );
   return 0;
 }

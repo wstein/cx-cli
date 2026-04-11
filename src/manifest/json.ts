@@ -12,7 +12,7 @@ import type {
   SectionOutputRecord,
 } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 3 as const;
+export const MANIFEST_SCHEMA_VERSION = 4 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -21,7 +21,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v3.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v4.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -169,10 +169,6 @@ function parseManifestDto(raw: unknown): {
   }
 
   const settingsRaw = requireObject(obj.settings, "settings");
-  const listDisplayRaw = requireObject(
-    settingsRaw.listDisplay,
-    "settings.listDisplay",
-  );
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
 
@@ -218,38 +214,6 @@ function parseManifestDto(raw: unknown): {
         settingsRaw.securityCheck,
         "settings.securityCheck",
       ),
-      listDisplay: {
-        bytesWarm: requireNumber(
-          listDisplayRaw.bytesWarm,
-          "settings.listDisplay.bytesWarm",
-        ),
-        bytesHot: requireNumber(
-          listDisplayRaw.bytesHot,
-          "settings.listDisplay.bytesHot",
-        ),
-        tokensWarm: requireNumber(
-          listDisplayRaw.tokensWarm,
-          "settings.listDisplay.tokensWarm",
-        ),
-        tokensHot: requireNumber(
-          listDisplayRaw.tokensHot,
-          "settings.listDisplay.tokensHot",
-        ),
-        mtimeWarmMinutes: requireNumber(
-          listDisplayRaw.mtimeWarmMinutes,
-          "settings.listDisplay.mtimeWarmMinutes",
-        ),
-        mtimeHotHours: requireNumber(
-          listDisplayRaw.mtimeHotHours,
-          "settings.listDisplay.mtimeHotHours",
-        ),
-        timePalette: requireArray(
-          listDisplayRaw.timePalette,
-          "settings.listDisplay.timePalette",
-        ).map((entry, index) =>
-          requireNumber(entry, `settings.listDisplay.timePalette[${index}]`),
-        ),
-      },
     },
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),

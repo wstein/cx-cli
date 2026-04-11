@@ -345,7 +345,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 3,
+      schemaVersion: 4,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
@@ -361,15 +361,6 @@ include_source_metadata = true`;
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
-        listDisplay: {
-          bytesWarm: 4096,
-          bytesHot: 65536,
-          tokensWarm: 512,
-          tokensHot: 2048,
-          mtimeWarmMinutes: 60,
-          mtimeHotHours: 24,
-          timePalette: [255, 254, 253, 252, 251, 250, 249, 248, 247, 246],
-        },
       },
       sections: [
         {

@@ -93,26 +93,12 @@ function fileRowArb(sectionName: string): fc.Arbitrary<ManifestFileRow> {
     .map((row) => ({ ...row, section: sectionName }));
 }
 
-const listDisplayArb = fc.record({
-  bytesWarm: nonNegInt,
-  bytesHot: nonNegInt,
-  tokensWarm: nonNegInt,
-  tokensHot: nonNegInt,
-  mtimeWarmMinutes: nonNegInt,
-  mtimeHotHours: nonNegInt,
-  timePalette: fc.array(fc.integer({ min: 0, max: 255 }), {
-    minLength: 8,
-    maxLength: 10,
-  }),
-});
-
 const settingsArb = fc.record({
   globalStyle: styleArb,
   tokenEncoding: tokenEncodingArb,
   showLineNumbers: fc.boolean(),
   includeEmptyDirectories: fc.boolean(),
   securityCheck: fc.boolean(),
-  listDisplay: listDisplayArb,
 });
 
 const assetArb: fc.Arbitrary<AssetRecord> = fc.record({

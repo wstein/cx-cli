@@ -252,6 +252,7 @@ exclude = []
     process.chdir(cwd);
 
     const payload = JSON.parse(output) as {
+      display?: { list?: { bytesWarm?: number; timePalette?: number[] } };
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
     };
@@ -259,5 +260,90 @@ exclude = []
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.selection?.sections).toEqual(["src"]);
     expect(payload.selection?.files).toEqual(["src/index.ts"]);
+    expect(payload.display?.list?.bytesWarm).toBe(4096);
+    expect(payload.display?.list?.timePalette).toEqual([
+      255, 254, 253, 252, 251, 250, 249, 248, 247, 246,
+    ]);
+  });
+
+  test("list JSON reads display settings from the user config", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-list-user-"));
+    const configHome = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-main-user-config-"),
+    );
+    const userConfigDir = path.join(configHome, "cx");
+    const previousXdgConfigHome = process.env.XDG_CONFIG_HOME;
+
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.mkdir(userConfigDir, { recursive: true });
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "cx.toml"),
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(userConfigDir, "cx.toml"),
+      `[display.list]
+bytes_warm = 2048
+bytes_hot = 32768
+tokens_warm = 256
+tokens_hot = 1024
+mtime_warm_minutes = 30
+mtime_hot_hours = 12
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248]
+`,
+      "utf8",
+    );
+
+    process.env.XDG_CONFIG_HOME = configHome;
+
+    const cwd = process.cwd();
+    process.chdir(root);
+    await expect(main(["bundle"])).resolves.toBe(0);
+
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    await expect(main(["list", "dist/demo-bundle", "--json"])).resolves.toBe(0);
+
+    process.stdout.write = write;
+    process.chdir(cwd);
+    process.env.XDG_CONFIG_HOME = previousXdgConfigHome;
+
+    const payload = JSON.parse(output) as {
+      display?: { list?: { bytesWarm?: number; timePalette?: number[] } };
+    };
+    expect(payload.display?.list?.bytesWarm).toBe(2048);
+    expect(payload.display?.list?.timePalette).toEqual([
+      255, 254, 253, 252, 251, 250, 249, 248,
+    ]);
   });
 });

@@ -55,10 +55,6 @@ export interface CxListDisplayConfig {
   timePalette: number[];
 }
 
-export interface CxDisplayConfig {
-  list: CxListDisplayConfig;
-}
-
 export interface CxAssetsConfig {
   include: string[];
   exclude: string[];
@@ -77,7 +73,6 @@ export interface CxConfig {
   manifest: CxManifestConfig;
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
-  display: CxDisplayConfig;
   assets: CxAssetsConfig;
   sections: Record<string, CxSectionConfig>;
 }
@@ -93,7 +88,17 @@ export interface CxConfigInput {
   manifest?: Record<string, unknown>;
   checksums?: Record<string, unknown>;
   tokens?: Record<string, unknown>;
-  display?: Record<string, unknown>;
+  display?: unknown;
   assets?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;
+}
+
+export interface CxUserConfig {
+  display: {
+    list: CxListDisplayConfig;
+  };
+}
+
+export interface CxUserConfigInput {
+  display?: Record<string, unknown>;
 }

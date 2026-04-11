@@ -67,22 +67,6 @@ function expectStringArray(
   return [...value];
 }
 
-function expectPositiveInteger(
-  value: unknown,
-  label: string,
-  defaultValue: number,
-): number {
-  if (value === undefined) {
-    return defaultValue;
-  }
-
-  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-    throw new CxError(`${label} must be a positive integer.`);
-  }
-
-  return value;
-}
-
 function expectEnum<T extends string>(
   value: unknown,
   label: string,
@@ -100,59 +84,6 @@ function expectEnum<T extends string>(
   }
 
   return value as T;
-}
-
-function expectTimePalette(
-  value: unknown,
-  label: string,
-  defaultValue: number[],
-): number[] {
-  if (value === undefined) {
-    return [...defaultValue];
-  }
-
-  if (!Array.isArray(value)) {
-    throw new CxError(
-      `${label} must be an array of ANSI grayscale color codes.`,
-    );
-  }
-
-  if (value.length < 8 || value.length > 10) {
-    throw new CxError(
-      `${label} must contain between 8 and 10 grayscale entries.`,
-    );
-  }
-
-  const palette = value.map((entry, index) => {
-    if (
-      typeof entry !== "number" ||
-      !Number.isInteger(entry) ||
-      entry < 232 ||
-      entry > 255
-    ) {
-      throw new CxError(
-        `${label}[${index}] must be an integer ANSI grayscale code between 232 and 255.`,
-      );
-    }
-    return entry;
-  });
-
-  for (let index = 1; index < palette.length; index += 1) {
-    const current = palette[index];
-    const previous = palette[index - 1];
-    if (current === undefined || previous === undefined) {
-      throw new CxError(
-        `${label} contains an invalid grayscale palette entry.`,
-      );
-    }
-    if (current >= previous) {
-      throw new CxError(
-        `${label} must descend from brighter to darker grayscale codes.`,
-      );
-    }
-  }
-
-  return palette;
 }
 
 function normalizeSection(
@@ -275,13 +206,14 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   const manifest = parsed.manifest ?? {};
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
-  const display = parsed.display ?? {};
-  const displayList =
-    typeof display.list === "object" && display.list !== null
-      ? (display.list as Record<string, unknown>)
-      : {};
   const assets = parsed.assets ?? {};
   const sectionsInput = parsed.sections;
+
+  if (parsed.display !== undefined) {
+    throw new CxError(
+      "display settings are no longer supported in project cx.toml. Use ~/.config/cx/cx.toml instead.",
+    );
+  }
 
   if (
     !sectionsInput ||
@@ -299,63 +231,6 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       );
     }
     sections[sectionName] = normalizeSection(sectionName, sectionValue);
-  }
-
-  const listDisplayConfig = {
-    bytesWarm: expectPositiveInteger(
-      displayList.bytes_warm,
-      "display.list.bytes_warm",
-      DEFAULT_CONFIG_VALUES.display.list.bytesWarm,
-    ),
-    bytesHot: expectPositiveInteger(
-      displayList.bytes_hot,
-      "display.list.bytes_hot",
-      DEFAULT_CONFIG_VALUES.display.list.bytesHot,
-    ),
-    tokensWarm: expectPositiveInteger(
-      displayList.tokens_warm,
-      "display.list.tokens_warm",
-      DEFAULT_CONFIG_VALUES.display.list.tokensWarm,
-    ),
-    tokensHot: expectPositiveInteger(
-      displayList.tokens_hot,
-      "display.list.tokens_hot",
-      DEFAULT_CONFIG_VALUES.display.list.tokensHot,
-    ),
-    mtimeWarmMinutes: expectPositiveInteger(
-      displayList.mtime_warm_minutes,
-      "display.list.mtime_warm_minutes",
-      DEFAULT_CONFIG_VALUES.display.list.mtimeWarmMinutes,
-    ),
-    mtimeHotHours: expectPositiveInteger(
-      displayList.mtime_hot_hours,
-      "display.list.mtime_hot_hours",
-      DEFAULT_CONFIG_VALUES.display.list.mtimeHotHours,
-    ),
-    timePalette: expectTimePalette(
-      displayList.time_palette,
-      "display.list.time_palette",
-      DEFAULT_CONFIG_VALUES.display.list.timePalette,
-    ),
-  };
-
-  if (listDisplayConfig.bytesHot <= listDisplayConfig.bytesWarm) {
-    throw new CxError(
-      "display.list.bytes_hot must be greater than display.list.bytes_warm.",
-    );
-  }
-  if (listDisplayConfig.tokensHot <= listDisplayConfig.tokensWarm) {
-    throw new CxError(
-      "display.list.tokens_hot must be greater than display.list.tokens_warm.",
-    );
-  }
-  if (
-    listDisplayConfig.mtimeHotHours * 60 <=
-    listDisplayConfig.mtimeWarmMinutes
-  ) {
-    throw new CxError(
-      "display.list.mtime_hot_hours must represent a later threshold than display.list.mtime_warm_minutes.",
-    );
   }
 
   return {
@@ -461,9 +336,6 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
         tokens.encoding ?? DEFAULT_CONFIG_VALUES.tokens.encoding,
         "tokens.encoding",
       ),
-    },
-    display: {
-      list: listDisplayConfig,
     },
     assets: {
       include: expectStringArray(

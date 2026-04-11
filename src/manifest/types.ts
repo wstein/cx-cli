@@ -1,4 +1,4 @@
-import type { CxListDisplayConfig, CxStyle } from "../config/types.js";
+import type { CxStyle } from "../config/types.js";
 
 export interface ManifestSettings {
   globalStyle: CxStyle;
@@ -6,7 +6,6 @@ export interface ManifestSettings {
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
-  listDisplay: CxListDisplayConfig;
 }
 
 export interface ManifestFileRow {
@@ -57,7 +56,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 3;
+  schemaVersion: 4;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
