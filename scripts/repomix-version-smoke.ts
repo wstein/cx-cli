@@ -9,7 +9,7 @@ import {
 } from "../src/repomix/render.js";
 
 async function main(): Promise<void> {
-  const capabilities = getRepomixCapabilities();
+  const capabilities = await getRepomixCapabilities();
   if (capabilities.adapterContract !== REPOMIX_ADAPTER_CONTRACT) {
     throw new Error("Repomix adapter contract metadata is inconsistent.");
   }

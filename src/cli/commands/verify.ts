@@ -48,7 +48,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         againstDir: againstDir ?? null,
         sections: args.sections ?? [],
         files: args.files ?? [],
-        repomix: getRepomixCapabilities(),
+        repomix: await getRepomixCapabilities(),
         valid: true,
       });
     }
@@ -62,7 +62,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         againstDir: string | null;
         sections: string[];
         files: string[];
-        repomix: ReturnType<typeof getRepomixCapabilities>;
+        repomix: Awaited<ReturnType<typeof getRepomixCapabilities>>;
         valid: false;
         error: {
           type?: string;
@@ -74,7 +74,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         againstDir: againstDir ?? null,
         sections: args.sections ?? [],
         files: args.files ?? [],
-        repomix: getRepomixCapabilities(),
+        repomix: await getRepomixCapabilities(),
         valid: false,
         error: {
           message: resolvedError.message,

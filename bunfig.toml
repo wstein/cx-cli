@@ -1,0 +1,2 @@
+[install.scopes]
+"@wstein" = { url = "https://npm.pkg.github.com", token = "$GITHUB_PACKAGES_TOKEN" }

@@ -11,7 +11,6 @@ import type { PlannedSourceFile } from "../../planning/types.js";
 import {
   CX_VERSION,
   getRepomixCapabilities,
-  REPOMIX_VERSION,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
 import {
@@ -98,7 +97,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     plan,
     sectionOutputs,
     cxVersion: CX_VERSION,
-    repomixVersion: REPOMIX_VERSION,
+    repomixVersion: (await getRepomixCapabilities()).packageVersion,
   });
   const manifestName = `${plan.projectName}-manifest.toon`;
   await fs.writeFile(
@@ -181,7 +180,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         totalBytes: totalSectionBytes + totalAssetBytes,
         estimatedTokens: totalTokens,
       },
-      repomix: getRepomixCapabilities(),
+      repomix: await getRepomixCapabilities(),
     });
   }
   return 0;

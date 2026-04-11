@@ -6,10 +6,10 @@
       "name": "cx-cli",
       "dependencies": {
         "@inquirer/prompts": "^8.4.1",
+        "@wstein/repomix": "1.13.1-cx.1",
         "fast-xml-parser": "^5.5.11",
         "kleur": "^4.1.5",
         "picomatch": "^4.0.4",
-        "repomix": "^1.13.1",
         "smol-toml": "^1.6.1",
         "yargs": "^18.0.0",
       },
@@ -112,6 +112,8 @@
     "@types/yargs": ["@types/yargs@17.0.35", "", { "dependencies": { "@types/yargs-parser": "*" } }, "sha512-qUHkeCyQFxMXg79wQfTtfndEC+N9ZZg76HJftDJp+qH2tV7Gj4OJi7l+PiWwJ+pWtW8GwSmqsDj/oymhrTWXjg=="],
 
     "@types/yargs-parser": ["@types/yargs-parser@21.0.3", "", {}, "sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ=="],
+
+    "@wstein/repomix": ["@wstein/repomix@1.13.1-cx.1", "https://npm.pkg.github.com/download/@wstein/repomix/1.13.1-cx.1/9523f3b3dc961a7176482ec2ed609ac98b517fda", { "dependencies": { "@clack/prompts": "^0.11.0", "@modelcontextprotocol/sdk": "^1.27.1", "@repomix/strip-comments": "^2.4.2", "@repomix/tree-sitter-wasms": "^0.1.16", "@secretlint/core": "^11.3.1", "@secretlint/secretlint-rule-preset-recommend": "^11.3.1", "commander": "^14.0.3", "fast-xml-builder": "^1.1.4", "git-url-parse": "^16.1.0", "globby": "^16.1.1", "handlebars": "^4.7.8", "iconv-lite": "^0.7.0", "is-binary-path": "^3.0.0", "isbinaryfile": "^5.0.2", "jiti": "^2.6.1", "jschardet": "^3.1.4", "json5": "^2.2.3", "log-update": "^7.2.0", "minimatch": "^10.2.4", "picocolors": "^1.1.1", "tar": "^7.5.11", "tiktoken": "^1.0.22", "tinyclip": "^0.1.12", "tinypool": "^2.1.0", "web-tree-sitter": "^0.26.6", "zod": "^4.3.6" }, "bin": { "repomix": "bin/repomix.cjs" } }, "sha512-WSqjk13N0UbJDnLVFo995LpuVMlmf6yAkU0dhjuUxgFVs7l9Nj50gkZgpSyAlQPl8JpOsi59mO2RpWdgMXXOLw=="],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 
@@ -376,8 +378,6 @@
     "range-parser": ["range-parser@1.2.1", "", {}, "sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg=="],
 
     "raw-body": ["raw-body@3.0.2", "", { "dependencies": { "bytes": "~3.1.2", "http-errors": "~2.0.1", "iconv-lite": "~0.7.0", "unpipe": "~1.0.0" } }, "sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA=="],
-
-    "repomix": ["repomix@1.13.1", "", { "dependencies": { "@clack/prompts": "^0.11.0", "@modelcontextprotocol/sdk": "^1.27.1", "@repomix/strip-comments": "^2.4.2", "@repomix/tree-sitter-wasms": "^0.1.16", "@secretlint/core": "^11.3.1", "@secretlint/secretlint-rule-preset-recommend": "^11.3.1", "commander": "^14.0.3", "fast-xml-builder": "^1.1.4", "git-url-parse": "^16.1.0", "globby": "^16.1.1", "handlebars": "^4.7.8", "iconv-lite": "^0.7.0", "is-binary-path": "^3.0.0", "isbinaryfile": "^5.0.2", "jiti": "^2.6.1", "jschardet": "^3.1.4", "json5": "^2.2.3", "log-update": "^7.2.0", "minimatch": "^10.2.4", "picocolors": "^1.1.1", "tar": "^7.5.11", "tiktoken": "^1.0.22", "tinyclip": "^0.1.12", "tinypool": "^2.1.0", "web-tree-sitter": "^0.26.6", "zod": "^4.3.6" }, "bin": { "repomix": "bin/repomix.cjs" } }, "sha512-+fVHBJmmrb2zHIEhrA/+SDTmiW97dsUT3K0InmMZpDcrw6SUj374DgiRsDQHIVtN8Zy09DW4GbzsKZqFEemOHQ=="],
 
     "require-from-string": ["require-from-string@2.0.2", "", {}, "sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw=="],
 

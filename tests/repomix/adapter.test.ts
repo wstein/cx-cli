@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { mergeConfigs, pack } from "repomix";
+import { mergeConfigs, pack } from "@wstein/repomix";
 import {
   getRepomixCapabilities,
   REPOMIX_ADAPTER_CONTRACT,
@@ -68,7 +68,7 @@ describe("Repomix adapter contract", () => {
     const merged = mergeConfigs(root, {}, cliConfig);
     await pack([root], merged, () => {}, {}, ["src/index.ts"]);
 
-    expect(getRepomixCapabilities().adapterContract).toBe(
+    expect((await getRepomixCapabilities()).adapterContract).toBe(
       REPOMIX_ADAPTER_CONTRACT,
     );
     expect(await fs.stat(outputPath)).toBeDefined();

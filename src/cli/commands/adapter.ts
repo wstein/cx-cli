@@ -3,9 +3,10 @@ import path from "node:path";
 import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
-  getRepomixCapabilities,
-  SUPPORTED_REPOMIX_VERSION,
-} from "../../repomix/render.js";
+  detectRepomixCapabilities,
+  getAdapterRuntimeInfo,
+} from "../../repomix/capabilities.js";
+import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 
@@ -30,17 +31,26 @@ export async function runAdapterCommand(args: AdapterArgs): Promise<number> {
 }
 
 async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
-  const capabilities = getRepomixCapabilities();
+  const capabilities = await getRepomixCapabilities();
+  const runtimeInfo = await getAdapterRuntimeInfo();
+  const detectedCapabilities = detectRepomixCapabilities();
+
+  const payload = {
+    cx: {
+      version: "0.1.0",
 
   const payload = {
     cx: {
       version: "0.1.0",
     },
     repomix: {
-      version: SUPPORTED_REPOMIX_VERSION,
+      packageName: runtimeInfo.packageName,
+      packageVersion: runtimeInfo.packageVersion,
       adapterContract: capabilities.adapterContract,
       compatibilityStrategy: capabilities.compatibilityStrategy,
+      contractValid: capabilities.contractValid,
     },
+    detectedCapabilities: detectedCapabilities,
     capabilities: {
       styles: ["xml", "markdown", "json", "plain"],
       exactSpanCapture: capabilities.exactSpanCaptureSupported,
@@ -55,13 +65,29 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   } else {
     process.stdout.write(`cx version:                ${payload.cx.version}\n`);
     process.stdout.write(
-      `Repomix version (support): ${payload.repomix.version}\n`,
+      `Repomix package:           ${payload.repomix.packageName}\n`,
+    );
+    process.stdout.write(
+      `Repomix version:           ${payload.repomix.packageVersion}\n`,
     );
     process.stdout.write(
       `adapter contract:          ${payload.repomix.adapterContract}\n`,
     );
     process.stdout.write(
       `compatibility strategy:    ${payload.repomix.compatibilityStrategy}\n`,
+    );
+    process.stdout.write(
+      `contract valid:            ${payload.repomix.contractValid ? "YES" : "NO"}\n`,
+    );
+    process.stdout.write(`\nDetected capabilities:\n`);
+    process.stdout.write(
+      `  mergeConfigs:            ${detectedCapabilities.hasMergeConfigs ? "YES" : "NO"}\n`,
+    );
+    process.stdout.write(
+      `  pack:                    ${detectedCapabilities.hasPack ? "YES" : "NO"}\n`,
+    );
+    process.stdout.write(
+      `  packStructured:          ${detectedCapabilities.hasPackStructured ? "YES" : "NO"}\n`,
     );
     process.stdout.write(`\nCapabilities:\n`);
     process.stdout.write(
@@ -154,41 +180,62 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
     message: string;
   }> = [];
 
-  // Check 1: Repomix is available
+  // Check 1: Repomix package is available with required exports
   try {
-    const { mergeConfigs, pack } = await import("repomix");
+    const capabilities = detectRepomixCapabilities();
+    const hasRequired =
+      capabilities.hasMergeConfigs &&
+      capabilities.hasPack &&
+      capabilities.hasPackStructured;
     checks.push({
-      name: "Repomix available",
-      passed: typeof mergeConfigs === "function" && typeof pack === "function",
-      message:
-        typeof mergeConfigs === "function" && typeof pack === "function"
-          ? "Repomix package exports are available"
-          : "Repomix exports are unavailable",
+      name: "@wstein/repomix available",
+      passed: hasRequired,
+      message: hasRequired
+        ? "All required exports are available"
+        : "Missing required exports",
     });
   } catch (error) {
     checks.push({
-      name: "Repomix available",
+      name: "@wstein/repomix available",
       passed: false,
-      message: `Repomix not available: ${error instanceof Error ? error.message : String(error)}`,
+      message: `Package not available: ${error instanceof Error ? error.message : String(error)}`,
     });
   }
 
-  // Check 2: Capabilities
-  const capabilities = getRepomixCapabilities();
+  // Check 2: Runtime info
+  try {
+    const runtimeInfo = getAdapterRuntimeInfo();
+    checks.push({
+      name: "Package identification",
+      passed: Boolean(runtimeInfo.packageName && runtimeInfo.packageVersion),
+      message: `${runtimeInfo.packageName}@${runtimeInfo.packageVersion}`,
+    });
+  } catch (error) {
+    checks.push({
+      name: "Package identification",
+      passed: false,
+      message: `Could not read package info: ${error instanceof Error ? error.message : String(error)}`,
+    });
+  }
+
+  // Check 3: Capabilities detection
+  const capabilities = await getRepomixCapabilities();
   checks.push({
     name: "Adapter contract",
     passed: capabilities.adapterContract === "repomix-pack-v1",
     message: `Contract: ${capabilities.adapterContract}`,
   });
 
-  // Check 3: Supported version
+  // Check 4: Contract validation
   checks.push({
-    name: "Supported version",
-    passed: true,
-    message: `Repomix ${SUPPORTED_REPOMIX_VERSION} is supported`,
+    name: "Contract validation",
+    passed: capabilities.contractValid,
+    message: capabilities.contractValid
+      ? "Contract is valid"
+      : "Contract validation failed",
   });
 
-  // Check 4: Output styles
+  // Check 5: Output styles
   const styles = ["xml", "markdown", "json", "plain"];
   checks.push({
     name: "Output styles",

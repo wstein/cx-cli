@@ -25,7 +25,7 @@ export async function runValidateCommand(args: ValidateArgs): Promise<number> {
       sourceRoot: manifest.sourceRoot,
       bundleVersion: manifest.bundleVersion,
       schemaVersion: manifest.schemaVersion,
-      repomix: getRepomixCapabilities(),
+      repomix: await getRepomixCapabilities(),
       valid: true,
     });
   }

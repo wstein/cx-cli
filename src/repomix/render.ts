@@ -1,38 +1,37 @@
 import fs from "node:fs/promises";
 
-import { mergeConfigs, pack } from "repomix";
+import { mergeConfigs, pack } from "@wstein/repomix";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
+import {
+  getRepomixCapabilities as getRepomixCapabilitiesImpl,
+  validateRepomixContract,
+} from "./capabilities.js";
 
 export const CX_VERSION = "0.1.0";
-export const SUPPORTED_REPOMIX_VERSION = "1.13.1";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
-export const REPOMIX_VERSION = "unknown";
 export const EXACT_SPAN_CAPTURE_SUPPORTED = false;
 export const EXACT_SPAN_CAPTURE_REASON =
   "Repomix public exports do not expose stable render-context hooks for exact output span calculation.";
 
-export function getRepomixCapabilities(): {
-  adapterContract: string;
-  compatibilityStrategy: string;
-  exactSpanCaptureSupported: boolean;
-  exactSpanCaptureReason: string;
-  supportedRepomixVersion: string;
-} {
+// Re-export with extended info for backward compatibility
+export async function getRepomixCapabilities() {
+  const capabilities = await getRepomixCapabilitiesImpl();
   return {
+    ...capabilities,
     adapterContract: REPOMIX_ADAPTER_CONTRACT,
-    compatibilityStrategy: "public-export contract check",
+    compatibilityStrategy: "runtime-capability detection",
     exactSpanCaptureSupported: EXACT_SPAN_CAPTURE_SUPPORTED,
     exactSpanCaptureReason: EXACT_SPAN_CAPTURE_REASON,
-    supportedRepomixVersion: SUPPORTED_REPOMIX_VERSION,
   };
 }
 
 function assertCompatibleRepomixAdapter(): void {
-  if (typeof mergeConfigs !== "function" || typeof pack !== "function") {
+  const validation = validateRepomixContract();
+  if (!validation.valid) {
     throw new CxError(
-      "Incompatible Repomix adapter contract: required public exports are unavailable.",
+      `Incompatible @wstein/repomix adapter contract:\n${validation.errors.join("\n")}`,
       5,
     );
   }

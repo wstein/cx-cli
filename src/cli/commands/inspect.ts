@@ -32,7 +32,7 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
   if (args.json) {
     writeJson({
       summary: buildInspectSummary(plan),
-      repomix: getRepomixCapabilities(),
+      repomix: await getRepomixCapabilities(),
       sections: plan.sections,
       assets: plan.assets,
       unmatchedFiles: plan.unmatchedFiles,

@@ -31,7 +31,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   if (args.json) {
     writeJson({
       summary: summarizeManifest(manifestName, manifest, rows),
-      repomix: getRepomixCapabilities(),
+      repomix: await getRepomixCapabilities(),
       settings: manifest.settings,
       selection: {
         sections: args.sections ?? [],
