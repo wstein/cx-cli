@@ -272,9 +272,6 @@ function parseManifestDto(raw: unknown): {
         settingsRaw.tokenAlgorithm,
         "settings.tokenAlgorithm",
       ) as ManifestSettings["tokenAlgorithm"],
-      removeComments: requireBool(settingsRaw.removeComments, "settings.removeComments"),
-      removeEmptyLines: requireBool(settingsRaw.removeEmptyLines, "settings.removeEmptyLines"),
-      compress: requireBool(settingsRaw.compress, "settings.compress"),
       showLineNumbers: requireBool(settingsRaw.showLineNumbers, "settings.showLineNumbers"),
       includeEmptyDirectories: requireBool(
         settingsRaw.includeEmptyDirectories,

@@ -7,9 +7,6 @@ import type {
 export interface ManifestSettings {
   globalStyle: CxStyle;
   tokenAlgorithm: CxTokenAlgorithm;
-  removeComments: boolean;
-  removeEmptyLines: boolean;
-  compress: boolean;
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;

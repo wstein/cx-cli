@@ -68,9 +68,6 @@ export function buildManifest(params: {
     settings: {
       globalStyle: params.config.repomix.style,
       tokenAlgorithm: params.config.tokens.algorithm,
-      removeComments: params.config.repomix.removeComments,
-      removeEmptyLines: params.config.repomix.removeEmptyLines,
-      compress: params.config.repomix.compress,
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
