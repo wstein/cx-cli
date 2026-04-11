@@ -27,6 +27,7 @@ order = "config"
 
 [manifest]
 format = "json"
+pretty = true
 include_file_sha256 = true
 include_output_sha256 = true
 include_output_spans = false
@@ -87,6 +88,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   },
   manifest: {
     format: "json",
+    pretty: true,
     includeFileSha256: true,
     includeOutputSha256: true,
     includeOutputSpans: false,

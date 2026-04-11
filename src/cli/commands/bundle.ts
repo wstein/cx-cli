@@ -88,7 +88,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const manifestName = `${plan.projectName}-manifest.json`;
   await fs.writeFile(
     path.join(plan.bundleDir, manifestName),
-    renderManifestJson(manifest),
+    renderManifestJson(manifest, config.manifest.pretty),
     "utf8",
   );
   await writeChecksumFile(plan.bundleDir, plan.checksumFile, [

@@ -436,6 +436,11 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
     },
     manifest: {
       format: "json",
+      pretty: expectBoolean(
+        manifest.pretty,
+        "manifest.pretty",
+        DEFAULT_CONFIG_VALUES.manifest.pretty,
+      ),
       includeFileSha256: expectBoolean(
         manifest.include_file_sha256,
         "manifest.include_file_sha256",

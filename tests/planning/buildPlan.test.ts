@@ -45,6 +45,7 @@ function baseConfig(root: string): CxConfig {
     },
     manifest: {
       format: "json",
+      pretty: true,
       includeFileSha256: true,
       includeOutputSha256: true,
       includeOutputSpans: false,

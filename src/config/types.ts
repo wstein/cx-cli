@@ -33,6 +33,7 @@ export interface CxDedupConfig {
 
 export interface CxManifestConfig {
   format: "json";
+  pretty: boolean;
   includeFileSha256: boolean;
   includeOutputSha256: boolean;
   includeOutputSpans: boolean;
