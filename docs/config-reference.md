@@ -55,6 +55,7 @@ tokens_warm = 512
 tokens_hot = 2048
 mtime_warm_minutes = 60
 mtime_hot_hours = 24
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246]
 ```
 
 Rules:
@@ -63,8 +64,20 @@ Rules:
 - `bytes_hot` must be greater than `bytes_warm`.
 - `tokens_hot` must be greater than `tokens_warm`.
 - `mtime_hot_hours` must represent a later threshold than `mtime_warm_minutes`.
+- `time_palette` must contain 8 to 10 ANSI 256 grayscale codes in descending bright-to-dark order.
 
-These thresholds are stored in the manifest so `cx list` can render consistent temperatures from bundle data alone.
+These thresholds and the grayscale palette are stored in the manifest so `cx list` can render consistent temperatures from bundle data alone.
+
+## Extract Status Semantics
+
+`cx` uses four production statuses for bundle-side recovery:
+
+- `intact`: reconstructed text matches the manifest hash exactly.
+- `copied`: the file is restored directly from stored asset content.
+- `degraded`: the file is visible in bundle output but does not match the manifest hash exactly.
+- `blocked`: the file cannot be reconstructed from bundle output.
+
+By default, `cx extract` restores `intact` text files and `copied` assets only. Restoring `degraded` files requires `--allow-degraded`.
 
 ## Bundle invariants
 
@@ -75,7 +88,7 @@ A generated bundle must satisfy these invariants:
   - the manifest file
   - every section output file
   - every stored asset file
-- Every manifest file row records the source file `mtime` used by `cx list` and restored by `cx extract`.
+- Every manifest file row records the source file `time` used by `cx list` and restored by `cx extract`.
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
