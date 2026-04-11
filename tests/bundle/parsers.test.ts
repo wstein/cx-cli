@@ -91,6 +91,30 @@ describe("parsers – whitespace preservation", () => {
         expect(result?.content).toBe(content);
       });
     }
+
+    test("parses repomix file blocks from wrapped exports", () => {
+      const source = [
+        "Repomix header text",
+        "",
+        "<directory_structure>",
+        "src/",
+        "</directory_structure>",
+        "",
+        "<files>",
+        '<file path="src/example.ts">',
+        "export function identity<T>(value: T): T {",
+        "  return value;",
+        "}",
+        "</file>",
+        "</files>",
+      ].join("\n");
+
+      const [result] = parseXmlSection(source);
+      expect(result).toEqual({
+        path: "src/example.ts",
+        content: "export function identity<T>(value: T): T {\n  return value;\n}\n",
+      });
+    });
   });
 
   describe("JSON (repomix strips trailing \\n)", () => {

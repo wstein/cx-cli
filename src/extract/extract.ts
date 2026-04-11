@@ -81,16 +81,6 @@ export async function extractBundle(params: {
     return true;
   });
 
-  if (
-    selectedRows.some(isTextRow) &&
-    !manifest.settings.losslessTextExtraction
-  ) {
-    throw new CxError(
-      "This bundle was produced with lossy text transforms, so exact text extraction is not supported.",
-      8,
-    );
-  }
-
   const sectionNames = new Set(
     selectedRows
       .filter(isTextRow)
@@ -102,12 +92,6 @@ export async function extractBundle(params: {
   for (const section of manifest.sections) {
     if (!sectionNames.has(section.name)) {
       continue;
-    }
-    if (!section.losslessTextExtraction) {
-      throw new CxError(
-        `Section ${section.name} was produced with a format or transform that does not support exact extraction.`,
-        8,
-      );
     }
     const source = await fs.readFile(
       path.join(params.bundleDir, section.outputFile),
@@ -134,19 +118,30 @@ export async function extractBundle(params: {
     );
   }
 
-  for (const row of selectedRows.filter(isTextRow)) {
+  const resolvedTextRows = selectedRows.filter(isTextRow).map((row) => {
     const contentMap = sectionContents.get(row.section);
     const content = contentMap?.get(row.path);
     if (content === undefined) {
       throw new CxError(`Section output is missing file ${row.path}.`, 8);
     }
 
+    if (sha256Text(content) !== row.sha256) {
+      throw new CxError(
+        `Section output for ${row.path} does not match the manifest hash, so exact extraction is not supported for that file.`,
+        8,
+      );
+    }
+
+    return { row, content };
+  });
+
+  for (const { row, content } of resolvedTextRows) {
     const destinationPath = path.join(params.destinationDir, row.path);
     await assertWritable(destinationPath, params.overwrite);
     await ensureDir(path.dirname(destinationPath));
     await fs.writeFile(destinationPath, content, "utf8");
 
-    if (params.verify && sha256Text(content) !== row.sha256) {
+    if (params.verify && (await sha256File(destinationPath)) !== row.sha256) {
       throw new CxError(`Extracted content hash mismatch for ${row.path}.`, 10);
     }
   }

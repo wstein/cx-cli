@@ -916,9 +916,35 @@ include_source_metadata = true`;
     ).rejects.toThrow("Source tree mismatch");
   });
 
-  test("rejects text extraction for bundles created with lossy transforms", async () => {
+  test("rejects extraction when selected file content does not match the manifest hash", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        "show_line_numbers = false",
+        "show_line_numbers = true",
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await expect(
+      runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+      }),
+    ).rejects.toThrow("does not match the manifest hash");
+  });
+
+  test("extracts individually lossless files from bundles marked lossy", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-lossy-single");
     await fs.writeFile(
       project.configPath,
       (await fs.readFile(project.configPath, "utf8")).replace(
@@ -934,12 +960,16 @@ include_source_metadata = true`;
         bundleDir: project.bundleDir,
         destinationDir: restoreDir,
         sections: undefined,
-        files: undefined,
+        files: ["src/index.ts"],
         assetsOnly: false,
         overwrite: false,
-        verify: false,
+        verify: true,
       }),
-    ).rejects.toThrow("lossy text transforms");
+    ).resolves.toBe(0);
+
+    expect(
+      await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
+    ).toBe(await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"));
   });
 
   test("fails verify when the checksum file omits an expected artifact", async () => {

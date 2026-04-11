@@ -1,18 +1,9 @@
-import { XMLParser } from "fast-xml-parser";
-
 import { CxError } from "../shared/errors.js";
 
 export interface ExtractedTextFile {
   path: string;
   content: string;
 }
-
-const xmlParser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "",
-  textNodeName: "#text",
-  trimValues: false,
-});
 
 function expectString(value: unknown, label: string): string {
   if (typeof value !== "string") {
@@ -22,37 +13,27 @@ function expectString(value: unknown, label: string): string {
 }
 
 export function parseXmlSection(source: string): ExtractedTextFile[] {
-  const parsed = xmlParser.parse(source) as {
-    repomix?: {
-      files?: {
-        file?:
-          | Array<{ path?: string; "#text"?: string }>
-          | { path?: string; "#text"?: string };
-      };
-    };
-    files?: {
-      file?:
-        | Array<{ path?: string; "#text"?: string }>
-        | { path?: string; "#text"?: string };
-    };
-  };
+  const files: ExtractedTextFile[] = [];
+  const filePattern = /<file path="([^"]+)">([\s\S]*?)<\/file>/g;
 
-  const fileNode = parsed.repomix?.files?.file ?? parsed.files?.file;
-  if (!fileNode) {
-    return [];
-  }
+  for (const match of source.matchAll(filePattern)) {
+    const [, rawPath = "", rawContent = ""] = match;
+    let content = rawContent;
 
-  const files = Array.isArray(fileNode) ? fileNode : [fileNode];
-  return files.map((file) => {
-    // fast-xml-parser returns the raw text node. Repomix emits a structural
-    // newline directly after each opening <file> tag, so strip exactly that
-    // one leading newline to recover the original file content.
-    let content = typeof file["#text"] === "string" ? file["#text"] : "";
+    // Repomix emits a structural newline directly after each opening <file>
+    // tag, so strip exactly that one leading newline to recover the original
+    // file content.
     if (content.startsWith("\n")) {
       content = content.slice(1);
     }
-    return { path: expectString(file.path, "file path"), content };
-  });
+
+    files.push({
+      path: expectString(rawPath, "file path"),
+      content,
+    });
+  }
+
+  return files;
 }
 
 export function parseJsonSection(source: string): ExtractedTextFile[] {
