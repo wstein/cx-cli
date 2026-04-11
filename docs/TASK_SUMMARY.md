@@ -16,13 +16,13 @@ The shipped command set in this repository is:
 
 ## Code And Explanations
 
-- `src/config/` loads strict TOML configuration, applies defaults, resolves templates, and rejects ambiguous or unsafe values early.
-- `src/planning/` builds a deterministic bundle plan with overlap detection, asset conflict detection, and lexical output ordering.
+- `src/config/` loads strict TOML configuration, applies defaults, resolves templates, validates list display thresholds, and now supports configurable token estimation and `cx list` color thresholds.
+- `src/planning/` builds a deterministic bundle plan with overlap detection, asset conflict detection, lexical output ordering, and source `mtime` capture for every planned file.
 - `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports, and now checks adapter compatibility through those exports rather than package-layout assumptions.
 - `src/extract/` restores XML, JSON, Markdown, and Plain bundles exactly when the recovered file bytes match the manifest hash for each selected file, and now emits structured extract failure payloads that identify blocked files precisely.
-- `src/manifest/` writes a canonical TOON manifest plus a lexical SHA-256 sidecar.
+- `src/manifest/` writes a canonical TOON manifest plus a lexical SHA-256 sidecar, including source `mtime`, token algorithm, and list display settings so bundle consumers can operate from manifest data alone.
 - `src/bundle/` validates and verifies emitted bundles independently of the original config file, rejects ambiguous manifest sets, proves checksum completeness, and can compare a bundle directly against a source tree with `verify --against`.
-- `src/cli/` exposes the workflow through `yargs`, keeps command handlers thin, and now renders `cx list` in section-grouped form with per-file extractability status.
+- `src/cli/` exposes the workflow through `yargs`, keeps command handlers thin, restores manifest-recorded `mtime` during extraction, renders `cx list` in section-grouped form with per-file readiness status, and exposes bundle-side extractability in `inspect --json` when a matching bundle is present.
 - `src/shared/manifestSummary.ts` provides stable manifest-derived summaries so `list`, `extract`, and `validate` can expose consistent machine-readable counts and selections.
 - `scripts/repomix-version-smoke.ts` provides a CI smoke path for the active Repomix adapter contract.
 
@@ -38,7 +38,7 @@ Marcus Chen:
 Security-sensitive decisions were kept conservative. The tool never shells out to Repomix, never trusts guessed output spans, verifies emitted artifacts through hashes, and now rejects incomplete checksum coverage instead of silently accepting partial integrity metadata.
 
 Samir Patel:
-The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML, JSON, Markdown, and Plain round-trips, source-tree verification, filtered JSON command output, checksum completeness failures, manifest ambiguity rejection, invalid init-name rejection, per-file manifest-hash extraction rejection, structured extract failure reporting, and preflight extractability visibility in `cx list`.
+The current test suite covers config loading, deterministic planning, overlap failure, end-to-end bundle lifecycle checks, exact XML, JSON, Markdown, and Plain round-trips, source-tree verification, filtered JSON command output, checksum completeness failures, manifest ambiguity rejection, invalid init-name rejection, per-file manifest-hash extraction rejection, structured extract failure reporting, preflight extractability visibility in `cx list`, source `mtime` restoration on extraction, and configurable display threshold validation.
 
 ## Mid-Term Improvements
 

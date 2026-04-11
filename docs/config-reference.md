@@ -27,6 +27,45 @@ source_root = "~/projects/$WORKSPACE/src"
 output_dir = "dist/{project}-bundle"
 ```
 
+## Token Estimation
+
+Token estimation is configurable through the `[tokens]` table:
+
+```toml
+[tokens]
+algorithm = "chars_div_4"
+```
+
+Supported algorithms:
+
+- `chars_div_4`: estimate tokens as `ceil(characters / 4)`
+- `chars_div_3`: estimate tokens as `ceil(characters / 3)`
+
+The chosen algorithm is stored in the manifest and reused by bundle consumers such as `cx list`.
+
+## List Display Thresholds
+
+`cx list` color temperatures are configurable through `[display.list]`:
+
+```toml
+[display.list]
+bytes_warm = 4096
+bytes_hot = 65536
+tokens_warm = 512
+tokens_hot = 2048
+mtime_warm_minutes = 60
+mtime_hot_hours = 24
+```
+
+Rules:
+
+- Each value must be a positive integer.
+- `bytes_hot` must be greater than `bytes_warm`.
+- `tokens_hot` must be greater than `tokens_warm`.
+- `mtime_hot_hours` must represent a later threshold than `mtime_warm_minutes`.
+
+These thresholds are stored in the manifest so `cx list` can render consistent temperatures from bundle data alone.
+
 ## Bundle invariants
 
 A generated bundle must satisfy these invariants:
@@ -36,6 +75,7 @@ A generated bundle must satisfy these invariants:
   - the manifest file
   - every section output file
   - every stored asset file
+- Every manifest file row records the source file `mtime` used by `cx list` and restored by `cx extract`.
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
