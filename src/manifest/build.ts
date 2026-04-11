@@ -30,6 +30,7 @@ export function buildManifest(params: {
         storedIn: "packed",
         sha256: file.sha256,
         sizeBytes: file.sizeBytes,
+        mtime: file.mtime,
         mediaType: file.mediaType,
         outputStartLine: fileSpan?.outputStartLine ?? null,
         outputEndLine: fileSpan?.outputEndLine ?? null,
@@ -47,6 +48,7 @@ export function buildManifest(params: {
     storedIn: "copied",
     sha256: asset.sha256,
     sizeBytes: asset.sizeBytes,
+    mtime: asset.mtime,
     mediaType: asset.mediaType,
     outputStartLine: null,
     outputEndLine: null,
@@ -65,12 +67,14 @@ export function buildManifest(params: {
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: params.config.repomix.style,
+      tokenAlgorithm: params.config.tokens.algorithm,
       removeComments: params.config.repomix.removeComments,
       removeEmptyLines: params.config.repomix.removeEmptyLines,
       compress: params.config.repomix.compress,
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
+      listDisplay: params.config.display.list,
     },
     sections,
     assets: params.plan.assets.map((asset) => ({
@@ -78,6 +82,7 @@ export function buildManifest(params: {
       storedPath: asset.storedPath,
       sha256: asset.sha256,
       sizeBytes: asset.sizeBytes,
+      mtime: asset.mtime,
       mediaType: asset.mediaType,
     })),
     files: [...textRows, ...assetRows].sort((left, right) =>

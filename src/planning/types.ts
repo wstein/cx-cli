@@ -7,6 +7,7 @@ export interface PlannedSourceFile {
   mediaType: string;
   sizeBytes: number;
   sha256: string;
+  mtime: string;
 }
 
 export interface PlannedSection {

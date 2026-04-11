@@ -1,4 +1,5 @@
 import kleur from "kleur";
+import type { CxTokenAlgorithm } from "../config/types.js";
 
 /**
  * Format bytes into human-readable size strings
@@ -17,8 +18,21 @@ export function formatBytes(bytes: number): string {
  * Estimate token count from text (rough approximation)
  * Uses common heuristic: 1 token ≈ 4 characters average
  */
-export function estimateTokenCount(text: string): number {
-  return Math.ceil(text.length / 4);
+export function estimateTokenCount(
+  text: string,
+  algorithm: CxTokenAlgorithm = "chars_div_4",
+): number {
+  return estimateTokenCountFromLength(text.length, algorithm);
+}
+
+export function estimateTokenCountFromLength(
+  length: number,
+  algorithm: CxTokenAlgorithm = "chars_div_4",
+): number {
+  if (algorithm === "chars_div_3") {
+    return Math.ceil(length / 3);
+  }
+  return Math.ceil(length / 4);
 }
 
 /**

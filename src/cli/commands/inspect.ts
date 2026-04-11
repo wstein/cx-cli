@@ -1,4 +1,6 @@
+import { loadManifestFromBundle, validateBundle } from "../../bundle/validate.js";
 import { loadCxConfig } from "../../config/load.js";
+import { resolveExtractability } from "../../extract/resolution.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { writeJson } from "../../shared/output.js";
@@ -30,11 +32,83 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
   const plan = await buildBundlePlan(config);
 
   if (args.json) {
+    let bundleComparison:
+      | {
+          available: true;
+          bundleDir: string;
+          manifestName: string;
+        }
+      | {
+          available: false;
+          bundleDir: string;
+          reason: string;
+        };
+    let extractabilityByPath = new Map<
+      string,
+      {
+        status: string;
+        reason: string;
+        message: string;
+      }
+    >();
+
+    try {
+      const { manifestName } = await validateBundle(plan.bundleDir);
+      const { manifest } = await loadManifestFromBundle(plan.bundleDir);
+      if (
+        manifest.projectName !== plan.projectName ||
+        manifest.sourceRoot !== plan.sourceRoot
+      ) {
+        bundleComparison = {
+          available: false,
+          bundleDir: plan.bundleDir,
+          reason: "Existing bundle does not match the current plan.",
+        };
+      } else {
+        const resolution = await resolveExtractability({
+          bundleDir: plan.bundleDir,
+          manifest,
+          rows: manifest.files,
+        });
+        extractabilityByPath = new Map(
+          resolution.records.map((record) => [
+            record.path,
+            {
+              status: record.status,
+              reason: record.reason,
+              message: record.message,
+            },
+          ]),
+        );
+        bundleComparison = {
+          available: true,
+          bundleDir: plan.bundleDir,
+          manifestName,
+        };
+      }
+    } catch (error) {
+      bundleComparison = {
+        available: false,
+        bundleDir: plan.bundleDir,
+        reason: error instanceof Error ? error.message : String(error),
+      };
+    }
+
     writeJson({
       summary: buildInspectSummary(plan),
       repomix: await getRepomixCapabilities(),
-      sections: plan.sections,
-      assets: plan.assets,
+      bundleComparison,
+      sections: plan.sections.map((section) => ({
+        ...section,
+        files: section.files.map((file) => ({
+          ...file,
+          extractability: extractabilityByPath.get(file.relativePath) ?? null,
+        })),
+      })),
+      assets: plan.assets.map((asset) => ({
+        ...asset,
+        extractability: extractabilityByPath.get(asset.relativePath) ?? null,
+      })),
       unmatchedFiles: plan.unmatchedFiles,
     });
     return 0;

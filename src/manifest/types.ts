@@ -1,13 +1,19 @@
-import type { CxStyle } from "../config/types.js";
+import type {
+  CxListDisplayConfig,
+  CxStyle,
+  CxTokenAlgorithm,
+} from "../config/types.js";
 
 export interface ManifestSettings {
   globalStyle: CxStyle;
+  tokenAlgorithm: CxTokenAlgorithm;
   removeComments: boolean;
   removeEmptyLines: boolean;
   compress: boolean;
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
+  listDisplay: CxListDisplayConfig;
 }
 
 export interface ManifestFileRow {
@@ -17,6 +23,7 @@ export interface ManifestFileRow {
   storedIn: "packed" | "copied";
   sha256: string;
   sizeBytes: number;
+  mtime: string;
   mediaType: string;
   outputStartLine: number | null;
   outputEndLine: number | null;
@@ -43,6 +50,7 @@ export interface AssetRecord {
   storedPath: string;
   sha256: string;
   sizeBytes: number;
+  mtime: string;
   mediaType: string;
 }
 

@@ -2,6 +2,7 @@ export type CxStyle = "xml" | "markdown" | "json" | "plain";
 export type CxDedupMode = "fail" | "first-wins";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
+export type CxTokenAlgorithm = "chars_div_4" | "chars_div_3";
 
 export interface CxSectionConfig {
   include: string[];
@@ -43,6 +44,23 @@ export interface CxChecksumsConfig {
   fileName: string;
 }
 
+export interface CxTokensConfig {
+  algorithm: CxTokenAlgorithm;
+}
+
+export interface CxListDisplayConfig {
+  bytesWarm: number;
+  bytesHot: number;
+  tokensWarm: number;
+  tokensHot: number;
+  mtimeWarmMinutes: number;
+  mtimeHotHours: number;
+}
+
+export interface CxDisplayConfig {
+  list: CxListDisplayConfig;
+}
+
 export interface CxAssetsConfig {
   include: string[];
   exclude: string[];
@@ -60,6 +78,8 @@ export interface CxConfig {
   dedup: CxDedupConfig;
   manifest: CxManifestConfig;
   checksums: CxChecksumsConfig;
+  tokens: CxTokensConfig;
+  display: CxDisplayConfig;
   assets: CxAssetsConfig;
   sections: Record<string, CxSectionConfig>;
 }
@@ -74,6 +94,8 @@ export interface CxConfigInput {
   dedup?: Record<string, unknown>;
   manifest?: Record<string, unknown>;
   checksums?: Record<string, unknown>;
+  tokens?: Record<string, unknown>;
+  display?: Record<string, unknown>;
   assets?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;
 }

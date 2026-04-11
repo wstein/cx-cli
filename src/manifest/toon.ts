@@ -20,6 +20,7 @@ interface FileRowDto {
   storedIn: string;
   sha256: string;
   sizeBytes: number;
+  mtime: string;
   mediaType: string;
   outputStartLine: number | null;
   outputEndLine: number | null;
@@ -102,6 +103,7 @@ function parseFileRowDto(raw: unknown, index: number): FileRowDto {
     storedIn: requireString(obj.storedIn, `file[${index}].storedIn`),
     sha256: requireString(obj.sha256, `file[${index}].sha256`),
     sizeBytes: requireNumber(obj.sizeBytes, `file[${index}].sizeBytes`),
+    mtime: requireString(obj.mtime, `file[${index}].mtime`),
     mediaType: requireString(obj.mediaType, `file[${index}].mediaType`),
     outputStartLine: requireNumberOrNull(
       obj.outputStartLine,
@@ -137,6 +139,7 @@ function parseAssetDto(raw: unknown, index: number): AssetRecord {
     storedPath: requireString(obj.storedPath, `asset[${index}].storedPath`),
     sha256: requireString(obj.sha256, `asset[${index}].sha256`),
     sizeBytes: requireNumber(obj.sizeBytes, `asset[${index}].sizeBytes`),
+    mtime: requireString(obj.mtime, `asset[${index}].mtime`),
     mediaType: requireString(obj.mediaType, `asset[${index}].mediaType`),
   };
 }
@@ -144,6 +147,10 @@ function parseAssetDto(raw: unknown, index: number): AssetRecord {
 function parseManifestDto(raw: unknown): ManifestDto {
   const obj = requireObject(raw, "manifest root");
   const settingsRaw = requireObject(obj.settings, "settings");
+  const listDisplayRaw = requireObject(
+    settingsRaw.listDisplay,
+    "settings.listDisplay",
+  );
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
 
@@ -166,6 +173,10 @@ function parseManifestDto(raw: unknown): ManifestDto {
         settingsRaw.globalStyle,
         "settings.globalStyle",
       ) as ManifestSettings["globalStyle"],
+      tokenAlgorithm: requireString(
+        settingsRaw.tokenAlgorithm,
+        "settings.tokenAlgorithm",
+      ) as ManifestSettings["tokenAlgorithm"],
       removeComments: requireBool(
         settingsRaw.removeComments,
         "settings.removeComments",
@@ -187,6 +198,20 @@ function parseManifestDto(raw: unknown): ManifestDto {
         settingsRaw.securityCheck,
         "settings.securityCheck",
       ),
+      listDisplay: {
+        bytesWarm: requireNumber(listDisplayRaw.bytesWarm, "settings.listDisplay.bytesWarm"),
+        bytesHot: requireNumber(listDisplayRaw.bytesHot, "settings.listDisplay.bytesHot"),
+        tokensWarm: requireNumber(listDisplayRaw.tokensWarm, "settings.listDisplay.tokensWarm"),
+        tokensHot: requireNumber(listDisplayRaw.tokensHot, "settings.listDisplay.tokensHot"),
+        mtimeWarmMinutes: requireNumber(
+          listDisplayRaw.mtimeWarmMinutes,
+          "settings.listDisplay.mtimeWarmMinutes",
+        ),
+        mtimeHotHours: requireNumber(
+          listDisplayRaw.mtimeHotHours,
+          "settings.listDisplay.mtimeHotHours",
+        ),
+      },
     },
     sections: sectionsRaw.map((s, i) => parseSectionDto(s, i)),
     assets: assetsRaw.map((a, i) => parseAssetDto(a, i)),
@@ -222,6 +247,7 @@ export function renderManifestToon(manifest: CxManifest): string {
         storedIn: row.storedIn,
         sha256: row.sha256,
         sizeBytes: row.sizeBytes,
+        mtime: row.mtime,
         mediaType: row.mediaType,
         outputStartLine: row.outputStartLine,
         outputEndLine: row.outputEndLine,
@@ -253,6 +279,7 @@ export function parseManifestToon(source: string): CxManifest {
       storedIn: row.storedIn as ManifestFileRow["storedIn"],
       sha256: row.sha256,
       sizeBytes: row.sizeBytes,
+      mtime: row.mtime,
       mediaType: row.mediaType,
       outputStartLine: row.outputStartLine,
       outputEndLine: row.outputEndLine,
@@ -266,6 +293,7 @@ export function parseManifestToon(source: string): CxManifest {
     storedIn: "copied",
     sha256: asset.sha256,
     sizeBytes: asset.sizeBytes,
+    mtime: asset.mtime,
     mediaType: asset.mediaType,
     outputStartLine: null,
     outputEndLine: null,

@@ -30,7 +30,79 @@ exclude = []
     expect(config.projectName).toBe("demo");
     expect(config.assets.targetDir).toBe("demo-assets");
     expect(config.checksums.fileName).toBe("demo.sha256");
+    expect(config.tokens.algorithm).toBe("chars_div_4");
+    expect(config.display.list.bytesWarm).toBe(4096);
     expect(config.sections.src?.include).toEqual(["src/**"]);
+  });
+
+  test("loads token and list display overrides", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-list-"));
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[tokens]
+algorithm = "chars_div_3"
+
+[display.list]
+bytes_warm = 2048
+bytes_hot = 32768
+tokens_warm = 256
+tokens_hot = 1024
+mtime_warm_minutes = 30
+mtime_hot_hours = 12
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.tokens.algorithm).toBe("chars_div_3");
+    expect(config.display.list.bytesWarm).toBe(2048);
+    expect(config.display.list.bytesHot).toBe(32768);
+    expect(config.display.list.tokensWarm).toBe(256);
+    expect(config.display.list.tokensHot).toBe(1024);
+    expect(config.display.list.mtimeWarmMinutes).toBe(30);
+    expect(config.display.list.mtimeHotHours).toBe(12);
+  });
+
+  test("rejects invalid list display threshold ordering", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-order-"));
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[display.list]
+bytes_warm = 4096
+bytes_hot = 4096
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "display.list.bytes_hot must be greater than display.list.bytes_warm.",
+    );
   });
 
   test("expands tilde and environment variables in config paths", async () => {

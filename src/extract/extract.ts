@@ -39,6 +39,14 @@ async function assertWritable(
   }
 }
 
+async function restoreMtime(destinationPath: string, isoTime: string): Promise<void> {
+  const value = new Date(isoTime);
+  if (Number.isNaN(value.getTime())) {
+    throw new CxError(`Invalid manifest mtime for ${destinationPath}.`, 2);
+  }
+  await fs.utimes(destinationPath, value, value);
+}
+
 function isTextRow(row: ManifestFileRow): boolean {
   return row.kind === "text";
 }
@@ -101,6 +109,7 @@ export async function extractBundle(params: {
     await assertWritable(destinationPath, params.overwrite);
     await ensureDir(path.dirname(destinationPath));
     await fs.writeFile(destinationPath, content, "utf8");
+    await restoreMtime(destinationPath, row.mtime);
 
     if (params.verify && (await sha256File(destinationPath)) !== row.sha256) {
       throw new CxError(`Extracted content hash mismatch for ${row.path}.`, 10);
@@ -122,6 +131,7 @@ export async function extractBundle(params: {
       path.join(params.bundleDir, asset.storedPath),
       destinationPath,
     );
+    await restoreMtime(destinationPath, row.mtime);
 
     if (params.verify && (await sha256File(destinationPath)) !== row.sha256) {
       throw new CxError(`Extracted asset hash mismatch for ${row.path}.`, 10);

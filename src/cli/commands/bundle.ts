@@ -67,7 +67,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputSha256: await sha256File(outputPath),
       fileCount: section.files.length,
       sizeBytes: totalSectionBytes,
-      estimatedTokens: estimateTokenCount(outputSource),
+      estimatedTokens: estimateTokenCount(
+        outputSource,
+        config.tokens.algorithm,
+      ),
     });
     if (renderResult.fileSpans) {
       sectionSpanMaps.set(section.name, renderResult.fileSpans);

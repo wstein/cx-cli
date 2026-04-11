@@ -118,7 +118,10 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
       (sum, f) => sum + f.sizeBytes,
       0,
     );
-    const estimatedTokens = estimateTokenCount(result.content);
+    const estimatedTokens = estimateTokenCount(
+      result.content,
+      config.tokens.algorithm,
+    );
 
     outputs.push({
       section: sectionName,

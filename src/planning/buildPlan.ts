@@ -164,6 +164,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
             mediaType: detectMediaType(relativePath, "asset"),
             sizeBytes: stat.size,
             sha256: await sha256File(absolutePath),
+            mtime: stat.mtime.toISOString(),
             storedPath: `${config.assets.targetDir}/${relativePath}`,
           });
         }
@@ -186,6 +187,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       mediaType: detectMediaType(relativePath, "text"),
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
+      mtime: stat.mtime.toISOString(),
     };
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
   }

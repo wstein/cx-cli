@@ -14,6 +14,7 @@ import {
 } from "../../shared/manifestSummary.js";
 import {
   estimateTokenCount,
+  estimateTokenCountFromLength,
   formatBytes,
   formatNumber,
 } from "../../shared/format.js";
@@ -34,6 +35,7 @@ interface RowMeta {
   tokens: number;
   mtime: string;
   mtimeRelative: string;
+  ready: "ok" | "copy" | "no";
   extractability: {
     status: "exact" | "blocked" | "copied";
     reason: string;
@@ -45,10 +47,8 @@ async function readOutputFiles(
   bundleDir: string,
   rows: ManifestFileRow[],
   sectionOutputFileMap: Map<string, string>,
-  assetStoredPaths: Map<string, string>,
 ) {
   const outputs = new Map<string, string>();
-  const mtimes = new Map<string, string>();
 
   for (const row of rows) {
     const outputFile = sectionOutputFileMap.get(row.section);
@@ -57,23 +57,10 @@ async function readOutputFiles(
       if (!outputs.has(outputFile)) {
         outputs.set(outputFile, await fs.readFile(outputPath, "utf8"));
       }
-      if (!mtimes.has(outputFile)) {
-        const stat = await fs.stat(outputPath);
-        mtimes.set(outputFile, stat.mtime.toISOString());
-      }
-    }
-
-    if (row.storedIn === "copied") {
-      const storedPath = assetStoredPaths.get(row.path) ?? row.path;
-      const filePath = path.join(bundleDir, storedPath);
-      if (!mtimes.has(row.path)) {
-        const stat = await fs.stat(filePath);
-        mtimes.set(row.path, stat.mtime.toISOString());
-      }
     }
   }
 
-  return { outputs, mtimes };
+  return { outputs };
 }
 
 function extractLines(content: string, startLine: number, endLine: number): string {
@@ -85,6 +72,7 @@ function estimateTokensForRow(
   row: ManifestFileRow,
   sectionOutputFileMap: Map<string, string>,
   outputs: Map<string, string>,
+  manifest: CxManifest,
 ): number {
   const outputFile = sectionOutputFileMap.get(row.section);
   if (
@@ -97,28 +85,15 @@ function estimateTokensForRow(
     if (outputText !== undefined) {
       return estimateTokenCount(
         extractLines(outputText, row.outputStartLine, row.outputEndLine),
+        manifest.settings.tokenAlgorithm,
       );
     }
   }
 
-  return Math.max(1, Math.round(row.sizeBytes / 4));
-}
-
-function formatMtimeIso(
-  row: ManifestFileRow,
-  sectionOutputFileMap: Map<string, string>,
-  mtimes: Map<string, string>,
-): string {
-  const outputFile = sectionOutputFileMap.get(row.section);
-  if (row.storedIn === "packed" && outputFile !== undefined) {
-    return mtimes.get(outputFile) ?? "-";
-  }
-
-  if (row.storedIn === "copied") {
-    return mtimes.get(row.path) ?? "-";
-  }
-
-  return "-";
+  return estimateTokenCountFromLength(
+    row.sizeBytes,
+    manifest.settings.tokenAlgorithm,
+  );
 }
 
 function buildSectionOutputFileMap(manifest: CxManifest): Map<string, string> {
@@ -166,39 +141,52 @@ function colorByTemperature(
   return kleur.red(value);
 }
 
-function colorBytes(bytes: number, value: string): string {
-  if (bytes <= 4 * 1024) {
+function colorBytes(
+  bytes: number,
+  value: string,
+  manifest: CxManifest,
+): string {
+  if (bytes <= manifest.settings.listDisplay.bytesWarm) {
     return colorByTemperature(value, "cool");
   }
-  if (bytes <= 64 * 1024) {
+  if (bytes <= manifest.settings.listDisplay.bytesHot) {
     return colorByTemperature(value, "warm");
   }
   return colorByTemperature(value, "hot");
 }
 
-function colorTokens(tokens: number, value: string): string {
-  if (tokens <= 512) {
+function colorTokens(
+  tokens: number,
+  value: string,
+  manifest: CxManifest,
+): string {
+  if (tokens <= manifest.settings.listDisplay.tokensWarm) {
     return colorByTemperature(value, "cool");
   }
-  if (tokens <= 2048) {
+  if (tokens <= manifest.settings.listDisplay.tokensHot) {
     return colorByTemperature(value, "warm");
   }
   return colorByTemperature(value, "hot");
 }
 
-function colorMtime(iso: string, value: string): string {
+function colorMtime(
+  iso: string,
+  value: string,
+  manifest: CxManifest,
+): string {
   if (iso === "-") {
     return kleur.gray(value);
   }
 
   const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
-  const hour = 60 * 60 * 1000;
-  const day = 24 * hour;
+  const warmMs = manifest.settings.listDisplay.mtimeWarmMinutes * 60 * 1000;
+  const hotMs =
+    manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
 
-  if (ageMs <= hour) {
+  if (ageMs <= warmMs) {
     return colorByTemperature(value, "cool");
   }
-  if (ageMs <= day) {
+  if (ageMs <= hotMs) {
     return colorByTemperature(value, "warm");
   }
   return colorByTemperature(value, "hot");
@@ -214,7 +202,11 @@ function colorExtractability(status: RowMeta["extractability"]["status"], value:
   return kleur.red(value);
 }
 
-function renderGroupedList(manifestName: string, rows: RowMeta[]): string {
+function renderGroupedList(
+  manifestName: string,
+  rows: RowMeta[],
+  manifest: CxManifest,
+): string {
   const groups = new Map<string, RowMeta[]>();
   for (const row of rows) {
     const sectionRows = groups.get(row.section) ?? [];
@@ -238,7 +230,7 @@ function renderGroupedList(manifestName: string, rows: RowMeta[]): string {
     "mtime".length,
     ...rows.map((row) => row.mtimeRelative.length),
   );
-  const extractWidth = "extract".length;
+  const readyWidth = "ready".length;
 
   const orderedSections = [...groups.keys()].sort((left, right) => {
     if (left === "assets") {
@@ -266,7 +258,7 @@ function renderGroupedList(manifestName: string, rows: RowMeta[]): string {
         "  ",
         kleur.gray("mtime".padEnd(mtimeWidth)),
         "  ",
-        kleur.gray("extract".padEnd(extractWidth)),
+        kleur.gray("ready".padEnd(readyWidth)),
       ].join(""),
     );
 
@@ -275,25 +267,19 @@ function renderGroupedList(manifestName: string, rows: RowMeta[]): string {
       const bytesRaw = formatBytes(row.bytes).padStart(bytesWidth);
       const tokensRaw = `${formatNumber(row.tokens)} tok`.padStart(tokensWidth);
       const mtimeRaw = row.mtimeRelative.padEnd(mtimeWidth);
-      const extractLabel =
-        row.extractability.status === "exact"
-          ? "exact"
-          : row.extractability.status === "copied"
-            ? "copy"
-            : "blocked";
-      const extractRaw = extractLabel.padEnd(extractWidth);
+      const readyRaw = row.ready.padEnd(readyWidth);
       lines.push(
         [
           "  ",
           pathCell,
           "  ",
-          colorBytes(row.bytes, bytesRaw),
+          colorBytes(row.bytes, bytesRaw, manifest),
           "  ",
-          colorTokens(row.tokens, tokensRaw),
+          colorTokens(row.tokens, tokensRaw, manifest),
           "  ",
-          colorMtime(row.mtime, mtimeRaw),
+          colorMtime(row.mtime, mtimeRaw, manifest),
           "  ",
-          colorExtractability(row.extractability.status, extractRaw),
+          colorExtractability(row.extractability.status, readyRaw),
         ].join(""),
       );
     }
@@ -312,14 +298,10 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   const sections = selectManifestSections(manifest, rows);
   const assets = selectManifestAssets(manifest, rows);
   const sectionOutputFileMap = buildSectionOutputFileMap(manifest);
-  const assetStoredPaths = new Map(
-    manifest.assets.map((asset) => [asset.sourcePath, asset.storedPath]),
-  );
-  const { outputs, mtimes } = await readOutputFiles(
+  const { outputs } = await readOutputFiles(
     bundleDir,
     rows,
     sectionOutputFileMap,
-    assetStoredPaths,
   );
   const extractability = await resolveExtractability({
     bundleDir,
@@ -328,15 +310,21 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   });
 
   const rowsWithMeta: RowMeta[] = rows.map((file) => {
-    const mtime = formatMtimeIso(file, sectionOutputFileMap, mtimes);
+    const mtime = file.mtime;
     const record = extractability.recordsByPath.get(file.path);
     return {
       path: file.path,
       section: file.section === "-" ? "assets" : file.section,
       bytes: file.sizeBytes,
-      tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs),
+      tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs, manifest),
       mtime,
       mtimeRelative: formatRelativeTime(mtime),
+      ready:
+        record?.status === "exact"
+          ? "ok"
+          : record?.status === "copied"
+            ? "copy"
+            : "no",
       extractability: {
         status: record?.status ?? "blocked",
         reason: record?.reason ?? "section_parse_failed",
@@ -361,6 +349,6 @@ export async function runListCommand(args: ListArgs): Promise<number> {
     return 0;
   }
 
-  process.stdout.write(renderGroupedList(manifestName, rowsWithMeta));
+  process.stdout.write(renderGroupedList(manifestName, rowsWithMeta, manifest));
   return 0;
 }

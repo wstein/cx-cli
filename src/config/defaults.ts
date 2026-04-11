@@ -36,6 +36,17 @@ include_source_metadata = true
 algorithm = "sha256"
 file_name = "{project}.sha256"
 
+[tokens]
+algorithm = "chars_div_4"
+
+[display.list]
+bytes_warm = 4096
+bytes_hot = 65536
+tokens_warm = 512
+tokens_hot = 2048
+mtime_warm_minutes = 60
+mtime_hot_hours = 24
+
 [assets]
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = []
@@ -83,6 +94,19 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   checksums: {
     algorithm: "sha256",
     fileName: "{project}.sha256",
+  },
+  tokens: {
+    algorithm: "chars_div_4",
+  },
+  display: {
+    list: {
+      bytesWarm: 4096,
+      bytesHot: 65536,
+      tokensWarm: 512,
+      tokensHot: 2048,
+      mtimeWarmMinutes: 60,
+      mtimeHotHours: 24,
+    },
   },
   assets: {
     include: ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"],

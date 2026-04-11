@@ -11,6 +11,7 @@ import type {
   CxConfigInput,
   CxSectionConfig,
   CxStyle,
+  CxTokenAlgorithm,
 } from "./types.js";
 
 const RESERVED_SECTION_NAMES = new Set(["manifest", "assets", "bundle"]);
@@ -24,6 +25,10 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
   "copy",
   "ignore",
   "fail",
+]);
+const VALID_TOKEN_ALGORITHMS = new Set<CxTokenAlgorithm>([
+  "chars_div_4",
+  "chars_div_3",
 ]);
 
 function expectString(value: unknown, label: string): string {
@@ -66,6 +71,26 @@ function expectStringArray(
   }
 
   return [...value];
+}
+
+function expectPositiveInteger(
+  value: unknown,
+  label: string,
+  defaultValue: number,
+): number {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value <= 0
+  ) {
+    throw new CxError(`${label} must be a positive integer.`);
+  }
+
+  return value;
 }
 
 function expectEnum<T extends string>(
@@ -206,6 +231,12 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   const dedup = parsed.dedup ?? {};
   const manifest = parsed.manifest ?? {};
   const checksums = parsed.checksums ?? {};
+  const tokens = parsed.tokens ?? {};
+  const display = parsed.display ?? {};
+  const displayList =
+    typeof display.list === "object" && display.list !== null
+      ? (display.list as Record<string, unknown>)
+      : {};
   const assets = parsed.assets ?? {};
   const sectionsInput = parsed.sections;
 
@@ -225,6 +256,55 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       );
     }
     sections[sectionName] = normalizeSection(sectionName, sectionValue);
+  }
+
+  const listDisplayConfig = {
+    bytesWarm: expectPositiveInteger(
+      displayList.bytes_warm,
+      "display.list.bytes_warm",
+      DEFAULT_CONFIG_VALUES.display.list.bytesWarm,
+    ),
+    bytesHot: expectPositiveInteger(
+      displayList.bytes_hot,
+      "display.list.bytes_hot",
+      DEFAULT_CONFIG_VALUES.display.list.bytesHot,
+    ),
+    tokensWarm: expectPositiveInteger(
+      displayList.tokens_warm,
+      "display.list.tokens_warm",
+      DEFAULT_CONFIG_VALUES.display.list.tokensWarm,
+    ),
+    tokensHot: expectPositiveInteger(
+      displayList.tokens_hot,
+      "display.list.tokens_hot",
+      DEFAULT_CONFIG_VALUES.display.list.tokensHot,
+    ),
+    mtimeWarmMinutes: expectPositiveInteger(
+      displayList.mtime_warm_minutes,
+      "display.list.mtime_warm_minutes",
+      DEFAULT_CONFIG_VALUES.display.list.mtimeWarmMinutes,
+    ),
+    mtimeHotHours: expectPositiveInteger(
+      displayList.mtime_hot_hours,
+      "display.list.mtime_hot_hours",
+      DEFAULT_CONFIG_VALUES.display.list.mtimeHotHours,
+    ),
+  };
+
+  if (listDisplayConfig.bytesHot <= listDisplayConfig.bytesWarm) {
+    throw new CxError(
+      "display.list.bytes_hot must be greater than display.list.bytes_warm.",
+    );
+  }
+  if (listDisplayConfig.tokensHot <= listDisplayConfig.tokensWarm) {
+    throw new CxError(
+      "display.list.tokens_hot must be greater than display.list.tokens_warm.",
+    );
+  }
+  if (listDisplayConfig.mtimeHotHours * 60 <= listDisplayConfig.mtimeWarmMinutes) {
+    throw new CxError(
+      "display.list.mtime_hot_hours must represent a later threshold than display.list.mtime_warm_minutes.",
+    );
   }
 
   return {
@@ -334,6 +414,17 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
         ),
         projectName,
       ),
+    },
+    tokens: {
+      algorithm: expectEnum(
+        tokens.algorithm,
+        "tokens.algorithm",
+        VALID_TOKEN_ALGORITHMS,
+        DEFAULT_CONFIG_VALUES.tokens.algorithm,
+      ),
+    },
+    display: {
+      list: listDisplayConfig,
     },
     assets: {
       include: expectStringArray(

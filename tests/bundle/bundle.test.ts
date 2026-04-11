@@ -170,7 +170,7 @@ describe("bundle workflow", () => {
 
     expect(writes.join("")).toContain("README.md");
     expect(writes.join("")).toContain("docs");
-    expect(writes.join("")).toContain("extract");
+    expect(writes.join("")).toContain("ready");
     expect(writes.join("")).not.toContain("kind\tsection\tstored_in");
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.toon")),
@@ -355,12 +355,21 @@ include_source_metadata = true`;
       checksumAlgorithm: "sha256",
       settings: {
         globalStyle: "xml",
+        tokenAlgorithm: "chars_div_4",
         removeComments: false,
         removeEmptyLines: false,
         compress: false,
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
+        listDisplay: {
+          bytesWarm: 4096,
+          bytesHot: 65536,
+          tokensWarm: 512,
+          tokensHot: 2048,
+          mtimeWarmMinutes: 60,
+          mtimeHotHours: 24,
+        },
       },
       sections: [
         {
@@ -370,8 +379,8 @@ include_source_metadata = true`;
           outputSha256: "aaa",
           fileCount: 2,
           files: [
-            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
-            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
+            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
+            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
           ],
         },
         {
@@ -381,7 +390,7 @@ include_source_metadata = true`;
           outputSha256: "bbb",
           fileCount: 1,
           files: [
-            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
+            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
           ],
         },
       ],
@@ -425,6 +434,14 @@ include_source_metadata = true`;
     ).toBe(0);
     const inspectPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { sectionCount?: number; assetCount?: number };
+      bundleComparison?: { available?: boolean };
+      sections?: Array<{
+        name?: string;
+        files?: Array<{
+          relativePath?: string;
+          extractability?: { status?: string } | null;
+        }>;
+      }>;
     };
 
     expect(
@@ -437,12 +454,20 @@ include_source_metadata = true`;
       sections?: Array<{ name: string }>;
       files?: Array<{
         path?: string;
+        ready?: string;
+        mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
     };
 
     expect(inspectPayload.summary?.sectionCount).toBe(2);
     expect(inspectPayload.summary?.assetCount).toBe(1);
+    expect(
+      inspectPayload.sections
+        ?.flatMap((section) => section.files ?? [])
+        .find((file) => file.relativePath === "src/index.ts")
+        ?.extractability?.status,
+    ).toBe("exact");
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
     expect(listPayload.repomix?.spanCapability).toBe("supported");
@@ -457,6 +482,10 @@ include_source_metadata = true`;
           file.extractability?.status === "copied",
       ),
     ).toBe(true);
+    expect(listPayload.files?.find((file) => file.path === "src/index.ts")?.ready).toBe(
+      "ok",
+    );
+    expect(inspectPayload.bundleComparison?.available).toBe(true);
   });
 
   test("emits filtered JSON for list and extract automation", async () => {
@@ -483,6 +512,8 @@ include_source_metadata = true`;
       selection?: { sections?: string[]; files?: string[] };
       files?: Array<{
         path: string;
+        ready?: string;
+        mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
     };
@@ -515,6 +546,8 @@ include_source_metadata = true`;
     expect(listPayload.files?.map((file) => file.path)).toEqual([
       "src/index.ts",
     ]);
+    expect(listPayload.files?.[0]?.ready).toBe("ok");
+    expect(listPayload.files?.[0]?.mtime).toBeDefined();
     expect(listPayload.files?.[0]?.extractability?.status).toBe("exact");
     expect(extractPayload.summary?.fileCount).toBe(2);
     expect(extractPayload.summary?.textFileCount).toBe(1);
@@ -1043,11 +1076,13 @@ include_source_metadata = true`;
     const payload = JSON.parse(writes.pop() ?? "{}") as {
       files?: Array<{
         path?: string;
+        ready?: string;
         extractability?: { status?: string; reason?: string };
       }>;
     };
 
     expect(payload.files?.[0]?.path).toBe("src/index.ts");
+    expect(payload.files?.[0]?.ready).toBe("no");
     expect(payload.files?.[0]?.extractability?.status).toBe("blocked");
     expect(payload.files?.[0]?.extractability?.reason).toBe(
       "manifest_hash_mismatch",
@@ -1082,6 +1117,9 @@ include_source_metadata = true`;
     expect(
       await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
     ).toBe(await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"));
+    const restoredStat = await fs.stat(path.join(restoreDir, "src", "index.ts"));
+    const sourceStat = await fs.stat(path.join(project.root, "src", "index.ts"));
+    expect(restoredStat.mtime.toISOString()).toBe(sourceStat.mtime.toISOString());
   });
 
   test("fails verify when the checksum file omits an expected artifact", async () => {
