@@ -11,7 +11,6 @@ import type {
   CxConfigInput,
   CxSectionConfig,
   CxStyle,
-  CxTokenAlgorithm,
 } from "./types.js";
 
 const RESERVED_SECTION_NAMES = new Set(["manifest", "assets", "bundle"]);
@@ -26,11 +25,6 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
   "ignore",
   "fail",
 ]);
-const VALID_TOKEN_ALGORITHMS = new Set<CxTokenAlgorithm>([
-  "chars_div_4",
-  "chars_div_3",
-]);
-
 function expectString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new CxError(`${label} must be a non-empty string.`);
@@ -458,11 +452,9 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       ),
     },
     tokens: {
-      algorithm: expectEnum(
-        tokens.algorithm,
-        "tokens.algorithm",
-        VALID_TOKEN_ALGORITHMS,
-        DEFAULT_CONFIG_VALUES.tokens.algorithm,
+      encoding: expectString(
+        tokens.encoding ?? DEFAULT_CONFIG_VALUES.tokens.encoding,
+        "tokens.encoding",
       ),
     },
     display: {

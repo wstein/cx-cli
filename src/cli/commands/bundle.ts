@@ -6,7 +6,7 @@ import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
-import type { SectionSpanMaps } from "../../manifest/types.js";
+import type { SectionSpanMaps, SectionTokenMaps } from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
   CX_VERSION,
@@ -14,7 +14,6 @@ import {
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
 import {
-  estimateTokenCount,
   formatBytes,
   formatNumber,
   printDivider,
@@ -45,6 +44,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
 
   const sectionOutputs = [];
   const sectionSpanMaps: SectionSpanMaps = new Map();
+  const sectionTokenMaps: SectionTokenMaps = new Map();
 
   for (const section of plan.sections) {
     const outputPath = path.join(plan.bundleDir, section.outputFile);
@@ -55,7 +55,6 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputPath,
       explicitFiles: section.files.map((file) => file.absolutePath),
     });
-    const outputSource = await fs.readFile(outputPath, "utf8");
     const totalSectionBytes = section.files.reduce(
       (sum, file) => sum + file.sizeBytes,
       0,
@@ -67,11 +66,9 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputSha256: await sha256File(outputPath),
       fileCount: section.files.length,
       sizeBytes: totalSectionBytes,
-      estimatedTokens: estimateTokenCount(
-        outputSource,
-        config.tokens.algorithm,
-      ),
+      tokenCount: renderResult.outputTokenCount,
     });
+    sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
     if (renderResult.fileSpans) {
       sectionSpanMaps.set(section.name, renderResult.fileSpans);
     }
@@ -84,6 +81,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     cxVersion: CX_VERSION,
     repomixVersion: (await getRepomixCapabilities()).packageVersion,
     sectionSpanMaps,
+    sectionTokenMaps,
   });
   const manifestName = `${plan.projectName}-manifest.json`;
   await fs.writeFile(
@@ -109,7 +107,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     0,
   );
   const totalTokens = sectionOutputs.reduce(
-    (sum, section) => sum + section.estimatedTokens,
+    (sum, section) => sum + section.tokenCount,
     0,
   );
 
@@ -135,7 +133,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         [`  ${section.name}`, ""],
         ["    Files", section.fileCount],
         ["    Size", formatBytes(section.sizeBytes)],
-        ["    Tokens (est.)", formatNumber(section.estimatedTokens)],
+        ["    Tokens", formatNumber(section.tokenCount)],
       ]);
     }
 
@@ -144,7 +142,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       ["Total sections size", formatBytes(totalSectionBytes)],
       ["Total assets size", formatBytes(totalAssetBytes)],
       ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
-      ["Estimated tokens", formatNumber(totalTokens)],
+      ["Total tokens", formatNumber(totalTokens)],
     ]);
     printDivider();
     printSuccess("Bundle created successfully");
@@ -164,7 +162,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         totalSectionBytes,
         totalAssetBytes,
         totalBytes: totalSectionBytes + totalAssetBytes,
-        estimatedTokens: totalTokens,
+        totalTokens,
       },
       repomix: await getRepomixCapabilities(),
     });

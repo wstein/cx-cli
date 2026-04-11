@@ -47,9 +47,7 @@ const posInt = fc.integer({ min: 1, max: 1_000_000 });
 const styleArb = fc.constantFrom<"xml" | "markdown" | "json" | "plain">(
   "xml", "markdown", "json", "plain",
 );
-const tokenAlgArb = fc.constantFrom<"chars_div_4" | "chars_div_3">(
-  "chars_div_4", "chars_div_3",
-);
+const tokenEncodingArb = fc.constantFrom("o200k_base", "cl100k_base");
 
 /** Arbitrary for a nullable positive integer (outputStartLine / outputEndLine). */
 const nullablePos: fc.Arbitrary<number | null> = fc.option(posInt, {
@@ -65,6 +63,7 @@ function fileRowArb(sectionName: string): fc.Arbitrary<ManifestFileRow> {
     storedIn: fc.constantFrom<"packed" | "copied">("packed", "copied"),
     sha256: sha256Hex,
     sizeBytes: nonNegInt,
+    tokenCount: nonNegInt,
     mtime: isoTimestamp,
     mediaType: nonEmptyString,
     outputStartLine: nullablePos,
@@ -87,7 +86,7 @@ const listDisplayArb = fc.record({
 
 const settingsArb = fc.record({
   globalStyle: styleArb,
-  tokenAlgorithm: tokenAlgArb,
+  tokenEncoding: tokenEncodingArb,
   showLineNumbers: fc.boolean(),
   includeEmptyDirectories: fc.boolean(),
   securityCheck: fc.boolean(),
@@ -111,6 +110,7 @@ function sectionArb(): fc.Arbitrary<CxSection> {
       outputFile: nonEmptyString,
       outputSha256: sha256Hex,
       fileCount: nonNegInt,
+      tokenCount: nonNegInt,
     })
     .chain((meta) =>
       fc
@@ -154,6 +154,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       storedIn: "copied" as const,
       sha256: a.sha256,
       sizeBytes: a.sizeBytes,
+      tokenCount: 0,
       mtime: a.mtime,
       mediaType: a.mediaType,
       outputStartLine: null,
@@ -229,6 +230,7 @@ describe("manifest round-trip (property-based)", () => {
           expect(recv.outputFile).toBe(orig.outputFile);
           expect(recv.outputSha256).toBe(orig.outputSha256);
           expect(recv.fileCount).toBe(orig.fileCount);
+          expect(recv.tokenCount).toBe(orig.tokenCount);
           expect(recv.files).toHaveLength(orig.files.length);
           for (let j = 0; j < orig.files.length; j++) {
             expect(stripSection(recv.files[j]!)).toEqual(

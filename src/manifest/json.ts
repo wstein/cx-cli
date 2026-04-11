@@ -44,6 +44,7 @@ export const FILE_ROW_COLUMNS = [
   "storedIn",
   "sha256",
   "sizeBytes",
+  "tokenCount",
   "mtime",
   "mediaType",
   "outputStartLine",
@@ -57,10 +58,11 @@ const COL = {
   storedIn: 2,
   sha256: 3,
   sizeBytes: 4,
-  mtime: 5,
-  mediaType: 6,
-  outputStartLine: 7,
-  outputEndLine: 8,
+  tokenCount: 5,
+  mtime: 6,
+  mediaType: 7,
+  outputStartLine: 8,
+  outputEndLine: 9,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -181,6 +183,7 @@ function parseFileTable(
       storedIn: requireString(row[COL.storedIn], `${rowLabel}[${COL.storedIn}]`) as ManifestFileRow["storedIn"],
       sha256: requireString(row[COL.sha256], `${rowLabel}[${COL.sha256}]`),
       sizeBytes: requireNumber(row[COL.sizeBytes], `${rowLabel}[${COL.sizeBytes}]`),
+      tokenCount: requireNumber(row[COL.tokenCount], `${rowLabel}[${COL.tokenCount}]`),
       mtime: requireString(row[COL.mtime], `${rowLabel}[${COL.mtime}]`),
       mediaType: requireString(row[COL.mediaType], `${rowLabel}[${COL.mediaType}]`),
       outputStartLine: requireNumberOrNull(row[COL.outputStartLine], `${rowLabel}[${COL.outputStartLine}]`),
@@ -207,6 +210,7 @@ function parseSectionDto(
     outputFile: requireString(obj.outputFile, `${label}.outputFile`),
     outputSha256: requireString(obj.outputSha256, `${label}.outputSha256`),
     fileCount: requireNumber(obj.fileCount, `${label}.fileCount`),
+    tokenCount: requireNumber(obj.tokenCount, `${label}.tokenCount`),
     files: { columns: [...FILE_ROW_COLUMNS], rows: [] }, // placeholder
   };
 
@@ -268,10 +272,10 @@ function parseManifestDto(raw: unknown): {
         settingsRaw.globalStyle,
         "settings.globalStyle",
       ) as ManifestSettings["globalStyle"],
-      tokenAlgorithm: requireString(
-        settingsRaw.tokenAlgorithm,
-        "settings.tokenAlgorithm",
-      ) as ManifestSettings["tokenAlgorithm"],
+      tokenEncoding: requireString(
+        settingsRaw.tokenEncoding,
+        "settings.tokenEncoding",
+      ),
       showLineNumbers: requireBool(settingsRaw.showLineNumbers, "settings.showLineNumbers"),
       includeEmptyDirectories: requireBool(
         settingsRaw.includeEmptyDirectories,
@@ -340,6 +344,7 @@ export function renderManifestJson(manifest: CxManifest, pretty = true): string 
       outputFile: section.outputFile,
       outputSha256: section.outputSha256,
       fileCount: section.fileCount,
+      tokenCount: section.tokenCount,
       files: {
         columns: [...FILE_ROW_COLUMNS],
         rows: section.files.map((row) => [
@@ -348,6 +353,7 @@ export function renderManifestJson(manifest: CxManifest, pretty = true): string 
           row.storedIn,
           row.sha256,
           row.sizeBytes,
+          row.tokenCount,
           row.mtime,
           row.mediaType,
           row.outputStartLine,
@@ -384,6 +390,7 @@ export function parseManifestJson(source: string): CxManifest {
     outputFile: section.outputFile,
     outputSha256: section.outputSha256,
     fileCount: section.fileCount,
+    tokenCount: section.tokenCount,
     files: (sectionRows[i] ?? []).map((row) => ({
       ...row,
       section: section.name,
@@ -401,6 +408,7 @@ export function parseManifestJson(source: string): CxManifest {
     storedIn: "copied",
     sha256: asset.sha256,
     sizeBytes: asset.sizeBytes,
+    tokenCount: 0,
     mtime: asset.mtime,
     mediaType: asset.mediaType,
     outputStartLine: null,

@@ -37,7 +37,7 @@ algorithm = "sha256"
 file_name = "{project}.sha256"
 
 [tokens]
-algorithm = "chars_div_4"
+encoding = "o200k_base"
 
 [display.list]
 bytes_warm = 4096
@@ -95,7 +95,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     fileName: "{project}.sha256",
   },
   tokens: {
-    algorithm: "chars_div_4",
+    encoding: "o200k_base",
   },
   display: {
     list: {

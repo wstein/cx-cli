@@ -91,9 +91,6 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
       `  mergeConfigs:            ${detectedCapabilities.hasMergeConfigs ? "YES" : "NO"}\n`,
     );
     process.stdout.write(
-      `  pack:                    ${detectedCapabilities.hasPack ? "YES" : "NO"}\n`,
-    );
-    process.stdout.write(
       `  packStructured:          ${detectedCapabilities.hasPackStructured ? "YES" : "NO"}\n`,
     );
     process.stdout.write(`\nCapabilities:\n`);
@@ -153,6 +150,7 @@ async function runAdapterInspect(args: AdapterArgs): Promise<number> {
       showLineNumbers: config.repomix.showLineNumbers,
       includeEmptyDirectories: config.repomix.includeEmptyDirectories,
       securityCheck: config.repomix.securityCheck,
+      tokenEncoding: config.tokens.encoding,
     },
   };
 
@@ -190,7 +188,6 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
     const adapterCapabilities = await detectRepomixCapabilities();
     const hasRequired =
       adapterCapabilities.hasMergeConfigs &&
-      adapterCapabilities.hasPack &&
       adapterCapabilities.hasPackStructured;
     checks.push({
       name: `${adapterPath} available`,

@@ -2,7 +2,6 @@ export type CxStyle = "xml" | "markdown" | "json" | "plain";
 export type CxDedupMode = "fail" | "first-wins";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
-export type CxTokenAlgorithm = "chars_div_4" | "chars_div_3";
 
 export interface CxSectionConfig {
   include: string[];
@@ -43,7 +42,7 @@ export interface CxChecksumsConfig {
 }
 
 export interface CxTokensConfig {
-  algorithm: CxTokenAlgorithm;
+  encoding: string;
 }
 
 export interface CxListDisplayConfig {

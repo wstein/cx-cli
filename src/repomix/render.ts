@@ -13,6 +13,8 @@ import {
 
 export interface RenderSectionResult {
   outputText: string;
+  outputTokenCount: number;
+  fileTokenCounts: Map<string, number>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
 }
 
@@ -152,10 +154,15 @@ export async function renderSectionWithRepomix(params: {
 
   if (params.explicitFiles.length === 0) {
     await fs.writeFile(params.outputPath, "", "utf8");
-    return { outputText: "", fileSpans: new Map() };
+    return {
+      outputText: "",
+      outputTokenCount: 0,
+      fileTokenCounts: new Map(),
+      fileSpans: new Map(),
+    };
   }
 
-  const { mergeConfigs, pack, packStructured } = await loadRepomixAdapter();
+  const { mergeConfigs, packStructured } = await loadRepomixAdapter();
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {
@@ -196,32 +203,38 @@ export async function renderSectionWithRepomix(params: {
     security: {
       enableSecurityCheck: params.config.repomix.securityCheck,
     },
+    tokenCount: {
+      encoding: params.config.tokens.encoding,
+    },
   };
 
   const mergedConfig = mergeConfigs(params.sourceRoot, {}, cliConfig);
+  const structuredPlan = await packStructured(
+    [params.sourceRoot],
+    mergedConfig,
+    {
+      explicitFiles: params.explicitFiles,
+    },
+  );
 
-  // When span capture is needed, use packStructured with renderWithMap
+  const rendered = await structuredPlan.renderWithMap(params.style);
+  await fs.writeFile(params.outputPath, rendered.output, "utf8");
+
+  const entryByPath = new Map(
+    structuredPlan.entries.map((entry) => [entry.path, entry]),
+  );
+  const fileTokenCounts = new Map<string, number>();
+  const fileSpans = new Map<
+    string,
+    { outputStartLine: number; outputEndLine: number }
+  >();
+
+  for (const entry of structuredPlan.entries) {
+    fileTokenCounts.set(entry.path, entry.metadata.tokenCount ?? 0);
+  }
+
   if (params.config.manifest.includeOutputSpans) {
-    const structuredPlan = await packStructured(
-      [params.sourceRoot],
-      mergedConfig,
-      {
-        explicitFiles: params.explicitFiles,
-      },
-    );
-
-    const rendered = await structuredPlan.renderWithMap(params.style);
-    await fs.writeFile(params.outputPath, rendered.output, "utf8");
-
     // Derive absolute spans for bare content lines inside each rendered file block.
-    const entryByPath = new Map(
-      structuredPlan.entries.map((entry) => [entry.path, entry]),
-    );
-    const fileSpans = new Map<
-      string,
-      { outputStartLine: number; outputEndLine: number }
-    >();
-
     for (const span of rendered.files) {
       const entry = entryByPath.get(span.path);
       const logicalLineCount = countLogicalLines(entry?.content ?? "");
@@ -242,18 +255,15 @@ export async function renderSectionWithRepomix(params: {
         outputEndLine: outputStartLine + spanLength - 1,
       });
     }
-
-    return { outputText: rendered.output, fileSpans };
   }
 
-  // For backward compatibility: use pack() when spans are not needed
-  await pack(
-    [params.sourceRoot],
-    mergedConfig,
-    () => {},
-    {},
-    params.explicitFiles,
-  );
-
-  return { outputText: await fs.readFile(params.outputPath, "utf8") };
+  return {
+    outputText: rendered.output,
+    outputTokenCount: [...fileTokenCounts.values()].reduce(
+      (sum, tokenCount) => sum + tokenCount,
+      0,
+    ),
+    fileTokenCounts,
+    fileSpans,
+  };
 }

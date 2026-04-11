@@ -6,6 +6,7 @@ import type {
   ManifestFileRow,
   SectionOutputRecord,
   SectionSpanMaps,
+  SectionTokenMaps,
 } from "./types.js";
 
 export function buildManifest(params: {
@@ -15,12 +16,14 @@ export function buildManifest(params: {
   cxVersion: string;
   repomixVersion: string;
   sectionSpanMaps?: SectionSpanMaps;
+  sectionTokenMaps?: SectionTokenMaps;
 }): CxManifest {
   const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
     const planSection = params.plan.sections.find(
       (s) => s.name === sectionOutput.name,
     );
     const sectionSpans = params.sectionSpanMaps?.get(sectionOutput.name);
+    const sectionTokens = params.sectionTokenMaps?.get(sectionOutput.name);
     const files: ManifestFileRow[] = (planSection?.files ?? []).map((file) => {
       const fileSpan = sectionSpans?.get(file.relativePath);
       return {
@@ -30,6 +33,7 @@ export function buildManifest(params: {
         storedIn: "packed",
         sha256: file.sha256,
         sizeBytes: file.sizeBytes,
+        tokenCount: sectionTokens?.get(file.relativePath) ?? 0,
         mtime: file.mtime,
         mediaType: file.mediaType,
         outputStartLine: fileSpan?.outputStartLine ?? null,
@@ -48,6 +52,7 @@ export function buildManifest(params: {
     storedIn: "copied",
     sha256: asset.sha256,
     sizeBytes: asset.sizeBytes,
+    tokenCount: 0,
     mtime: asset.mtime,
     mediaType: asset.mediaType,
     outputStartLine: null,
@@ -67,7 +72,7 @@ export function buildManifest(params: {
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: params.config.repomix.style,
-      tokenAlgorithm: params.config.tokens.algorithm,
+      tokenEncoding: params.config.tokens.encoding,
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,

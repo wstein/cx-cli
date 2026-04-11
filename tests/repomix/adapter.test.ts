@@ -3,19 +3,19 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { mergeConfigs, pack } from "@wstein/repomix";
+import { mergeConfigs, packStructured } from "@wstein/repomix";
 import {
   getRepomixCapabilities,
   REPOMIX_ADAPTER_CONTRACT,
 } from "../../src/repomix/render.js";
 
 describe("Repomix adapter contract", () => {
-  test("exports the public mergeConfigs and pack functions", () => {
+  test("exports the public mergeConfigs and packStructured functions", () => {
     expect(typeof mergeConfigs).toBe("function");
-    expect(typeof pack).toBe("function");
+    expect(typeof packStructured).toBe("function");
   });
 
-  test("pack can be invoked with the same public call shape used by cx", async () => {
+  test("packStructured can be invoked with the same public call shape used by cx", async () => {
     const root = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-repomix-adapter-"),
     );
@@ -66,7 +66,11 @@ describe("Repomix adapter contract", () => {
     };
 
     const merged = mergeConfigs(root, {}, cliConfig);
-    await pack([root], merged, () => {}, {}, ["src/index.ts"]);
+    const plan = await packStructured([root], merged, {
+      explicitFiles: ["src/index.ts"],
+    });
+    const rendered = await plan.renderWithMap("xml");
+    await fs.writeFile(outputPath, rendered.output, "utf8");
 
     expect((await getRepomixCapabilities()).adapterContract).toBe(
       REPOMIX_ADAPTER_CONTRACT,

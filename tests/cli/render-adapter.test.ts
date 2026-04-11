@@ -173,12 +173,15 @@ describe("render command", () => {
     const payload = JSON.parse(output) as {
       projectName?: string;
       selection?: { sections?: string[] };
-      outputs?: Array<{ section: string; fileCount: number }>;
+      outputs?: Array<{ section: string; fileCount: number; tokenCount: number }>;
     };
 
     expect(payload.projectName).toBe("demo");
     expect(payload.selection?.sections?.sort()).toEqual(["docs", "src"]);
     expect(payload.outputs?.length).toBe(2);
+    for (const entry of payload.outputs ?? []) {
+      expect(entry.tokenCount).toBeGreaterThan(0);
+    }
   });
 
   test("fails with no selection", async () => {

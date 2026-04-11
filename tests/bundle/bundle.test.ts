@@ -357,7 +357,7 @@ include_source_metadata = true`;
       checksumAlgorithm: "sha256",
       settings: {
         globalStyle: "xml",
-        tokenAlgorithm: "chars_div_4",
+        tokenEncoding: "o200k_base",
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
@@ -378,9 +378,10 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-docs.xml.txt",
           outputSha256: "aaa",
           fileCount: 2,
+          tokenCount: 7,
           files: [
-            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
-            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
+            { path: "docs/a.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha1", sizeBytes: 1, tokenCount: 3, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 5, outputEndLine: 5 },
+            { path: "docs/b.md", kind: "text", section: "docs", storedIn: "packed", sha256: "sha2", sizeBytes: 1, tokenCount: 4, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/markdown", outputStartLine: 6, outputEndLine: 6 },
           ],
         },
         {
@@ -389,8 +390,9 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-src.xml.txt",
           outputSha256: "bbb",
           fileCount: 1,
+          tokenCount: 5,
           files: [
-            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
+            { path: "src/c.ts", kind: "text", section: "src", storedIn: "packed", sha256: "sha3", sizeBytes: 1, tokenCount: 5, mtime: "2026-04-11T00:00:00.000Z", mediaType: "text/typescript", outputStartLine: 10, outputEndLine: 10 },
           ],
         },
       ],

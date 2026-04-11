@@ -1,5 +1,4 @@
 import kleur from "kleur";
-import type { CxTokenAlgorithm } from "../config/types.js";
 
 /**
  * Format bytes into human-readable size strings
@@ -12,27 +11,6 @@ export function formatBytes(bytes: number): string {
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${(bytes / k ** i).toFixed(1)} ${sizes[i]}`;
-}
-
-/**
- * Estimate token count from text (rough approximation)
- * Uses common heuristic: 1 token ≈ 4 characters average
- */
-export function estimateTokenCount(
-  text: string,
-  algorithm: CxTokenAlgorithm = "chars_div_4",
-): number {
-  return estimateTokenCountFromLength(text.length, algorithm);
-}
-
-export function estimateTokenCountFromLength(
-  length: number,
-  algorithm: CxTokenAlgorithm = "chars_div_4",
-): number {
-  if (algorithm === "chars_div_3") {
-    return Math.ceil(length / 3);
-  }
-  return Math.ceil(length / 4);
 }
 
 /**
@@ -134,13 +112,13 @@ export function formatSectionStats(
   name: string,
   fileCount: number,
   totalBytes: number,
-  estimatedTokens: number,
+  tokenCount: number,
 ): string[] {
   return [
     kleur.bold().cyan(`📄 ${name}`),
     `  Files: ${kleur.bold().white(String(fileCount))}`,
     `  Size: ${kleur.bold().white(formatBytes(totalBytes))}`,
-    `  Tokens (est.): ${kleur.bold().white(formatNumber(estimatedTokens))}`,
+    `  Tokens: ${kleur.bold().white(formatNumber(tokenCount))}`,
   ];
 }
 
@@ -153,7 +131,7 @@ export function printBundleSummary(
   sectionCount: number,
   assetCount: number,
   totalBytes: number,
-  estimatedTokens: number,
+  tokenCount: number,
 ): void {
   printHeader("Bundle Created Successfully");
   printStat("Project", projectName);
@@ -163,6 +141,6 @@ export function printBundleSummary(
   printStat("Assets", assetCount);
   printDivider();
   printStat("Total size", formatBytes(totalBytes));
-  printStat("Estimated tokens", formatNumber(estimatedTokens));
+  printStat("Total tokens", formatNumber(tokenCount));
   console.log();
 }

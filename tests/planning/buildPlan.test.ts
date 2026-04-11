@@ -53,7 +53,7 @@ function baseConfig(root: string): CxConfig {
       fileName: "demo.sha256",
     },
     tokens: {
-      algorithm: "chars_div_4",
+      encoding: "o200k_base",
     },
     display: {
       list: {

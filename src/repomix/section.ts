@@ -16,6 +16,7 @@ export interface RenderSectionResult {
   content: string;
   fileCount: number;
   style: CxStyle;
+  tokenCount: number;
 }
 
 export async function renderSection(
@@ -38,6 +39,7 @@ export async function renderSection(
       content: result.outputText,
       fileCount: params.files.length,
       style: params.style,
+      tokenCount: result.outputTokenCount,
     };
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });

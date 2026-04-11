@@ -7,7 +7,6 @@ import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { renderSection } from "../../repomix/section.js";
 import { CxError } from "../../shared/errors.js";
 import {
-  estimateTokenCount,
   formatBytes,
   formatNumber,
   printDivider,
@@ -83,7 +82,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
     outputFile: string;
     fileCount: number;
     sizeBytes: number;
-    estimatedTokens: number;
+    tokenCount: number;
   }> = [];
 
   for (const sectionName of selectedSectionNames) {
@@ -118,18 +117,13 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
       (sum, f) => sum + f.sizeBytes,
       0,
     );
-    const estimatedTokens = estimateTokenCount(
-      result.content,
-      config.tokens.algorithm,
-    );
-
     outputs.push({
       section: sectionName,
       style,
       outputFile: `${config.projectName}-repomix-${sectionName}.${styleExtension(style)}`,
       fileCount: selectedFiles.length,
       sizeBytes: totalSizeBytes,
-      estimatedTokens,
+      tokenCount: result.tokenCount,
     });
 
     if (args.stdout && outputs.length === 1) {
@@ -152,16 +146,13 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
         [`📄 ${output.section}`, ""],
         ["  Files", output.fileCount],
         ["  Size", formatBytes(output.sizeBytes)],
-        ["  Tokens (est.)", formatNumber(output.estimatedTokens)],
+        ["  Tokens", formatNumber(output.tokenCount)],
       ]);
     }
     if (outputs.length > 0) {
       printDivider();
       const totalSize = outputs.reduce((sum, o) => sum + o.sizeBytes, 0);
-      const totalTokens = outputs.reduce(
-        (sum, o) => sum + o.estimatedTokens,
-        0,
-      );
+      const totalTokens = outputs.reduce((sum, o) => sum + o.tokenCount, 0);
       printTable([
         ["Total size", formatBytes(totalSize)],
         ["Total tokens", formatNumber(totalTokens)],

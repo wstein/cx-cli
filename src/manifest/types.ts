@@ -1,12 +1,8 @@
-import type {
-  CxListDisplayConfig,
-  CxStyle,
-  CxTokenAlgorithm,
-} from "../config/types.js";
+import type { CxListDisplayConfig, CxStyle } from "../config/types.js";
 
 export interface ManifestSettings {
   globalStyle: CxStyle;
-  tokenAlgorithm: CxTokenAlgorithm;
+  tokenEncoding: string;
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
@@ -20,6 +16,7 @@ export interface ManifestFileRow {
   storedIn: "packed" | "copied";
   sha256: string;
   sizeBytes: number;
+  tokenCount: number;
   mtime: string;
   mediaType: string;
   outputStartLine: number | null;
@@ -32,6 +29,7 @@ export interface SectionOutputRecord {
   outputFile: string;
   outputSha256: string;
   fileCount: number;
+  tokenCount: number;
 }
 
 export interface FileSpanRecord {
@@ -41,6 +39,8 @@ export interface FileSpanRecord {
 
 export type FileSpanMap = Map<string, FileSpanRecord>;
 export type SectionSpanMaps = Map<string, FileSpanMap>;
+export type FileTokenMap = Map<string, number>;
+export type SectionTokenMaps = Map<string, FileTokenMap>;
 
 export interface AssetRecord {
   sourcePath: string;

@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 
 import kleur from "kleur";
@@ -13,8 +12,6 @@ import {
   summarizeManifest,
 } from "../../shared/manifestSummary.js";
 import {
-  estimateTokenCount,
-  estimateTokenCountFromLength,
   formatBytes,
   formatNumber,
 } from "../../shared/format.js";
@@ -43,61 +40,8 @@ interface RowMeta {
   };
 }
 
-async function readOutputFiles(
-  bundleDir: string,
-  rows: ManifestFileRow[],
-  sectionOutputFileMap: Map<string, string>,
-) {
-  const outputs = new Map<string, string>();
-
-  for (const row of rows) {
-    const outputFile = sectionOutputFileMap.get(row.section);
-    if (row.storedIn === "packed" && outputFile !== undefined) {
-      const outputPath = path.join(bundleDir, outputFile);
-      if (!outputs.has(outputFile)) {
-        outputs.set(outputFile, await fs.readFile(outputPath, "utf8"));
-      }
-    }
-  }
-
-  return { outputs };
-}
-
-function extractLines(content: string, startLine: number, endLine: number): string {
-  const lines = content.split(/\r?\n/);
-  return lines.slice(startLine - 1, endLine).join("\n");
-}
-
-function estimateTokensForRow(
-  row: ManifestFileRow,
-  sectionOutputFileMap: Map<string, string>,
-  outputs: Map<string, string>,
-  manifest: CxManifest,
-): number {
-  const outputFile = sectionOutputFileMap.get(row.section);
-  if (
-    row.storedIn === "packed" &&
-    outputFile !== undefined &&
-    row.outputStartLine !== null &&
-    row.outputEndLine !== null
-  ) {
-    const outputText = outputs.get(outputFile);
-    if (outputText !== undefined) {
-      return estimateTokenCount(
-        extractLines(outputText, row.outputStartLine, row.outputEndLine),
-        manifest.settings.tokenAlgorithm,
-      );
-    }
-  }
-
-  return estimateTokenCountFromLength(
-    row.sizeBytes,
-    manifest.settings.tokenAlgorithm,
-  );
-}
-
-function buildSectionOutputFileMap(manifest: CxManifest): Map<string, string> {
-  return new Map(manifest.sections.map((section) => [section.name, section.outputFile]));
+function getTokensForRow(row: ManifestFileRow): number {
+  return row.tokenCount;
 }
 
 function formatRelativeTime(iso: string): string {
@@ -315,12 +259,6 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   });
   const sections = selectManifestSections(manifest, rows);
   const assets = selectManifestAssets(manifest, rows);
-  const sectionOutputFileMap = buildSectionOutputFileMap(manifest);
-  const { outputs } = await readOutputFiles(
-    bundleDir,
-    rows,
-    sectionOutputFileMap,
-  );
   const extractability = await resolveExtractability({
     bundleDir,
     manifest,
@@ -334,7 +272,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
       path: file.path,
       section: file.section === "-" ? "assets" : file.section,
       bytes: file.sizeBytes,
-      tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs, manifest),
+      tokens: getTokensForRow(file),
       mtime,
       mtimeRelative: formatRelativeTime(mtime),
       status: record?.status ?? "blocked",

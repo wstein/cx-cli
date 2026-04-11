@@ -10,7 +10,6 @@ export interface AdapterRuntimeInfo {
 
 export interface RepomixCapabilities {
   hasMergeConfigs: boolean;
-  hasPack: boolean;
   hasPackStructured: boolean;
   supportsStructuredRenderPlan: boolean;
   supportsRenderWithMap: boolean;
@@ -76,7 +75,6 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
     >;
     return {
       hasMergeConfigs: typeof mod.mergeConfigs === "function",
-      hasPack: typeof mod.pack === "function",
       hasPackStructured: typeof mod.packStructured === "function",
       supportsStructuredRenderPlan:
         typeof mod.packStructured === "function",
@@ -85,7 +83,6 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
   } catch {
     return {
       hasMergeConfigs: false,
-      hasPack: false,
       hasPackStructured: false,
       supportsStructuredRenderPlan: false,
       supportsRenderWithMap: false,
@@ -95,7 +92,7 @@ export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> 
 
 /**
  * Validate that the installed adapter meets the minimum contract:
- * mergeConfigs + pack + packStructured.
+ * mergeConfigs + packStructured.
  */
 export async function validateRepomixContract(): Promise<
   { valid: true } | { valid: false; errors: string[] }
@@ -107,12 +104,6 @@ export async function validateRepomixContract(): Promise<
   if (!capabilities.hasMergeConfigs) {
     errors.push(
       `${adapterPath} does not export mergeConfigs(); this is required by cx-cli.`,
-    );
-  }
-
-  if (!capabilities.hasPack) {
-    errors.push(
-      `${adapterPath} does not export pack(); this is required by cx-cli.`,
     );
   }
 

@@ -30,12 +30,12 @@ exclude = []
     expect(config.projectName).toBe("demo");
     expect(config.assets.targetDir).toBe("demo-assets");
     expect(config.checksums.fileName).toBe("demo.sha256");
-    expect(config.tokens.algorithm).toBe("chars_div_4");
+    expect(config.tokens.encoding).toBe("o200k_base");
     expect(config.display.list.bytesWarm).toBe(4096);
     expect(config.sections.src?.include).toEqual(["src/**"]);
   });
 
-  test("loads token and list display overrides", async () => {
+  test("loads token encoding and list display overrides", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-list-"));
     const configPath = path.join(tempDir, "cx.toml");
     await fs.writeFile(
@@ -49,7 +49,7 @@ output_dir = "dist/demo-bundle"
 style = "xml"
 
 [tokens]
-algorithm = "chars_div_3"
+encoding = "cl100k_base"
 
 [display.list]
 bytes_warm = 2048
@@ -68,7 +68,7 @@ exclude = []
     );
 
     const config = await loadCxConfig(configPath);
-    expect(config.tokens.algorithm).toBe("chars_div_3");
+    expect(config.tokens.encoding).toBe("cl100k_base");
     expect(config.display.list.bytesWarm).toBe(2048);
     expect(config.display.list.bytesHot).toBe(32768);
     expect(config.display.list.tokensWarm).toBe(256);
