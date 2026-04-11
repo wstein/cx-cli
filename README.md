@@ -32,7 +32,7 @@ The repository currently implements:
 - `doctor`: Run adapter compatibility and runtime sanity checks.
 
 Every command supports `--json` for CI consumers.
-`cx list --json` supports `--section` and `--file` filtering, reports per-file status, and uses manifest-recorded `time` plus manifest-recorded list display settings, including the configured grayscale `time_palette`. Human `cx inspect` and `cx inspect --json` both annotate planned files with bundle-side status whenever a matching bundle already exists. `cx extract --json` emits dedicated failure payloads that identify the exact file or files blocked by degraded or missing reconstructed content. `cx validate --json` emits detailed manifest-aware summaries instead of bare success flags.
+`cx list --json` supports `--section` and `--file` filtering, reports per-file status, and includes the active user display settings that colorize human `cx list` output. Human `cx inspect` and `cx inspect --json` both annotate planned files with bundle-side status whenever a matching bundle already exists. `cx extract --json` emits dedicated failure payloads that identify the exact file or files blocked by degraded or missing reconstructed content. `cx validate --json` emits detailed manifest-aware summaries instead of bare success flags.
 `cx verify` now fails if the checksum file omits any expected manifest, section-output, or asset entry.
 Bundle loading requires exactly one `*-manifest.json` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
 
@@ -40,9 +40,9 @@ When `manifest.include_output_spans = true`, `cx bundle` records `output_start_l
 
 The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable. Adapter compatibility is checked against the public exports we actually call, rather than inferred from package-layout assumptions. Core rendering only requires `mergeConfigs` plus either `packStructured()` or `pack()`. Exact span capture remains optional.
 
-Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved. Exact token counting is configurable through `[tokens]` via Repomix tokenizer encodings, and `cx list` temperature thresholds plus its grayscale time palette are configurable through `[display.list]`.
+Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved. Exact token counting is configurable through `[tokens]` via Repomix tokenizer encodings. `cx list` temperature thresholds and its ANSI grayscale palette are user preferences loaded from `~/.config/cx/cx.toml` or `$XDG_CONFIG_HOME/cx/cx.toml`; they are not stored in the project config or the bundle manifest.
 
-For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
+For the final architecture overview, see `docs/ARCHITECTURE.md`. For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
 
 ## Development
 
