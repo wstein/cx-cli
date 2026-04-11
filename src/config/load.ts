@@ -112,6 +112,53 @@ function expectEnum<T extends string>(
   return value as T;
 }
 
+function expectTimePalette(
+  value: unknown,
+  label: string,
+  defaultValue: number[],
+): number[] {
+  if (value === undefined) {
+    return [...defaultValue];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new CxError(`${label} must be an array of ANSI grayscale color codes.`);
+  }
+
+  if (value.length < 8 || value.length > 10) {
+    throw new CxError(`${label} must contain between 8 and 10 grayscale entries.`);
+  }
+
+  const palette = value.map((entry, index) => {
+    if (
+      typeof entry !== "number" ||
+      !Number.isInteger(entry) ||
+      entry < 232 ||
+      entry > 255
+    ) {
+      throw new CxError(
+        `${label}[${index}] must be an integer ANSI grayscale code between 232 and 255.`,
+      );
+    }
+    return entry;
+  });
+
+  for (let index = 1; index < palette.length; index += 1) {
+    const current = palette[index];
+    const previous = palette[index - 1];
+    if (current === undefined || previous === undefined) {
+      throw new CxError(`${label} contains an invalid grayscale palette entry.`);
+    }
+    if (current >= previous) {
+      throw new CxError(
+        `${label} must descend from brighter to darker grayscale codes.`,
+      );
+    }
+  }
+
+  return palette;
+}
+
 function normalizeSection(
   sectionName: string,
   input: Record<string, unknown> | undefined,
@@ -288,6 +335,11 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       displayList.mtime_hot_hours,
       "display.list.mtime_hot_hours",
       DEFAULT_CONFIG_VALUES.display.list.mtimeHotHours,
+    ),
+    timePalette: expectTimePalette(
+      displayList.time_palette,
+      "display.list.time_palette",
+      DEFAULT_CONFIG_VALUES.display.list.timePalette,
     ),
   };
 

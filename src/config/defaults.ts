@@ -46,6 +46,7 @@ tokens_warm = 512
 tokens_hot = 2048
 mtime_warm_minutes = 60
 mtime_hot_hours = 24
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246]
 
 [assets]
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
@@ -106,6 +107,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
       tokensHot: 2048,
       mtimeWarmMinutes: 60,
       mtimeHotHours: 24,
+      timePalette: [255, 254, 253, 252, 251, 250, 249, 248, 247, 246],
     },
   },
   assets: {

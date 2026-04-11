@@ -185,7 +185,7 @@ function colorTime(
   const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
   const maxAgeMs =
     manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
-  const grayscale = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246];
+  const grayscale = manifest.settings.listDisplay.timePalette;
   const thresholds = [
     1 / 120,
     1 / 60,
@@ -200,7 +200,7 @@ function colorTime(
   ];
   const ratio = ageMs / Math.max(1, maxAgeMs);
   const index = thresholds.findIndex((threshold) => ratio <= threshold);
-  const code = grayscale[index] ?? 246;
+  const code = grayscale[index] ?? grayscale[grayscale.length - 1] ?? 246;
   return ansi256(value, code);
 }
 

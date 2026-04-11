@@ -211,6 +211,12 @@ function parseManifestDto(raw: unknown): ManifestDto {
           listDisplayRaw.mtimeHotHours,
           "settings.listDisplay.mtimeHotHours",
         ),
+        timePalette: requireArray(
+          listDisplayRaw.timePalette,
+          "settings.listDisplay.timePalette",
+        ).map((entry, index) =>
+          requireNumber(entry, `settings.listDisplay.timePalette[${index}]`),
+        ),
       },
     },
     sections: sectionsRaw.map((s, i) => parseSectionDto(s, i)),

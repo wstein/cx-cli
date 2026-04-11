@@ -58,6 +58,7 @@ tokens_warm = 256
 tokens_hot = 1024
 mtime_warm_minutes = 30
 mtime_hot_hours = 12
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248]
 
 [sections.src]
 include = ["src/**"]
@@ -74,6 +75,37 @@ exclude = []
     expect(config.display.list.tokensHot).toBe(1024);
     expect(config.display.list.mtimeWarmMinutes).toBe(30);
     expect(config.display.list.mtimeHotHours).toBe(12);
+    expect(config.display.list.timePalette).toEqual([
+      255, 254, 253, 252, 251, 250, 249, 248,
+    ]);
+  });
+
+  test("rejects invalid time palette shape", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-palette-"));
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[display.list]
+time_palette = [255, 255, 254]
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "display.list.time_palette must contain between 8 and 10 grayscale entries.",
+    );
   });
 
   test("rejects invalid list display threshold ordering", async () => {

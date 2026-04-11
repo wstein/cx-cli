@@ -61,6 +61,7 @@ export async function extractBundle(params: {
   sections: string[] | undefined;
   files: string[] | undefined;
   assetsOnly: boolean;
+  allowDegraded: boolean;
   overwrite: boolean;
   verify: boolean;
 }): Promise<void> {
@@ -97,6 +98,15 @@ export async function extractBundle(params: {
   );
   if (blockedFiles.length > 0) {
     throw new ExtractResolutionError(blockedFiles);
+  }
+  const degradedFiles = resolution.records
+    .filter((record) => record.kind === "text" && record.status === "degraded")
+    .map((record) => ({
+      ...record,
+      message: `File ${record.path} is degraded and requires --allow-degraded to extract.`,
+    }));
+  if (degradedFiles.length > 0 && !params.allowDegraded) {
+    throw new ExtractResolutionError(degradedFiles);
   }
 
   for (const row of selectedRows.filter(isTextRow)) {

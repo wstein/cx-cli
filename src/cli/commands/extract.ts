@@ -23,6 +23,7 @@ export interface ExtractArgs {
   sections: string[] | undefined;
   files: string[] | undefined;
   assetsOnly: boolean;
+  allowDegraded?: boolean | undefined;
   overwrite: boolean;
   verify: boolean;
   json?: boolean | undefined;
@@ -65,6 +66,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
       sections: args.sections,
       files: args.files,
       assetsOnly: args.assetsOnly,
+      allowDegraded: args.allowDegraded ?? false,
       overwrite: args.overwrite,
       verify: args.verify,
     });
@@ -100,6 +102,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
           files: args.files ?? [],
         },
         assetsOnly: args.assetsOnly,
+        allowDegraded: args.allowDegraded ?? false,
         summary: summarizeManifest(manifestName, manifest, rows),
         verify: args.verify,
         repomix: await getRepomixCapabilities(),
@@ -133,6 +136,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
         files: args.files ?? [],
       },
       assetsOnly: args.assetsOnly,
+      allowDegraded: args.allowDegraded ?? false,
       extractedSections: selectManifestSections(manifest, rows).map(
         (section) => section.name,
       ),

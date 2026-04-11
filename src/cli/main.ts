@@ -1,6 +1,7 @@
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { asError, CxError } from "../shared/errors.js";
+import { CX_VERSION } from "../repomix/render.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runExtractCommand } from "./commands/extract.js";
@@ -14,10 +15,25 @@ import { runVerifyCommand } from "./commands/verify.js";
 export async function main(argv: string[]): Promise<number> {
   let exitCode = 0;
 
-  await yargs(hideBin(["node", "cx", ...argv]))
+  const cli = yargs(hideBin(["node", "cx", ...argv]))
     .scriptName("cx")
+    .usage("$0 <command> [options]")
     .strict()
-    .help()
+    .strictCommands()
+    .strictOptions()
+    .help("help")
+    .alias("help", "h")
+    .version(CX_VERSION)
+    .alias("version", "v")
+    .showHelpOnFail(false)
+    .recommendCommands()
+    .wrap(null)
+    .example("$0 init --stdout", "Print a starter cx.toml to stdout.")
+    .example("$0 bundle --config cx.toml", "Create a bundle from the current project.")
+    .example(
+      "$0 extract dist/myproject-bundle --file src/index.ts --to /tmp/restore",
+      "Restore one file from a bundle.",
+    )
     .exitProcess(false)
     .fail((message, error) => {
       throw error ?? new CxError(message || "Command failed.");
@@ -27,6 +43,8 @@ export async function main(argv: string[]): Promise<number> {
       "Create a starter cx.toml.",
       (command) =>
         command
+          .example("$0 init --stdout", "Print a starter config without writing a file.")
+          .example("$0 init --name demo --style json", "Customize the starter config.")
           .option("force", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
           .option("json", { type: "boolean", default: false })
@@ -51,6 +69,7 @@ export async function main(argv: string[]): Promise<number> {
       "Show the computed plan without writing files.",
       (command) =>
         command
+          .example("$0 inspect --config cx.toml", "Show the current bundle plan.")
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -65,6 +84,7 @@ export async function main(argv: string[]): Promise<number> {
       "Create a bundle directory from a project.",
       (command) =>
         command
+          .example("$0 bundle --config cx.toml", "Build the configured bundle.")
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -79,11 +99,16 @@ export async function main(argv: string[]): Promise<number> {
       "Restore files from a bundle.",
       (command) =>
         command
+          .example(
+            "$0 extract dist/demo-bundle --file src/index.ts --to /tmp/restore",
+            "Restore one file from a bundle.",
+          )
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("to", { type: "string", demandOption: true })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
           .option("assets-only", { type: "boolean", default: false })
+          .option("allow-degraded", { type: "boolean", default: false })
           .option("json", { type: "boolean", default: false })
           .option("overwrite", { type: "boolean", default: false })
           .option("verify", { type: "boolean", default: false }),
@@ -94,6 +119,7 @@ export async function main(argv: string[]): Promise<number> {
           sections: args.section as string[] | undefined,
           files: args.file as string[] | undefined,
           assetsOnly: args["assets-only"],
+          allowDegraded: args["allow-degraded"],
           json: args.json,
           overwrite: args.overwrite,
           verify: args.verify,
@@ -105,6 +131,7 @@ export async function main(argv: string[]): Promise<number> {
       "List bundle contents.",
       (command) =>
         command
+          .example("$0 list dist/demo-bundle", "List bundle contents grouped by section.")
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
@@ -123,6 +150,7 @@ export async function main(argv: string[]): Promise<number> {
       "Validate bundle structure and schema.",
       (command) =>
         command
+          .example("$0 validate dist/demo-bundle", "Validate a bundle directory.")
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -137,6 +165,10 @@ export async function main(argv: string[]): Promise<number> {
       "Verify bundle integrity.",
       (command) =>
         command
+          .example(
+            "$0 verify dist/demo-bundle --against .",
+            "Verify a bundle against its source tree.",
+          )
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("json", { type: "boolean", default: false })
           .option("section", { type: "array", string: true })
@@ -157,6 +189,7 @@ export async function main(argv: string[]): Promise<number> {
       "Render planned sections as standard Repomix output.",
       (command) =>
         command
+          .example("$0 render --section src --stdout", "Render one section to stdout.")
           .option("config", { type: "string", default: "cx.toml" })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
@@ -185,6 +218,7 @@ export async function main(argv: string[]): Promise<number> {
       "Inspect Repomix adapter capabilities and runtime state.",
       (command) =>
         command
+          .example("$0 adapter capabilities", "Show adapter and Repomix runtime info.")
           .positional("subcommand", {
             type: "string",
             choices: ["capabilities", "inspect", "doctor"],
@@ -201,9 +235,22 @@ export async function main(argv: string[]): Promise<number> {
           json: args.json,
         });
       },
-    )
-    .demandCommand(1)
-    .parseAsync();
+    );
+
+  if (
+    argv.length === 0 ||
+    (argv.length === 1 && (argv[0] === "-h" || argv[0] === "--help"))
+  ) {
+    process.stdout.write(`${await cli.getHelp()}\n`);
+    return 0;
+  }
+
+  if (argv.length === 1 && (argv[0] === "-v" || argv[0] === "--version")) {
+    process.stdout.write(`${CX_VERSION}\n`);
+    return 0;
+  }
+
+  await cli.parseAsync();
 
   return exitCode;
 }

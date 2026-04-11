@@ -55,6 +55,7 @@ export interface CxListDisplayConfig {
   tokensHot: number;
   mtimeWarmMinutes: number;
   mtimeHotHours: number;
+  timePalette: number[];
 }
 
 export interface CxDisplayConfig {

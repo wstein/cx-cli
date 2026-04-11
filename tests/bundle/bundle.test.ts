@@ -369,6 +369,7 @@ include_source_metadata = true`;
           tokensHot: 2048,
           mtimeWarmMinutes: 60,
           mtimeHotHours: 24,
+          timePalette: [255, 254, 253, 252, 251, 250, 249, 248, 247, 246],
         },
       },
       sections: [
@@ -487,6 +488,27 @@ include_source_metadata = true`;
       "intact",
     );
     expect(inspectPayload.bundleComparison?.available).toBe(true);
+  });
+
+  test("renders human inspect output with bundle status vocabulary", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runInspectCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
+
+    process.stdout.write = stdoutWrite;
+    const output = writes.join("");
+    expect(output).toContain("bundle_status: available");
+    expect(output).toContain("intact   src/index.ts");
+    expect(output).toContain("copied   logo.png");
   });
 
   test("emits filtered JSON for list and extract automation", async () => {
@@ -965,7 +987,7 @@ include_source_metadata = true`;
     ).rejects.toThrow("Source tree mismatch");
   });
 
-  test("blocks extraction when selected file is missing from transformed section output", async () => {
+  test("blocks degraded extraction unless explicitly allowed", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");
     await fs.writeFile(
@@ -988,7 +1010,9 @@ include_source_metadata = true`;
         overwrite: false,
         verify: false,
       }),
-    ).rejects.toThrow("Section output is missing file src/index.ts.");
+    ).rejects.toThrow(
+      "File src/index.ts is degraded and requires --allow-degraded to extract.",
+    );
   });
 
   test("emits structured JSON failure payload for extract mismatches", async () => {
@@ -1121,6 +1145,37 @@ include_source_metadata = true`;
     const restoredStat = await fs.stat(path.join(restoreDir, "src", "index.ts"));
     const sourceStat = await fs.stat(path.join(project.root, "src", "index.ts"));
     expect(restoredStat.mtime.toISOString()).toBe(sourceStat.mtime.toISOString());
+  });
+
+  test("extracts degraded files with explicit opt-in", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-degraded");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        "show_line_numbers = false",
+        "show_line_numbers = true",
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await expect(
+      runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        allowDegraded: true,
+        overwrite: false,
+        verify: false,
+      }),
+    ).resolves.toBe(0);
+
+    expect(
+      await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
+    ).not.toBe(await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"));
   });
 
   test("fails verify when the checksum file omits an expected artifact", async () => {

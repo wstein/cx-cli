@@ -6,6 +6,50 @@ import path from "node:path";
 import { main } from "../../src/cli/main.js";
 
 describe("main", () => {
+  test("prints top-level help when invoked without arguments", async () => {
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    await expect(main([])).resolves.toBe(0);
+    process.stdout.write = write;
+
+    expect(output).toContain("cx <command> [options]");
+    expect(output).toContain("extract <bundleDir>");
+  });
+
+  test("prints top-level help with -h", async () => {
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    await expect(main(["-h"])).resolves.toBe(0);
+    process.stdout.write = write;
+
+    expect(output).toContain("Create a bundle directory from a project.");
+    expect(output).toContain("Examples:");
+  });
+
+  test("prints the CLI version", async () => {
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    await expect(main(["--version"])).resolves.toBe(0);
+    process.stdout.write = write;
+
+    expect(output.trim()).toBe("0.1.0");
+  });
+
   test("prints init template to stdout", async () => {
     const write = process.stdout.write;
     let output = "";

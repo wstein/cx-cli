@@ -134,6 +134,7 @@ export async function resolveExtractability(params: {
             message: `Section output for ${row.path} does not match the manifest hash, so exact extraction is not supported for that file.`,
             expectedSha256: row.sha256,
             actualSha256,
+            content,
           });
           continue;
         }
