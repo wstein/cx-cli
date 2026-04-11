@@ -9,6 +9,7 @@ The repository currently implements:
 - Repomix-backed section rendering
 - manifest and checksum generation
 - exact `extract` for XML, JSON, Markdown, and Plain bundles, validated per selected file against the manifest hash
+- section-grouped `list` output with per-file extractability visibility
 - `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, `verify`, and `render` commands
 - `adapter` diagnostic namespace for Repomix integration inspection
 - lint, build, test, and CI verification workflows
@@ -18,7 +19,7 @@ The repository currently implements:
 
 `cx render` renders planned sections as standard Repomix output without requiring a full bundle. Use `--section`, `--all-sections`, or `--file` to select sections or specific files, with `--style` to override output format and `--json` for metadata.
 
-`cx extract` treats the manifest as the source of truth for exact recovery. A file is extracted only when the reconstructed bytes match that file's manifest `sha256`, even if the bundle or section is globally marked non-lossless.
+`cx extract` treats the manifest as the source of truth for exact recovery. A file is extracted only when the reconstructed bytes match that file's manifest `sha256`.
 
 `cx adapter` exposes Repomix integration diagnostics via three subcommands:
 - `capabilities`: Show cx and Repomix versions, supported output styles, and exact span support status.
@@ -26,7 +27,7 @@ The repository currently implements:
 - `doctor`: Run adapter compatibility and runtime sanity checks.
 
 Every command supports `--json` for CI consumers.
-`cx list --json` supports `--section` and `--file` filtering, and `cx extract --json` and `cx validate --json` now emit detailed manifest-aware summaries instead of bare success flags.
+`cx list --json` supports `--section` and `--file` filtering, reports per-file extractability, and `cx extract --json` now emits dedicated failure payloads that identify the exact file or files blocked by mismatched reconstructed content. `cx validate --json` emits detailed manifest-aware summaries instead of bare success flags.
 `cx verify` now fails if the checksum file omits any expected manifest, section-output, or asset entry.
 Bundle loading requires exactly one `*-manifest.toon` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
 
