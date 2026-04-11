@@ -95,12 +95,6 @@ export async function verifyBundle(
   );
 
   for (const checksum of checksums) {
-    // view.json files are unverified, disposable metadata generated on demand —
-    // they are intentionally excluded from cryptographic validation.
-    if (checksum.relativePath.endsWith(".view.json")) {
-      continue;
-    }
-
     if (!expectedFiles.has(checksum.relativePath)) {
       if (selection.sections?.length || selection.files?.length) {
         continue;
