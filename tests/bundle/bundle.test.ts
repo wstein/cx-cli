@@ -666,7 +666,7 @@ include_source_metadata = true`;
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
       "capability-aware with renderWithMap support",
     );
-    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.2");
+    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.1");
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
     expect(verifyPayload.repomix?.spanCapabilityReason).toContain(
@@ -1041,19 +1041,17 @@ include_source_metadata = true`;
     );
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await expect(
-      runExtractCommand({
-        bundleDir: project.bundleDir,
-        destinationDir: restoreDir,
-        sections: undefined,
-        files: ["src/index.ts"],
-        assetsOnly: false,
-        overwrite: false,
-        verify: false,
-      }),
-    ).rejects.toThrow(
-      "File src/index.ts is degraded and requires --allow-degraded to extract.",
-    );
+    // The command now formats a visual table and returns the exit code instead of throwing.
+    const exitCode = await runExtractCommand({
+      bundleDir: project.bundleDir,
+      destinationDir: restoreDir,
+      sections: undefined,
+      files: ["src/index.ts"],
+      assetsOnly: false,
+      overwrite: false,
+      verify: false,
+    });
+    expect(exitCode).toBe(8);
   });
 
   test("emits structured JSON failure payload for extract mismatches", async () => {

@@ -3,8 +3,6 @@
  * Runtime feature detection instead of semver-based gating
  */
 
-import * as repomixModule from "@wstein/repomix";
-
 export interface AdapterRuntimeInfo {
   packageName: string;
   packageVersion: string;
@@ -18,70 +16,109 @@ export interface RepomixCapabilities {
   supportsRenderWithMap: boolean;
 }
 
+const DEFAULT_ADAPTER = "@wsmy/repomix-cx-fork";
+let _adapterPath: string | undefined;
+
 /**
- * Get runtime info about the installed @wstein/repomix package
+ * Override the Repomix adapter module path.
+ * Must be called before any adapter operation (e.g. from CLI middleware).
+ */
+export function setAdapterPath(p: string): void {
+  _adapterPath = p;
+}
+
+/** The effective adapter module path: the override if set, or the default scoped fork. */
+export function getAdapterModulePath(): string {
+  return _adapterPath ?? DEFAULT_ADAPTER;
+}
+
+/**
+ * Get runtime info about the installed Repomix adapter package.
+ * Tries the configured adapter path first, then falls back to the default.
  */
 export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
-  try {
-    // Dynamic import to read package.json metadata
-    // @ts-expect-error - JSON subpath imports require module aliasing in TypeScript
-    const pkg = (await import("@wstein/repomix/package.json", {
-      with: { type: "json" },
-    })) as {
-      default: { name?: string; version?: string };
-    };
+  const adapterPath = getAdapterModulePath();
+  const pathsToTry =
+    adapterPath !== DEFAULT_ADAPTER
+      ? [adapterPath, DEFAULT_ADAPTER]
+      : [DEFAULT_ADAPTER];
 
+  for (const p of pathsToTry) {
+    try {
+      const pkg = (await import(`${p}/package.json`, {
+        with: { type: "json" },
+      })) as {
+        default: { name?: string; version?: string };
+      };
+      return {
+        packageName: pkg.default.name ?? p,
+        packageVersion: pkg.default.version ?? "unknown",
+      };
+    } catch {
+      // try next
+    }
+  }
+
+  return {
+    packageName: adapterPath,
+    packageVersion: "unknown",
+  };
+}
+
+/**
+ * Detect which Repomix capabilities are available in the configured adapter module.
+ */
+export async function detectRepomixCapabilities(): Promise<RepomixCapabilities> {
+  try {
+    const mod = (await import(getAdapterModulePath())) as Record<
+      string,
+      unknown
+    >;
     return {
-      packageName: pkg.default.name ?? "@wstein/repomix",
-      packageVersion: pkg.default.version ?? "unknown",
+      hasMergeConfigs: typeof mod.mergeConfigs === "function",
+      hasPack: typeof mod.pack === "function",
+      hasPackStructured: typeof mod.packStructured === "function",
+      supportsStructuredRenderPlan:
+        typeof mod.packStructured === "function",
+      supportsRenderWithMap: typeof mod.packStructured === "function",
     };
   } catch {
     return {
-      packageName: "@wstein/repomix",
-      packageVersion: "unknown",
+      hasMergeConfigs: false,
+      hasPack: false,
+      hasPackStructured: false,
+      supportsStructuredRenderPlan: false,
+      supportsRenderWithMap: false,
     };
   }
 }
 
 /**
- * Detect which Repomix capabilities are available in the installed module
+ * Validate that the installed adapter meets the minimum contract:
+ * mergeConfigs + pack + packStructured.
  */
-export function detectRepomixCapabilities(): RepomixCapabilities {
-  return {
-    hasMergeConfigs: typeof repomixModule.mergeConfigs === "function",
-    hasPack: typeof repomixModule.pack === "function",
-    hasPackStructured: typeof repomixModule.packStructured === "function",
-    supportsStructuredRenderPlan:
-      typeof repomixModule.packStructured === "function",
-    supportsRenderWithMap: typeof repomixModule.packStructured === "function",
-  };
-}
-
-/**
- * Validate that installed @wstein/repomix meets minimum contract
- * Minimum: mergeConfigs + pack + packStructured (for cx-cli)
- */
-export function validateRepomixContract():
-  | { valid: true }
-  | { valid: false; errors: string[] } {
-  const capabilities = detectRepomixCapabilities();
+export async function validateRepomixContract(): Promise<
+  { valid: true } | { valid: false; errors: string[] }
+> {
+  const capabilities = await detectRepomixCapabilities();
+  const adapterPath = getAdapterModulePath();
   const errors: string[] = [];
 
   if (!capabilities.hasMergeConfigs) {
     errors.push(
-      "Installed @wstein/repomix does not export mergeConfigs(); this is required by cx-cli.",
+      `${adapterPath} does not export mergeConfigs(); this is required by cx-cli.`,
     );
   }
 
   if (!capabilities.hasPack) {
     errors.push(
-      "Installed @wstein/repomix does not export pack(); this is required by cx-cli.",
+      `${adapterPath} does not export pack(); this is required by cx-cli.`,
     );
   }
 
   if (!capabilities.hasPackStructured) {
     errors.push(
-      "Installed @wstein/repomix does not export packStructured(); structured render plan support is required by this cx-cli version.",
+      `${adapterPath} does not export packStructured(); structured render plan support is required by this cx-cli version.`,
     );
   }
 
@@ -93,13 +130,13 @@ export function validateRepomixContract():
 }
 
 /**
- * Get runtime version info including capabilities
- * Used by adapter commands to display environment details
+ * Get runtime version info including capabilities.
+ * Used by adapter commands to display environment details.
  */
 export async function getRepomixCapabilities() {
   const runtimeInfo = await getAdapterRuntimeInfo();
-  const capabilities = detectRepomixCapabilities();
-  const contractValidation = validateRepomixContract();
+  const capabilities = await detectRepomixCapabilities();
+  const contractValidation = await validateRepomixContract();
 
   return {
     ...runtimeInfo,
@@ -111,10 +148,10 @@ export async function getRepomixCapabilities() {
 }
 
 /**
- * Throw CxError if contract validation fails
+ * Throw CxError if contract validation fails.
  */
 export async function requireRepomixContract(): Promise<void> {
-  const validation = validateRepomixContract();
+  const validation = await validateRepomixContract();
   if (!validation.valid) {
     const { CxError } = await import("../shared/errors.js");
     throw new CxError(validation.errors.join("\n"), 2);

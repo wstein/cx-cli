@@ -1,6 +1,7 @@
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import { asError, CxError } from "../shared/errors.js";
+import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
@@ -18,6 +19,16 @@ export async function main(argv: string[]): Promise<number> {
   const cli = yargs(hideBin(["node", "cx", ...argv]))
     .scriptName("cx")
     .usage("$0 <command> [options]")
+    .option("adapter-path", {
+      type: "string",
+      description: "Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).",
+      global: true,
+    })
+    .middleware((args) => {
+      if (typeof args["adapter-path"] === "string") {
+        setAdapterPath(args["adapter-path"]);
+      }
+    })
     .strict()
     .strictCommands()
     .strictOptions()

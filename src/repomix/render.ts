@@ -1,11 +1,12 @@
 import fs from "node:fs/promises";
 
-import { mergeConfigs, pack, packStructured } from "@wstein/repomix";
+import type * as RepomixTypes from "@wstein/repomix";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
 import {
   detectRepomixCapabilities,
+  getAdapterModulePath,
   getRepomixCapabilities as getRepomixCapabilitiesImpl,
   validateRepomixContract,
 } from "./capabilities.js";
@@ -97,13 +98,20 @@ function findContentStartOffset(params: {
   return 0;
 }
 
+/** Load the configured Repomix adapter module at runtime. */
+async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
+  // Dynamic import honours any --adapter-path override set before command dispatch.
+  // The cast is safe: the adapter is expected to satisfy the RepomixTypes interface.
+  return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
+}
+
 export const CX_VERSION = "0.1.0";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
 
 // Re-export with extended info for backward compatibility
 export async function getRepomixCapabilities() {
   const capabilities = await getRepomixCapabilitiesImpl();
-  const detected = detectRepomixCapabilities();
+  const detected = await detectRepomixCapabilities();
 
   // Determine span capability state
   let spanCapability: "supported" | "unsupported" | "partial" = "unsupported";
@@ -123,11 +131,11 @@ export async function getRepomixCapabilities() {
   };
 }
 
-function assertCompatibleRepomixAdapter(): void {
-  const validation = validateRepomixContract();
+async function assertCompatibleRepomixAdapter(): Promise<void> {
+  const validation = await validateRepomixContract();
   if (!validation.valid) {
     throw new CxError(
-      `Incompatible @wstein/repomix adapter contract:\n${validation.errors.join("\n")}`,
+      `Incompatible Repomix adapter contract:\n${validation.errors.join("\n")}`,
       5,
     );
   }
@@ -140,12 +148,14 @@ export async function renderSectionWithRepomix(params: {
   outputPath: string;
   explicitFiles: string[];
 }): Promise<RenderSectionResult> {
-  assertCompatibleRepomixAdapter();
+  await assertCompatibleRepomixAdapter();
 
   if (params.explicitFiles.length === 0) {
     await fs.writeFile(params.outputPath, "", "utf8");
     return { outputText: "", fileSpans: new Map() };
   }
+
+  const { mergeConfigs, pack, packStructured } = await loadRepomixAdapter();
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {

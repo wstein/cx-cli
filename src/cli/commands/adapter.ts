@@ -4,6 +4,7 @@ import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
   detectRepomixCapabilities,
+  getAdapterModulePath,
   getAdapterRuntimeInfo,
 } from "../../repomix/capabilities.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
@@ -33,7 +34,7 @@ export async function runAdapterCommand(args: AdapterArgs): Promise<number> {
 async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   const capabilities = await getRepomixCapabilities();
   const runtimeInfo = await getAdapterRuntimeInfo();
-  const detectedCapabilities = detectRepomixCapabilities();
+  const detectedCapabilities = await detectRepomixCapabilities();
 
   // Determine span capability state
   let spanCapabilityState: "supported" | "unsupported" | "partial" =
@@ -187,14 +188,15 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
   }> = [];
 
   // Check 1: Repomix package is available with required exports
+  const adapterPath = getAdapterModulePath();
   try {
-    const capabilities = detectRepomixCapabilities();
+    const adapterCapabilities = await detectRepomixCapabilities();
     const hasRequired =
-      capabilities.hasMergeConfigs &&
-      capabilities.hasPack &&
-      capabilities.hasPackStructured;
+      adapterCapabilities.hasMergeConfigs &&
+      adapterCapabilities.hasPack &&
+      adapterCapabilities.hasPackStructured;
     checks.push({
-      name: "@wstein/repomix available",
+      name: `${adapterPath} available`,
       passed: hasRequired,
       message: hasRequired
         ? "All required exports are available"
@@ -202,7 +204,7 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
     });
   } catch (error) {
     checks.push({
-      name: "@wstein/repomix available",
+      name: `${adapterPath} available`,
       passed: false,
       message: `Package not available: ${error instanceof Error ? error.message : String(error)}`,
     });
