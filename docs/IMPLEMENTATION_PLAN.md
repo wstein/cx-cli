@@ -1,90 +1,29 @@
-# CX Implementation Plan
+# CX Implementation Notes
 
-## Acceptance Criteria
+This document describes the final implementation expectations for the repository.
 
-- Every phase builds with `tsc`.
-- `bun` is the primary developer workflow and lockfile owner.
-- Every phase has targeted tests.
-- Documentation reflects shipped behavior, not hoped-for behavior.
-- Commits use conventional commit messages.
+## Repository Standards
 
-## Phase 1
+- The project must build cleanly with TypeScript.
+- `bun` is the primary developer workflow.
+- Changes should ship with targeted tests.
+- Documentation should reflect current behavior only.
+- Commits should use conventional commit messages.
 
-Scope:
+## Implementation Scope
 
-- repository scaffolding
-- decision record
-- starter README
-- TypeScript build and test layout
-- command and domain model skeleton
+- Strict TOML configuration loading and validation.
+- Deterministic file discovery, section planning, and asset handling.
+- Canonical JSON manifest generation with exact token metadata.
+- Deterministic SHA-256 checksum generation and verification.
+- Repomix-backed rendering through the adapter boundary only.
+- Bundle validation, source-tree verification, and extraction with explicit degraded-mode handling.
+- CLI support for initialization, planning, bundling, rendering, verification, extraction, diagnostics, and overlap recovery.
 
-Exit criteria:
+## Quality Gates
 
-- project builds cleanly
-- docs describe the implemented architecture
-
-Status:
-
-- complete
-
-## Phase 2
-
-Scope:
-
-- config types, parsing, validation, and defaults
-- deterministic discovery, classification, and section planning
-- overlap and unmatched-file handling
-- `cx init` and `cx inspect`
-
-Exit criteria:
-
-- plan output is deterministic
-- overlap and config failures are well-diagnosed
-- tests cover the core planning rules
-
-Status:
-
-- complete
-
-## Phase 3
-
-Scope:
-
-- manifest builder and canonical JSON writer
-- checksum generation
-- `bundle`, `list`, `validate`, and `verify`
-- adapter boundary for Repomix rendering
-
-Exit criteria:
-
-- bundles are structurally valid
-- verification catches checksum and structure drift
-- missing renderer capability fails cleanly
-
-Status:
-
-- complete for bundle, list, validate, and verify
-
-## Phase 4
-
-Scope:
-
-- Migrate manifest format from TOON to standard JSON
-- Per-section file lists encoded as standard JSON object arrays
-- Remove `@toon-format/toon` dependency
-- Manifest filename changes from `*-manifest.toon` to `*-manifest.json`
-
-Exit criteria:
-
-- All 84 tests pass with the new format
-- No backward-compatibility shims; codebase is clean
-
-Status:
-
-- complete
-
-## Next Phase Candidates
-
-- richer machine-readable validation and verification detail if CI consumers need more than the current manifest summaries
-- CI matrix against more supported Repomix versions once the adapter contract is validated against those public-export combinations
-- packaging and release automation
+- Planning must remain deterministic.
+- Manifest and checksum outputs must be canonical and reproducible.
+- Overlap and asset conflicts must fail loudly with actionable diagnostics.
+- Adapter capability checks must distinguish core compatibility from optional span support.
+- Tests must cover the shipped command surface and bundle invariants.
