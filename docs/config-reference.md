@@ -92,6 +92,17 @@ A generated bundle must satisfy these invariants:
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
-When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans using absolute line numbers in the rendered section output. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML/Markdown/JSON/plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions.
+When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans using absolute line numbers in the rendered section output only when the active adapter exposes exact span capture through `renderWithMap`. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML/Markdown/JSON/plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions. If the adapter can render but cannot capture exact spans, bundling continues with a warning and the span fields remain `null`.
+
+## Overlap Resolution
+
+Section overlap remains a hard failure for planning and bundling when `dedup.mode = "fail"`, which is the default.
+
+Use the doctor commands to diagnose and resolve conflicts without weakening that invariant:
+
+- `cx doctor overlaps` lists every conflicted file, all matching sections, and the recommended owner.
+- `cx doctor fix-overlaps --dry-run` prints the exact `exclude` updates without modifying `cx.toml`.
+- `cx doctor fix-overlaps` writes the recommended `sections.<name>.exclude` entries to `cx.toml`.
+- `cx doctor fix-overlaps --interactive` lets you choose the owning section for each conflicted file.
 
 For details on how `cx` validates and verifies bundles, see `src/bundle/verify.ts` and `src/bundle/validate.ts`.

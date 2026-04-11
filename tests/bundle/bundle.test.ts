@@ -457,7 +457,7 @@ include_source_metadata = true`;
     expect(reparsed.sections[0]?.files[0]?.path).toBe("docs/a.md");
   });
 
-  test("manifest file is valid JSON with correct schemaVersion and file-table structure", async () => {
+  test("manifest file is valid JSON with correct schemaVersion and object-list structure", async () => {
     const project = await createProject();
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
