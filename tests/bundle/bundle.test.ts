@@ -248,9 +248,9 @@ describe("bundle workflow", () => {
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
-      "public-export contract check",
+      "runtime-capability detection",
     );
-    expect(bundlePayload.repomix?.supportedRepomixVersion).toBe("1.13.1");
+    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.1");
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
     expect(verifyPayload.repomix?.exactSpanCaptureReason).toContain(

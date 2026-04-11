@@ -38,10 +38,6 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   const payload = {
     cx: {
       version: "0.1.0",
-
-  const payload = {
-    cx: {
-      version: "0.1.0",
     },
     repomix: {
       packageName: runtimeInfo.packageName,
@@ -204,7 +200,7 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
 
   // Check 2: Runtime info
   try {
-    const runtimeInfo = getAdapterRuntimeInfo();
+    const runtimeInfo = await getAdapterRuntimeInfo();
     checks.push({
       name: "Package identification",
       passed: Boolean(runtimeInfo.packageName && runtimeInfo.packageVersion),

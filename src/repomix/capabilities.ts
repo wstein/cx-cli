@@ -23,9 +23,12 @@ export interface RepomixCapabilities {
 export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
   try {
     // Dynamic import to read package.json metadata
-    const pkg = await import("@wstein/repomix/package.json", {
-      assert: { type: "json" },
-    });
+    // @ts-expect-error - JSON subpath imports require module aliasing in TypeScript
+    const pkg = (await import("@wstein/repomix/package.json", {
+      with: { type: "json" },
+    })) as {
+      default: { name?: string; version?: string };
+    };
 
     return {
       packageName: pkg.default.name ?? "@wstein/repomix",
@@ -56,7 +59,9 @@ export function detectRepomixCapabilities(): RepomixCapabilities {
  * Validate that installed @wstein/repomix meets minimum contract
  * Minimum: mergeConfigs + pack + packStructured (for cx-cli)
  */
-export function validateRepomixContract(): { valid: true } | { valid: false; errors: string[] } {
+export function validateRepomixContract():
+  | { valid: true }
+  | { valid: false; errors: string[] } {
   const capabilities = detectRepomixCapabilities();
   const errors: string[] = [];
 
@@ -110,9 +115,6 @@ export async function requireRepomixContract(): Promise<void> {
   const validation = validateRepomixContract();
   if (!validation.valid) {
     const { CxError } = await import("../shared/errors.js");
-    throw new CxError(
-      validation.errors.join("\n"),
-      2,
-    );
+    throw new CxError(validation.errors.join("\n"), 2);
   }
 }

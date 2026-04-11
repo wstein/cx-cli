@@ -395,7 +395,7 @@ describe("adapter command", () => {
     }
 
     const output = writes.join("");
-    expect(output).toContain("Repomix available");
+    expect(output).toContain("@wstein/repomix available");
     expect(output).toContain("Adapter contract");
     expect(output).toContain("All checks passed");
   });
