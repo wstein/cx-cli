@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { main } from "../../src/cli/main.js";
 
 describe("main", () => {
@@ -167,6 +168,8 @@ exclude = []
     const payload = JSON.parse(output) as {
       valid?: boolean;
       checksumFile?: string;
+      schemaVersion?: number;
+      bundleVersion?: number;
       summary?: {
         manifestName?: string;
         sectionCount?: number;
@@ -175,6 +178,8 @@ exclude = []
     };
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
+    expect(payload.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
+    expect(payload.bundleVersion).toBe(1);
     expect(payload.summary?.manifestName).toBe("demo-manifest.json");
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.summary?.fileCount).toBe(1);

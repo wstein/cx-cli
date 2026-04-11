@@ -768,6 +768,8 @@ include_source_metadata = true`;
     const payload = JSON.parse(writes.pop() ?? "{}") as {
       valid?: boolean;
       checksumFile?: string;
+      schemaVersion?: number;
+      bundleVersion?: number;
       summary?: {
         manifestName?: string;
         sectionCount?: number;
@@ -777,6 +779,8 @@ include_source_metadata = true`;
 
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
+    expect(payload.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
+    expect(payload.bundleVersion).toBe(1);
     expect(payload.summary?.manifestName).toBe("demo-manifest.json");
     expect(payload.summary?.sectionCount).toBe(2);
     expect(payload.summary?.fileCount).toBe(4);
