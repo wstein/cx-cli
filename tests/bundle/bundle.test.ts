@@ -123,9 +123,6 @@ output_dir = "dist/demo-bundle"
 
 [repomix]
 style = "xml"
-compress = false
-remove_comments = false
-remove_empty_lines = false
 show_line_numbers = false
 include_empty_directories = false
 security_check = false
@@ -361,9 +358,6 @@ include_source_metadata = true`;
       settings: {
         globalStyle: "xml",
         tokenAlgorithm: "chars_div_4",
-        removeComments: false,
-        removeEmptyLines: false,
-        compress: false,
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
@@ -1153,38 +1147,6 @@ include_source_metadata = true`;
     );
   });
 
-  test("extracts individually lossless files from bundles marked lossy", async () => {
-    const project = await createProject();
-    const restoreDir = path.join(project.root, "restored-lossy-single");
-    await fs.writeFile(
-      project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).replace(
-        "remove_empty_lines = false",
-        "remove_empty_lines = true",
-      ),
-      "utf8",
-    );
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await expect(
-      runExtractCommand({
-        bundleDir: project.bundleDir,
-        destinationDir: restoreDir,
-        sections: undefined,
-        files: ["src/index.ts"],
-        assetsOnly: false,
-        overwrite: false,
-        verify: true,
-      }),
-    ).resolves.toBe(0);
-
-    expect(
-      await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
-    ).toBe(await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"));
-    const restoredStat = await fs.stat(path.join(restoreDir, "src", "index.ts"));
-    const sourceStat = await fs.stat(path.join(project.root, "src", "index.ts"));
-    expect(restoredStat.mtime.toISOString()).toBe(sourceStat.mtime.toISOString());
-  });
 
   test("extracts degraded files with explicit opt-in", async () => {
     const project = await createProject();

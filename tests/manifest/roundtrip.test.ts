@@ -88,9 +88,6 @@ const listDisplayArb = fc.record({
 const settingsArb = fc.record({
   globalStyle: styleArb,
   tokenAlgorithm: tokenAlgArb,
-  removeComments: fc.boolean(),
-  removeEmptyLines: fc.boolean(),
-  compress: fc.boolean(),
   showLineNumbers: fc.boolean(),
   includeEmptyDirectories: fc.boolean(),
   securityCheck: fc.boolean(),

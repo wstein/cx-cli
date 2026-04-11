@@ -27,9 +27,6 @@ function baseConfig(root: string): CxConfig {
     outputDir: path.join(root, "dist", "demo-bundle"),
     repomix: {
       style: "xml",
-      compress: false,
-      removeComments: false,
-      removeEmptyLines: false,
       showLineNumbers: false,
       includeEmptyDirectories: false,
       securityCheck: true,

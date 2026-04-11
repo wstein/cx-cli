@@ -39,9 +39,6 @@ output_dir = "dist/demo-bundle"
 
 [repomix]
 style = "xml"
-compress = false
-remove_comments = false
-remove_empty_lines = false
 show_line_numbers = false
 include_empty_directories = false
 security_check = false
