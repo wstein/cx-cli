@@ -20,7 +20,7 @@ The shipped command set in this repository is:
 - `src/planning/` builds a deterministic bundle plan with overlap detection, asset conflict detection, lexical output ordering, and source modification-time capture for every planned file.
 - `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports, and now checks adapter compatibility through those exports rather than package-layout assumptions.
 - `src/extract/` restores XML, JSON, Markdown, and Plain bundles according to explicit status semantics, requires `--allow-degraded` for non-exact text recovery, and emits structured extract failure payloads that identify blocked or degraded files precisely.
-- `src/manifest/` writes a canonical TOON manifest plus a lexical SHA-256 sidecar, including source modification time, token algorithm, and list display settings so bundle consumers can operate from manifest data alone.
+- `src/manifest/` writes a canonical JSON manifest plus a lexical SHA-256 sidecar. Each section's file list is encoded as a 2D array — the first row is the column header and every subsequent row is a positional data record — keeping the file compact and trivially parseable. Source modification time, token algorithm, and list display settings are included so bundle consumers can operate from manifest data alone.
 - `src/bundle/` validates and verifies emitted bundles independently of the original config file, rejects ambiguous manifest sets, proves checksum completeness, and can compare a bundle directly against a source tree with `verify --against`.
 - `src/cli/` exposes the workflow through `yargs`, now behaves cleanly at the top level with global help and version output, restores manifest-recorded source times during extraction, renders `cx list` in section-grouped form with per-file status, and exposes bundle-side file status in both human and JSON `inspect` output when a matching bundle is present.
 - `src/shared/manifestSummary.ts` provides stable manifest-derived summaries so `list`, `extract`, and `validate` can expose consistent machine-readable counts and selections.
@@ -51,5 +51,5 @@ The current test suite covers config loading, deterministic planning, overlap fa
 - `cx` remains a separate package layered on top of Repomix.
 - Section overlap fails by default.
 - Assets are copied raw, not embedded into text outputs.
-- The TOON manifest is authoritative for bundle structure.
+- The JSON manifest is authoritative for bundle structure.
 - Checksums are lexical and deterministic.

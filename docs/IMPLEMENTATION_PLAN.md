@@ -50,7 +50,7 @@ Status:
 
 Scope:
 
-- manifest builder and canonical TOON writer
+- manifest builder and canonical JSON writer
 - checksum generation
 - `bundle`, `list`, `validate`, and `verify`
 - adapter boundary for Repomix rendering
@@ -64,6 +64,24 @@ Exit criteria:
 Status:
 
 - complete for bundle, list, validate, and verify
+
+## Phase 4
+
+Scope:
+
+- Migrate manifest format from TOON to standard JSON
+- Per-section file lists encoded as 2D arrays (header row + data rows)
+- Remove `@toon-format/toon` dependency
+- Manifest filename changes from `*-manifest.toon` to `*-manifest.json`
+
+Exit criteria:
+
+- All 84 tests pass with the new format
+- No backward-compatibility shims; codebase is clean
+
+Status:
+
+- complete
 
 ## Next Phase Candidates
 

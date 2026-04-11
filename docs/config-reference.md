@@ -6,7 +6,7 @@ The `project_name` field must be filesystem-safe and follow a narrow naming poli
 
 - Allowed characters: letters, numbers, dot (`.`), underscore (`_`), hyphen (`-`).
 - Must start with a letter or number.
-- Used to derive bundle artifacts such as `project-manifest.toon`, `project.sha256`, and `project-repomix-<section>.<ext>`.
+- Used to derive bundle artifacts such as `project-manifest.json`, `project.sha256`, and `project-repomix-<section>.<ext>`.
 
 Invalid values are rejected when loading `cx.toml` or when running `cx init --name`.
 
@@ -83,9 +83,9 @@ By default, `cx extract` restores `intact` text files and `copied` assets only. 
 
 A generated bundle must satisfy these invariants:
 
-- Exactly one manifest file must exist in the bundle directory.
+- Exactly one `*-manifest.json` file must exist in the bundle directory.
 - The checksum file must list:
-  - the manifest file
+  - the manifest JSON file
   - every section output file
   - every stored asset file
 - Every manifest file row records the source file `time` used by `cx list` and restored by `cx extract`.
