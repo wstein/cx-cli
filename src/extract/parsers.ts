@@ -11,6 +11,7 @@ const xmlParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "",
   textNodeName: "#text",
+  trimValues: false,
 });
 
 function expectString(value: unknown, label: string): string {
@@ -42,10 +43,16 @@ export function parseXmlSection(source: string): ExtractedTextFile[] {
   }
 
   const files = Array.isArray(fileNode) ? fileNode : [fileNode];
-  return files.map((file) => ({
-    path: expectString(file.path, "file path"),
-    content: typeof file["#text"] === "string" ? file["#text"] : "",
-  }));
+  return files.map((file) => {
+    // fast-xml-parser returns the raw text node. Repomix emits a structural
+    // newline directly after each opening <file> tag, so strip exactly that
+    // one leading newline to recover the original file content.
+    let content = typeof file["#text"] === "string" ? file["#text"] : "";
+    if (content.startsWith("\n")) {
+      content = content.slice(1);
+    }
+    return { path: expectString(file.path, "file path"), content };
+  });
 }
 
 export function parseJsonSection(source: string): ExtractedTextFile[] {
@@ -54,10 +61,15 @@ export function parseJsonSection(source: string): ExtractedTextFile[] {
     throw new CxError("Invalid JSON section output.", 8);
   }
 
-  return Object.entries(parsed.files).map(([filePath, content]) => ({
-    path: filePath,
-    content: expectString(content, `content for ${filePath}`),
-  }));
+  return Object.entries(parsed.files).map(([filePath, content]) => {
+    // Repomix strips the trailing newline from each file value when serializing
+    // to JSON. Restore it so extracted files are byte-identical to the source.
+    const raw = expectString(content, `content for ${filePath}`);
+    return {
+      path: filePath,
+      content: raw.length > 0 && !raw.endsWith("\n") ? `${raw}\n` : raw,
+    };
+  });
 }
 
 export function parseMarkdownSection(source: string): ExtractedTextFile[] {
@@ -92,9 +104,13 @@ export function parseMarkdownSection(source: string): ExtractedTextFile[] {
       throw new CxError(`Unterminated markdown block for ${filePath}.`, 8);
     }
 
+    // Repomix strips the trailing newline from the code-block body when
+    // serializing to markdown. Restore it so extracted files are byte-identical
+    // to the source.
+    const raw = contentLines.join("\n");
     files.push({
       path: filePath,
-      content: contentLines.join("\n"),
+      content: raw.length > 0 && !raw.endsWith("\n") ? `${raw}\n` : raw,
     });
 
     index += 1;
@@ -153,6 +169,7 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
     const filePath = fileLine.slice("File: ".length);
     index += 3;
     const contentLines: string[] = [];
+    let endedAtEof = false;
 
     while (index < lines.length) {
       const currentLine = lines[index];
@@ -167,6 +184,7 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
       }
 
       if (currentLine === longSeparator && nextLine === "End of Codebase") {
+        endedAtEof = true;
         break;
       }
 
@@ -174,8 +192,13 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
       index += 1;
     }
 
-    while (contentLines.length > 0 && contentLines.at(-1) === "") {
-      contentLines.pop();
+    if (endedAtEof) {
+      // Repomix appends exactly 4 extra blank lines before the end-of-codebase
+      // separator for the last file in a section. Strip them to recover the
+      // original file content.
+      for (let i = 0; i < 4 && contentLines.at(-1) === ""; i++) {
+        contentLines.pop();
+      }
     }
 
     files.push({

@@ -190,11 +190,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       sha256: await sha256File(absolutePath),
       trimmedContent: trimmedText,
     };
-    if (trimmedText !== sourceText) {
-      plannedFile.exactContentBase64 = Buffer.from(sourceText, "utf8").toString(
-        "base64",
-      );
-    }
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
   }
 

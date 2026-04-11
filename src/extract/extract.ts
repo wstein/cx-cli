@@ -13,13 +13,6 @@ import {
   parseXmlSection,
 } from "./parsers.js";
 
-function restoreContent(row: ManifestFileRow, trimmedContent: string): string {
-  if (row.exactContentBase64 !== "-") {
-    return Buffer.from(row.exactContentBase64, "base64").toString("utf8");
-  }
-  return trimmedContent;
-}
-
 async function assertWritable(
   destinationPath: string,
   overwrite: boolean,
@@ -143,18 +136,17 @@ export async function extractBundle(params: {
 
   for (const row of selectedRows.filter(isTextRow)) {
     const contentMap = sectionContents.get(row.section);
-    const trimmedContent = contentMap?.get(row.path);
-    if (trimmedContent === undefined) {
+    const content = contentMap?.get(row.path);
+    if (content === undefined) {
       throw new CxError(`Section output is missing file ${row.path}.`, 8);
     }
 
-    const restoredContent = restoreContent(row, trimmedContent);
     const destinationPath = path.join(params.destinationDir, row.path);
     await assertWritable(destinationPath, params.overwrite);
     await ensureDir(path.dirname(destinationPath));
-    await fs.writeFile(destinationPath, restoredContent, "utf8");
+    await fs.writeFile(destinationPath, content, "utf8");
 
-    if (params.verify && sha256Text(restoredContent) !== row.sha256) {
+    if (params.verify && sha256Text(content) !== row.sha256) {
       throw new CxError(`Extracted content hash mismatch for ${row.path}.`, 10);
     }
   }

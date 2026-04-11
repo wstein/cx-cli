@@ -373,7 +373,6 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-docs.xml.txt",
           outputStartLine: 5,
           outputEndLine: 5,
-          exactContentBase64: "-",
         },
         {
           path: "docs/b.md",
@@ -386,7 +385,6 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-docs.xml.txt",
           outputStartLine: 6,
           outputEndLine: 6,
-          exactContentBase64: "-",
         },
         {
           path: "src/c.ts",
@@ -399,7 +397,6 @@ include_source_metadata = true`;
           outputFile: "myproject-repomix-src.xml.txt",
           outputStartLine: 10,
           outputEndLine: 10,
-          exactContentBase64: "-",
         },
       ],
     } as const;

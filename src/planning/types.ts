@@ -8,7 +8,6 @@ export interface PlannedSourceFile {
   sizeBytes: number;
   sha256: string;
   trimmedContent?: string;
-  exactContentBase64?: string;
 }
 
 export interface PlannedSection {

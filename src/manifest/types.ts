@@ -47,7 +47,6 @@ export interface ManifestFileRow {
   outputFile: string | "-";
   outputStartLine: number | "-";
   outputEndLine: number | "-";
-  exactContentBase64: string | "-";
 }
 
 export interface CxManifest {

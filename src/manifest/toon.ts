@@ -12,7 +12,6 @@ const FILE_TABLE_COLUMNS = [
   "output_file",
   "output_start_line",
   "output_end_line",
-  "exact_content_b64",
 ] as const;
 
 function encodeScalar(value: number | string): string {
@@ -131,7 +130,6 @@ function renderFileRow(row: ManifestFileRow): string {
     row.outputFile,
     row.outputStartLine,
     row.outputEndLine,
-    row.exactContentBase64,
   ]
     .map(encodeScalar)
     .join(" ");
@@ -311,7 +309,6 @@ export function parseManifestToon(source: string): CxManifest {
         outputEndLine: parseMaybeNumber(
           requireToken(fields[9], "file output_end_line"),
         ),
-        exactContentBase64: fields[10] as ManifestFileRow["exactContentBase64"],
       });
       continue;
     }

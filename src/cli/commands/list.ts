@@ -62,11 +62,6 @@ function estimateTokensForRow(
   row: ManifestFileRow,
   outputs: Map<string, string>,
 ): number {
-  if (row.exactContentBase64 !== "-") {
-    const content = Buffer.from(row.exactContentBase64, "base64").toString("utf8");
-    return estimateTokenCount(content);
-  }
-
   if (
     row.storedIn === "packed" &&
     row.outputFile !== "-" &&

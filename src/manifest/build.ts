@@ -30,7 +30,6 @@ export function buildManifest(params: {
         outputFile: section.outputFile,
         outputStartLine: fileSpan ? fileSpan.outputStartLine : "-",
         outputEndLine: fileSpan ? fileSpan.outputEndLine : "-",
-        exactContentBase64: file.exactContentBase64 ?? "-",
       };
     }),
   );
@@ -46,7 +45,6 @@ export function buildManifest(params: {
     outputFile: "-",
     outputStartLine: "-",
     outputEndLine: "-",
-    exactContentBase64: "-",
   }));
 
   return {
