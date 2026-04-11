@@ -70,7 +70,7 @@ Status:
 Scope:
 
 - Migrate manifest format from TOON to standard JSON
-- Per-section file lists encoded as 2D arrays (header row + data rows)
+- Per-section file lists encoded as standard JSON object arrays
 - Remove `@toon-format/toon` dependency
 - Manifest filename changes from `*-manifest.toon` to `*-manifest.json`
 

@@ -12,17 +12,8 @@ import type {
   SectionOutputRecord,
 } from "./types.js";
 
-// ---------------------------------------------------------------------------
-// Schema version and schema path
-// ---------------------------------------------------------------------------
+export const MANIFEST_SCHEMA_VERSION = 1 as const;
 
-/** The schema version produced and accepted by this implementation. */
-export const MANIFEST_SCHEMA_VERSION = 2 as const;
-
-/**
- * Absolute path to the JSON Schema (draft-2020-12) that describes this
- * manifest version. Useful for downstream validators or IDE tooling.
- */
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
   const packageRoot = path.resolve(
@@ -30,54 +21,12 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v2.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v1.schema.json");
 })();
-
-// ---------------------------------------------------------------------------
-// File-row column layout
-// ---------------------------------------------------------------------------
-
-/** Ordered column names written to every section's `files.columns` array. */
-export const FILE_ROW_COLUMNS = [
-  "path",
-  "kind",
-  "storedIn",
-  "sha256",
-  "sizeBytes",
-  "tokenCount",
-  "mtime",
-  "mediaType",
-  "outputStartLine",
-  "outputEndLine",
-] as const;
-
-/** Column indices within a data row — avoids magic numbers throughout parsing. */
-const COL = {
-  path: 0,
-  kind: 1,
-  storedIn: 2,
-  sha256: 3,
-  sizeBytes: 4,
-  tokenCount: 5,
-  mtime: 6,
-  mediaType: 7,
-  outputStartLine: 8,
-  outputEndLine: 9,
-} as const;
-
-// ---------------------------------------------------------------------------
-// DTO types — mirror the on-disk JSON structure.
-// ---------------------------------------------------------------------------
-
-/** A section's file table as stored on disk. */
-interface FileTableDto {
-  columns: string[];
-  rows: unknown[][];
-}
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
   style: string;
-  files: FileTableDto;
+  files: unknown[];
 }
 
 interface ManifestDto {
@@ -95,10 +44,6 @@ interface ManifestDto {
   sections: SectionDto[];
   assets: AssetRecord[];
 }
-
-// ---------------------------------------------------------------------------
-// Validation helpers
-// ---------------------------------------------------------------------------
 
 function requireString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
@@ -122,7 +67,9 @@ function requireBool(value: unknown, label: string): boolean {
 }
 
 function requireNumberOrNull(value: unknown, label: string): number | null {
-  if (value === null) return null;
+  if (value === null) {
+    return null;
+  }
   return requireNumber(value, label);
 }
 
@@ -140,85 +87,36 @@ function requireArray(value: unknown, label: string): unknown[] {
   return value;
 }
 
-// ---------------------------------------------------------------------------
-// DTO validation — file table
-// ---------------------------------------------------------------------------
-
 type FileRowWithoutSection = Omit<ManifestFileRow, "section">;
 
-function parseFileTable(
+function parseManifestFileRow(
   raw: unknown,
-  sectionLabel: string,
-): FileRowWithoutSection[] {
-  const tableObj = requireObject(raw, `${sectionLabel}.files`);
+  label: string,
+): FileRowWithoutSection {
+  const obj = requireObject(raw, label);
 
-  // Validate columns array.
-  const columns = requireArray(
-    tableObj.columns,
-    `${sectionLabel}.files.columns`,
-  );
-  if (columns.length !== FILE_ROW_COLUMNS.length) {
-    throw new CxError(
-      `${sectionLabel}.files.columns: expected ${FILE_ROW_COLUMNS.length} columns, got ${columns.length}.`,
-    );
-  }
-  for (let i = 0; i < FILE_ROW_COLUMNS.length; i++) {
-    if (columns[i] !== FILE_ROW_COLUMNS[i]) {
-      throw new CxError(
-        `${sectionLabel}.files.columns[${i}]: expected "${FILE_ROW_COLUMNS[i]}", got "${String(columns[i])}"`,
-      );
-    }
-  }
-
-  // Parse data rows.
-  const rows = requireArray(tableObj.rows, `${sectionLabel}.files.rows`);
-  return rows.map((rawRow, rowIndex) => {
-    const rowLabel = `${sectionLabel}.files.rows[${rowIndex}]`;
-    const row = requireArray(rawRow, rowLabel);
-    if (row.length !== FILE_ROW_COLUMNS.length) {
-      throw new CxError(
-        `${rowLabel}: expected ${FILE_ROW_COLUMNS.length} columns, got ${row.length}.`,
-      );
-    }
-    return {
-      path: requireString(row[COL.path], `${rowLabel}[${COL.path}]`),
-      kind: requireString(
-        row[COL.kind],
-        `${rowLabel}[${COL.kind}]`,
-      ) as ManifestFileRow["kind"],
-      storedIn: requireString(
-        row[COL.storedIn],
-        `${rowLabel}[${COL.storedIn}]`,
-      ) as ManifestFileRow["storedIn"],
-      sha256: requireString(row[COL.sha256], `${rowLabel}[${COL.sha256}]`),
-      sizeBytes: requireNumber(
-        row[COL.sizeBytes],
-        `${rowLabel}[${COL.sizeBytes}]`,
-      ),
-      tokenCount: requireNumber(
-        row[COL.tokenCount],
-        `${rowLabel}[${COL.tokenCount}]`,
-      ),
-      mtime: requireString(row[COL.mtime], `${rowLabel}[${COL.mtime}]`),
-      mediaType: requireString(
-        row[COL.mediaType],
-        `${rowLabel}[${COL.mediaType}]`,
-      ),
-      outputStartLine: requireNumberOrNull(
-        row[COL.outputStartLine],
-        `${rowLabel}[${COL.outputStartLine}]`,
-      ),
-      outputEndLine: requireNumberOrNull(
-        row[COL.outputEndLine],
-        `${rowLabel}[${COL.outputEndLine}]`,
-      ),
-    };
-  });
+  return {
+    path: requireString(obj.path, `${label}.path`),
+    kind: requireString(obj.kind, `${label}.kind`) as ManifestFileRow["kind"],
+    storedIn: requireString(
+      obj.storedIn,
+      `${label}.storedIn`,
+    ) as ManifestFileRow["storedIn"],
+    sha256: requireString(obj.sha256, `${label}.sha256`),
+    sizeBytes: requireNumber(obj.sizeBytes, `${label}.sizeBytes`),
+    tokenCount: requireNumber(obj.tokenCount, `${label}.tokenCount`),
+    mtime: requireString(obj.mtime, `${label}.mtime`),
+    mediaType: requireString(obj.mediaType, `${label}.mediaType`),
+    outputStartLine: requireNumberOrNull(
+      obj.outputStartLine,
+      `${label}.outputStartLine`,
+    ),
+    outputEndLine: requireNumberOrNull(
+      obj.outputEndLine,
+      `${label}.outputEndLine`,
+    ),
+  };
 }
-
-// ---------------------------------------------------------------------------
-// DTO validation — sections and assets
-// ---------------------------------------------------------------------------
 
 function parseSectionDto(
   raw: unknown,
@@ -226,7 +124,10 @@ function parseSectionDto(
 ): { section: SectionDto; rows: FileRowWithoutSection[] } {
   const obj = requireObject(raw, `section[${index}]`);
   const label = `section[${index}]`;
-  const rows = parseFileTable(obj.files, label);
+  const files = requireArray(obj.files, `${label}.files`);
+  const rows = files.map((file, fileIndex) =>
+    parseManifestFileRow(file, `${label}.files[${fileIndex}]`),
+  );
 
   const section: SectionDto = {
     name: requireString(obj.name, `${label}.name`),
@@ -235,7 +136,7 @@ function parseSectionDto(
     outputSha256: requireString(obj.outputSha256, `${label}.outputSha256`),
     fileCount: requireNumber(obj.fileCount, `${label}.fileCount`),
     tokenCount: requireNumber(obj.tokenCount, `${label}.tokenCount`),
-    files: { columns: [...FILE_ROW_COLUMNS], rows: [] }, // placeholder
+    files,
   };
 
   return { section, rows };
@@ -258,9 +159,8 @@ function parseManifestDto(raw: unknown): {
   sectionRows: FileRowWithoutSection[][];
 } {
   const obj = requireObject(raw, "manifest root");
-
-  // Guard against unknown schema versions before touching any other field.
   const schemaVersion = requireNumber(obj.schemaVersion, "schemaVersion");
+
   if (schemaVersion !== MANIFEST_SCHEMA_VERSION) {
     throw new CxError(
       `Unsupported manifest schema version ${schemaVersion}. ` +
@@ -277,10 +177,10 @@ function parseManifestDto(raw: unknown): {
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
 
   const sectionRows: FileRowWithoutSection[][] = [];
-  const sections: SectionDto[] = sectionsRaw.map((s, i) => {
-    const { section, rows } = parseSectionDto(s, i);
-    sectionRows.push(rows);
-    return section;
+  const sections: SectionDto[] = sectionsRaw.map((section, index) => {
+    const parsed = parseSectionDto(section, index);
+    sectionRows.push(parsed.rows);
+    return parsed.section;
   });
 
   const dto: ManifestDto = {
@@ -346,32 +246,18 @@ function parseManifestDto(raw: unknown): {
         timePalette: requireArray(
           listDisplayRaw.timePalette,
           "settings.listDisplay.timePalette",
-        ).map((entry, i) =>
-          requireNumber(entry, `settings.listDisplay.timePalette[${i}]`),
+        ).map((entry, index) =>
+          requireNumber(entry, `settings.listDisplay.timePalette[${index}]`),
         ),
       },
     },
     sections,
-    assets: assetsRaw.map((a, i) => parseAssetDto(a, i)),
+    assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
   };
 
   return { dto, sectionRows };
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-/**
- * Serialise a manifest to JSON.
- *
- * Each section's `files` field is an object with a `columns` array (the
- * ordered field names) and a `rows` array of positional value arrays.
- *
- * @param pretty - When `true` (the default), the output is indented with two
- *   spaces. Pass `false` for compact single-line JSON suitable for CI
- *   environments where file size matters more than readability.
- */
 export function renderManifestJson(
   manifest: CxManifest,
   pretty = true,
@@ -396,33 +282,25 @@ export function renderManifestJson(
       outputSha256: section.outputSha256,
       fileCount: section.fileCount,
       tokenCount: section.tokenCount,
-      files: {
-        columns: [...FILE_ROW_COLUMNS],
-        rows: section.files.map((row) => [
-          row.path,
-          row.kind,
-          row.storedIn,
-          row.sha256,
-          row.sizeBytes,
-          row.tokenCount,
-          row.mtime,
-          row.mediaType,
-          row.outputStartLine,
-          row.outputEndLine,
-        ]),
-      },
+      files: section.files.map((row) => ({
+        path: row.path,
+        kind: row.kind,
+        storedIn: row.storedIn,
+        sha256: row.sha256,
+        sizeBytes: row.sizeBytes,
+        tokenCount: row.tokenCount,
+        mtime: row.mtime,
+        mediaType: row.mediaType,
+        outputStartLine: row.outputStartLine,
+        outputEndLine: row.outputEndLine,
+      })),
     })),
     assets: manifest.assets,
   };
+
   return `${JSON.stringify(out, null, indent)}\n`;
 }
 
-/**
- * Parse a manifest from JSON produced by {@link renderManifestJson}.
- *
- * Reconstructs the runtime `files` flat list from the per-section tables.
- * Throws {@link CxError} for unsupported schema versions or malformed data.
- */
 export function parseManifestJson(source: string): CxManifest {
   let raw: unknown;
   try {
@@ -435,14 +313,14 @@ export function parseManifestJson(source: string): CxManifest {
 
   const { dto, sectionRows } = parseManifestDto(raw);
 
-  const sections: CxSection[] = dto.sections.map((section, i) => ({
+  const sections: CxSection[] = dto.sections.map((section, index) => ({
     name: section.name,
     style: section.style as CxSection["style"],
     outputFile: section.outputFile,
     outputSha256: section.outputSha256,
     fileCount: section.fileCount,
     tokenCount: section.tokenCount,
-    files: (sectionRows[i] ?? []).map((row) => ({
+    files: (sectionRows[index] ?? []).map((row) => ({
       ...row,
       section: section.name,
     })),
@@ -480,8 +358,8 @@ export function parseManifestJson(source: string): CxManifest {
     settings: dto.settings,
     sections,
     assets: dto.assets,
-    files: [...textRows, ...assetRows].sort((a, b) =>
-      a.path.localeCompare(b.path, "en"),
+    files: [...textRows, ...assetRows].sort((left, right) =>
+      left.path.localeCompare(right.path, "en"),
     ),
   };
 }

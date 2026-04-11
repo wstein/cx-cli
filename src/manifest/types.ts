@@ -57,7 +57,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 2;
+  schemaVersion: 1;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;

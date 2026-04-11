@@ -11,7 +11,6 @@ import { runListCommand } from "../../src/cli/commands/list.js";
 import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { runVerifyCommand } from "../../src/cli/commands/verify.js";
 import {
-  FILE_ROW_COLUMNS,
   MANIFEST_SCHEMA_VERSION,
   parseManifestJson,
   renderManifestJson,
@@ -346,7 +345,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 2,
+      schemaVersion: 1,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
@@ -477,16 +476,12 @@ include_source_metadata = true`;
     // Schema version matches the exported constant.
     expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
 
-    // Every section must expose a {columns, rows} file table with the exact
-    // column header, so downstream parsers can rely on the layout.
-    const sections = parsed.sections as Array<{
-      files?: { columns?: unknown[]; rows?: unknown[] };
-    }>;
+    // Every section must expose a standard object list.
+    const sections = parsed.sections as Array<{ files?: unknown[] }>;
     expect(sections.length).toBeGreaterThan(0);
     for (const section of sections) {
       expect(section.files).toBeDefined();
-      expect(section.files?.columns).toEqual([...FILE_ROW_COLUMNS]);
-      expect(Array.isArray(section.files?.rows)).toBe(true);
+      expect(Array.isArray(section.files)).toBe(true);
     }
   });
 

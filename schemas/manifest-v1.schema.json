@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cx-cli.dev/schemas/manifest-v2.schema.json",
-  "title": "cx Manifest v2",
-  "description": "On-disk format for a cx bundle manifest (schemaVersion 2). Each section's file list is stored as a {columns, rows} table for compact, schema-stable serialisation.",
+  "$id": "https://cx-cli.dev/schemas/manifest-v1.schema.json",
+  "title": "cx Manifest v1",
+  "description": "On-disk format for a cx bundle manifest (schemaVersion 1). Each section stores its file metadata as a standard array of objects.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -22,8 +22,8 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "description": "Manifest schema version. Must be exactly 2.",
-      "const": 2
+      "description": "Manifest schema version. Must be exactly 1.",
+      "const": 1
     },
     "bundleVersion": {
       "description": "Bundle format version. Must be exactly 1.",
@@ -118,7 +118,7 @@
       }
     },
     "ListDisplayConfig": {
-      "description": "Color-temperature thresholds and time-palette used by cx list.",
+      "description": "Color-temperature thresholds and time palette used by cx list.",
       "type": "object",
       "required": [
         "bytesWarm",
@@ -147,7 +147,7 @@
       }
     },
     "SectionRecord": {
-      "description": "A rendered text-file section and its file metadata table.",
+      "description": "A rendered text-file section and its file metadata.",
       "type": "object",
       "required": ["name", "style", "outputFile", "outputSha256", "fileCount", "tokenCount", "files"],
       "additionalProperties": false,
@@ -182,111 +182,83 @@
           "minimum": 0
         },
         "files": {
-          "$ref": "#/$defs/FileTable"
-        }
-      }
-    },
-    "FileTable": {
-      "description": "Column-oriented file metadata table. The columns array is always the fixed header; rows holds one positional array per file.",
-      "type": "object",
-      "required": ["columns", "rows"],
-      "additionalProperties": false,
-      "properties": {
-        "columns": {
-          "description": "Fixed column header. Must equal the canonical order exactly.",
-          "type": "array",
-          "const": [
-            "path",
-            "kind",
-            "storedIn",
-            "sha256",
-            "sizeBytes",
-            "tokenCount",
-            "mtime",
-            "mediaType",
-            "outputStartLine",
-            "outputEndLine"
-          ]
-        },
-        "rows": {
-          "description": "One row per file. Column values match the columns array by position.",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/FileRow"
+            "$ref": "#/$defs/ManifestFileRow"
           }
         }
       }
     },
-    "FileRow": {
-      "description": "Positional file-metadata tuple. Indices correspond to FileTable.columns.",
-      "type": "array",
-      "minItems": 10,
-      "maxItems": 10,
-      "prefixItems": [
-        {
-          "title": "path",
+    "ManifestFileRow": {
+      "description": "File metadata stored directly as an object.",
+      "type": "object",
+      "required": [
+        "path",
+        "kind",
+        "storedIn",
+        "sha256",
+        "sizeBytes",
+        "tokenCount",
+        "mtime",
+        "mediaType",
+        "outputStartLine",
+        "outputEndLine"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
           "description": "Source-relative file path.",
           "type": "string",
           "minLength": 1
         },
-        {
-          "title": "kind",
+        "kind": {
           "description": "\"text\" for files embedded in section output; \"asset\" for raw-copied files.",
           "enum": ["text", "asset"]
         },
-        {
-          "title": "storedIn",
+        "storedIn": {
           "description": "\"packed\" when embedded in a section output; \"copied\" when stored as a raw asset.",
           "enum": ["packed", "copied"]
         },
-        {
-          "title": "sha256",
+        "sha256": {
           "description": "SHA-256 hex digest of the original source file.",
           "type": "string",
           "minLength": 1
         },
-        {
-          "title": "sizeBytes",
+        "sizeBytes": {
           "description": "Original source file size in bytes.",
           "type": "integer",
           "minimum": 0
         },
-        {
-          "title": "tokenCount",
+        "tokenCount": {
           "description": "Exact token count of the source file content.",
           "type": "integer",
           "minimum": 0
         },
-        {
-          "title": "mtime",
+        "mtime": {
           "description": "ISO 8601 source file modification time.",
           "type": "string",
           "minLength": 1
         },
-        {
-          "title": "mediaType",
+        "mediaType": {
           "description": "MIME media type of the source file.",
           "type": "string",
           "minLength": 1
         },
-        {
-          "title": "outputStartLine",
+        "outputStartLine": {
           "description": "First bare content line of the file block in the section output (null when span capture is disabled).",
           "oneOf": [
             { "type": "integer", "minimum": 1 },
             { "type": "null" }
           ]
         },
-        {
-          "title": "outputEndLine",
+        "outputEndLine": {
           "description": "Last bare content line of the file block in the section output (null when span capture is disabled).",
           "oneOf": [
             { "type": "integer", "minimum": 1 },
             { "type": "null" }
           ]
         }
-      ],
-      "items": false
+      }
     },
     "AssetRecord": {
       "description": "A raw file copied into the bundle without Repomix rendering.",

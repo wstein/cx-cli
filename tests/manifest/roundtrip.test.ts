@@ -316,16 +316,16 @@ describe("manifest round-trip (property-based)", () => {
     );
   });
 
-  test("rejects manifests with a corrupted column header", () => {
+  test("rejects manifests with a corrupted file object", () => {
     fc.assert(
       fc.property(
         // Only test manifests with at least one section containing at least one file
         manifestArb.filter((m) => m.sections.some((s) => s.files.length > 0)),
         (manifest) => {
-          // Replace the first "path" column name with a non-matching value
+          // Replace the first file object's "path" key with a non-matching value.
           const corrupted = renderManifestJson(manifest).replace(
-            '"path"',
-            '"path_"',
+            '"path":',
+            '"path_":',
           );
           expect(() => parseManifestJson(corrupted)).toThrow();
         },
