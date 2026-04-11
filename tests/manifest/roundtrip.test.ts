@@ -1,0 +1,305 @@
+/**
+ * Property-based round-trip tests for the manifest JSON serialiser.
+ *
+ * fast-check generates random CxManifest values; each one is rendered to JSON
+ * and parsed back. The recovered manifest must be semantically equivalent to
+ * the original across every generated case.
+ *
+ * Separate tests cover the schemaVersion guard by injecting unsupported
+ * version numbers and asserting CxError is thrown before any field is read.
+ */
+
+import { describe, expect, test } from "bun:test";
+import * as fc from "fast-check";
+
+import {
+  MANIFEST_SCHEMA_VERSION,
+  parseManifestJson,
+  renderManifestJson,
+} from "../../src/manifest/json.js";
+import type {
+  AssetRecord,
+  CxManifest,
+  CxSection,
+  ManifestFileRow,
+} from "../../src/manifest/types.js";
+
+// ---------------------------------------------------------------------------
+// Arbitraries
+// ---------------------------------------------------------------------------
+
+const nonEmptyString = fc.string({ minLength: 1, maxLength: 80 });
+/** ISO 8601 timestamp in the range 2020–2030. */
+const isoTimestamp: fc.Arbitrary<string> = fc
+  .integer({ min: 1577836800000, max: 1924991999000 }) // 2020-01-01 .. 2030-12-31 (ms)
+  .map((ms) => new Date(ms).toISOString());
+
+/** 64-character lowercase hex string for SHA-256 digests. */
+const sha256Hex: fc.Arbitrary<string> = fc
+  .array(
+    fc.constantFrom("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"),
+    { minLength: 64, maxLength: 64 },
+  )
+  .map((chars) => chars.join(""));
+
+const nonNegInt = fc.integer({ min: 0, max: 1_000_000 });
+const posInt = fc.integer({ min: 1, max: 1_000_000 });
+const styleArb = fc.constantFrom<"xml" | "markdown" | "json" | "plain">(
+  "xml", "markdown", "json", "plain",
+);
+const tokenAlgArb = fc.constantFrom<"chars_div_4" | "chars_div_3">(
+  "chars_div_4", "chars_div_3",
+);
+
+/** Arbitrary for a nullable positive integer (outputStartLine / outputEndLine). */
+const nullablePos: fc.Arbitrary<number | null> = fc.option(posInt, {
+  nil: null,
+  freq: 3,
+});
+
+/** Arbitrary for a single ManifestFileRow with the given section name. */
+function fileRowArb(sectionName: string): fc.Arbitrary<ManifestFileRow> {
+  return fc.record({
+    path: nonEmptyString,
+    kind: fc.constantFrom<"text" | "asset">("text", "asset"),
+    storedIn: fc.constantFrom<"packed" | "copied">("packed", "copied"),
+    sha256: sha256Hex,
+    sizeBytes: nonNegInt,
+    mtime: isoTimestamp,
+    mediaType: nonEmptyString,
+    outputStartLine: nullablePos,
+    outputEndLine: nullablePos,
+  }).map((row) => ({ ...row, section: sectionName }));
+}
+
+const listDisplayArb = fc.record({
+  bytesWarm: nonNegInt,
+  bytesHot: nonNegInt,
+  tokensWarm: nonNegInt,
+  tokensHot: nonNegInt,
+  mtimeWarmMinutes: nonNegInt,
+  mtimeHotHours: nonNegInt,
+  timePalette: fc.array(fc.integer({ min: 0, max: 255 }), {
+    minLength: 8,
+    maxLength: 10,
+  }),
+});
+
+const settingsArb = fc.record({
+  globalStyle: styleArb,
+  tokenAlgorithm: tokenAlgArb,
+  removeComments: fc.boolean(),
+  removeEmptyLines: fc.boolean(),
+  compress: fc.boolean(),
+  showLineNumbers: fc.boolean(),
+  includeEmptyDirectories: fc.boolean(),
+  securityCheck: fc.boolean(),
+  listDisplay: listDisplayArb,
+});
+
+const assetArb: fc.Arbitrary<AssetRecord> = fc.record({
+  sourcePath: nonEmptyString,
+  storedPath: nonEmptyString,
+  sha256: sha256Hex,
+  sizeBytes: nonNegInt,
+  mtime: isoTimestamp,
+  mediaType: nonEmptyString,
+});
+
+function sectionArb(): fc.Arbitrary<CxSection> {
+  return fc
+    .record({
+      name: nonEmptyString,
+      style: styleArb,
+      outputFile: nonEmptyString,
+      outputSha256: sha256Hex,
+      fileCount: nonNegInt,
+    })
+    .chain((meta) =>
+      fc
+        .array(fc.constant(null), { minLength: 0, maxLength: 6 })
+        .chain((slots) => {
+          const rowArbs: Array<fc.Arbitrary<ManifestFileRow>> = slots.map(() =>
+            fileRowArb(meta.name),
+          );
+          if (rowArbs.length === 0) {
+            return fc.constant({ ...meta, files: [] as ManifestFileRow[] });
+          }
+          return fc.tuple(...rowArbs).map((rows) => ({
+            ...meta,
+            fileCount: rows.length,
+            files: rows,
+          }));
+        }),
+    );
+}
+
+/** Full CxManifest arbitrary. */
+const manifestArb: fc.Arbitrary<CxManifest> = fc
+  .record({
+    projectName: nonEmptyString,
+    sourceRoot: nonEmptyString,
+    bundleDir: nonEmptyString,
+    checksumFile: nonEmptyString,
+    createdAt: isoTimestamp,
+    cxVersion: nonEmptyString,
+    repomixVersion: nonEmptyString,
+    settings: settingsArb,
+    sections: fc.array(sectionArb(), { minLength: 0, maxLength: 4 }),
+    assets: fc.array(assetArb, { minLength: 0, maxLength: 4 }),
+  })
+  .map((fields) => {
+    const textRows: ManifestFileRow[] = fields.sections.flatMap((s) => s.files);
+    const assetRows: ManifestFileRow[] = fields.assets.map((a) => ({
+      path: a.sourcePath,
+      kind: "asset" as const,
+      section: "-",
+      storedIn: "copied" as const,
+      sha256: a.sha256,
+      sizeBytes: a.sizeBytes,
+      mtime: a.mtime,
+      mediaType: a.mediaType,
+      outputStartLine: null,
+      outputEndLine: null,
+    }));
+    return {
+      schemaVersion: MANIFEST_SCHEMA_VERSION,
+      bundleVersion: 1 as const,
+      projectName: fields.projectName,
+      sourceRoot: fields.sourceRoot,
+      bundleDir: fields.bundleDir,
+      checksumFile: fields.checksumFile,
+      createdAt: fields.createdAt,
+      cxVersion: fields.cxVersion,
+      repomixVersion: fields.repomixVersion,
+      checksumAlgorithm: "sha256" as const,
+      settings: fields.settings,
+      sections: fields.sections,
+      assets: fields.assets,
+      files: [...textRows, ...assetRows].sort((a, b) =>
+        a.path.localeCompare(b.path, "en"),
+      ),
+    };
+  });
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Strip the runtime-only `section` field from a file row before comparing.
+ * The section name is re-populated from the parent section during parsing and
+ * comparing it separately would double-count the same information.
+ */
+function stripSection(row: ManifestFileRow): Omit<ManifestFileRow, "section"> {
+  const { section: _section, ...rest } = row;
+  return rest;
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe("manifest round-trip (property-based)", () => {
+  test("render → parse produces an identical manifest", () => {
+    fc.assert(
+      fc.property(manifestArb, (manifest) => {
+        const rendered = renderManifestJson(manifest);
+        const recovered = parseManifestJson(rendered);
+
+        // Top-level scalars
+        expect(recovered.schemaVersion).toBe(manifest.schemaVersion);
+        expect(recovered.bundleVersion).toBe(manifest.bundleVersion);
+        expect(recovered.projectName).toBe(manifest.projectName);
+        expect(recovered.sourceRoot).toBe(manifest.sourceRoot);
+        expect(recovered.bundleDir).toBe(manifest.bundleDir);
+        expect(recovered.checksumFile).toBe(manifest.checksumFile);
+        expect(recovered.createdAt).toBe(manifest.createdAt);
+        expect(recovered.cxVersion).toBe(manifest.cxVersion);
+        expect(recovered.repomixVersion).toBe(manifest.repomixVersion);
+        expect(recovered.checksumAlgorithm).toBe(manifest.checksumAlgorithm);
+
+        // Settings (deep equal)
+        expect(recovered.settings).toEqual(manifest.settings);
+
+        // Sections and their file rows
+        expect(recovered.sections).toHaveLength(manifest.sections.length);
+        for (let i = 0; i < manifest.sections.length; i++) {
+          const orig = manifest.sections[i]!;
+          const recv = recovered.sections[i]!;
+          expect(recv.name).toBe(orig.name);
+          expect(recv.style).toBe(orig.style);
+          expect(recv.outputFile).toBe(orig.outputFile);
+          expect(recv.outputSha256).toBe(orig.outputSha256);
+          expect(recv.fileCount).toBe(orig.fileCount);
+          expect(recv.files).toHaveLength(orig.files.length);
+          for (let j = 0; j < orig.files.length; j++) {
+            expect(stripSection(recv.files[j]!)).toEqual(
+              stripSection(orig.files[j]!),
+            );
+          }
+        }
+
+        // Assets (deep equal)
+        expect(recovered.assets).toEqual(manifest.assets);
+
+        // Flat file list path set (reconstructed during parse)
+        const origPaths = manifest.files.map((r) => r.path).sort();
+        const recvPaths = recovered.files.map((r) => r.path).sort();
+        expect(recvPaths).toEqual(origPaths);
+      }),
+      { numRuns: 200 },
+    );
+  });
+
+  test("compact and pretty output parse to the same manifest", () => {
+    fc.assert(
+      fc.property(manifestArb, (manifest) => {
+        const fromPretty = parseManifestJson(renderManifestJson(manifest, true));
+        const fromCompact = parseManifestJson(renderManifestJson(manifest, false));
+        expect(fromCompact.projectName).toBe(fromPretty.projectName);
+        expect(fromCompact.sections).toHaveLength(fromPretty.sections.length);
+        expect(fromCompact.assets).toEqual(fromPretty.assets);
+        expect(fromCompact.settings).toEqual(fromPretty.settings);
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  test("rejects manifests with an unsupported schemaVersion", () => {
+    fc.assert(
+      fc.property(
+        manifestArb,
+        fc.integer().filter((v) => v !== MANIFEST_SCHEMA_VERSION),
+        (manifest, badVersion) => {
+          const corrupted = renderManifestJson(manifest).replace(
+            `"schemaVersion": ${MANIFEST_SCHEMA_VERSION}`,
+            `"schemaVersion": ${badVersion}`,
+          );
+          expect(() => parseManifestJson(corrupted)).toThrow(
+            `Unsupported manifest schema version ${badVersion}`,
+          );
+        },
+      ),
+      { numRuns: 50 },
+    );
+  });
+
+  test("rejects manifests with a corrupted column header", () => {
+    fc.assert(
+      fc.property(
+        // Only test manifests with at least one section containing at least one file
+        manifestArb.filter((m) => m.sections.some((s) => s.files.length > 0)),
+        (manifest) => {
+          // Replace the first "path" column name with a non-matching value
+          const corrupted = renderManifestJson(manifest).replace(
+            '"path"',
+            '"path_"',
+          );
+          expect(() => parseManifestJson(corrupted)).toThrow();
+        },
+      ),
+      { numRuns: 50 },
+    );
+  });
+});
