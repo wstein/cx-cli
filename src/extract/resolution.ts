@@ -22,7 +22,11 @@ export type ExtractabilityReason =
   | "missing_from_section_output"
   | "section_parse_failed";
 
-export type ExtractabilityStatus = "exact" | "blocked" | "copied";
+export type ExtractabilityStatus =
+  | "intact"
+  | "copied"
+  | "degraded"
+  | "blocked";
 
 export interface ExtractabilityRecord {
   path: string;
@@ -125,7 +129,7 @@ export async function resolveExtractability(params: {
             path: row.path,
             section: row.section,
             kind: row.kind,
-            status: "blocked",
+            status: "degraded",
             reason: "manifest_hash_mismatch",
             message: `Section output for ${row.path} does not match the manifest hash, so exact extraction is not supported for that file.`,
             expectedSha256: row.sha256,
@@ -138,7 +142,7 @@ export async function resolveExtractability(params: {
           path: row.path,
           section: row.section,
           kind: row.kind,
-          status: "exact",
+          status: "intact",
           reason: "manifest_hash_match",
           message: `Section output for ${row.path} matches the manifest hash.`,
           expectedSha256: row.sha256,

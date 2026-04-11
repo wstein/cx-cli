@@ -35,9 +35,9 @@ interface RowMeta {
   tokens: number;
   mtime: string;
   mtimeRelative: string;
-  ready: "ok" | "copy" | "no";
+  status: "intact" | "copied" | "degraded" | "blocked";
   extractability: {
-    status: "exact" | "blocked" | "copied";
+    status: "intact" | "copied" | "degraded" | "blocked";
     reason: string;
     message: string;
   };
@@ -169,7 +169,11 @@ function colorTokens(
   return colorByTemperature(value, "hot");
 }
 
-function colorMtime(
+function ansi256(value: string, code: number): string {
+  return `\u001B[38;5;${code}m${value}\u001B[39m`;
+}
+
+function colorTime(
   iso: string,
   value: string,
   manifest: CxManifest,
@@ -179,25 +183,36 @@ function colorMtime(
   }
 
   const ageMs = Math.max(0, Date.now() - new Date(iso).getTime());
-  const warmMs = manifest.settings.listDisplay.mtimeWarmMinutes * 60 * 1000;
-  const hotMs =
+  const maxAgeMs =
     manifest.settings.listDisplay.mtimeHotHours * 60 * 60 * 1000;
-
-  if (ageMs <= warmMs) {
-    return colorByTemperature(value, "cool");
-  }
-  if (ageMs <= hotMs) {
-    return colorByTemperature(value, "warm");
-  }
-  return colorByTemperature(value, "hot");
+  const grayscale = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246];
+  const thresholds = [
+    1 / 120,
+    1 / 60,
+    1 / 30,
+    1 / 15,
+    1 / 8,
+    1 / 4,
+    1 / 2,
+    3 / 4,
+    1,
+    Number.POSITIVE_INFINITY,
+  ];
+  const ratio = ageMs / Math.max(1, maxAgeMs);
+  const index = thresholds.findIndex((threshold) => ratio <= threshold);
+  const code = grayscale[index] ?? 246;
+  return ansi256(value, code);
 }
 
 function colorExtractability(status: RowMeta["extractability"]["status"], value: string): string {
-  if (status === "exact") {
+  if (status === "intact") {
     return kleur.green(value);
   }
   if (status === "copied") {
     return kleur.cyan(value);
+  }
+  if (status === "degraded") {
+    return kleur.yellow(value);
   }
   return kleur.red(value);
 }
@@ -227,10 +242,13 @@ function renderGroupedList(
     ...rows.map((row) => `${formatNumber(row.tokens)} tok`.length),
   );
   const mtimeWidth = Math.max(
-    "mtime".length,
+    "time".length,
     ...rows.map((row) => row.mtimeRelative.length),
   );
-  const readyWidth = "ready".length;
+  const statusWidth = Math.max(
+    "status".length,
+    ...rows.map((row) => row.status.length),
+  );
 
   const orderedSections = [...groups.keys()].sort((left, right) => {
     if (left === "assets") {
@@ -250,15 +268,15 @@ function renderGroupedList(
     lines.push(
       [
         "  ",
-        kleur.gray("path".padEnd(pathWidth)),
-        "  ",
         kleur.gray("bytes".padStart(bytesWidth)),
         "  ",
         kleur.gray("tokens".padStart(tokensWidth)),
         "  ",
-        kleur.gray("mtime".padEnd(mtimeWidth)),
+        kleur.gray("time".padEnd(mtimeWidth)),
         "  ",
-        kleur.gray("ready".padEnd(readyWidth)),
+        kleur.gray("status".padEnd(statusWidth)),
+        "  ",
+        kleur.gray("path".padEnd(pathWidth)),
       ].join(""),
     );
 
@@ -267,19 +285,19 @@ function renderGroupedList(
       const bytesRaw = formatBytes(row.bytes).padStart(bytesWidth);
       const tokensRaw = `${formatNumber(row.tokens)} tok`.padStart(tokensWidth);
       const mtimeRaw = row.mtimeRelative.padEnd(mtimeWidth);
-      const readyRaw = row.ready.padEnd(readyWidth);
+      const statusRaw = row.status.padEnd(statusWidth);
       lines.push(
         [
-          "  ",
-          pathCell,
           "  ",
           colorBytes(row.bytes, bytesRaw, manifest),
           "  ",
           colorTokens(row.tokens, tokensRaw, manifest),
           "  ",
-          colorMtime(row.mtime, mtimeRaw, manifest),
+          colorTime(row.mtime, mtimeRaw, manifest),
           "  ",
-          colorExtractability(row.extractability.status, readyRaw),
+          colorExtractability(row.status, statusRaw),
+          "  ",
+          pathCell,
         ].join(""),
       );
     }
@@ -319,12 +337,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
       tokens: estimateTokensForRow(file, sectionOutputFileMap, outputs, manifest),
       mtime,
       mtimeRelative: formatRelativeTime(mtime),
-      ready:
-        record?.status === "exact"
-          ? "ok"
-          : record?.status === "copied"
-            ? "copy"
-            : "no",
+      status: record?.status ?? "blocked",
       extractability: {
         status: record?.status ?? "blocked",
         reason: record?.reason ?? "section_parse_failed",

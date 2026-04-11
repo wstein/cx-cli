@@ -170,7 +170,7 @@ describe("bundle workflow", () => {
 
     expect(writes.join("")).toContain("README.md");
     expect(writes.join("")).toContain("docs");
-    expect(writes.join("")).toContain("ready");
+    expect(writes.join("")).toContain("status");
     expect(writes.join("")).not.toContain("kind\tsection\tstored_in");
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.toon")),
@@ -454,7 +454,7 @@ include_source_metadata = true`;
       sections?: Array<{ name: string }>;
       files?: Array<{
         path?: string;
-        ready?: string;
+        status?: string;
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
@@ -467,7 +467,7 @@ include_source_metadata = true`;
         ?.flatMap((section) => section.files ?? [])
         .find((file) => file.relativePath === "src/index.ts")
         ?.extractability?.status,
-    ).toBe("exact");
+    ).toBe("intact");
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
     expect(listPayload.repomix?.spanCapability).toBe("supported");
@@ -478,12 +478,13 @@ include_source_metadata = true`;
     expect(
       listPayload.files?.every(
         (file) =>
-          file.extractability?.status === "exact" ||
+          file.extractability?.status === "intact" ||
+          file.extractability?.status === "degraded" ||
           file.extractability?.status === "copied",
       ),
     ).toBe(true);
-    expect(listPayload.files?.find((file) => file.path === "src/index.ts")?.ready).toBe(
-      "ok",
+    expect(listPayload.files?.find((file) => file.path === "src/index.ts")?.status).toBe(
+      "intact",
     );
     expect(inspectPayload.bundleComparison?.available).toBe(true);
   });
@@ -512,7 +513,7 @@ include_source_metadata = true`;
       selection?: { sections?: string[]; files?: string[] };
       files?: Array<{
         path: string;
-        ready?: string;
+        status?: string;
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
@@ -546,9 +547,9 @@ include_source_metadata = true`;
     expect(listPayload.files?.map((file) => file.path)).toEqual([
       "src/index.ts",
     ]);
-    expect(listPayload.files?.[0]?.ready).toBe("ok");
+    expect(listPayload.files?.[0]?.status).toBe("intact");
     expect(listPayload.files?.[0]?.mtime).toBeDefined();
-    expect(listPayload.files?.[0]?.extractability?.status).toBe("exact");
+    expect(listPayload.files?.[0]?.extractability?.status).toBe("intact");
     expect(extractPayload.summary?.fileCount).toBe(2);
     expect(extractPayload.summary?.textFileCount).toBe(1);
     expect(extractPayload.extractedSections).toEqual(["src"]);
@@ -964,7 +965,7 @@ include_source_metadata = true`;
     ).rejects.toThrow("Source tree mismatch");
   });
 
-  test("rejects extraction when selected file content does not match the manifest hash", async () => {
+  test("blocks extraction when selected file is missing from transformed section output", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");
     await fs.writeFile(
@@ -987,7 +988,7 @@ include_source_metadata = true`;
         overwrite: false,
         verify: false,
       }),
-    ).rejects.toThrow("does not match the manifest hash");
+    ).rejects.toThrow("Section output is missing file src/index.ts.");
   });
 
   test("emits structured JSON failure payload for extract mismatches", async () => {
@@ -1076,14 +1077,14 @@ include_source_metadata = true`;
     const payload = JSON.parse(writes.pop() ?? "{}") as {
       files?: Array<{
         path?: string;
-        ready?: string;
+        status?: string;
         extractability?: { status?: string; reason?: string };
       }>;
     };
 
     expect(payload.files?.[0]?.path).toBe("src/index.ts");
-    expect(payload.files?.[0]?.ready).toBe("no");
-    expect(payload.files?.[0]?.extractability?.status).toBe("blocked");
+    expect(payload.files?.[0]?.status).toBe("degraded");
+    expect(payload.files?.[0]?.extractability?.status).toBe("degraded");
     expect(payload.files?.[0]?.extractability?.reason).toBe(
       "manifest_hash_mismatch",
     );
