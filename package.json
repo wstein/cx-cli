@@ -1,5 +1,5 @@
 {
-  "name": "cx-cli",
+  "name": "@wsmy/cx-cli",
   "version": "0.1.0",
   "description": "Deterministic context bundler built on top of Repomix.",
   "license": "MIT",
