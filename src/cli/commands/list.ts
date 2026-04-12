@@ -272,6 +272,19 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   const rowsWithMeta: RowMeta[] = rows.map((file) => {
     const mtime = file.mtime;
     const record = extractability.recordsByPath.get(file.path);
+    const extractabilityObj: RowMeta["extractability"] = {
+      status: record?.status ?? "blocked",
+      reason: record?.reason ?? "section_parse_failed",
+      message:
+        record?.message ??
+        `No extractability record was produced for ${file.path}.`,
+    };
+    if (record?.expectedSha256) {
+      extractabilityObj.expectedSha256 = record.expectedSha256;
+    }
+    if (record?.actualSha256) {
+      extractabilityObj.actualSha256 = record.actualSha256;
+    }
     return {
       path: file.path,
       section: file.section === "-" ? "assets" : file.section,
@@ -280,15 +293,7 @@ export async function runListCommand(args: ListArgs): Promise<number> {
       mtime,
       mtimeRelative: formatRelativeTime(mtime),
       status: record?.status ?? "blocked",
-      extractability: {
-        status: record?.status ?? "blocked",
-        reason: record?.reason ?? "section_parse_failed",
-        message:
-          record?.message ??
-          `No extractability record was produced for ${file.path}.`,
-        expectedSha256: record?.expectedSha256,
-        actualSha256: record?.actualSha256,
-      },
+      extractability: extractabilityObj,
     };
   });
 

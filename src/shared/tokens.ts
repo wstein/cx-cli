@@ -1,43 +1,53 @@
 import fs from "node:fs/promises";
 
-import type { TiktokenEncoding } from "tiktoken";
-import { get_encoding } from "tiktoken";
+import * as cl100k_base from "gpt-tokenizer/encoding/cl100k_base";
+import * as o200k_base from "gpt-tokenizer/encoding/o200k_base";
+import * as o200k_harmony from "gpt-tokenizer/encoding/o200k_harmony";
+import * as p50k_base from "gpt-tokenizer/encoding/p50k_base";
+import * as p50k_edit from "gpt-tokenizer/encoding/p50k_edit";
+import * as r50k_base from "gpt-tokenizer/encoding/r50k_base";
 
 import { CxError } from "./errors.js";
 
-type Encoder = ReturnType<typeof get_encoding>;
+type Encoding = {
+  countTokens: (text: string) => number;
+};
 
-const encoders = new Map<string, Encoder>();
+const ENCODING_MAP: Record<string, Encoding> = {
+  r50k_base,
+  p50k_base,
+  p50k_edit,
+  cl100k_base,
+  o200k_base,
+  o200k_harmony,
+};
 
-function getEncoder(encoding: string): Encoder {
-  let encoder = encoders.get(encoding);
-  if (!encoder) {
-    try {
-      encoder = get_encoding(encoding as TiktokenEncoding);
-    } catch (error) {
-      throw new CxError(
-        `Unable to initialize tokenizer encoding "${encoding}": ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-        2,
-      );
-    }
-    encoders.set(encoding, encoder);
+function getEncoding(name: string): Encoding {
+  const encoding = ENCODING_MAP[name.toLowerCase()];
+  if (!encoding) {
+    const supported = Object.keys(ENCODING_MAP).join(", ");
+    throw new CxError(
+      `Unknown tokenizer encoding "${name}". Supported encodings: ${supported}`,
+      2,
+    );
   }
-  return encoder;
+  return encoding;
 }
-
-function releaseEncoders(): void {
-  for (const encoder of encoders.values()) {
-    encoder.free();
-  }
-  encoders.clear();
-}
-
-process.once("exit", releaseEncoders);
 
 export function countTokens(text: string, encoding: string): number {
-  return getEncoder(encoding).encode(text, [], []).length;
+  try {
+    return getEncoding(encoding).countTokens(text);
+  } catch (error) {
+    if (error instanceof CxError) {
+      throw error;
+    }
+    throw new CxError(
+      `Error counting tokens with encoding "${encoding}": ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      2,
+    );
+  }
 }
 
 export async function countTokensForFiles(
@@ -45,6 +55,7 @@ export async function countTokensForFiles(
   encoding: string,
 ): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
+  const enc = getEncoding(encoding);
 
   for (const filePath of paths) {
     const content = await fs.readFile(filePath, "utf8");
