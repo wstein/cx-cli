@@ -310,6 +310,7 @@ function buildToml(
     repomixExtra?: string;
     dedupExtra?: string;
     configExtra?: string;
+    assetsExtra?: string;
     sections?: string;
   } = {},
 ): string {
@@ -317,6 +318,7 @@ function buildToml(
     repomixExtra = "",
     dedupExtra = "",
     configExtra = "",
+    assetsExtra = "",
     sections = `[sections.src]\ninclude = ["src/**"]\nexclude = []\n`,
   } = opts;
 
@@ -338,6 +340,10 @@ function buildToml(
 
   if (configExtra) {
     parts.push(`[config]`, configExtra, ``);
+  }
+
+  if (assetsExtra) {
+    parts.push(`[assets]`, assetsExtra, ``);
   }
 
   parts.push(sections);
@@ -450,6 +456,61 @@ describe("behavioral settings — precedence chain", () => {
     await expect(loadCxConfig(configPath, {})).rejects.toThrow(
       "config.duplicate_entry must be one of: fail, warn, first-wins.",
     );
+  });
+
+  test("assets.layout defaults to flat with source compiled default", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-layout-default-"),
+    );
+    const configPath = await writeCxToml(dir, buildToml());
+    const config = await loadCxConfig(configPath, {});
+    expect(config.assets.layout).toBe("flat");
+    expect(config.behaviorSources.assetsLayout).toBe("compiled default");
+  });
+
+  test("assets.layout=deep from cx.toml is resolved with source cx.toml", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-layout-file-"),
+    );
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ assetsExtra: `layout = "deep"` }),
+    );
+    const config = await loadCxConfig(configPath, {});
+    expect(config.assets.layout).toBe("deep");
+    expect(config.behaviorSources.assetsLayout).toBe("cx.toml");
+  });
+
+  test("env override wins over cx.toml value for assets.layout", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-layout-env-"),
+    );
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ assetsExtra: `layout = "deep"` }),
+    );
+    // Pass assetsLayout via envOverrides (simulates CX_ASSETS_LAYOUT=flat)
+    const config = await loadCxConfig(configPath, { assetsLayout: "flat" });
+    expect(config.assets.layout).toBe("flat");
+    expect(config.behaviorSources.assetsLayout).toBe("env var");
+  });
+
+  test("CLI override wins over env override for assets.layout", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-layout-cli-"),
+    );
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ assetsExtra: `layout = "deep"` }),
+    );
+    // env says flat, CLI says deep — CLI wins
+    const config = await loadCxConfig(
+      configPath,
+      { assetsLayout: "flat" },
+      { assetsLayout: "deep" },
+    );
+    expect(config.assets.layout).toBe("deep");
+    expect(config.behaviorSources.assetsLayout).toBe("cli flag");
   });
 });
 

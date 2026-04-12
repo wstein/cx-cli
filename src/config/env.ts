@@ -97,39 +97,37 @@ export function getCLIOverrides(): Readonly<CxEnvOverrides> {
  * "fail". Per-area env vars are ignored when CX_STRICT is active.
  */
 export function readEnvOverrides(): CxEnvOverrides {
+  const overrides: CxEnvOverrides = {};
   const strict = process.env.CX_STRICT;
 
   if (strict === "true" || strict === "1") {
-    return {
-      dedupMode: "fail",
-      repomixMissingExtension: "fail",
-      configDuplicateEntry: "fail",
-    };
+    // CX_STRICT forces the three strictness settings to "fail".
+    // CX_ASSETS_LAYOUT is intentionally not affected — it is read below.
+    overrides.dedupMode = "fail";
+    overrides.repomixMissingExtension = "fail";
+    overrides.configDuplicateEntry = "fail";
+  } else {
+    const dedupMode = readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES);
+    if (dedupMode !== undefined) overrides.dedupMode = dedupMode;
+
+    const repomixMissingExtension = readEnumVar(
+      "CX_REPOMIX_MISSING_EXTENSION",
+      VALID_REPOMIX_MISSING,
+    );
+    if (repomixMissingExtension !== undefined) {
+      overrides.repomixMissingExtension = repomixMissingExtension;
+    }
+
+    const configDuplicateEntry = readEnumVar(
+      "CX_CONFIG_DUPLICATE_ENTRY",
+      VALID_CONFIG_DUPLICATE,
+    );
+    if (configDuplicateEntry !== undefined) {
+      overrides.configDuplicateEntry = configDuplicateEntry;
+    }
   }
 
-  const overrides: CxEnvOverrides = {};
-
-  const dedupMode = readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES);
-  if (dedupMode !== undefined) overrides.dedupMode = dedupMode;
-
-  const repomixMissingExtension = readEnumVar(
-    "CX_REPOMIX_MISSING_EXTENSION",
-    VALID_REPOMIX_MISSING,
-  );
-  if (repomixMissingExtension !== undefined) {
-    overrides.repomixMissingExtension = repomixMissingExtension;
-  }
-
-  const configDuplicateEntry = readEnumVar(
-    "CX_CONFIG_DUPLICATE_ENTRY",
-    VALID_CONFIG_DUPLICATE,
-  );
-  if (configDuplicateEntry !== undefined) {
-    overrides.configDuplicateEntry = configDuplicateEntry;
-  }
-
-  // CX_ASSETS_LAYOUT is independent of CX_STRICT — it is always read from the
-  // environment regardless of whether strict mode is active.
+  // CX_ASSETS_LAYOUT is always read — it is independent of CX_STRICT.
   const assetsLayout = readEnumVar("CX_ASSETS_LAYOUT", VALID_ASSETS_LAYOUT);
   if (assetsLayout !== undefined) overrides.assetsLayout = assetsLayout;
 

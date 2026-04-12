@@ -11,6 +11,7 @@ const MANAGED_VARS = [
   "CX_DEDUP_MODE",
   "CX_REPOMIX_MISSING_EXTENSION",
   "CX_CONFIG_DUPLICATE_ENTRY",
+  "CX_ASSETS_LAYOUT",
 ] as const;
 
 type ManagedVar = (typeof MANAGED_VARS)[number];
@@ -119,6 +120,35 @@ describe("readEnvOverrides", () => {
     expect(overrides.dedupMode).toBe("warn");
     expect(overrides.repomixMissingExtension).toBeUndefined();
     expect(overrides.configDuplicateEntry).toBe("first-wins");
+  });
+
+  test("CX_ASSETS_LAYOUT=flat is accepted", () => {
+    process.env.CX_ASSETS_LAYOUT = "flat";
+    const overrides = readEnvOverrides();
+    expect(overrides.assetsLayout).toBe("flat");
+  });
+
+  test("CX_ASSETS_LAYOUT=deep is accepted", () => {
+    process.env.CX_ASSETS_LAYOUT = "deep";
+    const overrides = readEnvOverrides();
+    expect(overrides.assetsLayout).toBe("deep");
+  });
+
+  test("CX_ASSETS_LAYOUT is read even when CX_STRICT is active", () => {
+    process.env.CX_STRICT = "true";
+    process.env.CX_ASSETS_LAYOUT = "deep";
+    const overrides = readEnvOverrides();
+    // CX_STRICT forces the three behavioral settings to "fail" but does not
+    // suppress CX_ASSETS_LAYOUT.
+    expect(overrides.dedupMode).toBe("fail");
+    expect(overrides.assetsLayout).toBe("deep");
+  });
+
+  test("rejects an invalid CX_ASSETS_LAYOUT value", () => {
+    process.env.CX_ASSETS_LAYOUT = "hierarchical";
+    expect(() => readEnvOverrides()).toThrow(
+      'CX_ASSETS_LAYOUT must be one of: flat, deep. Got: "hierarchical".',
+    );
   });
 });
 
