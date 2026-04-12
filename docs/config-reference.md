@@ -291,15 +291,15 @@ When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans
 The strongest bundles are organized by concern, not just by file type. For this repository, a practical split is:
 
 - `docs`: human-facing documentation and root markdown
-- `repo`: repository metadata and root config files such as `package.json`, `cx.toml`, and `tsconfig*.json`
+- `repo`: repository metadata, root config files, scripts, and schemas such as `package.json`, `cx.toml`, `tsconfig*.json`, `scripts/**`, and `schemas/**`
 - `src`: production implementation
 - `tests`: regression and behavior coverage
-- `scripts`: repository utilities and smoke checks
-- `schemas`: JSON schemas and other contract files
 
-That layout keeps the bundle readable when browsing with `cx list`, and it makes `cx inspect` useful because each section now answers a specific question. Top-level generated output should stay under `dist/` so it can be excluded cleanly from planning.
+That layout keeps the bundle readable when browsing with `cx list`, and it makes `cx inspect` useful because each section still answers a clear question without splintering the repository into tiny slices. Top-level generated output should stay under `dist/` so it can be excluded cleanly from planning.
 
 If a scratch directory such as `tmp/` is only for local experimentation, exclude it instead of letting it appear as unmatched noise.
+
+Size hint: keep the `repo` section broad enough to stay coherent, but not so large that it becomes hard to inspect. If a section starts to dominate the bundle or grows beyond a few thousand output tokens, revisit the boundary for a real design reason rather than to chase file types.
 
 Example layout:
 
@@ -318,18 +318,12 @@ include = [
   "biome.json",
   "bin/cx.js",
   "cx.toml",
+  "scripts/**",
+  "schemas/**",
   "package.json",
   "tsconfig.json",
   "tsconfig.test.json",
 ]
-exclude = []
-
-[sections.schemas]
-include = ["schemas/**"]
-exclude = []
-
-[sections.scripts]
-include = ["scripts/**"]
 exclude = []
 
 [sections.src]

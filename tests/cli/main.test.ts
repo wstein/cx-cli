@@ -63,8 +63,8 @@ describe("main", () => {
     process.stdout.write = write;
     expect(output).toContain("schema_version = 1");
     expect(output).toContain("[sections.repo]");
-    expect(output).toContain("[sections.schemas]");
-    expect(output).toContain("[sections.scripts]");
+    expect(output).not.toContain("[sections.schemas]");
+    expect(output).not.toContain("[sections.scripts]");
     expect(output).toContain("[sections.tests]");
   });
 

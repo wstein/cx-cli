@@ -194,18 +194,12 @@ include = [
   "biome.json",
   "bin/cx.js",
   "cx.toml",
+  "scripts/**",
+  "schemas/**",
   "package.json",
   "tsconfig.json",
   "tsconfig.test.json",
 ]
-exclude = []
-
-[sections.schemas]
-include = ["schemas/**"]
-exclude = []
-
-[sections.scripts]
-include = ["scripts/**"]
 exclude = []
 
 [sections.src]

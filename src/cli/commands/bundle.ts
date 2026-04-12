@@ -33,6 +33,7 @@ import {
 import { ensureDir } from "../../shared/fs.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
+import { countTokens } from "../../shared/tokens.js";
 
 export interface BundleArgs {
   config: string;
@@ -69,6 +70,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       (sum, file) => sum + file.sizeBytes,
       0,
     );
+    const outputTokenCount = countTokens(
+      renderResult.outputText,
+      config.tokens.encoding,
+    );
     sectionOutputs.push({
       name: section.name,
       style: section.style,
@@ -77,6 +82,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       fileCount: section.files.length,
       sizeBytes: totalSectionBytes,
       tokenCount: renderResult.outputTokenCount,
+      outputTokenCount,
     });
     sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
     if (renderResult.fileSpans) {
@@ -145,6 +151,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     (sum, section) => sum + section.tokenCount,
     0,
   );
+  const totalOutputTokens = sectionOutputs.reduce(
+    (sum, section) => sum + section.outputTokenCount,
+    0,
+  );
 
   // Print human-friendly report
   if (!(args.json ?? false)) {
@@ -168,7 +178,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         [`  ${section.name}`, ""],
         ["    Files", section.fileCount],
         ["    Size", formatBytes(section.sizeBytes)],
-        ["    Tokens", formatNumber(section.tokenCount)],
+        ["    Packed tokens", formatNumber(section.tokenCount)],
+        ["    Output tokens", formatNumber(section.outputTokenCount)],
       ]);
     }
 
@@ -177,7 +188,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       ["Total sections size", formatBytes(totalSectionBytes)],
       ["Total assets size", formatBytes(totalAssetBytes)],
       ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
-      ["Total tokens", formatNumber(totalTokens)],
+      ["Total packed tokens", formatNumber(totalTokens)],
+      ["Total output tokens", formatNumber(totalOutputTokens)],
     ]);
     printDivider();
     printSuccess("Bundle created successfully");
@@ -197,7 +209,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         totalSectionBytes,
         totalAssetBytes,
         totalBytes: totalSectionBytes + totalAssetBytes,
-        totalTokens,
+        totalPackedTokens: totalTokens,
+        totalOutputTokens,
       },
       warnings: [...plan.warnings, ...renderWarnings],
       repomix: await getRepomixCapabilities(),

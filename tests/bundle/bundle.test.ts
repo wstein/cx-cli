@@ -154,25 +154,39 @@ exclude = []
 describe("bundle workflow", () => {
   test("creates, validates, lists, and verifies a bundle", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const logs: string[] = [];
+    const consoleLog = console.log;
+    console.log = ((...args: unknown[]) => {
+      logs.push(args.map((value) => String(value)).join(" "));
+    }) as typeof console.log;
+
+    try {
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    } finally {
+      console.log = consoleLog;
+    }
+
+    const summary = logs.join("\n");
+    expect(summary).toContain("Packed tokens");
+    expect(summary).toContain("Output tokens");
     expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
     expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
 
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
+    const listWrites: string[] = [];
+    const listStdoutWrite = process.stdout.write;
     process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
+      listWrites.push(String(chunk));
       return true;
     }) as typeof process.stdout.write;
     expect(
       await runListCommand({ bundleDir: project.bundleDir, json: false }),
     ).toBe(0);
-    process.stdout.write = stdoutWrite;
+    process.stdout.write = listStdoutWrite;
 
-    expect(writes.join("")).toContain("README.md");
-    expect(writes.join("")).toContain("docs");
-    expect(writes.join("")).toContain("status");
-    expect(writes.join("")).not.toContain("kind\tsection\tstored_in");
+    expect(listWrites.join("")).toContain("README.md");
+    expect(listWrites.join("")).toContain("docs");
+    expect(listWrites.join("")).toContain("status");
+    expect(listWrites.join("")).not.toContain("kind\tsection\tstored_in");
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),
     ).toBeDefined();

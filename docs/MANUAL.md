@@ -79,6 +79,19 @@ cx extract dist/demo-bundle --to /tmp/restore --file src/index.ts
 
 Use `list` when you want visibility. Use `extract` when you need reconstruction.
 
+## Recommended Bundle Layout
+
+For this repository, prefer four stable sections:
+
+- `docs` for human-facing documentation and root markdown
+- `repo` for repository metadata, config, scripts, and schemas
+- `src` for production implementation
+- `tests` for regression coverage
+
+Do not create mini sections for `scripts` or `schemas` on their own unless there is a strong ownership boundary. Keep the `repo` section broad enough to be useful, but watch its size. As a practical rule, if a section becomes hard to scan in `cx list` or grows into the many-thousands-of-tokens range, revisit the boundary for a real design reason, not just to reduce file count.
+
+If `tmp/` is only for scratch work, exclude it from planning so it does not pollute unmatched-file reporting.
+
 ## Workflow: Handling Section Overlaps
 
 This is the most important operator workflow because overlap resolution is a sequence, not a single command.
