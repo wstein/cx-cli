@@ -334,7 +334,7 @@ export async function renderSectionWithRepomix(params: {
       }
 
       const message =
-        "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
+        "Exact output spans are unavailable for this render; text bundles now require them.";
       warnings.push(message);
       emitWarning(message);
     }
@@ -378,7 +378,7 @@ export async function renderSectionWithRepomix(params: {
     }
 
     const message =
-      "Output span capture was requested, but packStructured/renderWithMap is unavailable. Continuing without span metadata.";
+      "Exact output spans are unavailable for this render; text bundles now require them.";
     warnings.push(message);
     emitWarning(message);
   }

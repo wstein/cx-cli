@@ -114,7 +114,7 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
       );
       if (payload.capabilities.spanCapability !== "supported") {
         process.stdout.write(
-          "  warning:                 Bundling still works, but no output span metadata will be recorded.\n",
+          "  note:                    Render-only output may omit span metadata; text bundles require exact spans.\n",
         );
       }
     }

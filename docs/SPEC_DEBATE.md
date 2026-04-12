@@ -18,7 +18,7 @@ This document records the final architectural decisions that define `cx`.
 
 - The implementation does not shell out to Repomix.
 - Planning, manifest generation, validation, and verification must remain deterministic.
-- Missing span capability may still be a warning for render-only flows, but bundle creation fails for text sections when spans are unavailable.
+- Missing span capability can still be tolerated for render-only flows, but bundle creation fails for text sections when spans are unavailable.
 - Real planning conflicts such as section overlap and asset collisions remain hard failures.
 - Extraction restores deterministic packed content by default and requires explicit opt-in for degraded fallback recovery.
 
