@@ -134,6 +134,8 @@ export interface CxBehaviorSources {
     | "env var"
     | "CX_STRICT"
     | "cli flag";
+  /** Source for assets.layout. Never "CX_STRICT" — CX_STRICT does not affect layout. */
+  assetsLayout: "compiled default" | "cx.toml" | "env var" | "cli flag";
 }
 
 export interface CxConfig {

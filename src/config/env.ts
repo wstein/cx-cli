@@ -7,15 +7,18 @@
  * CX_STRICT=true is a convenience shorthand that sets every Category B setting to
  * its strictest value ("fail"), overriding any cx.toml values. It does not affect
  * Category A invariants — those are always hard failures regardless of mode.
+ * CX_STRICT does not affect CX_ASSETS_LAYOUT.
  *
  * Category B env vars:
  *   CX_DEDUP_MODE                  — "fail" | "warn" | "first-wins"
  *   CX_REPOMIX_MISSING_EXTENSION   — "fail" | "warn"
  *   CX_CONFIG_DUPLICATE_ENTRY      — "fail" | "warn" | "first-wins"
+ *   CX_ASSETS_LAYOUT               — "flat" | "deep"
  */
 
 import { CxError } from "../shared/errors.js";
 import type {
+  CxAssetsLayout,
   CxConfigDuplicateEntryMode,
   CxDedupMode,
   CxRepomixMissingExtensionMode,
@@ -25,6 +28,7 @@ export interface CxEnvOverrides {
   dedupMode?: CxDedupMode;
   repomixMissingExtension?: CxRepomixMissingExtensionMode;
   configDuplicateEntry?: CxConfigDuplicateEntryMode;
+  assetsLayout?: CxAssetsLayout;
 }
 
 /** The source from which a Category B setting was resolved. */
@@ -44,6 +48,7 @@ const VALID_CONFIG_DUPLICATE = new Set<CxConfigDuplicateEntryMode>([
   "warn",
   "first-wins",
 ]);
+const VALID_ASSETS_LAYOUT = new Set<CxAssetsLayout>(["flat", "deep"]);
 
 function readEnumVar<T extends string>(
   name: string,
@@ -122,6 +127,11 @@ export function readEnvOverrides(): CxEnvOverrides {
   if (configDuplicateEntry !== undefined) {
     overrides.configDuplicateEntry = configDuplicateEntry;
   }
+
+  // CX_ASSETS_LAYOUT is independent of CX_STRICT — it is always read from the
+  // environment regardless of whether strict mode is active.
+  const assetsLayout = readEnumVar("CX_ASSETS_LAYOUT", VALID_ASSETS_LAYOUT);
+  if (assetsLayout !== undefined) overrides.assetsLayout = assetsLayout;
 
   return overrides;
 }

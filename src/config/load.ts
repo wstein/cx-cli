@@ -446,6 +446,24 @@ export async function loadCxConfig(
     defaultValue: DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry,
   });
 
+  const assetsLayoutFromFile =
+    assets.layout !== undefined
+      ? expectEnum(
+          assets.layout,
+          "assets.layout",
+          VALID_ASSET_LAYOUTS,
+          DEFAULT_CONFIG_VALUES.assets.layout,
+        )
+      : undefined;
+
+  const assetsLayoutResolved = resolveCategory({
+    label: "assets.layout",
+    cliValue: cliOverrides.assetsLayout,
+    envValue: envOverrides.assetsLayout,
+    fileValue: assetsLayoutFromFile,
+    defaultValue: DEFAULT_CONFIG_VALUES.assets.layout,
+  });
+
   const behavior: CxBehaviorConfig = {
     repomixMissingExtension: repomixMissingResolved.value,
     configDuplicateEntry: configDuplicateResolved.value,
@@ -455,6 +473,13 @@ export async function loadCxConfig(
     dedupMode: dedupResolved.source,
     repomixMissingExtension: repomixMissingResolved.source,
     configDuplicateEntry: configDuplicateResolved.source,
+    // Normalize "CX_STRICT" → "env var" for assetsLayout: CX_STRICT does not
+    // control asset layout, so if both CX_STRICT and CX_ASSETS_LAYOUT are set,
+    // the accurate source attribution is "env var".
+    assetsLayout:
+      assetsLayoutResolved.source === "CX_STRICT"
+        ? "env var"
+        : assetsLayoutResolved.source,
   };
 
   // --- Sections ---
@@ -616,12 +641,7 @@ export async function loadCxConfig(
         ),
         projectName,
       ),
-      layout: expectEnum(
-        assets.layout,
-        "assets.layout",
-        VALID_ASSET_LAYOUTS,
-        DEFAULT_CONFIG_VALUES.assets.layout,
-      ),
+      layout: assetsLayoutResolved.value,
     },
     behavior,
     behaviorSources,
