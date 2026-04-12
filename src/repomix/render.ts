@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type * as RepomixTypes from "@wstein/repomix";
+import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";

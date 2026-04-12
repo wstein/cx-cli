@@ -6,11 +6,27 @@ import { loadCxConfig } from "../../config/load.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
+import { formatNumber } from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
+import { countTokensForFiles } from "../../shared/tokens.js";
 
 export interface InspectArgs {
   config: string;
   json: boolean;
+  tokenBreakdown?: boolean;
+}
+
+interface SectionTokenBreakdown {
+  name: string;
+  fileCount: number;
+  tokenCount: number;
+  share: number;
+  bar: string;
+}
+
+interface TokenBreakdown {
+  totalTokenCount: number;
+  sections: SectionTokenBreakdown[];
 }
 
 function buildInspectSummary(
@@ -30,9 +46,83 @@ function buildInspectSummary(
   };
 }
 
+async function buildTokenBreakdown(
+  plan: Awaited<ReturnType<typeof buildBundlePlan>>,
+  encoding: string,
+): Promise<TokenBreakdown> {
+  const sectionTotals = await Promise.all(
+    plan.sections.map(async (section) => {
+      const counts = await countTokensForFiles(
+        section.files.map((file) => file.absolutePath),
+        encoding,
+      );
+      const tokenCount = [...counts.values()].reduce(
+        (total, count) => total + count,
+        0,
+      );
+      return {
+        name: section.name,
+        fileCount: section.files.length,
+        tokenCount,
+      };
+    }),
+  );
+
+  const totalTokenCount = sectionTotals.reduce(
+    (total, section) => total + section.tokenCount,
+    0,
+  );
+  const maxTokenCount = Math.max(
+    1,
+    ...sectionTotals.map((section) => section.tokenCount),
+  );
+  const maxBarWidth = 24;
+
+  return {
+    totalTokenCount,
+    sections: sectionTotals.map((section) => ({
+      ...section,
+      share: totalTokenCount > 0 ? section.tokenCount / totalTokenCount : 0,
+      bar:
+        section.tokenCount === 0
+          ? ""
+          : "█".repeat(
+              Math.max(
+                1,
+                Math.round((section.tokenCount / maxTokenCount) * maxBarWidth),
+              ),
+            ),
+    })),
+  };
+}
+
+function renderTokenBreakdown(breakdown: TokenBreakdown): string {
+  const nameWidth = Math.max(
+    6,
+    ...breakdown.sections.map((section) => section.name.length),
+  );
+  const barWidth = 24;
+  const lines = ["", "Token breakdown", "  SECTION  TOKENS   SHARE   GRAPH"];
+
+  for (const section of breakdown.sections) {
+    const share = breakdown.totalTokenCount > 0 ? section.share * 100 : 0;
+    lines.push(
+      `  ${section.name.padEnd(nameWidth)}  ${formatNumber(section.tokenCount).padStart(6)}  ${share.toFixed(1).padStart(5)}%  ${section.bar.padEnd(barWidth)}`,
+    );
+  }
+
+  lines.push(
+    `  ${"Total".padEnd(nameWidth)}  ${formatNumber(breakdown.totalTokenCount).padStart(6)}  100.0%  ${"█".repeat(barWidth)}`,
+  );
+  return lines.join("\n");
+}
+
 export async function runInspectCommand(args: InspectArgs): Promise<number> {
   const config = await loadCxConfig(args.config ?? "cx.toml");
   const plan = await buildBundlePlan(config);
+  const tokenBreakdown = args.tokenBreakdown
+    ? await buildTokenBreakdown(plan, config.tokens.encoding)
+    : undefined;
   let bundleComparison:
     | {
         available: true;
@@ -100,6 +190,7 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       summary: buildInspectSummary(plan),
       repomix: await getRepomixCapabilities(),
       bundleComparison,
+      tokenBreakdown,
       sections: plan.sections.map((section) => ({
         ...section,
         files: section.files.map((file) => ({
@@ -155,6 +246,8 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       : []),
   ];
 
-  process.stdout.write(`${lines.join("\n").trimEnd()}\n`);
+  process.stdout.write(
+    `${lines.join("\n").trimEnd()}${tokenBreakdown ? renderTokenBreakdown(tokenBreakdown) : ""}\n`,
+  );
   return 0;
 }

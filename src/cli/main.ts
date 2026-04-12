@@ -126,11 +126,18 @@ export async function main(argv: string[]): Promise<number> {
             "Show the current bundle plan.",
           )
           .option("config", { type: "string", default: "cx.toml" })
-          .option("json", { type: "boolean", default: false }),
+          .option("json", { type: "boolean", default: false })
+          .option("token-breakdown", {
+            type: "boolean",
+            default: false,
+            description:
+              "Show per-section token distribution as a bar chart.",
+          }),
       async (args) => {
         exitCode = await runInspectCommand({
           config: args.config,
           json: args.json,
+          tokenBreakdown: args["token-breakdown"],
         });
       },
     )

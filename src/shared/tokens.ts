@@ -55,7 +55,6 @@ export async function countTokensForFiles(
   encoding: string,
 ): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
-  const enc = getEncoding(encoding);
 
   for (const filePath of paths) {
     const content = await fs.readFile(filePath, "utf8");
