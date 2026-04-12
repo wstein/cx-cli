@@ -409,22 +409,34 @@ export async function loadCxConfig(
 
   // --- Remaining config fields ---
 
-  const filesExclude = expectStringArray(
-    files.exclude,
+  const filesExclude = deduplicatePatterns(
+    expectStringArray(
+      files.exclude,
+      "files.exclude",
+      DEFAULT_CONFIG_VALUES.files.exclude,
+    ),
     "files.exclude",
-    DEFAULT_CONFIG_VALUES.files.exclude,
+    configDuplicateEntry,
   );
 
-  const assetsInclude = expectStringArray(
-    assets.include,
+  const assetsInclude = deduplicatePatterns(
+    expectStringArray(
+      assets.include,
+      "assets.include",
+      DEFAULT_CONFIG_VALUES.assets.include,
+    ),
     "assets.include",
-    DEFAULT_CONFIG_VALUES.assets.include,
+    configDuplicateEntry,
   );
 
-  const assetsExclude = expectStringArray(
-    assets.exclude,
+  const assetsExclude = deduplicatePatterns(
+    expectStringArray(
+      assets.exclude,
+      "assets.exclude",
+      DEFAULT_CONFIG_VALUES.assets.exclude,
+    ),
     "assets.exclude",
-    DEFAULT_CONFIG_VALUES.assets.exclude,
+    configDuplicateEntry,
   );
 
   return {

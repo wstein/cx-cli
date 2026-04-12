@@ -396,3 +396,131 @@ describe("behavioral settings — duplicate pattern detection", () => {
     );
   });
 });
+
+describe("behavioral settings — duplicate detection in global arrays", () => {
+  test("fails on duplicate patterns in files.exclude", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-files-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        // Provide [files] with duplicates as extra content before sections.
+        // We use a custom TOML build without the files block going through
+        // buildToml's repomix table to keep the TOML valid.
+      }),
+    );
+    // Write the file manually so we can control the files.exclude array.
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[files]
+exclude = [".git/**", ".git/**", "node_modules/**"]
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
+      'files.exclude contains duplicate pattern(s): ".git/**".',
+    );
+  });
+
+  test("deduplicates files.exclude silently when config.duplicate_entry=first-wins", async () => {
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-dup-files-firstwins-"),
+    );
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[files]
+exclude = [".git/**", ".git/**", "node_modules/**"]
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+    const config = await loadCxConfig(configPath, {
+      configDuplicateEntry: "first-wins",
+    });
+    expect(config.files.exclude).toEqual([".git/**", "node_modules/**"]);
+  });
+
+  test("fails on duplicate patterns in assets.include", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-assets-inc-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[assets]
+include = ["**/*.png", "**/*.png", "**/*.jpg"]
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
+      'assets.include contains duplicate pattern(s): "**/*.png".',
+    );
+  });
+
+  test("fails on duplicate patterns in assets.exclude", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-assets-exc-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[assets]
+include = ["**/*.png"]
+exclude = ["test/**", "test/**"]
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
+      'assets.exclude contains duplicate pattern(s): "test/**".',
+    );
+  });
+});
