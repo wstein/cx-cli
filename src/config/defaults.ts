@@ -50,6 +50,7 @@ include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = []
 mode = "copy"
 target_dir = "{project}-assets"
+layout = "flat"
 
 [sections.docs]
 include = ["docs/**", "README.md", "*.md"]
@@ -123,6 +124,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     exclude: [],
     mode: "copy",
     targetDir: "{project}-assets",
+    layout: "flat",
   },
   behavior: {
     ...DEFAULT_BEHAVIOR_VALUES,

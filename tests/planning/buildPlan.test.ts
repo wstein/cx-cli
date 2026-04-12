@@ -111,6 +111,7 @@ function baseConfig(root: string): CxConfig {
       exclude: [],
       mode: "copy",
       targetDir: "demo-assets",
+      layout: "flat",
     },
     sections: {
       docs: {
@@ -171,6 +172,7 @@ describe("buildBundlePlan", () => {
     expect(plan.assets.map((asset) => asset.relativePath)).toEqual([
       "logo.png",
     ]);
+    expect(plan.assets[0]?.storedPath).toBe("demo-assets/logo.png");
   });
 
   test("keeps scripts and schemas inside the repo section", async () => {
@@ -285,5 +287,68 @@ describe("buildBundlePlan", () => {
     // docs and repo follow in their config order
     expect(names[0]).toBe("src");
     expect(names.slice(1)).toEqual(["docs", "repo"]);
+  });
+});
+
+describe("asset layout", () => {
+  test("flat layout places all assets directly in targetDir with no subdirectories", async () => {
+    const root = await createFixture();
+    await fs.mkdir(path.join(root, "images"), { recursive: true });
+    await fs.writeFile(path.join(root, "images", "banner.png"), "fake", "utf8");
+
+    const config = baseConfig(root);
+    config.assets.layout = "flat";
+
+    const plan = await buildBundlePlan(config);
+
+    const storedPaths = plan.assets.map((a) => a.storedPath);
+    // No path separators inside targetDir — all assets are at the root of the target
+    for (const sp of storedPaths) {
+      const relative = sp.slice("demo-assets/".length);
+      expect(relative).not.toContain("/");
+    }
+    expect(storedPaths).toContain("demo-assets/logo.png");
+    expect(storedPaths).toContain("demo-assets/banner.png");
+  });
+
+  test("flat layout appends a numeric postfix to the stem when basenames collide", async () => {
+    const root = await createFixture();
+    await fs.mkdir(path.join(root, "images"), { recursive: true });
+    await fs.mkdir(path.join(root, "icons"), { recursive: true });
+    // Two files with the same basename in different directories
+    await fs.writeFile(path.join(root, "images", "logo.png"), "img", "utf8");
+    await fs.writeFile(path.join(root, "icons", "logo.png"), "icon", "utf8");
+
+    const config = baseConfig(root);
+    config.assets.layout = "flat";
+
+    const plan = await buildBundlePlan(config);
+
+    const storedPaths = plan.assets.map((a) => a.storedPath).sort();
+    // The root logo.png, icons/logo.png, and images/logo.png all collide.
+    // Sorted by relativePath: icons/logo.png, images/logo.png, logo.png
+    // → first keeps the original name, subsequent ones get -2, -3, …
+    expect(storedPaths).toContain("demo-assets/logo.png");
+    expect(storedPaths).toContain("demo-assets/logo-2.png");
+    expect(storedPaths).toContain("demo-assets/logo-3.png");
+    // All stored paths are distinct
+    expect(new Set(storedPaths).size).toBe(storedPaths.length);
+  });
+
+  test("deep layout preserves the original relative directory structure under targetDir", async () => {
+    const root = await createFixture();
+    await fs.mkdir(path.join(root, "images"), { recursive: true });
+    await fs.writeFile(path.join(root, "images", "banner.png"), "fake", "utf8");
+
+    const config = baseConfig(root);
+    config.assets.layout = "deep";
+
+    const plan = await buildBundlePlan(config);
+
+    const storedPaths = plan.assets
+      .map((a) => a.storedPath)
+      .sort();
+    expect(storedPaths).toContain("demo-assets/logo.png");
+    expect(storedPaths).toContain("demo-assets/images/banner.png");
   });
 });

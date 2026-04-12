@@ -12,6 +12,7 @@ import {
 } from "./env.js";
 import { assertSafeProjectName } from "./projectName.js";
 import type {
+  CxAssetsLayout,
   CxBehaviorConfig,
   CxBehaviorSources,
   CxConfig,
@@ -41,6 +42,7 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
   "ignore",
   "fail",
 ]);
+const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
 function expectString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new CxError(`${label} must be a non-empty string.`);
@@ -613,6 +615,12 @@ export async function loadCxConfig(
           "assets.target_dir",
         ),
         projectName,
+      ),
+      layout: expectEnum(
+        assets.layout,
+        "assets.layout",
+        VALID_ASSET_LAYOUTS,
+        DEFAULT_CONFIG_VALUES.assets.layout,
       ),
     },
     behavior,

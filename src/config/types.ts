@@ -4,6 +4,7 @@ export type CxRepomixMissingExtensionMode = "fail" | "warn";
 export type CxConfigDuplicateEntryMode = "fail" | "warn" | "first-wins";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
+export type CxAssetsLayout = "flat" | "deep";
 
 export interface CxSectionConfig {
   include: string[];
@@ -74,6 +75,17 @@ export interface CxAssetsConfig {
   exclude: string[];
   mode: CxAssetsMode;
   targetDir: string;
+  /**
+   * Controls how asset files are placed inside `targetDir`.
+   *
+   * - "flat" — all assets are placed directly in `targetDir` with no
+   *   subdirectories (default). When two source files share the same
+   *   basename, a numeric postfix is appended to the base name (before
+   *   the extension) to keep stored paths unique, e.g. `logo-2.png`.
+   * - "deep" — the original relative directory structure is preserved
+   *   under `targetDir`.
+   */
+  layout: CxAssetsLayout;
 }
 
 /**

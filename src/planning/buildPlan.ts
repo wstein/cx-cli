@@ -57,6 +57,41 @@ function getRequiredSectionFiles(
   return files;
 }
 
+/**
+ * Resolve a unique stored filename for flat layout.
+ *
+ * All candidates are sorted by relativePath for determinism. The first
+ * occurrence keeps its original basename; subsequent ones receive a numeric
+ * postfix inserted between the base name and the extension, e.g. `logo-2.png`.
+ */
+function resolveFlat(
+  targetDir: string,
+  candidates: { relativePath: string }[],
+): Map<string, string> {
+  const byBasename = new Map<string, string[]>();
+  for (const { relativePath } of candidates) {
+    const base = path.basename(relativePath);
+    const list = byBasename.get(base);
+    if (list) {
+      list.push(relativePath);
+    } else {
+      byBasename.set(base, [relativePath]);
+    }
+  }
+
+  const result = new Map<string, string>();
+  for (const [base, paths] of byBasename) {
+    paths.sort((a, b) => a.localeCompare(b, "en"));
+    const ext = path.extname(base);
+    const stem = ext ? base.slice(0, -ext.length) : base;
+    for (let i = 0; i < paths.length; i++) {
+      const filename = i === 0 ? base : `${stem}-${i + 1}${ext}`;
+      result.set(paths[i] as string, `${targetDir}/${filename}`);
+    }
+  }
+  return result;
+}
+
 export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const planningWarnings: string[] = [];
 
@@ -81,6 +116,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const sectionFiles = new Map<string, PlannedSourceFile[]>(
     sectionNames.map((sectionName) => [sectionName, []]),
   );
+  const assetCandidates: Omit<PlannedAsset, "storedPath">[] = [];
   const assets: PlannedAsset[] = [];
   const unmatchedFiles: string[] = [];
 
@@ -111,7 +147,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
 
         if (config.assets.mode === "copy") {
           const stat = await fs.stat(absolutePath);
-          assets.push({
+          assetCandidates.push({
             relativePath,
             absolutePath,
             kind: "asset",
@@ -119,7 +155,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
             sizeBytes: stat.size,
             sha256: await sha256File(absolutePath),
             mtime: stat.mtime.toISOString(),
-            storedPath: `${config.assets.targetDir}/${relativePath}`,
           });
         }
         continue;
@@ -144,6 +179,23 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       mtime: stat.mtime.toISOString(),
     };
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
+  }
+
+  if (config.assets.layout === "flat") {
+    const storedPaths = resolveFlat(config.assets.targetDir, assetCandidates);
+    for (const candidate of assetCandidates) {
+      assets.push({
+        ...candidate,
+        storedPath: storedPaths.get(candidate.relativePath) as string,
+      });
+    }
+  } else {
+    for (const candidate of assetCandidates) {
+      assets.push({
+        ...candidate,
+        storedPath: `${config.assets.targetDir}/${candidate.relativePath}`,
+      });
+    }
   }
 
   if (config.files.unmatched === "fail" && unmatchedFiles.length > 0) {

@@ -29,6 +29,7 @@ exclude = []
     const config = await loadCxConfig(configPath);
     expect(config.projectName).toBe("demo");
     expect(config.assets.targetDir).toBe("demo-assets");
+    expect(config.assets.layout).toBe("flat");
     expect(config.checksums.fileName).toBe("demo.sha256");
     expect(config.tokens.encoding).toBe("o200k_base");
     expect(config.sections.src?.include).toEqual(["src/**"]);
@@ -205,6 +206,65 @@ exclude = []
     const config = await loadCxConfig(configPath);
     expect(config.sections.src?.priority).toBe(10);
     expect(config.sections.tests?.priority).toBeUndefined();
+  });
+
+  test("loads assets.layout = deep from cx.toml", async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-layout-"),
+    );
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[assets]
+layout = "deep"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.assets.layout).toBe("deep");
+  });
+
+  test("rejects an invalid assets.layout value", async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-layout-bad-"),
+    );
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[assets]
+layout = "hierarchical"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "assets.layout must be one of: flat, deep.",
+    );
   });
 
   test("rejects a non-integer section priority", async () => {
