@@ -64,7 +64,7 @@ Each section is rendered as one Repomix-compatible output file in the configured
 
 `cx` also supplies a section-specific Repomix header through the documented `output.headerText` option so the file itself carries cx-oriented handover context without post-processing the generated output.
 
-The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file. Those spans are the primary lookup path for XML, Markdown, and plain-text extraction. JSON stays direct because the packed content is already represented as structured strings.
+The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file in XML, Markdown, and plain sections. Those spans are the primary lookup path for those text formats. JSON stays direct because the packed content is already represented as structured strings and does not need span metadata.
 
 ### 4. Shared handover index
 

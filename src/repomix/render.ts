@@ -275,6 +275,7 @@ export async function renderSectionWithRepomix(params: {
 
     if (
       params.config.manifest.includeOutputSpans &&
+      params.style !== "json" &&
       typeof structuredPlan.renderWithMap === "function"
     ) {
       const rendered = await structuredPlan.renderWithMap(params.style);
@@ -323,10 +324,16 @@ export async function renderSectionWithRepomix(params: {
     }
 
     if (params.config.manifest.includeOutputSpans) {
-      const message =
-        "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
-      warnings.push(message);
-      emitWarning(message);
+      if (params.style === "json") {
+        warnings.push(
+          "Output spans are not recorded for JSON sections because JSON bundles expose packed content directly.",
+        );
+      } else {
+        const message =
+          "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
+        warnings.push(message);
+        emitWarning(message);
+      }
     }
 
     const outputText = await structuredPlan.render(params.style);

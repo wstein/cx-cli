@@ -323,11 +323,9 @@ include_source_metadata = true`;
   });
 
   test.each([
-    "json",
     "markdown",
     "plain",
   ] as const)("emits absolute output spans for %s bundles", async (style:
-    | "json"
     | "markdown"
     | "plain") => {
     const project = await createProject();
@@ -406,6 +404,40 @@ include_source_metadata = true`;
           filePath: row.path,
         }),
       );
+    }
+  });
+
+  test("does not emit output spans for json bundles", async () => {
+    const project = await createProject();
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "alpha\nbeta",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(project.root, "docs", "guide.md"),
+      "gamma\n",
+      "utf8",
+    );
+    const configContents = await fs.readFile(project.configPath, "utf8");
+    await fs.writeFile(
+      project.configPath,
+      configContents
+        .replace('style = "xml"', 'style = "json"')
+        .concat(
+          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
+        ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const textRows = manifest.files.filter((row) => row.kind === "text");
+    expect(textRows.length).toBeGreaterThan(0);
+    for (const row of textRows) {
+      expect(row.outputStartLine).toBeNull();
+      expect(row.outputEndLine).toBeNull();
     }
   });
 
