@@ -229,7 +229,21 @@ Rules:
 - Supported encodings: `r50k_base`, `p50k_base`, `p50k_edit`, `cl100k_base`, `o200k_base`, `o200k_harmony`.
 - `o200k_base` is the default and recommended for modern OpenAI models (GPT-4o, o1, etc.).
 
+Encoding selection guidance:
+
+| Encoding | Best fit |
+| --- | --- |
+| `o200k_base` | Default choice for current OpenAI chat and reasoning models |
+| `o200k_harmony` | Open-weight Harmony models |
+| `cl100k_base` | GPT-3.5 and GPT-4-era models |
+| `p50k_base` / `p50k_edit` | Legacy compatibility workflows |
+| `r50k_base` | Older GPT-2-style corpora and compatibility checks |
+
+`gpt-tokenizer` is the implementation detail behind these counts. The encoding name should match the tokenizer module you expect to use, and `o200k_base` is the best default when you do not have a model-specific reason to choose otherwise.
+
 `cx bundle` stores the chosen `tokenEncoding` in the manifest and persists exact `tokenCount` values for every section and file. Downstream consumers such as `cx list` read those stored counts directly and never fall back to byte- or character-based guesses.
+
+`cx inspect --token-breakdown` uses the same accounting model to show a per-section token histogram before you build a bundle. Use it when you want to spot an oversized section early.
 
 ## User Display Settings
 

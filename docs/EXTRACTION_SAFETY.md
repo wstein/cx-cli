@@ -30,6 +30,19 @@ It refuses to write `degraded` text files unless you explicitly pass:
 cx extract dist/demo-bundle --to /tmp/restore --allow-degraded
 ```
 
+## Troubleshooting Hash Mismatches
+
+When extraction reports `manifest_hash_mismatch`, the error table now shows a short checksum prefix for both the expected and actual content. Use that as the first diagnostic signal, then decide whether the file should be rebuilt or only reviewed.
+
+Practical checks:
+
+- compare the expected and actual checksum prefixes in the error table
+- re-run `cx list --json` or `cx extract --json` if you need the full `expectedSha256` and `actualSha256` values
+- confirm whether the section output changed because of line-number mode, wrapper formatting, or a content edit
+- rebuild the bundle from the trusted source tree if the output is supposed to be exact
+
+If the mismatch is intentional and approximate recovery is acceptable, use `--allow-degraded`. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.
+
 ## What "Degraded" Usually Means
 
 A degraded file often differs in small ways:

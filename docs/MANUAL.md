@@ -43,6 +43,14 @@ cx inspect --config cx.toml
 
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
 
+If you are checking whether a section is becoming too large, run:
+
+```bash
+cx inspect --config cx.toml --token-breakdown
+```
+
+That prints a compact per-section histogram so you can see which section is carrying most of the token budget before you build the bundle.
+
 ### 2. Build the bundle
 
 ```bash
