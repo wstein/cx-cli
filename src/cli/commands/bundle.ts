@@ -48,6 +48,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const sectionOutputs = [];
   const sectionSpanMaps: SectionSpanMaps = new Map();
   const sectionTokenMaps: SectionTokenMaps = new Map();
+  const renderWarnings: string[] = [];
 
   for (const section of plan.sections) {
     const outputPath = path.join(plan.bundleDir, section.outputFile);
@@ -58,6 +59,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputPath,
       explicitFiles: section.files.map((file) => file.absolutePath),
     });
+    renderWarnings.push(...renderResult.warnings);
     const totalSectionBytes = section.files.reduce(
       (sum, file) => sum + file.sizeBytes,
       0,
@@ -167,6 +169,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         totalBytes: totalSectionBytes + totalAssetBytes,
         totalTokens,
       },
+      warnings: [...plan.warnings, ...renderWarnings],
       repomix: await getRepomixCapabilities(),
     });
   }

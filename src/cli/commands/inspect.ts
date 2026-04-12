@@ -112,6 +112,7 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
         extractability: extractabilityByPath.get(asset.relativePath) ?? null,
       })),
       unmatchedFiles: plan.unmatchedFiles,
+      warnings: plan.warnings,
     });
     return 0;
   }

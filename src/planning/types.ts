@@ -29,4 +29,11 @@ export interface BundlePlan {
   sections: PlannedSection[];
   assets: PlannedAsset[];
   unmatchedFiles: string[];
+  /**
+   * Non-fatal warnings emitted during planning.
+   * Populated when Category B behavioral settings resolve to "warn" instead of
+   * failing (e.g. dedup.mode="warn" on overlapping sections).
+   * Commands that output --json include these in the response envelope.
+   */
+  warnings: string[];
 }

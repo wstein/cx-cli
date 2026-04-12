@@ -58,6 +58,8 @@ function getRequiredSectionFiles(
 }
 
 export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
+  const planningWarnings: string[] = [];
+
   if (config.dedup.mode === "fail") {
     const [conflict] = await analyzeSectionOverlaps(config);
     if (conflict) {
@@ -66,9 +68,9 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   } else if (config.dedup.mode === "warn") {
     const conflicts = await analyzeSectionOverlaps(config);
     for (const conflict of conflicts) {
-      process.stderr.write(
-        `Warning: ${formatOverlapConflictMessage(conflict)}\n`,
-      );
+      const message = formatOverlapConflictMessage(conflict);
+      planningWarnings.push(message);
+      process.stderr.write(`Warning: ${message}\n`);
     }
   }
 
@@ -174,5 +176,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       left.relativePath.localeCompare(right.relativePath, "en"),
     ),
     unmatchedFiles,
+    warnings: planningWarnings,
   };
 }
