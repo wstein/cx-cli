@@ -53,6 +53,19 @@ This document records the final architectural decisions that define `cx`.
 CLI flag > CX_* env var > project cx.toml > compiled default
 ```
 
+### --strict / --lenient CLI flags
+
+The global `--strict` and `--lenient` flags sit above env vars in the
+precedence chain:
+
+```text
+CLI flag (--strict/--lenient) > CX_STRICT > CX_* env var > cx.toml > compiled default
+```
+
+`--strict` forces all Category B settings to `"fail"`. `--lenient` forces all
+to `"warn"`. They cannot be combined. Useful when the env var cannot be set at
+the job level.
+
 ### CX_STRICT
 
 `CX_STRICT=true` (or `=1`) sets all Category B settings to `"fail"`, overriding
@@ -64,8 +77,23 @@ Category A invariants are unaffected — they are always hard failures.
 `CX_*` env vars work standalone without a `cx.toml` mount. The precedence chain
 ensures that env vars win over any config file that may be present.
 
+### Lock file
+
+`cx bundle` writes `{project}-lock.json` into the bundle directory alongside
+the manifest. It captures each Category B setting value and resolution source
+at bundle time and is included in the checksum sidecar.
+
+`cx verify` reads the lock and warns on any setting drift. Drift is advisory
+by default; `--strict` makes it a hard failure.
+
+### Structured warnings
+
+`cx bundle --json` emits a `warnings` array (planning + render warnings).
+`cx verify --json` emits `warnings` (drift messages) and `lockDrift` (per-setting
+mismatch records). An empty array signals a clean run.
+
 ### Effective settings inspection
 
 `cx config show-effective [--config cx.toml] [--json]` dumps every Category B
 setting with its resolved value and source (compiled default / cx.toml / env var /
-CX_STRICT). Use this to debug unexpected behavior in CI pipelines.
+CX_STRICT / cli flag). Use this to debug unexpected behavior in CI pipelines.

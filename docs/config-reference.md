@@ -25,6 +25,20 @@ CLI flag > CX_* env var > project cx.toml > compiled default
 Every resolved Category B setting is logged at `Info` level to stderr, including
 the source from which it was resolved. This provides an audit trail in CI logs.
 
+### CLI flags
+
+The global `--strict` and `--lenient` flags sit above env vars in the
+precedence chain. They apply to every command and cannot be combined.
+
+```bash
+cx --strict bundle --config cx.toml   # all Category B → "fail"
+cx --lenient bundle --config cx.toml  # all Category B → "warn"
+```
+
+These are equivalent to `CX_STRICT=true` and `CX_LENIENT=true` but take
+effect within a single invocation and override any env vars or `cx.toml`
+values.
+
 ### CX_STRICT shorthand
 
 Setting `CX_STRICT=true` (or `CX_STRICT=1`) forces every Category B setting to
@@ -71,6 +85,10 @@ appears more than once in an `include` or `exclude` array:
 - `"warn"` — a warning is emitted and the array is deduplicated (first
   occurrence wins).
 - `"first-wins"` — the array is deduplicated silently.
+
+Duplicate detection applies to every pattern array: per-section `include` and
+`exclude`, the global `files.exclude`, and both `assets.include` and
+`assets.exclude`.
 
 ### Example: cx.toml
 
@@ -123,6 +141,43 @@ collision, missing core adapter contract) are never configurable.
 ```
 
 Add `--json` for machine-readable output.
+
+### Lock file and drift detection
+
+`cx bundle` writes a `{project}-lock.json` alongside the bundle, capturing
+each Category B setting and its resolution source at the time of bundling.
+The lock file is included in the checksum sidecar so tampering is detected by
+`cx verify`.
+
+`cx verify` reads the lock file and compares the recorded settings against the
+current effective settings. A mismatch is advisory by default: a warning is
+emitted to stderr and the verify command still returns exit code 0. With
+`--strict`, any drift causes a non-zero exit.
+
+```bash
+cx verify dist/myproject-bundle --config cx.toml --json | jq '.lockDrift'
+```
+
+The `--config` option on `cx verify` defaults to `cx.toml` in the current
+directory. Pass an explicit path when your config lives elsewhere:
+
+```bash
+cx verify dist/myproject-bundle --config /etc/cx/cx.toml
+```
+
+Older bundles produced before lock-file support was added verify cleanly
+because the lock file is only required when present in the checksum sidecar.
+
+### Structured warnings in --json output
+
+`cx bundle --json` includes a `warnings` array in its output payload. This
+array combines planning warnings (e.g., dedup conflicts with `dedup.mode=warn`)
+and render warnings (e.g., degraded Repomix path). An empty array means a
+clean run.
+
+`cx verify --json` includes both `warnings` (lock drift messages) and
+`lockDrift` (structured mismatch records with `setting`, `locked`,
+`lockedSource`, `current`, and `currentSource` fields).
 
 ---
 

@@ -44,6 +44,61 @@ Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, a
 
 For the final architecture overview, see `docs/ARCHITECTURE.md`. For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
 
+## CI integration
+
+### Standard pipeline
+
+Run `cx bundle` with `CX_STRICT=true` to force every Category B behavioral
+setting to `fail`. This catches duplicate glob patterns, missing Repomix
+adapter extensions, and deduplication conflicts before they silently alter
+bundle output:
+
+```bash
+CX_STRICT=true cx bundle --config cx.toml
+cx verify dist/myproject-bundle
+```
+
+Use `--strict` as the inline equivalent when you cannot set environment
+variables at the job level:
+
+```bash
+cx --strict bundle --config cx.toml
+```
+
+`cx verify` reads the `{project}-lock.json` written at bundle time and warns
+when the current effective settings differ from the settings used to produce
+the bundle. Pass `--json` to get machine-readable drift details:
+
+```bash
+cx verify dist/myproject-bundle --json | jq '.lockDrift'
+```
+
+### Docker
+
+Set `CX_STRICT` as a build-time default in your image so every invocation
+inherits strict mode without requiring callers to remember the flag:
+
+```dockerfile
+FROM node:22-alpine
+ENV CX_STRICT=true
+RUN npm install -g @wstein/cx
+```
+
+Override at runtime for local or degraded-mode scenarios:
+
+```bash
+docker run --env CX_STRICT=false myimage cx bundle
+```
+
+### Inspecting effective settings
+
+Use `cx config show-effective` to print each behavioral setting alongside its
+resolution source. This is useful for debugging unexpected CI behaviour:
+
+```bash
+CX_STRICT=true cx config show-effective --config cx.toml
+```
+
 ## Development
 
 ```bash
