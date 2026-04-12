@@ -6,7 +6,7 @@
 
 For packed text files, the bundle contract is the normalized packed representation emitted by Repomix, not the original source file bytes. That means verification and extraction work against the rendered bundle content, which is what downstream automation actually consumes.
 
-Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections stay direct because the packed content is already stored as structured values in a single JSON object and does not carry span metadata.
+Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object.
 
 ## Status Meanings
 
