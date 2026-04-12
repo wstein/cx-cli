@@ -225,8 +225,9 @@ encoding = "o200k_base"
 
 Rules:
 
-- `encoding` must be a non-empty tokenizer encoding name understood by Repomix and `tiktoken`.
-- `o200k_base` is the default and is a good fit for modern OpenAI models.
+- `encoding` must be a non-empty tokenizer encoding name supported by gpt-tokenizer.
+- Supported encodings: `r50k_base`, `p50k_base`, `p50k_edit`, `cl100k_base`, `o200k_base`, `o200k_harmony`.
+- `o200k_base` is the default and recommended for modern OpenAI models (GPT-4o, o1, etc.).
 
 `cx bundle` stores the chosen `tokenEncoding` in the manifest and persists exact `tokenCount` values for every section and file. Downstream consumers such as `cx list` read those stored counts directly and never fall back to byte- or character-based guesses.
 
