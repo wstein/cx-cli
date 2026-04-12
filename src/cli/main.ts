@@ -4,6 +4,7 @@ import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
 import { asError, CxError } from "../shared/errors.js";
 import { runAdapterCommand } from "./commands/adapter.js";
+import { runConfigCommand } from "./commands/config.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
@@ -275,6 +276,33 @@ export async function main(argv: string[]): Promise<number> {
           style: args.style,
           stdout: args.stdout,
           outputDir: args["output-dir"],
+          json: args.json,
+        });
+      },
+    )
+    .command(
+      "config <subcommand>",
+      "Inspect effective configuration.",
+      (command) =>
+        command
+          .example(
+            "$0 config show-effective",
+            "Show all Category B behavioral settings with their resolved values and sources.",
+          )
+          .example(
+            "$0 config show-effective --json",
+            "Output effective settings as JSON.",
+          )
+          .positional("subcommand", {
+            type: "string",
+            choices: ["show-effective"] as const,
+            demandOption: true,
+          })
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runConfigCommand({
+          config: args.config,
           json: args.json,
         });
       },
