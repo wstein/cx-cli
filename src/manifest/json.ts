@@ -187,10 +187,6 @@ function parseManifestDto(raw: unknown): {
     sourceRoot: requireString(obj.sourceRoot, "sourceRoot"),
     bundleDir: requireString(obj.bundleDir, "bundleDir"),
     checksumFile: requireString(obj.checksumFile, "checksumFile"),
-    bundleIndexFile:
-      obj.bundleIndexFile === undefined
-        ? undefined
-        : requireString(obj.bundleIndexFile, "bundleIndexFile"),
     createdAt: requireString(obj.createdAt, "createdAt"),
     cxVersion: requireString(obj.cxVersion, "cxVersion"),
     repomixVersion: requireString(obj.repomixVersion, "repomixVersion"),
@@ -224,6 +220,10 @@ function parseManifestDto(raw: unknown): {
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
   };
 
+  if (obj.bundleIndexFile !== undefined) {
+    dto.bundleIndexFile = requireString(obj.bundleIndexFile, "bundleIndexFile");
+  }
+
   return { dto, sectionRows };
 }
 
@@ -239,7 +239,6 @@ export function renderManifestJson(
     sourceRoot: manifest.sourceRoot,
     bundleDir: manifest.bundleDir,
     checksumFile: manifest.checksumFile,
-    bundleIndexFile: manifest.bundleIndexFile,
     createdAt: manifest.createdAt,
     cxVersion: manifest.cxVersion,
     repomixVersion: manifest.repomixVersion,
@@ -266,6 +265,9 @@ export function renderManifestJson(
       })),
     })),
     assets: manifest.assets,
+    ...(manifest.bundleIndexFile !== undefined
+      ? { bundleIndexFile: manifest.bundleIndexFile }
+      : {}),
   };
 
   return `${JSON.stringify(out, null, indent)}\n`;
@@ -314,14 +316,13 @@ export function parseManifestJson(source: string): CxManifest {
     outputEndLine: null,
   }));
 
-  return {
+  const manifest: CxManifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     bundleVersion: 1,
     projectName: dto.projectName,
     sourceRoot: dto.sourceRoot,
     bundleDir: dto.bundleDir,
     checksumFile: dto.checksumFile,
-    bundleIndexFile: dto.bundleIndexFile,
     createdAt: dto.createdAt,
     cxVersion: dto.cxVersion,
     repomixVersion: dto.repomixVersion,
@@ -333,4 +334,10 @@ export function parseManifestJson(source: string): CxManifest {
       left.path.localeCompare(right.path, "en"),
     ),
   };
+
+  if (dto.bundleIndexFile !== undefined) {
+    manifest.bundleIndexFile = dto.bundleIndexFile;
+  }
+
+  return manifest;
 }

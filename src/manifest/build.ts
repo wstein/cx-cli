@@ -61,14 +61,13 @@ export function buildManifest(params: {
     outputEndLine: null,
   }));
 
-  return {
+  const manifest: CxManifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     bundleVersion: 1,
     projectName: params.plan.projectName,
     sourceRoot: params.plan.sourceRoot,
     bundleDir: params.plan.bundleDir,
     checksumFile: params.plan.checksumFile,
-    bundleIndexFile: params.bundleIndexFile,
     createdAt: new Date().toISOString(),
     cxVersion: params.cxVersion,
     repomixVersion: params.repomixVersion,
@@ -93,4 +92,10 @@ export function buildManifest(params: {
       left.path.localeCompare(right.path, "en"),
     ),
   };
+
+  if (params.bundleIndexFile !== undefined) {
+    manifest.bundleIndexFile = params.bundleIndexFile;
+  }
+
+  return manifest;
 }

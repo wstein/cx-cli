@@ -191,13 +191,14 @@ export async function renderSectionWithRepomix(params: {
       headerText: buildSectionHeaderText({
         projectName: params.config.projectName,
         sectionName: params.sectionName,
-        outputFile:
-          path.basename(params.outputPath) === "output"
-            ? undefined
-            : path.basename(params.outputPath),
+        ...(path.basename(params.outputPath) === "output"
+          ? {}
+          : { outputFile: path.basename(params.outputPath) }),
         fileCount: params.explicitFiles.length,
         style: params.style,
-        bundleIndexFile: params.bundleIndexFile,
+        ...(params.bundleIndexFile === undefined
+          ? {}
+          : { bundleIndexFile: params.bundleIndexFile }),
       }),
       fileSummary: true,
       directoryStructure: true,
