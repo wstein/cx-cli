@@ -7,7 +7,7 @@ This document records the final architectural decisions that define `cx`.
 - `cx` is a separate package layered on top of Repomix.
 - Repomix integration is constrained behind a narrow adapter that uses public exports only.
 - Core adapter compatibility requires `mergeConfigs` plus at least one rendering path: `packStructured()` or `pack()`.
-- Exact output spans are optional metadata and are emitted only when the adapter provides exact span capture.
+- Exact output spans are bundle metadata for text sections and are emitted when the adapter provides exact span capture.
 - Section overlap fails by default and must be resolved explicitly.
 - Assets are copied as raw files and are not embedded into section text outputs.
 - The manifest is authoritative and uses canonical JSON with standard object arrays for section file metadata.
