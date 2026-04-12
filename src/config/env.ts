@@ -1,0 +1,92 @@
+/**
+ * Environment variable override layer for Category B behavioral settings.
+ *
+ * Precedence chain (highest to lowest):
+ *   CLI flag > CX_* env var > project cx.toml > user cx.toml > compiled default
+ *
+ * CX_STRICT=true is a convenience shorthand that sets every Category B setting to
+ * its strictest value ("fail"), overriding any cx.toml values. It does not affect
+ * Category A invariants — those are always hard failures regardless of mode.
+ *
+ * Category B env vars:
+ *   CX_DEDUP_MODE                  — "fail" | "warn" | "first-wins"
+ *   CX_REPOMIX_MISSING_EXTENSION   — "fail" | "warn"
+ *   CX_CONFIG_DUPLICATE_ENTRY      — "fail" | "warn" | "first-wins"
+ */
+
+import { CxError } from "../shared/errors.js";
+import type {
+  CxConfigDuplicateEntryMode,
+  CxDedupMode,
+  CxRepomixMissingExtensionMode,
+} from "./types.js";
+
+export interface CxEnvOverrides {
+  dedupMode?: CxDedupMode;
+  repomixMissingExtension?: CxRepomixMissingExtensionMode;
+  configDuplicateEntry?: CxConfigDuplicateEntryMode;
+}
+
+/** The source from which a Category B setting was resolved. */
+export type SettingSource =
+  | "compiled default"
+  | "cx.toml"
+  | "env var"
+  | "cli flag";
+
+const VALID_DEDUP_MODES = new Set<CxDedupMode>(["fail", "warn", "first-wins"]);
+const VALID_REPOMIX_MISSING = new Set<CxRepomixMissingExtensionMode>([
+  "fail",
+  "warn",
+]);
+const VALID_CONFIG_DUPLICATE = new Set<CxConfigDuplicateEntryMode>([
+  "fail",
+  "warn",
+  "first-wins",
+]);
+
+function readEnumVar<T extends string>(
+  name: string,
+  valid: Set<T>,
+): T | undefined {
+  const raw = process.env[name];
+  if (raw === undefined) return undefined;
+
+  if (!valid.has(raw as T)) {
+    throw new CxError(
+      `${name} must be one of: ${[...valid].join(", ")}. Got: "${raw}".`,
+    );
+  }
+
+  return raw as T;
+}
+
+/**
+ * Read Category B behavioral overrides from the environment.
+ *
+ * When CX_STRICT=true (or CX_STRICT=1), all Category B settings are forced to
+ * "fail". Per-area env vars are ignored when CX_STRICT is active.
+ */
+export function readEnvOverrides(): CxEnvOverrides {
+  const strict = process.env.CX_STRICT;
+
+  if (strict === "true" || strict === "1") {
+    return {
+      dedupMode: "fail",
+      repomixMissingExtension: "fail",
+      configDuplicateEntry: "fail",
+    };
+  }
+
+  return {
+    dedupMode: readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES),
+    repomixMissingExtension: readEnumVar(
+      "CX_REPOMIX_MISSING_EXTENSION",
+      VALID_REPOMIX_MISSING,
+    ),
+    configDuplicateEntry: readEnumVar(
+      "CX_CONFIG_DUPLICATE_ENTRY",
+      VALID_CONFIG_DUPLICATE,
+    ),
+  };
+}

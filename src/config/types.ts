@@ -1,5 +1,7 @@
 export type CxStyle = "xml" | "markdown" | "json" | "plain";
-export type CxDedupMode = "fail" | "first-wins";
+export type CxDedupMode = "fail" | "warn" | "first-wins";
+export type CxRepomixMissingExtensionMode = "fail" | "warn";
+export type CxConfigDuplicateEntryMode = "fail" | "warn" | "first-wins";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 
@@ -62,6 +64,32 @@ export interface CxAssetsConfig {
   targetDir: string;
 }
 
+/**
+ * Category B behavioral settings — configurable via cx.toml, CX_* env vars, or CLI flags.
+ *
+ * Category A invariants (section overlap with dedup.mode=fail, asset collision, missing core
+ * adapter contract) are never configurable and are not represented here.
+ */
+export interface CxBehaviorConfig {
+  /**
+   * Controls what happens when the cx-specific Repomix adapter extensions
+   * (packStructured / renderWithMap) are missing but the core contract is met.
+   *
+   * - "fail" — abort with a non-zero exit code (useful for strict CI assertions).
+   * - "warn" — emit a warning and continue with degraded output (default).
+   */
+  repomixMissingExtension: CxRepomixMissingExtensionMode;
+  /**
+   * Controls what happens when duplicate glob patterns are found within the same
+   * include or exclude array in any section or config block.
+   *
+   * - "fail"       — abort with a non-zero exit code.
+   * - "warn"       — emit a warning and deduplicate (first occurrence wins).
+   * - "first-wins" — silently deduplicate (first occurrence wins).
+   */
+  configDuplicateEntry: CxConfigDuplicateEntryMode;
+}
+
 export interface CxConfig {
   schemaVersion: 1;
   projectName: string;
@@ -74,6 +102,7 @@ export interface CxConfig {
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
+  behavior: CxBehaviorConfig;
   sections: Record<string, CxSectionConfig>;
 }
 
@@ -90,6 +119,7 @@ export interface CxConfigInput {
   tokens?: Record<string, unknown>;
   display?: unknown;
   assets?: Record<string, unknown>;
+  config?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;
 }
 

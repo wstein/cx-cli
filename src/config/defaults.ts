@@ -3,6 +3,11 @@ import type { CxConfig, CxStyle, CxUserConfig } from "./types.js";
 
 export const DEFAULT_STYLE: CxStyle = "xml";
 
+export const DEFAULT_BEHAVIOR_VALUES = {
+  repomixMissingExtension: "warn" as const,
+  configDuplicateEntry: "fail" as const,
+};
+
 export const DEFAULT_CONFIG_TEMPLATE = `schema_version = 1
 project_name = "myproject"
 source_root = "."
@@ -94,6 +99,9 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     exclude: [],
     mode: "copy",
     targetDir: "{project}-assets",
+  },
+  behavior: {
+    ...DEFAULT_BEHAVIOR_VALUES,
   },
 };
 
