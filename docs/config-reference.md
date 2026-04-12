@@ -298,6 +298,50 @@ Rules:
 
 These settings are user preferences only. They are not accepted in project `cx.toml`, and they are not stored in the bundle manifest.
 
+## Asset Configuration
+
+The `[assets]` table controls how binary files are discovered, stored, and placed in the bundle.
+
+### Settings
+
+| Setting              | TOML key       | Default                       | Allowed values              |
+| -------------------- | -------------- | ----------------------------- | --------------------------- |
+| Discovery patterns   | `include`      | `["**/*.{png,jpg,…,pdf}"]`    | glob patterns               |
+| Exclusion patterns   | `exclude`      | `[]`                          | glob patterns               |
+| Copy mode            | `mode`         | `"copy"`                      | `copy`, `ignore`, `fail`    |
+| Output directory     | `target_dir`   | `"{project}-assets"`          | path (supports `{project}`) |
+| Directory layout     | `layout`       | `"flat"`                      | `flat`, `deep`              |
+
+**`assets.include`** and **`assets.exclude`** work the same way as section glob arrays. Duplicate patterns are governed by `config.duplicate_entry`.
+
+**`assets.mode`**:
+
+- `"copy"` — matched files are physically copied into the bundle (default).
+- `"ignore"` — matched files are skipped silently.
+- `"fail"` — planning aborts if any file matches an asset rule. Useful for pipelines that must contain no binary blobs.
+
+**`assets.target_dir`** accepts the same path expansions as other path fields: `~`, `$VAR`, `${VAR}`, and `{project}`. Relative paths are resolved relative to the directory containing `cx.toml`.
+
+**`assets.layout`** controls how stored paths are formed within `target_dir`:
+
+- `"flat"` (default) — all assets are placed directly in `target_dir` with no subdirectories. When two source files share the same basename, a numeric postfix is inserted between the stem and the extension to keep every stored path unique. The postfix counter starts at 2 and assignment is stable: candidates are sorted by `relativePath`, the lexicographically first entry keeps its original name, and subsequent ones receive `-2`, `-3`, and so on. For example, `images/logo.png` and `icons/logo.png` become `assets/logo.png` and `assets/logo-2.png`.
+- `"deep"` — the original relative directory structure is preserved under `target_dir`. `images/logo.png` becomes `assets/images/logo.png`. No postfixing is applied because the full path is already unique.
+
+### Example
+
+```toml
+[assets]
+include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
+exclude = ["test/fixtures/**"]
+mode = "copy"
+target_dir = "{project}-assets"
+layout = "flat"
+```
+
+### Asset collision invariant
+
+If a file matches both an asset rule (`assets.include`) and a section rule simultaneously, planning aborts with exit code 4. This is a Category A invariant and cannot be configured away.
+
 ## Extract Status Semantics
 
 The short version is below. For the operator guidance and blast radius of `--allow-degraded`, read [Extraction Safety](EXTRACTION_SAFETY.md).

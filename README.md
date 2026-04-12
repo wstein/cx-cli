@@ -191,6 +191,7 @@ include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = []
 mode = "copy"
 target_dir = "{project}-assets"
+layout = "flat"
 
 [sections.docs]
 include = ["README.md", "docs/**", "*.md"]
