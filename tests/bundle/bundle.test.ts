@@ -87,7 +87,9 @@ function findExpectedContentStartLine(params: {
   return countNewlines(output.slice(0, contentStart)) + 1;
 }
 
-async function createProject(): Promise<{
+async function createProject(options?: {
+  includeSpecialChecksumFile?: boolean;
+}): Promise<{
   root: string;
   configPath: string;
   bundleDir: string;
@@ -111,6 +113,16 @@ async function createProject(): Promise<{
     "hello\n================\nstill content\n",
     "utf8",
   );
+  if (options?.includeSpecialChecksumFile) {
+    await fs.mkdir(path.join(root, "src", "special cases"), {
+      recursive: true,
+    });
+    await fs.writeFile(
+      path.join(root, "src", "special cases", "checksum + edge.ts"),
+      "export const special = true;\n",
+      "utf8",
+    );
+  }
   await fs.writeFile(path.join(root, "logo.png"), "fakepng", "utf8");
   const configPath = path.join(root, "cx.toml");
   await fs.writeFile(
@@ -579,6 +591,35 @@ include_source_metadata = true`;
     expect(output).toContain("bundle_status: available");
     expect(output).toContain("intact   src/index.ts");
     expect(output).toContain("copied   logo.png");
+  });
+
+  test("renders token breakdown histogram when requested", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      expect(
+        await runInspectCommand({
+          config: project.configPath,
+          json: false,
+          tokenBreakdown: true,
+        }),
+      ).toBe(0);
+    } finally {
+      process.stdout.write = stdoutWrite;
+    }
+
+    const output = writes.join("");
+    expect(output).toContain("Token breakdown");
+    expect(output).toContain("SECTION  TOKENS   SHARE   GRAPH");
+    expect(output).toContain("docs");
+    expect(output).toContain("src");
+    expect(output).toContain("█");
   });
 
   test("emits filtered JSON for list and extract automation", async () => {
@@ -1142,6 +1183,47 @@ include_source_metadata = true`;
     expect(payload.error?.files?.[0]?.actualSha256).toBeDefined();
   });
 
+  test("surfaces checksum prefixes for long special paths", async () => {
+    const project = await createProject({ includeSpecialChecksumFile: true });
+    const restoreDir = path.join(project.root, "restored-special");
+    const writes: string[] = [];
+    const stderrWrite = process.stderr.write;
+    process.stderr.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stderr.write;
+
+    try {
+      await fs.writeFile(
+        project.configPath,
+        (await fs.readFile(project.configPath, "utf8")).replace(
+          "show_line_numbers = false",
+          "show_line_numbers = true",
+        ),
+        "utf8",
+      );
+
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      expect(
+        await runExtractCommand({
+          bundleDir: project.bundleDir,
+          destinationDir: restoreDir,
+          sections: undefined,
+          files: ["src/special cases/checksum + edge.ts"],
+          assetsOnly: false,
+          overwrite: false,
+          verify: false,
+        }),
+      ).toBe(8);
+    } finally {
+      process.stderr.write = stderrWrite;
+    }
+
+    const output = writes.join("");
+    expect(output).toContain("src/special cases/checksum + edge.ts");
+    expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
+  });
+
   test("surfaces blocked extractability in list JSON before extraction", async () => {
     const project = await createProject();
     const writes: string[] = [];
@@ -1174,7 +1256,12 @@ include_source_metadata = true`;
       files?: Array<{
         path?: string;
         status?: string;
-        extractability?: { status?: string; reason?: string };
+        extractability?: {
+          status?: string;
+          reason?: string;
+          expectedSha256?: string;
+          actualSha256?: string;
+        };
       }>;
     };
 
@@ -1184,6 +1271,8 @@ include_source_metadata = true`;
     expect(payload.files?.[0]?.extractability?.reason).toBe(
       "manifest_hash_mismatch",
     );
+    expect(payload.files?.[0]?.extractability?.expectedSha256).toBeDefined();
+    expect(payload.files?.[0]?.extractability?.actualSha256).toBeDefined();
   });
 
   test("extracts degraded files with explicit opt-in", async () => {

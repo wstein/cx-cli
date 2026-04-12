@@ -270,6 +270,91 @@ exclude = []
     ]);
   });
 
+  test("supports inspect token breakdown from the command line", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-inspect-"));
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.mkdir(path.join(root, "docs"), { recursive: true });
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "cx.toml"),
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.docs]
+include = ["docs/**"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await expect(
+        main([
+          "inspect",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--json",
+          "--token-breakdown",
+        ]),
+      ).resolves.toBe(0);
+    } finally {
+      process.stdout.write = write;
+    }
+
+    const payload = JSON.parse(output) as {
+      summary?: { sectionCount?: number };
+      tokenBreakdown?: {
+        totalTokenCount?: number;
+        sections?: Array<{
+          name?: string;
+          fileCount?: number;
+          tokenCount?: number;
+          share?: number;
+          bar?: string;
+        }>;
+      };
+    };
+
+    expect(payload.summary?.sectionCount).toBe(2);
+    expect(payload.tokenBreakdown?.totalTokenCount).toBeGreaterThan(0);
+    expect(payload.tokenBreakdown?.sections?.map((section) => section.name)).toEqual([
+      "docs",
+      "src",
+    ]);
+    expect(payload.tokenBreakdown?.sections?.every((section) => section.bar)).toBe(
+      true,
+    );
+  });
+
   test("list JSON reads display settings from the user config", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-list-user-"));
     const configHome = await fs.mkdtemp(

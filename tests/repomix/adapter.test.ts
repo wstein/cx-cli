@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { mergeConfigs, packStructured } from "@wstein/repomix";
+import { mergeConfigs, packStructured } from "@wsmy/repomix-cx-fork";
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import {
