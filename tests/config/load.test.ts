@@ -175,3 +175,224 @@ exclude = []
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// Behavioral settings — precedence chain and modes
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a minimal cx.toml string. Accepts optional overrides for each
+ * top-level table so that tests can customise individual tables without
+ * creating duplicate TOML headers.
+ */
+function buildToml(opts: {
+  repomixExtra?: string;
+  dedupExtra?: string;
+  configExtra?: string;
+  sections?: string;
+} = {}): string {
+  const {
+    repomixExtra = "",
+    dedupExtra = "",
+    configExtra = "",
+    sections = `[sections.src]\ninclude = ["src/**"]\nexclude = []\n`,
+  } = opts;
+
+  const parts: string[] = [
+    `schema_version = 1`,
+    `project_name = "demo"`,
+    `source_root = "."`,
+    `output_dir = "dist/demo-bundle"`,
+    ``,
+    `[repomix]`,
+    `style = "xml"`,
+    ...(repomixExtra ? [repomixExtra] : []),
+    ``,
+  ];
+
+  if (dedupExtra) {
+    parts.push(`[dedup]`, dedupExtra, ``);
+  }
+
+  if (configExtra) {
+    parts.push(`[config]`, configExtra, ``);
+  }
+
+  parts.push(sections);
+  return parts.join("\n");
+}
+
+async function writeCxToml(dir: string, content: string): Promise<string> {
+  const configPath = path.join(dir, "cx.toml");
+  await fs.writeFile(configPath, content, "utf8");
+  return configPath;
+}
+
+describe("behavioral settings — precedence chain", () => {
+  test("compiled default is used when no env or file value is set", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-behavior-default-"));
+    const configPath = await writeCxToml(dir, buildToml());
+    const config = await loadCxConfig(configPath, {});
+    expect(config.dedup.mode).toBe("fail");
+    expect(config.behavior.repomixMissingExtension).toBe("warn");
+    expect(config.behavior.configDuplicateEntry).toBe("fail");
+  });
+
+  test("cx.toml value overrides compiled default", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-behavior-file-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        repomixExtra: `missing_extension = "fail"`,
+        dedupExtra: `mode = "warn"`,
+        configExtra: `duplicate_entry = "first-wins"`,
+      }),
+    );
+    const config = await loadCxConfig(configPath, {});
+    expect(config.dedup.mode).toBe("warn");
+    expect(config.behavior.repomixMissingExtension).toBe("fail");
+    expect(config.behavior.configDuplicateEntry).toBe("first-wins");
+  });
+
+  test("env override wins over cx.toml value", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-behavior-env-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ dedupExtra: `mode = "warn"` }),
+    );
+    const config = await loadCxConfig(configPath, { dedupMode: "first-wins" });
+    expect(config.dedup.mode).toBe("first-wins");
+  });
+
+  test("CX_STRICT override sets all Category B to fail, overriding cx.toml", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-behavior-strict-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        repomixExtra: `missing_extension = "warn"`,
+        dedupExtra: `mode = "warn"`,
+        configExtra: `duplicate_entry = "first-wins"`,
+      }),
+    );
+    // Simulate CX_STRICT=true by passing fully-populated overrides (all fail).
+    const config = await loadCxConfig(configPath, {
+      dedupMode: "fail",
+      repomixMissingExtension: "fail",
+      configDuplicateEntry: "fail",
+    });
+    expect(config.dedup.mode).toBe("fail");
+    expect(config.behavior.repomixMissingExtension).toBe("fail");
+    expect(config.behavior.configDuplicateEntry).toBe("fail");
+  });
+
+  test("dedup.mode=warn is accepted in cx.toml", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dedup-warn-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ dedupExtra: `mode = "warn"` }),
+    );
+    const config = await loadCxConfig(configPath, {});
+    expect(config.dedup.mode).toBe("warn");
+  });
+
+  test("rejects an invalid dedup.mode value", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dedup-invalid-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ dedupExtra: `mode = "silent"` }),
+    );
+    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
+      "dedup.mode must be one of: fail, warn, first-wins.",
+    );
+  });
+
+  test("rejects an invalid repomix.missing_extension value", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-repomix-invalid-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ repomixExtra: `missing_extension = "ignore"` }),
+    );
+    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
+      "repomix.missing_extension must be one of: fail, warn.",
+    );
+  });
+
+  test("rejects an invalid config.duplicate_entry value", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-invalid-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({ configExtra: `duplicate_entry = "skip"` }),
+    );
+    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
+      "config.duplicate_entry must be one of: fail, warn, first-wins.",
+    );
+  });
+});
+
+describe("behavioral settings — duplicate pattern detection", () => {
+  test("fails on duplicate include patterns when config.duplicate_entry=fail", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-fail-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        sections: `[sections.src]\ninclude = ["src/**", "src/**"]\nexclude = []\n`,
+      }),
+    );
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
+      'sections.src.include contains duplicate pattern(s): "src/**".',
+    );
+  });
+
+  test("deduplicates silently when config.duplicate_entry=first-wins", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-firstwins-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        sections: `[sections.src]\ninclude = ["src/**", "src/**", "lib/**"]\nexclude = []\n`,
+      }),
+    );
+    const config = await loadCxConfig(configPath, { configDuplicateEntry: "first-wins" });
+    expect(config.sections.src?.include).toEqual(["src/**", "lib/**"]);
+  });
+
+  test("deduplicates with warning when config.duplicate_entry=warn", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-warn-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        sections: `[sections.src]\ninclude = ["src/**", "src/**"]\nexclude = []\n`,
+      }),
+    );
+    const config = await loadCxConfig(configPath, { configDuplicateEntry: "warn" });
+    expect(config.sections.src?.include).toEqual(["src/**"]);
+  });
+
+  test("no error when there are no duplicate patterns", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-none-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        sections: `[sections.src]\ninclude = ["src/**", "lib/**"]\nexclude = []\n`,
+      }),
+    );
+    const config = await loadCxConfig(configPath, { configDuplicateEntry: "fail" });
+    expect(config.sections.src?.include).toEqual(["src/**", "lib/**"]);
+  });
+
+  test("detects duplicates in exclude arrays too", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dup-exclude-"));
+    const configPath = await writeCxToml(
+      dir,
+      buildToml({
+        sections: `[sections.src]\ninclude = ["src/**"]\nexclude = ["dist/**", "dist/**"]\n`,
+      }),
+    );
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
+      'sections.src.exclude contains duplicate pattern(s): "dist/**".',
+    );
+  });
+});
