@@ -286,6 +286,61 @@ A generated bundle must satisfy these invariants:
 
 When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans using absolute line numbers in the rendered section output only when the active adapter exposes exact span capture through `renderWithMap`. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML/Markdown/JSON/plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions. If the adapter can render but cannot capture exact spans, bundling continues with a warning and the span fields remain `null`.
 
+## Recommended bundle layout
+
+The strongest bundles are organized by concern, not just by file type. For this repository, a practical split is:
+
+- `docs`: human-facing documentation and root markdown
+- `repo`: repository metadata and root config files such as `package.json`, `cx.toml`, and `tsconfig*.json`
+- `src`: production implementation
+- `tests`: regression and behavior coverage
+- `scripts`: repository utilities and smoke checks
+- `schemas`: JSON schemas and other contract files
+
+That layout keeps the bundle readable when browsing with `cx list`, and it makes `cx inspect` useful because each section now answers a specific question. Top-level generated output should stay under `dist/` so it can be excluded cleanly from planning.
+
+If a scratch directory such as `tmp/` is only for local experimentation, exclude it instead of letting it appear as unmatched noise.
+
+Example layout:
+
+```toml
+[files]
+exclude = [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"]
+
+[sections.docs]
+include = ["docs/**", "README.md", "*.md"]
+exclude = []
+
+[sections.repo]
+include = [
+  ".gitignore",
+  ".github/workflows/ci.yml",
+  "biome.json",
+  "bin/cx.js",
+  "cx.toml",
+  "package.json",
+  "tsconfig.json",
+  "tsconfig.test.json",
+]
+exclude = []
+
+[sections.schemas]
+include = ["schemas/**"]
+exclude = []
+
+[sections.scripts]
+include = ["scripts/**"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+
+[sections.tests]
+include = ["tests/**"]
+exclude = []
+```
+
 ## Overlap Resolution
 
 Section overlap remains a hard failure for planning and bundling when `dedup.mode = "fail"`, which is the default.

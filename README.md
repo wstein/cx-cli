@@ -157,7 +157,7 @@ include_empty_directories = false
 security_check = true
 
 [files]
-exclude = [".git/**", "node_modules/**", "dist/**"]
+exclude = [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"]
 follow_symlinks = false
 unmatched = "ignore"
 
@@ -187,8 +187,33 @@ target_dir = "{project}-assets"
 include = ["README.md", "docs/**", "*.md"]
 exclude = []
 
+[sections.repo]
+include = [
+  ".gitignore",
+  ".github/workflows/ci.yml",
+  "biome.json",
+  "bin/cx.js",
+  "cx.toml",
+  "package.json",
+  "tsconfig.json",
+  "tsconfig.test.json",
+]
+exclude = []
+
+[sections.schemas]
+include = ["schemas/**"]
+exclude = []
+
+[sections.scripts]
+include = ["scripts/**"]
+exclude = []
+
 [sections.src]
 include = ["src/**"]
+exclude = []
+
+[sections.tests]
+include = ["tests/**"]
 exclude = []
 ```
 

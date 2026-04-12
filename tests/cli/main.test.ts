@@ -62,6 +62,10 @@ describe("main", () => {
     await expect(main(["init", "--stdout"])).resolves.toBe(0);
     process.stdout.write = write;
     expect(output).toContain("schema_version = 1");
+    expect(output).toContain("[sections.repo]");
+    expect(output).toContain("[sections.schemas]");
+    expect(output).toContain("[sections.scripts]");
+    expect(output).toContain("[sections.tests]");
   });
 
   test("supports init overrides from the command line", async () => {
