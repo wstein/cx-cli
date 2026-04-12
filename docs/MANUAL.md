@@ -239,7 +239,7 @@ Verification during extraction:
 cx extract dist/demo-bundle --to /tmp/restore --verify
 ```
 
-If extraction is blocked by degraded text recovery, stop and read [Extraction Safety](EXTRACTION_SAFETY.md) before using `--allow-degraded`.
+If extraction is blocked by degraded packed-content recovery, stop and read [Extraction Safety](EXTRACTION_SAFETY.md) before using `--allow-degraded`.
 
 ## JSON Output for Automation
 

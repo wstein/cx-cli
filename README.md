@@ -149,7 +149,7 @@ Some constraints are non-negotiable:
 - missing core adapter contract is a hard failure
 - degraded extraction is blocked unless you explicitly pass `--allow-degraded`
 
-This is intentional. `cx` is designed to stop a pipeline before a bad bundle turns into a harder-to-debug downstream failure.
+This is intentional. `cx` is designed to stop a pipeline before a bad bundle turns into a harder-to-debug downstream failure. For packed text files, the bundle hash tracks the normalized Repomix output, so `verify` and `extract` stay aligned with the actual handover payload instead of source-byte exactness.
 
 ## Example `cx.toml`
 
@@ -224,7 +224,7 @@ exclude = []
 
 - [Operator Manual](docs/MANUAL.md): end-to-end workflows, including overlap resolution
 - [Architecture](docs/ARCHITECTURE.md): invariants, manifest model, and rendering pipeline
-- [Extraction Safety](docs/EXTRACTION_SAFETY.md): intact vs degraded recovery and `--allow-degraded`
+- [Extraction Safety](docs/EXTRACTION_SAFETY.md): packed-content recovery, degraded fallback, and `--allow-degraded`
 - [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md): project planning notes
 - [Spec Debate](docs/SPEC_DEBATE.md): design discussion and tradeoffs

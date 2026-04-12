@@ -278,10 +278,10 @@ The short version is below. For the operator guidance and blast radius of `--all
 
 `cx` uses four production statuses for bundle-side recovery:
 
-- `intact`: reconstructed text matches the manifest hash exactly.
+- `intact`: reconstructed text matches the packed-content hash in the manifest.
 - `copied`: the file is restored directly from stored asset content.
-- `degraded`: the file is visible in bundle output but does not match the manifest hash exactly.
-- `blocked`: the file cannot be reconstructed from bundle output.
+- `degraded`: the file is visible in bundle output but does not match the packed-content hash in the manifest.
+- `blocked`: the file cannot be reconstructed deterministically from bundle output.
 
 By default, `cx extract` restores `intact` text files and `copied` assets only. Restoring `degraded` files requires `--allow-degraded`.
 
@@ -294,9 +294,9 @@ A generated bundle must satisfy these invariants:
   - the manifest JSON file
   - every section output file
   - every stored asset file
-- Every manifest file row records the source file `time` used by `cx list` and restored by `cx extract`.
+- Every manifest file row records the source file `mtime` used by `cx list` and restored by `cx extract`.
 - The manifest does not store user-specific `cx list` heat-map settings.
-- `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects source-tree drift.
+- `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects normalized packed-content drift against the source tree.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
 When `manifest.include_output_spans = true`, `cx bundle` computes per-file spans using absolute line numbers in the rendered section output only when the active adapter exposes exact span capture through `renderWithMap`. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML/Markdown/JSON/plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions. If the adapter can render but cannot capture exact spans, bundling continues with a warning and the span fields remain `null`.

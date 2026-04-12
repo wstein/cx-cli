@@ -17,7 +17,7 @@ This document describes the final implementation expectations for the repository
 - Canonical JSON manifest generation with exact token metadata.
 - Deterministic SHA-256 checksum generation and verification.
 - Repomix-backed rendering through the adapter boundary only.
-- Bundle validation, source-tree verification, and extraction with explicit degraded-mode handling.
+- Bundle validation, source-tree verification, and extraction with explicit degraded-mode handling over normalized packed content.
 - CLI support for initialization, planning, bundling, rendering, verification, extraction, diagnostics, and overlap recovery.
 
 ## Quality Gates

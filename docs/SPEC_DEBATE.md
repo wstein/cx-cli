@@ -20,7 +20,7 @@ This document records the final architectural decisions that define `cx`.
 - Planning, manifest generation, validation, and verification must remain deterministic.
 - Missing optional span capability degrades with an explicit warning, not a hard failure.
 - Real planning conflicts such as section overlap and asset collisions remain hard failures.
-- Extraction restores exact files by default and requires explicit opt-in for degraded recovery.
+- Extraction restores deterministic packed content by default and requires explicit opt-in for degraded fallback recovery.
 
 ## Tooling Rules
 

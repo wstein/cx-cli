@@ -139,20 +139,22 @@ That lets `verify` detect:
 - missing checksum entries
 - copied asset mutation
 
+For packed text rows, the manifest hash covers the normalized packed content emitted by Repomix. That keeps verification aligned with the actual handover payload instead of pretending `cx` is a source-byte archiver.
+
 ## Why Output Spans Matter
 
 When exact span capture is available, the manifest can tell downstream tooling where each file lives in the rendered section output.
 
-Those spans are only useful if the output remains exact. That is why degraded extraction is treated carefully: once a file's reconstructed content changes, absolute coordinates can become unsafe for downstream automation.
+Those spans are only useful if the output remains deterministic. That is why degraded extraction is treated carefully: once the parser can no longer reconstruct the packed output cleanly, absolute coordinates can become unsafe for downstream automation.
 
 ## Extraction Semantics
 
 `cx` classifies extraction outcomes as:
 
-- `intact`: reconstructed text matches the manifest hash exactly
+- `intact`: reconstructed text matches the packed-content hash in the manifest
 - `copied`: asset restored directly from stored bundle content
-- `degraded`: text is recoverable but does not match the manifest hash exactly
-- `blocked`: exact recovery is not possible from the stored output
+- `degraded`: text is recoverable but does not match the packed-content hash in the manifest
+- `blocked`: deterministic recovery is not possible from the stored output
 
 `degraded` is intentionally not the default success path. It requires explicit operator consent with `--allow-degraded`.
 
