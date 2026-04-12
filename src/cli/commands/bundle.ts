@@ -2,7 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { validateBundle } from "../../bundle/validate.js";
+import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
+import type { CxAssetsLayout } from "../../config/types.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
@@ -41,10 +43,14 @@ import { countTokens } from "../../shared/tokens.js";
 export interface BundleArgs {
   config: string;
   json?: boolean | undefined;
+  layout?: CxAssetsLayout | undefined;
 }
 
 export async function runBundleCommand(args: BundleArgs): Promise<number> {
-  const config = await loadCxConfig(args.config);
+  const config = await loadCxConfig(args.config, readEnvOverrides(), {
+    ...getCLIOverrides(),
+    ...(args.layout !== undefined && { assetsLayout: args.layout }),
+  });
   const plan = await buildBundlePlan(config);
   const requiresOutputSpans = plan.sections.some(
     (section) => section.style !== "json",

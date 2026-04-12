@@ -2,7 +2,9 @@ import {
   loadManifestFromBundle,
   validateBundle,
 } from "../../bundle/validate.js";
+import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
+import type { CxAssetsLayout } from "../../config/types.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
@@ -14,6 +16,7 @@ export interface InspectArgs {
   config: string;
   json: boolean;
   tokenBreakdown?: boolean;
+  layout?: CxAssetsLayout | undefined;
 }
 
 interface SectionTokenBreakdown {
@@ -122,7 +125,10 @@ function renderTokenBreakdown(breakdown: TokenBreakdown): string {
 }
 
 export async function runInspectCommand(args: InspectArgs): Promise<number> {
-  const config = await loadCxConfig(args.config ?? "cx.toml");
+  const config = await loadCxConfig(args.config ?? "cx.toml", readEnvOverrides(), {
+    ...getCLIOverrides(),
+    ...(args.layout !== undefined && { assetsLayout: args.layout }),
+  });
   const plan = await buildBundlePlan(config);
   const tokenBreakdown = args.tokenBreakdown
     ? await buildTokenBreakdown(plan, config.tokens.encoding)

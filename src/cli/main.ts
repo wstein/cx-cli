@@ -131,12 +131,18 @@ export async function main(argv: string[]): Promise<number> {
             type: "boolean",
             default: false,
             description: "Show per-section token distribution as a bar chart.",
+          })
+          .option("layout", {
+            choices: ["flat", "deep"] as const,
+            description:
+              'Override assets.layout for this run ("flat" or "deep"). Takes precedence over CX_ASSETS_LAYOUT and cx.toml.',
           }),
       async (args) => {
         exitCode = await runInspectCommand({
           config: args.config,
           json: args.json,
           tokenBreakdown: args["token-breakdown"],
+          layout: args.layout,
         });
       },
     )
@@ -147,11 +153,17 @@ export async function main(argv: string[]): Promise<number> {
         command
           .example("$0 bundle --config cx.toml", "Build the configured bundle.")
           .option("config", { type: "string", default: "cx.toml" })
-          .option("json", { type: "boolean", default: false }),
+          .option("json", { type: "boolean", default: false })
+          .option("layout", {
+            choices: ["flat", "deep"] as const,
+            description:
+              'Override assets.layout for this run ("flat" or "deep"). Takes precedence over CX_ASSETS_LAYOUT and cx.toml.',
+          }),
       async (args) => {
         exitCode = await runBundleCommand({
           config: args.config,
           json: args.json,
+          layout: args.layout,
         });
       },
     )
