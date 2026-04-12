@@ -53,6 +53,7 @@ function isExtractResolutionError(
 const DIFF_HINTS: Record<string, string> = {
   manifest_hash_mismatch: "hash mismatch",
   missing_from_section_output: "not found in section output",
+  missing_output_span: "missing output span",
   section_parse_failed: "section parse error",
   asset_copy: "asset copied directly",
 };

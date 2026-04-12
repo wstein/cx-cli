@@ -1,9 +1,9 @@
 /**
- * Unit tests for the section parsers, focused on whitespace preservation.
+ * Unit tests for the section parsers, focused on packed-content preservation.
  *
- * Each repomix output style has specific edge cases around leading/trailing
- * newlines that must be compensated for during extraction to achieve a
- * byte-identical round-trip.
+ * Each Repomix output style has specific edge cases around wrapper newlines
+ * that must be compensated for during extraction so the normalized packed
+ * content matches the manifest hash.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -21,7 +21,7 @@ import {
 
 /** Build the XML output that repomix emits for a single-file section. */
 function xmlSection(path: string, content: string): string {
-  return `<repomix><files><file path="${path}">\n${content}</file></files></repomix>`;
+  return `<repomix><files><file path="${path}">\n${content}</file>\n</files></repomix>`;
 }
 
 /** Build the JSON output that repomix emits (trailing newline stripped). */
@@ -38,6 +38,10 @@ function markdownSection(path: string, content: string, lang = ""): string {
 
 const SEP_SHORT = "=".repeat(16);
 const SEP_LONG = "=".repeat(64);
+
+function normalizePackedContent(content: string): string {
+  return content.endsWith("\n") ? content.slice(0, -1) : content;
+}
 
 /** Build the plain output that repomix emits for a two-file section. */
 function plainSection(files: Array<{ path: string; content: string }>): string {
@@ -72,6 +76,10 @@ const CASES: Array<{ label: string; content: string }> = [
     label: "content with backtick fence",
     content: "# Title\n\n```ts\nconst x = 1;\n```\n",
   },
+  {
+    label: "content with closing file tag text",
+    content: "before </file> after\n",
+  },
 ];
 
 describe("parsers – whitespace preservation", () => {
@@ -80,7 +88,7 @@ describe("parsers – whitespace preservation", () => {
       test(label, () => {
         const source = xmlSection("file.txt", content);
         const [result] = parseXmlSection(source);
-        expect(result?.content).toBe(content);
+        expect(result?.content).toBe(normalizePackedContent(content));
       });
     }
 
@@ -105,7 +113,29 @@ describe("parsers – whitespace preservation", () => {
       expect(result).toEqual({
         path: "src/example.ts",
         content:
-          "export function identity<T>(value: T): T {\n  return value;\n}\n",
+          "export function identity<T>(value: T): T {\n  return value;\n}",
+      });
+    });
+
+    test("preserves literal closing file tags inside raw content", () => {
+      const source = xmlSection("file.txt", "before </file> after\n");
+      const [result] = parseXmlSection(source);
+      expect(result).toEqual({
+        path: "file.txt",
+        content: "before </file> after",
+      });
+    });
+
+    test("preserves literal XML close sequences inside raw content", () => {
+      const source = xmlSection(
+        "file.txt",
+        "return `<repomix><files><file path=\"${path}\">\\n${content}</file></files></repomix>`;\n",
+      );
+      const [result] = parseXmlSection(source);
+      expect(result).toEqual({
+        path: "file.txt",
+        content:
+          "return `<repomix><files><file path=\"${path}\">\\n${content}</file></files></repomix>`;",
       });
     });
   });
@@ -122,18 +152,18 @@ describe("parsers – whitespace preservation", () => {
       {
         label: "single trailing newline",
         content: "hello world\n",
-        expected: "hello world\n",
+        expected: "hello world",
       },
       {
         label: "no trailing newline",
         content: "hello world",
-        expected: "hello world\n",
+        expected: "hello world",
       },
       { label: "empty file", content: "", expected: "" },
       {
         label: "multi-line with trailing newline",
         content: "line1\nline2\n",
-        expected: "line1\nline2\n",
+        expected: "line1\nline2",
       },
     ];
     for (const { label, content, expected } of jsonCases) {
@@ -151,18 +181,18 @@ describe("parsers – whitespace preservation", () => {
         {
           label: "single trailing newline",
           content: "hello world\n",
-          expected: "hello world\n",
+          expected: "hello world",
         },
         {
           label: "no trailing newline",
           content: "hello world",
-          expected: "hello world\n",
+          expected: "hello world",
         },
         { label: "empty file", content: "", expected: "" },
         {
           label: "multi-line with trailing newline",
           content: "line1\nline2\n",
-          expected: "line1\nline2\n",
+          expected: "line1\nline2",
         },
       ];
     for (const { label, content, expected } of mdCases) {
@@ -183,8 +213,8 @@ describe("parsers – whitespace preservation", () => {
           { path: "second.txt", content: "second\n" },
         ]);
         const results = parsePlainSection(source);
-        expect(results[0]?.content).toBe(first);
-        expect(results[1]?.content).toBe("second\n");
+        expect(results[0]?.content).toBe(normalizePackedContent(first));
+        expect(results[1]?.content).toBe("second");
       });
     }
   });
@@ -193,13 +223,13 @@ describe("parsers – whitespace preservation", () => {
     test("single trailing newline", () => {
       const source = plainSection([{ path: "f.txt", content: "data\n" }]);
       const [result] = parsePlainSection(source);
-      expect(result?.content).toBe("data\n");
+      expect(result?.content).toBe("data");
     });
 
     test("two trailing newlines", () => {
       const source = plainSection([{ path: "f.txt", content: "data\n\n" }]);
       const [result] = parsePlainSection(source);
-      expect(result?.content).toBe("data\n\n");
+      expect(result?.content).toBe("data");
     });
 
     test("no trailing newline", () => {

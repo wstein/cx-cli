@@ -88,7 +88,7 @@ function baseConfig(root: string): CxConfig {
       pretty: true,
       includeFileSha256: true,
       includeOutputSha256: true,
-      includeOutputSpans: false,
+      includeOutputSpans: true,
       includeSourceMetadata: true,
     },
     checksums: {

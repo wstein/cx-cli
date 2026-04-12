@@ -3,23 +3,18 @@ import path from "node:path";
 
 import type {
   CxManifest,
-  CxSection,
   ManifestFileRow,
 } from "../manifest/types.js";
 import { CxError } from "../shared/errors.js";
 import { sha256Text } from "../shared/hashing.js";
-import {
-  parseJsonSection,
-  parseMarkdownSection,
-  parsePlainSection,
-  parseXmlSection,
-} from "./parsers.js";
+import { readSpanContent, splitOutputLines } from "./lineSpans.js";
 
 export type ExtractabilityReason =
   | "asset_copy"
   | "manifest_hash_match"
   | "manifest_hash_mismatch"
   | "missing_from_section_output"
+  | "missing_output_span"
   | "section_parse_failed";
 
 export type ExtractabilityStatus = "intact" | "copied" | "degraded" | "blocked";
@@ -56,23 +51,119 @@ export class ExtractResolutionError extends CxError {
   }
 }
 
-function parseSectionSource(section: CxSection, source: string) {
-  if (section.style === "xml") {
-    return parseXmlSection(source);
+function parseJsonSectionSource(source: string) {
+  const parsed = JSON.parse(source) as { files?: Record<string, unknown> };
+  if (!parsed.files || typeof parsed.files !== "object") {
+    throw new CxError("Invalid JSON section output.", 8);
   }
-  if (section.style === "json") {
-    return parseJsonSection(source);
-  }
-  if (section.style === "markdown") {
-    return parseMarkdownSection(source);
-  }
-  if (section.style === "plain") {
-    return parsePlainSection(source);
-  }
-  throw new CxError(
-    `Extract does not support section style ${section.style} yet.`,
-    8,
+
+  return new Map(
+    Object.entries(parsed.files).map(([filePath, content]) => {
+      if (typeof content !== "string") {
+        throw new CxError(
+          `Invalid content for ${filePath} in JSON section output.`,
+          8,
+        );
+      }
+      return [filePath, content] as const;
+    }),
   );
+}
+
+function parseTextSectionSource(source: string): string[] {
+  return splitOutputLines(source);
+}
+
+function resolveTextRow(params: {
+  row: ManifestFileRow;
+  lines: string[];
+}): ExtractabilityRecord {
+  const { row, lines } = params;
+  const content = readSpanContent(lines, row.outputStartLine, row.outputEndLine);
+  if (content === undefined) {
+    return {
+      path: row.path,
+      section: row.section,
+      kind: row.kind,
+      status: "blocked",
+      reason: "missing_output_span",
+      message: `Section output does not expose an output span for ${row.path}.`,
+      expectedSha256: row.sha256,
+    };
+  }
+
+  const actualSha256 = sha256Text(content);
+  if (actualSha256 !== row.sha256) {
+    return {
+      path: row.path,
+      section: row.section,
+      kind: row.kind,
+      status: "degraded",
+      reason: "manifest_hash_mismatch",
+      message: `Section output for ${row.path} does not match the normalized packed-content hash in the manifest.`,
+      expectedSha256: row.sha256,
+      actualSha256,
+      content,
+    };
+  }
+
+  return {
+    path: row.path,
+    section: row.section,
+    kind: row.kind,
+    status: "intact",
+    reason: "manifest_hash_match",
+    message: `Section output for ${row.path} matches the normalized packed-content hash in the manifest.`,
+    expectedSha256: row.sha256,
+    actualSha256,
+    content,
+  };
+}
+
+function resolveJsonRow(params: {
+  row: ManifestFileRow;
+  files: Map<string, string>;
+}): ExtractabilityRecord {
+  const { row, files } = params;
+  const content = files.get(row.path);
+  if (content === undefined) {
+    return {
+      path: row.path,
+      section: row.section,
+      kind: row.kind,
+      status: "blocked",
+      reason: "missing_from_section_output",
+      message: `Section output is missing file ${row.path}.`,
+      expectedSha256: row.sha256,
+    };
+  }
+
+  const actualSha256 = sha256Text(content);
+  if (actualSha256 !== row.sha256) {
+    return {
+      path: row.path,
+      section: row.section,
+      kind: row.kind,
+      status: "degraded",
+      reason: "manifest_hash_mismatch",
+      message: `Section output for ${row.path} does not match the normalized packed-content hash in the manifest.`,
+      expectedSha256: row.sha256,
+      actualSha256,
+      content,
+    };
+  }
+
+  return {
+    path: row.path,
+    section: row.section,
+    kind: row.kind,
+    status: "intact",
+    reason: "manifest_hash_match",
+    message: `Section output for ${row.path} matches the normalized packed-content hash in the manifest.`,
+    expectedSha256: row.sha256,
+    actualSha256,
+    content,
+  };
 }
 
 export async function resolveExtractability(params: {
@@ -101,53 +192,16 @@ export async function resolveExtractability(params: {
         path.join(params.bundleDir, section.outputFile),
         "utf8",
       );
-      const parsed = parseSectionSource(section, source);
-      const parsedMap = new Map(
-        parsed.map((file) => [file.path, file.content]),
-      );
-
-      for (const row of sectionRows) {
-        const content = parsedMap.get(row.path);
-        if (content === undefined) {
-          records.push({
-            path: row.path,
-            section: row.section,
-            kind: row.kind,
-            status: "blocked",
-            reason: "missing_from_section_output",
-            message: `Section output is missing file ${row.path}.`,
-            expectedSha256: row.sha256,
-          });
-          continue;
+      if (section.style === "json") {
+        const parsedMap = parseJsonSectionSource(source);
+        for (const row of sectionRows) {
+          records.push(resolveJsonRow({ row, files: parsedMap }));
         }
-
-        const actualSha256 = sha256Text(content);
-        if (actualSha256 !== row.sha256) {
-          records.push({
-            path: row.path,
-            section: row.section,
-            kind: row.kind,
-            status: "degraded",
-            reason: "manifest_hash_mismatch",
-            message: `Section output for ${row.path} does not match the normalized packed-content hash in the manifest.`,
-            expectedSha256: row.sha256,
-            actualSha256,
-            content,
-          });
-          continue;
+      } else {
+        const lines = parseTextSectionSource(source);
+        for (const row of sectionRows) {
+          records.push(resolveTextRow({ row, lines }));
         }
-
-        records.push({
-          path: row.path,
-          section: row.section,
-          kind: row.kind,
-          status: "intact",
-          reason: "manifest_hash_match",
-          message: `Section output for ${row.path} matches the normalized packed-content hash in the manifest.`,
-          expectedSha256: row.sha256,
-          actualSha256,
-          content,
-        });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

@@ -33,7 +33,7 @@ format = "json"
 pretty = true
 include_file_sha256 = true
 include_output_sha256 = true
-include_output_spans = false
+include_output_spans = true
 include_source_metadata = true
 
 # Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
@@ -108,7 +108,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     pretty: true,
     includeFileSha256: true,
     includeOutputSha256: true,
-    includeOutputSpans: false,
+    includeOutputSpans: true,
     includeSourceMetadata: true,
   },
   checksums: {

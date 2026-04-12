@@ -12,20 +12,62 @@ function expectString(value: unknown, label: string): string {
   return value;
 }
 
+function findXmlFileCloseIndex(source: string, fromIndex: number): number {
+  const closeTag = "</file>";
+  let searchIndex = fromIndex;
+
+  while (searchIndex < source.length) {
+    const candidate = source.indexOf(closeTag, searchIndex);
+    if (candidate === -1) {
+      return -1;
+    }
+
+    const lineEnd = source.indexOf("\n", candidate);
+    const lineEndIndex = lineEnd === -1 ? source.length : lineEnd;
+    const tail = source
+      .slice(candidate + closeTag.length, lineEndIndex)
+      .replace(/\r/g, "");
+
+    if (tail.trim().length === 0) {
+      return candidate;
+    }
+
+    searchIndex = candidate + closeTag.length;
+  }
+
+  return -1;
+}
+
 export function parseXmlSection(source: string): ExtractedTextFile[] {
   const files: ExtractedTextFile[] = [];
-  const filePattern = /<file path="([^"]+)">([\s\S]*?)<\/file>/g;
+  const openTagPrefix = '<file path="';
+  const openTagSuffix = '">';
+  let searchIndex = 0;
 
-  for (const match of source.matchAll(filePattern)) {
-    const [, rawPath = "", rawContent = ""] = match;
-    let content = rawContent;
-
-    // Repomix emits a structural newline directly after each opening <file>
-    // tag and one structural newline before </file>, so strip both wrapper
-    // newlines to recover the packed content exactly.
-    if (content.startsWith("\n")) {
-      content = content.slice(1);
+  while (searchIndex < source.length) {
+    const openIndex = source.indexOf(openTagPrefix, searchIndex);
+    if (openIndex === -1) {
+      break;
     }
+
+    const pathStart = openIndex + openTagPrefix.length;
+    const pathEnd = source.indexOf(openTagSuffix, pathStart);
+    if (pathEnd === -1) {
+      throw new CxError("Invalid XML section output.", 8);
+    }
+
+    const rawPath = source.slice(pathStart, pathEnd);
+    const contentStart = pathEnd + openTagSuffix.length;
+    const searchFrom = source[contentStart] === "\n" ? contentStart + 1 : contentStart;
+    const closeIndex = findXmlFileCloseIndex(source, searchFrom);
+    if (closeIndex === -1) {
+      throw new CxError(
+        `Invalid XML section output for ${expectString(rawPath, "file path")}.`,
+        8,
+      );
+    }
+
+    let content = source.slice(searchFrom, closeIndex);
     if (content.endsWith("\n")) {
       content = content.slice(0, -1);
     }
@@ -34,6 +76,8 @@ export function parseXmlSection(source: string): ExtractedTextFile[] {
       path: expectString(rawPath, "file path"),
       content,
     });
+
+    searchIndex = closeIndex + "</file>".length;
   }
 
   return files;

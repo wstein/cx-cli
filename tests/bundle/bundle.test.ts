@@ -1094,6 +1094,31 @@ include_source_metadata = true`;
     });
   });
 
+  test("blocks text extraction when output spans are disabled", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-no-spans");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).concat(
+        `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = false\ninclude_source_metadata = true\n`,
+      ),
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(
+      await runExtractCommand({
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+      }),
+    ).toBe(8);
+  });
+
   test("verifies a bundle against the original source tree", async () => {
     const project = await createProject();
 
