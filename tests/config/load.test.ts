@@ -174,6 +174,66 @@ exclude = []
       "output_dir references undefined environment variable CX_MISSING_OUTPUT_DIR.",
     );
   });
+
+  test("loads section priority from cx.toml", async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-priority-"),
+    );
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+priority = 10
+
+[sections.tests]
+include = ["tests/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.sections.src?.priority).toBe(10);
+    expect(config.sections.tests?.priority).toBeUndefined();
+  });
+
+  test("rejects a non-integer section priority", async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-priority-bad-"),
+    );
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+priority = 0
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "sections.src.priority must be a positive integer.",
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------

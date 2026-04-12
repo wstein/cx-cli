@@ -64,6 +64,17 @@ function expectBoolean(
   return value;
 }
 
+function expectPositiveInteger(value: unknown, label: string): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value <= 0
+  ) {
+    throw new CxError(`${label} must be a positive integer.`);
+  }
+  return value;
+}
+
 function expectStringArray(
   value: unknown,
   label: string,
@@ -198,6 +209,18 @@ function normalizeSection(
 
   if (style !== undefined) {
     normalized.style = style;
+  }
+
+  const priority =
+    input.priority === undefined
+      ? undefined
+      : expectPositiveInteger(
+          input.priority,
+          `sections.${sectionName}.priority`,
+        );
+
+  if (priority !== undefined) {
+    normalized.priority = priority;
   }
 
   return normalized;

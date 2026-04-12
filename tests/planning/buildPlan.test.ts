@@ -246,4 +246,44 @@ describe("buildBundlePlan", () => {
       /Section overlap detected for src\/index\.ts\.[\s\S]*Matching sections: src, mixed\.[\s\S]*Recommended owner: src\.[\s\S]*Suggested exclude rules:/,
     );
   });
+
+  test("resolves overlaps by priority when dedup.mode=first-wins", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.dedup.mode = "first-wins";
+    // sections.src and sections.wide both claim src/**; src has higher priority
+    config.sections.wide = { include: ["src/**"], exclude: [], priority: 5 };
+    config.sections.src = {
+      ...config.sections.src!,
+      include: ["src/**"],
+      exclude: [],
+      priority: 10,
+    };
+
+    const plan = await buildBundlePlan(config);
+    const srcFiles = plan.sections
+      .find((s) => s.name === "src")
+      ?.files.map((f) => f.relativePath);
+    const wideFiles = plan.sections
+      .find((s) => s.name === "wide")
+      ?.files.map((f) => f.relativePath);
+
+    expect(srcFiles).toContain("src/index.ts");
+    expect(wideFiles).not.toContain("src/index.ts");
+  });
+
+  test("priority ordering is stable: sections without priority preserve base order", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.dedup.mode = "first-wins";
+    // Give 'src' a low explicit priority, leave docs and repo without priority (implicit 0)
+    config.sections.src = { ...config.sections.src!, priority: 1 };
+
+    const plan = await buildBundlePlan(config);
+    const names = plan.sections.map((s) => s.name);
+    // src has priority 1, docs and repo have priority 0 — src sorts first, then
+    // docs and repo follow in their config order
+    expect(names[0]).toBe("src");
+    expect(names.slice(1)).toEqual(["docs", "repo"]);
+  });
 });

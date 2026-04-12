@@ -36,7 +36,16 @@ export function matchesAny(
 
 export function getSectionOrder(config: CxConfig): string[] {
   const names = Object.keys(config.sections);
-  return config.dedup.order === "lexical" ? sortLexically(names) : names;
+  const base = config.dedup.order === "lexical" ? sortLexically(names) : names;
+
+  // Sort descending by priority. JavaScript's Array.sort is stable, so
+  // sections without an explicit priority (treated as 0) preserve their
+  // relative base order, whether that base order is config-position or lexical.
+  return [...base].sort((a, b) => {
+    const pa = config.sections[a]?.priority ?? 0;
+    const pb = config.sections[b]?.priority ?? 0;
+    return pb - pa;
+  });
 }
 
 export function getSectionEntries(
@@ -144,6 +153,8 @@ export function formatOverlapConflictMessage(
     "Suggested exclude rules:",
     suggestionLines,
     "Run `cx doctor fix-overlaps --dry-run` to review the full resolution plan.",
+    "Alternatively, set `dedup.mode = \"first-wins\"` and assign a higher `priority` to the",
+    "section that should own the file to resolve overlaps dynamically at runtime.",
   ].join("\n");
 }
 

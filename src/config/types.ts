@@ -9,6 +9,18 @@ export interface CxSectionConfig {
   include: string[];
   exclude: string[];
   style?: CxStyle;
+  /**
+   * Optional ownership priority for overlap resolution.
+   *
+   * When two or more sections claim the same file, the section with the
+   * highest `priority` value wins. Sections without a `priority` value
+   * are treated as priority 0 and their relative order is governed by
+   * `dedup.order` (config order or lexical).
+   *
+   * Only applies when `dedup.mode` is `"first-wins"` or `"warn"`. In
+   * `"fail"` mode, overlaps are rejected regardless of priority.
+   */
+  priority?: number;
 }
 
 export interface CxRepomixConfig {
