@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CxError } from "../shared/errors.js";
+import { NORMALIZATION_POLICY } from "./types.js";
 import type {
   AssetRecord,
   CxManifest,
@@ -12,7 +13,7 @@ import type {
   SectionOutputRecord,
 } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 4 as const;
+export const MANIFEST_SCHEMA_VERSION = 5 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -21,7 +22,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v4.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v5.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -215,6 +216,13 @@ function parseManifestDto(raw: unknown): {
         settingsRaw.securityCheck,
         "settings.securityCheck",
       ),
+      normalizationPolicy:
+        settingsRaw.normalizationPolicy === undefined
+          ? NORMALIZATION_POLICY
+          : (requireString(
+              settingsRaw.normalizationPolicy,
+              "settings.normalizationPolicy",
+            ) as typeof NORMALIZATION_POLICY),
     },
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),

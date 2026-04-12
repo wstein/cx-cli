@@ -84,9 +84,11 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
     sections: args.sections,
     files: args.files,
   };
+  const configPath = args.config ?? "cx.toml";
+  const againstConfig = againstDir ? await loadCxConfig(configPath) : undefined;
 
   try {
-    await verifyBundle(bundleDir, againstDir, selection);
+    await verifyBundle(bundleDir, againstDir, selection, againstConfig);
 
     // Lock drift check: compare behavioral settings used at bundle time with
     // the current effective settings. Warn on mismatch; --strict makes it a
@@ -98,7 +100,6 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
     if (projectName !== null) {
       const lock = await readLock(bundleDir, projectName);
       if (lock !== null) {
-        const configPath = args.config ?? "cx.toml";
         const current = await buildCurrentSnapshot(configPath);
         if (current !== null) {
           const mismatches = diffLockSettings(lock, current);

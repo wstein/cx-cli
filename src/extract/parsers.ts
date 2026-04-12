@@ -21,10 +21,13 @@ export function parseXmlSection(source: string): ExtractedTextFile[] {
     let content = rawContent;
 
     // Repomix emits a structural newline directly after each opening <file>
-    // tag, so strip exactly that one leading newline to recover the original
-    // file content.
+    // tag and one structural newline before </file>, so strip both wrapper
+    // newlines to recover the packed content exactly.
     if (content.startsWith("\n")) {
       content = content.slice(1);
+    }
+    if (content.endsWith("\n")) {
+      content = content.slice(0, -1);
     }
 
     files.push({
@@ -43,12 +46,10 @@ export function parseJsonSection(source: string): ExtractedTextFile[] {
   }
 
   return Object.entries(parsed.files).map(([filePath, content]) => {
-    // Repomix strips the trailing newline from each file value when serializing
-    // to JSON. Restore it so extracted files are byte-identical to the source.
     const raw = expectString(content, `content for ${filePath}`);
     return {
       path: filePath,
-      content: raw.length > 0 && !raw.endsWith("\n") ? `${raw}\n` : raw,
+      content: raw,
     };
   });
 }
@@ -85,13 +86,10 @@ export function parseMarkdownSection(source: string): ExtractedTextFile[] {
       throw new CxError(`Unterminated markdown block for ${filePath}.`, 8);
     }
 
-    // Repomix strips the trailing newline from the code-block body when
-    // serializing to markdown. Restore it so extracted files are byte-identical
-    // to the source.
     const raw = contentLines.join("\n");
     files.push({
       path: filePath,
-      content: raw.length > 0 && !raw.endsWith("\n") ? `${raw}\n` : raw,
+      content: raw,
     });
 
     index += 1;
@@ -173,13 +171,8 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
       index += 1;
     }
 
-    if (endedAtEof) {
-      // Repomix appends exactly 4 extra blank lines before the end-of-codebase
-      // separator for the last file in a section. Strip them to recover the
-      // original file content.
-      for (let i = 0; i < 4 && contentLines.at(-1) === ""; i++) {
-        contentLines.pop();
-      }
+    while (contentLines.at(-1) === "") {
+      contentLines.pop();
     }
 
     files.push({

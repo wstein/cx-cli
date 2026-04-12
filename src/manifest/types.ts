@@ -1,11 +1,14 @@
 import type { CxStyle } from "../config/types.js";
 
+export const NORMALIZATION_POLICY = "repomix-default-v1" as const;
+
 export interface ManifestSettings {
   globalStyle: CxStyle;
   tokenEncoding: string;
   showLineNumbers: boolean;
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
+  normalizationPolicy: typeof NORMALIZATION_POLICY;
 }
 
 export interface ManifestFileRow {
@@ -40,6 +43,8 @@ export type FileSpanMap = Map<string, FileSpanRecord>;
 export type SectionSpanMaps = Map<string, FileSpanMap>;
 export type FileTokenMap = Map<string, number>;
 export type SectionTokenMaps = Map<string, FileTokenMap>;
+export type FileHashMap = Map<string, string>;
+export type SectionHashMaps = Map<string, FileHashMap>;
 
 export interface AssetRecord {
   sourcePath: string;
@@ -56,7 +61,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 4;
+  schemaVersion: 5;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;

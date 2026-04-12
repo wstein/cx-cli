@@ -50,7 +50,7 @@ export class ExtractResolutionError extends CxError {
     const detail =
       files.length === 1 && first
         ? first.message
-        : `${files.length} selected files could not be reconstructed exactly from the bundle output.`;
+        : `${files.length} selected files could not be reconstructed deterministically from the bundle output.`;
     super(detail, 8);
     this.files = files;
   }
@@ -129,7 +129,7 @@ export async function resolveExtractability(params: {
             kind: row.kind,
             status: "degraded",
             reason: "manifest_hash_mismatch",
-            message: `Section output for ${row.path} does not match the manifest hash, so exact extraction is not supported for that file.`,
+            message: `Section output for ${row.path} does not match the normalized packed-content hash in the manifest.`,
             expectedSha256: row.sha256,
             actualSha256,
             content,
@@ -143,7 +143,7 @@ export async function resolveExtractability(params: {
           kind: row.kind,
           status: "intact",
           reason: "manifest_hash_match",
-          message: `Section output for ${row.path} matches the manifest hash.`,
+          message: `Section output for ${row.path} matches the normalized packed-content hash in the manifest.`,
           expectedSha256: row.sha256,
           actualSha256,
           content,
@@ -158,7 +158,7 @@ export async function resolveExtractability(params: {
           kind: row.kind,
           status: "blocked",
           reason: "section_parse_failed",
-          message: `Section ${section.name} could not be parsed for exact extraction: ${message}`,
+          message: `Section ${section.name} could not be parsed for deterministic extraction: ${message}`,
           expectedSha256: row.sha256,
         });
       }

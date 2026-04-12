@@ -1,9 +1,11 @@
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
 import { MANIFEST_SCHEMA_VERSION } from "./json.js";
+import { NORMALIZATION_POLICY } from "./types.js";
 import type {
   CxManifest,
   CxSection,
+  SectionHashMaps,
   ManifestFileRow,
   SectionOutputRecord,
   SectionSpanMaps,
@@ -19,6 +21,7 @@ export function buildManifest(params: {
   repomixVersion: string;
   sectionSpanMaps?: SectionSpanMaps;
   sectionTokenMaps?: SectionTokenMaps;
+  sectionHashMaps?: SectionHashMaps;
 }): CxManifest {
   const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
     const planSection = params.plan.sections.find(
@@ -26,14 +29,21 @@ export function buildManifest(params: {
     );
     const sectionSpans = params.sectionSpanMaps?.get(sectionOutput.name);
     const sectionTokens = params.sectionTokenMaps?.get(sectionOutput.name);
+    const sectionHashes = params.sectionHashMaps?.get(sectionOutput.name);
     const files: ManifestFileRow[] = (planSection?.files ?? []).map((file) => {
       const fileSpan = sectionSpans?.get(file.relativePath);
+      const fileHash = sectionHashes?.get(file.relativePath);
+      if (fileHash === undefined) {
+        throw new Error(
+          `Missing normalized content hash for ${sectionOutput.name}/${file.relativePath}.`,
+        );
+      }
       return {
         path: file.relativePath,
         kind: "text",
         section: sectionOutput.name,
         storedIn: "packed",
-        sha256: file.sha256,
+        sha256: fileHash,
         sizeBytes: file.sizeBytes,
         tokenCount: sectionTokens?.get(file.relativePath) ?? 0,
         mtime: file.mtime,
@@ -78,6 +88,7 @@ export function buildManifest(params: {
       showLineNumbers: params.config.repomix.showLineNumbers,
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
+      normalizationPolicy: NORMALIZATION_POLICY,
     },
     sections,
     assets: params.plan.assets.map((asset) => ({

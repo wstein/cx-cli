@@ -99,6 +99,7 @@ const settingsArb = fc.record({
   showLineNumbers: fc.boolean(),
   includeEmptyDirectories: fc.boolean(),
   securityCheck: fc.boolean(),
+  normalizationPolicy: fc.constant("repomix-default-v1" as const),
 });
 
 const assetArb: fc.Arbitrary<AssetRecord> = fc.record({

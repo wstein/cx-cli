@@ -87,6 +87,17 @@ function findExpectedContentStartLine(params: {
   return countNewlines(output.slice(0, contentStart)) + 1;
 }
 
+async function expectExtractedFilesToMatchManifest(params: {
+  bundleDir: string;
+  restoreDir: string;
+}): Promise<void> {
+  const { manifest } = await loadManifestFromBundle(params.bundleDir);
+  for (const row of manifest.files) {
+    const extractedPath = path.join(params.restoreDir, row.path);
+    expect(await sha256File(extractedPath)).toBe(row.sha256);
+  }
+}
+
 async function createProject(options?: {
   includeSpecialChecksumFile?: boolean;
 }): Promise<{
@@ -161,6 +172,26 @@ exclude = []
   );
 
   return { root, configPath, bundleDir };
+}
+
+async function tamperSectionOutput(
+  bundleDir: string,
+  sectionName: string,
+  from: string,
+  to: string,
+): Promise<void> {
+  const { manifest } = await loadManifestFromBundle(bundleDir);
+  const section = manifest.sections.find((entry) => entry.name === sectionName);
+  if (!section) {
+    throw new Error(`Missing section ${sectionName} in bundle.`);
+  }
+
+  const sectionPath = path.join(bundleDir, section.outputFile);
+  const source = await fs.readFile(sectionPath, "utf8");
+  if (!source.includes(from)) {
+    throw new Error(`Missing tamper target in ${section.outputFile}.`);
+  }
+  await fs.writeFile(sectionPath, source.replace(from, to), "utf8");
 }
 
 describe("bundle workflow", () => {
@@ -380,7 +411,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 4,
+      schemaVersion: 5,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
@@ -396,6 +427,7 @@ include_source_metadata = true`;
         showLineNumbers: false,
         includeEmptyDirectories: false,
         securityCheck: false,
+        normalizationPolicy: "repomix-default-v1",
       },
       sections: [
         {
@@ -591,16 +623,13 @@ include_source_metadata = true`;
     }) as typeof process.stdout.write;
 
     try {
-      await fs.writeFile(
-        project.configPath,
-        (await fs.readFile(project.configPath, "utf8")).replace(
-          "show_line_numbers = false",
-          "show_line_numbers = true",
-        ),
-        "utf8",
-      );
-
       expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      await tamperSectionOutput(
+        project.bundleDir,
+        "src",
+        "export const demo = \"================\";\n",
+        "export const demo = \"tampered\";\n",
+      );
       expect(
         await runInspectCommand({ config: project.configPath, json: true }),
       ).toBe(0);
@@ -663,16 +692,13 @@ include_source_metadata = true`;
     }) as typeof process.stdout.write;
 
     try {
-      await fs.writeFile(
-        project.configPath,
-        (await fs.readFile(project.configPath, "utf8")).replace(
-          "show_line_numbers = false",
-          "show_line_numbers = true",
-        ),
-        "utf8",
-      );
-
       expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      await tamperSectionOutput(
+        project.bundleDir,
+        "src",
+        "export const demo = \"================\";\n",
+        "export const demo = \"tampered\";\n",
+      );
       expect(
         await runInspectCommand({ config: project.configPath, json: false }),
       ).toBe(0);
@@ -969,16 +995,10 @@ include_source_metadata = true`;
       }),
     ).toBe(0);
 
-    for (const relativePath of [
-      "README.md",
-      "docs/guide.md",
-      "src/index.ts",
-      "logo.png",
-    ]) {
-      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
-        await sha256File(path.join(project.root, relativePath)),
-      );
-    }
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for json bundles", async () => {
@@ -1006,16 +1026,10 @@ include_source_metadata = true`;
       }),
     ).toBe(0);
 
-    for (const relativePath of [
-      "README.md",
-      "docs/guide.md",
-      "src/index.ts",
-      "logo.png",
-    ]) {
-      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
-        await sha256File(path.join(project.root, relativePath)),
-      );
-    }
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for markdown bundles", async () => {
@@ -1043,16 +1057,10 @@ include_source_metadata = true`;
       }),
     ).toBe(0);
 
-    for (const relativePath of [
-      "README.md",
-      "docs/guide.md",
-      "src/index.ts",
-      "logo.png",
-    ]) {
-      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
-        await sha256File(path.join(project.root, relativePath)),
-      );
-    }
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for plain bundles", async () => {
@@ -1080,16 +1088,10 @@ include_source_metadata = true`;
       }),
     ).toBe(0);
 
-    for (const relativePath of [
-      "README.md",
-      "docs/guide.md",
-      "src/index.ts",
-      "logo.png",
-    ]) {
-      expect(await sha256File(path.join(restoreDir, relativePath))).toBe(
-        await sha256File(path.join(project.root, relativePath)),
-      );
-    }
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("verifies a bundle against the original source tree", async () => {
@@ -1197,16 +1199,13 @@ include_source_metadata = true`;
   test("blocks degraded extraction unless explicitly allowed", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");
-    await fs.writeFile(
-      project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).replace(
-        "show_line_numbers = false",
-        "show_line_numbers = true",
-      ),
-      "utf8",
-    );
-
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      "export const demo = \"================\";\n",
+      "export const demo = \"tampered\";\n",
+    );
     // The command now formats a visual table and returns the exit code instead of throwing.
     const exitCode = await runExtractCommand({
       bundleDir: project.bundleDir,
@@ -1230,16 +1229,13 @@ include_source_metadata = true`;
       return true;
     }) as typeof process.stdout.write;
 
-    await fs.writeFile(
-      project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).replace(
-        "show_line_numbers = false",
-        "show_line_numbers = true",
-      ),
-      "utf8",
-    );
-
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      "export const demo = \"================\";\n",
+      "export const demo = \"tampered\";\n",
+    );
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,
@@ -1285,17 +1281,14 @@ include_source_metadata = true`;
       return true;
     }) as typeof process.stderr.write;
 
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      "export const special = true;\n",
+      "export const special = false;\n",
+    );
     try {
-      await fs.writeFile(
-        project.configPath,
-        (await fs.readFile(project.configPath, "utf8")).replace(
-          "show_line_numbers = false",
-          "show_line_numbers = true",
-        ),
-        "utf8",
-      );
-
-      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
       expect(
         await runExtractCommand({
           bundleDir: project.bundleDir,
@@ -1325,16 +1318,13 @@ include_source_metadata = true`;
       return true;
     }) as typeof process.stdout.write;
 
-    await fs.writeFile(
-      project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).replace(
-        "show_line_numbers = false",
-        "show_line_numbers = true",
-      ),
-      "utf8",
-    );
-
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      "export const demo = \"================\";\n",
+      "export const demo = \"tampered\";\n",
+    );
     expect(
       await runListCommand({
         bundleDir: project.bundleDir,
@@ -1370,16 +1360,13 @@ include_source_metadata = true`;
   test("extracts degraded files with explicit opt-in", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-degraded");
-    await fs.writeFile(
-      project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).replace(
-        "show_line_numbers = false",
-        "show_line_numbers = true",
-      ),
-      "utf8",
-    );
-
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      "export const demo = \"================\";\n",
+      "export const demo = \"tampered\";\n",
+    );
     await expect(
       runExtractCommand({
         bundleDir: project.bundleDir,

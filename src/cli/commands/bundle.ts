@@ -12,6 +12,7 @@ import {
   writeLock,
 } from "../../manifest/lock.js";
 import type {
+  SectionHashMaps,
   SectionSpanMaps,
   SectionTokenMaps,
 } from "../../manifest/types.js";
@@ -55,6 +56,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const sectionOutputs = [];
   const sectionSpanMaps: SectionSpanMaps = new Map();
   const sectionTokenMaps: SectionTokenMaps = new Map();
+  const sectionHashMaps: SectionHashMaps = new Map();
   const renderWarnings: string[] = [];
   const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
 
@@ -68,6 +70,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       sectionName: section.name,
       explicitFiles: section.files.map((file) => file.absolutePath),
       bundleIndexFile,
+      requireStructured: true,
     });
     renderWarnings.push(...renderResult.warnings);
     const totalSectionBytes = section.files.reduce(
@@ -89,6 +92,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       outputTokenCount,
     });
     sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
+    sectionHashMaps.set(section.name, renderResult.fileContentHashes);
     if (renderResult.fileSpans) {
       sectionSpanMaps.set(section.name, renderResult.fileSpans);
     }
@@ -116,6 +120,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     repomixVersion: (await getRepomixCapabilities()).packageVersion,
     sectionSpanMaps,
     sectionTokenMaps,
+    sectionHashMaps,
   });
   const manifestName = `${plan.projectName}-manifest.json`;
   await fs.writeFile(

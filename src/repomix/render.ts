@@ -5,6 +5,7 @@ import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
+import { sha256Text } from "../shared/hashing.js";
 import { countTokensForFiles } from "../shared/tokens.js";
 import { buildSectionHeaderText } from "./handover.js";
 import {
@@ -18,6 +19,7 @@ export interface RenderSectionResult {
   outputText: string;
   outputTokenCount: number;
   fileTokenCounts: Map<string, number>;
+  fileContentHashes: Map<string, string>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
   warnings: string[];
 }
@@ -165,6 +167,7 @@ export async function renderSectionWithRepomix(params: {
   sectionName: string;
   explicitFiles: string[];
   bundleIndexFile?: string;
+  requireStructured?: boolean;
 }): Promise<RenderSectionResult> {
   await assertCompatibleRepomixAdapter();
 
@@ -174,6 +177,7 @@ export async function renderSectionWithRepomix(params: {
       outputText: "",
       outputTokenCount: 0,
       fileTokenCounts: new Map(),
+      fileContentHashes: new Map(),
       fileSpans: new Map(),
       warnings: [],
     };
@@ -262,9 +266,11 @@ export async function renderSectionWithRepomix(params: {
       },
     );
     const fileTokenCounts = new Map<string, number>();
+    const fileContentHashes = new Map<string, string>();
 
     for (const entry of structuredPlan.entries) {
       fileTokenCounts.set(entry.path, entry.metadata.tokenCount ?? 0);
+      fileContentHashes.set(entry.path, sha256Text(entry.content));
     }
 
     if (
@@ -310,6 +316,7 @@ export async function renderSectionWithRepomix(params: {
           0,
         ),
         fileTokenCounts,
+        fileContentHashes,
         fileSpans,
         warnings,
       };
@@ -332,9 +339,17 @@ export async function renderSectionWithRepomix(params: {
         0,
       ),
       fileTokenCounts,
+      fileContentHashes,
       fileSpans: new Map(),
       warnings,
     };
+  }
+
+  if (params.requireStructured) {
+    throw new CxError(
+      "Incompatible Repomix adapter: packStructured() is required for normalized content hashing.",
+      5,
+    );
   }
 
   if (!pack) {
@@ -381,6 +396,7 @@ export async function renderSectionWithRepomix(params: {
       0,
     ),
     fileTokenCounts,
+    fileContentHashes: new Map(),
     fileSpans: new Map(),
     warnings,
   };

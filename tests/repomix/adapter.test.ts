@@ -84,7 +84,7 @@ describe("Repomix adapter contract", () => {
     expect(await fs.stat(outputPath)).toBeDefined();
   });
 
-  test("bundling falls back to pack() when structured rendering is unavailable", async () => {
+  test("bundling requires structured rendering for normalized content hashes", async () => {
     const root = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-repomix-fallback-"),
     );
@@ -187,21 +187,17 @@ export async function pack(rootDirs, config, _progress, _options, explicitFiles)
     setAdapterPath(adapterDir);
 
     try {
-      expect(
-        await runBundleCommand({ config: path.join(sourceRoot, "cx.toml") }),
-      ).toBe(0);
+      await expect(
+        runBundleCommand({ config: path.join(sourceRoot, "cx.toml") }),
+      ).rejects.toThrow(
+        "packStructured() is required for normalized content hashing",
+      );
 
       const capabilities = await getRepomixCapabilities();
       expect(capabilities.contractValid).toBe(true);
       expect(capabilities.capabilities.supportsPackStructured).toBe(false);
       expect(capabilities.spanCapability).toBe("unsupported");
-      expect(warnings).toContain("Continuing without span metadata");
-
-      const { manifest } = await loadManifestFromBundle(bundleDir);
-      const file = manifest.sections[0]?.files[0];
-      expect(file?.outputStartLine).toBeNull();
-      expect(file?.outputEndLine).toBeNull();
-      expect(file?.tokenCount).toBeGreaterThan(0);
+      expect(warnings).toContain("missing the cx extension");
     } finally {
       process.stderr.write = stderrWrite;
       setAdapterPath(previousAdapterPath);

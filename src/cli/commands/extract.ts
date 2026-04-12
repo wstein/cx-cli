@@ -63,7 +63,7 @@ function formatChecksumPrefix(checksum: string | undefined): string {
 }
 
 function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
-  const header = `\nEXTRACTION ERRORS (${files.length} file${files.length === 1 ? "" : "s"} cannot be recovered exactly)\n`;
+  const header = `\nEXTRACTION ERRORS (${files.length} file${files.length === 1 ? "" : "s"} cannot be reconstructed deterministically)\n`;
   process.stderr.write(header);
 
   const pathW = Math.max(4, ...files.map((f) => f.path.length));

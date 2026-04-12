@@ -1,8 +1,11 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
+import type { CxConfig } from "../config/types.js";
+import { renderSectionWithRepomix } from "../repomix/render.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
 import {
@@ -37,34 +40,71 @@ async function verifyBundleAgainstSourceTree(
   bundleDir: string,
   sourceDir: string,
   selection: VerifySelection,
+  config: CxConfig,
 ): Promise<void> {
   const { manifest } = await loadManifestFromBundle(bundleDir);
   const selectedFiles = selectManifestRows(manifest.files, selection);
 
-  for (const file of selectedFiles) {
-    const sourcePath = path.join(sourceDir, file.path);
+  const selectedTextFiles = selectedFiles.filter(
+    (file) => file.kind === "text",
+  );
+  const selectedSections = manifest.sections.filter((section) =>
+    selectedTextFiles.some((file) => file.section === section.name),
+  );
+
+  for (const section of selectedSections) {
+    const sectionRows = selectedTextFiles.filter(
+      (file) => file.section === section.name,
+    );
+    const explicitFiles = sectionRows.map((file) =>
+      path.join(sourceDir, file.path),
+    );
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-verify-"));
     try {
-      const sourceHash = await sha256File(sourcePath);
-      if (sourceHash !== file.sha256) {
-        throw new VerifyError(
-          "source_tree_drift",
-          `Source tree mismatch for ${file.path}: bundle and source hashes differ.`,
-          file.path,
-        );
+      const renderResult = await renderSectionWithRepomix({
+        config: {
+          ...config,
+          projectName: manifest.projectName,
+          sourceRoot: sourceDir,
+          repomix: {
+            ...config.repomix,
+            showLineNumbers: manifest.settings.showLineNumbers,
+            includeEmptyDirectories:
+              manifest.settings.includeEmptyDirectories,
+            securityCheck: manifest.settings.securityCheck,
+          },
+          tokens: {
+            ...config.tokens,
+            encoding: manifest.settings.tokenEncoding,
+          },
+        },
+        style: section.style,
+        sourceRoot: sourceDir,
+        outputPath: path.join(tmpDir, "output"),
+        sectionName: section.name,
+        explicitFiles,
+        requireStructured: true,
+      });
+
+      for (const file of sectionRows) {
+        const sourceHash = renderResult.fileContentHashes.get(file.path);
+        if (sourceHash === undefined) {
+          throw new VerifyError(
+            "source_tree_drift",
+            `Source tree render for ${file.path} omitted normalized packed content.`,
+            file.path,
+          );
+        }
+        if (sourceHash !== file.sha256) {
+          throw new VerifyError(
+            "source_tree_drift",
+            `Source tree mismatch for ${file.path}: normalized packed content differs between bundle and source tree.`,
+            file.path,
+          );
+        }
       }
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        error.code === "ENOENT"
-      ) {
-        throw new VerifyError(
-          "source_tree_drift",
-          `Source tree is missing ${file.path}.`,
-          file.path,
-        );
-      }
-      throw error;
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true });
     }
   }
 }
@@ -73,6 +113,7 @@ export async function verifyBundle(
   bundleDir: string,
   againstDir?: string,
   selection: VerifySelection = { sections: undefined, files: undefined },
+  config?: CxConfig,
 ): Promise<void> {
   const { manifestName } = await validateBundle(bundleDir);
   const { manifest } = await loadManifestFromBundle(bundleDir);
@@ -134,6 +175,17 @@ export async function verifyBundle(
   }
 
   if (againstDir) {
-    await verifyBundleAgainstSourceTree(bundleDir, againstDir, selection);
+    if (!config) {
+      throw new CxError(
+        "A loaded cx config is required to verify normalized content against a source tree.",
+        2,
+      );
+    }
+    await verifyBundleAgainstSourceTree(
+      bundleDir,
+      againstDir,
+      selection,
+      config,
+    );
   }
 }
