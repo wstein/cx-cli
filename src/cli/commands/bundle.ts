@@ -161,6 +161,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         value: config.behavior.configDuplicateEntry,
         source: config.behaviorSources.configDuplicateEntry,
       },
+      "assets.layout": {
+        value: config.assets.layout,
+        source: config.behaviorSources.assetsLayout,
+      },
     },
   };
   await writeLock(plan.bundleDir, plan.projectName, lockFile);

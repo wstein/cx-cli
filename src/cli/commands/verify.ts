@@ -3,6 +3,7 @@ import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { loadCxConfig } from "../../config/load.js";
 import {
+  type CurrentBehaviorSnapshot,
   diffLockSettings,
   type LockSettingMismatch,
   readLock,
@@ -47,11 +48,9 @@ async function readProjectNameFromBundle(
  * Build the current behavioral settings snapshot from the loaded config.
  * Falls back to env/CLI-only when no config file is available.
  */
-async function buildCurrentSnapshot(configPath: string): Promise<{
-  dedupMode: { value: string; source: string };
-  repomixMissingExtension: { value: string; source: string };
-  configDuplicateEntry: { value: string; source: string };
-} | null> {
+async function buildCurrentSnapshot(
+  configPath: string,
+): Promise<CurrentBehaviorSnapshot | null> {
   if (!(await pathExists(configPath))) return null;
 
   try {
@@ -68,6 +67,10 @@ async function buildCurrentSnapshot(configPath: string): Promise<{
       configDuplicateEntry: {
         value: config.behavior.configDuplicateEntry,
         source: config.behaviorSources.configDuplicateEntry,
+      },
+      assetsLayout: {
+        value: config.assets.layout,
+        source: config.behaviorSources.assetsLayout,
       },
     };
   } catch {

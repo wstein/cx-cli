@@ -18,6 +18,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type {
+  CxAssetsLayout,
   CxConfigDuplicateEntryMode,
   CxDedupMode,
   CxRepomixMissingExtensionMode,
@@ -47,6 +48,7 @@ export interface CxLockFile {
     "dedup.mode": LockSetting<CxDedupMode>;
     "repomix.missing_extension": LockSetting<CxRepomixMissingExtensionMode>;
     "config.duplicate_entry": LockSetting<CxConfigDuplicateEntryMode>;
+    "assets.layout": LockSetting<CxAssetsLayout>;
   };
 }
 
@@ -122,6 +124,7 @@ export interface CurrentBehaviorSnapshot {
   dedupMode: { value: string; source: string };
   repomixMissingExtension: { value: string; source: string };
   configDuplicateEntry: { value: string; source: string };
+  assetsLayout: { value: string; source: string };
 }
 
 /**
@@ -141,6 +144,7 @@ export function diffLockSettings(
     ["dedup.mode", current.dedupMode],
     ["repomix.missing_extension", current.repomixMissingExtension],
     ["config.duplicate_entry", current.configDuplicateEntry],
+    ["assets.layout", current.assetsLayout],
   ];
 
   for (const [key, cur] of pairs) {
