@@ -6,6 +6,11 @@ import { loadCxConfig } from "../../config/load.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
+import {
+  lockFileName,
+  writeLock,
+  type CxLockFile,
+} from "../../manifest/lock.js";
 import type {
   SectionSpanMaps,
   SectionTokenMaps,
@@ -94,8 +99,33 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     renderManifestJson(manifest, config.manifest.pretty),
     "utf8",
   );
+
+  // Write the lock file capturing the effective behavioral settings used
+  // during this bundle run. cx verify reads it and warns on drift.
+  const lockFile: CxLockFile = {
+    schemaVersion: 1,
+    cxVersion: CX_VERSION,
+    bundledAt: new Date().toISOString(),
+    behavioralSettings: {
+      "dedup.mode": {
+        value: config.dedup.mode,
+        source: config.behaviorSources.dedupMode,
+      },
+      "repomix.missing_extension": {
+        value: config.behavior.repomixMissingExtension,
+        source: config.behaviorSources.repomixMissingExtension,
+      },
+      "config.duplicate_entry": {
+        value: config.behavior.configDuplicateEntry,
+        source: config.behaviorSources.configDuplicateEntry,
+      },
+    },
+  };
+  await writeLock(plan.bundleDir, plan.projectName, lockFile);
+
   await writeChecksumFile(plan.bundleDir, plan.checksumFile, [
     manifestName,
+    lockFileName(plan.projectName),
     ...plan.sections.map((section) => section.outputFile),
     ...plan.assets.map((asset) => asset.storedPath),
   ]);

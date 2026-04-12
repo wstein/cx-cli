@@ -234,7 +234,12 @@ export async function main(argv: string[]): Promise<number> {
           .option("json", { type: "boolean", default: false })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
-          .option("against", { type: "string" }),
+          .option("against", { type: "string" })
+          .option("config", {
+            type: "string",
+            default: "cx.toml",
+            description: "Path to cx.toml for lock drift comparison.",
+          }),
       async (args) => {
         exitCode = await runVerifyCommand({
           bundleDir: args.bundleDir,
@@ -242,6 +247,7 @@ export async function main(argv: string[]): Promise<number> {
           files: args.file as string[] | undefined,
           json: args.json,
           sections: args.section as string[] | undefined,
+          config: args.config,
         });
       },
     )

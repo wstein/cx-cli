@@ -4,6 +4,7 @@ import path from "node:path";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
+import { lockFileName } from "../manifest/lock.js";
 import {
   selectManifestRows,
   type VerifySelection,
@@ -85,14 +86,17 @@ export async function verifyBundle(
   const checksums = parseChecksumFile(
     await fs.readFile(path.join(bundleDir, manifest.checksumFile), "utf8"),
   );
+  const listedFiles = new Set(
+    checksums.map((checksum) => checksum.relativePath),
+  );
+  const lock = lockFileName(manifest.projectName);
   const expectedFiles = new Set([
     manifestName,
     ...selectedSections.map((section) => section.outputFile),
     ...selectedAssets.map((asset) => asset.storedPath),
+    // Include the lock file only when present — older bundles do not have one.
+    ...(listedFiles.has(lock) ? [lock] : []),
   ]);
-  const listedFiles = new Set(
-    checksums.map((checksum) => checksum.relativePath),
-  );
 
   for (const checksum of checksums) {
     if (!expectedFiles.has(checksum.relativePath)) {
