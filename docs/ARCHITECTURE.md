@@ -64,7 +64,7 @@ Each section is rendered as one Repomix-compatible output file in the configured
 
 `cx` also supplies a section-specific Repomix header through the documented `output.headerText` option so the file itself carries cx-oriented handover context without post-processing the generated output.
 
-The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file in XML, Markdown, and plain sections. Those spans are the primary lookup path for those text formats. JSON uses direct object lookup instead of span metadata.
+The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file in XML, Markdown, and plain sections. Those spans are the primary lookup path for those text formats. JSON uses direct object lookup instead of span metadata, and JSON-only bundles may omit spans entirely.
 
 ### 4. Shared handover index
 
@@ -82,7 +82,7 @@ The renderer also reports output token counts. If the adapter supports exact spa
 - copied assets
 - per-file token counts
 - source metadata such as size, media type, and mtime
-- output spans for XML, Markdown, and plain sections when exact span capture is available
+- output spans for XML, Markdown, and plain sections when exact span capture is available; JSON sections do not need them
 
 The manifest is not just a report. It is the contract other commands operate against.
 

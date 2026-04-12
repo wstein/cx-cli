@@ -21,7 +21,7 @@ The current command set is:
 
 - `src/config/` loads strict project TOML configuration, resolves templates, supports configurable exact token counting, and loads user-level `cx list` display preferences from `~/.config/cx/cx.toml` or `$XDG_CONFIG_HOME/cx/cx.toml`.
 - `src/planning/` builds a deterministic bundle plan with overlap detection, asset conflict detection, lexical output ordering, source modification-time capture for every planned file, and shared diagnostics that drive `cx doctor overlaps` and `cx doctor fix-overlaps`.
-- `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports, checks adapter compatibility through those exports rather than package-layout assumptions, and falls back cleanly when exact span capture is unavailable.
+- `src/repomix/` keeps rendering behind a narrow adapter that uses public Repomix exports instead of subprocess calls or deep private imports, checks adapter compatibility through those exports rather than package-layout assumptions, and only permits bundles without text spans when the output is JSON-only.
 - `src/extract/` restores XML, Markdown, and Plain bundles by slicing manifest-recorded output spans, handles JSON bundles by direct object lookup, requires `--allow-degraded` for deterministic fallback recovery, and emits structured extract failure payloads that identify blocked or degraded files precisely.
 - `src/manifest/` writes a canonical JSON manifest plus a lexical SHA-256 sidecar. Each section stores its file metadata as a standard array of objects, keeping the format straightforward for downstream consumers. Source modification time, exact token counts, tokenizer encoding, and the normalized packed-content hash are included without bundling user-specific display preferences.
 - `src/bundle/` validates and verifies emitted bundles independently of the original config file, rejects ambiguous manifest sets, proves checksum completeness, and can compare a bundle directly against a source tree with `verify --against` by re-rendering the selected files through the Repomix adapter.
@@ -36,6 +36,6 @@ The current command set is:
 - Assets are copied raw, not embedded into text outputs.
 - The JSON manifest is authoritative for bundle structure.
 - Checksums are lexical and deterministic.
-- Exact output spans are recorded for text bundles when the adapter can capture them precisely, and they are the primary lookup path for extraction.
+- Exact output spans are required for text bundles, recorded when the adapter can capture them precisely, and are the primary lookup path for extraction. JSON-only bundles may omit them.
 - Exact token counts are stored in the manifest and use tokenizer encodings instead of heuristics.
 - `cx list` heat-map thresholds and grayscale palette are user preferences and do not belong in project config or manifest data.

@@ -218,6 +218,8 @@ cx render --section src --stdout
 
 Use `render` for render-only diagnostics or one-off inspection. Use `bundle` when you need the full contract: manifest, checksums, lock file, and later verification.
 
+Text sections in a bundle require exact output spans. JSON-only bundles may omit spans, but any bundle that includes XML, Markdown, or plain sections must keep `manifest.include_output_spans = true` so extraction remains deterministic.
+
 ## Workflow: Recovery and Extraction
 
 Basic extraction:
