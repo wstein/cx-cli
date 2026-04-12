@@ -43,26 +43,45 @@ These are equivalent to `CX_STRICT=true` and `CX_LENIENT=true` but take
 effect within a single invocation and override any env vars or `cx.toml`
 values.
 
+`--strict` and `--lenient` do not affect `assets.layout` — that setting is
+not a strictness control and has its own per-command `--layout` flag.
+
+```bash
+cx bundle --config cx.toml --layout deep   # override layout for this run
+cx inspect --config cx.toml --layout flat  # preview with flat layout
+```
+
+`--layout` is accepted by `cx bundle` and `cx inspect`. It takes precedence
+over `CX_ASSETS_LAYOUT` and `cx.toml` for that invocation only.
+
 ### CX_STRICT shorthand
 
-Setting `CX_STRICT=true` (or `CX_STRICT=1`) forces every Category B setting to
-`"fail"`, overriding any `cx.toml` values. It does not affect Category A
-invariants. Use it in CI pipelines for a single assertion point:
+Setting `CX_STRICT=true` (or `CX_STRICT=1`) forces the three strictness
+settings (`dedup.mode`, `repomix.missing_extension`, `config.duplicate_entry`)
+to `"fail"`, overriding any `cx.toml` values. It does not affect Category A
+invariants, and it does not affect `assets.layout`. Use it in CI pipelines for
+a single assertion point:
 
 ```dockerfile
 ENV CX_STRICT=true
 ```
 
-`CX_STRICT` takes precedence over all per-area env vars. Per-area vars are
-ignored when `CX_STRICT` is active.
+`CX_STRICT` takes precedence over `CX_DEDUP_MODE`, `CX_REPOMIX_MISSING_EXTENSION`,
+and `CX_CONFIG_DUPLICATE_ENTRY`. `CX_ASSETS_LAYOUT` is always read from the
+environment regardless of whether `CX_STRICT` is active.
 
 ### Settings table
 
-| Setting                       | TOML key                    | Env var                          | Default | Allowed values                |
-| ----------------------------- | --------------------------- | -------------------------------- | ------- | ----------------------------- |
-| Overlap / dedup resolution    | `dedup.mode`                | `CX_DEDUP_MODE`                  | `fail`  | `fail`, `warn`, `first-wins`  |
-| Repomix missing cx extension  | `repomix.missing_extension` | `CX_REPOMIX_MISSING_EXTENSION`   | `warn`  | `fail`, `warn`                |
-| Duplicate config entries      | `config.duplicate_entry`    | `CX_CONFIG_DUPLICATE_ENTRY`      | `fail`  | `fail`, `warn`, `first-wins`  |
+| Setting                       | TOML key                    | Env var                          | CLI flag   | Default | Allowed values                |
+| ----------------------------- | --------------------------- | -------------------------------- | ---------- | ------- | ----------------------------- |
+| Overlap / dedup resolution    | `dedup.mode`                | `CX_DEDUP_MODE`                  | —          | `fail`  | `fail`, `warn`, `first-wins`  |
+| Repomix missing cx extension  | `repomix.missing_extension` | `CX_REPOMIX_MISSING_EXTENSION`   | —          | `warn`  | `fail`, `warn`                |
+| Duplicate config entries      | `config.duplicate_entry`    | `CX_CONFIG_DUPLICATE_ENTRY`      | —          | `fail`  | `fail`, `warn`, `first-wins`  |
+| Asset directory layout        | `assets.layout`             | `CX_ASSETS_LAYOUT`               | `--layout` | `flat`  | `flat`, `deep`                |
+
+The first three settings are affected by `--strict` / `--lenient` / `CX_STRICT`.
+`assets.layout` is not — it uses its own per-command `--layout` flag and the
+independent `CX_ASSETS_LAYOUT` env var.
 
 **`dedup.mode`** controls what happens when the same source file matches more
 than one section:
@@ -131,6 +150,9 @@ missing_extension = "fail"        # require the cx adapter extension in CI
 
 [config]
 duplicate_entry = "first-wins"    # silently deduplicate repeated patterns
+
+[assets]
+layout = "deep"                   # preserve source directory structure in the bundle
 ```
 
 ### Example: Docker environment
@@ -147,6 +169,7 @@ Or per-area:
 ENV CX_DEDUP_MODE=warn
 ENV CX_REPOMIX_MISSING_EXTENSION=fail
 ENV CX_CONFIG_DUPLICATE_ENTRY=first-wins
+ENV CX_ASSETS_LAYOUT=deep
 ```
 
 ### Inspecting effective settings
@@ -165,6 +188,7 @@ Setting                    Value       Source
 dedup.mode                 fail        compiled default
 repomix.missing_extension  warn        compiled default
 config.duplicate_entry     fail        compiled default
+assets.layout              flat        compiled default
 
 Category A invariants (section overlap when dedup.mode=fail, asset
 collision, missing core adapter contract) are never configurable.
@@ -322,10 +346,30 @@ The `[assets]` table controls how binary files are discovered, stored, and place
 
 **`assets.target_dir`** accepts the same path expansions as other path fields: `~`, `$VAR`, `${VAR}`, and `{project}`. Relative paths are resolved relative to the directory containing `cx.toml`.
 
-**`assets.layout`** controls how stored paths are formed within `target_dir`:
+**`assets.layout`** controls how stored paths are formed within `target_dir`.
+It participates in the full precedence chain and can be overridden without
+editing `cx.toml`:
 
-- `"flat"` (default) — all assets are placed directly in `target_dir` with no subdirectories. When two source files share the same basename, a numeric postfix is inserted between the stem and the extension to keep every stored path unique. The postfix counter starts at 2 and assignment is stable: candidates are sorted by `relativePath`, the lexicographically first entry keeps its original name, and subsequent ones receive `-2`, `-3`, and so on. For example, `images/logo.png` and `icons/logo.png` become `assets/logo.png` and `assets/logo-2.png`.
-- `"deep"` — the original relative directory structure is preserved under `target_dir`. `images/logo.png` becomes `assets/images/logo.png`. No postfixing is applied because the full path is already unique.
+- env var: `CX_ASSETS_LAYOUT=flat` or `CX_ASSETS_LAYOUT=deep`
+- per-command CLI flag: `cx bundle --layout deep` or `cx inspect --layout flat`
+
+Values:
+
+- `"flat"` (default) — all assets are placed directly in `target_dir` with no
+  subdirectories. When two source files share the same basename, a numeric
+  postfix is inserted between the stem and the extension to keep every stored
+  path unique. Assignment is stable: candidates are sorted lexicographically by
+  relative path, the first entry keeps its original name, and subsequent ones
+  receive `-2`, `-3`, and so on. For example, `images/logo.png` and
+  `icons/logo.png` become `assets/logo.png` and `assets/logo-2.png`.
+- `"deep"` — the original relative directory structure is preserved under
+  `target_dir`. `images/logo.png` becomes `assets/images/logo.png`. No
+  postfixing is applied because the full path is already unique.
+
+`assets.layout` is not affected by `--strict`, `--lenient`, or `CX_STRICT`.
+The manifest is the authoritative record of every stored path — the
+`storedPath` field in each asset record reflects the resolved layout, whether
+flat or deep, so downstream tooling never needs to reconstruct the path.
 
 ### Example
 
