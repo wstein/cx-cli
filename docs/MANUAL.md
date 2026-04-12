@@ -51,6 +51,17 @@ cx inspect --config cx.toml --token-breakdown
 
 That prints a compact per-section histogram so you can see which section is carrying most of the token budget before you build the bundle.
 
+Example output:
+
+```text
+Token breakdown
+	SECTION  TOKENS   SHARE   GRAPH
+	docs        411   53.4%  ████████████████
+	repo        198   25.7%  ████████
+	src         161   20.9%  ██████
+	Total       770  100.0%  ████████████████████████
+```
+
 ### 2. Build the bundle
 
 ```bash

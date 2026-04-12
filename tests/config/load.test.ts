@@ -185,12 +185,14 @@ exclude = []
  * top-level table so that tests can customise individual tables without
  * creating duplicate TOML headers.
  */
-function buildToml(opts: {
-  repomixExtra?: string;
-  dedupExtra?: string;
-  configExtra?: string;
-  sections?: string;
-} = {}): string {
+function buildToml(
+  opts: {
+    repomixExtra?: string;
+    dedupExtra?: string;
+    configExtra?: string;
+    sections?: string;
+  } = {},
+): string {
   const {
     repomixExtra = "",
     dedupExtra = "",
@@ -230,7 +232,9 @@ async function writeCxToml(dir: string, content: string): Promise<string> {
 
 describe("behavioral settings — precedence chain", () => {
   test("compiled default is used when no env or file value is set", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-behavior-default-"));
+    const dir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-behavior-default-"),
+    );
     const configPath = await writeCxToml(dir, buildToml());
     const config = await loadCxConfig(configPath, {});
     expect(config.dedup.mode).toBe("fail");
@@ -353,7 +357,9 @@ describe("behavioral settings — duplicate pattern detection", () => {
         sections: `[sections.src]\ninclude = ["src/**", "src/**", "lib/**"]\nexclude = []\n`,
       }),
     );
-    const config = await loadCxConfig(configPath, { configDuplicateEntry: "first-wins" });
+    const config = await loadCxConfig(configPath, {
+      configDuplicateEntry: "first-wins",
+    });
     expect(config.sections.src?.include).toEqual(["src/**", "lib/**"]);
   });
 
@@ -365,7 +371,9 @@ describe("behavioral settings — duplicate pattern detection", () => {
         sections: `[sections.src]\ninclude = ["src/**", "src/**"]\nexclude = []\n`,
       }),
     );
-    const config = await loadCxConfig(configPath, { configDuplicateEntry: "warn" });
+    const config = await loadCxConfig(configPath, {
+      configDuplicateEntry: "warn",
+    });
     expect(config.sections.src?.include).toEqual(["src/**"]);
   });
 
@@ -377,7 +385,9 @@ describe("behavioral settings — duplicate pattern detection", () => {
         sections: `[sections.src]\ninclude = ["src/**", "lib/**"]\nexclude = []\n`,
       }),
     );
-    const config = await loadCxConfig(configPath, { configDuplicateEntry: "fail" });
+    const config = await loadCxConfig(configPath, {
+      configDuplicateEntry: "fail",
+    });
     expect(config.sections.src?.include).toEqual(["src/**", "lib/**"]);
   });
 

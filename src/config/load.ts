@@ -282,7 +282,9 @@ function resolveCategory<T>(params: {
       process.env.CX_STRICT === "true" || process.env.CX_STRICT === "1"
         ? "CX_STRICT"
         : "env var";
-    process.stderr.write(`Info: ${label}="${String(envValue)}" (from ${source})\n`);
+    process.stderr.write(
+      `Info: ${label}="${String(envValue)}" (from ${source})\n`,
+    );
     return { value: envValue, source };
   }
 

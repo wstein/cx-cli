@@ -76,6 +76,12 @@ Preview the deterministic plan before writing anything:
 cx inspect --config cx.toml
 ```
 
+If you want to see which section is carrying the most token budget, use:
+
+```bash
+cx inspect --config cx.toml --token-breakdown
+```
+
 Build the bundle:
 
 ```bash
@@ -130,6 +136,8 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx adapter ...` | Inspect Repomix adapter capabilities and compatibility |
 
 Every command supports `--json` for machine consumption.
+
+> For even faster discoverability, see the `cx inspect --token-breakdown` example in the Quick Start section above.
 
 ## The Important Failure Model
 

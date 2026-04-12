@@ -17,7 +17,7 @@ const CORPUS = [
   "The quick brown fox jumps over the lazy dog.",
   "const emoji = '😀';",
   "export function greet(name: string): string {",
-  "  return `hello, ${name}`;",
+  "  return `hello, " + "$" + "{name}" + "`;",
   "}",
 ].join("\n");
 

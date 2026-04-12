@@ -279,7 +279,11 @@ exclude = []
       "export const ok = 1;\n",
       "utf8",
     );
-    await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "docs", "guide.md"),
+      "# Guide\n",
+      "utf8",
+    );
     await fs.writeFile(
       path.join(root, "cx.toml"),
       `schema_version = 1
@@ -346,13 +350,12 @@ exclude = []
 
     expect(payload.summary?.sectionCount).toBe(2);
     expect(payload.tokenBreakdown?.totalTokenCount).toBeGreaterThan(0);
-    expect(payload.tokenBreakdown?.sections?.map((section) => section.name)).toEqual([
-      "docs",
-      "src",
-    ]);
-    expect(payload.tokenBreakdown?.sections?.every((section) => section.bar)).toBe(
-      true,
-    );
+    expect(
+      payload.tokenBreakdown?.sections?.map((section) => section.name),
+    ).toEqual(["docs", "src"]);
+    expect(
+      payload.tokenBreakdown?.sections?.every((section) => section.bar),
+    ).toBe(true);
   });
 
   test("list JSON reads display settings from the user config", async () => {

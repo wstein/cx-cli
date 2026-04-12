@@ -29,6 +29,10 @@ interface TokenBreakdown {
   sections: SectionTokenBreakdown[];
 }
 
+function formatChecksumPrefix(checksum: string | undefined): string {
+  return checksum ? `${checksum.slice(0, 8)}…` : "unknown";
+}
+
 function buildInspectSummary(
   plan: Awaited<ReturnType<typeof buildBundlePlan>>,
 ) {
@@ -140,6 +144,8 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       status: string;
       reason: string;
       message: string;
+      expectedSha256?: string;
+      actualSha256?: string;
     }
   >();
 
@@ -162,14 +168,28 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
         rows: manifest.files,
       });
       extractabilityByPath = new Map(
-        resolution.records.map((record) => [
-          record.path,
-          {
+        resolution.records.map((record) => {
+          const extractability = {
             status: record.status,
             reason: record.reason,
             message: record.message,
-          },
-        ]),
+          } as {
+            status: string;
+            reason: string;
+            message: string;
+            expectedSha256?: string;
+            actualSha256?: string;
+          };
+
+          if (record.expectedSha256 !== undefined) {
+            extractability.expectedSha256 = record.expectedSha256;
+          }
+          if (record.actualSha256 !== undefined) {
+            extractability.actualSha256 = record.actualSha256;
+          }
+
+          return [record.path, extractability] as const;
+        }),
       );
       bundleComparison = {
         available: true,
@@ -224,7 +244,9 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       ...section.files.map((file) => {
         const record = extractabilityByPath.get(file.relativePath);
         const suffix =
-          record && record.status !== "intact" ? ` (${record.reason})` : "";
+          record && record.status !== "intact"
+            ? ` (${record.reason}; expected ${formatChecksumPrefix(record.expectedSha256)} got ${formatChecksumPrefix(record.actualSha256)})`
+            : "";
         const status = (record?.status ?? "unknown").padEnd(8);
         return `  ${status} ${file.relativePath}${suffix}`;
       }),

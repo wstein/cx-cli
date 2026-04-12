@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { parseChecksumFile } from "../manifest/checksums.js";
+import { lockFileName } from "../manifest/lock.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
-import { lockFileName } from "../manifest/lock.js";
 import {
   selectManifestRows,
   type VerifySelection,

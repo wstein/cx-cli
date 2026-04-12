@@ -572,6 +572,57 @@ include_source_metadata = true`;
     expect(inspectPayload.bundleComparison?.available).toBe(true);
   });
 
+  test("includes checksum prefixes in inspect JSON for degraded files", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await fs.writeFile(
+        project.configPath,
+        (await fs.readFile(project.configPath, "utf8")).replace(
+          "show_line_numbers = false",
+          "show_line_numbers = true",
+        ),
+        "utf8",
+      );
+
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      expect(
+        await runInspectCommand({ config: project.configPath, json: true }),
+      ).toBe(0);
+    } finally {
+      process.stdout.write = stdoutWrite;
+    }
+
+    const payload = JSON.parse(writes.pop() ?? "{}") as {
+      sections?: Array<{
+        files?: Array<{
+          relativePath?: string;
+          extractability?: {
+            status?: string;
+            reason?: string;
+            expectedSha256?: string;
+            actualSha256?: string;
+          } | null;
+        }>;
+      }>;
+    };
+
+    const degradedFile = payload.sections
+      ?.flatMap((section) => section.files ?? [])
+      .find((file) => file.relativePath === "src/index.ts");
+
+    expect(degradedFile?.extractability?.status).toBe("degraded");
+    expect(degradedFile?.extractability?.reason).toBe("manifest_hash_mismatch");
+    expect(degradedFile?.extractability?.expectedSha256).toBeDefined();
+    expect(degradedFile?.extractability?.actualSha256).toBeDefined();
+  });
+
   test("renders human inspect output with bundle status vocabulary", async () => {
     const project = await createProject();
     const writes: string[] = [];
@@ -591,6 +642,38 @@ include_source_metadata = true`;
     expect(output).toContain("bundle_status: available");
     expect(output).toContain("intact   src/index.ts");
     expect(output).toContain("copied   logo.png");
+  });
+
+  test("shows checksum prefixes in degraded inspect output", async () => {
+    const project = await createProject();
+    const writes: string[] = [];
+    const stdoutWrite = process.stdout.write;
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      writes.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await fs.writeFile(
+        project.configPath,
+        (await fs.readFile(project.configPath, "utf8")).replace(
+          "show_line_numbers = false",
+          "show_line_numbers = true",
+        ),
+        "utf8",
+      );
+
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      expect(
+        await runInspectCommand({ config: project.configPath, json: false }),
+      ).toBe(0);
+    } finally {
+      process.stdout.write = stdoutWrite;
+    }
+
+    const output = writes.join("");
+    expect(output).toContain("manifest_hash_mismatch");
+    expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
   });
 
   test("renders token breakdown histogram when requested", async () => {

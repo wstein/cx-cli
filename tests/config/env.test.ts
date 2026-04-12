@@ -134,7 +134,11 @@ describe("setCLIOverrides / getCLIOverrides", () => {
   });
 
   test("setCLIOverrides / getCLIOverrides roundtrip", () => {
-    setCLIOverrides({ dedupMode: "fail", repomixMissingExtension: "fail", configDuplicateEntry: "fail" });
+    setCLIOverrides({
+      dedupMode: "fail",
+      repomixMissingExtension: "fail",
+      configDuplicateEntry: "fail",
+    });
     const overrides = getCLIOverrides();
     expect(overrides.dedupMode).toBe("fail");
     expect(overrides.repomixMissingExtension).toBe("fail");

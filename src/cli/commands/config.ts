@@ -1,9 +1,12 @@
 import {
+  DEFAULT_BEHAVIOR_VALUES,
+  DEFAULT_CONFIG_VALUES,
+} from "../../config/defaults.js";
+import {
+  type CxEnvOverrides,
   getCLIOverrides,
   readEnvOverrides,
-  type CxEnvOverrides,
 } from "../../config/env.js";
-import { DEFAULT_BEHAVIOR_VALUES, DEFAULT_CONFIG_VALUES } from "../../config/defaults.js";
 import { loadCxConfig } from "../../config/load.js";
 import type {
   CxConfigDuplicateEntryMode,
@@ -75,7 +78,9 @@ function resolveSource<T>(params: {
  * We infer this from the CLI overrides: --strict sets all to "fail",
  * --lenient sets all to "warn".
  */
-function cliMode(cliOverrides: CxEnvOverrides): "--strict" | "--lenient" | null {
+function cliMode(
+  cliOverrides: CxEnvOverrides,
+): "--strict" | "--lenient" | null {
   const { dedupMode, repomixMissingExtension, configDuplicateEntry } =
     cliOverrides;
 
@@ -109,7 +114,9 @@ export async function runConfigCommand(options: {
   const activeCLIMode = cliMode(cliOverrides);
 
   let dedupModeFromFile: CxDedupMode | undefined;
-  let repomixMissingExtensionFromFile: CxRepomixMissingExtensionMode | undefined;
+  let repomixMissingExtensionFromFile:
+    | CxRepomixMissingExtensionMode
+    | undefined;
   let configDuplicateEntryFromFile: CxConfigDuplicateEntryMode | undefined;
 
   if (configExists) {
@@ -122,7 +129,7 @@ export async function runConfigCommand(options: {
     } catch (error: unknown) {
       if (options.json) {
         process.stdout.write(
-          JSON.stringify({ error: asError(error).message }, null, 2) + "\n",
+          `${JSON.stringify({ error: asError(error).message }, null, 2)}\n`,
         );
       } else {
         process.stderr.write(`Error: ${asError(error).message}\n`);
@@ -163,7 +170,7 @@ export async function runConfigCommand(options: {
 
   if (options.json) {
     process.stdout.write(
-      JSON.stringify(
+      `${JSON.stringify(
         {
           configFile: configExists ? options.config : null,
           cxStrict: envStrict,
@@ -176,7 +183,7 @@ export async function runConfigCommand(options: {
         },
         null,
         2,
-      ) + "\n",
+      )}\n`,
     );
     return 0;
   }

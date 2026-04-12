@@ -92,9 +92,24 @@ export interface CxBehaviorConfig {
 
 /** The source from which each Category B behavioral setting was resolved. */
 export interface CxBehaviorSources {
-  dedupMode: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
-  repomixMissingExtension: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
-  configDuplicateEntry: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
+  dedupMode:
+    | "compiled default"
+    | "cx.toml"
+    | "env var"
+    | "CX_STRICT"
+    | "cli flag";
+  repomixMissingExtension:
+    | "compiled default"
+    | "cx.toml"
+    | "env var"
+    | "CX_STRICT"
+    | "cli flag";
+  configDuplicateEntry:
+    | "compiled default"
+    | "cx.toml"
+    | "env var"
+    | "CX_STRICT"
+    | "cli flag";
 }
 
 export interface CxConfig {

@@ -7,9 +7,9 @@ import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
 import {
+  type CxLockFile,
   lockFileName,
   writeLock,
-  type CxLockFile,
 } from "../../manifest/lock.js";
 import type {
   SectionSpanMaps,

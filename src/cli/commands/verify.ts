@@ -1,22 +1,21 @@
 import path from "node:path";
-
+import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { loadCxConfig } from "../../config/load.js";
 import {
   diffLockSettings,
-  readLock,
   type LockSettingMismatch,
+  readLock,
 } from "../../manifest/lock.js";
-import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
-import { pathExists } from "../../shared/fs.js";
 import {
   printDivider,
   printHeader,
   printSuccess,
   printTable,
 } from "../../shared/format.js";
+import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface VerifyArgs {
@@ -33,7 +32,9 @@ export interface VerifyArgs {
  * Read the project name from the bundle directory so we can load the lock file
  * without requiring a full config load.
  */
-async function readProjectNameFromBundle(bundleDir: string): Promise<string | null> {
+async function readProjectNameFromBundle(
+  bundleDir: string,
+): Promise<string | null> {
   try {
     const { manifest } = await loadManifestFromBundle(bundleDir);
     return manifest.projectName;
@@ -46,9 +47,7 @@ async function readProjectNameFromBundle(bundleDir: string): Promise<string | nu
  * Build the current behavioral settings snapshot from the loaded config.
  * Falls back to env/CLI-only when no config file is available.
  */
-async function buildCurrentSnapshot(
-  configPath: string,
-): Promise<{
+async function buildCurrentSnapshot(configPath: string): Promise<{
   dedupMode: { value: string; source: string };
   repomixMissingExtension: { value: string; source: string };
   configDuplicateEntry: { value: string; source: string };

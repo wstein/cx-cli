@@ -5,8 +5,8 @@ import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
 import { asError, CxError } from "../shared/errors.js";
 import { runAdapterCommand } from "./commands/adapter.js";
-import { runConfigCommand } from "./commands/config.js";
 import { runBundleCommand } from "./commands/bundle.js";
+import { runConfigCommand } from "./commands/config.js";
 import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
@@ -130,8 +130,7 @@ export async function main(argv: string[]): Promise<number> {
           .option("token-breakdown", {
             type: "boolean",
             default: false,
-            description:
-              "Show per-section token distribution as a bar chart.",
+            description: "Show per-section token distribution as a bar chart.",
           }),
       async (args) => {
         exitCode = await runInspectCommand({

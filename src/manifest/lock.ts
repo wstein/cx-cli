@@ -79,7 +79,7 @@ export async function writeLock(
 ): Promise<void> {
   await fs.writeFile(
     path.join(bundleDir, lockFileName(projectName)),
-    JSON.stringify(lockFile, null, 2) + "\n",
+    `${JSON.stringify(lockFile, null, 2)}\n`,
     "utf8",
   );
 }

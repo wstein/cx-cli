@@ -30,14 +30,14 @@ async function createFixture(): Promise<string> {
   );
   await fs.writeFile(
     path.join(root, "schemas", "manifest-v4.schema.json"),
-    "{\"$schema\": \"https://json-schema.org/draft/2020-12/schema\"}\n",
+    '{"$schema": "https://json-schema.org/draft/2020-12/schema"}\n',
     "utf8",
   );
   await fs.writeFile(path.join(root, "package.json"), "{}\n", "utf8");
   await fs.writeFile(path.join(root, "biome.json"), "{}\n", "utf8");
   await fs.writeFile(
     path.join(root, "cx.toml"),
-    "schema_version = 1\nproject_name = \"demo\"\n",
+    'schema_version = 1\nproject_name = "demo"\n',
     "utf8",
   );
   await fs.writeFile(
@@ -46,11 +46,7 @@ async function createFixture(): Promise<string> {
     "utf8",
   );
   await fs.writeFile(path.join(root, "tsconfig.json"), "{}\n", "utf8");
-  await fs.writeFile(
-    path.join(root, "tsconfig.test.json"),
-    "{}\n",
-    "utf8",
-  );
+  await fs.writeFile(path.join(root, "tsconfig.test.json"), "{}\n", "utf8");
   await fs.writeFile(
     path.join(root, "bin", "cx.js"),
     "#!/usr/bin/env node\n",
