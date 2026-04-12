@@ -36,6 +36,8 @@ interface RowMeta {
     status: "intact" | "copied" | "degraded" | "blocked";
     reason: string;
     message: string;
+    expectedSha256?: string;
+    actualSha256?: string;
   };
 }
 
@@ -284,6 +286,8 @@ export async function runListCommand(args: ListArgs): Promise<number> {
         message:
           record?.message ??
           `No extractability record was produced for ${file.path}.`,
+        expectedSha256: record?.expectedSha256,
+        actualSha256: record?.actualSha256,
       },
     };
   });

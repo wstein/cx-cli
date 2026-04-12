@@ -51,12 +51,16 @@ function isExtractResolutionError(
 }
 
 const DIFF_HINTS: Record<string, string> = {
-  manifest_hash_mismatch:
-    "content differs from manifest hash — pass --allow-degraded to write approximate content",
-  missing_from_section_output: "file not found in section output",
-  section_parse_failed: "section could not be parsed",
+  manifest_hash_mismatch: "hash mismatch",
+  missing_from_section_output: "not found in section output",
+  section_parse_failed: "section parse error",
   asset_copy: "asset copied directly",
 };
+
+/** Format checksum prefix (first 8 chars) for display. */
+function formatChecksumPrefix(checksum: string | undefined): string {
+  return checksum ? checksum.slice(0, 8) : "—";
+}
 
 function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
   const header = `\nEXTRACTION ERRORS (${files.length} file${files.length === 1 ? "" : "s"} cannot be recovered exactly)\n`;
@@ -74,7 +78,16 @@ function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
   process.stderr.write(sep);
 
   for (const file of files) {
-    const hint = DIFF_HINTS[file.reason] ?? file.message;
+    let hint = DIFF_HINTS[file.reason] ?? file.message;
+    if (
+      file.reason === "manifest_hash_mismatch" &&
+      file.expectedSha256 &&
+      file.actualSha256
+    ) {
+      const expected = formatChecksumPrefix(file.expectedSha256);
+      const actual = formatChecksumPrefix(file.actualSha256);
+      hint = `expected ${expected}… got ${actual}…`;
+    }
     process.stderr.write(
       `  ${pad(file.path, pathW)}  ${pad(file.status, statusW)}  ${hint}\n`,
     );
