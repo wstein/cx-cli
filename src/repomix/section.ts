@@ -32,6 +32,7 @@ export async function renderSection(
       style: params.style,
       sourceRoot: params.sourceRoot,
       outputPath,
+      sectionName: params.section,
       explicitFiles: params.files,
     });
 

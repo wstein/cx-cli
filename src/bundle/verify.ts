@@ -92,6 +92,7 @@ export async function verifyBundle(
   const lock = lockFileName(manifest.projectName);
   const expectedFiles = new Set([
     manifestName,
+    ...(manifest.bundleIndexFile ? [manifest.bundleIndexFile] : []),
     ...selectedSections.map((section) => section.outputFile),
     ...selectedAssets.map((asset) => asset.storedPath),
     // Include the lock file only when present — older bundles do not have one.

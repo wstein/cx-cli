@@ -62,6 +62,7 @@ export interface CxManifest {
   sourceRoot: string;
   bundleDir: string;
   checksumFile: string;
+  bundleIndexFile?: string;
   createdAt: string;
   cxVersion: string;
   repomixVersion: string;

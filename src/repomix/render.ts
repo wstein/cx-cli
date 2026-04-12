@@ -6,6 +6,7 @@ import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
 import { countTokensForFiles } from "../shared/tokens.js";
+import { buildSectionHeaderText } from "./handover.js";
 import {
   detectRepomixCapabilities,
   getAdapterModulePath,
@@ -161,7 +162,9 @@ export async function renderSectionWithRepomix(params: {
   style: CxStyle;
   sourceRoot: string;
   outputPath: string;
+  sectionName: string;
   explicitFiles: string[];
+  bundleIndexFile?: string;
 }): Promise<RenderSectionResult> {
   await assertCompatibleRepomixAdapter();
 
@@ -185,6 +188,17 @@ export async function renderSectionWithRepomix(params: {
       filePath: params.outputPath,
       style: params.style,
       parsableStyle: params.style === "json",
+      headerText: buildSectionHeaderText({
+        projectName: params.config.projectName,
+        sectionName: params.sectionName,
+        outputFile:
+          path.basename(params.outputPath) === "output"
+            ? undefined
+            : path.basename(params.outputPath),
+        fileCount: params.explicitFiles.length,
+        style: params.style,
+        bundleIndexFile: params.bundleIndexFile,
+      }),
       fileSummary: true,
       directoryStructure: true,
       files: true,

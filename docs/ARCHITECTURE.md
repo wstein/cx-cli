@@ -62,7 +62,13 @@ Each section is rendered as one Repomix-compatible output file in the configured
 - `json`
 - `plain`
 
+`cx` also supplies a section-specific Repomix header through the documented `output.headerText` option so the file itself carries cx-oriented handover context without post-processing the generated output.
+
 The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file.
+
+### 4. Shared handover index
+
+`cx bundle` writes a bundle-level index file alongside the section outputs. The index is meant to travel with the section files when multiple outputs are handed over together, so the shared context is externalized without breaking the self-contained section files.
 
 ### 4. Manifest build
 
@@ -71,6 +77,7 @@ The renderer also reports output token counts. If the adapter supports exact spa
 - bundle identity and versions
 - source root and bundle directory
 - checksum algorithm
+- the shared bundle index filename
 - section outputs
 - copied assets
 - per-file token counts

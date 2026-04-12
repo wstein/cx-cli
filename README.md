@@ -22,6 +22,7 @@ The strictness is the feature. If a file lands in two sections, if a checksum do
 
 - Deterministic file discovery and section planning
 - One Repomix-compatible render per section
+- A shared bundle index artifact for multi-file handover
 - Persistent token accounting stored in the manifest
 - Optional absolute output spans per file when the active adapter supports them
 - SHA-256 checksums for every emitted artifact

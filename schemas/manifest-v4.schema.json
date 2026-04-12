@@ -49,6 +49,11 @@
       "type": "string",
       "minLength": 1
     },
+    "bundleIndexFile": {
+      "description": "Filename of the shared bundle index artifact (relative to bundleDir).",
+      "type": "string",
+      "minLength": 1
+    },
     "createdAt": {
       "description": "ISO 8601 timestamp at which the bundle was created.",
       "type": "string",

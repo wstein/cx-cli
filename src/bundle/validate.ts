@@ -56,6 +56,16 @@ export async function validateBundle(
     }
   }
 
+  if (
+    manifest.bundleIndexFile &&
+    !(await pathExists(path.join(bundleDir, manifest.bundleIndexFile)))
+  ) {
+    throw new CxError(
+      `Bundle is missing bundle index ${manifest.bundleIndexFile}.`,
+      2,
+    );
+  }
+
   for (const asset of manifest.assets) {
     if (!(await pathExists(path.join(bundleDir, asset.storedPath)))) {
       throw new CxError(`Bundle is missing asset ${asset.storedPath}.`, 2);

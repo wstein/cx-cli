@@ -71,6 +71,7 @@ cx bundle --config cx.toml
 This writes:
 
 - one rendered output per section
+- a shared bundle index file for multi-file handover
 - copied assets
 - `{project}-manifest.json`
 - `{project}-lock.json`

@@ -146,6 +146,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
     sourceRoot: nonEmptyString,
     bundleDir: nonEmptyString,
     checksumFile: nonEmptyString,
+    bundleIndexFile: fc.option(nonEmptyString).map((value) => value ?? undefined),
     createdAt: isoTimestamp,
     cxVersion: nonEmptyString,
     repomixVersion: nonEmptyString,
@@ -175,6 +176,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       sourceRoot: fields.sourceRoot,
       bundleDir: fields.bundleDir,
       checksumFile: fields.checksumFile,
+      bundleIndexFile: fields.bundleIndexFile,
       createdAt: fields.createdAt,
       cxVersion: fields.cxVersion,
       repomixVersion: fields.repomixVersion,
@@ -220,6 +222,7 @@ describe("manifest round-trip (property-based)", () => {
         expect(recovered.sourceRoot).toBe(manifest.sourceRoot);
         expect(recovered.bundleDir).toBe(manifest.bundleDir);
         expect(recovered.checksumFile).toBe(manifest.checksumFile);
+        expect(recovered.bundleIndexFile).toBe(manifest.bundleIndexFile);
         expect(recovered.createdAt).toBe(manifest.createdAt);
         expect(recovered.cxVersion).toBe(manifest.cxVersion);
         expect(recovered.repomixVersion).toBe(manifest.repomixVersion);

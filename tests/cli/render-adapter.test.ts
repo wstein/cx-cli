@@ -88,6 +88,7 @@ describe("render command", () => {
     }
 
     const output = writes.join("");
+    expect(output).toContain("cx section handover");
     expect(output).toContain("<file");
     expect(output).toContain("index.ts");
   });

@@ -199,6 +199,15 @@ describe("bundle workflow", () => {
     expect(listWrites.join("")).toContain("docs");
     expect(listWrites.join("")).toContain("status");
     expect(listWrites.join("")).not.toContain("kind\tsection\tstored_in");
+    const bundleIndexPath = path.join(
+      project.bundleDir,
+      "demo-bundle-index.txt",
+    );
+    expect(await fs.stat(bundleIndexPath)).toBeDefined();
+    const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
+    expect(bundleIndex).toContain("cx bundle index");
+    expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
+    expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),
     ).toBeDefined();

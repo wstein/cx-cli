@@ -36,6 +36,7 @@ interface ManifestDto {
   sourceRoot: string;
   bundleDir: string;
   checksumFile: string;
+  bundleIndexFile?: string;
   createdAt: string;
   cxVersion: string;
   repomixVersion: string;
@@ -186,6 +187,10 @@ function parseManifestDto(raw: unknown): {
     sourceRoot: requireString(obj.sourceRoot, "sourceRoot"),
     bundleDir: requireString(obj.bundleDir, "bundleDir"),
     checksumFile: requireString(obj.checksumFile, "checksumFile"),
+    bundleIndexFile:
+      obj.bundleIndexFile === undefined
+        ? undefined
+        : requireString(obj.bundleIndexFile, "bundleIndexFile"),
     createdAt: requireString(obj.createdAt, "createdAt"),
     cxVersion: requireString(obj.cxVersion, "cxVersion"),
     repomixVersion: requireString(obj.repomixVersion, "repomixVersion"),
@@ -234,6 +239,7 @@ export function renderManifestJson(
     sourceRoot: manifest.sourceRoot,
     bundleDir: manifest.bundleDir,
     checksumFile: manifest.checksumFile,
+    bundleIndexFile: manifest.bundleIndexFile,
     createdAt: manifest.createdAt,
     cxVersion: manifest.cxVersion,
     repomixVersion: manifest.repomixVersion,
@@ -315,6 +321,7 @@ export function parseManifestJson(source: string): CxManifest {
     sourceRoot: dto.sourceRoot,
     bundleDir: dto.bundleDir,
     checksumFile: dto.checksumFile,
+    bundleIndexFile: dto.bundleIndexFile,
     createdAt: dto.createdAt,
     cxVersion: dto.cxVersion,
     repomixVersion: dto.repomixVersion,

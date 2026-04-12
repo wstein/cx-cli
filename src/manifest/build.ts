@@ -14,6 +14,7 @@ export function buildManifest(params: {
   config: CxConfig;
   plan: BundlePlan;
   sectionOutputs: SectionOutputRecord[];
+  bundleIndexFile?: string;
   cxVersion: string;
   repomixVersion: string;
   sectionSpanMaps?: SectionSpanMaps;
@@ -67,6 +68,7 @@ export function buildManifest(params: {
     sourceRoot: params.plan.sourceRoot,
     bundleDir: params.plan.bundleDir,
     checksumFile: params.plan.checksumFile,
+    bundleIndexFile: params.bundleIndexFile,
     createdAt: new Date().toISOString(),
     cxVersion: params.cxVersion,
     repomixVersion: params.repomixVersion,

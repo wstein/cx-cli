@@ -21,6 +21,7 @@ import {
   getRepomixCapabilities,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
+import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
   formatBytes,
   formatNumber,
@@ -55,6 +56,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const sectionSpanMaps: SectionSpanMaps = new Map();
   const sectionTokenMaps: SectionTokenMaps = new Map();
   const renderWarnings: string[] = [];
+  const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
 
   for (const section of plan.sections) {
     const outputPath = path.join(plan.bundleDir, section.outputFile);
@@ -63,7 +65,9 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       style: section.style,
       sourceRoot: plan.sourceRoot,
       outputPath,
+      sectionName: section.name,
       explicitFiles: section.files.map((file) => file.absolutePath),
+      bundleIndexFile,
     });
     renderWarnings.push(...renderResult.warnings);
     const totalSectionBytes = section.files.reduce(
@@ -90,10 +94,24 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     }
   }
 
+  await fs.writeFile(
+    path.join(plan.bundleDir, bundleIndexFile),
+    buildBundleIndexText({
+      projectName: plan.projectName,
+      sectionOutputs,
+      assetPaths: plan.assets.map((asset) => ({
+        sourcePath: asset.relativePath,
+        storedPath: asset.storedPath,
+      })),
+    }),
+    "utf8",
+  );
+
   const manifest = buildManifest({
     config,
     plan,
     sectionOutputs,
+    bundleIndexFile,
     cxVersion: CX_VERSION,
     repomixVersion: (await getRepomixCapabilities()).packageVersion,
     sectionSpanMaps,
@@ -132,6 +150,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   await writeChecksumFile(plan.bundleDir, plan.checksumFile, [
     manifestName,
     lockFileName(plan.projectName),
+    bundleIndexFile,
     ...plan.sections.map((section) => section.outputFile),
     ...plan.assets.map((asset) => asset.storedPath),
   ]);
@@ -162,6 +181,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     printTable([
       ["Project", plan.projectName],
       ["Location", plan.bundleDir],
+      ["Handover index", bundleIndexFile],
     ]);
     printDivider();
     printTable([
@@ -201,6 +221,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       bundleDir: plan.bundleDir,
       manifestName: `${plan.projectName}-manifest.json`,
       checksumFile: plan.checksumFile,
+      bundleIndexFile,
       sections: sectionOutputs,
       sectionCount: plan.sections.length,
       assetCount: plan.assets.length,
