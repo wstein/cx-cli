@@ -227,6 +227,17 @@ export async function renderSectionWithRepomix(params: {
   const mergedConfig = mergeConfigs(params.sourceRoot, {}, cliConfig);
   const warnings: string[] = [];
 
+  if (!capabilities.supportsPackStructured) {
+    const message =
+      "Repomix adapter is missing the cx extension (packStructured). Install @wsmy/repomix-cx-fork or set repomix.missing_extension=warn to degrade gracefully.";
+
+    if (params.config.behavior.repomixMissingExtension === "fail") {
+      throw new CxError(message, 5);
+    }
+
+    emitWarning(message);
+  }
+
   if (capabilities.supportsPackStructured && packStructured) {
     const structuredPlan = await packStructured(
       [params.sourceRoot],

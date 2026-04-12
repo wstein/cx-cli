@@ -63,6 +63,13 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     if (conflict) {
       throw new CxError(formatOverlapConflictMessage(conflict), 4);
     }
+  } else if (config.dedup.mode === "warn") {
+    const conflicts = await analyzeSectionOverlaps(config);
+    for (const conflict of conflicts) {
+      process.stderr.write(
+        `Warning: ${formatOverlapConflictMessage(conflict)}\n`,
+      );
+    }
   }
 
   const assetIncludeMatchers = compileMatchers(config.assets.include);
