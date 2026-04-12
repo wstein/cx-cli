@@ -13,6 +13,7 @@ import {
 import { assertSafeProjectName } from "./projectName.js";
 import type {
   CxBehaviorConfig,
+  CxBehaviorSources,
   CxConfig,
   CxConfigDuplicateEntryMode,
   CxConfigInput,
@@ -247,6 +248,8 @@ function resolveConfigPath(
   return path.resolve(configDir, expanded);
 }
 
+type BehaviorSource = CxBehaviorSources[keyof CxBehaviorSources];
+
 /**
  * Resolve a single Category B setting by applying the precedence chain:
  *   cli flag > env var > cx.toml value > compiled default
@@ -254,6 +257,9 @@ function resolveConfigPath(
  * Logs the resolved source at Info level to stderr for pipeline auditability.
  * The log is suppressed when the value comes from the compiled default to
  * avoid noise in the common case where no overrides are active.
+ *
+ * Returns both the resolved value and its source so callers can record the
+ * source in the lock file and show-effective output.
  */
 function resolveCategory<T>(params: {
   label: string;
@@ -261,29 +267,33 @@ function resolveCategory<T>(params: {
   envValue: T | undefined;
   fileValue: T | undefined;
   defaultValue: T;
-}): T {
+}): { value: T; source: BehaviorSource } {
   const { label, cliValue, envValue, fileValue, defaultValue } = params;
 
   if (cliValue !== undefined) {
     process.stderr.write(
       `Info: ${label}="${String(cliValue)}" (from cli flag)\n`,
     );
-    return cliValue;
+    return { value: cliValue, source: "cli flag" };
   }
 
   if (envValue !== undefined) {
-    process.stderr.write(`Info: ${label}="${String(envValue)}" (from env var)\n`);
-    return envValue;
+    const source: BehaviorSource =
+      process.env.CX_STRICT === "true" || process.env.CX_STRICT === "1"
+        ? "CX_STRICT"
+        : "env var";
+    process.stderr.write(`Info: ${label}="${String(envValue)}" (from ${source})\n`);
+    return { value: envValue, source };
   }
 
   if (fileValue !== undefined) {
     process.stderr.write(
       `Info: ${label}="${String(fileValue)}" (from cx.toml)\n`,
     );
-    return fileValue;
+    return { value: fileValue, source: "cx.toml" };
   }
 
-  return defaultValue;
+  return { value: defaultValue, source: "compiled default" };
 }
 
 /**
@@ -365,7 +375,7 @@ export async function loadCxConfig(
         )
       : undefined;
 
-  const dedupMode = resolveCategory({
+  const dedupResolved = resolveCategory({
     label: "dedup.mode",
     cliValue: cliOverrides.dedupMode,
     envValue: envOverrides.dedupMode,
@@ -383,7 +393,7 @@ export async function loadCxConfig(
         )
       : undefined;
 
-  const repomixMissingExtension = resolveCategory({
+  const repomixMissingResolved = resolveCategory({
     label: "repomix.missing_extension",
     cliValue: cliOverrides.repomixMissingExtension,
     envValue: envOverrides.repomixMissingExtension,
@@ -401,7 +411,7 @@ export async function loadCxConfig(
         )
       : undefined;
 
-  const configDuplicateEntry = resolveCategory({
+  const configDuplicateResolved = resolveCategory({
     label: "config.duplicate_entry",
     cliValue: cliOverrides.configDuplicateEntry,
     envValue: envOverrides.configDuplicateEntry,
@@ -410,8 +420,14 @@ export async function loadCxConfig(
   });
 
   const behavior: CxBehaviorConfig = {
-    repomixMissingExtension,
-    configDuplicateEntry,
+    repomixMissingExtension: repomixMissingResolved.value,
+    configDuplicateEntry: configDuplicateResolved.value,
+  };
+
+  const behaviorSources: CxBehaviorSources = {
+    dedupMode: dedupResolved.source,
+    repomixMissingExtension: repomixMissingResolved.source,
+    configDuplicateEntry: configDuplicateResolved.source,
   };
 
   // --- Sections ---
@@ -426,7 +442,7 @@ export async function loadCxConfig(
     sections[sectionName] = normalizeSection(
       sectionName,
       sectionValue,
-      configDuplicateEntry,
+      configDuplicateResolved.value,
     );
   }
 
@@ -439,7 +455,7 @@ export async function loadCxConfig(
       DEFAULT_CONFIG_VALUES.files.exclude,
     ),
     "files.exclude",
-    configDuplicateEntry,
+    configDuplicateResolved.value,
   );
 
   const assetsInclude = deduplicatePatterns(
@@ -449,7 +465,7 @@ export async function loadCxConfig(
       DEFAULT_CONFIG_VALUES.assets.include,
     ),
     "assets.include",
-    configDuplicateEntry,
+    configDuplicateResolved.value,
   );
 
   const assetsExclude = deduplicatePatterns(
@@ -459,7 +475,7 @@ export async function loadCxConfig(
       DEFAULT_CONFIG_VALUES.assets.exclude,
     ),
     "assets.exclude",
-    configDuplicateEntry,
+    configDuplicateResolved.value,
   );
 
   return {
@@ -505,7 +521,7 @@ export async function loadCxConfig(
       ),
     },
     dedup: {
-      mode: dedupMode,
+      mode: dedupResolved.value,
       order: expectEnum(
         dedup.order,
         "dedup.order",
@@ -575,6 +591,7 @@ export async function loadCxConfig(
       ),
     },
     behavior,
+    behaviorSources,
     sections,
   };
 }

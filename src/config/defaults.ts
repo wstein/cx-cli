@@ -62,7 +62,7 @@ exclude = []
 
 export const DEFAULT_CONFIG_VALUES: Omit<
   CxConfig,
-  "schemaVersion" | "projectName" | "sourceRoot" | "outputDir" | "sections"
+  "schemaVersion" | "projectName" | "sourceRoot" | "outputDir" | "sections" | "behaviorSources"
 > = {
   repomix: {
     style: "xml",

@@ -90,6 +90,13 @@ export interface CxBehaviorConfig {
   configDuplicateEntry: CxConfigDuplicateEntryMode;
 }
 
+/** The source from which each Category B behavioral setting was resolved. */
+export interface CxBehaviorSources {
+  dedupMode: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
+  repomixMissingExtension: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
+  configDuplicateEntry: "compiled default" | "cx.toml" | "env var" | "CX_STRICT" | "cli flag";
+}
+
 export interface CxConfig {
   schemaVersion: 1;
   projectName: string;
@@ -103,6 +110,7 @@ export interface CxConfig {
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
   behavior: CxBehaviorConfig;
+  behaviorSources: CxBehaviorSources;
   sections: Record<string, CxSectionConfig>;
 }
 
