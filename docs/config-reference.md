@@ -1,5 +1,131 @@
 # CX Configuration Reference
 
+## Behavioral Settings
+
+Behavioral settings are Category B settings: configurable behaviors that control
+how `cx` handles common friction points. They are distinct from Category A
+invariants, which are always hard failures and cannot be configured away.
+
+> **Category A invariants — not configurable:**
+>
+> - Section overlap (when `dedup.mode = "fail"`, the compiled default)
+> - Asset collision between a section and an asset rule
+> - Missing core adapter contract (`mergeConfigs` not exported)
+>
+> No env var, TOML key, or CLI flag affects these. They always cause a non-zero exit.
+
+### Precedence chain
+
+Settings are resolved in this order (highest priority first):
+
+```text
+CLI flag > CX_* env var > project cx.toml > compiled default
+```
+
+Every resolved Category B setting is logged at `Info` level to stderr, including
+the source from which it was resolved. This provides an audit trail in CI logs.
+
+### CX_STRICT shorthand
+
+Setting `CX_STRICT=true` (or `CX_STRICT=1`) forces every Category B setting to
+`"fail"`, overriding any `cx.toml` values. It does not affect Category A
+invariants. Use it in CI pipelines for a single assertion point:
+
+```dockerfile
+ENV CX_STRICT=true
+```
+
+`CX_STRICT` takes precedence over all per-area env vars. Per-area vars are
+ignored when `CX_STRICT` is active.
+
+### Settings table
+
+| Setting                       | TOML key                    | Env var                          | Default | Allowed values                |
+| ----------------------------- | --------------------------- | -------------------------------- | ------- | ----------------------------- |
+| Overlap / dedup resolution    | `dedup.mode`                | `CX_DEDUP_MODE`                  | `fail`  | `fail`, `warn`, `first-wins`  |
+| Repomix missing cx extension  | `repomix.missing_extension` | `CX_REPOMIX_MISSING_EXTENSION`   | `warn`  | `fail`, `warn`                |
+| Duplicate config entries      | `config.duplicate_entry`    | `CX_CONFIG_DUPLICATE_ENTRY`      | `fail`  | `fail`, `warn`, `first-wins`  |
+
+**`dedup.mode`** controls what happens when the same source file matches more
+than one section:
+
+- `"fail"` — planning aborts with an actionable error. Use `cx doctor` to
+  resolve the overlap.
+- `"warn"` — conflicts are reported to stderr and planning continues with
+  first-section-wins resolution.
+- `"first-wins"` — conflicts are resolved silently.
+
+**`repomix.missing_extension`** controls what happens when the cx-specific
+Repomix adapter extensions (`packStructured` / `renderWithMap`) are missing
+but the core contract (`mergeConfigs`) is met:
+
+- `"fail"` — rendering aborts with exit 5. Useful for strict CI environments
+  that require full span capture or token-count accuracy.
+- `"warn"` — a warning is emitted and rendering continues using the `pack()`
+  degraded path (default; existing setups are unaffected).
+
+**`config.duplicate_entry`** controls what happens when the same glob pattern
+appears more than once in an `include` or `exclude` array:
+
+- `"fail"` — loading aborts and lists the offending patterns.
+- `"warn"` — a warning is emitted and the array is deduplicated (first
+  occurrence wins).
+- `"first-wins"` — the array is deduplicated silently.
+
+### Example: cx.toml
+
+```toml
+[dedup]
+mode = "warn"                     # overlaps are warnings, not failures
+
+[repomix]
+missing_extension = "fail"        # require the cx adapter extension in CI
+
+[config]
+duplicate_entry = "first-wins"    # silently deduplicate repeated patterns
+```
+
+### Example: Docker environment
+
+Env vars work standalone — no `cx.toml` mount required:
+
+```dockerfile
+ENV CX_STRICT=true
+```
+
+Or per-area:
+
+```dockerfile
+ENV CX_DEDUP_MODE=warn
+ENV CX_REPOMIX_MISSING_EXTENSION=fail
+ENV CX_CONFIG_DUPLICATE_ENTRY=first-wins
+```
+
+### Inspecting effective settings
+
+Use `cx config show-effective` to dump all Category B settings with their
+resolved values and sources. Works without a `cx.toml`:
+
+```text
+$ cx config show-effective
+Effective behavioral settings
+Config file : cx.toml
+CX_STRICT   : false
+
+Setting                    Value       Source
+-------------------------  ----------  ----------------
+dedup.mode                 fail        compiled default
+repomix.missing_extension  warn        compiled default
+config.duplicate_entry     fail        compiled default
+
+Category A invariants (section overlap when dedup.mode=fail, asset
+collision, missing core adapter contract) are never configurable.
+```
+
+Add `--json` for machine-readable output.
+
+---
+
 ## Safe project names
 
 The `project_name` field must be filesystem-safe and follow a narrow naming policy:
