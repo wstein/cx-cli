@@ -27,11 +27,35 @@ This is why `cx` records token accounting in the manifest, writes canonical JSON
 
 Core responsibility split:
 
-- Repomix adapter: render section outputs
+- Repomix adapter (`src/repomix/`): render section outputs
 - `cx` planner: decide which files belong where
 - `cx` manifest layer: describe the bundle in stable JSON
 - `cx` verification layer: confirm artifacts and source-tree alignment
 - `cx` extraction layer: recover files according to manifest truth
+
+## Adapter Boundary
+
+The `src/repomix/` directory is the explicit adapter boundary between `cx` core
+logic and the rendering backend.
+
+- `render.ts` owns all calls into the Repomix adapter. Nothing outside this
+	module invokes Repomix functions directly.
+- `capabilities.ts` performs runtime feature detection (is `packStructured`
+	available? is `renderWithMap` available?) so the planner and manifest builder
+	never need to know which rendering path was taken.
+- `handover.ts` constructs bundle-level metadata that is injected into section
+	outputs without post-processing the rendered content.
+
+The `[repomix]` section in `cx.toml` is adapter-specific configuration.
+`cx.toml` keys like `show_line_numbers`, `include_empty_directories`, and
+`security_check` are passed through exclusively within `render.ts` and are never
+interpreted by the planner, manifest builder, or any other core module. `style`
+is the single key shared between the two layers: it is used by the planner to
+determine output file extensions and by `render.ts` to configure the adapter.
+
+Future rendering backends should follow the same pattern: a new `src/<backend>/`
+directory that exposes a `renderSection` function with the same signature as
+`renderSectionWithRepomix`, keeping core modules unaware of adapter internals.
 
 ## Pipeline
 
@@ -46,12 +70,35 @@ The planner resolves:
 - project name
 - source root
 - output directory
-- section membership
+- section membership (including priority-based overlap resolution)
 - copied assets
 - unmatched files
 - overlap and collision failures
 
 This happens before rendering because the plan must be settled first.
+
+#### Section priority and overlap resolution
+
+Sections are ordered by their `priority` value (descending) before overlap
+resolution begins. A file claimed by multiple sections is assigned to whichever
+section appears first in the resolved order. Sections without an explicit
+priority are treated as priority 0 and their relative order follows
+`dedup.order` (config position or lexical) as a stable tie-breaker.
+
+Three overlap handling strategies are available via `dedup.mode`:
+
+- `fail` — planning aborts with an actionable message. `cx doctor` can propose
+	static `exclude` fixes, or you can set higher `priority` on the owning section
+	and switch to `first-wins` to avoid static TOML mutations entirely.
+- `warn` — conflicts are reported to stderr and resolution proceeds using
+	priority order.
+- `first-wins` — overlaps are resolved silently using priority order.
+
+For rapidly evolving codebases where new files frequently match multiple
+sections, `dedup.mode = "first-wins"` with explicit `priority` values is
+preferable to accumulating static `exclude` paths in `cx.toml`. Static excludes
+become stale as files are renamed or moved, and they generate merge conflicts
+when multiple developers resolve overlaps concurrently on separate branches.
 
 ### 3. Section rendering
 
@@ -70,7 +117,7 @@ The renderer also reports output token counts. If the adapter supports exact spa
 
 `cx bundle` writes a bundle-level index file alongside the section outputs. The index is meant to travel with the section files when multiple outputs are handed over together, so the shared context is externalized without breaking the self-contained section files.
 
-### 4. Manifest build
+### 5. Manifest build
 
 `cx` writes a canonical manifest that records:
 
@@ -86,14 +133,14 @@ The renderer also reports output token counts. If the adapter supports exact spa
 
 The manifest is not just a report. It is the contract other commands operate against.
 
-### 5. Lock file and checksums
+### 6. Lock file and checksums
 
 `cx bundle` also writes:
 
 - a lock file containing the resolved Category B behavioral settings used during bundle creation
 - a SHA-256 checksum sidecar covering the manifest, lock file, section outputs, and copied assets
 
-### 6. Post-build consumers
+### 7. Post-build consumers
 
 After bundling, other commands use the recorded state:
 

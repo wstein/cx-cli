@@ -67,11 +67,37 @@ ignored when `CX_STRICT` is active.
 **`dedup.mode`** controls what happens when the same source file matches more
 than one section:
 
-- `"fail"` - planning aborts with an actionable error. Use `cx doctor` to
-  resolve the overlap.
-- `"warn"` - conflicts are reported to stderr and planning continues with
-  first-section-wins resolution.
-- `"first-wins"` - conflicts are resolved silently.
+- `"fail"` — planning aborts with an actionable error. Use `cx doctor` to
+  propose static `exclude` fixes, or set `first-wins` and assign a higher
+  `priority` to the owning section to resolve overlaps dynamically.
+- `"warn"` — conflicts are reported to stderr and planning continues using
+  priority order.
+- `"first-wins"` — conflicts are resolved silently using priority order.
+
+**Section priority and dynamic overlap resolution**
+
+Every section accepts an optional `priority` key (positive integer). When
+`dedup.mode` is `"first-wins"` or `"warn"`, the section with the highest
+`priority` value wins any overlap. Sections without an explicit priority are
+treated as priority 0 and their relative order is governed by `dedup.order`
+(config position or lexical) as a tie-breaker.
+
+```toml
+[sections.src]
+include = ["src/**", "shared/**"]
+exclude = []
+priority = 10   # src owns any file matched by both src and tests
+
+[sections.tests]
+include = ["tests/**", "shared/**"]
+exclude = []
+priority = 5
+```
+
+For actively developed codebases, prefer explicit `priority` over accumulating
+static `exclude` paths. Static excludes become stale as files are renamed or
+moved and produce merge conflicts when multiple developers resolve overlaps on
+separate branches at the same time.
 
 **`repomix.missing_extension`** controls what happens when the cx-specific
 Repomix adapter extensions (`packStructured` / `renderWithMap`) are missing
