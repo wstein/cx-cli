@@ -1,5 +1,6 @@
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
+import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
 import { asError, CxError } from "../shared/errors.js";
@@ -27,9 +28,37 @@ export async function main(argv: string[]): Promise<number> {
         "Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).",
       global: true,
     })
+    .option("strict", {
+      type: "boolean",
+      description:
+        "Force all Category B behavioral settings to 'fail'. Overrides CX_* env vars and cx.toml values. Equivalent to CX_STRICT=true.",
+      global: true,
+      conflicts: "lenient",
+    })
+    .option("lenient", {
+      type: "boolean",
+      description:
+        "Set all Category B behavioral settings to 'warn'. Overrides CX_* env vars and cx.toml values.",
+      global: true,
+      conflicts: "strict",
+    })
     .middleware((args) => {
       if (typeof args["adapter-path"] === "string") {
         setAdapterPath(args["adapter-path"]);
+      }
+
+      if (args.strict === true) {
+        setCLIOverrides({
+          dedupMode: "fail",
+          repomixMissingExtension: "fail",
+          configDuplicateEntry: "fail",
+        });
+      } else if (args.lenient === true) {
+        setCLIOverrides({
+          dedupMode: "warn",
+          repomixMissingExtension: "warn",
+          configDuplicateEntry: "warn",
+        });
       }
     })
     .strict()

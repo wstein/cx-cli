@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { readEnvOverrides } from "../../src/config/env.js";
+import {
+  getCLIOverrides,
+  readEnvOverrides,
+  setCLIOverrides,
+} from "../../src/config/env.js";
 
 // Snapshot the env vars we will mutate so each test is isolated.
 const MANAGED_VARS = [
@@ -115,5 +119,34 @@ describe("readEnvOverrides", () => {
     expect(overrides.dedupMode).toBe("warn");
     expect(overrides.repomixMissingExtension).toBeUndefined();
     expect(overrides.configDuplicateEntry).toBe("first-wins");
+  });
+});
+
+describe("setCLIOverrides / getCLIOverrides", () => {
+  afterEach(() => {
+    // Reset after each test so CLI override state does not leak.
+    setCLIOverrides({});
+  });
+
+  test("getCLIOverrides returns empty object by default", () => {
+    setCLIOverrides({});
+    expect(getCLIOverrides()).toEqual({});
+  });
+
+  test("setCLIOverrides / getCLIOverrides roundtrip", () => {
+    setCLIOverrides({ dedupMode: "fail", repomixMissingExtension: "fail", configDuplicateEntry: "fail" });
+    const overrides = getCLIOverrides();
+    expect(overrides.dedupMode).toBe("fail");
+    expect(overrides.repomixMissingExtension).toBe("fail");
+    expect(overrides.configDuplicateEntry).toBe("fail");
+  });
+
+  test("setCLIOverrides replaces previous state entirely", () => {
+    setCLIOverrides({ dedupMode: "warn" });
+    setCLIOverrides({ repomixMissingExtension: "fail" });
+    const overrides = getCLIOverrides();
+    // dedupMode from first call should be gone
+    expect(overrides.dedupMode).toBeUndefined();
+    expect(overrides.repomixMissingExtension).toBe("fail");
   });
 });

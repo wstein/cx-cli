@@ -5,7 +5,11 @@ import path from "node:path";
 import { parse as parseToml } from "smol-toml";
 import { CxError } from "../shared/errors.js";
 import { DEFAULT_BEHAVIOR_VALUES, DEFAULT_CONFIG_VALUES } from "./defaults.js";
-import { type CxEnvOverrides, readEnvOverrides } from "./env.js";
+import {
+  type CxEnvOverrides,
+  getCLIOverrides,
+  readEnvOverrides,
+} from "./env.js";
 import { assertSafeProjectName } from "./projectName.js";
 import type {
   CxBehaviorConfig,
@@ -245,17 +249,27 @@ function resolveConfigPath(
 
 /**
  * Resolve a single Category B setting by applying the precedence chain:
- *   env override > cx.toml value > compiled default
+ *   cli flag > env var > cx.toml value > compiled default
  *
- * Logs the resolved source at INFO level for auditability.
+ * Logs the resolved source at Info level to stderr for pipeline auditability.
+ * The log is suppressed when the value comes from the compiled default to
+ * avoid noise in the common case where no overrides are active.
  */
 function resolveCategory<T>(params: {
   label: string;
+  cliValue: T | undefined;
   envValue: T | undefined;
   fileValue: T | undefined;
   defaultValue: T;
 }): T {
-  const { label, envValue, fileValue, defaultValue } = params;
+  const { label, cliValue, envValue, fileValue, defaultValue } = params;
+
+  if (cliValue !== undefined) {
+    process.stderr.write(
+      `Info: ${label}="${String(cliValue)}" (from cli flag)\n`,
+    );
+    return cliValue;
+  }
 
   if (envValue !== undefined) {
     process.stderr.write(`Info: ${label}="${String(envValue)}" (from env var)\n`);
@@ -275,15 +289,21 @@ function resolveCategory<T>(params: {
 /**
  * Load and validate a project cx.toml file.
  *
- * @param configPath  - Absolute or relative path to cx.toml.
- * @param envOverrides - Category B behavioral overrides sourced from the
- *                       environment. Defaults to reading the live process
- *                       environment via readEnvOverrides(). Pass an explicit
- *                       value in tests to avoid process.env mutation.
+ * Precedence chain for Category B behavioral settings (highest first):
+ *   cliOverrides > envOverrides > cx.toml value > compiled default
+ *
+ * @param configPath   - Absolute or relative path to cx.toml.
+ * @param envOverrides - Overrides sourced from CX_* env vars.
+ *                       Defaults to readEnvOverrides() from the live environment.
+ *                       Pass an explicit value in tests to avoid process.env mutation.
+ * @param cliOverrides - Overrides sourced from CLI flags (--strict / --lenient).
+ *                       Defaults to getCLIOverrides(), set by setCLIOverrides() in
+ *                       the yargs middleware before any command handler runs.
  */
 export async function loadCxConfig(
   configPath: string,
   envOverrides: CxEnvOverrides = readEnvOverrides(),
+  cliOverrides: CxEnvOverrides = getCLIOverrides(),
 ): Promise<CxConfig> {
   const raw = await fs.readFile(configPath, "utf8");
   const parsed = parseToml(raw) as CxConfigInput;
@@ -347,6 +367,7 @@ export async function loadCxConfig(
 
   const dedupMode = resolveCategory({
     label: "dedup.mode",
+    cliValue: cliOverrides.dedupMode,
     envValue: envOverrides.dedupMode,
     fileValue: dedupModeFromFile,
     defaultValue: DEFAULT_CONFIG_VALUES.dedup.mode,
@@ -364,6 +385,7 @@ export async function loadCxConfig(
 
   const repomixMissingExtension = resolveCategory({
     label: "repomix.missing_extension",
+    cliValue: cliOverrides.repomixMissingExtension,
     envValue: envOverrides.repomixMissingExtension,
     fileValue: repomixMissingExtensionFromFile,
     defaultValue: DEFAULT_BEHAVIOR_VALUES.repomixMissingExtension,
@@ -381,6 +403,7 @@ export async function loadCxConfig(
 
   const configDuplicateEntry = resolveCategory({
     label: "config.duplicate_entry",
+    cliValue: cliOverrides.configDuplicateEntry,
     envValue: envOverrides.configDuplicateEntry,
     fileValue: configDuplicateEntryFromFile,
     defaultValue: DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry,

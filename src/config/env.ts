@@ -61,6 +61,30 @@ function readEnumVar<T extends string>(
   return raw as T;
 }
 
+// ---------------------------------------------------------------------------
+// CLI-level override state (sits above env vars in the precedence chain)
+// ---------------------------------------------------------------------------
+
+let _cliOverrides: CxEnvOverrides = {};
+
+/**
+ * Set overrides that originate from CLI flags (--strict / --lenient).
+ * Call this in yargs middleware before any command handler runs.
+ * These take precedence over CX_* env vars.
+ */
+export function setCLIOverrides(overrides: CxEnvOverrides): void {
+  _cliOverrides = overrides;
+}
+
+/** Return the current CLI-level overrides (empty object if none are set). */
+export function getCLIOverrides(): Readonly<CxEnvOverrides> {
+  return _cliOverrides;
+}
+
+// ---------------------------------------------------------------------------
+// Env var reading
+// ---------------------------------------------------------------------------
+
 /**
  * Read Category B behavioral overrides from the environment.
  *
