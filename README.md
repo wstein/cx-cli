@@ -1,103 +1,205 @@
-# cx
+# CX
 
-`cx` is a deterministic context bundler that plans repository sections, renders one Repomix-compatible output per section, copies selected raw assets, and emits a manifest plus checksum sidecar. The manifest uses standard JSON object arrays for section file metadata, keeping downstream consumption straightforward.
+`cx` is a deterministic context bundler for teams that need reproducible LLM inputs, not just convenient local packing.
 
-The repository currently implements:
+It plans repository sections, renders one Repomix-compatible output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
-- strict configuration loading and validation
-- deterministic file discovery and planning
-- Repomix-backed section rendering
-- manifest and checksum generation
-- manifest-verified `extract` for XML, JSON, Markdown, and Plain bundles, with explicit opt-in for degraded restores
-- section-grouped `list` output with per-file status visibility
-- manifest-stored source `time` metadata restored during extraction
-- `init`, `inspect`, `bundle`, `extract`, `list`, `validate`, `verify`, `render`, and `doctor` commands
-- `adapter` diagnostic namespace for Repomix integration inspection
-- lint, build, test, and CI verification workflows
+## Why CX Exists
 
-`cx verify` also supports `--against <source-dir>` to compare bundle contents directly against a source tree, with optional `--section` and `--file` filters.
-`cx verify --json` emits structured error payloads with failure type classification (checksum_omission, checksum_mismatch, source_tree_drift, unexpected_checksum_reference), enabling CI to distinguish and handle different verification failure modes.
+Repomix is great for exploratory work: grab a snapshot, feed a prompt, move on.
 
-`cx render` renders planned sections as standard Repomix output without requiring a full bundle. Use `--section`, `--all-sections`, or `--file` to select sections or specific files, with `--style` to override output format and `--json` for metadata.
+`cx` solves a different problem. It is for CI/CD, remote runners, scheduled jobs, and any workflow where a bundle created on Monday must still be trustworthy on Friday.
 
-`cx doctor` exposes config-recovery workflows for section overlap conflicts:
-- `overlaps`: Diagnose every conflicted path, the matching sections, and the recommended owner.
-- `fix-overlaps`: Generate or apply exact `sections.<name>.exclude` entries, with `--dry-run` for CI output and `--interactive` for guided ownership choices.
+That changes the design:
 
-`cx extract` treats the manifest as the source of truth for recovery. `intact` files extract by default, `copied` assets restore directly from stored bundle content, and `degraded` files require `--allow-degraded` before `cx` will write them back out. When extraction succeeds, `cx` also restores the original source `time` recorded in the manifest.
+- Repomix optimizes for flexible packing. `cx` optimizes for deterministic planning.
+- Repomix is a rendering engine. `cx` adds planning, manifests, checksums, verification, extraction, and failure semantics around that engine.
+- Repomix is the rendering engine. `cx` turns render metadata into a persistent, verifiable bundle contract with immutable manifests and hard-stop invariants.
 
-`cx adapter` exposes Repomix integration diagnostics via three subcommands:
-- `capabilities`: Show cx and Repomix versions, supported output styles, and exact span support status.
-- `inspect`: Show the exact file selection and Repomix adapter inputs for a planned render.
-- `doctor`: Run adapter compatibility and runtime sanity checks.
+The strictness is the feature. If a file lands in two sections, if a checksum does not match, or if an extracted file is only approximately recoverable, `cx` makes that visible instead of silently proceeding.
 
-Every command supports `--json` for CI consumers.
-`cx list --json` supports `--section` and `--file` filtering, reports per-file status, and includes the active user display settings that colorize human `cx list` output. Human `cx inspect` and `cx inspect --json` both annotate planned files with bundle-side status whenever a matching bundle already exists. `cx extract --json` emits dedicated failure payloads that identify the exact file or files blocked by degraded or missing reconstructed content. `cx validate --json` emits detailed manifest-aware summaries instead of bare success flags.
-`cx verify` now fails if the checksum file omits any expected manifest, section-output, or asset entry.
-Bundle loading requires exactly one `*-manifest.json` file, and `cx init --name` now enforces the same safe project-name rules as config loading.
+## What You Get
 
-When `manifest.include_output_spans = true`, `cx bundle` records `output_start_line` / `output_end_line` as absolute line numbers in each section output file whenever the active adapter exposes `renderWithMap`. Wrapper markup is never counted as part of a file's span, but wrapper lines that appear before a file still shift that file's absolute start line. If the adapter can render but cannot capture exact spans, bundling continues with a clear warning and the span fields remain `null`.
+- Deterministic file discovery and section planning
+- One Repomix-compatible render per section
+- Persistent token accounting stored in the manifest
+- Optional absolute output spans per file when the active adapter supports them
+- SHA-256 checksums for every emitted artifact
+- Manifest-aware `inspect`, `list`, `validate`, `verify`, and `extract` commands
+- Guided overlap diagnosis and repair with `cx doctor`
+- Structured `--json` output across commands for CI integration
+- Lock-file capture of behavioral settings, with drift warnings during `verify`
 
-The implementation intentionally refuses to shell out to `repomix`. The renderer is loaded through a narrow adapter so the rest of the system remains deterministic and testable. Adapter compatibility is checked against the public exports we actually call, rather than inferred from package-layout assumptions. Core rendering only requires `mergeConfigs` plus either `packStructured()` or `pack()`. Exact span capture remains optional.
+## When To Use It
 
-Config path fields such as `source_root` and `output_dir` support `~`, `$VAR`, and `${VAR}` expansion before they are resolved. Exact token counting is configurable through `[tokens]` via Repomix tokenizer encodings. `cx list` temperature thresholds and its ANSI grayscale palette are user preferences loaded from `~/.config/cx/cx.toml` or `$XDG_CONFIG_HOME/cx/cx.toml`; they are not stored in the project config or the bundle manifest.
+Use `cx` when you need:
 
-For the final architecture overview, see `docs/ARCHITECTURE.md`. For safe configuration patterns and bundle invariants, see `docs/config-reference.md`.
+- reproducible context bundles in CI
+- persistent token accounting recorded in the manifest for later verification and automation
+- downstream tooling that relies on stable manifests and checksums
+- a documented recovery path from bundle back to source files
+- visible failure states instead of silent best-effort behavior
 
-## CI integration
+If you only need a quick local prompt pack, plain Repomix may be the better fit.
 
-### Standard pipeline
+## Install
 
-Run `cx bundle` with `CX_STRICT=true` to force every Category B behavioral
-setting to `fail`. This catches duplicate glob patterns, missing Repomix
-adapter extensions, and deduplication conflicts before they silently alter
-bundle output:
+Requirements:
+
+- Node.js `>=25.0.0`
+
+Global install:
+
+```bash
+npm install -g @wsmy/cx-cli
+```
+
+Run from source:
+
+```bash
+bun install
+bun run build
+node bin/cx.js --help
+```
+
+## Quick Start
+
+Initialize a starter config:
+
+```bash
+cx init --name demo
+```
+
+Preview the deterministic plan before writing anything:
+
+```bash
+cx inspect --config cx.toml
+```
+
+Build the bundle:
+
+```bash
+cx bundle --config cx.toml
+```
+
+Validate and verify it:
+
+Assuming your config writes to `dist/demo-bundle`:
+
+```bash
+cx validate dist/demo-bundle
+cx verify dist/demo-bundle --against .
+```
+
+List stored files:
+
+```bash
+cx list dist/demo-bundle
+```
+
+Extract one file back out:
+
+```bash
+cx extract dist/demo-bundle --file src/index.ts --to /tmp/restore
+```
+
+## Typical CI Flow
 
 ```bash
 CX_STRICT=true cx bundle --config cx.toml
-cx verify dist/myproject-bundle
+cx verify dist/myproject-bundle --against . --config cx.toml
 ```
 
-Use `--strict` as the inline equivalent when you cannot set environment
-variables at the job level:
+`CX_STRICT=true` forces all configurable Category B behaviors to fail fast. That is the safest default for automated pipelines.
 
-```bash
-cx --strict bundle --config cx.toml
+## Command Overview
+
+| Command | Purpose |
+| --- | --- |
+| `cx init` | Create a starter `cx.toml` |
+| `cx inspect` | Show the computed plan without writing files |
+| `cx bundle` | Build a deterministic bundle directory |
+| `cx list` | List bundle contents grouped by section |
+| `cx validate` | Validate bundle structure and schema |
+| `cx verify` | Verify bundle integrity and optional source-tree drift |
+| `cx extract` | Restore files from a bundle |
+| `cx doctor overlaps` | Diagnose section overlap conflicts |
+| `cx doctor fix-overlaps` | Generate or apply exact exclude fixes |
+| `cx render` | Render planned sections without building a full bundle |
+| `cx config show-effective` | Show resolved behavioral settings and their sources |
+| `cx adapter ...` | Inspect Repomix adapter capabilities and compatibility |
+
+Every command supports `--json` for machine consumption.
+
+## The Important Failure Model
+
+Some constraints are non-negotiable:
+
+- section overlap is a hard failure when `dedup.mode = "fail"`; this is the default
+- asset collisions are hard failures
+- missing core adapter contract is a hard failure
+- degraded extraction is blocked unless you explicitly pass `--allow-degraded`
+
+This is intentional. `cx` is designed to stop a pipeline before a bad bundle turns into a harder-to-debug downstream failure.
+
+## Example `cx.toml`
+
+```toml
+schema_version = 1
+project_name = "myproject"
+source_root = "."
+output_dir = "dist/{project}-bundle"
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = true
+
+[files]
+exclude = [".git/**", "node_modules/**", "dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[dedup]
+mode = "fail"
+order = "config"
+
+[manifest]
+format = "json"
+pretty = true
+include_file_sha256 = true
+include_output_sha256 = true
+include_output_spans = true
+include_source_metadata = true
+
+[checksums]
+algorithm = "sha256"
+file_name = "{project}.sha256"
+
+[assets]
+include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
+exclude = []
+mode = "copy"
+target_dir = "{project}-assets"
+
+[sections.docs]
+include = ["README.md", "docs/**", "*.md"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
 ```
 
-`cx verify` reads the `{project}-lock.json` written at bundle time and warns
-when the current effective settings differ from the settings used to produce
-the bundle. Pass `--json` to get machine-readable drift details:
+## Documentation Map
 
-```bash
-cx verify dist/myproject-bundle --json | jq '.lockDrift'
-```
-
-### Docker
-
-Set `CX_STRICT` as a build-time default in your image so every invocation
-inherits strict mode without requiring callers to remember the flag:
-
-```dockerfile
-FROM node:22-alpine
-ENV CX_STRICT=true
-RUN npm install -g @wstein/cx
-```
-
-Override at runtime for local or degraded-mode scenarios:
-
-```bash
-docker run --env CX_STRICT=false myimage cx bundle
-```
-
-### Inspecting effective settings
-
-Use `cx config show-effective` to print each behavioral setting alongside its
-resolution source. This is useful for debugging unexpected CI behaviour:
-
-```bash
-CX_STRICT=true cx config show-effective --config cx.toml
-```
+- [Operator Manual](docs/MANUAL.md): end-to-end workflows, including overlap resolution
+- [Architecture](docs/ARCHITECTURE.md): invariants, manifest model, and rendering pipeline
+- [Extraction Safety](docs/EXTRACTION_SAFETY.md): intact vs degraded recovery and `--allow-degraded`
+- [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
+- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md): project planning notes
+- [Spec Debate](docs/SPEC_DEBATE.md): design discussion and tradeoffs
 
 ## Development
 
@@ -105,7 +207,13 @@ CX_STRICT=true cx config show-effective --config cx.toml
 bun install
 bun run format
 bun run lint
+bun run check
 bun run build
-bun test
+bun test tests
+```
+
+Full verification:
+
+```bash
 bun run verify
 ```

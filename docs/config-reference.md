@@ -1,12 +1,16 @@
 # CX Configuration Reference
 
+This document describes the knobs. For the operator workflow, read [Operator Manual](MANUAL.md). For the invariants behind these settings, read [Architecture](ARCHITECTURE.md).
+
 ## Behavioral Settings
+
+Behavioral settings control how `cx` handles non-fundamental friction points. They do not change the core integrity model.
 
 Behavioral settings are Category B settings: configurable behaviors that control
 how `cx` handles common friction points. They are distinct from Category A
 invariants, which are always hard failures and cannot be configured away.
 
-> **Category A invariants — not configurable:**
+> **Category A invariants - not configurable:**
 >
 > - Section overlap (when `dedup.mode = "fail"`, the compiled default)
 > - Asset collision between a section and an asset rule
@@ -31,8 +35,8 @@ The global `--strict` and `--lenient` flags sit above env vars in the
 precedence chain. They apply to every command and cannot be combined.
 
 ```bash
-cx --strict bundle --config cx.toml   # all Category B → "fail"
-cx --lenient bundle --config cx.toml  # all Category B → "warn"
+cx --strict bundle --config cx.toml   # all Category B -> "fail"
+cx --lenient bundle --config cx.toml  # all Category B -> "warn"
 ```
 
 These are equivalent to `CX_STRICT=true` and `CX_LENIENT=true` but take
@@ -63,28 +67,28 @@ ignored when `CX_STRICT` is active.
 **`dedup.mode`** controls what happens when the same source file matches more
 than one section:
 
-- `"fail"` — planning aborts with an actionable error. Use `cx doctor` to
+- `"fail"` - planning aborts with an actionable error. Use `cx doctor` to
   resolve the overlap.
-- `"warn"` — conflicts are reported to stderr and planning continues with
+- `"warn"` - conflicts are reported to stderr and planning continues with
   first-section-wins resolution.
-- `"first-wins"` — conflicts are resolved silently.
+- `"first-wins"` - conflicts are resolved silently.
 
 **`repomix.missing_extension`** controls what happens when the cx-specific
 Repomix adapter extensions (`packStructured` / `renderWithMap`) are missing
 but the core contract (`mergeConfigs`) is met:
 
-- `"fail"` — rendering aborts with exit 5. Useful for strict CI environments
+- `"fail"` - rendering aborts with exit 5. Useful for strict CI environments
   that require full span capture or token-count accuracy.
-- `"warn"` — a warning is emitted and rendering continues using the `pack()`
+- `"warn"` - a warning is emitted and rendering continues using the `pack()`
   degraded path (default; existing setups are unaffected).
 
 **`config.duplicate_entry`** controls what happens when the same glob pattern
 appears more than once in an `include` or `exclude` array:
 
-- `"fail"` — loading aborts and lists the offending patterns.
-- `"warn"` — a warning is emitted and the array is deduplicated (first
+- `"fail"` - loading aborts and lists the offending patterns.
+- `"warn"` - a warning is emitted and the array is deduplicated (first
   occurrence wins).
-- `"first-wins"` — the array is deduplicated silently.
+- `"first-wins"` - the array is deduplicated silently.
 
 Duplicate detection applies to every pattern array: per-section `include` and
 `exclude`, the global `files.exclude`, and both `assets.include` and
@@ -105,7 +109,7 @@ duplicate_entry = "first-wins"    # silently deduplicate repeated patterns
 
 ### Example: Docker environment
 
-Env vars work standalone — no `cx.toml` mount required:
+Env vars work standalone - no `cx.toml` mount required:
 
 ```dockerfile
 ENV CX_STRICT=true
@@ -210,6 +214,8 @@ output_dir = "dist/{project}-bundle"
 
 ## Token Counting
 
+This is a core architectural choice, not just a formatting detail. `cx` persists token counts in the manifest so downstream runners and verification tooling can reuse the recorded accounting directly.
+
 Exact token counting is configurable through the `[tokens]` table:
 
 ```toml
@@ -252,6 +258,8 @@ Rules:
 These settings are user preferences only. They are not accepted in project `cx.toml`, and they are not stored in the bundle manifest.
 
 ## Extract Status Semantics
+
+The short version is below. For the operator guidance and blast radius of `--allow-degraded`, read [Extraction Safety](EXTRACTION_SAFETY.md).
 
 `cx` uses four production statuses for bundle-side recovery:
 
