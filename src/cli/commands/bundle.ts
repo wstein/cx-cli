@@ -33,6 +33,7 @@ import {
   printTable,
 } from "../../shared/format.js";
 import { ensureDir } from "../../shared/fs.js";
+import { CxError } from "../../shared/errors.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
@@ -45,6 +46,17 @@ export interface BundleArgs {
 export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const config = await loadCxConfig(args.config);
   const plan = await buildBundlePlan(config);
+  const requiresOutputSpans = plan.sections.some(
+    (section) => section.style !== "json",
+  );
+
+  if (requiresOutputSpans && !config.manifest.includeOutputSpans) {
+    throw new CxError(
+      "Bundles with XML, Markdown, or plain sections require manifest.include_output_spans = true.",
+      5,
+    );
+  }
+
   await ensureDir(plan.bundleDir);
 
   for (const asset of plan.assets) {
@@ -71,6 +83,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       explicitFiles: section.files.map((file) => file.absolutePath),
       bundleIndexFile,
       requireStructured: true,
+      requireOutputSpans: requiresOutputSpans,
     });
     renderWarnings.push(...renderResult.warnings);
     const totalSectionBytes = section.files.reduce(

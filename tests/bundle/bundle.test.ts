@@ -1126,14 +1126,31 @@ include_source_metadata = true`;
     });
   });
 
-  test("blocks text extraction when output spans are disabled", async () => {
+  test("fails bundle creation when text sections disable output spans", async () => {
     const project = await createProject();
-    const restoreDir = path.join(project.root, "restored-no-spans");
     await fs.writeFile(
       project.configPath,
       (await fs.readFile(project.configPath, "utf8")).concat(
         `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = false\ninclude_source_metadata = true\n`,
       ),
+      "utf8",
+    );
+
+    await expect(runBundleCommand({ config: project.configPath })).rejects.toThrow(
+      "require manifest.include_output_spans = true",
+    );
+  });
+
+  test("allows json-only bundles when output spans are disabled", async () => {
+    const project = await createProject();
+    const restoreDir = path.join(project.root, "restored-json-no-spans");
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8"))
+        .replace('style = "xml"', 'style = "json"')
+        .concat(
+          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = false\ninclude_source_metadata = true\n`,
+        ),
       "utf8",
     );
 
@@ -1148,7 +1165,13 @@ include_source_metadata = true`;
         overwrite: false,
         verify: false,
       }),
-    ).toBe(8);
+    ).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    for (const row of manifest.files.filter((entry) => entry.kind === "text")) {
+      expect(row.outputStartLine).toBeNull();
+      expect(row.outputEndLine).toBeNull();
+    }
   });
 
   test("verifies a bundle against the original source tree", async () => {

@@ -168,6 +168,7 @@ export async function renderSectionWithRepomix(params: {
   explicitFiles: string[];
   bundleIndexFile?: string;
   requireStructured?: boolean;
+  requireOutputSpans?: boolean;
 }): Promise<RenderSectionResult> {
   await assertCompatibleRepomixAdapter();
 
@@ -186,6 +187,7 @@ export async function renderSectionWithRepomix(params: {
   const adapter = await loadRepomixAdapter();
   const { mergeConfigs, pack, packStructured } = adapter;
   const capabilities = await detectRepomixCapabilities();
+  const needsOutputSpans = params.requireOutputSpans ?? false;
 
   const cliConfig: Parameters<typeof mergeConfigs>[2] = {
     output: {
@@ -323,17 +325,18 @@ export async function renderSectionWithRepomix(params: {
       };
     }
 
-    if (params.config.manifest.includeOutputSpans) {
-      if (params.style === "json") {
-        warnings.push(
-          "Output spans are not recorded for JSON sections because JSON bundles expose packed content directly.",
+    if (params.config.manifest.includeOutputSpans && params.style !== "json") {
+      if (needsOutputSpans) {
+        throw new CxError(
+          "Text sections require exact output spans, but the Repomix adapter cannot capture them.",
+          5,
         );
-      } else {
-        const message =
-          "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
-        warnings.push(message);
-        emitWarning(message);
       }
+
+      const message =
+        "Output span capture was requested, but renderWithMap is unavailable. Continuing without span metadata.";
+      warnings.push(message);
+      emitWarning(message);
     }
 
     const outputText = await structuredPlan.render(params.style);
@@ -366,7 +369,14 @@ export async function renderSectionWithRepomix(params: {
     );
   }
 
-  if (params.config.manifest.includeOutputSpans) {
+  if (params.config.manifest.includeOutputSpans && params.style !== "json") {
+    if (needsOutputSpans) {
+      throw new CxError(
+        "Text sections require exact output spans, but the Repomix adapter cannot capture them.",
+        5,
+      );
+    }
+
     const message =
       "Output span capture was requested, but packStructured/renderWithMap is unavailable. Continuing without span metadata.";
     warnings.push(message);
