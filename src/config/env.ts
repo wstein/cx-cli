@@ -78,15 +78,26 @@ export function readEnvOverrides(): CxEnvOverrides {
     };
   }
 
-  return {
-    dedupMode: readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES),
-    repomixMissingExtension: readEnumVar(
-      "CX_REPOMIX_MISSING_EXTENSION",
-      VALID_REPOMIX_MISSING,
-    ),
-    configDuplicateEntry: readEnumVar(
-      "CX_CONFIG_DUPLICATE_ENTRY",
-      VALID_CONFIG_DUPLICATE,
-    ),
-  };
+  const overrides: CxEnvOverrides = {};
+
+  const dedupMode = readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES);
+  if (dedupMode !== undefined) overrides.dedupMode = dedupMode;
+
+  const repomixMissingExtension = readEnumVar(
+    "CX_REPOMIX_MISSING_EXTENSION",
+    VALID_REPOMIX_MISSING,
+  );
+  if (repomixMissingExtension !== undefined) {
+    overrides.repomixMissingExtension = repomixMissingExtension;
+  }
+
+  const configDuplicateEntry = readEnumVar(
+    "CX_CONFIG_DUPLICATE_ENTRY",
+    VALID_CONFIG_DUPLICATE,
+  );
+  if (configDuplicateEntry !== undefined) {
+    overrides.configDuplicateEntry = configDuplicateEntry;
+  }
+
+  return overrides;
 }

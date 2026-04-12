@@ -4,19 +4,30 @@ import path from "node:path";
 
 import { parse as parseToml } from "smol-toml";
 import { CxError } from "../shared/errors.js";
-import { DEFAULT_CONFIG_VALUES } from "./defaults.js";
+import { DEFAULT_BEHAVIOR_VALUES, DEFAULT_CONFIG_VALUES } from "./defaults.js";
+import { type CxEnvOverrides, readEnvOverrides } from "./env.js";
 import { assertSafeProjectName } from "./projectName.js";
 import type {
+  CxBehaviorConfig,
   CxConfig,
+  CxConfigDuplicateEntryMode,
   CxConfigInput,
+  CxDedupMode,
+  CxRepomixMissingExtensionMode,
   CxSectionConfig,
   CxStyle,
 } from "./types.js";
 
 const RESERVED_SECTION_NAMES = new Set(["manifest", "assets", "bundle"]);
 const VALID_STYLES = new Set<CxStyle>(["xml", "markdown", "json", "plain"]);
-const VALID_DEDUP_MODES = new Set<"fail" | "first-wins">([
+const VALID_DEDUP_MODES = new Set<CxDedupMode>(["fail", "warn", "first-wins"]);
+const VALID_REPOMIX_MISSING = new Set<CxRepomixMissingExtensionMode>([
   "fail",
+  "warn",
+]);
+const VALID_CONFIG_DUPLICATE = new Set<CxConfigDuplicateEntryMode>([
+  "fail",
+  "warn",
   "first-wins",
 ]);
 const VALID_UNMATCHED_MODES = new Set<"ignore" | "fail">(["ignore", "fail"]);
@@ -86,23 +97,76 @@ function expectEnum<T extends string>(
   return value as T;
 }
 
+/**
+ * Emit a warning to stderr. Used for Category B "warn" mode results.
+ */
+function emitWarning(message: string): void {
+  process.stderr.write(`Warning: ${message}\n`);
+}
+
+/**
+ * Deduplicate a string array, reporting duplicates according to the configured mode.
+ *
+ * - "fail"       — throw CxError on the first duplicate found.
+ * - "warn"       — emit a warning to stderr and return deduplicated array.
+ * - "first-wins" — silently return deduplicated array.
+ */
+function deduplicatePatterns(
+  patterns: string[],
+  label: string,
+  mode: CxConfigDuplicateEntryMode,
+): string[] {
+  const seen = new Set<string>();
+  const duplicates: string[] = [];
+
+  for (const pattern of patterns) {
+    if (seen.has(pattern)) {
+      duplicates.push(pattern);
+    } else {
+      seen.add(pattern);
+    }
+  }
+
+  if (duplicates.length === 0) return patterns;
+
+  const listed = duplicates.map((p) => `"${p}"`).join(", ");
+  const message = `${label} contains duplicate pattern(s): ${listed}.`;
+
+  if (mode === "fail") {
+    throw new CxError(message);
+  }
+
+  if (mode === "warn") {
+    emitWarning(message);
+  }
+
+  return [...seen];
+}
+
 function normalizeSection(
   sectionName: string,
   input: Record<string, unknown> | undefined,
+  duplicateMode: CxConfigDuplicateEntryMode,
 ): CxSectionConfig {
   if (!input) {
     throw new CxError(`sections.${sectionName} must be a table.`);
   }
 
-  const include = expectStringArray(
+  const rawInclude = expectStringArray(
     input.include,
     `sections.${sectionName}.include`,
   );
-  if (include.length === 0) {
+  if (rawInclude.length === 0) {
     throw new CxError(
       `sections.${sectionName}.include must contain at least one pattern.`,
     );
   }
+
+  const include = deduplicatePatterns(
+    rawInclude,
+    `sections.${sectionName}.include`,
+    duplicateMode,
+  );
 
   const style =
     input.style === undefined
@@ -114,14 +178,18 @@ function normalizeSection(
           DEFAULT_CONFIG_VALUES.repomix.style,
         );
 
-  const normalized: CxSectionConfig = {
-    include,
-    exclude: expectStringArray(
-      input.exclude,
-      `sections.${sectionName}.exclude`,
-      [],
-    ),
-  };
+  const rawExclude = expectStringArray(
+    input.exclude,
+    `sections.${sectionName}.exclude`,
+    [],
+  );
+  const exclude = deduplicatePatterns(
+    rawExclude,
+    `sections.${sectionName}.exclude`,
+    duplicateMode,
+  );
+
+  const normalized: CxSectionConfig = { include, exclude };
 
   if (style !== undefined) {
     normalized.style = style;
@@ -175,7 +243,48 @@ function resolveConfigPath(
   return path.resolve(configDir, expanded);
 }
 
-export async function loadCxConfig(configPath: string): Promise<CxConfig> {
+/**
+ * Resolve a single Category B setting by applying the precedence chain:
+ *   env override > cx.toml value > compiled default
+ *
+ * Logs the resolved source at INFO level for auditability.
+ */
+function resolveCategory<T>(params: {
+  label: string;
+  envValue: T | undefined;
+  fileValue: T | undefined;
+  defaultValue: T;
+}): T {
+  const { label, envValue, fileValue, defaultValue } = params;
+
+  if (envValue !== undefined) {
+    process.stderr.write(`Info: ${label}="${String(envValue)}" (from env var)\n`);
+    return envValue;
+  }
+
+  if (fileValue !== undefined) {
+    process.stderr.write(
+      `Info: ${label}="${String(fileValue)}" (from cx.toml)\n`,
+    );
+    return fileValue;
+  }
+
+  return defaultValue;
+}
+
+/**
+ * Load and validate a project cx.toml file.
+ *
+ * @param configPath  - Absolute or relative path to cx.toml.
+ * @param envOverrides - Category B behavioral overrides sourced from the
+ *                       environment. Defaults to reading the live process
+ *                       environment via readEnvOverrides(). Pass an explicit
+ *                       value in tests to avoid process.env mutation.
+ */
+export async function loadCxConfig(
+  configPath: string,
+  envOverrides: CxEnvOverrides = readEnvOverrides(),
+): Promise<CxConfig> {
   const raw = await fs.readFile(configPath, "utf8");
   const parsed = parseToml(raw) as CxConfigInput;
   const configDir = path.dirname(path.resolve(configPath));
@@ -207,6 +316,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
+  const configSection = parsed.config ?? {};
   const sectionsInput = parsed.sections;
 
   if (parsed.display !== undefined) {
@@ -223,6 +333,66 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
     throw new CxError("sections must define at least one section.");
   }
 
+  // --- Category B: resolve behavioral settings with full precedence chain ---
+
+  const dedupModeFromFile =
+    dedup.mode !== undefined
+      ? expectEnum(
+          dedup.mode,
+          "dedup.mode",
+          VALID_DEDUP_MODES,
+          DEFAULT_CONFIG_VALUES.dedup.mode,
+        )
+      : undefined;
+
+  const dedupMode = resolveCategory({
+    label: "dedup.mode",
+    envValue: envOverrides.dedupMode,
+    fileValue: dedupModeFromFile,
+    defaultValue: DEFAULT_CONFIG_VALUES.dedup.mode,
+  });
+
+  const repomixMissingExtensionFromFile =
+    repomix.missing_extension !== undefined
+      ? expectEnum(
+          repomix.missing_extension,
+          "repomix.missing_extension",
+          VALID_REPOMIX_MISSING,
+          DEFAULT_BEHAVIOR_VALUES.repomixMissingExtension,
+        )
+      : undefined;
+
+  const repomixMissingExtension = resolveCategory({
+    label: "repomix.missing_extension",
+    envValue: envOverrides.repomixMissingExtension,
+    fileValue: repomixMissingExtensionFromFile,
+    defaultValue: DEFAULT_BEHAVIOR_VALUES.repomixMissingExtension,
+  });
+
+  const configDuplicateEntryFromFile =
+    configSection.duplicate_entry !== undefined
+      ? expectEnum(
+          configSection.duplicate_entry,
+          "config.duplicate_entry",
+          VALID_CONFIG_DUPLICATE,
+          DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry,
+        )
+      : undefined;
+
+  const configDuplicateEntry = resolveCategory({
+    label: "config.duplicate_entry",
+    envValue: envOverrides.configDuplicateEntry,
+    fileValue: configDuplicateEntryFromFile,
+    defaultValue: DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry,
+  });
+
+  const behavior: CxBehaviorConfig = {
+    repomixMissingExtension,
+    configDuplicateEntry,
+  };
+
+  // --- Sections ---
+
   const sections: Record<string, CxSectionConfig> = {};
   for (const [sectionName, sectionValue] of Object.entries(sectionsInput)) {
     if (RESERVED_SECTION_NAMES.has(sectionName)) {
@@ -230,8 +400,32 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
         `sections.${sectionName} uses a reserved section name.`,
       );
     }
-    sections[sectionName] = normalizeSection(sectionName, sectionValue);
+    sections[sectionName] = normalizeSection(
+      sectionName,
+      sectionValue,
+      configDuplicateEntry,
+    );
   }
+
+  // --- Remaining config fields ---
+
+  const filesExclude = expectStringArray(
+    files.exclude,
+    "files.exclude",
+    DEFAULT_CONFIG_VALUES.files.exclude,
+  );
+
+  const assetsInclude = expectStringArray(
+    assets.include,
+    "assets.include",
+    DEFAULT_CONFIG_VALUES.assets.include,
+  );
+
+  const assetsExclude = expectStringArray(
+    assets.exclude,
+    "assets.exclude",
+    DEFAULT_CONFIG_VALUES.assets.exclude,
+  );
 
   return {
     schemaVersion: 1,
@@ -262,11 +456,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       ),
     },
     files: {
-      exclude: expectStringArray(
-        files.exclude,
-        "files.exclude",
-        DEFAULT_CONFIG_VALUES.files.exclude,
-      ),
+      exclude: filesExclude,
       followSymlinks: expectBoolean(
         files.follow_symlinks,
         "files.follow_symlinks",
@@ -280,12 +470,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       ),
     },
     dedup: {
-      mode: expectEnum(
-        dedup.mode,
-        "dedup.mode",
-        VALID_DEDUP_MODES,
-        DEFAULT_CONFIG_VALUES.dedup.mode,
-      ),
+      mode: dedupMode,
       order: expectEnum(
         dedup.order,
         "dedup.order",
@@ -338,16 +523,8 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
       ),
     },
     assets: {
-      include: expectStringArray(
-        assets.include,
-        "assets.include",
-        DEFAULT_CONFIG_VALUES.assets.include,
-      ),
-      exclude: expectStringArray(
-        assets.exclude,
-        "assets.exclude",
-        DEFAULT_CONFIG_VALUES.assets.exclude,
-      ),
+      include: assetsInclude,
+      exclude: assetsExclude,
       mode: expectEnum(
         assets.mode,
         "assets.mode",
@@ -362,6 +539,7 @@ export async function loadCxConfig(configPath: string): Promise<CxConfig> {
         projectName,
       ),
     },
+    behavior,
     sections,
   };
 }
