@@ -3,10 +3,17 @@ id: 20260413153301
 aliases: ["duplicate-id-detection"]
 tags: ["planning", "security", "invariants"]
 ---
-During the planning phase, `cx` must enforce strict validation of Zettelkasten note frontmatter. Every note must possess a unique `id` adhering to the `YYYYMMDDHHMMSS` schema. 
+# Frontmatter Validation and Duplicate ID Guard
 
-This is a structural invariant for the AI-first toolbox. If duplicate IDs exist within the master file base, downstream LLM agents and extraction tools will suffer from ambiguous routing and context poisoning. By enforcing uniqueness before the bundle rendering phase, we guarantee that the resulting manifest provides a trustworthy, deterministic map for agentic traversal.
+`cx` validates note frontmatter during planning. Every note must carry a unique
+`id` that matches the `YYYYMMDDHHMMSS` schema.
 
-#### Links
-* [[Dirty State Taxonomy]] - Validation occurs after dirty-state classification but before rendering.
-* [[AI-first Toolbox]] - Strict metadata is required for safe agentic context routing.
+Duplicate IDs are a hard error because they make the repository knowledge graph
+ambiguous for both humans and agents. Validation happens before rendering so
+the manifest always reflects a deterministic note map.
+
+## Links
+
+- [[Dirty State Taxonomy]] - Validation runs after dirty-state classification
+  and before rendering.
+- [[AI-first Toolbox]] - Strict metadata keeps agentic context routing stable.

@@ -7,11 +7,11 @@
 For the broader document map and architecture context, see
 [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
-For packed text files, the bundle contract is the normalized packed representation emitted by Repomix, not the original source file bytes. That means verification and extraction work against the rendered bundle content, which is what downstream automation actually consumes.
+For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.
 
 Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.
 
-Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle is even allowed to exist, while this document explains what happens after a valid bundle has already been written.
+Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle may exist at all, while this document explains what happens after a valid bundle has already been written.
 
 In practical terms:
 
