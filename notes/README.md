@@ -53,7 +53,7 @@ The value of the system comes from the graph, not from isolated pages.
 
 ### 4. Keep IDs Stable
 
-Every note uses a time-based frontmatter id in the form `YYYYMMDDHHMM`.
+Every note uses a time-based frontmatter id in the form `YYYYMMDDHHMMSS`.
 
 The id is for machines, search, routing, and stable reference. The H1 is for humans. Do not put the numeric id in the visible title.
 
@@ -68,32 +68,33 @@ Avoid the mushy middle of vague status notes, meeting debris, or copied snippets
 
 ## Recommended Workflow
 
-1. Start from `template-new-zettel.md`.
-2. Assign a fresh `id` using local time in `YYYYMMDDHHMM` format.
+1. Start from `Templates/New Zettel Template.md`.
+2. Assign a fresh `id` using local time in `YYYYMMDDHHMMSS` format.
 3. Give the note a clear searchable title.
 4. Write one thought in your own words.
 5. Add explicit links to related notes and code paths.
-6. Save the file with a human-readable name.
+6. Save the file with a human-readable filename that matches the note title.
 
-Suggested filename style: `clear-searchable-title.md`.
+Suggested filename style: `Clear Searchable Title.md`.
 
 ## Minimum Anatomy
 
 Every note must contain:
 
 - YAML frontmatter with `id`, `aliases`, and `tags`
-- one H1 title
 - one atomic body
 - one links section with radial connections
 
-This repository's scaffold template uses the H1 headline as the canonical
-note title and filename. The filename is derived from the H1, so keep the title
-clear, stable, and unique.
+ This repository uses the filename as the canonical note title. Do not add an
+ H1 header in the note body because Obsidian already displays the filename as
+ the title. Use a clear, human-readable filename that matches the note title.
+
+ Use link references that match the note title, for example
+ `[[Related note title]]`.
 
 ## What Does Not Belong Here
 
 Do not use this directory for:
-
 - sprint planning
 - transient checklists
 - copied code dumps

@@ -47,7 +47,7 @@ The guide must explain:
 - the principle of atomicity
 - the collector's fallacy
 - the need for explicit radial links
-- the time-based ID rule (`YYYYMMDDHHMM`)
+- the time-based ID rule (`YYYYMMDDHHMMSS`)
 - the barbell method of triage
 
 The guide should be instructional, not philosophical filler.
@@ -58,7 +58,7 @@ Every note must use this minimal structure:
 
 ```md
 ---
-id: YYYYMMDDHHMM
+id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---

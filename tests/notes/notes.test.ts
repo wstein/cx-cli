@@ -42,6 +42,28 @@ This is a valid note.
     expect(result.errors).toHaveLength(0);
   });
 
+  test("ignores template files in nested note directories", async () => {
+    const notesDir = path.join(testDir, "notes");
+    const nestedDir = path.join(notesDir, "Templates");
+    await fs.mkdir(nestedDir, { recursive: true });
+
+    await fs.writeFile(
+      path.join(nestedDir, "New Zettel Template.md"),
+      `---
+id: YYYYMMDDHHMM
+aliases: []
+tags: []
+---
+
+Template note content.
+`,
+    );
+
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
   test("derives title from filename when frontmatter and H1 are absent", async () => {
     const notesDir = path.join(testDir, "notes");
 
@@ -140,7 +162,7 @@ describe("Notes Commands", () => {
       });
 
       expect(id).toMatch(/^\d{12}$/);
-      expect(filePath).toContain("test-note");
+      expect(filePath).toContain("Test Note");
       expect(filePath).toContain(".md");
 
       const content = await fs.readFile(filePath, "utf-8");

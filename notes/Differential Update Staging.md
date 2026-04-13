@@ -8,6 +8,6 @@ tags: [cx, bundle, operations]
 
 ## Links
 
-- [[vcs-master-base]] - The diff is computed from the settled file plan.
-- [[dirty-state-taxonomy]] - Update mode does not weaken the dirty-state guard.
-- [[ai-first-toolbox]] - Safe differential updates make the agent-facing workflow less brittle.
+- [[VCS Master Base]] - The diff is computed from the settled file plan.
+- [[Dirty State Taxonomy]] - Update mode does not weaken the dirty-state guard.
+- [[AI-first Toolbox]] - Safe differential updates make the agent-facing workflow less brittle.

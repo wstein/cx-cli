@@ -8,6 +8,6 @@ The dirty-state taxonomy separates bundle safety from convenience: `clean` and `
 
 ## Links
 
-- [[vcs-master-base]] - Dirty-state checks run after the candidate file set is known.
-- [[differential-update-staging]] - `--update` still respects the same safety contract.
-- [[ai-first-toolbox]] - Agents need explicit provenance, not hidden working-tree drift.
+- [[VCS Master Base]] - Dirty-state checks run after the candidate file set is known.
+- [[Differential Update Staging]] - `--update` still respects the same safety contract.
+- [[AI-first Toolbox]] - Agents need explicit provenance, not hidden working-tree drift.

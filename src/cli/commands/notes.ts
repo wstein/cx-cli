@@ -22,7 +22,7 @@ export interface NotesArgs {
 }
 
 /**
- * Generate a note ID in YYYYMMDDHHMM format from the current time.
+ * Generate a note ID in YYYYMMDDHHMMSS format from the current time.
  */
 function generateNoteId(): string {
   const now = new Date();
@@ -59,12 +59,17 @@ Write your note here. Keep it atomic and focused on one idea.
   return frontmatter;
 }
 
-function slugFromTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .replace(/-+/g, "-");
+function fileNameFromTitle(title: string): string {
+  const cleaned = title
+    .trim()
+    .replace(/\.md$/i, "")
+    .replace(/[\/\\]+/g, " ")
+    .replace(/[:?<>|*"`]+/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/^[\.\s]+/, "")
+    .replace(/[\.\s]+$/, "");
+
+  return cleaned || "untitled";
 }
 
 /**
@@ -86,13 +91,13 @@ export async function createNewNote(
   // Generate new ID
   const id = generateNoteId();
 
-  // Create filename from title headline
-  const baseName = slugFromTitle(title);
+  // Create filename from title headline preserving a human-readable title.
+  const baseName = fileNameFromTitle(title);
   let fileName = `${baseName}.md`;
   let filePath = path.join(notesPath, fileName);
 
   if (await pathExists(filePath)) {
-    fileName = `${baseName}-${id}.md`;
+    fileName = `${baseName} - ${id}.md`;
     filePath = path.join(notesPath, fileName);
   }
 

@@ -73,9 +73,9 @@ The value of the system comes from the graph, not from isolated pages.
 
 ### 4. Keep IDs Stable
 
-Every note uses a time-based frontmatter id in the form \`YYYYMMDDHHMM\`.
+Every note uses a time-based frontmatter id in the form \`YYYYMMDDHHMMSS\`.
 
-The id is for machines, search, routing, and stable reference. The H1 is for humans. Do not put the numeric id in the visible title.
+The id is for machines, search, routing, and stable reference. The filename is the canonical note title. Do not put the numeric id in the visible title.
 
 ## The Barbell Method Of Triage
 
@@ -89,20 +89,20 @@ Avoid the mushy middle of vague status notes, meeting debris, or copied snippets
 ## Recommended Workflow
 
 1. Start from \`template-new-zettel.md\`.
-2. Assign a fresh \`id\` using local time in \`YYYYMMDDHHMM\` format.
+2. Assign a fresh \`id\` using local time in \`YYYYMMDDHHMMSS\` format.
 3. Give the note a clear searchable title.
 4. Write one thought in your own words.
 5. Add explicit links to related notes and code paths.
-6. Save the file with a human-readable name.
+6. Save the file with a human-readable filename that matches the note title.
 
-Suggested filename style: \`clear-searchable-title.md\`.
+Suggested filename style: \`Clear Searchable Title.md\`.
 
 ## Minimum Anatomy
 
 Every note must contain:
 
 - YAML frontmatter with \`id\`, \`aliases\`, and \`tags\`
-- one H1 title
+
 - one atomic body
 - one links section with radial connections
 
@@ -122,12 +122,10 @@ If the content will be obsolete as soon as the ticket closes, it probably belong
 
 export function renderNewZettelTemplate(): string {
   return `---
-id: YYYYMMDDHHMM
+id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---
-# Clear, searchable title
-
 Write one discrete architectural thought in your own words. Keep it atomic: one concept, one mechanism, one decision, one constraint, or one failure mode.
 
 ## Links

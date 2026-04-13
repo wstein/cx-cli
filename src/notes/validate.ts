@@ -29,7 +29,7 @@ export interface ValidateNotesResult {
 }
 
 /**
- * Regex for valid note IDs: YYYYMMDDHHMM format
+ * Regex for valid note IDs: YYYYMMDDHHMMSS format
  * Matches: 202501131430, 202512312359, etc.
  */
 const NOTE_ID_REGEX = /^\d{12}$/;
@@ -167,7 +167,7 @@ async function extractNoteMetadata(
         metadata: null,
         error: {
           filePath,
-          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMM (e.g., 202501131430)`,
+          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS (e.g., 202501131430)`,
         },
       };
     }
@@ -246,11 +246,15 @@ export async function validateNotes(
   // List all markdown files in notes directory
   const markdownFiles = (await listFilesRecursive(notesDirAbsolute))
     .filter((file) => file.endsWith(".md"))
-    // Skip the README and template
-    .filter(
-      (file) =>
-        !file.endsWith("README.md") && !file.endsWith("template-new-zettel.md"),
-    );
+    // Skip the README and known template names anywhere in the notes tree.
+    .filter((file) => {
+      const baseName = path.basename(file);
+      return (
+        baseName !== "README.md" &&
+        baseName !== "template-new-zettel.md" &&
+        baseName !== "New Zettel Template.md"
+      );
+    });
 
   const notes: NoteMetadata[] = [];
   const errors: NoteValidationError[] = [];

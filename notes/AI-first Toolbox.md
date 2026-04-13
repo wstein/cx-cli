@@ -8,6 +8,6 @@ tags: [cx, philosophy, ai]
 
 ## Links
 
-- [[vcs-master-base]] - The planner still starts from the VCS-derived file set.
-- [[dirty-state-taxonomy]] - Safety rules keep the AI-first surface trustworthy.
-- [[agentic-ecosystem-mcp]] - External tools can inspect packed output and ask for more context.
+- [[VCS Master Base]] - The planner still starts from the VCS-derived file set.
+- [[Dirty State Taxonomy]] - Safety rules keep the AI-first surface trustworthy.
+- [[Agentic Ecosystem MCP]] - External tools can inspect packed output and ask for more context.

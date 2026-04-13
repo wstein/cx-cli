@@ -95,7 +95,7 @@ describe("main", () => {
     expect(notesGuide).toContain("# Zettelkasten 101");
     expect(notesGuide).toContain("collector's fallacy");
     expect(notesGuide).toContain("Barbell Method Of Triage");
-    expect(notesTemplate).toContain("id: YYYYMMDDHHMM");
+    expect(notesTemplate).toContain("id: YYYYMMDDHHMMSS");
     expect(notesTemplate).toContain("aliases: []");
     expect(notesTemplate).toContain("tags: []");
     expect(notesTemplate).toContain("## Links");
