@@ -14,7 +14,71 @@ invariants, which are always hard failures and cannot be configured away.
 >
 > - Section overlap (when `dedup.mode = "fail"`, the compiled default)
 > - Asset collision between a section and an asset rule
+>
+## File Discovery
+>
 > - Missing core adapter contract (`mergeConfigs` not exported)
+`cx` builds the master file list from the version control system. Section globs
+then classify files within that list — they never extend it.
+
+### `[files]`
+
+| Key | Default | Description |
+|---|---|---|
+| `include` | `[]` | Additional glob patterns to add to the VCS master list. |
+| `exclude` | `["node_modules/**", "dist/**", "tmp/**"]` | Glob patterns removed from the master list after all inclusions. |
+| `follow_symlinks` | `false` | Whether to follow symbolic links during filesystem discovery. |
+| `unmatched` | `"ignore"` | What to do with masterlist files not claimed by any section: `"ignore"`, `"warn"`, or `"fail"`. |
+
+**`files.include`** extends the VCS-derived master list with files that match
+the provided patterns. Use this when you need to bundle generated artefacts
+that are not tracked by VCS. An empty list (the default) means the master list
+is exactly the VCS-tracked set.
+
+**`files.exclude`** removes paths from the master list after all extensions
+have been applied. VCS-internal files (`.git/**`, `.fslckout`) are always
+excluded regardless of this setting. Use `exclude` to prevent specific
+directories from ever being planned, regardless of section config.
+
+### `[sections.*]`
+
+Each section is declared as `[sections.<name>]` in `cx.toml`.
+
+| Key | Required | Default | Description |
+|---|---|---|---|
+| `include` | Yes (or `catch_all = true`) | — | Glob patterns that select files from the master list for this section. |
+| `exclude` | No | `[]` | Glob patterns that remove files from this section after `include` matching. |
+| `priority` | No | `0` | Numeric priority for overlap resolution. Higher values win. |
+| `style` | No | inherits `[repomix].style` | Output style: `xml`, `markdown`, `json`, or `plain`. |
+| `catch_all` | No | `false` | If `true`, absorbs all masterlist files not claimed by any other section. Mutually exclusive with `include`. |
+
+**`catch_all = true`** declares a sweep-up section. It runs after all normal
+sections have claimed their files and absorbs whatever remains in the master
+list. At most one catch-all section may be defined per project.
+
+```toml
+[sections.rest]
+catch_all = true
+exclude = ["generated/**"]  # optional: filter within the catch-all
+```
+
+**Section globs are classifiers, not discoverers.** An `include` pattern can
+only select files already present in the master list. A pattern that matches
+nothing does not cause an error; it simply contributes no files to the section.
+
+Example:
+
+```toml
+[sections.src]
+include = ["src/**"]
+exclude = ["src/**/*.test.ts"]
+priority = 10
+
+[sections.tests]
+include = ["tests/**", "src/**/*.test.ts"]
+priority = 5
+```
+
 >
 > No env var, TOML key, or CLI flag affects these. They always cause a non-zero exit.
 
@@ -483,7 +547,8 @@ Example layout:
 
 ```toml
 [files]
-exclude = [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"]
+include = []
+exclude = ["node_modules/**", "dist/**", "tmp/**"]
 
 [sections.docs]
 include = ["docs/**", "README.md", "*.md"]

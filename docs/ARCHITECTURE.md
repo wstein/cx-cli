@@ -67,17 +67,60 @@ directory that exposes a `renderSection` function with the same signature as
 
 The planner resolves:
 
-- project name
-- source root
-- output directory
-- section membership (including priority-based overlap resolution)
-- copied assets
-- unmatched files
-- overlap and collision failures
 
 This happens before rendering because the plan must be settled first.
 
+#### VCS-driven file discovery
+
+The master list of plannable files is derived from the version control system,
+not from a filesystem walk. The priority order is:
+
+1. **Git** — `git ls-files --cached` provides the tracked set.
+2. **Fossil** — `fossil ls` provides the tracked set.
+3. **Filesystem** — used as a fallback when no VCS root is detected (e.g. in
+ test environments or unversioned workspaces).
+
+The global `[files] include` array can extend the master list with additional
+files matching arbitrary glob patterns that the VCS does not track (generated
+artefacts, build outputs). The global `[files] exclude` array is applied after
+all extensions to remove paths that should never be planned regardless of
+section config.
+
+Section `include` and `exclude` globs are **classifiers**, not discoverers.
+They operate on the already-computed master list and can never add a file that
+is not already in it. This separates the question of *what exists* from the
+question of *where it belongs*.
+
+#### Dirty state taxonomy
+
+After deriving the master list, the planner classifies the working tree into
+one of four states:
+
+| State | Condition | Default behavior |
+|---|---|---|
+| `clean` | No modified or untracked files | Plan proceeds normally |
+| `safe_dirty` | Only untracked files present | Plan proceeds with a warning |
+| `unsafe_dirty` | Tracked files have uncommitted modifications | Planning aborts (exit 7) |
+| `forced_dirty` | `unsafe_dirty` overridden with `--force` | Plan proceeds with a warning |
+
+The `unsafe_dirty` guard exists because a bundle built from a dirty tracked
+file cannot be reliably reproduced or verified later. The `--force` escape
+hatch is available for local experimentation but should not be used in CI.
+
+VCS state is not tracked for filesystem-fallback workspaces. Those always
+produce `dirtyState = "clean"` and `vcsProvider = "none"`.
+
 #### Section priority and overlap resolution
+
+#### Catch-all sections
+
+A section may set `catch_all = true` instead of providing an `include` list.
+A catch-all section absorbs all files in the master list that were not claimed
+by any other section. It runs last in the planning pipeline, after all
+normal sections have consumed their files, and may still apply an `exclude`
+list to filter what it absorbs.
+
+At most one catch-all section is permitted per configuration.
 
 Sections are ordered by their `priority` value (descending) before overlap
 resolution begins. A file claimed by multiple sections is assigned to whichever
@@ -121,15 +164,9 @@ The renderer also reports output token counts. If the adapter supports exact spa
 
 `cx` writes a canonical manifest that records:
 
-- bundle identity and versions
-- source root and bundle directory
-- checksum algorithm
-- the shared bundle index filename
-- section outputs
-- copied assets
-- per-file token counts
-- source metadata such as size, media type, and mtime
-- output spans for XML, Markdown, and plain sections when exact span capture is available; JSON sections do not need them
+- VCS provider (`git`, `fossil`, or `none`)
+- dirty state at bundle time (`clean`, `safe_dirty`, or `forced_dirty`)
+- list of uncommitted modified files when `forced_dirty`
 
 The manifest is not just a report. It is the contract other commands operate against.
 
@@ -153,9 +190,7 @@ After bundling, other commands use the recorded state:
 
 Some failures are fundamental and intentionally hard:
 
-- section overlap when overlap failure mode is active
-- asset collision between copied assets and packed files
-- missing core adapter contract
+- `unsafe_dirty` working tree without `--force` (exit code 7)
 
 These are Category A invariants. They are never configurable away because doing so would make the bundle ambiguous or unverifiable.
 

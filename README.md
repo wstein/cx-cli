@@ -20,7 +20,10 @@ The strictness is the feature. If a file lands in two sections, if a checksum do
 
 ## What You Get
 
-- Deterministic file discovery and section planning
+- VCS-driven master file list (git, fossil, or filesystem fallback)
+- Section globs as classifiers: they sort tracked files, they cannot add new ones
+- Catch-all sections that absorb unmatched files from the VCS master list
+- Dirty-state guard: uncommitted modifications block bundling unless `--force` is passed
 - One Repomix-compatible render per section
 - A shared bundle index artifact for multi-file handover
 - Persistent token accounting stored in the manifest

@@ -12,9 +12,13 @@ If you are new to the project, read the README first. If you need the invariants
 
 1. Load and validate `cx.toml`.
 2. Build a deterministic plan of text files, sections, and copied assets.
-3. Render each section through the Repomix adapter.
-4. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
-5. Let downstream tools inspect, verify, list, or extract from that recorded state.
+3. Detect the VCS provider (git, fossil, or filesystem fallback) and derive the
+ master file list from tracked files. Classify the working-tree dirty state.
+4. Assign files to sections (classifiers, not discoverers). Resolve overlaps.
+ Optionally absorb remaining files into a catch-all section.
+5. Render each section through the Repomix adapter.
+6. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
+7. Let downstream tools inspect, verify, list, or extract from that recorded state.
 
 The bundle is the deliverable. The manifest is the source of truth for what the bundle means.
 
@@ -56,11 +60,11 @@ Example output:
 
 ```text
 Token breakdown
-	SECTION  TOKENS   SHARE   GRAPH
-	docs        411   53.4%  ████████████████
-	repo        198   25.7%  ████████
-	src         161   20.9%  ██████
-	Total       770  100.0%  ████████████████████████
+ SECTION  TOKENS   SHARE   GRAPH
+ docs        411   53.4%  ████████████████
+ repo        198   25.7%  ████████
+ src         161   20.9%  ██████
+ Total       770  100.0%  ████████████████████████
 ```
 
 ### 2. Build the bundle
@@ -74,6 +78,17 @@ For iterative local workflows, use differential update mode:
 ```bash
 cx bundle --config cx.toml --update
 ```
+
+If the working tree has uncommitted modifications to tracked files, `cx bundle`
+aborts with exit code 7 to prevent an unverifiable bundle. Use `--force` to
+override this guard for local experimentation:
+
+```bash
+cx bundle --config cx.toml --force
+```
+
+`--force` sets the manifest `dirtyState` to `forced_dirty` and records the
+list of modified files. Do not use `--force` in CI pipelines.
 
 `--update` renders into an OS temporary staging directory and synchronizes only
 changed files into the final bundle directory. Files no longer present in the
@@ -201,6 +216,39 @@ cx bundle --config cx.toml
 Do not stop after editing the config. Re-run `inspect` or `bundle` immediately so the repaired manifest plan is confirmed in the same terminal session.
 
 ## Workflow: Safe CI Operation
+
+## Workflow: VCS Dirty State
+
+`cx` classifies the working tree before planning and records the result in the
+manifest.
+
+| State | Meaning | Default |
+|---|---|---|
+| `clean` | No modifications or untracked files | Proceeds normally |
+| `safe_dirty` | Untracked files only | Proceeds with a warning |
+| `unsafe_dirty` | Tracked files have uncommitted changes | Aborts (exit code 7) |
+| `forced_dirty` | `unsafe_dirty` overridden via `--force` | Proceeds with a warning |
+
+The `unsafe_dirty` guard is a Category A invariant. It cannot be configured
+away with `--strict` / `--lenient` or env vars. The only override is the
+per-invocation `--force` flag:
+
+```bash
+cx bundle --config cx.toml --force
+```
+
+When `--force` is used, the manifest records `dirtyState = "forced_dirty"` and
+includes the list of modified files in `modifiedFiles`. This lets reviewers see
+exactly which files were dirty when the bundle was built.
+
+In CI, never pass `--force`. A dirty tracked file on a CI runner usually means
+a generated output was checked in, a patch was applied without committing, or
+the wrong branch was used.
+
+The dirty-state check is bypassed entirely when no VCS is detected (filesystem
+fallback). In that case, `vcsProvider = "none"` and `dirtyState = "clean"` are
+recorded unconditionally.
+
 
 For automated pipelines, prefer strict mode:
 
