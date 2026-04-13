@@ -89,6 +89,16 @@ Build the bundle:
 cx bundle --config cx.toml
 ```
 
+Apply a differential update (copy changed files only, prune orphaned artifacts):
+
+```bash
+cx bundle --config cx.toml --update
+```
+
+`--update` stages artifacts in a temporary directory, then syncs into `output_dir`.
+Pruning is safety-gated: `cx` refuses to prune if the target directory does not
+look like an existing bundle directory.
+
 Validate and verify it:
 
 Assuming your config writes to `dist/demo-bundle`:

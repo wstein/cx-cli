@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import { validateBundle } from "../../bundle/validate.js";
@@ -34,7 +35,7 @@ import {
   printSuccess,
   printTable,
 } from "../../shared/format.js";
-import { ensureDir } from "../../shared/fs.js";
+import { ensureDir, listFilesRecursive, relativePosix } from "../../shared/fs.js";
 import { CxError } from "../../shared/errors.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
@@ -44,6 +45,98 @@ export interface BundleArgs {
   config: string;
   json?: boolean | undefined;
   layout?: CxAssetsLayout | undefined;
+  update?: boolean | undefined;
+}
+
+function assertSafeBundleRelativePath(value: string): void {
+  if (value.length === 0 || path.isAbsolute(value)) {
+    throw new CxError(`Unsafe bundle output path '${value}'.`, 2);
+  }
+  const normalized = path.normalize(value);
+  if (normalized === ".." || normalized.startsWith(`..${path.sep}`)) {
+    throw new CxError(`Unsafe bundle output path '${value}'.`, 2);
+  }
+}
+
+async function ensureSafePruneTarget(finalDir: string): Promise<void> {
+  let entries: string[];
+  try {
+    entries = await fs.readdir(finalDir);
+  } catch {
+    return;
+  }
+
+  if (entries.length === 0) {
+    return;
+  }
+
+  const hasBundleMarker = entries.some(
+    (entry) => entry.endsWith("-manifest.json") || entry.endsWith("-lock.json"),
+  );
+  if (!hasBundleMarker) {
+    throw new CxError(
+      `Refusing --update prune for '${finalDir}': target does not appear to be a cx bundle directory (missing *-manifest.json or *-lock.json).`,
+      4,
+    );
+  }
+}
+
+async function pruneEmptyDirectories(rootDir: string): Promise<void> {
+  const entries = await fs.readdir(rootDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const childPath = path.join(rootDir, entry.name);
+    await pruneEmptyDirectories(childPath);
+    const childEntries = await fs.readdir(childPath);
+    if (childEntries.length === 0) {
+      await fs.rmdir(childPath);
+    }
+  }
+}
+
+async function performDifferentialSync(params: {
+  stagingDir: string;
+  finalDir: string;
+  expectedFiles: string[];
+}): Promise<void> {
+  const { stagingDir, finalDir, expectedFiles } = params;
+  await fs.mkdir(finalDir, { recursive: true });
+  await ensureSafePruneTarget(finalDir);
+
+  for (const relativePath of expectedFiles) {
+    assertSafeBundleRelativePath(relativePath);
+    const stagePath = path.join(stagingDir, relativePath);
+    const finalPath = path.join(finalDir, relativePath);
+
+    let needsUpdate = true;
+    try {
+      const [stageHash, finalHash] = await Promise.all([
+        sha256File(stagePath),
+        sha256File(finalPath),
+      ]);
+      needsUpdate = stageHash !== finalHash;
+    } catch {
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      await fs.mkdir(path.dirname(finalPath), { recursive: true });
+      await fs.copyFile(stagePath, finalPath);
+    }
+  }
+
+  const expectedSet = new Set(expectedFiles.map((filePath) => filePath));
+  const existingFiles = await listFilesRecursive(finalDir);
+  for (const existingFile of existingFiles) {
+    const relativePath = relativePosix(finalDir, existingFile);
+    if (!expectedSet.has(relativePath)) {
+      await fs.rm(existingFile, { force: true });
+    }
+  }
+
+  await pruneEmptyDirectories(finalDir);
 }
 
 export async function runBundleCommand(args: BundleArgs): Promise<number> {
@@ -63,13 +156,20 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     );
   }
 
-  await ensureDir(plan.bundleDir);
+  const updateMode = args.update ?? false;
+  const stagingRoot = updateMode
+    ? await fs.mkdtemp(path.join(os.tmpdir(), "cx-bundle-update-"))
+    : null;
+  const activeBundleDir = stagingRoot ?? plan.bundleDir;
 
-  for (const asset of plan.assets) {
-    const destination = path.join(plan.bundleDir, asset.storedPath);
-    await ensureDir(path.dirname(destination));
-    await fs.copyFile(asset.absolutePath, destination);
-  }
+  await ensureDir(activeBundleDir);
+
+  try {
+    for (const asset of plan.assets) {
+      const destination = path.join(activeBundleDir, asset.storedPath);
+      await ensureDir(path.dirname(destination));
+      await fs.copyFile(asset.absolutePath, destination);
+    }
 
   const sectionOutputs = [];
   const sectionSpanMaps: SectionSpanMaps = new Map();
@@ -78,57 +178,57 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const renderWarnings: string[] = [];
   const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
 
-  for (const section of plan.sections) {
-    const outputPath = path.join(plan.bundleDir, section.outputFile);
-    const renderResult = await renderSectionWithRepomix({
-      config,
-      style: section.style,
-      sourceRoot: plan.sourceRoot,
-      outputPath,
-      sectionName: section.name,
-      explicitFiles: section.files.map((file) => file.absolutePath),
-      bundleIndexFile,
-      requireStructured: true,
-      requireOutputSpans: requiresOutputSpans,
-    });
-    renderWarnings.push(...renderResult.warnings);
-    const totalSectionBytes = section.files.reduce(
-      (sum, file) => sum + file.sizeBytes,
-      0,
-    );
-    const outputTokenCount = countTokens(
-      renderResult.outputText,
-      config.tokens.encoding,
-    );
-    sectionOutputs.push({
-      name: section.name,
-      style: section.style,
-      outputFile: section.outputFile,
-      outputSha256: await sha256File(outputPath),
-      fileCount: section.files.length,
-      sizeBytes: totalSectionBytes,
-      tokenCount: renderResult.outputTokenCount,
-      outputTokenCount,
-    });
-    sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
-    sectionHashMaps.set(section.name, renderResult.fileContentHashes);
-    if (renderResult.fileSpans) {
-      sectionSpanMaps.set(section.name, renderResult.fileSpans);
+    for (const section of plan.sections) {
+      const outputPath = path.join(activeBundleDir, section.outputFile);
+      const renderResult = await renderSectionWithRepomix({
+        config,
+        style: section.style,
+        sourceRoot: plan.sourceRoot,
+        outputPath,
+        sectionName: section.name,
+        explicitFiles: section.files.map((file) => file.absolutePath),
+        bundleIndexFile,
+        requireStructured: true,
+        requireOutputSpans: requiresOutputSpans,
+      });
+      renderWarnings.push(...renderResult.warnings);
+      const totalSectionBytes = section.files.reduce(
+        (sum, file) => sum + file.sizeBytes,
+        0,
+      );
+      const outputTokenCount = countTokens(
+        renderResult.outputText,
+        config.tokens.encoding,
+      );
+      sectionOutputs.push({
+        name: section.name,
+        style: section.style,
+        outputFile: section.outputFile,
+        outputSha256: await sha256File(outputPath),
+        fileCount: section.files.length,
+        sizeBytes: totalSectionBytes,
+        tokenCount: renderResult.outputTokenCount,
+        outputTokenCount,
+      });
+      sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
+      sectionHashMaps.set(section.name, renderResult.fileContentHashes);
+      if (renderResult.fileSpans) {
+        sectionSpanMaps.set(section.name, renderResult.fileSpans);
+      }
     }
-  }
 
-  await fs.writeFile(
-    path.join(plan.bundleDir, bundleIndexFile),
-    buildBundleIndexText({
-      projectName: plan.projectName,
-      sectionOutputs,
-      assetPaths: plan.assets.map((asset) => ({
-        sourcePath: asset.relativePath,
-        storedPath: asset.storedPath,
-      })),
-    }),
-    "utf8",
-  );
+    await fs.writeFile(
+      path.join(activeBundleDir, bundleIndexFile),
+      buildBundleIndexText({
+        projectName: plan.projectName,
+        sectionOutputs,
+        assetPaths: plan.assets.map((asset) => ({
+          sourcePath: asset.relativePath,
+          storedPath: asset.storedPath,
+        })),
+      }),
+      "utf8",
+    );
 
   const manifest = buildManifest({
     config,
@@ -142,11 +242,11 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     sectionHashMaps,
   });
   const manifestName = `${plan.projectName}-manifest.json`;
-  await fs.writeFile(
-    path.join(plan.bundleDir, manifestName),
-    renderManifestJson(manifest, config.manifest.pretty),
-    "utf8",
-  );
+    await fs.writeFile(
+      path.join(activeBundleDir, manifestName),
+      renderManifestJson(manifest, config.manifest.pretty),
+      "utf8",
+    );
 
   // Write the lock file capturing the effective behavioral settings used
   // during this bundle run. cx verify reads it and warns on drift.
@@ -173,17 +273,36 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       },
     },
   };
-  await writeLock(plan.bundleDir, plan.projectName, lockFile);
+    await writeLock(activeBundleDir, plan.projectName, lockFile);
 
-  await writeChecksumFile(plan.bundleDir, plan.checksumFile, [
-    manifestName,
-    lockFileName(plan.projectName),
-    bundleIndexFile,
-    ...plan.sections.map((section) => section.outputFile),
-    ...plan.assets.map((asset) => asset.storedPath),
-  ]);
+    const expectedFiles = [
+      manifestName,
+      lockFileName(plan.projectName),
+      bundleIndexFile,
+      ...plan.sections.map((section) => section.outputFile),
+      ...plan.assets.map((asset) => asset.storedPath),
+      plan.checksumFile,
+    ];
 
-  await validateBundle(plan.bundleDir);
+    await writeChecksumFile(activeBundleDir, plan.checksumFile, [
+      manifestName,
+      lockFileName(plan.projectName),
+      bundleIndexFile,
+      ...plan.sections.map((section) => section.outputFile),
+      ...plan.assets.map((asset) => asset.storedPath),
+    ]);
+
+    await validateBundle(activeBundleDir);
+
+    if (updateMode) {
+      await performDifferentialSync({
+        stagingDir: activeBundleDir,
+        finalDir: plan.bundleDir,
+        expectedFiles,
+      });
+    }
+
+    await validateBundle(plan.bundleDir);
 
   // Calculate total statistics
   const totalAssetBytes = plan.assets.reduce(
@@ -204,7 +323,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   );
 
   // Print human-friendly report
-  if (!(args.json ?? false)) {
+    if (!(args.json ?? false)) {
     printHeader("Bundle Summary");
     printTable([
       ["Project", plan.projectName],
@@ -243,27 +362,32 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     printSuccess("Bundle created successfully");
   }
 
-  if (args.json ?? false) {
-    writeJson({
-      projectName: plan.projectName,
-      bundleDir: plan.bundleDir,
-      manifestName: `${plan.projectName}-manifest.json`,
-      checksumFile: plan.checksumFile,
-      bundleIndexFile,
-      sections: sectionOutputs,
-      sectionCount: plan.sections.length,
-      assetCount: plan.assets.length,
-      unmatchedCount: plan.unmatchedFiles.length,
-      statistics: {
-        totalSectionBytes,
-        totalAssetBytes,
-        totalBytes: totalSectionBytes + totalAssetBytes,
-        totalPackedTokens: totalTokens,
-        totalOutputTokens,
-      },
-      warnings: [...plan.warnings, ...renderWarnings],
-      repomix: await getRepomixCapabilities(),
-    });
+    if (args.json ?? false) {
+      writeJson({
+        projectName: plan.projectName,
+        bundleDir: plan.bundleDir,
+        manifestName: `${plan.projectName}-manifest.json`,
+        checksumFile: plan.checksumFile,
+        bundleIndexFile,
+        sections: sectionOutputs,
+        sectionCount: plan.sections.length,
+        assetCount: plan.assets.length,
+        unmatchedCount: plan.unmatchedFiles.length,
+        statistics: {
+          totalSectionBytes,
+          totalAssetBytes,
+          totalBytes: totalSectionBytes + totalAssetBytes,
+          totalPackedTokens: totalTokens,
+          totalOutputTokens,
+        },
+        warnings: [...plan.warnings, ...renderWarnings],
+        repomix: await getRepomixCapabilities(),
+      });
+    }
+  } finally {
+    if (stagingRoot) {
+      await fs.rm(stagingRoot, { recursive: true, force: true });
+    }
   }
   return 0;
 }

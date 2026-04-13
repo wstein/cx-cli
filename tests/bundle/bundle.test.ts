@@ -1189,6 +1189,79 @@ include_source_metadata = true`;
     ).toBe(0);
   });
 
+  test("--update prunes orphaned outputs after config changes", async () => {
+    const project = await createProject();
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const preservedSectionPath = path.join(
+      project.bundleDir,
+      "demo-repomix-src.xml.txt",
+    );
+    const preservedBefore = await sha256File(preservedSectionPath);
+    const orphanedAssetPath = path.join(
+      project.bundleDir,
+      "demo-assets",
+      "logo.png",
+    );
+    expect(await fs.stat(orphanedAssetPath)).toBeDefined();
+
+    await fs.writeFile(
+      project.configPath,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        'include = ["**/*.png"]',
+        "include = []",
+      ),
+      "utf8",
+    );
+
+    expect(
+      await runBundleCommand({ config: project.configPath, update: true }),
+    ).toBe(0);
+
+    await expect(fs.stat(orphanedAssetPath)).rejects.toThrow();
+    const preservedAfter = await sha256File(preservedSectionPath);
+    expect(preservedAfter).toBe(preservedBefore);
+  });
+
+  test("--update refuses to prune non-bundle directories", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-update-safety-"));
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.writeFile(path.join(root, "src", "index.ts"), "export const x = 1;\n", "utf8");
+    await fs.writeFile(path.join(root, "README.md"), "# keep\n", "utf8");
+    const configPath = path.join(root, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "."
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(runBundleCommand({ config: configPath, update: true })).rejects.toThrow(
+      "Refusing --update prune",
+    );
+    expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
+      "# keep\n",
+    );
+  });
+
   test("fails verify --against when the source tree drifts", async () => {
     const project = await createProject();
 

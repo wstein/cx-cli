@@ -152,8 +152,18 @@ export async function main(argv: string[]): Promise<number> {
       (command) =>
         command
           .example("$0 bundle --config cx.toml", "Build the configured bundle.")
+          .example(
+            "$0 bundle --config cx.toml --update",
+            "Apply a differential update and prune orphaned bundle artifacts.",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false })
+          .option("update", {
+            type: "boolean",
+            default: false,
+            description:
+              "Build in a temporary staging directory, sync changed files, and prune orphaned artifacts safely.",
+          })
           .option("layout", {
             choices: ["flat", "deep"] as const,
             description:
@@ -164,6 +174,7 @@ export async function main(argv: string[]): Promise<number> {
           config: args.config,
           json: args.json,
           layout: args.layout,
+          update: args.update,
         });
       },
     )

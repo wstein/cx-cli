@@ -68,6 +68,20 @@ Token breakdown
 cx bundle --config cx.toml
 ```
 
+For iterative local workflows, use differential update mode:
+
+```bash
+cx bundle --config cx.toml --update
+```
+
+`--update` renders into an OS temporary staging directory and synchronizes only
+changed files into the final bundle directory. Files no longer present in the
+new manifest are pruned.
+
+Pruning is guarded by a safety lock: if the target directory does not contain a
+bundle marker (`*-manifest.json` or `*-lock.json`), `cx` aborts instead of
+deleting files.
+
 This writes:
 
 - one rendered output per section
