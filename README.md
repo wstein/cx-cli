@@ -10,7 +10,9 @@ It plans repository sections, renders one Repomix-compatible output per section,
 
 - [docs/README.md](docs/README.md) for the formal documentation index
 - [docs/spec-draft.md](docs/spec-draft.md) for the editorial consensus draft
+- [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the permanent repository knowledge layer
+- [schemas/cx-config-v1.schema.json](schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
 
 ## Why CX Exists
 
@@ -92,6 +94,18 @@ cx init --name demo
 - `notes/template-new-zettel.md` as the atomic note template
 
 The generated notes directory is intentionally part of the repository contract. The idea is to keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
+
+### Editor autocomplete and linting
+
+The generated `cx.toml` includes a schema directive for [Taplo](https://taplo.tamasfe.dev/) (the TOML extension in VS Code). This enables real-time autocomplete, validation, and linting:
+
+```toml
+#:schema ./schemas/cx-config-v1.schema.json
+schema_version = 1
+project_name = "myproject"
+```
+
+The schema validates structural shape and enum constraints. Runtime validation in `cx load` enforces relational invariants (e.g., catch-all restrictions). See [docs/config-reference.md](docs/config-reference.md#json-schema-for-editor-tooling) for details.
 
 Preview the deterministic plan before writing anything:
 

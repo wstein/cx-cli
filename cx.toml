@@ -1,3 +1,5 @@
+#:schema ./schemas/cx-config-v1.schema.json
+
 schema_version = 1
 project_name = "cx-cli"
 source_root = "."

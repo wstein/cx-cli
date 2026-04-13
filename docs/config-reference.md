@@ -2,6 +2,40 @@
 
 This document describes the knobs. For the operator workflow, read [Operator Manual](MANUAL.md). For the invariants behind these settings, read [Architecture](ARCHITECTURE.md).
 
+## JSON Schema for Editor Tooling
+
+A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. This schema validates the structural shape and enforces enum constraints.
+
+### Using the schema in VS Code with Taplo
+
+Add the following comment directive to the top of your `cx.toml`:
+
+```toml
+#:schema ./schemas/cx-config-v1.schema.json
+schema_version = 1
+project_name = "myproject"
+```
+
+The schema directive comment is automatically included in generated `cx.toml` files by `cx init`. The TOML parser safely ignores this comment; it does not affect `cx`'s deterministic loading pipeline.
+
+### Schema validation vs. runtime validation
+
+The JSON Schema provides **structural validation** for IDE and language server use. It ensures that:
+
+- Required fields exist (`schema_version`, `project_name`, `source_root`, `sections`)
+- Types are correct (strings, numbers, booleans, arrays)
+- Enum constraints are enforced (e.g., `dedup.mode` must be `fail`, `warn`, or `first-wins`)
+- Reserved section names (`manifest`, `assets`, `bundle`) are forbidden
+
+However, runtime validation in [src/config/load.ts](../src/config/load.ts) is the **ultimate authority** and enforces relational invariants that schemas cannot easily express:
+
+- A catch-all section must not specify `include` patterns
+- Duplicate glob patterns are detected and handled per the configured mode
+- Project names are filesystem-safe
+- Pattern arrays contain no empty strings
+
+The schema provides a fast, helpful ergonomic layer before running `cx`, but `cx load` remains the deterministic, authoritative validator.
+
 ## File Discovery
 
 `cx` builds the master file list from the version control system. Section globs then classify files within that list; they never extend it.
