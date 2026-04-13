@@ -9,20 +9,6 @@ If you are new to the project, read the README first. If you need the invariants
 For the full documentation map, see [docs/README.md](README.md). For the
 editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
 
-## Mental Model
-
-`cx` is a pipeline, not just a formatter:
-
-1. Load and validate `cx.toml`.
-2. Detect the VCS provider (git, fossil, or filesystem fallback) and derive the master file list from tracked files. Classify the working-tree dirty state.
-3. Use that VCS-derived list as the master base. Apply global include/exclude rules to shape the list, but never let section globs extend it.
-4. Assign files to sections, copied assets, and unmatched-file handling. Section globs classify files; they do not discover new ones. Resolve overlaps and optionally absorb remaining files into a catch-all section.
-5. Render each section through the Repomix adapter.
-6. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
-7. Let downstream tools inspect, verify, list, or extract from that recorded state.
-
-The bundle is the deliverable. The manifest is the source of truth for what the bundle means.
-
 ## Core Commands
 
 | Command | Use it when |
@@ -41,6 +27,26 @@ The bundle is the deliverable. The manifest is the source of truth for what the 
 | `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
 | `cx completion` | You want shell-native command and flag completion |
+
+## Quick Operator Path
+
+If you want the shortest path to a useful result, use this flow:
+
+1. Initialize the workspace config and notes.
+2. Inspect the token budget before you bundle.
+3. Build the bundle or start the MCP server, depending on whether you are packaging or guiding an agent.
+4. Run the diagnostics that match the workflow you are changing.
+
+```bash
+cx init --name demo
+cx inspect --config cx.toml --token-breakdown
+cx bundle --config cx.toml
+cx mcp
+cx doctor mcp --config cx.toml
+cx doctor secrets --config cx.toml
+```
+
+`cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration.
 
 ## Standard Workflow
 

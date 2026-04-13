@@ -1,10 +1,19 @@
 # CX
 
-`cx` is a deterministic context bundler for teams that need reproducible LLM inputs, not just convenient local packing.
+`cx` is a deterministic context bundler and MCP-aware workflow tool for teams that need reproducible LLM inputs, not just convenient local packing.
 
-It is also becoming a developer-friendly AI-first toolbox: `cx init` now scaffolds repository notes, the CLI exposes graph-oriented note commands, and the generated bundles carry enough manifest metadata for downstream agents to reason about the project without reparsing Markdown.
+Start with the operator path:
 
-It plans repository sections, renders one Repomix-compatible output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
+1. `cx init --name demo`
+2. `cx inspect --token-breakdown`
+3. `cx bundle --config cx.toml`
+4. `cx mcp`
+5. `cx doctor mcp`
+6. `cx doctor secrets`
+
+It plans repository sections, renders one output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
+
+It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains. The generated bundles carry enough manifest metadata for downstream agents to reason about the project without reparsing Markdown.
 
 ## Documentation
 
@@ -35,7 +44,7 @@ The strictness is the feature. If a file lands in two sections, if a checksum do
 - Catch-all sections that absorb unmatched files from the VCS master list
 - Dirty-state guard: uncommitted modifications block bundling unless `--force` is passed
 - Differential `--update` mode that stages in a temporary directory and prunes orphaned bundle artifacts safely
-- One Repomix-compatible render per section
+- One rendered output per section
 - A shared bundle index artifact for multi-file handover
 - Persistent token accounting stored in the manifest
 - Optional absolute output spans per file when the active adapter supports them
@@ -190,7 +199,7 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
 | `cx completion` | Generate shell completion scripts |
 | `cx notes` | Create notes, list them, and inspect note graph relationships |
-| `cx adapter ...` | Inspect Repomix adapter capabilities and compatibility |
+| `cx adapter ...` | Inspect adapter capabilities and compatibility |
 
 Every command supports `--json` for machine consumption.
 
@@ -219,11 +228,10 @@ Open a new shell session after installation.
 
 - The bundle manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
 - The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
-- Repomix MCP Server integrations can package codebases or remote repositories and inspect packed output through tools such as `pack_codebase`, `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output`.
 - `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile.
 - `cx doctor mcp` and `cx doctor secrets` provide deterministic diagnostics for the MCP inheritance boundary and the master-list secret scan.
 
-That means an LLM agent can ask for more context, retrieve just the relevant packed surface, and reason about the repo as a live system rather than a static artifact.
+That means an LLM agent can ask for more context, retrieve just the relevant context surface, and reason about the repo as a live system rather than a static artifact.
 
 ## The Important Failure Model
 
@@ -234,7 +242,7 @@ Some constraints are non-negotiable:
 - missing core adapter contract is a hard failure
 - degraded extraction is blocked unless you explicitly pass `--allow-degraded`
 
-This is intentional. `cx` is designed to stop a pipeline before a bad bundle turns into a harder-to-debug downstream failure. For packed text files, the bundle hash tracks the normalized Repomix output, so `verify` and `extract` stay aligned with the actual handover payload instead of source-byte exactness.
+This is intentional. `cx` is designed to stop a pipeline before a bad bundle turns into a harder-to-debug downstream failure. For packed text files, the bundle hash tracks the normalized rendered output, so `verify` and `extract` stay aligned with the actual handover payload instead of source-byte exactness.
 
 ## Example `cx.toml`
 
