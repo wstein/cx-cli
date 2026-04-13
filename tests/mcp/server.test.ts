@@ -85,7 +85,7 @@ include = ["README.md"]
 }
 
 describe("cx MCP server", () => {
-  test("registers only cx-native list and grep tools", async () => {
+  test("registers only cx-native list, grep, and read tools", async () => {
     const project = await createWorkspace();
     const config = await loadCxConfig(project.mcpPath);
     const server = createCxMcpServer({
@@ -94,7 +94,7 @@ describe("cx MCP server", () => {
     });
     const toolNames = Object.keys((server as any)._registeredTools).sort();
 
-    expect(toolNames).toEqual(["grep", "list"]);
+    expect(toolNames).toEqual(["grep", "list", "read"]);
   });
 
   test("list returns workspace files from the active cx scope", async () => {
@@ -152,5 +152,35 @@ describe("cx MCP server", () => {
         (match) => match.path === "src/index.ts" && match.line.includes("hello"),
       ),
     ).toBe(true);
+  });
+
+  test("read returns anchored workspace content", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const readTool = (server as any)._registeredTools.read;
+
+    const result = await readTool.handler(
+      {
+        path: "src/index.ts",
+        startLine: 2,
+        endLine: 2,
+      },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      path: string;
+      lineStart: number;
+      lineEnd: number;
+      content: string;
+    };
+
+    expect(payload.path).toBe("src/index.ts");
+    expect(payload.lineStart).toBe(2);
+    expect(payload.lineEnd).toBe(2);
+    expect(payload.content).toContain("world");
   });
 });

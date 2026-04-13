@@ -3,6 +3,7 @@ import path from "node:path";
 
 import type { CxConfig } from "../config/types.js";
 import { buildMasterList } from "../planning/overlaps.js";
+import { CxError } from "../shared/errors.js";
 import { detectMediaType } from "../shared/mime.js";
 import { getVCSState } from "../vcs/provider.js";
 
@@ -33,6 +34,14 @@ export interface CxMcpSearchResult {
   matchCount: number;
   truncated: boolean;
   matches: CxMcpMatchRecord[];
+}
+
+export interface CxMcpReadResult {
+  path: string;
+  lineStart: number;
+  lineEnd: number;
+  lineCount: number;
+  content: string;
 }
 
 function normalizePrefix(prefix?: string): string {
@@ -209,5 +218,50 @@ export async function grepWorkspaceFiles(
     matchCount: matches.length,
     truncated: false,
     matches,
+  };
+}
+
+export async function readWorkspaceFile(
+  workspace: CxMcpWorkspace,
+  params: {
+    path: string;
+    startLine?: number;
+    endLine?: number;
+  },
+): Promise<CxMcpReadResult> {
+  const normalizedPath = normalizePrefix(params.path);
+  if (!normalizedPath) {
+    throw new CxError("path is required.", 2);
+  }
+
+  const masterList = await workspace.resolveMasterList();
+  if (!masterList.includes(normalizedPath)) {
+    throw new CxError(
+      `File ${normalizedPath} is not available in the workspace scope.`,
+      2,
+    );
+  }
+
+  const absolutePath = path.join(workspace.sourceRoot, normalizedPath);
+  const source = await fs.readFile(absolutePath, "utf8");
+  if (!isTextLike(source)) {
+    throw new CxError(`File ${normalizedPath} is not readable as text.`, 2);
+  }
+
+  const lines = source.split(/\r?\n/);
+  const lineCount = lines.length;
+  const startLine = Math.max(1, Math.floor(params.startLine ?? 1));
+  const endLine = Math.min(
+    lineCount,
+    Math.max(startLine, Math.floor(params.endLine ?? lineCount)),
+  );
+  const content = lines.slice(startLine - 1, endLine).join("\n");
+
+  return {
+    path: normalizedPath,
+    lineStart: startLine,
+    lineEnd: endLine,
+    lineCount,
+    content,
   };
 }

@@ -3,7 +3,11 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import type { CxMcpWorkspace } from "./workspace.js";
-import { grepWorkspaceFiles, listWorkspaceFiles } from "./workspace.js";
+import {
+  grepWorkspaceFiles,
+  listWorkspaceFiles,
+  readWorkspaceFile,
+} from "./workspace.js";
 
 function jsonToolResult(value: unknown): {
   content: Array<{ type: "text"; text: string }>;
@@ -63,6 +67,29 @@ export function registerCxMcpTools(
         caseSensitive: args.caseSensitive,
         prefix: args.prefix,
         limit: args.limit,
+      });
+
+      return jsonToolResult(result);
+    },
+  );
+
+  server.registerTool(
+    "read",
+    {
+      title: "Read workspace file",
+      description:
+        "Read a text file from the cx workspace scope with optional line anchors.",
+      inputSchema: z.object({
+        path: z.string().min(1),
+        startLine: z.number().int().positive().optional(),
+        endLine: z.number().int().positive().optional(),
+      }),
+    },
+    async (args) => {
+      const result = await readWorkspaceFile(workspace, {
+        path: args.path,
+        startLine: args.startLine,
+        endLine: args.endLine,
       });
 
       return jsonToolResult(result);
