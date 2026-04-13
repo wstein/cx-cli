@@ -6,6 +6,12 @@ It is also becoming a developer-friendly AI-first toolbox: `cx init` now scaffol
 
 It plans repository sections, renders one Repomix-compatible output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
+## Documentation
+
+- [docs/README.md](docs/README.md) for the formal documentation index
+- [docs/spec-draft.md](docs/spec-draft.md) for the editorial consensus draft
+- [notes/README.md](notes/README.md) for the permanent repository knowledge layer
+
 ## Why CX Exists
 
 Repomix is great for exploratory work: grab a snapshot, feed a prompt, move on.

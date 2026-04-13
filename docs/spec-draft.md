@@ -1,10 +1,13 @@
-Below is a concrete deliverable for **`cx`**.
-
-It is designed as a **separate tool** that depends on Repomix as a library, uses Repomix’s documented high-level and low-level library entry points, supports standard Repomix output styles, and keeps generated section files fully compatible with normal Repomix consumers. Repomix’s own docs show `runCli(...)` library usage, lower-level APIs such as `searchFiles`, `collectFiles`, `processFiles`, and support for output styles including `xml`, `markdown`, `json`, and `plain`. The uploaded snapshot also shows Repomix’s internal architecture split across CLI, config, file processing, output styles, and packager modules, which is a good fit for `cx` to sit above rather than inside.    
-
----
-
 # CX Architecture Specification
+
+This draft records the editorial consensus for the `cx` documentation set.
+Use [docs/README.md](./README.md) as the entry point and treat this file as
+the source of truth for the revision goals below.
+
+`cx` is designed as a separate tool that depends on Repomix as a library,
+uses Repomix’s documented high-level and low-level entry points, supports
+standard Repomix output styles, and keeps generated section files compatible
+with normal Repomix consumers.
 
 ## 1. Purpose
 

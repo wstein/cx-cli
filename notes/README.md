@@ -4,6 +4,12 @@ Welcome to the repository mind.
 
 This directory is a permanent knowledge layer for the codebase. It captures architectural intent, durable concepts, constraints, and decisions that should outlive any single sprint, ticket, or contributor.
 
+For the formal documentation set, start with [docs/README.md](../docs/README.md).
+The revision consensus for the repository lives in
+[docs/spec-draft.md](../docs/spec-draft.md).
+Use `notes/` for durable knowledge and `docs/` for decisions, plans, and
+implementation contracts.
+
 ## What This Is
 
 The Zettelkasten method comes from Niklas Luhmann's slip-box practice. In a software repository, it means you do not treat knowledge as a pile of disconnected snippets. You grow a network of small, explicit notes that can be read, linked, revised, and reused over the full life of the codebase.
