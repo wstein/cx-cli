@@ -10,6 +10,8 @@ The repository is no longer just producing static bundles; it is participating
 in agentic workflows. `cx mcp` starts the native CX MCP server with
 `cx-mcp.toml` when present, `cx doctor mcp` proves the inherited MCP scope, and
 `cx doctor secrets` scans the master list before an agent trusts the workspace.
+The server exposes native `list`, `grep`, and `read` tools for workspace-bound
+navigation.
 
 The MCP path is `cx`-native. It does not delegate agent execution to Repomix,
 because agent onboarding, profile inheritance, and diagnostic checks are part
