@@ -4,8 +4,10 @@ import path from "node:path";
 import { loadCxConfig } from "../../config/load.js";
 import {
   analyzeSectionOverlaps,
+  buildMasterList,
   type OverlapConflict,
 } from "../../planning/overlaps.js";
+import { getVCSState } from "../../vcs/provider.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 import {
@@ -48,7 +50,9 @@ export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
 async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
   const configPath = path.resolve(args.config ?? "cx.toml");
   const config = await loadCxConfig(configPath);
-  const conflicts = await analyzeSectionOverlaps(config);
+  const vcsState = await getVCSState(config.sourceRoot);
+  const masterList = await buildMasterList(config, vcsState);
+  const conflicts = await analyzeSectionOverlaps(config, masterList);
 
   if (args.json ?? false) {
     writeJson({
@@ -76,7 +80,9 @@ async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
 async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   const configPath = path.resolve(args.config ?? "cx.toml");
   const config = await loadCxConfig(configPath);
-  const conflicts = await analyzeSectionOverlaps(config);
+  const vcsState = await getVCSState(config.sourceRoot);
+  const masterList = await buildMasterList(config, vcsState);
+  const conflicts = await analyzeSectionOverlaps(config, masterList);
 
   if (conflicts.length === 0) {
     if (args.json ?? false) {

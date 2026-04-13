@@ -224,6 +224,10 @@ export async function main(argv: string[]): Promise<number> {
             "$0 bundle --config cx.toml --update",
             "Apply a differential update and prune orphaned bundle artifacts.",
           )
+          .example(
+            "$0 bundle --config cx.toml --force",
+            "Bundle even when tracked files have uncommitted changes (records forced_dirty in the manifest).",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false })
           .option("update", {
@@ -231,6 +235,12 @@ export async function main(argv: string[]): Promise<number> {
             default: false,
             description:
               "Build in a temporary staging directory, sync changed files, and prune orphaned artifacts safely.",
+          })
+          .option("force", {
+            type: "boolean",
+            default: false,
+            description:
+              "Override the unsafe-dirty safety check. Bundles tracked files with uncommitted changes and records the dirty state in the manifest.",
           })
           .option("layout", {
             choices: ["flat", "deep"] as const,
@@ -243,6 +253,7 @@ export async function main(argv: string[]): Promise<number> {
           json: args.json,
           layout: args.layout,
           update: args.update,
+          force: args.force,
         });
       },
     )

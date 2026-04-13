@@ -20,6 +20,7 @@ import type {
   SectionTokenMaps,
 } from "../../manifest/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import type { DirtyState } from "../../vcs/provider.js";
 import {
   CX_VERSION,
   getRepomixCapabilities,
@@ -46,6 +47,15 @@ export interface BundleArgs {
   json?: boolean | undefined;
   layout?: CxAssetsLayout | undefined;
   update?: boolean | undefined;
+  /**
+   * Override the unsafe-dirty safety check.
+   *
+   * By default, `cx bundle` aborts with exit code 7 when the working tree
+   * contains uncommitted changes to VCS-tracked files. Passing `--force`
+   * bypasses this check and records the effective state as "forced_dirty" in
+   * the manifest so the LLM knows it is reading uncommitted work.
+   */
+  force?: boolean | undefined;
 }
 
 function assertSafeBundleRelativePath(value: string): void {
@@ -145,6 +155,36 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     ...(args.layout !== undefined && { assetsLayout: args.layout }),
   });
   const plan = await buildBundlePlan(config);
+
+  // Dirty-state enforcement: abort on unsafe working trees unless --force was
+  // explicitly passed to acknowledge the risk.
+  if (plan.dirtyState === "unsafe_dirty") {
+    if (!(args.force ?? false)) {
+      const listed = plan.modifiedFiles.slice(0, 10).join(", ");
+      const more =
+        plan.modifiedFiles.length > 10
+          ? ` … and ${plan.modifiedFiles.length - 10} more`
+          : "";
+      throw new CxError(
+        `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.\n` +
+          "Pass --force to override and record the dirty state in the manifest.",
+        7,
+      );
+    }
+    process.stderr.write(
+      `Warning: bundling with uncommitted changes in ${plan.modifiedFiles.length} file(s). The manifest will record dirty state as 'forced_dirty'.\n`,
+    );
+  }
+
+  // Resolve the effective dirty state written to the manifest. An unsafe_dirty
+  // plan becomes forced_dirty when --force is present.
+  const effectiveDirtyState: Exclude<DirtyState, "unsafe_dirty"> =
+    plan.dirtyState === "unsafe_dirty" && (args.force ?? false)
+      ? ("forced_dirty" as const)
+      : (plan.dirtyState as Exclude<DirtyState, "unsafe_dirty">);
+
+  const effectiveModifiedFiles =
+    effectiveDirtyState === "forced_dirty" ? plan.modifiedFiles : [];
   const requiresOutputSpans = plan.sections.some(
     (section) => section.style !== "json",
   );
@@ -240,6 +280,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     sectionSpanMaps,
     sectionTokenMaps,
     sectionHashMaps,
+    dirtyState: effectiveDirtyState,
+    modifiedFiles: effectiveModifiedFiles,
   });
   const manifestName = `${plan.projectName}-manifest.json`;
     await fs.writeFile(
