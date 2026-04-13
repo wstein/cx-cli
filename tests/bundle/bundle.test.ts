@@ -443,7 +443,7 @@ include_source_metadata = true`;
 
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
-      schemaVersion: 5,
+      schemaVersion: MANIFEST_SCHEMA_VERSION,
       bundleVersion: 1,
       projectName: "demo",
       sourceRoot: "/tmp",
@@ -461,6 +461,9 @@ include_source_metadata = true`;
         securityCheck: false,
         normalizationPolicy: "repomix-default-v1",
       },
+        vcsProvider: "none",
+        dirtyState: "clean",
+        modifiedFiles: [],
       sections: [
         {
           name: "docs",

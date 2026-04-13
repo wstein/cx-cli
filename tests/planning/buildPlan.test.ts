@@ -83,6 +83,7 @@ function baseConfig(root: string): CxConfig {
       securityCheck: true,
     },
     files: {
+      include: [],
       exclude: ["dist/**", "bun.lock"],
       followSymlinks: false,
       unmatched: "ignore",
@@ -113,6 +114,7 @@ function baseConfig(root: string): CxConfig {
       dedupMode: "compiled default",
       repomixMissingExtension: "compiled default",
       configDuplicateEntry: "compiled default",
+      assetsLayout: "compiled default",
     },
     assets: {
       include: ["**/*.png"],

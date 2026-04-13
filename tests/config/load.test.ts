@@ -782,3 +782,148 @@ exclude = []
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// VCS-driven pipeline: catch_all sections and files.include
+// ---------------------------------------------------------------------------
+
+describe("catch_all sections", () => {
+  test("loads a catch_all section without include patterns", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-catchall-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+
+[sections.other]
+catch_all = true
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.sections.other?.catch_all).toBe(true);
+    expect(config.sections.other?.include).toBeUndefined();
+    expect(config.sections.src?.include).toEqual(["src/**"]);
+  });
+
+  test("rejects a catch_all section that also specifies include patterns", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-catchall-inc-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+
+[sections.other]
+catch_all = true
+include = ["docs/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "sections.other: catch_all sections must not specify include patterns.",
+    );
+  });
+
+  test("rejects a normal section with an empty include array", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-empty-inc-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = []
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "sections.src.include must contain at least one pattern (or set catch_all = true).",
+    );
+  });
+});
+
+describe("files.include", () => {
+  test("defaults to empty array", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-files-inc-def-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.files.include).toEqual([]);
+  });
+
+  test("loads files.include patterns from cx.toml", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-files-inc-"));
+    const configPath = path.join(dir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[files]
+include = ["generated/**", "dist-public/**"]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.files.include).toEqual(["generated/**", "dist-public/**"]);
+  });
+});

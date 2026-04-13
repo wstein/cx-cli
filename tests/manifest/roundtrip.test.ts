@@ -67,6 +67,16 @@ const styleArb = fc.constantFrom<"xml" | "markdown" | "json" | "plain">(
   "json",
   "plain",
 );
+const vcsProviderArb = fc.constantFrom<"git" | "fossil" | "none">(
+  "git",
+  "fossil",
+  "none",
+);
+const dirtyStateArb = fc.constantFrom<"clean" | "safe_dirty" | "forced_dirty">(
+  "clean",
+  "safe_dirty",
+  "forced_dirty",
+);
 const tokenEncodingArb = fc.constantFrom("o200k_base", "cl100k_base");
 
 /** Arbitrary for a nullable positive integer (outputStartLine / outputEndLine). */
@@ -154,6 +164,9 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
     settings: settingsArb,
     sections: fc.array(sectionArb(), { minLength: 0, maxLength: 4 }),
     assets: fc.array(assetArb, { minLength: 0, maxLength: 4 }),
+    vcsProvider: vcsProviderArb,
+    dirtyState: dirtyStateArb,
+    modifiedFiles: fc.array(nonEmptyString, { minLength: 0, maxLength: 5 }),
   })
   .map((fields) => {
     const textRows: ManifestFileRow[] = fields.sections.flatMap((s) => s.files);
@@ -188,6 +201,9 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       files: [...textRows, ...assetRows].sort((a, b) =>
         a.path.localeCompare(b.path, "en"),
       ),
+      vcsProvider: fields.vcsProvider,
+      dirtyState: fields.dirtyState,
+      modifiedFiles: fields.modifiedFiles,
     };
   });
 
@@ -264,6 +280,11 @@ describe("manifest round-trip (property-based)", () => {
         const origPaths = manifest.files.map((r) => r.path).sort();
         const recvPaths = recovered.files.map((r) => r.path).sort();
         expect(recvPaths).toEqual(origPaths);
+
+        // VCS fields
+        expect(recovered.vcsProvider).toBe(manifest.vcsProvider);
+        expect(recovered.dirtyState).toBe(manifest.dirtyState);
+        expect(recovered.modifiedFiles).toEqual(manifest.modifiedFiles);
       }),
       { numRuns: 200 },
     );
