@@ -1,5 +1,5 @@
-import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
@@ -482,10 +482,7 @@ export async function main(argv: string[]): Promise<number> {
       "Manage Zettelkasten notes.",
       (command) =>
         command
-          .example(
-            "$0 notes list",
-            "List all notes in the notes/ directory.",
-          )
+          .example("$0 notes list", "List all notes in the notes/ directory.")
           .example(
             "$0 notes new --title 'My Topic'",
             "Create a new note with an auto-generated ID.",
@@ -506,14 +503,26 @@ export async function main(argv: string[]): Promise<number> {
             "$0 notes code-links --id 20250113143015",
             "Show code files that reference the given note.",
           )
+          .example(
+            "$0 notes links",
+            "Audit unresolved note and code references across the notes graph.",
+          )
           .positional("subcommand", {
             type: "string",
-            choices: ["new", "list", "backlinks", "orphans", "code-links"],
+            choices: [
+              "new",
+              "list",
+              "backlinks",
+              "orphans",
+              "code-links",
+              "links",
+            ],
             default: "list",
           })
           .option("title", {
             type: "string",
-            description: "Title for the new note (required for 'new' subcommand).",
+            description:
+              "Title for the new note (required for 'new' subcommand).",
           })
           .option("tags", {
             type: "array",
@@ -522,7 +531,8 @@ export async function main(argv: string[]): Promise<number> {
           })
           .option("id", {
             type: "string",
-            description: "Note ID (required for 'backlinks' and 'code-links' subcommands).",
+            description:
+              "Note ID (required for 'backlinks', 'code-links', and 'links' subcommands).",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {

@@ -13,6 +13,9 @@ implementation contracts.
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
 
+Use `cx notes links` to audit unresolved note references after you rename or
+move entries in the note graph.
+
 ## What This Is
 
 The Zettelkasten method comes from Niklas Luhmann's slip-box practice. In a software repository, it means you do not treat knowledge as a pile of disconnected snippets. You grow a network of small, explicit notes that can be read, linked, revised, and reused over the full life of the codebase.

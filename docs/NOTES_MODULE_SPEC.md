@@ -17,6 +17,7 @@ This phase defines native notes support in four places:
 4. bundle integration through the default `docs` section
 
 It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
+It also adds graph-level link auditing so unresolved note references can be inspected explicitly.
 
 ## Init Behavior
 
@@ -108,6 +109,7 @@ This implementation now includes:
 - aliases and tags normalization
 - note summary extraction from the body for manifest use
 - a `cx notes ...` command family for note creation and graph inspection
+- unresolved note and code-reference auditing via `cx notes links`
 
 ## Future Extensions
 
@@ -116,4 +118,4 @@ The next production candidates are:
 1. extraction-safe note parsing for downstream routing
 2. richer note graph queries and traversals
 3. manifest-side summaries beyond the first body paragraph
-4. link validation for repository-local note references
+4. cross-file anchor validation for repository-local note references

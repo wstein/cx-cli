@@ -1,11 +1,18 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import os from "node:os";
-
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
-import { runNotesCommand, createNewNote, listNotes } from "../../src/cli/commands/notes.js";
-import { buildNoteGraph, getBacklinks } from "../../src/notes/graph.js";
+import {
+  createNewNote,
+  listNotes,
+  runNotesCommand,
+} from "../../src/cli/commands/notes.js";
+import {
+  buildNoteGraph,
+  getBacklinks,
+  getBrokenLinks,
+} from "../../src/notes/graph.js";
 import { validateNotes } from "../../src/notes/validate.js";
 
 let testDir: string;
@@ -33,7 +40,10 @@ tags: []
 This is a valid note.
 `;
 
-    await fs.writeFile(path.join(notesDir, "20250113143015-test.md"), noteContent);
+    await fs.writeFile(
+      path.join(notesDir, "20250113143015-test.md"),
+      noteContent,
+    );
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(true);
@@ -147,7 +157,10 @@ tags: demo
 # Test Note
 `;
 
-    await fs.writeFile(path.join(notesDir, "note-invalid-frontmatter.md"), noteContent);
+    await fs.writeFile(
+      path.join(notesDir, "note-invalid-frontmatter.md"),
+      noteContent,
+    );
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(false);
@@ -320,6 +333,35 @@ describe("Notes Graph", () => {
       process.chdir(origCwd);
     }
   });
+
+  test("tracks unresolved links in the note graph", async () => {
+    const notesDir = path.join(testDir, "notes");
+
+    await fs.writeFile(
+      path.join(notesDir, "broken-link.md"),
+      `---
+id: 20260413170000
+aliases: []
+tags: []
+---
+
+# Broken Link
+
+This note points to [[Missing Note]] and [[Also Missing|display text]].
+`,
+    );
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const brokenLinks = getBrokenLinks(graph);
+
+    expect(brokenLinks).toHaveLength(2);
+    expect(brokenLinks.map((issue) => issue.reference)).toContain(
+      "Missing Note",
+    );
+    expect(brokenLinks.map((issue) => issue.reference)).toContain(
+      "Also Missing|display text",
+    );
+  });
 });
 
 describe("Notes Command Subcommands", () => {
@@ -368,6 +410,48 @@ describe("Notes Command Subcommands", () => {
       const graph = await buildNoteGraph("notes", testDir, false);
 
       expect(graph.orphans).toContain(orphan.id);
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("links subcommand reports unresolved links for a note", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const note = await createNewNote("Link Audit Note");
+      await fs.writeFile(
+        note.filePath,
+        `---
+id: ${note.id}
+aliases: []
+tags: []
+---
+
+# Link Audit Note
+
+This note points to [[Missing Note]].
+`,
+        "utf8",
+      );
+
+      const writes: string[] = [];
+      const consoleLog = console.log;
+      console.log = ((...args: unknown[]) => {
+        writes.push(args.map((value) => String(value)).join(" "));
+      }) as typeof console.log;
+
+      try {
+        expect(
+          await runNotesCommand({ subcommand: "links", id: note.id }),
+        ).toBe(0);
+      } finally {
+        console.log = consoleLog;
+      }
+
+      expect(writes.join("")).toContain("Unresolved");
+      expect(writes.join("")).toContain("Missing Note");
     } finally {
       process.chdir(origCwd);
     }
