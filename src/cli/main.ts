@@ -1,5 +1,5 @@
 import { hideBin } from "yargs/helpers";
-import yargs from "yargs/yargs";
+import yargs from "yargs";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { CX_VERSION } from "../repomix/render.js";
@@ -15,6 +15,60 @@ import { runListCommand } from "./commands/list.js";
 import { runRenderCommand } from "./commands/render.js";
 import { runValidateCommand } from "./commands/validate.js";
 import { runVerifyCommand } from "./commands/verify.js";
+
+type ShellKind = "bash" | "zsh" | "fish";
+
+function renderCompletionScript(shell: ShellKind): string {
+  switch (shell) {
+    case "bash":
+      return `###-begin-cx-completions-###
+#
+# cx command completion script (bash)
+#
+_cx_yargs_completions() {
+  local cur prev words cword
+  _init_completion || return
+  COMPREPLY=( $(COMP_CWORD="$cword" COMP_LINE="$COMP_LINE" COMP_POINT="$COMP_POINT" cx --get-yargs-completions "\${words[@]}") )
+}
+complete -o default -F _cx_yargs_completions cx
+###-end-cx-completions-###
+`;
+    case "zsh":
+      return `#compdef cx
+###-begin-cx-completions-###
+#
+# cx command completion script (zsh)
+#
+_cx_yargs_completions() {
+  local reply
+  local si=$IFS
+  IFS=$'\n' reply=($(COMP_CWORD="$((CURRENT-1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" cx --get-yargs-completions "\${words[@]}"))
+  IFS=$si
+  if [[ \${#reply} -gt 0 ]]; then
+    _describe 'values' reply
+  else
+    _default
+  fi
+}
+compdef _cx_yargs_completions cx
+###-end-cx-completions-###
+`;
+    case "fish":
+      return `###-begin-cx-completions-###
+#
+# cx command completion script (fish)
+#
+function __fish_cx_complete
+  set -lx COMP_LINE (commandline -cp)
+  set -lx COMP_POINT (string length -- $COMP_LINE)
+  set -lx COMP_CWORD (count (commandline -poc))
+  cx --get-yargs-completions (commandline -poc)
+end
+complete -c cx -f -a '(__fish_cx_complete)'
+###-end-cx-completions-###
+`;
+  }
+}
 
 export async function main(argv: string[]): Promise<number> {
   let exitCode = 0;
@@ -84,6 +138,20 @@ export async function main(argv: string[]): Promise<number> {
     .fail((message, error) => {
       throw error ?? new CxError(message || "Command failed.");
     })
+    .command(
+      "completion",
+      "Generate a shell completion script for bash, zsh, or fish.",
+      (command) =>
+        command.option("shell", {
+          choices: ["bash", "zsh", "fish"] as const,
+          default: "zsh",
+        }),
+      async (args) => {
+        const shell = args.shell as ShellKind;
+        process.stdout.write(renderCompletionScript(shell));
+        exitCode = 0;
+      },
+    )
     .command(
       "init",
       "Create a starter cx.toml.",

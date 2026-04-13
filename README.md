@@ -144,9 +144,27 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx doctor fix-overlaps` | Generate or apply exact exclude fixes |
 | `cx render` | Render planned sections without building a full bundle |
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
+| `cx completion` | Generate shell completion scripts |
 | `cx adapter ...` | Inspect Repomix adapter capabilities and compatibility |
 
 Every command supports `--json` for machine consumption.
+
+## Shell Completions
+
+Generate and install completion scripts:
+
+```bash
+# bash
+cx completion --shell=bash >> ~/.bashrc
+
+# zsh
+cx completion --shell=zsh >> ~/.zshrc
+
+# fish
+cx completion --shell=fish > ~/.config/fish/completions/cx.fish
+```
+
+Open a new shell session after installation.
 
 > For even faster discoverability, see the `cx inspect --token-breakdown` example in the Quick Start section above.
 

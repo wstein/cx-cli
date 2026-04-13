@@ -68,6 +68,30 @@ describe("main", () => {
     expect(output).toContain("[sections.tests]");
   });
 
+  test.each([
+    ["bash", "complete -o default -F"],
+    ["zsh", "compdef"],
+    ["fish", "complete -c"],
+  ] as const)(
+    "emits completion script for %s",
+    async (shell, expectedFragment) => {
+      const write = process.stdout.write;
+      let output = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        output += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      await expect(
+        main(["completion", `--shell=${shell}`]),
+      ).resolves.toBe(0);
+      process.stdout.write = write;
+
+      expect(output).toContain(expectedFragment);
+      expect(output).toContain("cx");
+    },
+  );
+
   test("supports init overrides from the command line", async () => {
     const write = process.stdout.write;
     let output = "";

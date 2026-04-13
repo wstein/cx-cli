@@ -31,6 +31,7 @@ The bundle is the deliverable. The manifest is the source of truth for what the 
 | `cx extract` | You want to restore selected files from the bundle |
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
+| `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
 
@@ -269,6 +270,23 @@ Use it when:
 - a dashboard or automation layer should consume bundle metadata directly
 
 Prefer `--json` for machines and human output for operators. Mixing the two usually leads to brittle parsing.
+
+## Workflow: Install Shell Completions
+
+Generate completion scripts through yargs for your active shell.
+
+```bash
+# bash
+cx completion --shell=bash >> ~/.bashrc
+
+# zsh
+cx completion --shell=zsh >> ~/.zshrc
+
+# fish
+cx completion --shell=fish > ~/.config/fish/completions/cx.fish
+```
+
+Restart your shell after installing or updating completion scripts.
 
 ## Recommended Reading Order
 
