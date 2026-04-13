@@ -1,16 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { ensureDir, pathExists } from "../../shared/fs.js";
-import { printError, printInfo, printSuccess } from "../../shared/format.js";
-import { CxError } from "../../shared/errors.js";
-import { validateNotes } from "../../notes/validate.js";
 import {
   buildNoteGraph,
   getBacklinks,
-  getOutgoingLinks,
   getCodeReferences,
+  getOutgoingLinks,
 } from "../../notes/graph.js";
+import { validateNotes } from "../../notes/validate.js";
+import { CxError } from "../../shared/errors.js";
+import { printError, printInfo, printSuccess } from "../../shared/format.js";
+import { ensureDir, pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface NotesArgs {
@@ -31,8 +31,9 @@ function generateNoteId(): string {
   const day = String(now.getDate()).padStart(2, "0");
   const hour = String(now.getHours()).padStart(2, "0");
   const minute = String(now.getMinutes()).padStart(2, "0");
+  const second = String(now.getSeconds()).padStart(2, "0");
 
-  return `${year}${month}${day}${hour}${minute}`;
+  return `${year}${month}${day}${hour}${minute}${second}`;
 }
 
 /**
@@ -63,11 +64,11 @@ function fileNameFromTitle(title: string): string {
   const cleaned = title
     .trim()
     .replace(/\.md$/i, "")
-    .replace(/[\/\\]+/g, " ")
+    .replace(/[\\/]+/g, " ")
     .replace(/[:?<>|*"`]+/g, "")
     .replace(/\s+/g, " ")
-    .replace(/^[\.\s]+/, "")
-    .replace(/[\.\s]+$/, "");
+    .replace(/^[.\s]+/, "")
+    .replace(/[.\s]+$/, "");
 
   return cleaned || "untitled";
 }

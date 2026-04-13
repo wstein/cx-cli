@@ -2,6 +2,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { listFilesRecursive, pathExists } from "../shared/fs.js";
+import {
+  extractNoteSummary,
+  parseMarkdownFrontmatter,
+  titleFromFileName,
+  validateNoteIdFormat,
+} from "./parser.js";
 
 export interface NoteFrontmatter {
   id: string;
@@ -14,6 +20,7 @@ export interface NoteMetadata extends NoteFrontmatter {
   filePath: string;
   fileName: string;
   title: string;
+  summary: string;
 }
 
 export interface NoteValidationError {
@@ -28,129 +35,49 @@ export interface ValidateNotesResult {
   duplicateIds: Array<{ id: string; files: string[] }>;
 }
 
-/**
- * Regex for valid note IDs: YYYYMMDDHHMMSS format
- * Matches: 202501131430, 202512312359, etc.
- */
-const NOTE_ID_REGEX = /^\d{12}$/;
-
-function validateNoteIdFormat(id: string): boolean {
-  if (!NOTE_ID_REGEX.test(id)) {
-    return false;
+function normalizeStringArray(
+  value: unknown,
+  filePath: string,
+  fieldName: "aliases" | "tags",
+): { value: string[] } | { error: string } {
+  if (value === undefined) {
+    return { value: [] };
   }
 
-  // Additional validation: ensure it's a valid date
-  const year = parseInt(id.substring(0, 4), 10);
-  const month = parseInt(id.substring(4, 6), 10);
-  const day = parseInt(id.substring(6, 8), 10);
-  const hour = parseInt(id.substring(8, 10), 10);
-  const minute = parseInt(id.substring(10, 12), 10);
-
-  if (month < 1 || month > 12) return false;
-  if (day < 1 || day > 31) return false;
-  if (hour < 0 || hour > 23) return false;
-  if (minute < 0 || minute > 59) return false;
-
-  return true;
-}
-
-/**
- * Parse YAML frontmatter from markdown content.
- * Expects format:
- * ---
- * key: value
- * ---
- *
- * Returns the parsed frontmatter object and remaining content.
- */
-function parseFrontmatter(
-  content: string,
-): { frontmatter: Record<string, unknown>; body: string } {
-  const lines = content.split("\n");
-
-  if (!lines[0]?.startsWith("---")) {
-    return { frontmatter: {}, body: content };
+  if (!Array.isArray(value)) {
+    return {
+      error: `Invalid frontmatter field: ${fieldName} in ${path.basename(
+        filePath,
+      )} must be an array of strings`,
+    };
   }
 
-  let endIdx = -1;
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i]?.startsWith("---")) {
-      endIdx = i;
-      break;
+  const normalized: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string") {
+      return {
+        error: `Invalid frontmatter field: ${fieldName} in ${path.basename(
+          filePath,
+        )} must contain only strings`,
+      };
+    }
+
+    const trimmed = item.trim();
+    if (trimmed.length > 0) {
+      normalized.push(trimmed);
     }
   }
 
-  if (endIdx === -1) {
-    return { frontmatter: {}, body: content };
-  }
-
-  const frontmatterLines = lines.slice(1, endIdx);
-  const body = lines.slice(endIdx + 1).join("\n");
-
-  const frontmatter: Record<string, unknown> = {};
-
-  for (const line of frontmatterLines) {
-    const colonIdx = line.indexOf(":");
-    if (colonIdx === -1) continue;
-
-    const key = line.substring(0, colonIdx).trim();
-    const valueStr = line.substring(colonIdx + 1).trim();
-
-    // Parse YAML values
-    if (valueStr === "true") {
-      frontmatter[key] = true;
-    } else if (valueStr === "false") {
-      frontmatter[key] = false;
-    } else if (valueStr === "null" || valueStr === "~") {
-      frontmatter[key] = null;
-    } else if (valueStr.startsWith("[") && valueStr.endsWith("]")) {
-      // Simple array parsing
-      const arrayContent = valueStr.slice(1, -1).trim();
-      if (arrayContent === "") {
-        frontmatter[key] = [];
-      } else {
-        frontmatter[key] = arrayContent
-          .split(",")
-          .map((item) =>
-            item
-              .trim()
-              .replace(/^["']|["']$/g, "")
-              .trim(),
-          );
-      }
-    } else if (valueStr.startsWith('"') && valueStr.endsWith('"')) {
-      frontmatter[key] = valueStr.slice(1, -1); // Remove quotes
-    } else if (valueStr.startsWith("'") && valueStr.endsWith("'")) {
-      frontmatter[key] = valueStr.slice(1, -1); // Remove quotes
-    } else {
-      frontmatter[key] = valueStr;
-    }
-  }
-
-  return { frontmatter, body };
+  return { value: normalized };
 }
 
-function titleFromFileName(filePath: string): string {
-  const fileName = path.basename(filePath, path.extname(filePath));
-  const slugMatch = fileName.match(/^\d{12}-(.+)$/);
-  if (slugMatch?.[1] !== undefined && slugMatch[1].length > 0) {
-    return slugMatch[1];
-  }
-
-  return fileName;
-}
-
-/**
- * Extract note metadata from a file.
- */
 async function extractNoteMetadata(
   filePath: string,
 ): Promise<{ metadata: NoteMetadata | null; error: NoteValidationError | null }> {
   try {
     const content = await fs.readFile(filePath, "utf-8");
-    const { frontmatter, body } = parseFrontmatter(content);
+    const { frontmatter, body } = parseMarkdownFrontmatter(content);
 
-    // Validate required fields
     const id = String(frontmatter.id ?? "").trim();
     if (!id) {
       return {
@@ -167,44 +94,68 @@ async function extractNoteMetadata(
         metadata: null,
         error: {
           filePath,
-          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS (e.g., 202501131430)`,
+          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS (e.g., 20250113143015)`,
         },
       };
     }
 
-    // Extract aliases and tags
-    const aliases = Array.isArray(frontmatter.aliases)
-      ? (frontmatter.aliases as string[])
-      : [];
-    const tags = Array.isArray(frontmatter.tags)
-      ? (frontmatter.tags as string[])
-      : [];
+    const aliases = normalizeStringArray(frontmatter.aliases, filePath, "aliases");
+    if ("error" in aliases) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: aliases.error,
+        },
+      };
+    }
 
-    // Extract title from frontmatter, first H1 in body, or filename fallback.
-    let title = (frontmatter.title as string) ?? "";
+    const tags = normalizeStringArray(frontmatter.tags, filePath, "tags");
+    if ("error" in tags) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: tags.error,
+        },
+      };
+    }
 
-    if (!title) {
-      // Try to extract from first H1 in body
+    const frontmatterTitle = frontmatter.title;
+    if (
+      frontmatterTitle !== undefined &&
+      typeof frontmatterTitle !== "string"
+    ) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: "Invalid frontmatter field: title must be a string",
+        },
+      };
+    }
+
+    let title = frontmatterTitle?.trim() ?? "";
+    if (title.length === 0) {
       const h1Match = body.match(/^#\s+(.+)$/m);
-      if (h1Match) {
-        title = h1Match[1] ?? "";
+      if (h1Match?.[1] !== undefined) {
+        title = h1Match[1].trim();
       }
     }
 
-    if (!title) {
+    if (title.length === 0) {
       title = titleFromFileName(filePath);
     }
-
-    const fileName = path.basename(filePath);
 
     return {
       metadata: {
         id,
-        aliases,
-        tags,
+        aliases: aliases.value,
+        tags: tags.value,
         title,
+        summary: extractNoteSummary(body),
         filePath,
-        fileName,
+        fileName: path.basename(filePath),
       },
       error: null,
     };
@@ -219,20 +170,12 @@ async function extractNoteMetadata(
   }
 }
 
-/**
- * Validate all notes in a directory.
- *
- * @param notesDir Path to the notes directory (e.g., "notes")
- * @param projectRoot Project root directory (for absolute path resolution)
- * @returns Validation result containing all notes, errors, and duplicates
- */
 export async function validateNotes(
   notesDir: string,
   projectRoot: string,
 ): Promise<ValidateNotesResult> {
   const notesDirAbsolute = path.resolve(projectRoot, notesDir);
 
-  // Check if notes directory exists
   const exists = await pathExists(notesDirAbsolute);
   if (!exists) {
     return {
@@ -243,10 +186,8 @@ export async function validateNotes(
     };
   }
 
-  // List all markdown files in notes directory
   const markdownFiles = (await listFilesRecursive(notesDirAbsolute))
     .filter((file) => file.endsWith(".md"))
-    // Skip the README and known template names anywhere in the notes tree.
     .filter((file) => {
       const baseName = path.basename(file);
       return (
@@ -260,32 +201,30 @@ export async function validateNotes(
   const errors: NoteValidationError[] = [];
   const idMap = new Map<string, string[]>();
 
-  // Extract metadata from each note
   for (const file of markdownFiles) {
     const { metadata, error } = await extractNoteMetadata(file);
 
     if (error) {
       errors.push(error);
-    } else if (metadata) {
-      notes.push(metadata);
-
-      // Track IDs for duplicate detection
-      if (!idMap.has(metadata.id)) {
-        idMap.set(metadata.id, []);
-      }
-      idMap.get(metadata.id)!.push(metadata.filePath);
+      continue;
     }
+
+    if (!metadata) {
+      continue;
+    }
+
+    notes.push(metadata);
+    const files = idMap.get(metadata.id) ?? [];
+    files.push(metadata.filePath);
+    idMap.set(metadata.id, files);
   }
 
-  // Find duplicates
   const duplicateIds = Array.from(idMap.entries())
     .filter(([, files]) => files.length > 1)
     .map(([id, files]) => ({ id, files }));
 
-  const valid = errors.length === 0 && duplicateIds.length === 0;
-
   return {
-    valid,
+    valid: errors.length === 0 && duplicateIds.length === 0,
     notes,
     errors,
     duplicateIds,

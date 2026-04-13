@@ -2,17 +2,17 @@ import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
 import type { DirtyState } from "../vcs/provider.js";
 import { MANIFEST_SCHEMA_VERSION } from "./json.js";
-import { NORMALIZATION_POLICY } from "./types.js";
 import type {
   CxManifest,
   CxSection,
-  SectionHashMaps,
   ManifestFileRow,
   NoteRecord,
+  SectionHashMaps,
   SectionOutputRecord,
   SectionSpanMaps,
   SectionTokenMaps,
 } from "./types.js";
+import { NORMALIZATION_POLICY } from "./types.js";
 
 export function buildManifest(params: {
   config: CxConfig;

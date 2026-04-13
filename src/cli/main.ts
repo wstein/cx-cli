@@ -495,7 +495,7 @@ export async function main(argv: string[]): Promise<number> {
             "Create a note with tags.",
           )
           .example(
-            "$0 notes backlinks --id 202501131430",
+            "$0 notes backlinks --id 20250113143015",
             "Show all notes that link to the given note.",
           )
           .example(
@@ -503,7 +503,7 @@ export async function main(argv: string[]): Promise<number> {
             "List notes with no incoming or outgoing links.",
           )
           .example(
-            "$0 notes code-links --id 202501131430",
+            "$0 notes code-links --id 20250113143015",
             "Show code files that reference the given note.",
           )
           .positional("subcommand", {

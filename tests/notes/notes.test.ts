@@ -23,7 +23,7 @@ describe("Notes Validation", () => {
   test("validates valid note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
     const noteContent = `---
-id: 202501131430
+id: 20250113143015
 aliases: []
 tags: []
 ---
@@ -33,12 +33,12 @@ tags: []
 This is a valid note.
 `;
 
-    await fs.writeFile(path.join(notesDir, "202501131430-test.md"), noteContent);
+    await fs.writeFile(path.join(notesDir, "20250113143015-test.md"), noteContent);
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(true);
     expect(result.notes).toHaveLength(1);
-    expect(result.notes[0]?.id).toBe("202501131430");
+    expect(result.notes[0]?.id).toBe("20250113143015");
     expect(result.errors).toHaveLength(0);
   });
 
@@ -68,9 +68,9 @@ Template note content.
     const notesDir = path.join(testDir, "notes");
 
     await fs.writeFile(
-      path.join(notesDir, "202604131201-vcs-master-base.md"),
+      path.join(notesDir, "20260413120130-vcs-master-base.md"),
       `---
-id: 202604131201
+id: 20260413120130
 aliases: []
 tags: []
 ---
@@ -83,6 +83,36 @@ Plain body only.
     expect(result.valid).toBe(true);
     expect(result.notes).toHaveLength(1);
     expect(result.notes[0]?.title).toBe("vcs-master-base");
+  });
+
+  test("extracts note summaries from the body", async () => {
+    const notesDir = path.join(testDir, "notes");
+
+    await fs.writeFile(
+      path.join(notesDir, "summary-note.md"),
+      `---
+id: 20260413123030
+aliases: []
+tags: []
+---
+
+# Summary Note
+
+This note explains the first useful idea.
+It should become the manifest summary.
+
+## Links
+
+- [[Other Note]] - related idea
+`,
+    );
+
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(true);
+    expect(result.notes).toHaveLength(1);
+    expect(result.notes[0]?.summary).toBe(
+      "This note explains the first useful idea. It should become the manifest summary.",
+    );
   });
 
   test("rejects malformed note IDs", async () => {
@@ -106,10 +136,29 @@ This note has an invalid ID.
     expect(result.errors[0]?.error).toContain("Invalid note ID format");
   });
 
+  test("rejects non-array aliases and tags", async () => {
+    const notesDir = path.join(testDir, "notes");
+    const noteContent = `---
+id: 20250113143015
+aliases: demo
+tags: demo
+---
+
+# Test Note
+`;
+
+    await fs.writeFile(path.join(notesDir, "note-invalid-frontmatter.md"), noteContent);
+
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors[0]?.error).toContain("aliases");
+  });
+
   test("detects duplicate note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
     const noteContent = `---
-id: 202501131430
+id: 20250113143015
 aliases: []
 tags: []
 ---
@@ -125,13 +174,19 @@ Duplicate ID.
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(false);
     expect(result.duplicateIds).toHaveLength(1);
-    expect(result.duplicateIds[0]?.id).toBe("202501131430");
+    expect(result.duplicateIds[0]?.id).toBe("20250113143015");
     expect(result.duplicateIds[0]?.files).toHaveLength(2);
   });
 
   test("validates date components in note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
-    const invalidIds = ["202513131430", "202501321430", "202501132560", "202501131360"];
+    const invalidIds = [
+      "20251313143015",
+      "20250132143015",
+      "20250113256015",
+      "20250113136015",
+      "20250113143060",
+    ];
 
     for (const id of invalidIds) {
       const noteContent = `---
@@ -161,7 +216,7 @@ describe("Notes Commands", () => {
         tags: ["test", "demo"],
       });
 
-      expect(id).toMatch(/^\d{12}$/);
+      expect(id).toMatch(/^\d{14}$/);
       expect(filePath).toContain("Test Note");
       expect(filePath).toContain(".md");
 

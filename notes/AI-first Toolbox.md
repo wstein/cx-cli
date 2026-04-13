@@ -1,5 +1,5 @@
 ---
-id: 202604131230
+id: 20260413123000
 aliases: ["AI-first toolbox", "developer-friendly AI-first toolbox"]
 tags: [cx, philosophy, ai]
 ---

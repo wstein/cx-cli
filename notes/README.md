@@ -10,6 +10,9 @@ The revision consensus for the repository lives in
 Use `notes/` for durable knowledge and `docs/` for decisions, plans, and
 implementation contracts.
 
+Bundle manifests now carry short note summaries so downstream AI tooling can
+inspect the note graph without reparsing raw Markdown.
+
 ## What This Is
 
 The Zettelkasten method comes from Niklas Luhmann's slip-box practice. In a software repository, it means you do not treat knowledge as a pile of disconnected snippets. You grow a network of small, explicit notes that can be read, linked, revised, and reused over the full life of the codebase.
@@ -74,7 +77,7 @@ Avoid the mushy middle of vague status notes, meeting debris, or copied snippets
 
 ## Recommended Workflow
 
-1. Start from `Templates/New Zettel Template.md`.
+1. Start from `template-new-zettel.md`.
 2. Assign a fresh `id` using local time in `YYYYMMDDHHMMSS` format.
 3. Give the note a clear searchable title.
 4. Write one thought in your own words.
@@ -101,6 +104,7 @@ Every note must contain:
 ## What Does Not Belong Here
 
 Do not use this directory for:
+
 - sprint planning
 - transient checklists
 - copied code dumps

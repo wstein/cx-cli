@@ -6,7 +6,6 @@ import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout } from "../../config/types.js";
-import { validateNotes } from "../../notes/validate.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
@@ -20,14 +19,15 @@ import type {
   SectionSpanMaps,
   SectionTokenMaps,
 } from "../../manifest/types.js";
+import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
-import type { DirtyState } from "../../vcs/provider.js";
+import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
   CX_VERSION,
   getRepomixCapabilities,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
-import { buildBundleIndexText } from "../../repomix/handover.js";
+import { CxError } from "../../shared/errors.js";
 import {
   formatBytes,
   formatNumber,
@@ -39,10 +39,10 @@ import {
   printWarning,
 } from "../../shared/format.js";
 import { ensureDir, listFilesRecursive, relativePosix } from "../../shared/fs.js";
-import { CxError } from "../../shared/errors.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
+import type { DirtyState } from "../../vcs/provider.js";
 
 export interface BundleArgs {
   config: string;
@@ -58,6 +58,21 @@ export interface BundleArgs {
    * the manifest so the LLM knows it is reading uncommitted work.
    */
   force?: boolean | undefined;
+}
+
+interface RenderedSectionArtifacts {
+  name: string;
+  style: string;
+  outputFile: string;
+  sizeBytes: number;
+  fileCount: number;
+  tokenCount: number;
+  outputTokenCount: number;
+  outputSha256: string;
+  warnings: string[];
+  fileTokenCounts: Map<string, number>;
+  fileContentHashes: Map<string, string>;
+  fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
 }
 
 function assertSafeBundleRelativePath(value: string): void {
@@ -225,55 +240,77 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   await ensureDir(activeBundleDir);
 
   try {
-    for (const asset of plan.assets) {
-      const destination = path.join(activeBundleDir, asset.storedPath);
-      await ensureDir(path.dirname(destination));
-      await fs.copyFile(asset.absolutePath, destination);
-    }
+    await Promise.all(
+      plan.assets.map(async (asset) => {
+        const destination = path.join(activeBundleDir, asset.storedPath);
+        await ensureDir(path.dirname(destination));
+        await fs.copyFile(asset.absolutePath, destination);
+      }),
+    );
 
-  const sectionOutputs = [];
-  const sectionSpanMaps: SectionSpanMaps = new Map();
-  const sectionTokenMaps: SectionTokenMaps = new Map();
-  const sectionHashMaps: SectionHashMaps = new Map();
-  const renderWarnings: string[] = [];
-  const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
+    const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
+    const renderedSections: RenderedSectionArtifacts[] = await Promise.all(
+      plan.sections.map(async (section) => {
+        const outputPath = path.join(activeBundleDir, section.outputFile);
+        const renderResult = await renderSectionWithRepomix({
+          config,
+          style: section.style,
+          sourceRoot: plan.sourceRoot,
+          outputPath,
+          sectionName: section.name,
+          explicitFiles: section.files.map((file) => file.absolutePath),
+          bundleIndexFile,
+          requireStructured: true,
+          requireOutputSpans: requiresOutputSpans,
+        });
 
-    for (const section of plan.sections) {
-      const outputPath = path.join(activeBundleDir, section.outputFile);
-      const renderResult = await renderSectionWithRepomix({
-        config,
-        style: section.style,
-        sourceRoot: plan.sourceRoot,
-        outputPath,
-        sectionName: section.name,
-        explicitFiles: section.files.map((file) => file.absolutePath),
-        bundleIndexFile,
-        requireStructured: true,
-        requireOutputSpans: requiresOutputSpans,
-      });
-      renderWarnings.push(...renderResult.warnings);
-      const totalSectionBytes = section.files.reduce(
-        (sum, file) => sum + file.sizeBytes,
-        0,
-      );
-      const outputTokenCount = countTokens(
-        renderResult.outputText,
-        config.tokens.encoding,
-      );
-      sectionOutputs.push({
-        name: section.name,
-        style: section.style,
-        outputFile: section.outputFile,
-        outputSha256: await sha256File(outputPath),
-        fileCount: section.files.length,
-        sizeBytes: totalSectionBytes,
-        tokenCount: renderResult.outputTokenCount,
-        outputTokenCount,
-      });
-      sectionTokenMaps.set(section.name, renderResult.fileTokenCounts);
-      sectionHashMaps.set(section.name, renderResult.fileContentHashes);
-      if (renderResult.fileSpans) {
-        sectionSpanMaps.set(section.name, renderResult.fileSpans);
+        const totalSectionBytes = section.files.reduce(
+          (sum, file) => sum + file.sizeBytes,
+          0,
+        );
+        const outputTokenCount = countTokens(
+          renderResult.outputText,
+          config.tokens.encoding,
+        );
+
+        return {
+          name: section.name,
+          style: section.style,
+          outputFile: section.outputFile,
+          sizeBytes: totalSectionBytes,
+          fileCount: section.files.length,
+          tokenCount: renderResult.outputTokenCount,
+          outputTokenCount,
+          outputSha256: await sha256File(outputPath),
+          warnings: renderResult.warnings,
+          fileTokenCounts: renderResult.fileTokenCounts,
+          fileContentHashes: renderResult.fileContentHashes,
+          fileSpans: renderResult.fileSpans,
+        };
+      }),
+    );
+
+    const sectionOutputs = renderedSections.map((section) => ({
+      name: section.name,
+      style: section.style,
+      outputFile: section.outputFile,
+      outputSha256: section.outputSha256,
+      fileCount: section.fileCount,
+      sizeBytes: section.sizeBytes,
+      tokenCount: section.tokenCount,
+      outputTokenCount: section.outputTokenCount,
+    }));
+    const sectionSpanMaps: SectionSpanMaps = new Map();
+    const sectionTokenMaps: SectionTokenMaps = new Map();
+    const sectionHashMaps: SectionHashMaps = new Map();
+    const renderWarnings: string[] = [];
+
+    for (const section of renderedSections) {
+      renderWarnings.push(...section.warnings);
+      sectionTokenMaps.set(section.name, section.fileTokenCounts);
+      sectionHashMaps.set(section.name, section.fileContentHashes);
+      if (section.fileSpans) {
+        sectionSpanMaps.set(section.name, section.fileSpans);
       }
     }
 
@@ -290,64 +327,65 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       "utf8",
     );
 
-  // Extract notes metadata if present
-  const notesRecords =
-    notesResult.valid && notesResult.notes.length > 0
-      ? notesResult.notes.map((note) => ({
-          id: note.id,
-          title: note.title,
-          fileName: note.fileName,
-          aliases: note.aliases ?? [],
-          tags: note.tags ?? [],
-        }))
-      : undefined;
+    // Extract notes metadata if present
+    const notesRecords =
+      notesResult.valid && notesResult.notes.length > 0
+        ? notesResult.notes.map((note) => ({
+            id: note.id,
+            title: note.title,
+            fileName: note.fileName,
+            aliases: note.aliases ?? [],
+            tags: note.tags ?? [],
+            summary: note.summary,
+          }))
+        : undefined;
 
-  const manifest = buildManifest({
-    config,
-    plan,
-    sectionOutputs,
-    bundleIndexFile,
-    cxVersion: CX_VERSION,
-    repomixVersion: (await getRepomixCapabilities()).packageVersion,
-    sectionSpanMaps,
-    sectionTokenMaps,
-    sectionHashMaps,
-    dirtyState: effectiveDirtyState,
-    modifiedFiles: effectiveModifiedFiles,
-    notes: notesRecords,
-  });
-  const manifestName = `${plan.projectName}-manifest.json`;
+    const manifest = buildManifest({
+      config,
+      plan,
+      sectionOutputs,
+      bundleIndexFile,
+      cxVersion: CX_VERSION,
+      repomixVersion: (await getRepomixCapabilities()).packageVersion,
+      sectionSpanMaps,
+      sectionTokenMaps,
+      sectionHashMaps,
+      dirtyState: effectiveDirtyState,
+      modifiedFiles: effectiveModifiedFiles,
+      notes: notesRecords,
+    });
+    const manifestName = `${plan.projectName}-manifest.json`;
     await fs.writeFile(
       path.join(activeBundleDir, manifestName),
       renderManifestJson(manifest, config.manifest.pretty),
       "utf8",
     );
 
-  // Write the lock file capturing the effective behavioral settings used
-  // during this bundle run. cx verify reads it and warns on drift.
-  const lockFile: CxLockFile = {
-    schemaVersion: 1,
-    cxVersion: CX_VERSION,
-    bundledAt: new Date().toISOString(),
-    behavioralSettings: {
-      "dedup.mode": {
-        value: config.dedup.mode,
-        source: config.behaviorSources.dedupMode,
+    // Write the lock file capturing the effective behavioral settings used
+    // during this bundle run. cx verify reads it and warns on drift.
+    const lockFile: CxLockFile = {
+      schemaVersion: 1,
+      cxVersion: CX_VERSION,
+      bundledAt: new Date().toISOString(),
+      behavioralSettings: {
+        "dedup.mode": {
+          value: config.dedup.mode,
+          source: config.behaviorSources.dedupMode,
+        },
+        "repomix.missing_extension": {
+          value: config.behavior.repomixMissingExtension,
+          source: config.behaviorSources.repomixMissingExtension,
+        },
+        "config.duplicate_entry": {
+          value: config.behavior.configDuplicateEntry,
+          source: config.behaviorSources.configDuplicateEntry,
+        },
+        "assets.layout": {
+          value: config.assets.layout,
+          source: config.behaviorSources.assetsLayout,
+        },
       },
-      "repomix.missing_extension": {
-        value: config.behavior.repomixMissingExtension,
-        source: config.behaviorSources.repomixMissingExtension,
-      },
-      "config.duplicate_entry": {
-        value: config.behavior.configDuplicateEntry,
-        source: config.behaviorSources.configDuplicateEntry,
-      },
-      "assets.layout": {
-        value: config.assets.layout,
-        source: config.behaviorSources.assetsLayout,
-      },
-    },
-  };
+    };
     await writeLock(activeBundleDir, plan.projectName, lockFile);
 
     const expectedFiles = [
@@ -379,7 +417,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
 
     await validateBundle(plan.bundleDir);
 
-  // Calculate total statistics
+    // Calculate total statistics
   const totalAssetBytes = plan.assets.reduce(
     (sum, asset) => sum + asset.sizeBytes,
     0,
@@ -397,7 +435,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     0,
   );
 
-  // Print human-friendly report
+    // Print human-friendly report
     if (!(args.json ?? false)) {
     printHeader("Bundle Summary");
     printTable([

@@ -49,6 +49,14 @@ interface ManifestDto {
   modifiedFiles: string[];
   sections: SectionDto[];
   assets: AssetRecord[];
+  notes?: Array<{
+    id: string;
+    title: string;
+    fileName: string;
+    aliases: string[];
+    tags: string[];
+    summary: string;
+  }>;
 }
 
 function requireString(value: unknown, label: string): string {
@@ -160,6 +168,33 @@ function parseAssetDto(raw: unknown, index: number): AssetRecord {
   };
 }
 
+function parseNoteDto(
+  raw: unknown,
+  index: number,
+): {
+  id: string;
+  title: string;
+  fileName: string;
+  aliases: string[];
+  tags: string[];
+  summary: string;
+} {
+  const obj = requireObject(raw, `note[${index}]`);
+  return {
+    id: requireString(obj.id, `note[${index}].id`),
+    title: requireString(obj.title, `note[${index}].title`),
+    fileName: requireString(obj.fileName, `note[${index}].fileName`),
+    aliases: requireArray(obj.aliases, `note[${index}].aliases`).map(
+      (value, aliasIndex) =>
+        requireString(value, `note[${index}].aliases[${aliasIndex}]`),
+    ),
+    tags: requireArray(obj.tags, `note[${index}].tags`).map((value, tagIndex) =>
+      requireString(value, `note[${index}].tags[${tagIndex}]`),
+    ),
+    summary: requireString(obj.summary, `note[${index}].summary`),
+  };
+}
+
 function parseManifestDto(raw: unknown): {
   dto: ManifestDto;
   sectionRows: FileRowWithoutSection[][];
@@ -177,6 +212,7 @@ function parseManifestDto(raw: unknown): {
   const settingsRaw = requireObject(obj.settings, "settings");
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
+  const notesRaw = obj.notes === undefined ? [] : requireArray(obj.notes, "notes");
 
   const sectionRows: FileRowWithoutSection[][] = [];
   const sections: SectionDto[] = sectionsRaw.map((section, index) => {
@@ -239,6 +275,10 @@ function parseManifestDto(raw: unknown): {
     ) as string[],
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
+    notes:
+      notesRaw.length > 0
+        ? notesRaw.map((note, index) => parseNoteDto(note, index))
+        : undefined,
   };
 
   if (obj.bundleIndexFile !== undefined) {
@@ -289,6 +329,7 @@ export function renderManifestJson(
       })),
     })),
     assets: manifest.assets,
+    ...(manifest.notes !== undefined ? { notes: manifest.notes } : {}),
     ...(manifest.bundleIndexFile !== undefined
       ? { bundleIndexFile: manifest.bundleIndexFile }
       : {}),
@@ -357,6 +398,7 @@ export function parseManifestJson(source: string): CxManifest {
     modifiedFiles: dto.modifiedFiles,
     sections,
     assets: dto.assets,
+    notes: dto.notes,
     files: [...textRows, ...assetRows].sort((left, right) =>
       left.path.localeCompare(right.path, "en"),
     ),

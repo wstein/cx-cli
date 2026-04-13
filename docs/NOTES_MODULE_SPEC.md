@@ -9,13 +9,14 @@ For the document map and revision consensus, see [README.md](README.md) and
 
 ## Scope
 
-This phase defines native notes support in three places:
+This phase defines native notes support in four places:
 
 1. `cx init` scaffolding
 2. note file anatomy and templates
-3. bundle integration through the default `docs` section
+3. note validation and metadata extraction
+4. bundle integration through the default `docs` section
 
-It does not yet add note parsing, indexing, validation, extraction-time YAML routing, or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
+It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
 
 ## Init Behavior
 
@@ -97,21 +98,22 @@ exclude = []
 
 This ensures bundles carry both machine state and human intent.
 
-## Non-Goals In This Phase
+## Implemented Behavior
 
-This implementation intentionally does not:
+This implementation now includes:
 
-- parse note frontmatter during bundling
-- validate that every note `id` is unique
-- enforce link correctness
-- generate note indexes or graphs
-- add a dedicated `cx notes ...` command family
+- note frontmatter parsing during validation
+- strict `id` format checks using `YYYYMMDDHHMMSS`
+- duplicate-ID detection across the notes directory
+- aliases and tags normalization
+- note summary extraction from the body for manifest use
+- a `cx notes ...` command family for note creation and graph inspection
 
 ## Future Extensions
 
 The next production candidates are:
 
-1. frontmatter validation and duplicate-ID detection
-2. extraction-safe note parsing for downstream routing
-3. note graph inspection commands
-4. manifest-side note summaries for AI tooling
+1. extraction-safe note parsing for downstream routing
+2. richer note graph queries and traversals
+3. manifest-side summaries beyond the first body paragraph
+4. link validation for repository-local note references

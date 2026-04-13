@@ -62,6 +62,7 @@ export interface NoteRecord {
   fileName: string;
   aliases: string[];
   tags: string[];
+  summary: string;
 }
 
 /** A section as stored in the manifest, including its file list. */

@@ -1,5 +1,5 @@
 ---
-id: 202604131234
+id: 20260413123400
 aliases: ["active ecosystem", "MCP ecosystem"]
 tags: [cx, ai, mcp]
 ---

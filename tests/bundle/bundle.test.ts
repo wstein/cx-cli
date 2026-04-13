@@ -247,6 +247,38 @@ describe("bundle workflow", () => {
     ).toBeDefined();
   });
 
+  test("records note summaries in the manifest", async () => {
+    const project = await createProject();
+    await fs.mkdir(path.join(project.root, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(project.root, "notes", "summary-note.md"),
+      `---
+id: 20260413123030
+aliases: []
+tags: []
+---
+
+# Summary Note
+
+This note explains the first useful idea.
+It should become the manifest summary.
+
+## Links
+
+- [[README.md]] - related context
+`,
+      "utf8",
+    );
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    expect(manifest.notes).toHaveLength(1);
+    expect(manifest.notes?.[0]?.summary).toBe(
+      "This note explains the first useful idea. It should become the manifest summary.",
+    );
+  });
+
   test("emits absolute output spans from renderWithMap for all files", async () => {
     const project = await createProject();
     // Add manifest section with span capture enabled

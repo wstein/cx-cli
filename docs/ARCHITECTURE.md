@@ -42,12 +42,12 @@ The `src/repomix/` directory is the explicit adapter boundary between `cx` core
 logic and the rendering backend.
 
 - `render.ts` owns all calls into the Repomix adapter. Nothing outside this
-	module invokes Repomix functions directly.
+ module invokes Repomix functions directly.
 - `capabilities.ts` performs runtime feature detection (is `packStructured`
-	available? is `renderWithMap` available?) so the planner and manifest builder
-	never need to know which rendering path was taken.
+ available? is `renderWithMap` available?) so the planner and manifest builder
+ never need to know which rendering path was taken.
 - `handover.ts` constructs bundle-level metadata that is injected into section
-	outputs without post-processing the rendered content.
+ outputs without post-processing the rendered content.
 
 The `[repomix]` section in `cx.toml` is adapter-specific configuration.
 `cx.toml` keys like `show_line_numbers`, `include_empty_directories`, and
@@ -157,10 +157,10 @@ as a separate side channel.
 Three overlap handling strategies are available via `dedup.mode`:
 
 - `fail` — planning aborts with an actionable message. `cx doctor` can propose
-	static `exclude` fixes, or you can set higher `priority` on the owning section
-	and switch to `first-wins` to avoid static TOML mutations entirely.
+ static `exclude` fixes, or you can set higher `priority` on the owning section
+ and switch to `first-wins` to avoid static TOML mutations entirely.
 - `warn` — conflicts are reported to stderr and resolution proceeds using
-	priority order.
+ priority order.
 - `first-wins` — overlaps are resolved silently using priority order.
 
 For rapidly evolving codebases where new files frequently match multiple
@@ -199,6 +199,7 @@ The renderer also reports output token counts. If the adapter supports exact spa
 - the shared bundle index filename
 - section outputs
 - copied assets
+- repository note metadata, including extracted summaries when notes are present
 - per-file token counts
 - source metadata such as size, media type, and mtime
 - output spans for XML, Markdown, and plain sections when exact span capture is available; JSON sections do not need them

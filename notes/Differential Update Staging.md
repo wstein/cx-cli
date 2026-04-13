@@ -1,5 +1,5 @@
 ---
-id: 202604131233
+id: 20260413123300
 aliases: ["update mode", "differential update"]
 tags: [cx, bundle, operations]
 ---

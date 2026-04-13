@@ -22,6 +22,7 @@ import type {
   CxManifest,
   CxSection,
   ManifestFileRow,
+  NoteRecord,
 } from "../../src/manifest/types.js";
 
 // ---------------------------------------------------------------------------
@@ -121,6 +122,17 @@ const assetArb: fc.Arbitrary<AssetRecord> = fc.record({
   mediaType: nonEmptyString,
 });
 
+const noteArb: fc.Arbitrary<NoteRecord> = fc.record({
+  id: fc
+    .integer({ min: 20200101000000, max: 20301231235959 })
+    .map((value) => String(value).padStart(14, "0")),
+  title: nonEmptyString,
+  fileName: nonEmptyString,
+  aliases: fc.array(nonEmptyString, { maxLength: 4 }),
+  tags: fc.array(nonEmptyString, { maxLength: 4 }),
+  summary: nonEmptyString,
+});
+
 function sectionArb(): fc.Arbitrary<CxSection> {
   return fc
     .record({
@@ -164,6 +176,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
     settings: settingsArb,
     sections: fc.array(sectionArb(), { minLength: 0, maxLength: 4 }),
     assets: fc.array(assetArb, { minLength: 0, maxLength: 4 }),
+    notes: fc.array(noteArb, { minLength: 0, maxLength: 4 }),
     vcsProvider: vcsProviderArb,
     dirtyState: dirtyStateArb,
     modifiedFiles: fc.array(nonEmptyString, { minLength: 0, maxLength: 5 }),
@@ -198,6 +211,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       settings: fields.settings,
       sections: fields.sections,
       assets: fields.assets,
+      notes: fields.notes.length > 0 ? fields.notes : undefined,
       files: [...textRows, ...assetRows].sort((a, b) =>
         a.path.localeCompare(b.path, "en"),
       ),
@@ -275,6 +289,7 @@ describe("manifest round-trip (property-based)", () => {
 
         // Assets (deep equal)
         expect(recovered.assets).toEqual(manifest.assets);
+        expect(recovered.notes).toEqual(manifest.notes);
 
         // Flat file list path set (reconstructed during parse)
         const origPaths = manifest.files.map((r) => r.path).sort();
@@ -302,6 +317,7 @@ describe("manifest round-trip (property-based)", () => {
         expect(fromCompact.projectName).toBe(fromPretty.projectName);
         expect(fromCompact.sections).toHaveLength(fromPretty.sections.length);
         expect(fromCompact.assets).toEqual(fromPretty.assets);
+        expect(fromCompact.notes).toEqual(fromPretty.notes);
         expect(fromCompact.settings).toEqual(fromPretty.settings);
       }),
       { numRuns: 100 },

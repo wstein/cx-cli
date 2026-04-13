@@ -28,6 +28,8 @@ This directory is a permanent knowledge layer for the codebase. It captures arch
 
 The Zettelkasten method comes from Niklas Luhmann's slip-box practice. In a software repository, it means you do not treat knowledge as a pile of disconnected snippets. You grow a network of small, explicit notes that can be read, linked, revised, and reused over the full life of the codebase.
 
+Bundle manifests now store short note summaries so downstream AI tools can inspect the note graph without reparsing raw Markdown.
+
 This is not a project-management folder.
 
 - Project trackers are hierarchical and temporary.

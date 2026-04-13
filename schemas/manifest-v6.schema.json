@@ -108,6 +108,13 @@
       "items": {
         "$ref": "#/$defs/AssetRecord"
       }
+    },
+    "notes": {
+      "description": "Repository notes metadata recorded at bundle time so AI tooling can inspect the note graph without reparsing Markdown.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NoteRecord"
+      }
     }
   },
   "$defs": {
@@ -290,6 +297,48 @@
         },
         "mediaType": {
           "description": "MIME media type.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "NoteRecord": {
+      "description": "Repository note metadata captured for AI-first workflows.",
+      "type": "object",
+      "required": ["id", "title", "fileName", "aliases", "tags", "summary"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Time-based note identifier.",
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "description": "Human-readable note title.",
+          "type": "string",
+          "minLength": 1
+        },
+        "fileName": {
+          "description": "Relative filename of the note within the notes directory.",
+          "type": "string",
+          "minLength": 1
+        },
+        "aliases": {
+          "description": "Alternative names for the note.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "description": "Note tags used for grouping and retrieval.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "description": "Short summary extracted from the note body.",
           "type": "string",
           "minLength": 1
         }
