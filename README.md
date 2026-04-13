@@ -301,7 +301,6 @@ exclude = []
 - [Extraction Safety](docs/EXTRACTION_SAFETY.md): packed-content recovery, degraded fallback, and `--allow-degraded`
 - [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md): project planning notes
-- [Spec Debate](docs/SPEC_DEBATE.md): design discussion and tradeoffs
 
 ## LLM-Friendly Output Extensions
 

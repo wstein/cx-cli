@@ -13,6 +13,5 @@ Use this directory as the map for the documentation set.
 ## Planning Material
 
 - [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
-- [SPEC_DEBATE.md](./SPEC_DEBATE.md)
 - [TASK_SUMMARY.md](./TASK_SUMMARY.md)
 - [config-reference.md](./config-reference.md)
