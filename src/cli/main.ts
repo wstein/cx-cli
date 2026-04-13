@@ -12,6 +12,7 @@ import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
 import { runInspectCommand } from "./commands/inspect.js";
 import { runListCommand } from "./commands/list.js";
+import { runNotesCommand } from "./commands/notes.js";
 import { runRenderCommand } from "./commands/render.js";
 import { runValidateCommand } from "./commands/validate.js";
 import { runVerifyCommand } from "./commands/verify.js";
@@ -472,6 +473,64 @@ export async function main(argv: string[]): Promise<number> {
           config: args.config,
           subcommand: args.subcommand as "capabilities" | "inspect" | "doctor",
           sections: args.section as string[] | undefined,
+          json: args.json,
+        });
+      },
+    )
+    .command(
+      "notes [subcommand]",
+      "Manage Zettelkasten notes.",
+      (command) =>
+        command
+          .example(
+            "$0 notes list",
+            "List all notes in the notes/ directory.",
+          )
+          .example(
+            "$0 notes new --title 'My Topic'",
+            "Create a new note with an auto-generated ID.",
+          )
+          .example(
+            "$0 notes new --title 'My Topic' --tags design --tags architecture",
+            "Create a note with tags.",
+          )
+          .example(
+            "$0 notes backlinks --id 202501131430",
+            "Show all notes that link to the given note.",
+          )
+          .example(
+            "$0 notes orphans",
+            "List notes with no incoming or outgoing links.",
+          )
+          .example(
+            "$0 notes code-links --id 202501131430",
+            "Show code files that reference the given note.",
+          )
+          .positional("subcommand", {
+            type: "string",
+            choices: ["new", "list", "backlinks", "orphans", "code-links"],
+            default: "list",
+          })
+          .option("title", {
+            type: "string",
+            description: "Title for the new note (required for 'new' subcommand).",
+          })
+          .option("tags", {
+            type: "array",
+            string: true,
+            description: "Tags to assign to the note.",
+          })
+          .option("id", {
+            type: "string",
+            description: "Note ID (required for 'backlinks' and 'code-links' subcommands).",
+          })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runNotesCommand({
+          subcommand: args.subcommand as string | undefined,
+          title: args.title as string | undefined,
+          tags: args.tags as string[] | undefined,
+          id: args.id as string | undefined,
           json: args.json,
         });
       },
