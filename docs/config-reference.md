@@ -275,6 +275,25 @@ markdown = ".md"
 plain = ".txt"
 ```
 
+## CLI completion internals and shell troubleshooting
+
+The `cx completion` command emits a shell-specific script for the chosen shell. The script itself is generated at runtime and calls `cx --get-yargs-completions` to discover available subcommands and option values dynamically.
+
+Shell behavior:
+
+- `bash` uses `complete -F` and typically requires bash completion support to be enabled.
+- `zsh` installs a `compdef` handler and requires the zsh completion system to be loaded.
+- `fish` writes a completion function into `~/.config/fish/completions/` and relies on fish function discovery.
+
+Troubleshooting:
+
+1. Restart your shell or source the generated file explicitly after installation.
+2. Confirm the saved script contains the expected `cx --get-yargs-completions` invocation.
+3. Ensure your shell completion engine is enabled (`autoload -Uz compinit && compinit` for zsh, or the appropriate bash completion source file for bash).
+4. If the shell is not using standard completion directories, install the script to a custom location and source it manually.
+
+The generated completion script is intentionally stateless: it defers to the installed CLI at runtime so the completion rules stay aligned with the current `cx` version.
+
 ## Path expansion
 
 The configuration supports expanding paths before they are resolved:

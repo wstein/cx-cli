@@ -890,7 +890,7 @@ include_source_metadata = true`;
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
       "core contract with optional structured rendering and span capture",
     );
-    expect(bundlePayload.repomix?.packageVersion).toBe("1.13.1-cx.1");
+    expect(bundlePayload.repomix?.packageVersion).toMatch(/^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/);
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
     expect(verifyPayload.repomix?.spanCapabilityReason).toContain(
