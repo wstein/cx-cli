@@ -181,6 +181,7 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx validate` | Validate bundle structure and schema |
 | `cx verify` | Verify bundle integrity and optional source-tree drift |
 | `cx extract` | Restore files from a bundle |
+| `cx mcp` | Start the MCP server for agentic workflows |
 | `cx doctor overlaps` | Diagnose section overlap conflicts |
 | `cx doctor fix-overlaps` | Generate or apply exact exclude fixes |
 | `cx render` | Render planned sections without building a full bundle |
@@ -217,6 +218,7 @@ Open a new shell session after installation.
 - The bundle manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
 - The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
 - Repomix MCP Server integrations can package codebases or remote repositories and inspect packed output through tools such as `pack_codebase`, `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output`.
+- `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile.
 
 That means an LLM agent can ask for more context, retrieve just the relevant packed surface, and reason about the repo as a live system rather than a static artifact.
 

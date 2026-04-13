@@ -34,6 +34,7 @@ The bundle is the deliverable. The manifest is the source of truth for what the 
 | `cx verify` | You want checksum and source-tree verification |
 | `cx list` | You want to browse stored files and statuses |
 | `cx extract` | You want to restore selected files from the bundle |
+| `cx mcp` | You want to start the MCP server with the agent profile |
 | `cx notes links` | You want to audit unresolved note or code references |
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
@@ -49,6 +50,8 @@ cx inspect --config cx.toml
 ```
 
 `cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository's Zettelkasten 101 guide plus the default atomic note template.
+
+For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
 Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the bundle contract.
 

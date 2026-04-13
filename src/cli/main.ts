@@ -11,6 +11,7 @@ import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
 import { runInspectCommand } from "./commands/inspect.js";
+import { runMcpCommand } from "./commands/mcp.js";
 import { runListCommand } from "./commands/list.js";
 import { runNotesCommand } from "./commands/notes.js";
 import { runRenderCommand } from "./commands/render.js";
@@ -545,6 +546,19 @@ export async function main(argv: string[]): Promise<number> {
         });
       },
     );
+
+  cli.command(
+    "mcp",
+    "Start the CX MCP server.",
+    (command) =>
+      command.example(
+        "$0 mcp",
+        "Start the MCP server using cx-mcp.toml when available, otherwise cx.toml.",
+      ),
+    async () => {
+      exitCode = await runMcpCommand();
+    },
+  );
 
   if (
     argv.length === 0 ||

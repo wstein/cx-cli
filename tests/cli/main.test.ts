@@ -20,6 +20,7 @@ describe("main", () => {
 
     expect(output).toContain("cx <command> [options]");
     expect(output).toContain("extract <bundleDir>");
+    expect(output).toContain("mcp");
   });
 
   test("prints top-level help with -h", async () => {

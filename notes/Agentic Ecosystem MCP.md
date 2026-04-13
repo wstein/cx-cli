@@ -1,10 +1,11 @@
+<!-- markdownlint-disable MD041 MD022 MD003 -->
 ---
 id: 20260413123400
 aliases: ["active ecosystem", "MCP ecosystem"]
 tags: [cx, ai, mcp]
 ---
 
-The repository is no longer just producing static bundles; it is participating in agentic workflows. Repomix MCP tools such as `pack_codebase`, `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output` let an agent pull context on demand instead of guessing from a stale snapshot.
+The repository is no longer just producing static bundles; it is participating in agentic workflows. `cx mcp` starts the CX MCP server with `cx-mcp.toml` when present, and cx-native MCP tools will let an agent pull context on demand instead of guessing from a stale snapshot.
 
 ## Links
 
