@@ -63,9 +63,67 @@ describe("main", () => {
     process.stdout.write = write;
     expect(output).toContain("schema_version = 1");
     expect(output).toContain("[sections.repo]");
+    expect(output).toContain('include = ["docs/**", "notes/**", "README.md", "*.md"]');
     expect(output).not.toContain("[sections.schemas]");
     expect(output).not.toContain("[sections.scripts]");
     expect(output).toContain("[sections.tests]");
+  });
+
+  test("scaffolds repository notes when init writes files", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-"));
+    const cwd = process.cwd();
+
+    process.chdir(root);
+    try {
+      await expect(main(["init", "--name", "demo"])).resolves.toBe(0);
+    } finally {
+      process.chdir(cwd);
+    }
+
+    const configSource = await fs.readFile(path.join(root, "cx.toml"), "utf8");
+    const notesGuide = await fs.readFile(
+      path.join(root, "notes", "README.md"),
+      "utf8",
+    );
+    const notesTemplate = await fs.readFile(
+      path.join(root, "notes", "template-new-zettel.md"),
+      "utf8",
+    );
+
+    expect(configSource).toContain('project_name = "demo"');
+    expect(configSource).toContain('include = ["docs/**", "notes/**", "README.md", "*.md"]');
+    expect(notesGuide).toContain("# Zettelkasten 101");
+    expect(notesGuide).toContain("collector's fallacy");
+    expect(notesGuide).toContain("Barbell Method Of Triage");
+    expect(notesTemplate).toContain("id: YYYYMMDDHHMM");
+    expect(notesTemplate).toContain("aliases: []");
+    expect(notesTemplate).toContain("tags: []");
+    expect(notesTemplate).toContain("## Links");
+  });
+
+  test("force init refreshes the generated notes files", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-force-"));
+    const cwd = process.cwd();
+
+    process.chdir(root);
+    try {
+      await expect(main(["init", "--name", "demo"])).resolves.toBe(0);
+      await fs.writeFile(
+        path.join(root, "notes", "README.md"),
+        "custom guide\n",
+        "utf8",
+      );
+      await expect(main(["init", "--name", "demo", "--force"])).resolves.toBe(0);
+    } finally {
+      process.chdir(cwd);
+    }
+
+    const refreshedGuide = await fs.readFile(
+      path.join(root, "notes", "README.md"),
+      "utf8",
+    );
+    expect(refreshedGuide).toContain("# Zettelkasten 101");
+    expect(refreshedGuide).not.toBe("custom guide\n");
   });
 
   test.each([

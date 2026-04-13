@@ -154,7 +154,7 @@ export async function main(argv: string[]): Promise<number> {
     )
     .command(
       "init",
-      "Create a starter cx.toml.",
+      "Create a starter cx.toml and scaffold repository notes.",
       (command) =>
         command
           .example(
@@ -163,7 +163,7 @@ export async function main(argv: string[]): Promise<number> {
           )
           .example(
             "$0 init --name demo --style json",
-            "Customize the starter config.",
+            "Customize the starter config and notes scaffolding.",
           )
           .option("force", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })

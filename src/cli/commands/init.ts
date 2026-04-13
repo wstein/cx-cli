@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
+import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
@@ -114,12 +115,22 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   await fs.writeFile("cx.toml", output, "utf8");
+  const notesScaffold = await scaffoldNotesModule(process.cwd(), {
+    force: args.force,
+  });
 
   if (!(args.json ?? false)) {
     const { printSuccess, printInfo } = await import("../../shared/format.js");
     printSuccess("Created cx.toml");
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);
+    printInfo(`Notes directory: ${notesScaffold.notesDir}`);
+    if (notesScaffold.createdPaths.length > 0) {
+      printInfo(`Notes scaffolded: ${notesScaffold.createdPaths.join(", ")}`);
+    }
+    if (notesScaffold.updatedPaths.length > 0) {
+      printInfo(`Notes refreshed: ${notesScaffold.updatedPaths.join(", ")}`);
+    }
   }
 
   if (args.json ?? false) {
@@ -127,6 +138,9 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       projectName: resolved.name ?? "myproject",
       style: resolved.style ?? "xml",
       path: "cx.toml",
+      notesDir: notesScaffold.notesDir,
+      notesCreated: notesScaffold.createdPaths,
+      notesUpdated: notesScaffold.updatedPaths,
     });
   }
   return 0;

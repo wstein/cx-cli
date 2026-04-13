@@ -62,7 +62,7 @@ target_dir = "{project}-assets"
 layout = "flat"
 
 [sections.docs]
-include = ["docs/**", "README.md", "*.md"]
+include = ["docs/**", "notes/**", "README.md", "*.md"]
 exclude = []
 
 [sections.repo]
