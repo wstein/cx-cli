@@ -19,6 +19,7 @@ import type {
   CxConfigDuplicateEntryMode,
   CxConfigInput,
   CxDedupMode,
+  CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxSectionConfig,
   CxStyle,
@@ -43,6 +44,7 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
   "fail",
 ]);
 const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
+
 function expectString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new CxError(`${label} must be a non-empty string.`);
@@ -113,6 +115,63 @@ function expectEnum<T extends string>(
   }
 
   return value as T;
+}
+
+function expectFileExtension(value: unknown, label: string): string {
+  const extension = expectString(value, label);
+  if (!extension.startsWith(".")) {
+    throw new CxError(`${label} must start with '.'.`);
+  }
+  if (/[/\\]/.test(extension)) {
+    throw new CxError(`${label} must not contain path separators.`);
+  }
+  if (extension.length < 2) {
+    throw new CxError(`${label} must include at least one character after '.'.`);
+  }
+  return extension;
+}
+
+function parseOutputExtensions(
+  output: Record<string, unknown>,
+): CxOutputExtensionsConfig {
+  const defaults = DEFAULT_CONFIG_VALUES.output.extensions;
+  const extensionsRaw = output.extensions;
+  if (extensionsRaw === undefined) {
+    return { ...defaults };
+  }
+  if (
+    typeof extensionsRaw !== "object" ||
+    extensionsRaw === null ||
+    Array.isArray(extensionsRaw)
+  ) {
+    throw new CxError("output.extensions must be a table.");
+  }
+
+  const extensions = extensionsRaw as Record<string, unknown>;
+  const validKeys = new Set(["xml", "json", "markdown", "plain"]);
+  for (const key of Object.keys(extensions)) {
+    if (!validKeys.has(key)) {
+      throw new CxError(
+        "output.extensions supports only: xml, json, markdown, plain.",
+      );
+    }
+  }
+
+  return {
+    xml: expectFileExtension(extensions.xml ?? defaults.xml, "output.extensions.xml"),
+    json: expectFileExtension(
+      extensions.json ?? defaults.json,
+      "output.extensions.json",
+    ),
+    markdown: expectFileExtension(
+      extensions.markdown ?? defaults.markdown,
+      "output.extensions.markdown",
+    ),
+    plain: expectFileExtension(
+      extensions.plain ?? defaults.plain,
+      "output.extensions.plain",
+    ),
+  };
 }
 
 /**
@@ -366,6 +425,7 @@ export async function loadCxConfig(
     "output_dir",
     projectName,
   );
+  const output = parsed.output ?? {};
   const repomix = parsed.repomix ?? {};
   const files = parsed.files ?? {};
   const dedup = parsed.dedup ?? {};
@@ -535,6 +595,9 @@ export async function loadCxConfig(
     projectName,
     sourceRoot,
     outputDir,
+    output: {
+      extensions: parseOutputExtensions(output),
+    },
     repomix: {
       style: expectEnum(
         repomix.style,

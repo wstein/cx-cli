@@ -32,7 +32,74 @@ exclude = []
     expect(config.assets.layout).toBe("flat");
     expect(config.checksums.fileName).toBe("demo.sha256");
     expect(config.tokens.encoding).toBe("o200k_base");
+    expect(config.output.extensions).toEqual({
+      xml: ".xml.txt",
+      json: ".json.txt",
+      markdown: ".md",
+      plain: ".txt",
+    });
     expect(config.sections.src?.include).toEqual(["src/**"]);
+  });
+
+  test("loads custom output extension overrides", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-ext-"));
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[output.extensions]
+xml = ".xml.bundle.txt"
+json = ".json.bundle.txt"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(configPath);
+    expect(config.output.extensions).toEqual({
+      xml: ".xml.bundle.txt",
+      json: ".json.bundle.txt",
+      markdown: ".md",
+      plain: ".txt",
+    });
+  });
+
+  test("rejects output extension values without a leading dot", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-ext-bad-"));
+    const configPath = path.join(tempDir, "cx.toml");
+    await fs.writeFile(
+      configPath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[output.extensions]
+json = "json.txt"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(configPath)).rejects.toThrow(
+      "output.extensions.json must start with '.'.",
+    );
   });
 
   test("loads token encoding overrides", async () => {

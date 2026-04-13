@@ -120,7 +120,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
     outputs.push({
       section: sectionName,
       style,
-      outputFile: `${config.projectName}-repomix-${sectionName}.${styleExtension(style)}`,
+      outputFile: `${config.projectName}-repomix-${sectionName}${config.output.extensions[style]}`,
       fileCount: selectedFiles.length,
       sizeBytes: totalSizeBytes,
       tokenCount: result.tokenCount,
@@ -131,7 +131,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
     } else if (args.outputDir) {
       const outputPath = path.resolve(
         args.outputDir,
-        `${config.projectName}-repomix-${sectionName}.${styleExtension(style)}`,
+        `${config.projectName}-repomix-${sectionName}${config.output.extensions[style]}`,
       );
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, result.content, "utf8");
@@ -176,17 +176,4 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
   }
 
   return 0;
-}
-
-function styleExtension(style: CxStyle): string {
-  switch (style) {
-    case "markdown":
-      return "md";
-    case "json":
-      return "json";
-    case "plain":
-      return "txt";
-    case "xml":
-      return "xml.txt";
-  }
 }

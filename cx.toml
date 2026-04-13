@@ -3,6 +3,12 @@ project_name = "cx-cli"
 source_root = "."
 output_dir = "dist/{project}-bundle"
 
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+
 [repomix]
 style = "xml"
 show_line_numbers = false

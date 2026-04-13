@@ -6,6 +6,17 @@ export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
 
+export interface CxOutputExtensionsConfig {
+  xml: string;
+  markdown: string;
+  json: string;
+  plain: string;
+}
+
+export interface CxOutputConfig {
+  extensions: CxOutputExtensionsConfig;
+}
+
 export interface CxSectionConfig {
   include: string[];
   exclude: string[];
@@ -143,6 +154,7 @@ export interface CxConfig {
   projectName: string;
   sourceRoot: string;
   outputDir: string;
+  output: CxOutputConfig;
   repomix: CxRepomixConfig;
   files: CxFilesConfig;
   dedup: CxDedupConfig;
@@ -160,6 +172,7 @@ export interface CxConfigInput {
   project_name?: unknown;
   source_root?: unknown;
   output_dir?: unknown;
+  output?: Record<string, unknown>;
   repomix?: Record<string, unknown>;
   files?: Record<string, unknown>;
   dedup?: Record<string, unknown>;

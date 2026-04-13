@@ -13,6 +13,12 @@ project_name = "myproject"
 source_root = "."
 output_dir = "dist/myproject-bundle"
 
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+
 [repomix]
 style = "xml"
 show_line_numbers = false
@@ -89,6 +95,14 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   | "sections"
   | "behaviorSources"
 > = {
+  output: {
+    extensions: {
+      xml: ".xml.txt",
+      json: ".json.txt",
+      markdown: ".md",
+      plain: ".txt",
+    },
+  },
   repomix: {
     style: "xml",
     showLineNumbers: false,

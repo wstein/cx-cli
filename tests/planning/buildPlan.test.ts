@@ -68,6 +68,14 @@ function baseConfig(root: string): CxConfig {
     projectName: "demo",
     sourceRoot: root,
     outputDir: path.join(root, "dist", "demo-bundle"),
+    output: {
+      extensions: {
+        xml: ".xml.txt",
+        json: ".json.txt",
+        markdown: ".md",
+        plain: ".txt",
+      },
+    },
     repomix: {
       style: "xml",
       showLineNumbers: false,

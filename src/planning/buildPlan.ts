@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { CxConfig, CxSectionConfig, CxStyle } from "../config/types.js";
+import type { CxConfig, CxSectionConfig } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
@@ -21,19 +21,6 @@ import type {
   PlannedSection,
   PlannedSourceFile,
 } from "./types.js";
-
-function outputExtension(style: CxStyle): string {
-  switch (style) {
-    case "markdown":
-      return "md";
-    case "json":
-      return "json";
-    case "plain":
-      return "txt";
-    case "xml":
-      return "xml.txt";
-  }
-}
 
 function getRequiredSection(
   sections: Record<string, CxSectionConfig>,
@@ -211,7 +198,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     return {
       name,
       style,
-      outputFile: `${config.projectName}-repomix-${name}.${outputExtension(style)}`,
+      outputFile: `${config.projectName}-repomix-${name}${config.output.extensions[style]}`,
       files: getRequiredSectionFiles(sectionFiles, name).sort((left, right) =>
         left.relativePath.localeCompare(right.relativePath, "en"),
       ),

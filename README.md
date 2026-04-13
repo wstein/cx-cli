@@ -159,6 +159,12 @@ project_name = "myproject"
 source_root = "."
 output_dir = "dist/{project}-bundle"
 
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+
 [repomix]
 style = "xml"
 show_line_numbers = false
@@ -229,6 +235,26 @@ exclude = []
 - [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
 - [Implementation Plan](docs/IMPLEMENTATION_PLAN.md): project planning notes
 - [Spec Debate](docs/SPEC_DEBATE.md): design discussion and tradeoffs
+
+## LLM-Friendly Output Extensions
+
+By default, section outputs use these extensions:
+
+- XML: `.xml.txt`
+- JSON: `.json.txt`
+- Markdown: `.md`
+- Plain text: `.txt`
+
+This keeps uploads frictionless across stricter web-based LLM file handlers.
+You can override any of them in `cx.toml`:
+
+```toml
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+```
 
 ## Development
 

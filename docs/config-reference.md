@@ -245,6 +245,36 @@ The `project_name` field must be filesystem-safe and follow a narrow naming poli
 
 Invalid values are rejected when loading `cx.toml` or when running `cx init --name`.
 
+## Output Extensions
+
+`cx` names section output files using style-specific extensions configured in `[output.extensions]`.
+
+Defaults:
+
+```toml
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+```
+
+Rules:
+
+- Each value must be a non-empty string.
+- Each value must start with `.`.
+- Path separators (`/` or `\\`) are not allowed.
+
+Example:
+
+```toml
+[output.extensions]
+xml = ".xml.bundle.txt"
+json = ".json.bundle.txt"
+markdown = ".md"
+plain = ".txt"
+```
+
 ## Path expansion
 
 The configuration supports expanding paths before they are resolved:
