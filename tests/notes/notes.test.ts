@@ -50,7 +50,7 @@ This is a valid note.
     await fs.writeFile(
       path.join(nestedDir, "New Zettel Template.md"),
       `---
-id: YYYYMMDDHHMM
+id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---
