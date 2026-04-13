@@ -11,14 +11,11 @@ If you are new to the project, read the README first. If you need the invariants
 `cx` is a pipeline, not just a formatter:
 
 1. Load and validate `cx.toml`.
-2. Build a deterministic plan of text files, sections, and copied assets.
-3. Detect the VCS provider (git, fossil, or filesystem fallback) and derive the
- master file list from tracked files. Classify the working-tree dirty state.
-4. Assign files to sections (classifiers, not discoverers). Resolve overlaps.
- Optionally absorb remaining files into a catch-all section.
-5. Render each section through the Repomix adapter.
-6. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
-7. Let downstream tools inspect, verify, list, or extract from that recorded state.
+2. Detect the VCS provider (git, fossil, or filesystem fallback) and derive the master file list from tracked files. Classify the working-tree dirty state.
+3. Assign files to sections, copied assets, and unmatched-file handling. Section globs classify files; they do not discover new ones. Resolve overlaps and optionally absorb remaining files into a catch-all section.
+4. Render each section through the Repomix adapter.
+5. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
+6. Let downstream tools inspect, verify, list, or extract from that recorded state.
 
 The bundle is the deliverable. The manifest is the source of truth for what the bundle means.
 
@@ -45,6 +42,8 @@ The bundle is the deliverable. The manifest is the source of truth for what the 
 cx init --name demo
 cx inspect --config cx.toml
 ```
+
+`cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository's Zettelkasten 101 guide plus the default atomic note template.
 
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
 
@@ -133,7 +132,7 @@ Use `list` when you want visibility. Use `extract` when you need reconstruction.
 
 For this repository, prefer four stable sections:
 
-- `docs` for human-facing documentation and root markdown
+- `docs` for human-facing documentation, root markdown, and repository notes under `notes/`
 - `repo` for repository metadata, config, scripts, and schemas
 - `src` for production implementation
 - `tests` for regression coverage
@@ -215,8 +214,6 @@ cx bundle --config cx.toml
 
 Do not stop after editing the config. Re-run `inspect` or `bundle` immediately so the repaired manifest plan is confirmed in the same terminal session.
 
-## Workflow: Safe CI Operation
-
 ## Workflow: VCS Dirty State
 
 `cx` classifies the working tree before planning and records the result in the
@@ -248,6 +245,8 @@ the wrong branch was used.
 The dirty-state check is bypassed entirely when no VCS is detected (filesystem
 fallback). In that case, `vcsProvider = "none"` and `dirtyState = "clean"` are
 recorded unconditionally.
+
+## Workflow: Safe CI Operation
 
 
 For automated pipelines, prefer strict mode:

@@ -67,6 +67,14 @@ directory that exposes a `renderSection` function with the same signature as
 
 The planner resolves:
 
+- project name
+- source root
+- output directory
+- VCS provider and working-tree dirty state
+- section membership (including priority-based overlap resolution)
+- copied assets
+- unmatched files
+- overlap and collision failures
 
 This happens before rendering because the plan must be settled first.
 
@@ -112,6 +120,12 @@ produce `dirtyState = "clean"` and `vcsProvider = "none"`.
 
 #### Section priority and overlap resolution
 
+Sections are ordered by their `priority` value (descending) before overlap
+resolution begins. A file claimed by multiple sections is assigned to whichever
+section appears first in the resolved order. Sections without an explicit
+priority are treated as priority 0 and their relative order follows
+`dedup.order` (config position or lexical) as a stable tie-breaker.
+
 #### Catch-all sections
 
 A section may set `catch_all = true` instead of providing an `include` list.
@@ -122,11 +136,10 @@ list to filter what it absorbs.
 
 At most one catch-all section is permitted per configuration.
 
-Sections are ordered by their `priority` value (descending) before overlap
-resolution begins. A file claimed by multiple sections is assigned to whichever
-section appears first in the resolved order. Sections without an explicit
-priority are treated as priority 0 and their relative order follows
-`dedup.order` (config position or lexical) as a stable tie-breaker.
+This same mechanism lets repository notes live in the normal planning model.
+The default `docs` section now includes `notes/**`, so durable human intent is
+bundled beside documentation and code-facing Markdown instead of being treated
+as a separate side channel.
 
 Three overlap handling strategies are available via `dedup.mode`:
 
@@ -164,9 +177,18 @@ The renderer also reports output token counts. If the adapter supports exact spa
 
 `cx` writes a canonical manifest that records:
 
+- bundle identity and versions
+- source root and bundle directory
 - VCS provider (`git`, `fossil`, or `none`)
 - dirty state at bundle time (`clean`, `safe_dirty`, or `forced_dirty`)
 - list of uncommitted modified files when `forced_dirty`
+- checksum algorithm
+- the shared bundle index filename
+- section outputs
+- copied assets
+- per-file token counts
+- source metadata such as size, media type, and mtime
+- output spans for XML, Markdown, and plain sections when exact span capture is available; JSON sections do not need them
 
 The manifest is not just a report. It is the contract other commands operate against.
 
@@ -190,6 +212,9 @@ After bundling, other commands use the recorded state:
 
 Some failures are fundamental and intentionally hard:
 
+- section overlap when overlap failure mode is active
+- asset collision between copied assets and packed files
+- missing core adapter contract
 - `unsafe_dirty` working tree without `--force` (exit code 7)
 
 These are Category A invariants. They are never configurable away because doing so would make the bundle ambiguous or unverifiable.
