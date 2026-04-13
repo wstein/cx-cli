@@ -8,6 +8,7 @@ import {
   sortLexically,
 } from "../shared/fs.js";
 import { isSubpath } from "../shared/paths.js";
+import type { VCSState } from "../vcs/provider.js";
 
 export interface OverlapSuggestion {
   section: string;
@@ -66,9 +67,10 @@ export function getMatchingSections(
   const matches: string[] = [];
 
   for (const [name, section] of sections.entries()) {
-    const include = compileMatchers(section.include);
+    const include = compileMatchers(section.include ?? []);
     const exclude = compileMatchers(section.exclude);
     if (
+      include.length > 0 &&
       matchesAny(include, relativePath) &&
       !matchesAny(exclude, relativePath)
     ) {
@@ -79,10 +81,38 @@ export function getMatchingSections(
   return matches;
 }
 
-export async function listPlannableRelativePaths(
+/**
+ * Build the master file list for planning.
+ *
+ * Pipeline:
+ * 1. Start with the VCS-tracked file list (or all disk files when VCS is absent).
+ * 2. Apply `[files] include` patterns: extend the set with additional files
+ *    from disk that match the patterns (for non-VCS-tracked files that must
+ *    still be bundled).
+ * 3. Apply `[files] exclude` patterns as a security override: strip matching
+ *    files unconditionally before any section sorting begins.
+ * 4. Always strip the output directory to prevent self-referential bundles.
+ */
+export async function buildMasterList(
   config: CxConfig,
+  vcsState: VCSState,
 ): Promise<string[]> {
-  const allFiles = await listFilesRecursive(config.sourceRoot);
+  const masterSet = new Set<string>(vcsState.trackedFiles);
+
+  // Extend with explicitly included non-VCS files (e.g. generated outputs).
+  if (config.files.include.length > 0) {
+    const includeMatchers = compileMatchers(config.files.include);
+    const allDiskFiles = await listFilesRecursive(config.sourceRoot);
+    for (const absolute of allDiskFiles) {
+      const relative = relativePosix(config.sourceRoot, absolute);
+      if (matchesAny(includeMatchers, relative)) {
+        masterSet.add(relative);
+      }
+    }
+  }
+
+  // Security override: strip excluded files from the master set before any
+  // section glob evaluation, including the output directory itself.
   const outputExcluded = isSubpath(config.sourceRoot, config.outputDir)
     ? relativePosix(config.sourceRoot, config.outputDir)
     : undefined;
@@ -92,22 +122,26 @@ export async function listPlannableRelativePaths(
   ]);
 
   return sortLexically(
-    allFiles
-      .map((filePath) => relativePosix(config.sourceRoot, filePath))
-      .filter(
-        (relativePath) => !matchesAny(globalExcludeMatchers, relativePath),
-      ),
+    [...masterSet].filter(
+      (relativePath) => !matchesAny(globalExcludeMatchers, relativePath),
+    ),
   );
 }
 
 export async function analyzeSectionOverlaps(
   config: CxConfig,
+  masterList: string[],
 ): Promise<OverlapConflict[]> {
-  const sections = getSectionEntries(config);
+  // Only non-catch-all sections participate in overlap analysis.
+  const normalSections = new Map(
+    [...getSectionEntries(config)].filter(
+      ([, sec]) => !sec.catch_all,
+    ),
+  );
   const conflicts: OverlapConflict[] = [];
 
-  for (const relativePath of await listPlannableRelativePaths(config)) {
-    const matchingSections = getMatchingSections(relativePath, sections);
+  for (const relativePath of masterList) {
+    const matchingSections = getMatchingSections(relativePath, normalSections);
     if (matchingSections.length <= 1) {
       continue;
     }

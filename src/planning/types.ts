@@ -1,4 +1,5 @@
 import type { CxStyle } from "../config/types.js";
+import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
 export interface PlannedSourceFile {
   relativePath: string;
@@ -36,4 +37,19 @@ export interface BundlePlan {
    * Commands that output --json include these in the response envelope.
    */
   warnings: string[];
+  /** Which VCS was detected for this source root (or "none" for the filesystem fallback). */
+  vcsKind: VCSKind;
+  /**
+   * Dirty-state classification of the working tree at planning time.
+   *
+   * The planner produces "clean", "safe_dirty", or "unsafe_dirty". The bundle
+   * command resolves "unsafe_dirty" as either a fatal error or "forced_dirty"
+   * (when --force is passed), and records the effective state in the manifest.
+   */
+  dirtyState: Exclude<DirtyState, "forced_dirty">;
+  /**
+   * Relative POSIX paths of VCS-tracked files with uncommitted local changes.
+   * Populated only when dirtyState is "unsafe_dirty"; empty otherwise.
+   */
+  modifiedFiles: string[];
 }

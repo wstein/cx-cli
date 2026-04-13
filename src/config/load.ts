@@ -229,21 +229,17 @@ function normalizeSection(
     throw new CxError(`sections.${sectionName} must be a table.`);
   }
 
-  const rawInclude = expectStringArray(
-    input.include,
-    `sections.${sectionName}.include`,
+  const isCatchAll = expectBoolean(
+    input.catch_all,
+    `sections.${sectionName}.catch_all`,
+    false,
   );
-  if (rawInclude.length === 0) {
+
+  if (isCatchAll && input.include !== undefined) {
     throw new CxError(
-      `sections.${sectionName}.include must contain at least one pattern.`,
+      `sections.${sectionName}: catch_all sections must not specify include patterns.`,
     );
   }
-
-  const include = deduplicatePatterns(
-    rawInclude,
-    `sections.${sectionName}.include`,
-    duplicateMode,
-  );
 
   const style =
     input.style === undefined
@@ -266,7 +262,26 @@ function normalizeSection(
     duplicateMode,
   );
 
-  const normalized: CxSectionConfig = { include, exclude };
+  const normalized: CxSectionConfig = { exclude };
+
+  if (!isCatchAll) {
+    const rawInclude = expectStringArray(
+      input.include,
+      `sections.${sectionName}.include`,
+    );
+    if (rawInclude.length === 0) {
+      throw new CxError(
+        `sections.${sectionName}.include must contain at least one pattern (or set catch_all = true).`,
+      );
+    }
+    normalized.include = deduplicatePatterns(
+      rawInclude,
+      `sections.${sectionName}.include`,
+      duplicateMode,
+    );
+  } else {
+    normalized.catch_all = true;
+  }
 
   if (style !== undefined) {
     normalized.style = style;
@@ -560,6 +575,16 @@ export async function loadCxConfig(
 
   // --- Remaining config fields ---
 
+  const filesInclude = deduplicatePatterns(
+    expectStringArray(
+      files.include,
+      "files.include",
+      DEFAULT_CONFIG_VALUES.files.include,
+    ),
+    "files.include",
+    configDuplicateResolved.value,
+  );
+
   const filesExclude = deduplicatePatterns(
     expectStringArray(
       files.exclude,
@@ -622,6 +647,7 @@ export async function loadCxConfig(
       ),
     },
     files: {
+      include: filesInclude,
       exclude: filesExclude,
       followSymlinks: expectBoolean(
         files.follow_symlinks,

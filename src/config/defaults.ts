@@ -26,7 +26,10 @@ include_empty_directories = false
 security_check = true
 
 [files]
-exclude = [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"]
+# include is intentionally empty: the VCS-controlled file list is the master base.
+# Add patterns here only to pull in generated or deliberately git-ignored files.
+include = []
+exclude = ["node_modules/**", "dist/**", "tmp/**"]
 follow_symlinks = false
 unmatched = "ignore"
 
@@ -110,7 +113,8 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     securityCheck: true,
   },
   files: {
-    exclude: [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"],
+    include: [],
+    exclude: ["node_modules/**", "dist/**", "tmp/**"],
     followSymlinks: false,
     unmatched: "ignore",
   },

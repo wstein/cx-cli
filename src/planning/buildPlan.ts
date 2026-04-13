@@ -7,12 +7,12 @@ import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
 import {
   analyzeSectionOverlaps,
+  buildMasterList,
   compileMatchers,
   formatOverlapConflictMessage,
   getMatchingSections,
   getSectionEntries,
   getSectionOrder,
-  listPlannableRelativePaths,
   matchesAny,
 } from "./overlaps.js";
 import type {
@@ -21,6 +21,7 @@ import type {
   PlannedSection,
   PlannedSourceFile,
 } from "./types.js";
+import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 
 function getRequiredSection(
   sections: Record<string, CxSectionConfig>,
@@ -82,13 +83,23 @@ function resolveFlat(
 export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   const planningWarnings: string[] = [];
 
+  // Phase 1: Base Generation — establish the VCS-driven master file list.
+  //
+  // The VCS-tracked file list is the authoritative source of files for this
+  // project. `files.include` can extend it with non-VCS files; `files.exclude`
+  // unconditionally strips sensitive entries before any section glob runs.
+  const vcsState = await getVCSState(config.sourceRoot);
+  const masterList = await buildMasterList(config, vcsState);
+  const dirtyState = classifyDirtyState(vcsState);
+
+  // Phase 2: Overlap analysis (operates on the master list, not the disk).
   if (config.dedup.mode === "fail") {
-    const [conflict] = await analyzeSectionOverlaps(config);
+    const [conflict] = await analyzeSectionOverlaps(config, masterList);
     if (conflict) {
       throw new CxError(formatOverlapConflictMessage(conflict), 4);
     }
   } else if (config.dedup.mode === "warn") {
-    const conflicts = await analyzeSectionOverlaps(config);
+    const conflicts = await analyzeSectionOverlaps(config, masterList);
     for (const conflict of conflicts) {
       const message = formatOverlapConflictMessage(conflict);
       planningWarnings.push(message);
@@ -96,22 +107,57 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     }
   }
 
+  // Phase 3: Pool sorting — distribute masterList files into sections.
+  //
+  // Files are removed from `availablePool` as they are claimed. Normal
+  // sections are processed first in priority order; the optional catch-all
+  // section absorbs whatever remains after normal processing.
+
   const assetIncludeMatchers = compileMatchers(config.assets.include);
   const assetExcludeMatchers = compileMatchers(config.assets.exclude);
-  const sectionNames = getSectionOrder(config);
+  const sectionOrder = getSectionOrder(config);
   const sectionEntries = getSectionEntries(config);
+
+  // Split sections into normal (glob-based) and catch-all.
+  const normalSectionNames: string[] = [];
+  const catchAllSectionNames: string[] = [];
+  for (const name of sectionOrder) {
+    const sec = config.sections[name];
+    if (sec?.catch_all) {
+      catchAllSectionNames.push(name);
+    } else {
+      normalSectionNames.push(name);
+    }
+  }
+
+  if (catchAllSectionNames.length > 1) {
+    throw new CxError(
+      `Only one catch_all section is allowed per project, but found ${catchAllSectionNames.length}: ${catchAllSectionNames.join(", ")}.`,
+      2,
+    );
+  }
+
+  const normalSectionEntries = new Map(
+    normalSectionNames.map((name) => [name, sectionEntries.get(name)!]),
+  );
+
   const sectionFiles = new Map<string, PlannedSourceFile[]>(
-    sectionNames.map((sectionName) => [sectionName, []]),
+    sectionOrder.map((name) => [name, []]),
   );
   const assetCandidates: Omit<PlannedAsset, "storedPath">[] = [];
   const assets: PlannedAsset[] = [];
   const unmatchedFiles: string[] = [];
 
-  const relativePaths = await listPlannableRelativePaths(config);
+  // The pool starts as the full master list. Files are removed as they are
+  // claimed by assets or sections.
+  const availablePool = new Set<string>(masterList);
 
-  for (const relativePath of relativePaths) {
+  for (const relativePath of masterList) {
     const absolutePath = path.join(config.sourceRoot, relativePath);
-    const matchingSections = getMatchingSections(relativePath, sectionEntries);
+    const matchingSections = getMatchingSections(
+      relativePath,
+      normalSectionEntries,
+    );
     const isAsset =
       matchesAny(assetIncludeMatchers, relativePath) &&
       !matchesAny(assetExcludeMatchers, relativePath);
@@ -144,10 +190,11 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
             mtime: stat.mtime.toISOString(),
           });
         }
+        availablePool.delete(relativePath);
         continue;
       }
 
-      unmatchedFiles.push(relativePath);
+      // Leave in pool — the catch-all section (if present) will claim it.
       continue;
     }
 
@@ -155,6 +202,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     if (!sectionName) {
       throw new CxError(`Missing resolved section for ${relativePath}.`, 2);
     }
+    availablePool.delete(relativePath);
     const stat = await fs.stat(absolutePath);
     const plannedFile: PlannedSourceFile = {
       relativePath,
@@ -166,6 +214,44 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       mtime: stat.mtime.toISOString(),
     };
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
+  }
+
+  // Phase 4: Catch-all resolution — assign remaining pool to the catch-all
+  // section (if defined), then report any leftovers as unmatched.
+  if (catchAllSectionNames.length === 1) {
+    const catchAllName = catchAllSectionNames[0]!;
+    const catchAllSection = config.sections[catchAllName]!;
+    const catchAllExcludeMatchers = compileMatchers(
+      catchAllSection.exclude,
+    );
+
+    for (const relativePath of [...availablePool]) {
+      if (matchesAny(catchAllExcludeMatchers, relativePath)) {
+        // Explicitly excluded from the catch-all — treat as unmatched.
+        unmatchedFiles.push(relativePath);
+        availablePool.delete(relativePath);
+        continue;
+      }
+      availablePool.delete(relativePath);
+      const absolutePath = path.join(config.sourceRoot, relativePath);
+      const stat = await fs.stat(absolutePath);
+      const plannedFile: PlannedSourceFile = {
+        relativePath,
+        absolutePath,
+        kind: "text",
+        mediaType: detectMediaType(relativePath, "text"),
+        sizeBytes: stat.size,
+        sha256: await sha256File(absolutePath),
+        mtime: stat.mtime.toISOString(),
+      };
+      getRequiredSectionFiles(sectionFiles, catchAllName).push(plannedFile);
+    }
+  }
+
+  // Any file still in the pool after normal and catch-all processing is
+  // "unmatched" — it is in the VCS tree but claimed by no section.
+  for (const relativePath of availablePool) {
+    unmatchedFiles.push(relativePath);
   }
 
   if (config.assets.layout === "flat") {
@@ -192,7 +278,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     );
   }
 
-  const sections: PlannedSection[] = sectionNames.map((name) => {
+  const sections: PlannedSection[] = sectionOrder.map((name) => {
     const section = getRequiredSection(config.sections, name);
     const style = section.style ?? config.repomix.style;
     return {
@@ -216,5 +302,9 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     ),
     unmatchedFiles,
     warnings: planningWarnings,
+    vcsKind: vcsState.kind,
+    dirtyState,
+    modifiedFiles:
+      dirtyState === "unsafe_dirty" ? vcsState.modifiedFiles : [],
   };
 }

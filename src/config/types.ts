@@ -18,7 +18,15 @@ export interface CxOutputConfig {
 }
 
 export interface CxSectionConfig {
-  include: string[];
+  /**
+   * Glob patterns that select files for this section from the VCS master
+   * file list. Required on every section that does not set `catch_all`.
+   *
+   * Section globs are pure classifiers: they sort files from the master list
+   * into sections. They can never introduce files that are not already in the
+   * master list.
+   */
+  include?: string[];
   exclude: string[];
   style?: CxStyle;
   /**
@@ -33,6 +41,14 @@ export interface CxSectionConfig {
    * `"fail"` mode, overlaps are rejected regardless of priority.
    */
   priority?: number;
+  /**
+   * When `true`, this section absorbs all files from the VCS master list
+   * that are not claimed by any other section. At most one catch-all section
+   * is allowed per project. A catch-all section must not specify `include`
+   * patterns; it may optionally specify `exclude` patterns to drop specific
+   * files from the remaining pool.
+   */
+  catch_all?: boolean;
 }
 
 export interface CxRepomixConfig {
@@ -43,6 +59,20 @@ export interface CxRepomixConfig {
 }
 
 export interface CxFilesConfig {
+  /**
+   * Glob patterns that add files to the VCS master list even if they are not
+   * tracked by the VCS (e.g. generated outputs that are deliberately
+   * git-ignored). Applied after VCS discovery, before global excludes.
+   *
+   * The standard value is an empty array — rely on the VCS to define the
+   * canonical file set.
+   */
+  include: string[];
+  /**
+   * Glob patterns that unconditionally remove files from the master list.
+   * Acts as a security override: even VCS-tracked files are stripped before
+   * any section sorting begins.
+   */
   exclude: string[];
   followSymlinks: boolean;
   unmatched: CxUnmatchedMode;
