@@ -4,25 +4,35 @@ This draft records the editorial consensus for the `cx` documentation set.
 Use [docs/README.md](./README.md) as the entry point and treat this file as
 the source of truth for the revision goals below.
 
-`cx` is designed as a separate tool that depends on Repomix as a library,
-uses Repomix’s documented high-level and low-level entry points, supports
-standard Repomix output styles, and keeps generated section files compatible
-with normal Repomix consumers.
+## Operator Path
+
+The docs should lead with the actions an operator can take immediately:
+
+1. `cx init --name demo`
+2. `cx inspect --token-breakdown`
+3. `cx bundle --config cx.toml`
+4. `cx mcp`
+5. `cx doctor mcp`
+6. `cx doctor secrets`
+
+The project is not just a bundle renderer. It also has a native MCP surface
+for agent workflows, and that surface is intentionally separated from bundle
+semantics.
 
 ## 1. Purpose
 
-`cx` is a deterministic **context bundler** built on top of Repomix.
+`cx` is a deterministic **context bundler** and agent workflow tool.
 
 Its responsibilities are:
 
 * split a project into multiple **non-overlapping sections**
-* render one **standard Repomix output file per section**
+* render one **deterministic section output per section**
 * copy selected **binary/raw assets** into the bundle
 * generate a **manifest** and **sha256 checksum file**
 * support **extract**, **verify**, **validate**, and **list**
+* start a native `cx mcp` server for workspace-aware agent tools
 * use **its own TOML config**
-* never shell out to `repomix`
-* never patch or fork Repomix
+* keep the MCP tool surface separate from bundle output rendering
 
 ## 2. Non-goals
 

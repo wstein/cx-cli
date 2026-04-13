@@ -48,6 +48,10 @@ cx doctor secrets --config cx.toml
 
 `cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration.
 
+The native MCP server exposes file-based `list` and `grep` tools over the
+workspace scope. Use `list` to enumerate visible files, and use `grep` to
+search their contents without switching back to bundle semantics.
+
 ## Standard Workflow
 
 ### 1. Create or inspect config
