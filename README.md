@@ -74,6 +74,11 @@ Initialize a starter config:
 cx init --name demo
 ```
 
+`cx init` writes both `cx.toml` and a `notes/` directory with:
+
+- `notes/README.md` as the Zettelkasten 101 guide
+- `notes/template-new-zettel.md` as the atomic note template
+
 Preview the deterministic plan before writing anything:
 
 ```bash
@@ -136,7 +141,7 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 
 | Command | Purpose |
 | --- | --- |
-| `cx init` | Create a starter `cx.toml` |
+| `cx init` | Create a starter `cx.toml` and scaffold repository notes |
 | `cx inspect` | Show the computed plan without writing files |
 | `cx bundle` | Build a deterministic bundle directory |
 | `cx list` | List bundle contents grouped by section |
@@ -203,7 +208,8 @@ include_empty_directories = false
 security_check = true
 
 [files]
-exclude = [".git/**", "node_modules/**", "dist/**", "tmp/**", "bun.lock"]
+include = []
+exclude = ["node_modules/**", "dist/**", "tmp/**"]
 follow_symlinks = false
 unmatched = "ignore"
 
@@ -231,7 +237,7 @@ target_dir = "{project}-assets"
 layout = "flat"
 
 [sections.docs]
-include = ["README.md", "docs/**", "*.md"]
+include = ["README.md", "docs/**", "notes/**", "*.md"]
 exclude = []
 
 [sections.repo]
