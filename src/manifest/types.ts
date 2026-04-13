@@ -56,6 +56,14 @@ export interface AssetRecord {
   mediaType: string;
 }
 
+export interface NoteRecord {
+  id: string;
+  title: string;
+  fileName: string;
+  aliases: string[];
+  tags: string[];
+}
+
 /** A section as stored in the manifest, including its file list. */
 export interface CxSection extends SectionOutputRecord {
   files: ManifestFileRow[];
@@ -99,4 +107,6 @@ export interface CxManifest {
   assets: AssetRecord[];
   /** Flat list of all file rows (text + asset), reconstructed after parsing. */
   files: ManifestFileRow[];
+  /** Repository notes metadata (Zettelkasten), if notes were present during bundling. */
+  notes?: NoteRecord[];
 }

@@ -8,6 +8,7 @@ import type {
   CxSection,
   SectionHashMaps,
   ManifestFileRow,
+  NoteRecord,
   SectionOutputRecord,
   SectionSpanMaps,
   SectionTokenMaps,
@@ -17,12 +18,12 @@ export function buildManifest(params: {
   config: CxConfig;
   plan: BundlePlan;
   sectionOutputs: SectionOutputRecord[];
-  bundleIndexFile?: string;
+  bundleIndexFile?: string | undefined;
   cxVersion: string;
   repomixVersion: string;
-  sectionSpanMaps?: SectionSpanMaps;
-  sectionTokenMaps?: SectionTokenMaps;
-  sectionHashMaps?: SectionHashMaps;
+  sectionSpanMaps?: SectionSpanMaps | undefined;
+  sectionTokenMaps?: SectionTokenMaps | undefined;
+  sectionHashMaps?: SectionHashMaps | undefined;
   /**
    * Effective dirty state to record in the manifest.
    *
@@ -33,6 +34,8 @@ export function buildManifest(params: {
   dirtyState: Exclude<DirtyState, "unsafe_dirty">;
   /** Relative POSIX paths of modified tracked files. Populated when dirtyState is "forced_dirty". */
   modifiedFiles: string[];
+  /** Repository notes metadata, if present. */
+  notes?: NoteRecord[] | undefined;
 }): CxManifest {
   const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
     const planSection = params.plan.sections.find(
@@ -120,6 +123,10 @@ export function buildManifest(params: {
 
   if (params.bundleIndexFile !== undefined) {
     manifest.bundleIndexFile = params.bundleIndexFile;
+  }
+
+  if (params.notes !== undefined && params.notes.length > 0) {
+    manifest.notes = params.notes;
   }
 
   return manifest;
