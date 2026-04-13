@@ -45,6 +45,105 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
 ]);
 const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function cloneRawValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneRawValue(entry));
+  }
+
+  if (isPlainObject(value)) {
+    const clone: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value)) {
+      clone[key] = cloneRawValue(entry);
+    }
+    return clone;
+  }
+
+  return value;
+}
+
+function mergeRawValues(baseValue: unknown, overrideValue: unknown): unknown {
+  if (Array.isArray(baseValue) && Array.isArray(overrideValue)) {
+    return [
+      ...baseValue.map((entry) => cloneRawValue(entry)),
+      ...overrideValue.map((entry) => cloneRawValue(entry)),
+    ];
+  }
+
+  if (isPlainObject(baseValue) && isPlainObject(overrideValue)) {
+    const merged: Record<string, unknown> = {};
+    const keys = new Set([
+      ...Object.keys(baseValue),
+      ...Object.keys(overrideValue),
+    ]);
+
+    for (const key of keys) {
+      const baseEntry = baseValue[key];
+      const overrideEntry = overrideValue[key];
+
+      if (overrideEntry === undefined) {
+        merged[key] = cloneRawValue(baseEntry);
+        continue;
+      }
+
+      if (baseEntry === undefined) {
+        merged[key] = cloneRawValue(overrideEntry);
+        continue;
+      }
+
+      merged[key] = mergeRawValues(baseEntry, overrideEntry);
+    }
+
+    return merged;
+  }
+
+  return overrideValue === undefined
+    ? cloneRawValue(baseValue)
+    : cloneRawValue(overrideValue);
+}
+
+function mergeInheritedConfig(
+  baseConfig: CxConfigInput,
+  childConfig: CxConfigInput,
+): CxConfigInput {
+  const merged = mergeRawValues(baseConfig, childConfig);
+
+  if (!isPlainObject(merged)) {
+    throw new CxError("cx.toml inheritance produced an invalid config shape.");
+  }
+
+  delete merged.extends;
+  return merged as CxConfigInput;
+}
+
+async function loadConfigInput(
+  configPath: string,
+  allowExtends: boolean,
+): Promise<CxConfigInput> {
+  const raw = await fs.readFile(configPath, "utf8");
+  const parsed = parseToml(raw) as CxConfigInput;
+  const configDir = path.dirname(path.resolve(configPath));
+
+  if (parsed.extends !== undefined) {
+    const extendsPath = expectString(parsed.extends, "extends");
+
+    if (!allowExtends) {
+      throw new CxError(
+        "Deep configuration chaining is forbidden. Base configs must not declare extends.",
+      );
+    }
+
+    const inheritedPath = path.resolve(configDir, extendsPath);
+    const baseConfig = await loadConfigInput(inheritedPath, false);
+    return mergeInheritedConfig(baseConfig, parsed);
+  }
+
+  return parsed;
+}
+
 function expectString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new CxError(`${label} must be a non-empty string.`);
@@ -416,8 +515,7 @@ export async function loadCxConfig(
   envOverrides: CxEnvOverrides = readEnvOverrides(),
   cliOverrides: CxEnvOverrides = getCLIOverrides(),
 ): Promise<CxConfig> {
-  const raw = await fs.readFile(configPath, "utf8");
-  const parsed = parseToml(raw) as CxConfigInput;
+  const parsed = await loadConfigInput(configPath, true);
   const configDir = path.dirname(path.resolve(configPath));
   const schemaVersion = parsed.schema_version;
 

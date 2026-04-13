@@ -102,6 +102,99 @@ exclude = []
     );
   });
 
+  test("loads a one-level inherited config and concatenates arrays", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-inherit-"));
+    const basePath = path.join(tempDir, "cx.toml");
+    const childPath = path.join(tempDir, "cx-mcp.toml");
+
+    await fs.writeFile(
+      basePath,
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[files]
+include = ["base/generated/**"]
+exclude = ["node_modules/**"]
+
+[sections.src]
+include = ["src/**"]
+exclude = ["src/generated/**"]
+
+[sections.tests]
+include = ["tests/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await fs.writeFile(
+      childPath,
+      `extends = "cx.toml"
+
+[files]
+include = ["dist/**"]
+exclude = ["tests/**"]
+
+[sections.src]
+exclude = ["src/tmp/**"]
+`,
+      "utf8",
+    );
+
+    const config = await loadCxConfig(childPath);
+    expect(config.files.include).toEqual(["base/generated/**", "dist/**"]);
+    expect(config.files.exclude).toEqual(["node_modules/**", "tests/**"]);
+    expect(config.sections.src?.include).toEqual(["src/**"]);
+    expect(config.sections.src?.exclude).toEqual([
+      "src/generated/**",
+      "src/tmp/**",
+    ]);
+    expect(config.sections.tests?.include).toEqual(["tests/**"]);
+  });
+
+  test("rejects deep configuration chaining in an inherited config", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-deep-"));
+    const basePath = path.join(tempDir, "cx.toml");
+    const childPath = path.join(tempDir, "cx-mcp.toml");
+
+    await fs.writeFile(
+      basePath,
+      `extends = "shared.toml"
+schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    await fs.writeFile(
+      childPath,
+      `extends = "cx.toml"
+
+[sections.src]
+exclude = ["src/tmp/**"]
+`,
+      "utf8",
+    );
+
+    await expect(loadCxConfig(childPath)).rejects.toThrow(
+      "Deep configuration chaining is forbidden. Base configs must not declare extends.",
+    );
+  });
+
   test("loads token encoding overrides", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-list-"));
     const configPath = path.join(tempDir, "cx.toml");

@@ -5,6 +5,11 @@
   "type": "object",
   "required": ["schema_version", "project_name", "source_root", "sections"],
   "properties": {
+    "extends": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional one-level inheritance pointer to a sibling cx.toml file. Use this in agent-specific profiles such as cx-mcp.toml. The runtime loader rejects deeper chaining."
+    },
     "schema_version": {
       "type": "integer",
       "const": 1,

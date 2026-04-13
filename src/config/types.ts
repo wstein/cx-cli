@@ -198,6 +198,7 @@ export interface CxConfig {
 }
 
 export interface CxConfigInput {
+  extends?: unknown;
   schema_version?: unknown;
   project_name?: unknown;
   source_root?: unknown;

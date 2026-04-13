@@ -36,6 +36,25 @@ However, runtime validation in [src/config/load.ts](../src/config/load.ts) is th
 
 The schema provides a fast, helpful ergonomic layer before running `cx`, but `cx load` remains the deterministic, authoritative validator.
 
+## One-Level Inheritance for Agent Profiles
+
+Project configs can opt into a single inheritance step by setting `extends` at the top level:
+
+```toml
+extends = "cx.toml"
+```
+
+This is intended for colocated agent profiles such as `cx-mcp.toml` inheriting from the local `cx.toml` baseline. The loader resolves the path relative to the file that declares `extends`, loads the base config first, and then overlays the child config on top.
+
+Inheritance is deliberately shallow:
+
+- The base config must not declare its own `extends`.
+- A second inheritance hop is a hard error during loading.
+- Child values override base values for scalars and tables.
+- Array values concatenate so baseline exclusions remain in force.
+
+This matters most for security-sensitive arrays such as `files.exclude`: the inherited baseline stays present, and the child can only append more entries.
+
 ## File Discovery
 
 `cx` builds the master file list from the version control system. Section globs then classify files within that list; they never extend it.
@@ -177,7 +196,7 @@ than one section:
   priority order.
 - `"first-wins"` — conflicts are resolved silently using priority order.
 
-**Section priority and dynamic overlap resolution**
+### Section priority and dynamic overlap resolution
 
 Every section accepts an optional `priority` key (positive integer). When
 `dedup.mode` is `"first-wins"` or `"warn"`, the section with the highest
@@ -546,7 +565,18 @@ A generated bundle must satisfy these invariants:
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects normalized packed-content drift against the source tree.
 - Section output names are deterministic and derived from `project_name` plus the section name.
 
-`manifest.include_output_spans` defaults to `true`. Text sections require it: if a bundle contains XML, Markdown, or plain sections, `cx bundle` fails unless exact span capture is available and enabled. When enabled, `cx bundle` computes per-file spans for those text sections using absolute line numbers in the rendered section output only when the active adapter exposes exact span capture through `renderWithMap`. `output_start_line` is the first bare content line of the file block, and `output_end_line` is the last bare content line. XML, Markdown, and plain wrapper lines are not part of the span itself, but wrapper lines that appear earlier in the output file affect the absolute start and end positions. JSON sections do not record span metadata because the packed content is already directly addressable in the JSON object and may omit spans entirely.
+`manifest.include_output_spans` defaults to `true`. Text sections require it:
+if a bundle contains XML, Markdown, or plain sections, `cx bundle` fails
+unless exact span capture is available and enabled. When enabled, `cx bundle`
+computes per-file spans for those text sections using absolute line numbers in
+the rendered section output only when the active adapter exposes exact span
+capture through `renderWithMap`. `output_start_line` is the first bare content
+line of the file block, and `output_end_line` is the last bare content line.
+XML, Markdown, and plain wrapper lines are not part of the span itself, but
+wrapper lines that appear earlier in the output file affect the absolute start
+and end positions. JSON sections do not record span metadata because the
+packed content is already directly addressable in the JSON object and may
+omit spans entirely.
 
 ## Recommended bundle layout
 
