@@ -16,10 +16,19 @@ import {
   printWizardTip,
   wizardSelect,
 } from "../../shared/wizard.js";
+import {
+  collectDoctorMcpReport,
+  printDoctorMcpReport,
+} from "./doctor-mcp.js";
+import {
+  collectDoctorSecretsReport,
+  printDoctorSecretsReport,
+} from "./doctor-secrets.js";
 
 export interface DoctorArgs {
   config?: string | undefined;
-  subcommand: "overlaps" | "fix-overlaps";
+  subcommand?: "overlaps" | "fix-overlaps" | "mcp" | "secrets";
+  all?: boolean | undefined;
   json?: boolean | undefined;
   dryRun?: boolean | undefined;
   interactive?: boolean | undefined;
@@ -37,14 +46,50 @@ interface OverlapFixPlan {
 }
 
 export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
+  if (args.all === true && args.json === true) {
+    throw new CxError(
+      "doctor --all does not support --json. Run individual diagnostics with --json instead.",
+      2,
+    );
+  }
+
+  if (args.all === true) {
+    return runDoctorAll(args);
+  }
+
+  if (!args.subcommand) {
+    throw new CxError(
+      "doctor requires a subcommand unless --all is provided.",
+      2,
+    );
+  }
+
   switch (args.subcommand) {
     case "overlaps":
       return runDoctorOverlaps(args);
     case "fix-overlaps":
       return runDoctorFixOverlaps(args);
+    case "mcp":
+      return runDoctorMcp(args);
+    case "secrets":
+      return runDoctorSecrets(args);
     default:
       throw new CxError(`Unknown doctor subcommand: ${args.subcommand}`, 2);
   }
+}
+
+async function runDoctorAll(args: DoctorArgs): Promise<number> {
+  const overlapExitCode = await runDoctorOverlaps(args);
+  if (overlapExitCode !== 0) {
+    return overlapExitCode;
+  }
+
+  const mcpExitCode = await runDoctorMcp(args);
+  if (mcpExitCode !== 0) {
+    return mcpExitCode;
+  }
+
+  return await runDoctorSecrets(args);
 }
 
 async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
@@ -137,6 +182,24 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   }
 
   return 0;
+}
+
+async function runDoctorMcp(args: DoctorArgs): Promise<number> {
+  const report = await collectDoctorMcpReport({
+    config: args.config,
+    json: args.json,
+  });
+  printDoctorMcpReport(report, args.json ?? false);
+  return 0;
+}
+
+async function runDoctorSecrets(args: DoctorArgs): Promise<number> {
+  const report = await collectDoctorSecretsReport({
+    config: args.config,
+    json: args.json,
+  });
+  printDoctorSecretsReport(report, args.json ?? false);
+  return report.suspiciousCount === 0 ? 0 : 4;
 }
 
 async function resolveOwnership(

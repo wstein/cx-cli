@@ -362,8 +362,8 @@ export async function main(argv: string[]): Promise<number> {
       },
     )
     .command(
-      "doctor <subcommand>",
-      "Diagnose and resolve config issues such as section overlaps.",
+      "doctor [subcommand]",
+      "Diagnose overlaps, MCP inheritance, and secret hygiene.",
       (command) =>
         command
           .example(
@@ -374,19 +374,43 @@ export async function main(argv: string[]): Promise<number> {
             "$0 doctor fix-overlaps --dry-run",
             "Preview exact exclude updates without writing cx.toml.",
           )
+          .example(
+            "$0 doctor mcp --config cx.toml",
+            "Show the effective MCP profile and inherited file scopes.",
+          )
+          .example(
+            "$0 doctor secrets --config cx.toml",
+            "Scan the master list for suspicious secrets.",
+          )
+          .example(
+            "$0 doctor --all --config cx.toml",
+            "Run overlaps, MCP inheritance, and secret diagnostics in order.",
+          )
           .positional("subcommand", {
             type: "string",
-            choices: ["overlaps", "fix-overlaps"],
-            demandOption: true,
+            choices: ["overlaps", "fix-overlaps", "mcp", "secrets"],
+            demandOption: false,
           })
           .option("config", { type: "string", default: "cx.toml" })
+          .option("all", {
+            type: "boolean",
+            default: false,
+            description:
+              "Run overlaps, MCP inheritance, and secret diagnostics in sequence.",
+          })
           .option("dry-run", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runDoctorCommand({
           config: args.config,
-          subcommand: args.subcommand as "overlaps" | "fix-overlaps",
+          subcommand: args.subcommand as
+            | "overlaps"
+            | "fix-overlaps"
+            | "mcp"
+            | "secrets"
+            | undefined,
+          all: args.all,
           dryRun: args["dry-run"],
           interactive: args.interactive,
           json: args.json,

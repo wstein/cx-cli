@@ -184,6 +184,8 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx mcp` | Start the MCP server for agentic workflows |
 | `cx doctor overlaps` | Diagnose section overlap conflicts |
 | `cx doctor fix-overlaps` | Generate or apply exact exclude fixes |
+| `cx doctor mcp` | Show the effective MCP profile and inherited file scopes |
+| `cx doctor secrets` | Scan the master list for suspicious secret patterns |
 | `cx render` | Render planned sections without building a full bundle |
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
 | `cx completion` | Generate shell completion scripts |
@@ -219,6 +221,7 @@ Open a new shell session after installation.
 - The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
 - Repomix MCP Server integrations can package codebases or remote repositories and inspect packed output through tools such as `pack_codebase`, `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output`.
 - `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile.
+- `cx doctor mcp` and `cx doctor secrets` provide deterministic diagnostics for the MCP inheritance boundary and the master-list secret scan.
 
 That means an LLM agent can ask for more context, retrieve just the relevant packed surface, and reason about the repo as a live system rather than a static artifact.
 

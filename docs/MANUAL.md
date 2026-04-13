@@ -38,6 +38,8 @@ The bundle is the deliverable. The manifest is the source of truth for what the 
 | `cx notes links` | You want to audit unresolved note or code references |
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
+| `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
+| `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
 | `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
@@ -54,6 +56,17 @@ cx inspect --config cx.toml
 For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
 Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the bundle contract.
+
+### MCP Diagnostics
+
+Use the doctor subcommands when you want to inspect the agent boundary directly:
+
+```bash
+cx doctor mcp --config cx.toml
+cx doctor secrets --config cx.toml
+```
+
+`cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor secrets` scans the master list for suspicious credentials using the same security rules the bundle workflow relies on.
 
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
 
