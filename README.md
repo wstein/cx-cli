@@ -300,7 +300,6 @@ exclude = []
 - [Architecture](docs/ARCHITECTURE.md): invariants, manifest model, and rendering pipeline
 - [Extraction Safety](docs/EXTRACTION_SAFETY.md): packed-content recovery, degraded fallback, and `--allow-degraded`
 - [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
-- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md): project planning notes
 
 ## LLM-Friendly Output Extensions
 

@@ -9,9 +9,4 @@ Use this directory as the map for the documentation set.
 - [MANUAL.md](./MANUAL.md) - operator workflow and command usage
 - [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
 - [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules
-
-## Planning Material
-
-- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
-- [TASK_SUMMARY.md](./TASK_SUMMARY.md)
-- [config-reference.md](./config-reference.md)
+- [config-reference.md](./config-reference.md) - configuration knobs and precedence
