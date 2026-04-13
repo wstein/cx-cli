@@ -12,9 +12,9 @@ The repository participates in agentic workflows as well as bundle rendering.
 the master list before an agent trusts the workspace. The server exposes native
 `list`, `grep`, and `read` tools for workspace-bound navigation.
 
-The MCP path is `cx`-native. It does not delegate agent execution to Repomix,
-because agent onboarding, profile inheritance, and diagnostic checks are part
-of the `cx` contract itself.
+The MCP path is `cx`-native. It uses the active `cx` workspace scope, the
+MCP-specific `cx-mcp.toml` profile when available, and the native doctor checks
+to keep agent access deterministic.
 
 ## Links
 

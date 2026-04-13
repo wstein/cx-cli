@@ -6,20 +6,17 @@ tags: ["manifest", "ai-tools", "optimization"]
 
 # Manifest-Side Note Summaries
 
-The manifest will persist high-level note summaries directly in its JSON
-structure to optimize downstream context-window usage.
+`cx` stores high-level note summaries in the manifest JSON. Downstream agents
+read those summaries directly instead of parsing every note body first.
 
-Instead of forcing an LLM agent to fetch and parse raw markdown for every note
-to understand the repository's knowledge layer, the manifest itself serves as a
-structured, queryable index. By elevating the Zettelkasten summaries to the
-manifest side, agents can rapidly scan architectural intent, evaluate
-constraints, and selectively pull only the deep context they require. This
-shifts the heavy lifting from runtime prompt assembly to deterministic planning
-and keeps the live MCP workflow focused on navigation rather than re-parsing.
+That makes the manifest a structured, queryable index for the repository's
+knowledge layer. Agents can scan architectural intent, evaluate constraints,
+and fetch deeper context only when they need it. The live MCP workflow stays
+focused on navigation rather than re-parsing note bodies.
 
 ## Links
 
-* [[Agentic Ecosystem MCP]] - External tools will consume these summaries via
+- [[Agentic Ecosystem MCP]] - External tools consume these summaries through
   the native CX MCP server and its file-based tools.
-* [[VCS Master Base]] - Summaries are derived securely from the VCS-tracked
+- [[VCS Master Base]] - Summaries are derived securely from the VCS-tracked
   master list.
