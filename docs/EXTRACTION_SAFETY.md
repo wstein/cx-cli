@@ -8,6 +8,16 @@ For packed text files, the bundle contract is the normalized packed representati
 
 Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.
 
+Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle is even allowed to exist, while this document explains what happens after a valid bundle has already been written.
+
+In practical terms:
+
+- `clean` and `safe_dirty` bundles are ordinary inputs to extraction.
+- `unsafe_dirty` never reaches extraction because bundling aborts first.
+- `forced_dirty` is a recorded audit state, not a relaxation of extraction rules.
+
+If a bundle was forced dirty, extraction still uses the manifest as written. The presence of `forced_dirty` does not weaken hash checking or span validation; it simply tells reviewers that the bundle came from an explicitly overridden working tree.
+
 ## Status Meanings
 
 `cx` uses four statuses during recovery:

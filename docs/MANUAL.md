@@ -12,10 +12,11 @@ If you are new to the project, read the README first. If you need the invariants
 
 1. Load and validate `cx.toml`.
 2. Detect the VCS provider (git, fossil, or filesystem fallback) and derive the master file list from tracked files. Classify the working-tree dirty state.
-3. Assign files to sections, copied assets, and unmatched-file handling. Section globs classify files; they do not discover new ones. Resolve overlaps and optionally absorb remaining files into a catch-all section.
-4. Render each section through the Repomix adapter.
-5. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
-6. Let downstream tools inspect, verify, list, or extract from that recorded state.
+3. Use that VCS-derived list as the master base. Apply global include/exclude rules to shape the list, but never let section globs extend it.
+4. Assign files to sections, copied assets, and unmatched-file handling. Section globs classify files; they do not discover new ones. Resolve overlaps and optionally absorb remaining files into a catch-all section.
+5. Render each section through the Repomix adapter.
+6. Write a canonical manifest, a lock file, and a SHA-256 checksum sidecar.
+7. Let downstream tools inspect, verify, list, or extract from that recorded state.
 
 The bundle is the deliverable. The manifest is the source of truth for what the bundle means.
 
@@ -92,6 +93,11 @@ list of modified files. Do not use `--force` in CI pipelines.
 `--update` renders into an OS temporary staging directory and synchronizes only
 changed files into the final bundle directory. Files no longer present in the
 new manifest are pruned.
+
+Think of `--update` as a deterministic staging-sync algorithm: first the full
+bundle is assembled in isolation, then the diff is applied to the live output
+directory. That keeps the final directory coherent even when a run is interrupted
+mid-build.
 
 Pruning is guarded by a safety lock: if the target directory does not contain a
 bundle marker (`*-manifest.json` or `*-lock.json`), `cx` aborts instead of
@@ -237,6 +243,14 @@ cx bundle --config cx.toml --force
 When `--force` is used, the manifest records `dirtyState = "forced_dirty"` and
 includes the list of modified files in `modifiedFiles`. This lets reviewers see
 exactly which files were dirty when the bundle was built.
+
+The dirty-state taxonomy is deliberately asymmetric:
+
+- `clean` and `safe_dirty` are acceptable bundle inputs.
+- `unsafe_dirty` is a hard stop because tracked file drift would make the bundle
+ unverifiable.
+- `forced_dirty` is not a separate cleanliness level; it is an explicit audit
+ record that the operator chose to bypass the stop with `--force`.
 
 In CI, never pass `--force`. A dirty tracked file on a CI runner usually means
 a generated output was checked in, a patch was applied without committing, or

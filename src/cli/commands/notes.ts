@@ -46,11 +46,10 @@ function renderNewNote(
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const frontmatter = `---
 id: ${id}
+title: ${title}
 aliases: []
 tags: [${tagsList}]
 ---
-
-# ${title}
 
 Write your note here. Keep it atomic and focused on one idea.
 

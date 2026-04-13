@@ -65,7 +65,38 @@ directory that exposes a `renderSection` function with the same signature as
 
 ### 2. Deterministic planning
 
-The planner resolves:
+Planning is a three-phase pipeline anchored to the VCS-derived master list.
+
+#### Phase 1: Build the master base
+
+The planner resolves the source of truth for candidate files from version
+control, not from a broad filesystem walk. The priority order is:
+
+1. **Git** — `git ls-files --cached` provides the tracked set.
+2. **Fossil** — `fossil ls` provides the tracked set.
+3. **Filesystem** — used as a fallback when no VCS root is detected (for test
+ environments or unversioned workspaces).
+
+That VCS-derived list is the master base for all later planning decisions.
+
+#### Phase 2: Apply global list shaping
+
+The global `[files] include` array can extend the master base with extra paths
+that the VCS does not track, such as generated artefacts or build outputs.
+The global `[files] exclude` array is applied after all extensions to remove
+paths that should never be planned.
+
+This shaping step changes membership in the master base, but it still does not
+let sections discover new files on their own.
+
+#### Phase 3: Classify into sections
+
+Section `include` and `exclude` globs are **classifiers**, not discoverers.
+They operate only on the already-computed master base and can never add a file
+that is not already in it. This separates the question of *what exists* from
+the question of *where it belongs*.
+
+At this stage the planner resolves:
 
 - project name
 - source root
@@ -77,27 +108,6 @@ The planner resolves:
 - overlap and collision failures
 
 This happens before rendering because the plan must be settled first.
-
-#### VCS-driven file discovery
-
-The master list of plannable files is derived from the version control system,
-not from a filesystem walk. The priority order is:
-
-1. **Git** — `git ls-files --cached` provides the tracked set.
-2. **Fossil** — `fossil ls` provides the tracked set.
-3. **Filesystem** — used as a fallback when no VCS root is detected (e.g. in
- test environments or unversioned workspaces).
-
-The global `[files] include` array can extend the master list with additional
-files matching arbitrary glob patterns that the VCS does not track (generated
-artefacts, build outputs). The global `[files] exclude` array is applied after
-all extensions to remove paths that should never be planned regardless of
-section config.
-
-Section `include` and `exclude` globs are **classifiers**, not discoverers.
-They operate on the already-computed master list and can never add a file that
-is not already in it. This separates the question of *what exists* from the
-question of *where it belongs*.
 
 #### Dirty state taxonomy
 

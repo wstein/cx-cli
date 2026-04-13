@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "template-new-zettel.md",
+                "file": "dirty-state-taxonomy.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "template-new-zettel"
+              "title": "dirty-state-taxonomy"
             }
           }
         ]
@@ -185,8 +185,13 @@
   },
   "active": "e812ac1ddb93cb78",
   "lastOpenFiles": [
-    "Related note title.md",
+    "ai-first-toolbox.md",
+    "agentic-ecosystem-mcp.md",
     "template-new-zettel.md",
+    "dirty-state-taxonomy.md",
+    "differential-update-staging.md",
+    "vcs-master-base.md",
+    "Related note title.md",
     "README.md"
   ]
 }

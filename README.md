@@ -2,6 +2,8 @@
 
 `cx` is a deterministic context bundler for teams that need reproducible LLM inputs, not just convenient local packing.
 
+It is also becoming a developer-friendly AI-first toolbox: `cx init` now scaffolds repository notes, the CLI exposes graph-oriented note commands, and the generated bundles carry enough manifest metadata for downstream agents to reason about the project without reparsing Markdown.
+
 It plans repository sections, renders one Repomix-compatible output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
 ## Why CX Exists
@@ -24,12 +26,16 @@ The strictness is the feature. If a file lands in two sections, if a checksum do
 - Section globs as classifiers: they sort tracked files, they cannot add new ones
 - Catch-all sections that absorb unmatched files from the VCS master list
 - Dirty-state guard: uncommitted modifications block bundling unless `--force` is passed
+- Differential `--update` mode that stages in a temporary directory and prunes orphaned bundle artifacts safely
 - One Repomix-compatible render per section
 - A shared bundle index artifact for multi-file handover
 - Persistent token accounting stored in the manifest
 - Optional absolute output spans per file when the active adapter supports them
 - SHA-256 checksums for every emitted artifact
+- Native shell completions for bash, zsh, and fish
+- LLM-friendly output suffixes such as `.xml.txt` and `.json.txt`
 - Manifest-aware `inspect`, `list`, `validate`, `verify`, and `extract` commands
+- `cx notes` commands for creating notes, listing them, and inspecting backlinks or orphans
 - Guided overlap diagnosis and repair with `cx doctor`
 - Structured `--json` output across commands for CI integration
 - Lock-file capture of behavioral settings, with drift warnings during `verify`
@@ -79,6 +85,8 @@ cx init --name demo
 - `notes/README.md` as the Zettelkasten 101 guide
 - `notes/template-new-zettel.md` as the atomic note template
 
+The generated notes directory is intentionally part of the repository contract. The idea is to keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
+
 Preview the deterministic plan before writing anything:
 
 ```bash
@@ -103,9 +111,14 @@ Apply a differential update (copy changed files only, prune orphaned artifacts):
 cx bundle --config cx.toml --update
 ```
 
-`--update` stages artifacts in a temporary directory, then syncs into `output_dir`.
-Pruning is safety-gated: `cx` refuses to prune if the target directory does not
-look like an existing bundle directory.
+`--update` stages artifacts in a temporary OS directory first, then syncs the
+result into `output_dir` so the final bundle only sees a deterministic, already
+validated tree. Pruning is safety-gated: `cx` refuses to prune if the target
+directory does not look like an existing bundle directory.
+
+The differential algorithm is intentionally conservative. It is designed to
+remove bundle artifacts that disappeared from the manifest while preserving the
+rest of the output directory untouched.
 
 Validate and verify it:
 
@@ -153,6 +166,7 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 | `cx render` | Render planned sections without building a full bundle |
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
 | `cx completion` | Generate shell completion scripts |
+| `cx notes` | Create notes, list them, and inspect note graph relationships |
 | `cx adapter ...` | Inspect Repomix adapter capabilities and compatibility |
 
 Every command supports `--json` for machine consumption.
@@ -175,6 +189,16 @@ cx completion --shell=fish > ~/.config/fish/completions/cx.fish
 Open a new shell session after installation.
 
 > For even faster discoverability, see the `cx inspect --token-breakdown` example in the Quick Start section above.
+
+## Active Ecosystem
+
+`cx` is designed to participate in agentic workflows, not just produce static archives.
+
+- The bundle manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
+- The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
+- Repomix MCP Server integrations can package codebases or remote repositories and inspect packed output through tools such as `pack_codebase`, `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output`.
+
+That means an LLM agent can ask for more context, retrieve just the relevant packed surface, and reason about the repo as a live system rather than a static artifact.
 
 ## The Important Failure Model
 

@@ -130,6 +130,16 @@ function parseFrontmatter(
   return { frontmatter, body };
 }
 
+function titleFromFileName(filePath: string): string {
+  const fileName = path.basename(filePath, path.extname(filePath));
+  const slugMatch = fileName.match(/^\d{12}-(.+)$/);
+  if (slugMatch?.[1] !== undefined && slugMatch[1].length > 0) {
+    return slugMatch[1];
+  }
+
+  return fileName;
+}
+
 /**
  * Extract note metadata from a file.
  */
@@ -170,7 +180,7 @@ async function extractNoteMetadata(
       ? (frontmatter.tags as string[])
       : [];
 
-    // Extract title from frontmatter or first H1 in body
+    // Extract title from frontmatter, first H1 in body, or filename fallback.
     let title = (frontmatter.title as string) ?? "";
 
     if (!title) {
@@ -182,13 +192,7 @@ async function extractNoteMetadata(
     }
 
     if (!title) {
-      return {
-        metadata: null,
-        error: {
-          filePath,
-          error: "Could not determine note title (missing title field or H1)",
-        },
-      };
+      title = titleFromFileName(filePath);
     }
 
     const fileName = path.basename(filePath);

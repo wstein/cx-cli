@@ -1,21 +1,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 
-import { validateNotes } from "../../src/notes/validate.js";
-import {
-  createNewNote,
-  listNotes,
-  runNotesCommand,
-} from "../../src/cli/commands/notes.js";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
+import { runNotesCommand, createNewNote, listNotes } from "../../src/cli/commands/notes.js";
 import { buildNoteGraph, getBacklinks } from "../../src/notes/graph.js";
+import { validateNotes } from "../../src/notes/validate.js";
 
 let testDir: string;
 
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-test-"));
-  // Create notes directory
   await fs.mkdir(path.join(testDir, "notes"));
 });
 
@@ -26,8 +22,6 @@ afterEach(async () => {
 describe("Notes Validation", () => {
   test("validates valid note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
-
-    // Create a valid note
     const noteContent = `---
 id: 202501131430
 aliases: []
@@ -38,10 +32,8 @@ tags: []
 
 This is a valid note.
 `;
-    await fs.writeFile(
-      path.join(notesDir, "202501131430-test.md"),
-      noteContent,
-    );
+
+    await fs.writeFile(path.join(notesDir, "202501131430-test.md"), noteContent);
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(true);
@@ -50,10 +42,29 @@ This is a valid note.
     expect(result.errors).toHaveLength(0);
   });
 
-  test("rejects malformed note IDs", async () => {
+  test("derives title from filename when frontmatter and H1 are absent", async () => {
     const notesDir = path.join(testDir, "notes");
 
-    // Create a note with malformed ID
+    await fs.writeFile(
+      path.join(notesDir, "202604131201-vcs-master-base.md"),
+      `---
+id: 202604131201
+aliases: []
+tags: []
+---
+
+Plain body only.
+`,
+    );
+
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(true);
+    expect(result.notes).toHaveLength(1);
+    expect(result.notes[0]?.title).toBe("vcs-master-base");
+  });
+
+  test("rejects malformed note IDs", async () => {
+    const notesDir = path.join(testDir, "notes");
     const noteContent = `---
 id: invalid-id
 aliases: []
@@ -64,10 +75,8 @@ tags: []
 
 This note has an invalid ID.
 `;
-    await fs.writeFile(
-      path.join(notesDir, "test-invalid.md"),
-      noteContent,
-    );
+
+    await fs.writeFile(path.join(notesDir, "test-invalid.md"), noteContent);
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(false);
@@ -77,7 +86,6 @@ This note has an invalid ID.
 
   test("detects duplicate note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
-
     const noteContent = `---
 id: 202501131430
 aliases: []
@@ -89,15 +97,8 @@ tags: []
 Duplicate ID.
 `;
 
-    // Create two notes with the same ID
-    await fs.writeFile(
-      path.join(notesDir, "note-1.md"),
-      noteContent,
-    );
-    await fs.writeFile(
-      path.join(notesDir, "note-2.md"),
-      noteContent,
-    );
+    await fs.writeFile(path.join(notesDir, "note-1.md"), noteContent);
+    await fs.writeFile(path.join(notesDir, "note-2.md"), noteContent);
 
     const result = await validateNotes("notes", testDir);
     expect(result.valid).toBe(false);
@@ -108,13 +109,7 @@ Duplicate ID.
 
   test("validates date components in note IDs", async () => {
     const notesDir = path.join(testDir, "notes");
-
-    const invalidIds = [
-      "202513131430", // Month 13
-      "202501321430", // Day 32
-      "202501132560", // Hour 25
-      "202501131360", // Minute 60
-    ];
+    const invalidIds = ["202513131430", "202501321430", "202501132560", "202501131360"];
 
     for (const id of invalidIds) {
       const noteContent = `---
@@ -125,10 +120,7 @@ tags: []
 
 # Test Note
 `;
-      await fs.writeFile(
-        path.join(notesDir, `${id}.md`),
-        noteContent,
-      );
+      await fs.writeFile(path.join(notesDir, `${id}.md`), noteContent);
     }
 
     const result = await validateNotes("notes", testDir);
@@ -147,14 +139,15 @@ describe("Notes Commands", () => {
         tags: ["test", "demo"],
       });
 
-      expect(id).toMatch(/^\d{12}$/); // YYYYMMDDHHMM format
+      expect(id).toMatch(/^\d{12}$/);
       expect(filePath).toContain("test-note");
       expect(filePath).toContain(".md");
 
-      // Verify file exists and has correct content
       const content = await fs.readFile(filePath, "utf-8");
       expect(content).toContain(`id: ${id}`);
-      expect(content).toContain("# Test Note");
+      expect(content).toContain("title: Test Note");
+      expect(content).not.toContain("# Test Note");
+      expect(content).toContain("Write your note here.");
       expect(content).toContain("test");
       expect(content).toContain("demo");
     } finally {
@@ -167,14 +160,13 @@ describe("Notes Commands", () => {
     process.chdir(testDir);
 
     try {
-      // Create a few notes
       await createNewNote("Note 1", { tags: ["tag1"] });
       await createNewNote("Note 2", { tags: ["tag2"] });
 
       const notes = await listNotes("notes");
       expect(notes.length).toBeGreaterThanOrEqual(2);
-      expect(notes.some((n) => n.title === "Note 1")).toBe(true);
-      expect(notes.some((n) => n.title === "Note 2")).toBe(true);
+      expect(notes.some((note) => note.title === "Note 1")).toBe(true);
+      expect(notes.some((note) => note.title === "Note 2")).toBe(true);
     } finally {
       process.chdir(origCwd);
     }
@@ -185,12 +177,9 @@ describe("Notes Commands", () => {
     process.chdir(testDir);
 
     try {
-      try {
-        await runNotesCommand({ subcommand: "new" });
-        expect(true).toBe(false); // Should not reach here
-      } catch (err) {
-        expect((err as Error).message).toContain("--title is required");
-      }
+      await expect(runNotesCommand({ subcommand: "new" })).rejects.toThrow(
+        "--title is required",
+      );
     } finally {
       process.chdir(origCwd);
     }
@@ -199,7 +188,6 @@ describe("Notes Commands", () => {
 
 describe("Notes Graph", () => {
   test("builds a note graph with wikilinks", async () => {
-    // Create notes with wikilinks
     const origCwd = process.cwd();
     process.chdir(testDir);
 
@@ -207,17 +195,13 @@ describe("Notes Graph", () => {
       const note1 = await createNewNote("First Note");
       const note2 = await createNewNote("Second Note");
 
-      // Add a wikilink in note1 to note2 ID (not title)
       const note1Path = note1.filePath;
       let content = await fs.readFile(note1Path, "utf-8");
       content += `\n\nSee also: [[${note2.id}]]\n`;
       await fs.writeFile(note1Path, content);
 
       const graph = await buildNoteGraph("notes", testDir, false);
-
-      // Should have at least one note (the wikilink test)
       expect(graph.notes.size).toBeGreaterThan(0);
-      // Should have at least one link created by the wikilink
       expect(graph.links.length).toBeGreaterThan(0);
     } finally {
       process.chdir(origCwd);
@@ -229,14 +213,11 @@ describe("Notes Graph", () => {
     process.chdir(testDir);
 
     try {
-      // Create notes but don't link them
       const orphan1 = await createNewNote("Orphan 1");
-      const orphan2 = await createNewNote("Orphan 2");
+      await createNewNote("Orphan 2");
 
       const graph = await buildNoteGraph("notes", testDir, false);
-      // At least one orphan should be detected
       expect(graph.orphans.length).toBeGreaterThan(0);
-      // The created orphans should include our test notes
       expect(graph.orphans).toContain(orphan1.id);
     } finally {
       process.chdir(origCwd);
@@ -251,7 +232,6 @@ describe("Notes Graph", () => {
       const target = await createNewNote("Target Note");
       const source1 = await createNewNote("Source 1");
 
-      // Add wikilink from source to target using its ID
       const sourcePath = source1.filePath;
       let content = await fs.readFile(sourcePath, "utf-8");
       content += `\n\nLinks to: [[${target.id}]]\n`;
@@ -259,8 +239,6 @@ describe("Notes Graph", () => {
 
       const graph = await buildNoteGraph("notes", testDir, false);
       const backlinks = getBacklinks(graph, target.id);
-
-      // At least one backlink should be detected
       expect(backlinks.length).toBeGreaterThan(0);
     } finally {
       process.chdir(origCwd);
@@ -270,39 +248,52 @@ describe("Notes Graph", () => {
 
 describe("Notes Command Subcommands", () => {
   test("list subcommand returns all notes", async () => {
+    const origCwd = process.cwd();
     process.chdir(testDir);
 
-    await createNewNote("Note A");
-    await createNewNote("Note B");
+    try {
+      await createNewNote("Note A");
+      await createNewNote("Note B");
 
-    // This would normally be called with args from yargs
-    // For now, just verify the command structure works
-    const notes = await listNotes("notes");
-    expect(notes.length).toBeGreaterThanOrEqual(2);
+      const notes = await listNotes("notes");
+      expect(notes.length).toBeGreaterThanOrEqual(2);
+    } finally {
+      process.chdir(origCwd);
+    }
   });
 
   test("new subcommand creates a note with title and tags", async () => {
+    const origCwd = process.cwd();
     process.chdir(testDir);
 
-    const { id } = await createNewNote("My New Note", {
-      tags: ["important", "architecture"],
-    });
+    try {
+      const { id } = await createNewNote("My New Note", {
+        tags: ["important", "architecture"],
+      });
 
-    const notes = await listNotes("notes");
-    const created = notes.find((n) => n.id === id);
+      const notes = await listNotes("notes");
+      const created = notes.find((note) => note.id === id);
 
-    expect(created).toBeDefined();
-    expect(created?.title).toBe("My New Note");
-    expect(created?.tags).toContain("important");
-    expect(created?.tags).toContain("architecture");
+      expect(created).toBeDefined();
+      expect(created?.title).toBe("My New Note");
+      expect(created?.tags).toContain("important");
+      expect(created?.tags).toContain("architecture");
+    } finally {
+      process.chdir(origCwd);
+    }
   });
 
   test("orphans subcommand identifies unlinked notes", async () => {
+    const origCwd = process.cwd();
     process.chdir(testDir);
 
-    const orphan = await createNewNote("Isolated Note");
-    const graph = await buildNoteGraph("notes", testDir, false);
+    try {
+      const orphan = await createNewNote("Isolated Note");
+      const graph = await buildNoteGraph("notes", testDir, false);
 
-    expect(graph.orphans).toContain(orphan.id);
+      expect(graph.orphans).toContain(orphan.id);
+    } finally {
+      process.chdir(origCwd);
+    }
   });
 });
