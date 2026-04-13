@@ -1,5 +1,6 @@
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
+import type { DirtyState } from "../vcs/provider.js";
 import { MANIFEST_SCHEMA_VERSION } from "./json.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 import type {
@@ -22,6 +23,16 @@ export function buildManifest(params: {
   sectionSpanMaps?: SectionSpanMaps;
   sectionTokenMaps?: SectionTokenMaps;
   sectionHashMaps?: SectionHashMaps;
+  /**
+   * Effective dirty state to record in the manifest.
+   *
+   * The planner produces "clean", "safe_dirty", or "unsafe_dirty". The bundle
+   * command passes "forced_dirty" here when the operator provided --force to
+   * override an unsafe-dirty rejection.
+   */
+  dirtyState: Exclude<DirtyState, "unsafe_dirty">;
+  /** Relative POSIX paths of modified tracked files. Populated when dirtyState is "forced_dirty". */
+  modifiedFiles: string[];
 }): CxManifest {
   const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
     const planSection = params.plan.sections.find(
@@ -90,6 +101,9 @@ export function buildManifest(params: {
       securityCheck: params.config.repomix.securityCheck,
       normalizationPolicy: NORMALIZATION_POLICY,
     },
+    vcsProvider: params.plan.vcsKind,
+    dirtyState: params.dirtyState,
+    modifiedFiles: params.modifiedFiles,
     sections,
     assets: params.plan.assets.map((asset) => ({
       sourcePath: asset.relativePath,

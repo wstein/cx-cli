@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CxError } from "../shared/errors.js";
+import type { DirtyState, VCSKind } from "../vcs/provider.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 import type {
   AssetRecord,
@@ -13,7 +14,7 @@ import type {
   SectionOutputRecord,
 } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 5 as const;
+export const MANIFEST_SCHEMA_VERSION = 6 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -22,7 +23,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v5.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v6.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -43,6 +44,9 @@ interface ManifestDto {
   repomixVersion: string;
   checksumAlgorithm: string;
   settings: ManifestSettings;
+  vcsProvider: string;
+  dirtyState: string;
+  modifiedFiles: string[];
   sections: SectionDto[];
   assets: AssetRecord[];
 }
@@ -224,6 +228,15 @@ function parseManifestDto(raw: unknown): {
               "settings.normalizationPolicy",
             ) as typeof NORMALIZATION_POLICY),
     },
+    vcsProvider: requireString(obj.vcsProvider, "vcsProvider") as VCSKind,
+    dirtyState: requireString(
+      obj.dirtyState,
+      "dirtyState",
+    ) as Exclude<DirtyState, "unsafe_dirty">,
+    modifiedFiles: requireArray(
+      obj.modifiedFiles ?? [],
+      "modifiedFiles",
+    ) as string[],
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
   };
@@ -252,6 +265,9 @@ export function renderManifestJson(
     repomixVersion: manifest.repomixVersion,
     checksumAlgorithm: manifest.checksumAlgorithm,
     settings: manifest.settings,
+    vcsProvider: manifest.vcsProvider,
+    dirtyState: manifest.dirtyState,
+    modifiedFiles: manifest.modifiedFiles,
     sections: manifest.sections.map((section) => ({
       name: section.name,
       style: section.style,
@@ -336,6 +352,9 @@ export function parseManifestJson(source: string): CxManifest {
     repomixVersion: dto.repomixVersion,
     checksumAlgorithm: "sha256",
     settings: dto.settings,
+    vcsProvider: dto.vcsProvider as CxManifest["vcsProvider"],
+    dirtyState: dto.dirtyState as CxManifest["dirtyState"],
+    modifiedFiles: dto.modifiedFiles,
     sections,
     assets: dto.assets,
     files: [...textRows, ...assetRows].sort((left, right) =>

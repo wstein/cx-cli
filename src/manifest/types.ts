@@ -1,4 +1,5 @@
 import type { CxStyle } from "../config/types.js";
+import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
 export const NORMALIZATION_POLICY = "repomix-default-v1" as const;
 
@@ -61,7 +62,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 5;
+  schemaVersion: 6;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
@@ -73,6 +74,27 @@ export interface CxManifest {
   repomixVersion: string;
   checksumAlgorithm: "sha256";
   settings: ManifestSettings;
+  /**
+   * VCS system detected at bundle time ("git", "fossil", or "none" for the
+   * filesystem fallback).
+   */
+  vcsProvider: VCSKind;
+  /**
+   * Source-tree dirty state at bundle time.
+   *
+   * "clean"        — no working-tree modifications; standard verified bundle.
+   * "safe_dirty"   — only untracked files were present; bundle integrity is
+   *                  unaffected.
+   * "forced_dirty" — tracked files with uncommitted changes were bundled
+   *                  because the operator passed --force. The LLM must treat
+   *                  this bundle as containing uncommitted work.
+   */
+  dirtyState: Exclude<DirtyState, "unsafe_dirty">;
+  /**
+   * Relative POSIX paths of VCS-tracked files that had uncommitted local
+   * changes at bundle time. Populated only when dirtyState is "forced_dirty".
+   */
+  modifiedFiles: string[];
   sections: CxSection[];
   assets: AssetRecord[];
   /** Flat list of all file rows (text + asset), reconstructed after parsing. */
