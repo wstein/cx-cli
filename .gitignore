@@ -142,3 +142,5 @@ dist
 .svelte-kit
 .DS_Store
 notes/.obsidian/workspace.json
+
+tmp/
