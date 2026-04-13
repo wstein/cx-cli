@@ -4,6 +4,9 @@
 
 The notes module gives `cx` a permanent repository knowledge layer based on the Zettelkasten method. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable concepts, and explicit links between ideas and code.
 
+For the document map and revision consensus, see [README.md](README.md) and
+[spec-draft.md](spec-draft.md).
+
 ## Scope
 
 This phase defines native notes support in three places:

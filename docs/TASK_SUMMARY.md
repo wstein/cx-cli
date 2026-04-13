@@ -1,6 +1,11 @@
 # CX Task Summary
 
-This repository implements `cx` as a production-focused TypeScript CLI built with `bun`, `yargs`, and the public Repomix package API.
+This repository implements `cx` as a production-focused TypeScript CLI built
+with `bun`, `yargs`, and the public Repomix package API.
+
+The current documentation work is centered on [docs/README.md](./README.md)
+and [docs/spec-draft.md](./spec-draft.md). Those files now define the main
+editorial contract for the rest of the docs set.
 
 ## Commands
 
@@ -39,3 +44,5 @@ The current command set is:
 - Exact output spans are required for text bundles, recorded when the adapter can capture them precisely, and are the primary lookup path for extraction. JSON-only bundles may omit them.
 - Exact token counts are stored in the manifest and use tokenizer encodings instead of heuristics.
 - `cx list` heat-map thresholds and grayscale palette are user preferences and do not belong in project config or manifest data.
+- Documentation should treat the spec draft as the source of truth and keep
+  supporting docs pointed back to the index.

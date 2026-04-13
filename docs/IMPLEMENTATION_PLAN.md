@@ -1,29 +1,23 @@
-# CX Implementation Notes
+# CX Implementation Plan
 
-This document describes the final implementation expectations for the repository.
+This plan tracks the remaining work needed to keep the `cx` documentation set
+and implementation aligned.
 
-## Repository Standards
+## Phase 1 - Documentation Consolidation
 
-- The project must build cleanly with TypeScript.
-- `bun` is the primary developer workflow.
-- Changes should ship with targeted tests.
-- Documentation should reflect current behavior only.
-- Commits should use conventional commit messages.
+- Add a single docs index.
+- Keep `spec-draft.md` as the editorial source of truth.
+- Make supporting docs point back to the spec instead of restating it.
 
-## Implementation Scope
+## Phase 2 - Notes Alignment
 
-- Strict TOML configuration loading and validation.
-- Deterministic file discovery, section planning, and asset handling.
-- Canonical JSON manifest generation with exact token metadata.
-- Deterministic SHA-256 checksum generation and verification.
-- Repomix-backed rendering through the adapter boundary only.
-- Bundle validation, source-tree verification, and extraction with explicit degraded-mode handling over normalized packed content.
-- CLI support for initialization, planning, bundling, rendering, verification, extraction, diagnostics, and overlap recovery.
+- Keep `notes/README.md` focused on durable knowledge, not project tracking.
+- Align the notes module language with the documentation index and spec.
+- Preserve the separation between notes as knowledge and docs as contract.
 
-## Quality Gates
+## Phase 3 - Implementation Guardrails
 
-- Planning must remain deterministic.
-- Manifest and checksum outputs must be canonical and reproducible.
-- Overlap and asset conflicts must fail loudly with actionable diagnostics.
-- Adapter capability checks must distinguish core compatibility from optional span support.
-- Tests must cover the shipped command surface and bundle invariants.
+- Keep the TypeScript build clean.
+- Keep `bun` as the primary workflow.
+- Add targeted tests for any implementation work that follows the docs.
+- Preserve deterministic planning, checksums, and extraction semantics.

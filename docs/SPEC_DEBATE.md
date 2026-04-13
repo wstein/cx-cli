@@ -1,99 +1,85 @@
-# CX Architecture Notes
+# CX Documentation Debate
 
-This document records the final architectural decisions that define `cx`.
+This note records the internal disagreement that led to the current
+documentation shape. The full consensus lives in [spec-draft.md](./spec-draft.md).
 
-## Core Decisions
+## The Debate
 
-- `cx` is a separate package layered on top of Repomix.
-- Repomix integration is constrained behind a narrow adapter that uses public exports only.
-- Core adapter compatibility requires `mergeConfigs` plus at least one rendering path: `packStructured()` or `pack()`.
-- Exact output spans are bundle metadata for text sections and are emitted when the adapter provides exact span capture.
-- Section overlap fails by default and must be resolved explicitly.
-- Assets are copied as raw files and are not embedded into section text outputs.
-- The manifest is authoritative and uses canonical JSON with standard object arrays for section file metadata.
-- Exact token counts are stored in the manifest and are based on tokenizer encodings, not heuristics.
-- Checksums are deterministic and must cover every emitted bundle artifact.
+### Dr. Arthur Pendelton
 
-## Operational Rules
+Arthur argued that the organic Zettelkasten model should remain the conceptual
+center. He rated the idea of preserving manual association at `9/10` and
+warned that over-optimization can turn a thinking system into a compliance
+system.
 
-- The implementation does not shell out to Repomix.
-- Planning, manifest generation, validation, and verification must remain deterministic.
-- Missing span capability can still be tolerated for render-only flows, but bundle creation fails for text sections when spans are unavailable.
-- Real planning conflicts such as section overlap and asset collisions remain hard failures.
-- Extraction restores deterministic packed content by default and requires explicit opt-in for degraded fallback recovery.
+### Elena Rostova
 
-## Tooling Rules
+Elena argued that deterministic validation is the only reason the bundle can be
+trusted at scale. She rated strict overlap handling and checksum enforcement at
+`10/10` and emphasized that reliable storage protects later creativity.
 
-- `bun` is the primary development workflow and lockfile owner.
-- Commits use conventional commit messages.
-- Documentation should describe shipped behavior only.
-- Tests should cover deterministic planning, adapter compatibility, manifest integrity, and extraction semantics.
+### Julian Vance
 
-## Behavioral Settings
+Julian focused on reader flow. He rated structural signposting at `10/10` and
+argued that the document must explain the transition from philosophy to code
+instead of assuming the reader will infer it.
 
-`cx` separates behaviors into two categories:
+### Maya Lin
 
-**Category A — invariants, never configurable:**
+Maya proposed a layered document model with a clear main path and secondary
+reference material. She rated that approach at `9/10` and argued that the
+reader should never have to guess which layer they are in.
 
-- Section overlap (hard failure, always)
-- Asset collision (hard failure, always)
-- Missing core adapter contract — `mergeConfigs` not exported (hard failure, always)
+### Marcus Chen
 
-**Category B — configurable via TOML, env var, or CLI flag:**
+Marcus asked for a distinction between meaning integrity and file integrity.
+He rated that clarification at `8/10` and argued that the prose should say
+when validation protects understanding and when it only protects storage.
 
-| Setting                      | TOML key                    | Env var                        | Default |
-| ---------------------------- | --------------------------- | ------------------------------ | ------- |
-| Overlap / dedup resolution   | `dedup.mode`                | `CX_DEDUP_MODE`                | `fail`  |
-| Repomix missing cx extension | `repomix.missing_extension` | `CX_REPOMIX_MISSING_EXTENSION` | `warn`  |
-| Duplicate config entries     | `config.duplicate_entry`    | `CX_CONFIG_DUPLICATE_ENTRY`    | `fail`  |
+### Chloe Bennett
 
-### Precedence chain
+Chloe argued that the strongest framing is an AI workflow bridge. She rated
+that framing at `10/10` and said the document should explain why the
+Zettelkasten material matters to downstream agents.
 
-```text
-CLI flag > CX_* env var > project cx.toml > compiled default
-```
+### Rachel Brooks
 
-### --strict / --lenient CLI flags
+Rachel pushed for a decision instead of an endless debate. She rated the need
+for a primary audience at `10/10` and insisted that the final structure be easy
+to execute.
 
-The global `--strict` and `--lenient` flags sit above env vars in the
-precedence chain:
+### Samir Patel
 
-```text
-CLI flag (--strict/--lenient) > CX_STRICT > CX_* env var > cx.toml > compiled default
-```
+Samir wanted the structure to be testable from a reader-comprehension
+perspective. He rated explicit section takeaways at `9/10` and asked for a
+document that answers its own basic questions.
 
-`--strict` forces all Category B settings to `"fail"`. `--lenient` forces all
-to `"warn"`. They cannot be combined. Useful when the env var cannot be set at
-the job level.
+### Liam Davis
 
-### CX_STRICT
+Liam argued for conventional packaging and a clear reader contract. He rated
+the explicit thesis approach at `10/10` and wanted the docs to behave like good
+open-source documentation: direct, navigable, and predictable.
 
-`CX_STRICT=true` (or `=1`) sets all Category B settings to `"fail"`, overriding
-any `cx.toml` values. Per-area env vars are ignored when `CX_STRICT` is active.
-Category A invariants are unaffected — they are always hard failures.
+### Kira Neri
 
-### Docker / ephemeral CI
+Kira reframed the deterministic layer as reproducibility rather than
+bureaucracy. She rated that distinction at `9/10` and wanted the docs to speak
+in terms of recoverability and repeatability.
 
-`CX_*` env vars work standalone without a `cx.toml` mount. The precedence chain
-ensures that env vars win over any config file that may be present.
+## Consensus
 
-### Lock file
+The team did not agree on which philosophy was more important, but it did
+agree on the editorial strategy:
 
-`cx bundle` writes `{project}-lock.json` into the bundle directory alongside
-the manifest. It captures each Category B setting value and resolution source
-at bundle time and is included in the checksum sidecar.
+- keep the tension between organic association and deterministic validation
+- state the thesis explicitly at the start
+- add structural bridges between theory and implementation
+- choose a primary audience or split the material into clearly labeled paths
+- present code as operational proof, not as disconnected reference material
 
-`cx verify` reads the lock and warns on any setting drift. Drift is advisory
-by default; `--strict` makes it a hard failure.
+## Next Actions
 
-### Structured warnings
-
-`cx bundle --json` emits a `warnings` array (planning + render warnings).
-`cx verify --json` emits `warnings` (drift messages) and `lockDrift` (per-setting
-mismatch records). An empty array signals a clean run.
-
-### Effective settings inspection
-
-`cx config show-effective [--config cx.toml] [--json]` dumps every Category B
-setting with its resolved value and source (compiled default / cx.toml / env var /
-CX_STRICT / cli flag). Use this to debug unexpected behavior in CI pipelines.
+1. Use the spec draft as the source of truth.
+2. Keep the docs index as the entry point for the rest of the set.
+3. Update supporting docs only when they add navigation, scope, or operational
+   detail.

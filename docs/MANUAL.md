@@ -6,6 +6,9 @@ This guide is for engineers running `cx` as an operational tool: local bundle au
 
 If you are new to the project, read the README first. If you need the invariants and internal model, read [Architecture](ARCHITECTURE.md). If you need the detailed knobs, read [Configuration Reference](config-reference.md).
 
+For the full documentation map, see [docs/README.md](README.md). For the
+editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
+
 ## Mental Model
 
 `cx` is a pipeline, not just a formatter:

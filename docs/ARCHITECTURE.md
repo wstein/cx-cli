@@ -4,6 +4,9 @@
 
 `cx` exists to make context bundling reproducible enough for automation.
 
+For the documentation map, see [README.md](README.md). For the editorial
+consensus that shaped this architecture, see [spec-draft.md](spec-draft.md).
+
 The project deliberately wraps Repomix in a stricter system because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics.
 
 ## Philosophy

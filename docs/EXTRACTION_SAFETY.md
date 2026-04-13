@@ -4,6 +4,9 @@
 
 `cx` is a deterministic bundler, not an archiver.
 
+For the broader document map and architecture context, see
+[README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
+
 For packed text files, the bundle contract is the normalized packed representation emitted by Repomix, not the original source file bytes. That means verification and extraction work against the rendered bundle content, which is what downstream automation actually consumes.
 
 Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.
