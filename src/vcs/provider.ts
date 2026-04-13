@@ -1,24 +1,18 @@
-import { execFile } from "node:child_process";
-import path from "node:path";
-import { promisify } from "node:util";
-
-import {
-  listFilesRecursive,
-  relativePosix,
-  sortLexically,
-} from "../shared/fs.js";
-
-const execFileAsync = promisify(execFile);
+import { detectFossil, getFossilState } from "./fossil.js";
+import { getFilesystemState } from "./fallback.js";
+import { detectGit, getGitState } from "./git.js";
+import { detectHg, getHgState } from "./mercurial.js";
 
 /**
  * The version-control system detected for a given source root.
  *
  * - "git"    — a Git repository was detected and git(1) is available.
  * - "fossil" — a Fossil repository was detected and fossil(1) is available.
+ * - "hg"     — a Mercurial repository was detected and hg(1) is available.
  * - "none"   — no supported VCS was found; the pipeline falls back to a full
  *              filesystem traversal and treats every file as tracked.
  */
-export type VCSKind = "git" | "fossil" | "none";
+export type VCSKind = "git" | "fossil" | "hg" | "none";
 
 /**
  * Dirty-state taxonomy for the source tree at bundle time.
@@ -59,142 +53,10 @@ export interface VCSState {
   untrackedFiles: string[];
 }
 
-// ---------------------------------------------------------------------------
-// Git implementation
-// ---------------------------------------------------------------------------
-
-async function runGit(
-  args: string[],
-  cwd: string,
-): Promise<{ stdout: string }> {
-  return execFileAsync("git", args, {
-    cwd,
-    maxBuffer: 100 * 1024 * 1024,
-    env: {
-      ...process.env,
-      // Disable interactive prompts and pagers so the process never blocks.
-      GIT_TERMINAL_PROMPT: "0",
-      GIT_PAGER: "cat",
-    },
-  });
-}
-
-async function getGitState(sourceRoot: string): Promise<VCSState> {
-  // Null-delimited output is safe against filenames with newlines or spaces.
-  const { stdout: lsOut } = await runGit(
-    ["ls-files", "--cached", "-z"],
-    sourceRoot,
-  );
-  const trackedFiles = sortLexically(lsOut.split("\0").filter(Boolean));
-
-  // --no-renames keeps entries simple (one path per line, no rename pairs).
-  // --porcelain=v1 is stable across git versions.
-  const { stdout: statusOut } = await runGit(
-    ["status", "--porcelain=v1", "--no-renames"],
-    sourceRoot,
-  );
-
-  const modifiedFiles: string[] = [];
-  const untrackedFiles: string[] = [];
-
-  for (const line of statusOut.split("\n")) {
-    if (line.length < 4) continue;
-    const xy = line.slice(0, 2);
-    const filePath = line.slice(3).trimEnd();
-    if (!filePath) continue;
-
-    if (xy === "??") {
-      untrackedFiles.push(filePath);
-    } else {
-      modifiedFiles.push(filePath);
-    }
-  }
-
-  return {
-    kind: "git",
-    trackedFiles,
-    modifiedFiles: sortLexically(modifiedFiles),
-    untrackedFiles: sortLexically(untrackedFiles),
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Fossil implementation
-// ---------------------------------------------------------------------------
-
-async function runFossil(
-  args: string[],
-  cwd: string,
-): Promise<{ stdout: string }> {
-  return execFileAsync("fossil", args, {
-    cwd,
-    maxBuffer: 100 * 1024 * 1024,
-  });
-}
-
-async function getFossilState(sourceRoot: string): Promise<VCSState> {
-  const { stdout: lsOut } = await runFossil(["ls"], sourceRoot);
-  const trackedFiles = sortLexically(
-    lsOut
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean),
-  );
-
-  // `fossil status` prints one "STATUS   path" line per changed or extra file.
-  // Lines with status EXTRA are untracked; all other non-UNCHANGED statuses
-  // represent tracked files with local modifications.
-  const { stdout: statusOut } = await runFossil(["status"], sourceRoot).catch(
-    () => ({ stdout: "" }),
-  );
-
-  const modifiedFiles: string[] = [];
-  const untrackedFiles: string[] = [];
-
-  for (const line of statusOut.split("\n")) {
-    const match = /^([A-Z_]+)\s+(.+)$/i.exec(line.trim());
-    if (!match) continue;
-    const [, status, filePath] = match;
-    if (status === "EXTRA") {
-      untrackedFiles.push(filePath as string);
-    } else if (status !== "UNCHANGED") {
-      modifiedFiles.push(filePath as string);
-    }
-  }
-
-  return {
-    kind: "fossil",
-    trackedFiles,
-    modifiedFiles: sortLexically(modifiedFiles),
-    untrackedFiles: sortLexically(untrackedFiles),
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Filesystem fallback
-// ---------------------------------------------------------------------------
-
-async function getFilesystemState(sourceRoot: string): Promise<VCSState> {
-  const absoluteFiles = await listFilesRecursive(sourceRoot);
-  return {
-    kind: "none",
-    trackedFiles: sortLexically(
-      absoluteFiles.map((abs) => relativePosix(sourceRoot, abs)),
-    ),
-    modifiedFiles: [],
-    untrackedFiles: [],
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
 /**
- * Detect the VCS in use at `sourceRoot` and return the current working-tree
- * state.
+ * Detect the VCS in use at `sourceRoot` and return the current working-tree state.
  *
- * Precedence: Git → Fossil → filesystem fallback.
+ * Precedence: Git → Fossil → Mercurial → filesystem fallback.
  *
  * The filesystem fallback is used when no supported VCS is detected or the
  * corresponding CLI tool is not installed (e.g. CI tarball environments without
@@ -204,19 +66,18 @@ async function getFilesystemState(sourceRoot: string): Promise<VCSState> {
 export async function getVCSState(sourceRoot: string): Promise<VCSState> {
   // Try Git: `rev-parse --git-dir` succeeds from any directory inside a
   // work tree, including subdirectories of the repository root.
-  try {
-    await runGit(["rev-parse", "--git-dir"], sourceRoot);
+  if (await detectGit(sourceRoot)) {
     return await getGitState(sourceRoot);
-  } catch {
-    // Not a Git repository, or git is not available.
   }
 
   // Try Fossil: `info` exits 0 only from inside a checked-out repository.
-  try {
-    await runFossil(["info", "--quiet"], sourceRoot);
+  if (await detectFossil(sourceRoot)) {
     return await getFossilState(sourceRoot);
-  } catch {
-    // Not a Fossil repository, or fossil is not available.
+  }
+
+  // Try Mercurial: `identify` exits 0 when inside a Mercurial repository.
+  if (await detectHg(sourceRoot)) {
+    return await getHgState(sourceRoot);
   }
 
   // No VCS detected — fall back to full filesystem traversal.

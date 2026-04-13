@@ -30,7 +30,7 @@ The strictness is the feature. If a file lands in two sections, if a checksum do
 
 ## What You Get
 
-- VCS-driven master file list (git, fossil, or filesystem fallback)
+- VCS-driven master file list (git, fossil, hg, or filesystem fallback)
 - Section globs as classifiers: they sort tracked files, they cannot add new ones
 - Catch-all sections that absorb unmatched files from the VCS master list
 - Dirty-state guard: uncommitted modifications block bundling unless `--force` is passed
