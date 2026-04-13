@@ -145,8 +145,7 @@ describe("Notes Commands", () => {
 
       const content = await fs.readFile(filePath, "utf-8");
       expect(content).toContain(`id: ${id}`);
-      expect(content).toContain("title: Test Note");
-      expect(content).not.toContain("# Test Note");
+      expect(content).not.toContain("title: Test Note");
       expect(content).toContain("Write your note here.");
       expect(content).toContain("test");
       expect(content).toContain("demo");

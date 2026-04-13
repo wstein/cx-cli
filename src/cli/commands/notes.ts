@@ -46,7 +46,6 @@ function renderNewNote(
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const frontmatter = `---
 id: ${id}
-title: ${title}
 aliases: []
 tags: [${tagsList}]
 ---
@@ -58,6 +57,14 @@ Write your note here. Keep it atomic and focused on one idea.
 `;
 
   return frontmatter;
+}
+
+function slugFromTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .replace(/-+/g, "-");
 }
 
 /**
@@ -79,17 +86,14 @@ export async function createNewNote(
   // Generate new ID
   const id = generateNoteId();
 
-  // Create filename from title
-  const fileName = `${id}-${title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")}.md`;
+  // Create filename from title headline
+  const baseName = slugFromTitle(title);
+  let fileName = `${baseName}.md`;
+  let filePath = path.join(notesPath, fileName);
 
-  const filePath = path.join(notesPath, fileName);
-
-  // Check if file already exists
   if (await pathExists(filePath)) {
-    throw new CxError(`Note file already exists: ${filePath}`, 11);
+    fileName = `${baseName}-${id}.md`;
+    filePath = path.join(notesPath, fileName);
   }
 
   // Render and write the new note

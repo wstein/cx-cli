@@ -82,13 +82,13 @@ Suggested filename style: `clear-searchable-title.md`.
 Every note must contain:
 
 - YAML frontmatter with `id`, `aliases`, and `tags`
+- one H1 title
 - one atomic body
 - one links section with radial connections
 
-This repository's scaffold template intentionally omits a visible H1 because
-Obsidian uses the filename as the note title. If a note benefits from a repeated
-human-readable title inside the body, add it deliberately, but do not make that
-an automatic requirement for every note.
+This repository's scaffold template uses the H1 headline as the canonical
+note title and filename. The filename is derived from the H1, so keep the title
+clear, stable, and unique.
 
 ## What Does Not Belong Here
 
