@@ -6,6 +6,7 @@ import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout } from "../../config/types.js";
+import { validateNotes } from "../../notes/validate.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
@@ -35,6 +36,7 @@ import {
   printSubheader,
   printSuccess,
   printTable,
+  printWarning,
 } from "../../shared/format.js";
 import { ensureDir, listFilesRecursive, relativePosix } from "../../shared/fs.js";
 import { CxError } from "../../shared/errors.js";
@@ -156,6 +158,24 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   });
   const plan = await buildBundlePlan(config);
 
+  // Validate notes in the source directory
+  const notesResult = await validateNotes("notes", plan.sourceRoot);
+  if (!notesResult.valid) {
+    if (notesResult.errors.length > 0) {
+      printWarning("Note validation errors:");
+      for (const error of notesResult.errors) {
+        process.stderr.write(`  ${error.filePath}: ${error.error}\n`);
+      }
+    }
+    if (notesResult.duplicateIds.length > 0) {
+      printWarning("Duplicate note IDs detected:");
+      for (const { id, files } of notesResult.duplicateIds) {
+        process.stderr.write(`  ID ${id}: ${files.join(", ")}\n`);
+      }
+    }
+    throw new CxError("Note validation failed", 10);
+  }
+
   // Dirty-state enforcement: abort on unsafe working trees unless --force was
   // explicitly passed to acknowledge the risk.
   if (plan.dirtyState === "unsafe_dirty") {
@@ -270,6 +290,18 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       "utf8",
     );
 
+  // Extract notes metadata if present
+  const notesRecords =
+    notesResult.valid && notesResult.notes.length > 0
+      ? notesResult.notes.map((note) => ({
+          id: note.id,
+          title: note.title,
+          fileName: note.fileName,
+          aliases: note.aliases ?? [],
+          tags: note.tags ?? [],
+        }))
+      : undefined;
+
   const manifest = buildManifest({
     config,
     plan,
@@ -282,6 +314,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     sectionHashMaps,
     dirtyState: effectiveDirtyState,
     modifiedFiles: effectiveModifiedFiles,
+    notes: notesRecords,
   });
   const manifestName = `${plan.projectName}-manifest.json`;
     await fs.writeFile(
