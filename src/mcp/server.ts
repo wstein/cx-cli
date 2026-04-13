@@ -1,10 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-import { CX_VERSION } from "../repomix/render.js";
+import type { CxConfig } from "../config/types.js";
+import { CX_VERSION } from "../shared/version.js";
+import { createCxMcpWorkspace } from "./workspace.js";
+import { registerCxMcpTools } from "./tools.js";
 
 export interface CxMcpServerOptions {
   configPath: string;
+  config: CxConfig;
 }
 
 export interface CxMcpServerDeps {
@@ -13,17 +17,18 @@ export interface CxMcpServerDeps {
 
 function buildInstructions(configPath: string): string {
   return [
-    "cx mcp provides deterministic, manifest-bound agent access to repository context.",
+    "cx mcp provides deterministic, file-based agent access to repository context.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
-    "Tool registrations are intentionally scoped to cx-specific workflows.",
+    "Available tools: list (workspace files) and grep (workspace file content search).",
   ].join(" ");
 }
 
 export function createCxMcpServer(
   options: CxMcpServerOptions,
 ): McpServer {
-  return new McpServer(
+  const workspace = createCxMcpWorkspace(options.config);
+  const server = new McpServer(
     {
       name: "cx-mcp-server",
       version: CX_VERSION,
@@ -32,13 +37,18 @@ export function createCxMcpServer(
       instructions: buildInstructions(options.configPath),
     },
   );
+
+  registerCxMcpTools(server, workspace);
+
+  return server;
 }
 
 export async function runCxMcpServer(
   configPath: string,
+  config: CxConfig,
   deps: CxMcpServerDeps = {},
 ): Promise<void> {
-  const server = createCxMcpServer({ configPath });
+  const server = createCxMcpServer({ configPath, config });
   const transport = new StdioServerTransport();
   const processExit = deps.processExit ?? process.exit;
 

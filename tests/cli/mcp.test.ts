@@ -99,6 +99,7 @@ exclude = []
 
     let loadedPath = "";
     let started = false;
+    let startedConfigProjectName = "";
 
     const exitCodes: number[] = [];
 
@@ -177,9 +178,10 @@ exclude = []
               },
             };
           },
-          startServer: async (configPath) => {
+          startServer: async (configPath, config) => {
             started = true;
             expect(configPath).toBe(basePath);
+            startedConfigProjectName = config.projectName;
             return;
           },
           fileExists: async (filePath) => filePath === basePath,
@@ -190,6 +192,7 @@ exclude = []
     exitCodes.push(0);
     expect(loadedPath).toBe(basePath);
     expect(started).toBe(true);
+    expect(startedConfigProjectName).toBe("demo");
     expect(exitCodes).toEqual([0]);
   });
 });

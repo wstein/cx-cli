@@ -113,7 +113,6 @@ async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
   return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
 }
 
-export const CX_VERSION = "0.1.0";
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
 
 function emitWarning(message: string): void {

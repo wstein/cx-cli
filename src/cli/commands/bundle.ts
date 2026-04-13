@@ -23,7 +23,6 @@ import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
-  CX_VERSION,
   getRepomixCapabilities,
   renderSectionWithRepomix,
 } from "../../repomix/render.js";
@@ -42,6 +41,7 @@ import { ensureDir, listFilesRecursive, relativePosix } from "../../shared/fs.js
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
+import { CX_VERSION } from "../../shared/version.js";
 import type { DirtyState } from "../../vcs/provider.js";
 
 export interface BundleArgs {

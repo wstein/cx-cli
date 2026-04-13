@@ -22,11 +22,11 @@ async function runFossil(
 /**
  * Detect if the given path is inside a Fossil repository.
  *
- * `fossil info --quiet` exits 0 only from inside a checked-out repository.
+ * `fossil ls` exits 0 only from inside a checked-out repository.
  */
 export async function detectFossil(sourceRoot: string): Promise<boolean> {
   try {
-    await runFossil(["info", "--quiet"], sourceRoot);
+    await runFossil(["ls"], sourceRoot);
     return true;
   } catch {
     return false;

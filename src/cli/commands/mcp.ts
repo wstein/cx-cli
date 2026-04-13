@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { loadCxConfig } from "../../config/load.js";
 import { runCxMcpServer } from "../../mcp/server.js";
+import type { CxConfig } from "../../config/types.js";
 import { CxError } from "../../shared/errors.js";
 
 const MCP_PROFILE_NAME = "cx-mcp.toml";
@@ -11,7 +12,7 @@ const BASE_PROFILE_NAME = "cx.toml";
 export interface McpDeps {
   fileExists?: (filePath: string) => Promise<boolean>;
   loadConfig?: typeof loadCxConfig;
-  startServer?: (configPath: string) => Promise<void>;
+  startServer?: (configPath: string, config: CxConfig) => Promise<void>;
 }
 
 export interface McpArgs {
@@ -58,9 +59,9 @@ export async function runMcpCommand(
   const configPath = await resolveMcpConfigPath(cwd, {
     fileExists: deps.fileExists,
   });
+  const config = await loadConfig(configPath);
 
-  await loadConfig(configPath);
-  await startServer(configPath);
+  await startServer(configPath, config);
 
   return 0;
 }
