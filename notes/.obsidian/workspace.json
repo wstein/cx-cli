@@ -11,14 +11,10 @@
             "id": "e812ac1ddb93cb78",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "dirty-state-taxonomy.md",
-                "mode": "source",
-                "source": true
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "dirty-state-taxonomy"
+              "title": "New tab"
             }
           }
         ]
@@ -185,13 +181,5 @@
   },
   "active": "e812ac1ddb93cb78",
   "lastOpenFiles": [
-    "ai-first-toolbox.md",
-    "agentic-ecosystem-mcp.md",
-    "template-new-zettel.md",
-    "dirty-state-taxonomy.md",
-    "differential-update-staging.md",
-    "vcs-master-base.md",
-    "Related note title.md",
-    "README.md"
   ]
 }

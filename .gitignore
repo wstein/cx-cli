@@ -141,3 +141,4 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 .DS_Store
+notes/.obsidian/workspace.json
