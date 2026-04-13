@@ -38,7 +38,7 @@ workspace contract that agents use while they are interacting with the repo.
 
 ## Bundle Boundary
 
-The bundle workflow should stay strict:
+The bundling workflow should stay strict:
 
 - section membership must be deterministic
 - overlap should fail by default

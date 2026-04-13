@@ -14,7 +14,7 @@ This phase defines native notes support in four places:
 1. `cx init` scaffolding
 2. note file anatomy and templates
 3. note validation and metadata extraction
-4. bundle integration through the default `docs` section
+4. notes integration through the default `docs` section
 
 It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
 It also adds graph-level link auditing so unresolved note references can be inspected explicitly.
@@ -97,7 +97,7 @@ include = ["docs/**", "notes/**", "README.md", "*.md"]
 exclude = []
 ```
 
-This ensures bundles carry both machine state and human intent.
+This ensures the repository contract carries both machine state and human intent.
 
 ## Implemented Behavior
 

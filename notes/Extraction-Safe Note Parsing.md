@@ -12,7 +12,7 @@ compromising the deterministic file recovery guarantees of the original
 markdown files.
 
 Agents require structured metadata (IDs, aliases, tags) to traverse the
-repository's knowledge graph natively. However, `cx` is an operational
+repository's knowledge graph natively. However, `cx` is an operational context
 bundler and native MCP workspace toolset, not just an exploratory packager.
 Therefore, the parser must isolate the structured metadata for the agent while
 leaving the packed normalized representation intact. If extraction mechanisms
@@ -24,4 +24,4 @@ coordinates and hash verifiability of the original file.
 - [[Extraction Safety]] - Mutating content during parsing breaks
   cryptographic invariants.
 - [[AI-first Toolbox]] - AI workflows rely on parsed data, but operational
-  recovery relies on the raw bundle.
+  recovery relies on the rendered bundle output.

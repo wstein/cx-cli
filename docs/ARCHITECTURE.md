@@ -245,7 +245,7 @@ These are recorded in the lock file so later verification can detect drift betwe
 
 ## Why Persistent Token Accounting Matters
 
-Repomix can already calculate token counts while rendering. `cx` adds a different guarantee: those counts are carried forward as part of the bundle contract instead of disappearing with a single run.
+Repomix can already calculate token counts while rendering. `cx` adds a different guarantee: those counts are carried forward as part of the artifact contract instead of disappearing with a single run.
 
 That matters in automation because later verification and downstream tooling can read the manifest's recorded token counts directly instead of re-running a render or relying on a fresh estimate in a different environment.
 

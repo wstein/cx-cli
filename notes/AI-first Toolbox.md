@@ -6,7 +6,7 @@ tags: [cx, philosophy, ai]
 
 # AI-first Toolbox
 
-`cx` keeps the deterministic bundle contract, but the product surface is shifting toward an AI-first toolbox: the CLI now exposes note graph queries, the manifest carries richer metadata, the MCP server exposes native workspace tools, and the docs split durable knowledge from operator workflow.
+`cx` keeps the deterministic context contract, but the product surface is shifting toward an AI-first toolbox: the CLI now exposes note graph queries, the manifest carries richer metadata, the MCP server exposes native workspace tools, and the docs split durable knowledge from operator workflow.
 
 ## Links
 

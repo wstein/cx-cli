@@ -13,7 +13,7 @@ Start with the operator path:
 
 It plans repository sections, renders one output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
-It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains. The generated bundles carry enough manifest metadata for downstream agents to reason about the project without reparsing Markdown.
+It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains. The manifest carries enough metadata for downstream agents to reason about the project without reparsing Markdown.
 
 ## Documentation
 
@@ -33,7 +33,7 @@ That changes the design:
 
 - Repomix optimizes for flexible packing. `cx` optimizes for deterministic planning.
 - Repomix is a rendering engine. `cx` adds planning, manifests, checksums, verification, extraction, and failure semantics around that engine.
-- Repomix is the rendering engine. `cx` turns render metadata into a persistent, verifiable bundle contract with immutable manifests and hard-stop invariants.
+- Repomix is the rendering engine. `cx` turns render metadata into a persistent, verifiable artifact contract with immutable manifests and hard-stop invariants.
 
 The strictness is the feature. If a file lands in two sections, if a checksum does not match, or if an extracted file is only approximately recoverable, `cx` makes that visible instead of silently proceeding.
 
@@ -226,7 +226,7 @@ Open a new shell session after installation.
 
 `cx` is designed to participate in agentic workflows, not just produce static archives.
 
-- The bundle manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
+- The manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
 - The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
 - `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile. The server exposes native file-based `list`, `grep`, and `read` tools over the active workspace scope.
 - `cx doctor mcp` and `cx doctor secrets` provide deterministic diagnostics for the MCP inheritance boundary and the master-list secret scan.

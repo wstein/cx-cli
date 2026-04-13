@@ -472,7 +472,7 @@ Rules:
 - `mtime_hot_hours` must represent a later threshold than `mtime_warm_minutes`.
 - `time_palette` must contain 8 to 10 ANSI 256 grayscale codes in descending bright-to-dark order.
 
-These settings are user preferences only. They are not accepted in project `cx.toml`, and they are not stored in the bundle manifest.
+These settings are user preferences only. They are not accepted in project `cx.toml`, and they are not stored in the manifest.
 
 ## Asset Configuration
 

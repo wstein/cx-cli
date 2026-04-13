@@ -6,7 +6,7 @@ tags: ["manifest", "ai-tools", "optimization"]
 
 # Manifest-Side Note Summaries
 
-The bundle manifest will persist high-level note summaries directly in its JSON
+The manifest will persist high-level note summaries directly in its JSON
 structure to optimize downstream context-window usage.
 
 Instead of forcing an LLM agent to fetch and parse raw markdown for every note

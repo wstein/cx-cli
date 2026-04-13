@@ -51,7 +51,7 @@ cx doctor secrets --config cx.toml
 The native MCP server exposes file-based `list`, `grep`, and `read` tools over
 the workspace scope. Use `list` to enumerate visible files, `grep` to search
 their contents, and `read` to inspect a specific file with optional line
-anchors without switching back to bundle semantics.
+anchors without switching back to the packaging workflow.
 
 ## Standard Workflow
 
@@ -66,7 +66,7 @@ cx inspect --config cx.toml
 
 For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
-Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the bundle contract.
+Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the repository contract.
 
 ### MCP Diagnostics
 
@@ -77,7 +77,7 @@ cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor secrets` scans the master list for suspicious credentials using the same security rules the bundle workflow relies on.
+`cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor secrets` scans the master list for suspicious credentials using the same security rules the planning workflow relies on.
 
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
 
