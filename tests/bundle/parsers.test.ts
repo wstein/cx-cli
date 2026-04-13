@@ -129,13 +129,12 @@ describe("parsers – whitespace preservation", () => {
     test("preserves literal XML close sequences inside raw content", () => {
       const source = xmlSection(
         "file.txt",
-        "return `<repomix><files><file path=\"${path}\">\\n${content}</file></files></repomix>`;\n",
+        `return \`<repomix><files><file path="\${path}">\\n\${content}</file></files></repomix>\`;\n`,
       );
       const [result] = parseXmlSection(source);
       expect(result).toEqual({
         path: "file.txt",
-        content:
-          "return `<repomix><files><file path=\"${path}\">\\n${content}</file></files></repomix>`;",
+        content: `return \`<repomix><files><file path="\${path}">\\n\${content}</file></files></repomix>\`;`,
       });
     });
   });

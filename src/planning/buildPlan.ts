@@ -3,8 +3,10 @@ import path from "node:path";
 
 import type { CxConfig, CxSectionConfig } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
+import { pathExists } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
+import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 import {
   analyzeSectionOverlaps,
   buildMasterList,
@@ -15,14 +17,12 @@ import {
   getSectionOrder,
   matchesAny,
 } from "./overlaps.js";
-import { pathExists } from "../shared/fs.js";
 import type {
   BundlePlan,
   PlannedAsset,
   PlannedSection,
   PlannedSourceFile,
 } from "./types.js";
-import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 
 function getRequiredSection(
   sections: Record<string, CxSectionConfig>,
@@ -139,7 +139,13 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   }
 
   const normalSectionEntries = new Map(
-    normalSectionNames.map((name) => [name, sectionEntries.get(name)!]),
+    normalSectionNames.map((name) => {
+      const sectionEntry = sectionEntries.get(name);
+      if (sectionEntry === undefined) {
+        throw new CxError(`Missing section entry for ${name}.`, 2);
+      }
+      return [name, sectionEntry];
+    }),
   );
 
   const sectionFiles = new Map<string, PlannedSourceFile[]>(
@@ -228,11 +234,18 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
   // Phase 4: Catch-all resolution — assign remaining pool to the catch-all
   // section (if defined), then report any leftovers as unmatched.
   if (catchAllSectionNames.length === 1) {
-    const catchAllName = catchAllSectionNames[0]!;
-    const catchAllSection = config.sections[catchAllName]!;
-    const catchAllExcludeMatchers = compileMatchers(
-      catchAllSection.exclude,
-    );
+    const catchAllName = catchAllSectionNames[0];
+    if (!catchAllName) {
+      throw new CxError("Missing catch-all section name.", 2);
+    }
+    const catchAllSection = config.sections[catchAllName];
+    if (!catchAllSection) {
+      throw new CxError(
+        `Missing catch-all section configuration for ${catchAllName}.`,
+        2,
+      );
+    }
+    const catchAllExcludeMatchers = compileMatchers(catchAllSection.exclude);
 
     for (const relativePath of [...availablePool]) {
       if (matchesAny(catchAllExcludeMatchers, relativePath)) {
@@ -317,7 +330,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     warnings: planningWarnings,
     vcsKind: vcsState.kind,
     dirtyState,
-    modifiedFiles:
-      dirtyState === "unsafe_dirty" ? vcsState.modifiedFiles : [],
+    modifiedFiles: dirtyState === "unsafe_dirty" ? vcsState.modifiedFiles : [],
   };
 }

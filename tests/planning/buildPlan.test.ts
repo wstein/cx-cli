@@ -265,8 +265,12 @@ describe("buildBundlePlan", () => {
     config.dedup.mode = "first-wins";
     // sections.src and sections.wide both claim src/**; src has higher priority
     config.sections.wide = { include: ["src/**"], exclude: [], priority: 5 };
+    const srcSection = config.sections.src;
+    if (!srcSection) {
+      throw new Error("Missing src section");
+    }
     config.sections.src = {
-      ...config.sections.src!,
+      ...srcSection,
       include: ["src/**"],
       exclude: [],
       priority: 10,
@@ -289,7 +293,11 @@ describe("buildBundlePlan", () => {
     const config = baseConfig(root);
     config.dedup.mode = "first-wins";
     // Give 'src' a low explicit priority, leave docs and repo without priority (implicit 0)
-    config.sections.src = { ...config.sections.src!, priority: 1 };
+    const srcSection = config.sections.src;
+    if (!srcSection) {
+      throw new Error("Missing src section");
+    }
+    config.sections.src = { ...srcSection, priority: 1 };
 
     const plan = await buildBundlePlan(config);
     const names = plan.sections.map((s) => s.name);
@@ -355,9 +363,7 @@ describe("asset layout", () => {
 
     const plan = await buildBundlePlan(config);
 
-    const storedPaths = plan.assets
-      .map((a) => a.storedPath)
-      .sort();
+    const storedPaths = plan.assets.map((a) => a.storedPath).sort();
     expect(storedPaths).toContain("demo-assets/logo.png");
     expect(storedPaths).toContain("demo-assets/images/banner.png");
   });

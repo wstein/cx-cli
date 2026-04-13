@@ -64,7 +64,9 @@ describe("main", () => {
     process.stdout.write = write;
     expect(output).toContain("schema_version = 1");
     expect(output).toContain("[sections.repo]");
-    expect(output).toContain('include = ["docs/**", "notes/**", "README.md", "*.md"]');
+    expect(output).toContain(
+      'include = ["docs/**", "notes/**", "README.md", "*.md"]',
+    );
     expect(output).not.toContain("[sections.schemas]");
     expect(output).not.toContain("[sections.scripts]");
     expect(output).toContain("[sections.tests]");
@@ -92,7 +94,9 @@ describe("main", () => {
     );
 
     expect(configSource).toContain('project_name = "demo"');
-    expect(configSource).toContain('include = ["docs/**", "notes/**", "README.md", "*.md"]');
+    expect(configSource).toContain(
+      'include = ["docs/**", "notes/**", "README.md", "*.md"]',
+    );
     expect(notesGuide).toContain("# Zettelkasten 101");
     expect(notesGuide).toContain("collector's fallacy");
     expect(notesGuide).toContain("Barbell Method Of Triage");
@@ -114,7 +118,9 @@ describe("main", () => {
         "custom guide\n",
         "utf8",
       );
-      await expect(main(["init", "--name", "demo", "--force"])).resolves.toBe(0);
+      await expect(main(["init", "--name", "demo", "--force"])).resolves.toBe(
+        0,
+      );
     } finally {
       process.chdir(cwd);
     }
@@ -131,25 +137,20 @@ describe("main", () => {
     ["bash", "complete -o default -F"],
     ["zsh", "compdef"],
     ["fish", "complete -c"],
-  ] as const)(
-    "emits completion script for %s",
-    async (shell, expectedFragment) => {
-      const write = process.stdout.write;
-      let output = "";
-      process.stdout.write = ((chunk: string | Uint8Array) => {
-        output += String(chunk);
-        return true;
-      }) as typeof process.stdout.write;
+  ] as const)("emits completion script for %s", async (shell, expectedFragment) => {
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
 
-      await expect(
-        main(["completion", `--shell=${shell}`]),
-      ).resolves.toBe(0);
-      process.stdout.write = write;
+    await expect(main(["completion", `--shell=${shell}`])).resolves.toBe(0);
+    process.stdout.write = write;
 
-      expect(output).toContain(expectedFragment);
-      expect(output).toContain("cx");
-    },
-  );
+    expect(output).toContain(expectedFragment);
+    expect(output).toContain("cx");
+  });
 
   test("supports init overrides from the command line", async () => {
     const write = process.stdout.write;

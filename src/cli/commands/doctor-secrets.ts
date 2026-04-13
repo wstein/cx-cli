@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { runSecurityCheck, type SuspiciousFileResult } from "@wsmy/repomix-cx-fork";
+import {
+  runSecurityCheck,
+  type SuspiciousFileResult,
+} from "@wsmy/repomix-cx-fork";
 
 import { loadCxConfig } from "../../config/load.js";
 import { buildMasterList } from "../../planning/overlaps.js";
@@ -62,7 +65,11 @@ export async function collectDoctorSecretsReport(
   const config = await loadConfig(resolvedConfigPath);
   const vcsState = await getState(config.sourceRoot);
   const masterList = await getMasterList(config, vcsState);
-  const rawFiles = await collectRawFiles(config.sourceRoot, masterList, readFile);
+  const rawFiles = await collectRawFiles(
+    config.sourceRoot,
+    masterList,
+    readFile,
+  );
   const suspiciousFiles = await runScan(rawFiles);
 
   return {

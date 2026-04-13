@@ -1,14 +1,27 @@
 import { describe, expect, test } from "bun:test";
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-
-import { createCxMcpServer } from "../../src/mcp/server.js";
 import { loadCxConfig } from "../../src/config/load.js";
+import { createCxMcpServer } from "../../src/mcp/server.js";
 
 const execFileAsync = promisify(execFile);
+
+interface RegisteredTool {
+  handler: (
+    args: unknown,
+    context: never,
+  ) => Promise<{
+    content: Array<{ type: "text"; text: string }>;
+  }>;
+}
+
+function getRegisteredTools(server: unknown): Record<string, RegisteredTool> {
+  return (server as { _registeredTools: Record<string, RegisteredTool> })
+    ._registeredTools;
+}
 
 async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["init", "-q"], { cwd: root });
@@ -29,10 +42,9 @@ async function createWorkspace(): Promise<{
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.writeFile(
     path.join(root, "src", "index.ts"),
-    [
-      "export const greeting = 'hello';",
-      "export const target = 'world';",
-    ].join("\n"),
+    ["export const greeting = 'hello';", "export const target = 'world';"].join(
+      "\n",
+    ),
     "utf8",
   );
   await fs.writeFile(
@@ -92,7 +104,7 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const toolNames = Object.keys((server as any)._registeredTools).sort();
+    const toolNames = Object.keys(getRegisteredTools(server)).sort();
 
     expect(toolNames).toEqual(["grep", "list", "read"]);
   });
@@ -104,7 +116,7 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const listTool = (server as any)._registeredTools.list;
+    const listTool = getRegisteredTools(server).list;
 
     const result = await listTool.handler({}, {} as never);
     const payload = JSON.parse(result.content[0].text) as {
@@ -124,7 +136,7 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const grepTool = (server as any)._registeredTools.grep;
+    const grepTool = getRegisteredTools(server).grep;
 
     const result = await grepTool.handler(
       {
@@ -149,7 +161,8 @@ describe("cx MCP server", () => {
     );
     expect(
       payload.matches.some(
-        (match) => match.path === "src/index.ts" && match.line.includes("hello"),
+        (match) =>
+          match.path === "src/index.ts" && match.line.includes("hello"),
       ),
     ).toBe(true);
   });
@@ -161,7 +174,7 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const readTool = (server as any)._registeredTools.read;
+    const readTool = getRegisteredTools(server).read;
 
     const result = await readTool.handler(
       {

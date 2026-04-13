@@ -7,13 +7,13 @@ import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
 import { sha256Text } from "../shared/hashing.js";
 import { countTokensForFiles } from "../shared/tokens.js";
-import { buildSectionHeaderText } from "./handover.js";
 import {
   detectRepomixCapabilities,
   getAdapterModulePath,
   getRepomixCapabilities as getRepomixCapabilitiesImpl,
   validateRepomixContract,
 } from "./capabilities.js";
+import { buildSectionHeaderText } from "./handover.js";
 
 export interface RenderSectionResult {
   outputText: string;

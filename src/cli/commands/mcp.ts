@@ -2,8 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { loadCxConfig } from "../../config/load.js";
-import { runCxMcpServer } from "../../mcp/server.js";
 import type { CxConfig } from "../../config/types.js";
+import { runCxMcpServer } from "../../mcp/server.js";
 import { CxError } from "../../shared/errors.js";
 
 const MCP_PROFILE_NAME = "cx-mcp.toml";

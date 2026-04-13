@@ -71,5 +71,5 @@ export function buildBundleIndexText(params: {
     "use this index with the section files; each section output remains self-contained.",
   );
 
-  return lines.join("\n") + "\n";
+  return `${lines.join("\n")}\n`;
 }

@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 
 import { CxError } from "../shared/errors.js";
 import type { DirtyState, VCSKind } from "../vcs/provider.js";
-import { NORMALIZATION_POLICY } from "./types.js";
 import type {
   AssetRecord,
   CxManifest,
@@ -13,6 +12,7 @@ import type {
   ManifestSettings,
   SectionOutputRecord,
 } from "./types.js";
+import { NORMALIZATION_POLICY } from "./types.js";
 
 export const MANIFEST_SCHEMA_VERSION = 6 as const;
 
@@ -212,7 +212,8 @@ function parseManifestDto(raw: unknown): {
   const settingsRaw = requireObject(obj.settings, "settings");
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
-  const notesRaw = obj.notes === undefined ? [] : requireArray(obj.notes, "notes");
+  const notesRaw =
+    obj.notes === undefined ? [] : requireArray(obj.notes, "notes");
 
   const sectionRows: FileRowWithoutSection[][] = [];
   const sections: SectionDto[] = sectionsRaw.map((section, index) => {
@@ -265,10 +266,10 @@ function parseManifestDto(raw: unknown): {
             ) as typeof NORMALIZATION_POLICY),
     },
     vcsProvider: requireString(obj.vcsProvider, "vcsProvider") as VCSKind,
-    dirtyState: requireString(
-      obj.dirtyState,
-      "dirtyState",
-    ) as Exclude<DirtyState, "unsafe_dirty">,
+    dirtyState: requireString(obj.dirtyState, "dirtyState") as Exclude<
+      DirtyState,
+      "unsafe_dirty"
+    >,
     modifiedFiles: requireArray(
       obj.modifiedFiles ?? [],
       "modifiedFiles",

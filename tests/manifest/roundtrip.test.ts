@@ -169,7 +169,9 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
     sourceRoot: nonEmptyString,
     bundleDir: nonEmptyString,
     checksumFile: nonEmptyString,
-    bundleIndexFile: fc.option(nonEmptyString).map((value) => value ?? undefined),
+    bundleIndexFile: fc
+      .option(nonEmptyString)
+      .map((value) => value ?? undefined),
     createdAt: isoTimestamp,
     cxVersion: nonEmptyString,
     repomixVersion: nonEmptyString,

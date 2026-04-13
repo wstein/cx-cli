@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { execSync } from "node:child_process";
 
 import {
   classifyDirtyState,
@@ -31,7 +31,7 @@ describe("VCS Provider: Mercurial", () => {
   async function setupHgRepo(tempDir: string): Promise<void> {
     // Initialize a Mercurial repository
     execSync("hg init", { cwd: tempDir, stdio: "ignore" });
-    
+
     // Create initial commit
     const filePath = path.join(tempDir, "tracked.txt");
     await fs.writeFile(filePath, "initial content", "utf8");
@@ -113,7 +113,9 @@ describe("VCS Provider: Mercurial", () => {
       return;
     }
 
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-hg-untracked-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-hg-untracked-"),
+    );
     try {
       await setupHgRepo(tempDir);
 

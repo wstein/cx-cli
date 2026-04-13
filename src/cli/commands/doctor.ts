@@ -7,7 +7,6 @@ import {
   buildMasterList,
   type OverlapConflict,
 } from "../../planning/overlaps.js";
-import { getVCSState } from "../../vcs/provider.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 import {
@@ -16,10 +15,8 @@ import {
   printWizardTip,
   wizardSelect,
 } from "../../shared/wizard.js";
-import {
-  collectDoctorMcpReport,
-  printDoctorMcpReport,
-} from "./doctor-mcp.js";
+import { getVCSState } from "../../vcs/provider.js";
+import { collectDoctorMcpReport, printDoctorMcpReport } from "./doctor-mcp.js";
 import {
   collectDoctorSecretsReport,
   printDoctorSecretsReport,

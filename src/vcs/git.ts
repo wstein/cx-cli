@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-import { relativePosix, sortLexically } from "../shared/fs.js";
+import { sortLexically } from "../shared/fs.js";
 import type { VCSState } from "./provider.js";
 
 const execFileAsync = promisify(execFile);

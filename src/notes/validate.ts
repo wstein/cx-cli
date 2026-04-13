@@ -71,9 +71,10 @@ function normalizeStringArray(
   return { value: normalized };
 }
 
-async function extractNoteMetadata(
-  filePath: string,
-): Promise<{ metadata: NoteMetadata | null; error: NoteValidationError | null }> {
+async function extractNoteMetadata(filePath: string): Promise<{
+  metadata: NoteMetadata | null;
+  error: NoteValidationError | null;
+}> {
   try {
     const content = await fs.readFile(filePath, "utf-8");
     const { frontmatter, body } = parseMarkdownFrontmatter(content);
@@ -99,7 +100,11 @@ async function extractNoteMetadata(
       };
     }
 
-    const aliases = normalizeStringArray(frontmatter.aliases, filePath, "aliases");
+    const aliases = normalizeStringArray(
+      frontmatter.aliases,
+      filePath,
+      "aliases",
+    );
     if ("error" in aliases) {
       return {
         metadata: null,

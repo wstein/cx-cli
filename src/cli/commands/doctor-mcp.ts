@@ -1,8 +1,8 @@
 import path from "node:path";
 
 import { loadCxConfig } from "../../config/load.js";
-import { resolveMcpConfigPath } from "./mcp.js";
 import { writeJson } from "../../shared/output.js";
+import { resolveMcpConfigPath } from "./mcp.js";
 
 export interface DoctorMcpArgs {
   config?: string | undefined;

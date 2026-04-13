@@ -9,10 +9,7 @@ const execFileAsync = promisify(execFile);
 /**
  * Execute a hg (Mercurial) command with consistent options.
  */
-async function runHg(
-  args: string[],
-  cwd: string,
-): Promise<{ stdout: string }> {
+async function runHg(args: string[], cwd: string): Promise<{ stdout: string }> {
   return execFileAsync("hg", args, {
     cwd,
     maxBuffer: 100 * 1024 * 1024,

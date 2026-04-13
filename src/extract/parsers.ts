@@ -58,7 +58,8 @@ export function parseXmlSection(source: string): ExtractedTextFile[] {
 
     const rawPath = source.slice(pathStart, pathEnd);
     const contentStart = pathEnd + openTagSuffix.length;
-    const searchFrom = source[contentStart] === "\n" ? contentStart + 1 : contentStart;
+    const searchFrom =
+      source[contentStart] === "\n" ? contentStart + 1 : contentStart;
     const closeIndex = findXmlFileCloseIndex(source, searchFrom);
     if (closeIndex === -1) {
       throw new CxError(
@@ -192,7 +193,6 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
     const filePath = fileLine.slice("File: ".length);
     index += 3;
     const contentLines: string[] = [];
-    let endedAtEof = false;
 
     while (index < lines.length) {
       const currentLine = lines[index];
@@ -207,7 +207,6 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
       }
 
       if (currentLine === longSeparator && nextLine === "End of Codebase") {
-        endedAtEof = true;
         break;
       }
 

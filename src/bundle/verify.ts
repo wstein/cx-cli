@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+import type { CxConfig } from "../config/types.js";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
-import type { CxConfig } from "../config/types.js";
 import { renderSectionWithRepomix } from "../repomix/render.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
@@ -69,8 +69,7 @@ async function verifyBundleAgainstSourceTree(
           repomix: {
             ...config.repomix,
             showLineNumbers: manifest.settings.showLineNumbers,
-            includeEmptyDirectories:
-              manifest.settings.includeEmptyDirectories,
+            includeEmptyDirectories: manifest.settings.includeEmptyDirectories,
             securityCheck: manifest.settings.securityCheck,
           },
           tokens: {

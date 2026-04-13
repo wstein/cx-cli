@@ -75,7 +75,9 @@ exclude = []
   });
 
   test("rejects output extension values without a leading dot", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-ext-bad-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-ext-bad-"),
+    );
     const configPath = path.join(tempDir, "cx.toml");
     await fs.writeFile(
       configPath,
@@ -103,7 +105,9 @@ exclude = []
   });
 
   test("loads a one-level inherited config and concatenates arrays", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-inherit-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-config-inherit-"),
+    );
     const basePath = path.join(tempDir, "cx.toml");
     const childPath = path.join(tempDir, "cx-mcp.toml");
 
@@ -619,9 +623,7 @@ describe("behavioral settings — precedence chain", () => {
   });
 
   test("assets.layout defaults to flat with source compiled default", async () => {
-    const dir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-layout-default-"),
-    );
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-layout-default-"));
     const configPath = await writeCxToml(dir, buildToml());
     const config = await loadCxConfig(configPath, {});
     expect(config.assets.layout).toBe("flat");
@@ -629,9 +631,7 @@ describe("behavioral settings — precedence chain", () => {
   });
 
   test("assets.layout=deep from cx.toml is resolved with source cx.toml", async () => {
-    const dir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-layout-file-"),
-    );
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-layout-file-"));
     const configPath = await writeCxToml(
       dir,
       buildToml({ assetsExtra: `layout = "deep"` }),
@@ -642,9 +642,7 @@ describe("behavioral settings — precedence chain", () => {
   });
 
   test("env override wins over cx.toml value for assets.layout", async () => {
-    const dir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-layout-env-"),
-    );
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-layout-env-"));
     const configPath = await writeCxToml(
       dir,
       buildToml({ assetsExtra: `layout = "deep"` }),
@@ -656,9 +654,7 @@ describe("behavioral settings — precedence chain", () => {
   });
 
   test("CLI override wins over env override for assets.layout", async () => {
-    const dir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-layout-cli-"),
-    );
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-layout-cli-"));
     const configPath = await writeCxToml(
       dir,
       buildToml({ assetsExtra: `layout = "deep"` }),

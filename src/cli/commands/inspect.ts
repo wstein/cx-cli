@@ -125,10 +125,14 @@ function renderTokenBreakdown(breakdown: TokenBreakdown): string {
 }
 
 export async function runInspectCommand(args: InspectArgs): Promise<number> {
-  const config = await loadCxConfig(args.config ?? "cx.toml", readEnvOverrides(), {
-    ...getCLIOverrides(),
-    ...(args.layout !== undefined && { assetsLayout: args.layout }),
-  });
+  const config = await loadCxConfig(
+    args.config ?? "cx.toml",
+    readEnvOverrides(),
+    {
+      ...getCLIOverrides(),
+      ...(args.layout !== undefined && { assetsLayout: args.layout }),
+    },
+  );
   const plan = await buildBundlePlan(config);
   const tokenBreakdown = args.tokenBreakdown
     ? await buildTokenBreakdown(plan, config.tokens.encoding)

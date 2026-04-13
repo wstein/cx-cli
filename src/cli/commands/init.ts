@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
-import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { assertSafeProjectName } from "../../config/projectName.js";
+import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";

@@ -85,9 +85,7 @@ function isSearchableMediaType(mediaType: string): boolean {
   );
 }
 
-export function createCxMcpWorkspace(
-  config: CxConfig,
-): CxMcpWorkspace {
+export function createCxMcpWorkspace(config: CxConfig): CxMcpWorkspace {
   const sourceRoot = path.resolve(config.sourceRoot);
   let masterListPromise: Promise<string[]> | undefined;
 
@@ -151,11 +149,7 @@ export async function grepWorkspaceFiles(
   const regex = params.regex === true;
   const caseSensitive = params.caseSensitive === true;
   const limit = Math.max(1, Math.floor(params.limit ?? 100));
-  const searchRegex = buildSearchRegex(
-    params.pattern,
-    regex,
-    caseSensitive,
-  );
+  const searchRegex = buildSearchRegex(params.pattern, regex, caseSensitive);
   const masterList = await workspace.resolveMasterList();
   const matches: CxMcpMatchRecord[] = [];
   let fileCount = 0;

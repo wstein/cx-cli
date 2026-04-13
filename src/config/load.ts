@@ -168,11 +168,7 @@ function expectBoolean(
 }
 
 function expectPositiveInteger(value: unknown, label: string): number {
-  if (
-    typeof value !== "number" ||
-    !Number.isInteger(value) ||
-    value <= 0
-  ) {
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
     throw new CxError(`${label} must be a positive integer.`);
   }
   return value;
@@ -225,7 +221,9 @@ function expectFileExtension(value: unknown, label: string): string {
     throw new CxError(`${label} must not contain path separators.`);
   }
   if (extension.length < 2) {
-    throw new CxError(`${label} must include at least one character after '.'.`);
+    throw new CxError(
+      `${label} must include at least one character after '.'.`,
+    );
   }
   return extension;
 }
@@ -257,7 +255,10 @@ function parseOutputExtensions(
   }
 
   return {
-    xml: expectFileExtension(extensions.xml ?? defaults.xml, "output.extensions.xml"),
+    xml: expectFileExtension(
+      extensions.xml ?? defaults.xml,
+      "output.extensions.xml",
+    ),
     json: expectFileExtension(
       extensions.json ?? defaults.json,
       "output.extensions.json",

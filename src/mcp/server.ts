@@ -3,8 +3,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 import type { CxConfig } from "../config/types.js";
 import { CX_VERSION } from "../shared/version.js";
-import { createCxMcpWorkspace } from "./workspace.js";
 import { registerCxMcpTools } from "./tools.js";
+import { createCxMcpWorkspace } from "./workspace.js";
 
 export interface CxMcpServerOptions {
   configPath: string;
@@ -24,9 +24,7 @@ function buildInstructions(configPath: string): string {
   ].join(" ");
 }
 
-export function createCxMcpServer(
-  options: CxMcpServerOptions,
-): McpServer {
+export function createCxMcpServer(options: CxMcpServerOptions): McpServer {
   const workspace = createCxMcpWorkspace(options.config);
   const server = new McpServer(
     {

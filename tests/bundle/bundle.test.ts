@@ -493,9 +493,9 @@ include_source_metadata = true`;
         securityCheck: false,
         normalizationPolicy: "repomix-default-v1",
       },
-        vcsProvider: "none",
-        dirtyState: "clean",
-        modifiedFiles: [],
+      vcsProvider: "none",
+      dirtyState: "clean",
+      modifiedFiles: [],
       sections: [
         {
           name: "docs",
@@ -694,8 +694,8 @@ include_source_metadata = true`;
       await tamperSectionOutput(
         project.bundleDir,
         "src",
-        "export const demo = \"================\";\n",
-        "export const demo = \"tampered\";\n",
+        'export const demo = "================";\n',
+        'export const demo = "tampered";\n',
       );
       expect(
         await runInspectCommand({ config: project.configPath, json: true }),
@@ -763,8 +763,8 @@ include_source_metadata = true`;
       await tamperSectionOutput(
         project.bundleDir,
         "src",
-        "export const demo = \"================\";\n",
-        "export const demo = \"tampered\";\n",
+        'export const demo = "================";\n',
+        'export const demo = "tampered";\n',
       );
       expect(
         await runInspectCommand({ config: project.configPath, json: false }),
@@ -925,7 +925,9 @@ include_source_metadata = true`;
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
       "core contract with optional structured rendering and span capture",
     );
-    expect(bundlePayload.repomix?.packageVersion).toMatch(/^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/);
+    expect(bundlePayload.repomix?.packageVersion).toMatch(
+      /^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/,
+    );
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
     expect(verifyPayload.repomix?.spanCapabilityReason).toContain(
@@ -1171,9 +1173,9 @@ include_source_metadata = true`;
       "utf8",
     );
 
-    await expect(runBundleCommand({ config: project.configPath })).rejects.toThrow(
-      "require manifest.include_output_spans = true",
-    );
+    await expect(
+      runBundleCommand({ config: project.configPath }),
+    ).rejects.toThrow("require manifest.include_output_spans = true");
   });
 
   test("allows json-only bundles when output spans are disabled", async () => {
@@ -1261,7 +1263,11 @@ include_source_metadata = true`;
   test("--update refuses to prune non-bundle directories", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-update-safety-"));
     await fs.mkdir(path.join(root, "src"), { recursive: true });
-    await fs.writeFile(path.join(root, "src", "index.ts"), "export const x = 1;\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const x = 1;\n",
+      "utf8",
+    );
     await fs.writeFile(path.join(root, "README.md"), "# keep\n", "utf8");
     const configPath = path.join(root, "cx.toml");
     await fs.writeFile(
@@ -1289,9 +1295,9 @@ exclude = []
       "utf8",
     );
 
-    await expect(runBundleCommand({ config: configPath, update: true })).rejects.toThrow(
-      "Refusing --update prune",
-    );
+    await expect(
+      runBundleCommand({ config: configPath, update: true }),
+    ).rejects.toThrow("Refusing --update prune");
     expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
       "# keep\n",
     );
@@ -1391,8 +1397,8 @@ exclude = []
     await tamperSectionOutput(
       project.bundleDir,
       "src",
-      "export const demo = \"================\";\n",
-      "export const demo = \"tampered\";\n",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
     );
     // The command now formats a visual table and returns the exit code instead of throwing.
     const exitCode = await runExtractCommand({
@@ -1421,8 +1427,8 @@ exclude = []
     await tamperSectionOutput(
       project.bundleDir,
       "src",
-      "export const demo = \"================\";\n",
-      "export const demo = \"tampered\";\n",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
     );
     expect(
       await runExtractCommand({
@@ -1510,8 +1516,8 @@ exclude = []
     await tamperSectionOutput(
       project.bundleDir,
       "src",
-      "export const demo = \"================\";\n",
-      "export const demo = \"tampered\";\n",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
     );
     expect(
       await runListCommand({
@@ -1552,8 +1558,8 @@ exclude = []
     await tamperSectionOutput(
       project.bundleDir,
       "src",
-      "export const demo = \"================\";\n",
-      "export const demo = \"tampered\";\n",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
     );
     await expect(
       runExtractCommand({

@@ -1,5 +1,5 @@
-import { detectFossil, getFossilState } from "./fossil.js";
 import { getFilesystemState } from "./fallback.js";
+import { detectFossil, getFossilState } from "./fossil.js";
 import { detectGit, getGitState } from "./git.js";
 import { detectHg, getHgState } from "./mercurial.js";
 

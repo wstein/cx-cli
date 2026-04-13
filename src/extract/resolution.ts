@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type {
-  CxManifest,
-  ManifestFileRow,
-} from "../manifest/types.js";
+import type { CxManifest, ManifestFileRow } from "../manifest/types.js";
 import { CxError } from "../shared/errors.js";
 import { sha256Text } from "../shared/hashing.js";
 import { readSpanContent, splitOutputLines } from "./lineSpans.js";
@@ -79,7 +76,11 @@ function resolveTextRow(params: {
   lines: string[];
 }): ExtractabilityRecord {
   const { row, lines } = params;
-  const content = readSpanContent(lines, row.outputStartLine, row.outputEndLine);
+  const content = readSpanContent(
+    lines,
+    row.outputStartLine,
+    row.outputEndLine,
+  );
   if (content === undefined) {
     return {
       path: row.path,

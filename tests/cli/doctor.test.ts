@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
 import { main } from "../../src/cli/main.js";
@@ -76,9 +76,9 @@ include = ["src/**"]
   return { root, configPath };
 }
 
-async function createMcpProject(options: {
-  includeSecret?: boolean;
-} = {}): Promise<{
+async function createMcpProject(
+  options: { includeSecret?: boolean } = {},
+): Promise<{
   root: string;
   configPath: string;
   mcpPath: string;

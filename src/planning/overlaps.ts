@@ -134,9 +134,7 @@ export async function analyzeSectionOverlaps(
 ): Promise<OverlapConflict[]> {
   // Only non-catch-all sections participate in overlap analysis.
   const normalSections = new Map(
-    [...getSectionEntries(config)].filter(
-      ([, sec]) => !sec.catch_all,
-    ),
+    [...getSectionEntries(config)].filter(([, sec]) => !sec.catch_all),
   );
   const conflicts: OverlapConflict[] = [];
 
@@ -187,7 +185,7 @@ export function formatOverlapConflictMessage(
     "Suggested exclude rules:",
     suggestionLines,
     "Run `cx doctor fix-overlaps --dry-run` to review the full resolution plan.",
-    "Alternatively, set `dedup.mode = \"first-wins\"` and assign a higher `priority` to the",
+    'Alternatively, set `dedup.mode = "first-wins"` and assign a higher `priority` to the',
     "section that should own the file to resolve overlaps dynamically at runtime.",
   ].join("\n");
 }

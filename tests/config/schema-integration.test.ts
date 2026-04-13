@@ -2,10 +2,9 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
+import { parse as parseToml } from "smol-toml";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
-import { parse as parseToml } from "smol-toml";
 
 /**
  * End-to-end integration tests for JSON Schema support.
@@ -144,7 +143,7 @@ exclude = []
       const lines = configContent.split("\n");
 
       expect(lines[0]).toBe("#:schema ./schemas/cx-config-v1.schema.json");
-      expect(configContent).toContain('schema_version = 1');
+      expect(configContent).toContain("schema_version = 1");
       expect(configContent).toContain('project_name = "schema-test"');
     } finally {
       process.chdir(cwd);
@@ -204,7 +203,9 @@ priority = 5
   });
 
   test("config with special characters in project name preserves schema directive", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-special-chars-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-special-chars-"),
+    );
     const cwd = process.cwd();
 
     try {

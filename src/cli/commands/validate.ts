@@ -6,9 +6,9 @@ import {
 } from "../../bundle/validate.js";
 import { validateNotes } from "../../notes/validate.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
-import { summarizeManifest } from "../../shared/manifestSummary.js";
-import { printError, printInfo, printWarning } from "../../shared/format.js";
 import { CxError } from "../../shared/errors.js";
+import { printError, printInfo, printWarning } from "../../shared/format.js";
+import { summarizeManifest } from "../../shared/manifestSummary.js";
 import { writeJson } from "../../shared/output.js";
 
 export interface ValidateArgs {

@@ -37,7 +37,11 @@ import {
   printTable,
   printWarning,
 } from "../../shared/format.js";
-import { ensureDir, listFilesRecursive, relativePosix } from "../../shared/fs.js";
+import {
+  ensureDir,
+  listFilesRecursive,
+  relativePosix,
+} from "../../shared/fs.js";
 import { sha256File } from "../../shared/hashing.js";
 import { writeJson } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
@@ -418,62 +422,62 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     await validateBundle(plan.bundleDir);
 
     // Calculate total statistics
-  const totalAssetBytes = plan.assets.reduce(
-    (sum, asset) => sum + asset.sizeBytes,
-    0,
-  );
-  const totalSectionBytes = sectionOutputs.reduce(
-    (sum, section) => sum + section.sizeBytes,
-    0,
-  );
-  const totalTokens = sectionOutputs.reduce(
-    (sum, section) => sum + section.tokenCount,
-    0,
-  );
-  const totalOutputTokens = sectionOutputs.reduce(
-    (sum, section) => sum + section.outputTokenCount,
-    0,
-  );
+    const totalAssetBytes = plan.assets.reduce(
+      (sum, asset) => sum + asset.sizeBytes,
+      0,
+    );
+    const totalSectionBytes = sectionOutputs.reduce(
+      (sum, section) => sum + section.sizeBytes,
+      0,
+    );
+    const totalTokens = sectionOutputs.reduce(
+      (sum, section) => sum + section.tokenCount,
+      0,
+    );
+    const totalOutputTokens = sectionOutputs.reduce(
+      (sum, section) => sum + section.outputTokenCount,
+      0,
+    );
 
     // Print human-friendly report
     if (!(args.json ?? false)) {
-    printHeader("Bundle Summary");
-    printTable([
-      ["Project", plan.projectName],
-      ["Location", plan.bundleDir],
-      ["Handover index", bundleIndexFile],
-    ]);
-    printDivider();
-    printTable([
-      ["Sections", plan.sections.length],
-      ["Assets", plan.assets.length],
-      ["Unmatched files", plan.unmatchedFiles.length],
-    ]);
-    printDivider();
-
-    // Section details
-    printSubheader("Sections");
-    for (const section of sectionOutputs) {
+      printHeader("Bundle Summary");
       printTable([
-        [`  ${section.name}`, ""],
-        ["    Files", section.fileCount],
-        ["    Size", formatBytes(section.sizeBytes)],
-        ["    Packed tokens", formatNumber(section.tokenCount)],
-        ["    Output tokens", formatNumber(section.outputTokenCount)],
+        ["Project", plan.projectName],
+        ["Location", plan.bundleDir],
+        ["Handover index", bundleIndexFile],
       ]);
-    }
+      printDivider();
+      printTable([
+        ["Sections", plan.sections.length],
+        ["Assets", plan.assets.length],
+        ["Unmatched files", plan.unmatchedFiles.length],
+      ]);
+      printDivider();
 
-    printDivider();
-    printTable([
-      ["Total sections size", formatBytes(totalSectionBytes)],
-      ["Total assets size", formatBytes(totalAssetBytes)],
-      ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
-      ["Total packed tokens", formatNumber(totalTokens)],
-      ["Total output tokens", formatNumber(totalOutputTokens)],
-    ]);
-    printDivider();
-    printSuccess("Bundle created successfully");
-  }
+      // Section details
+      printSubheader("Sections");
+      for (const section of sectionOutputs) {
+        printTable([
+          [`  ${section.name}`, ""],
+          ["    Files", section.fileCount],
+          ["    Size", formatBytes(section.sizeBytes)],
+          ["    Packed tokens", formatNumber(section.tokenCount)],
+          ["    Output tokens", formatNumber(section.outputTokenCount)],
+        ]);
+      }
+
+      printDivider();
+      printTable([
+        ["Total sections size", formatBytes(totalSectionBytes)],
+        ["Total assets size", formatBytes(totalAssetBytes)],
+        ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
+        ["Total packed tokens", formatNumber(totalTokens)],
+        ["Total output tokens", formatNumber(totalOutputTokens)],
+      ]);
+      printDivider();
+      printSuccess("Bundle created successfully");
+    }
 
     if (args.json ?? false) {
       writeJson({

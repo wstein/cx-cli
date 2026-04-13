@@ -14,7 +14,10 @@ function makeLock(
     bundledAt: new Date().toISOString(),
     behavioralSettings: {
       "dedup.mode": { value: "fail", source: "compiled default" },
-      "repomix.missing_extension": { value: "warn", source: "compiled default" },
+      "repomix.missing_extension": {
+        value: "warn",
+        source: "compiled default",
+      },
       "config.duplicate_entry": { value: "fail", source: "compiled default" },
       "assets.layout": { value: "flat", source: "compiled default" },
       ...overrides,

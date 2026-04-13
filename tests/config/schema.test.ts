@@ -6,7 +6,6 @@ import type {
   CxAssetsMode,
   CxConfigDuplicateEntryMode,
   CxDedupMode,
-  CxRepomixMissingExtensionMode,
   CxStyle,
 } from "../../src/config/types.js";
 
@@ -73,8 +72,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("dedup.mode enum matches TypeScript CxDedupMode", () => {
-    const dedupModeProp = (schema.properties?.dedup ??
-      {}) as unknown as {
+    const dedupModeProp = (schema.properties?.dedup ?? {}) as unknown as {
       properties?: Record<string, { enum?: (string | number)[] }>;
     };
     const modeEnum = dedupModeProp.properties?.mode?.enum ?? [];
@@ -85,8 +83,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("assets.mode enum matches TypeScript CxAssetsMode", () => {
-    const assetsProp = (schema.properties?.assets ??
-      {}) as unknown as {
+    const assetsProp = (schema.properties?.assets ?? {}) as unknown as {
       properties?: Record<string, { enum?: (string | number)[] }>;
     };
     const modeEnum = assetsProp.properties?.mode?.enum ?? [];
@@ -97,8 +94,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("repomix.style enum matches TypeScript CxStyle", () => {
-    const repomixProp = (schema.properties?.repomix ??
-      {}) as unknown as {
+    const repomixProp = (schema.properties?.repomix ?? {}) as unknown as {
       properties?: Record<string, { enum?: (string | number)[] }>;
     };
     const styleEnum = repomixProp.properties?.style?.enum ?? [];
@@ -109,8 +105,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("config.duplicate_entry enum matches TypeScript", () => {
-    const configProp = (schema.properties?.config ??
-      {}) as unknown as {
+    const configProp = (schema.properties?.config ?? {}) as unknown as {
       properties?: Record<string, { enum?: (string | number)[] }>;
     };
     const dupEnum = configProp.properties?.duplicate_entry?.enum ?? [];
@@ -135,8 +130,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("output.extensions properties must start with '.'", () => {
-    const outputProp = (schema.properties?.output ??
-      {}) as unknown as {
+    const outputProp = (schema.properties?.output ?? {}) as unknown as {
       properties?: Record<string, unknown>;
     };
     const extensionsProp = (outputProp.properties?.extensions ??
@@ -158,12 +152,8 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("files.include and files.exclude are string arrays", () => {
-    const filesProp = (schema.properties?.files ??
-      {}) as unknown as {
-      properties?: Record<
-        string,
-        { type?: string; items?: { type?: string } }
-      >;
+    const filesProp = (schema.properties?.files ?? {}) as unknown as {
+      properties?: Record<string, { type?: string; items?: { type?: string } }>;
     };
     const includeProp = filesProp.properties?.include;
     const excludeProp = filesProp.properties?.exclude;
@@ -191,8 +181,7 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("manifest.format is constrained to 'json'", () => {
-    const manifestProp = (schema.properties?.manifest ??
-      {}) as unknown as {
+    const manifestProp = (schema.properties?.manifest ?? {}) as unknown as {
       properties?: Record<string, { const?: string }>;
     };
     const formatProp = manifestProp.properties?.format;
@@ -200,14 +189,11 @@ describe("cx-config-v1.schema.json", async () => {
   });
 
   test("checksums.algorithm is constrained to 'sha256'", () => {
-    const checksumsProp = (schema.properties?.checksums ??
-      {}) as unknown as {
+    const checksumsProp = (schema.properties?.checksums ?? {}) as unknown as {
       properties?: Record<string, { const?: string }>;
     };
     const algoProps = checksumsProp.properties?.algorithm;
-    expect((algoProps as unknown as { const?: string }).const).toBe(
-      "sha256",
-    );
+    expect((algoProps as unknown as { const?: string }).const).toBe("sha256");
   });
 
   test("repomix.missing_extension has valid enum values", () => {

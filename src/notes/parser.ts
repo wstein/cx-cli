@@ -117,9 +117,12 @@ export function parseMarkdownFrontmatter(
       frontmatter[key] =
         arrayContent === ""
           ? []
-          : arrayContent
-              .split(",")
-              .map((item) => item.trim().replace(/^["']|["']$/g, "").trim());
+          : arrayContent.split(",").map((item) =>
+              item
+                .trim()
+                .replace(/^["']|["']$/g, "")
+                .trim(),
+            );
       continue;
     }
 

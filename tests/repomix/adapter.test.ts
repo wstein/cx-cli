@@ -4,7 +4,6 @@ import os from "node:os";
 import path from "node:path";
 
 import { mergeConfigs, packStructured } from "@wsmy/repomix-cx-fork";
-import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import {
   getAdapterModulePath,
@@ -90,7 +89,6 @@ describe("Repomix adapter contract", () => {
     );
     const adapterDir = path.join(root, "mock-adapter");
     const sourceRoot = path.join(root, "project");
-    const bundleDir = path.join(sourceRoot, "dist", "demo-bundle");
     await fs.mkdir(adapterDir, { recursive: true });
     await fs.mkdir(path.join(sourceRoot, "src"), { recursive: true });
     await fs.writeFile(
