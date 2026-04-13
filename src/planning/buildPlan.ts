@@ -15,6 +15,7 @@ import {
   getSectionOrder,
   matchesAny,
 } from "./overlaps.js";
+import { pathExists } from "../shared/fs.js";
 import type {
   BundlePlan,
   PlannedAsset,
@@ -179,6 +180,10 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         }
 
         if (config.assets.mode === "copy") {
+          if (!(await pathExists(absolutePath))) {
+            availablePool.delete(relativePath);
+            continue;
+          }
           const stat = await fs.stat(absolutePath);
           assetCandidates.push({
             relativePath,
@@ -201,6 +206,10 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     const sectionName = matchingSections[0];
     if (!sectionName) {
       throw new CxError(`Missing resolved section for ${relativePath}.`, 2);
+    }
+    if (!(await pathExists(absolutePath))) {
+      availablePool.delete(relativePath);
+      continue;
     }
     availablePool.delete(relativePath);
     const stat = await fs.stat(absolutePath);
@@ -232,8 +241,12 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         availablePool.delete(relativePath);
         continue;
       }
-      availablePool.delete(relativePath);
       const absolutePath = path.join(config.sourceRoot, relativePath);
+      if (!(await pathExists(absolutePath))) {
+        availablePool.delete(relativePath);
+        continue;
+      }
+      availablePool.delete(relativePath);
       const stat = await fs.stat(absolutePath);
       const plannedFile: PlannedSourceFile = {
         relativePath,
