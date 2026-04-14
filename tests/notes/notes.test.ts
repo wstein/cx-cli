@@ -6,7 +6,9 @@ import path from "node:path";
 import {
   createNewNote,
   listNotes,
+  readNote,
   runNotesCommand,
+  searchNotes,
   updateNote,
 } from "../../src/cli/commands/notes.js";
 import {
@@ -284,6 +286,63 @@ describe("Notes Commands", () => {
       expect(content).toContain("Revised body.");
       expect(content).toContain("new");
       expect(content).not.toContain("Original body.");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("reads an existing note with parsed metadata", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("Read Note", {
+        body: "A note body for direct read access.",
+        tags: ["read", "mcp"],
+      });
+
+      const note = await readNote(created.id, {
+        notesDir: "notes",
+      });
+
+      expect(note.id).toBe(created.id);
+      expect(note.title).toBe("Read Note");
+      expect(note.body).toContain("A note body for direct read access.");
+      expect(note.tags).toEqual(["read", "mcp"]);
+      expect(note.content).toContain("## Links");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("searches notes by body, tags, and summary", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      await createNewNote("Search One", {
+        body: "This note mentions MCP integration in the body.",
+        tags: ["agent"],
+      });
+      await createNewNote("Search Two", {
+        body: "Another body with a different idea.",
+        tags: ["workflow", "agent"],
+      });
+
+      const results = await searchNotes("MCP", {
+        notesDir: "notes",
+      });
+      expect(results.count).toBe(1);
+      expect(results.notes[0]?.title).toBe("Search One");
+      expect(results.notes[0]?.matchedFields).toContain("body");
+      expect(results.notes[0]?.snippet).toContain("MCP integration");
+
+      const taggedResults = await searchNotes("workflow", {
+        notesDir: "notes",
+        tags: ["workflow"],
+      });
+      expect(taggedResults.count).toBe(1);
+      expect(taggedResults.notes[0]?.title).toBe("Search Two");
     } finally {
       process.chdir(origCwd);
     }

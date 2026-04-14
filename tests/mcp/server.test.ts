@@ -118,6 +118,8 @@ describe("cx MCP server", () => {
       "notes_list",
       "notes_new",
       "notes_orphans",
+      "notes_read",
+      "notes_search",
       "notes_update",
       "read",
     ]);
@@ -259,6 +261,83 @@ describe("cx MCP server", () => {
         note.summary.includes("important observation"),
       ),
     ).toBe(true);
+  });
+
+  test("notes_read returns the parsed note body and metadata", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Readable Note",
+        body: "A note body for direct MCP reads.",
+        tags: ["read"],
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+    };
+
+    const result = await tools.notes_read.handler(
+      { id: createPayload.id },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      id: string;
+      title: string;
+      body: string;
+      tags: string[];
+      filePath: string;
+    };
+
+    expect(payload.id).toBe(createPayload.id);
+    expect(payload.title).toBe("Readable Note");
+    expect(payload.body).toContain("A note body for direct MCP reads.");
+    expect(payload.tags).toEqual(["read"]);
+    expect(payload.filePath).toBe(createPayload.filePath);
+  });
+
+  test("notes_search finds notes by body text and tags", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    await tools.notes_new.handler(
+      {
+        title: "Search Candidate",
+        body: "This note mentions the MCP workflow in its body.",
+        tags: ["search", "agent"],
+      },
+      {} as never,
+    );
+
+    const result = await tools.notes_search.handler(
+      {
+        query: "workflow",
+        tags: ["search"],
+      },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      count: number;
+      notes: Array<{ title: string; matchedFields: string[]; snippet: string }>;
+    };
+
+    expect(payload.count).toBe(1);
+    expect(payload.notes[0]?.title).toBe("Search Candidate");
+    expect(payload.notes[0]?.matchedFields).toContain("body");
+    expect(payload.notes[0]?.snippet).toContain("workflow");
   });
 
   test("notes_update revises an existing note in place", async () => {

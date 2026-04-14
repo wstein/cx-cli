@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { parseMarkdownFrontmatter } from "../../../notes/parser.js";
 import { validateNotes } from "../../../notes/validate.js";
+import { CxError } from "../../../shared/errors.js";
 import { ensureDir, pathExists } from "../../../shared/fs.js";
 
 /**
@@ -72,6 +73,85 @@ tags: [${tagsList}]
 ---
 
 ${bodySection}${renderedLinks}`;
+}
+
+function createTextMatcher(params: {
+  query: string;
+  regex?: boolean | undefined;
+  caseSensitive?: boolean | undefined;
+}): (value: string) => boolean {
+  if (params.regex === true) {
+    let matcher: RegExp;
+    try {
+      matcher = new RegExp(params.query, params.caseSensitive === true ? "" : "i");
+    } catch (error) {
+      throw new CxError(
+        `Invalid regular expression for note search: ${error instanceof Error ? error.message : String(error)}`,
+        2,
+      );
+    }
+
+    return (value: string) => matcher.test(value);
+  }
+
+  if (params.caseSensitive === true) {
+    return (value: string) => value.includes(params.query);
+  }
+
+  const needle = params.query.toLowerCase();
+  return (value: string) => value.toLowerCase().includes(needle);
+}
+
+function buildBodySnippet(
+  body: string,
+  matcher: (value: string) => boolean,
+): string {
+  const lines = body.split(/\r?\n/);
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (line.length === 0) {
+      continue;
+    }
+    if (matcher(line)) {
+      return line.length > 160 ? `${line.slice(0, 157)}...` : line;
+    }
+  }
+
+  return body.trim().slice(0, 160);
+}
+
+function matchesTags(noteTags: string[], queryTags: string[] | undefined): boolean {
+  if (!queryTags || queryTags.length === 0) {
+    return true;
+  }
+
+  const normalized = new Set(noteTags.map((tag) => tag.toLowerCase()));
+  return queryTags.every((tag) => normalized.has(tag.toLowerCase()));
+}
+
+export interface ReadNoteResult {
+  id: string;
+  title: string;
+  filePath: string;
+  fileName: string;
+  aliases: string[];
+  tags: string[];
+  summary: string;
+  frontmatter: Record<string, unknown>;
+  body: string;
+  content: string;
+}
+
+export interface SearchNoteResult {
+  id: string;
+  title: string;
+  filePath: string;
+  fileName: string;
+  aliases: string[];
+  tags: string[];
+  summary: string;
+  matchedFields: string[];
+  snippet: string;
 }
 
 function fileNameFromTitle(title: string): string {
@@ -171,6 +251,133 @@ export async function updateNote(
     filePath,
     title: options?.title ?? note.title,
     tags: options?.tags ?? existingTags,
+  };
+}
+
+export async function readNote(
+  noteId: string,
+  options?: {
+    notesDir?: string | undefined;
+  },
+): Promise<ReadNoteResult> {
+  const notesDir = options?.notesDir ?? "notes";
+  const result = await validateNotes(notesDir, process.cwd());
+  const note = result.notes.find((entry) => entry.id === noteId);
+
+  if (!note) {
+    throw new CxError(`Note not found: ${noteId}`, 2);
+  }
+
+  const content = await fs.readFile(note.filePath, "utf8");
+  const parsed = parseMarkdownFrontmatter(content);
+
+  return {
+    id: note.id,
+    title: note.title,
+    filePath: note.filePath,
+    fileName: note.fileName,
+    aliases: note.aliases ?? [],
+    tags: note.tags ?? [],
+    summary: note.summary,
+    frontmatter: parsed.frontmatter,
+    body: parsed.body,
+    content,
+  };
+}
+
+export async function searchNotes(
+  query: string,
+  options?: {
+    caseSensitive?: boolean | undefined;
+    limit?: number | undefined;
+    notesDir?: string | undefined;
+    regex?: boolean | undefined;
+    tags?: string[] | undefined;
+  },
+): Promise<{
+  query: string;
+  count: number;
+  notes: SearchNoteResult[];
+}> {
+  const notesDir = options?.notesDir ?? "notes";
+  const result = await validateNotes(notesDir, process.cwd());
+  const matcher = createTextMatcher({
+    query,
+    regex: options?.regex,
+    caseSensitive: options?.caseSensitive,
+  });
+  const limit =
+    options?.limit !== undefined ? Math.max(1, Math.min(options.limit, 100)) : 20;
+  const results: SearchNoteResult[] = [];
+
+  const sortedNotes = [...result.notes].sort((left, right) =>
+    left.title.localeCompare(right.title, "en"),
+  );
+
+  for (const note of sortedNotes) {
+    if (!matchesTags(note.tags ?? [], options?.tags)) {
+      continue;
+    }
+
+    const parsed = parseMarkdownFrontmatter(
+      await fs.readFile(note.filePath, "utf8"),
+    );
+    const aliasMatches = (note.aliases ?? []).filter((alias) => matcher(alias));
+    const tagMatches = (note.tags ?? []).filter((tag) => matcher(tag));
+    const matchedFields = new Set<string>();
+
+    if (matcher(note.title)) {
+      matchedFields.add("title");
+    }
+    if (matcher(note.summary)) {
+      matchedFields.add("summary");
+    }
+    if (aliasMatches.length > 0) {
+      matchedFields.add("aliases");
+    }
+    if (tagMatches.length > 0) {
+      matchedFields.add("tags");
+    }
+    if (matcher(parsed.body)) {
+      matchedFields.add("body");
+    }
+
+    if (matchedFields.size === 0) {
+      continue;
+    }
+
+    let snippet = buildBodySnippet(parsed.body, matcher);
+    if (aliasMatches[0] !== undefined) {
+      snippet = aliasMatches[0];
+    } else if (tagMatches[0] !== undefined) {
+      snippet = tagMatches[0];
+    } else if (matchedFields.has("title")) {
+      snippet = note.title;
+    } else if (matchedFields.has("summary")) {
+      snippet = note.summary;
+    }
+
+    results.push({
+      id: note.id,
+      title: note.title,
+      filePath: note.filePath,
+      fileName: note.fileName,
+      aliases: note.aliases ?? [],
+      tags: note.tags ?? [],
+      summary: note.summary,
+      matchedFields: [...matchedFields],
+      snippet,
+    });
+
+    if (results.length >= limit) {
+      break;
+    }
+  }
+
+  return {
+    query,
+    count: results.length,
+    notes: results,
   };
 }
 

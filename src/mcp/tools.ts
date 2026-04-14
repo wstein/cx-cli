@@ -2,7 +2,12 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import path from "node:path";
 import { z } from "zod";
 
-import { createNewNote, updateNote } from "../cli/commands/notes/common.js";
+import {
+  createNewNote,
+  readNote,
+  searchNotes,
+  updateNote,
+} from "../cli/commands/notes/common.js";
 import {
   buildNoteGraph,
   getBacklinks,
@@ -143,6 +148,29 @@ export function registerCxMcpTools(
   );
 
   server.registerTool(
+    "notes_read",
+    {
+      title: "Read note",
+      description:
+        "Read a note from the workspace notes directory with parsed metadata and body content.",
+      inputSchema: z.object({
+        id: z.string().min(1),
+      }),
+    },
+    async (args) => {
+      const note = await readNote(args.id, {
+        notesDir,
+      });
+
+      return jsonToolResult({
+        command: "notes read",
+        ...note,
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+      });
+    },
+  );
+
+  server.registerTool(
     "notes_update",
     {
       title: "Update note",
@@ -169,6 +197,41 @@ export function registerCxMcpTools(
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
+      });
+    },
+  );
+
+  server.registerTool(
+    "notes_search",
+    {
+      title: "Search notes",
+      description:
+        "Search the workspace notes directory by title, aliases, tags, summary, or body text.",
+      inputSchema: z.object({
+        query: z.string().min(1),
+        regex: z.boolean().optional(),
+        caseSensitive: z.boolean().optional(),
+        limit: z.number().int().positive().max(100).optional(),
+        tags: z.array(z.string().min(1)).optional(),
+      }),
+    },
+    async (args) => {
+      const result = await searchNotes(args.query, {
+        notesDir,
+        regex: args.regex,
+        caseSensitive: args.caseSensitive,
+        limit: args.limit,
+        tags: args.tags,
+      });
+
+      return jsonToolResult({
+        command: "notes search",
+        query: result.query,
+        count: result.count,
+        notes: result.notes.map((note) => ({
+          ...note,
+          filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        })),
       });
     },
   );
