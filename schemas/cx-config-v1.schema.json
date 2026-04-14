@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cx-cli.dev/schemas/cx-config-v1.schema.json",
   "title": "CX Configuration Schema (v1)",
   "description": "JSON Schema for cx.toml configuration files. This schema validates the structural shape and enum constraints. Runtime validation in src/config/load.ts enforces relational invariants (e.g., catch_all restrictions) and semantic rules.",
   "type": "object",

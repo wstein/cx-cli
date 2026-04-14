@@ -4,7 +4,7 @@ This document describes the knobs. For the operator workflow, read [Operator Man
 
 ## JSON Schema for Editor Tooling
 
-A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-overlay-v1.schema.json](../schemas/cx-config-overlay-v1.schema.json). These schemas validate structural shape and enforce enum constraints.
+A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-overlay-v1.schema.json](../schemas/cx-config-overlay-v1.schema.json). These files are the source of truth for the public Pages endpoints at `https://cx-cli.dev/schemas/cx-config-v1.schema.json` and `https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json`, and the published npm package also ships `schemas/` for offline use. These schemas validate structural shape and enforce enum constraints.
 
 ### Using the schema in VS Code with Taplo
 
@@ -17,6 +17,8 @@ project_name = "myproject"
 ```
 
 The schema directive comment is automatically included in generated `cx.toml` files by `cx init`, and the MCP overlay template points at the overlay schema. The TOML parser safely ignores these comments; they do not affect `cx`'s deterministic loading pipeline.
+
+When you reference the schema from outside the repository, prefer the published Pages URLs above. Keep the local relative `#:schema ./schemas/...` directives in checked-in repo files so contributors and offline installs continue to work without network access.
 
 ### Schema validation vs. runtime validation
 

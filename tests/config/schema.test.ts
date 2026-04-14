@@ -11,6 +11,7 @@ import type {
 
 interface JsonSchema {
   $schema?: string;
+  $id?: string;
   title?: string;
   type?: string;
   required?: string[];
@@ -43,6 +44,7 @@ describe("cx-config-v1.schema.json", async () => {
 
   test("schema has required metadata", () => {
     expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#");
+    expect(schema.$id).toBe("https://cx-cli.dev/schemas/cx-config-v1.schema.json");
     expect(schema.title).toContain("CX Configuration Schema");
     expect(schema.type).toBe("object");
   });
@@ -226,6 +228,12 @@ describe("cx-config-overlay-v1.schema.json", async () => {
   test("overlay schema is valid JSON", () => {
     expect(schema).toBeDefined();
     expect(typeof schema).toBe("object");
+  });
+
+  test("overlay schema has a public id", () => {
+    expect(schema.$id).toBe(
+      "https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json",
+    );
   });
 
   test("overlay schema requires extends and stays strict", () => {

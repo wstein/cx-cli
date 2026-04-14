@@ -152,6 +152,13 @@ project_name = "myproject"
 
 The schema validates structural shape and enum constraints. Runtime validation in `cx load` enforces relational invariants (e.g., catch-all restrictions). See [docs/config-reference.md](docs/config-reference.md#json-schema-for-editor-tooling) for details.
 
+For external tooling, use the published Pages endpoints:
+
+- `https://cx-cli.dev/schemas/cx-config-v1.schema.json`
+- `https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json`
+
+The npm package also ships `schemas/` so offline consumers can keep using the local files without depending on the public site.
+
 Preview the deterministic plan before writing anything:
 
 ```bash
