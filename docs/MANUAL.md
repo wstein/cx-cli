@@ -40,17 +40,31 @@ cx init --template-list
 
 When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
-`cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes note reading, search, creation, update, and note-graph inspection tools in addition to workspace file browsing.
+`cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code, Cursor, Claude Desktop), see the [Agent Integration Guide](AGENT_INTEGRATION.md).
 
 The native MCP server exposes file-based `list`, `grep`, and `read` tools over
-the workspace scope. It also exposes note-native `notes_read`, `notes_search`,
-`notes_new`, `notes_update`, `notes_list`, `notes_backlinks`, `notes_orphans`,
-`notes_code_links`, and `notes_links` tools over the notes corpus. Use `list`
-to enumerate visible files, `grep` to search their contents, and `read` to
-inspect a specific file with optional line anchors without switching back to
-the packaging workflow.
+the workspace scope. It also exposes `inspect`, `bundle`, `doctor_mcp`, and
+`doctor_workflow` tools for live planning, plus note-native `notes_read`,
+`notes_search`, `notes_new`, `notes_update`, `notes_rename`, `notes_delete`,
+`notes_list`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, and
+`notes_links` tools over the notes corpus. Use `list` to enumerate visible
+files, `grep` to search their contents, and `read` to inspect a specific file
+with optional line anchors without switching back to the packaging workflow.
+
+Example note search:
+
+```json
+{
+  "tool": "notes_search",
+  "arguments": {
+    "query": "workflow",
+    "tags": ["agent"],
+    "limit": 5
+  }
+}
+```
 
 ## Who This Manual Is For
 
@@ -108,7 +122,7 @@ They share the same repository boundary rules, but they answer different questio
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
 | `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
-| `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP |
+| `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP, including mixed-task paths |
 | `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
@@ -127,6 +141,8 @@ For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx 
 Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the repository contract.
 
 Example workflow: start with `cx inspect` to confirm the planned bundle, run `cx bundle` to produce the immutable artifact, then switch to `cx mcp` when the task becomes exploratory or when the agent needs to update notes in place.
+
+For mixed tasks that need a planning pass and live note updates, `cx doctor workflow --task '...'` can recommend an ordered path such as `inspect -> bundle -> mcp`.
 
 ```bash
 cx inspect --config cx.toml --token-breakdown

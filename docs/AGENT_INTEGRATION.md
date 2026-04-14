@@ -5,17 +5,25 @@ This document explains how to integrate the `cx mcp` server with common AI agent
 Overview
 --------
 
-`cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent. In addition to file browsing, the native server also exposes note reading, search, authoring, and note-graph inspection tools so agents can create, inspect, and audit durable repository knowledge without leaving MCP.
+`cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent. In addition to file browsing, the native server also exposes live bundle planning tools plus note reading, search, authoring, renaming, deletion, and note-graph inspection tools so agents can create, inspect, and maintain durable repository knowledge without leaving MCP.
 
-Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
+Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
 
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
 - Transport: stdio (stdin/stdout)
-- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `notes_new` (create a note), `notes_read` (read a note with parsed metadata), `notes_update` (revise a note in place), `notes_search` (search the note corpus), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
+- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `inspect` (preview the live bundle plan), `bundle` (preview the live bundle snapshot without reading bundle artifacts), `doctor_mcp` (inspect the resolved MCP profile), `doctor_workflow` (recommend an ordered task path), `notes_new` (create a note), `notes_read` (read a note with parsed metadata), `notes_update` (revise a note in place), `notes_rename` (rename a note and its file), `notes_delete` (delete a note), `notes_search` (search the note corpus), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
 - Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
 
 Because the server communicates over stdio, clients simply need to launch `cx mcp` as a subprocess and bind to its stdin/stdout. The examples below follow that pattern.
+
+Example note lifecycle with MCP tools:
+
+```text
+notes_new(title="Research Note", body="Initial observation.", tags=["research"])
+notes_read(id="20260414120000")
+notes_update(id="20260414120000", body="Refined observation after review.", tags=["research", "updated"])
+```
 
 Supported integration patterns
 ------------------------------
@@ -98,7 +106,7 @@ Example (pseudocode, conceptual):
 ```text
 spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
 bindStdioToMcpClient(process.stdin, process.stdout)
-discoverTools() -> [list, grep, read, notes_new, notes_read, notes_update, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
+discoverTools() -> [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
 ```
 
 6) Neovim / Emacs / Terminal-based workflows
