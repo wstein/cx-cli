@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 
 import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
 import { assertSafeProjectName } from "../../config/projectName.js";
@@ -73,6 +74,59 @@ async function resolveInteractiveValues(
   return { name, style };
 }
 
+function renderMakefile(): string {
+  return `# Generic Makefile for cx projects.
+#
+# This Makefile is intentionally minimal and AI-friendly.
+# It defines common sandboxed tasks for building, inspecting,
+# validating, and cleaning cx-generated output.
+#
+# Usage:
+#   make          # build the default bundle
+#   make bundle   # run cx bundle
+#   make validate # validate project configuration
+#   make inspect  # inspect the bundle plan
+#   make clean    # remove generated artifacts
+#
+CX_CONFIG ?= cx.toml
+CLEAN_DIR ?= dist
+
+.PHONY: all bundle validate inspect clean notes help
+all: bundle
+
+bundle: ## Build a bundle from the cx configuration.
+	cx bundle --config "$(CX_CONFIG)"
+
+inspect: ## Show the computed bundle plan.
+	cx inspect --config "$(CX_CONFIG)"
+
+validate: ## Validate the current project configuration.
+	cx validate --config "$(CX_CONFIG)"
+
+clean: ## Remove generated output files.
+	rm -rf "$(CLEAN_DIR)"
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Describe available targets.
+	@printf "Available targets:\n  bundle validate inspect clean notes\n"
+`;
+}
+
+async function writeProjectMakefile(
+  force: boolean,
+): Promise<{ created: boolean; updated: boolean }> {
+  const makefilePath = path.join(process.cwd(), "Makefile");
+  const exists = await pathExists(makefilePath);
+  if (exists && !force) {
+    return { created: false, updated: false };
+  }
+
+  await fs.writeFile(makefilePath, renderMakefile(), "utf8");
+  return { created: !exists, updated: exists };
+}
+
 export async function runInitCommand(args: InitArgs): Promise<number> {
   const resolved = await resolveInteractiveValues(args);
   let output = DEFAULT_CONFIG_TEMPLATE;
@@ -115,6 +169,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   await fs.writeFile("cx.toml", output, "utf8");
+  const makefileResult = await writeProjectMakefile(args.force);
   const notesScaffold = await scaffoldNotesModule(process.cwd(), {
     force: args.force,
   });
@@ -122,6 +177,11 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   if (!(args.json ?? false)) {
     const { printSuccess, printInfo } = await import("../../shared/format.js");
     printSuccess("Created cx.toml");
+    if (makefileResult.created) {
+      printInfo("Created Makefile");
+    } else if (makefileResult.updated) {
+      printInfo("Updated Makefile");
+    }
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);
     printInfo(`Notes directory: ${notesScaffold.notesDir}`);
@@ -141,6 +201,8 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       notesDir: notesScaffold.notesDir,
       notesCreated: notesScaffold.createdPaths,
       notesUpdated: notesScaffold.updatedPaths,
+      makefileCreated: makefileResult.created,
+      makefileUpdated: makefileResult.updated,
     });
   }
   return 0;

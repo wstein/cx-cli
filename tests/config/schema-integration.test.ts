@@ -150,6 +150,28 @@ exclude = []
     }
   });
 
+  test("cx init creates a generic Makefile for project automation", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-makefile-"));
+    const cwd = process.cwd();
+
+    try {
+      process.chdir(tempDir);
+      await main(["init", "--name", "makefile-test", "--force"]);
+
+      const makefilePath = path.join(tempDir, "Makefile");
+      const makefileContent = await fs.readFile(makefilePath, "utf8");
+
+      expect(makefileContent).toContain("CX_CONFIG ?= cx.toml");
+      expect(makefileContent).toContain("bundle:");
+      expect(makefileContent).toContain("cx bundle --config \"$(CX_CONFIG)\"");
+      expect(makefileContent).toContain("validate:");
+      expect(makefileContent).toContain("inspect:");
+      expect(makefileContent).toContain("clean:");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   test("generated cx.toml is accepted by load.ts", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-full-flow-"));
     const cwd = process.cwd();
