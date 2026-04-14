@@ -12,8 +12,9 @@ Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live 
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
 - Transport: stdio (stdin/stdout)
-- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `inspect` (preview the live bundle plan), `bundle` (preview the live bundle snapshot without reading bundle artifacts), `doctor_mcp` (inspect the resolved MCP profile), `doctor_workflow` (recommend an ordered task path), `notes_new` (create a note), `notes_read` (read a note with parsed metadata), `notes_update` (revise a note in place), `notes_rename` (rename a note and its file), `notes_delete` (delete a note), `notes_search` (search the note corpus), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
+- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `inspect` (preview the live bundle plan), `bundle` (preview the live bundle snapshot without reading bundle artifacts), `doctor_mcp` (inspect the resolved MCP profile), `doctor_workflow` (recommend an ordered task path), `doctor_overlaps` (diagnose duplicate section ownership in the live workspace), `doctor_secrets` (pre-flight the workspace against the secret scanner), `replace_repomix_span` (replace an exact live file span), `notes_new` (create a note), `notes_read` (read a note with parsed metadata), `notes_update` (revise a note in place), `notes_rename` (rename a note and its file), `notes_delete` (delete a note), `notes_search` (search the note corpus), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
 - Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
+- Intentional boundary: MCP is for live workspace inspection and editing only. Artifact generation, verification, and extraction stay with the CLI and CI handoff path.
 
 Because the server communicates over stdio, clients simply need to launch `cx mcp` as a subprocess and bind to its stdin/stdout. The examples below follow that pattern.
 
@@ -108,7 +109,7 @@ Example (pseudocode, conceptual):
 ```text
 spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
 bindStdioToMcpClient(process.stdin, process.stdout)
-discoverTools() -> [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
+discoverTools() -> [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
 ```
 
 6) Neovim / Emacs / Terminal-based workflows

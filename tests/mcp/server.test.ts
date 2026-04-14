@@ -33,7 +33,10 @@ async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["commit", "-q", "-m", "init"], { cwd: root });
 }
 
-async function createWorkspace(): Promise<{
+async function createWorkspace(options: {
+  overlap?: boolean;
+  includeSecret?: boolean;
+} = {}): Promise<{
   root: string;
   configPath: string;
   mcpPath: string;
@@ -52,6 +55,13 @@ async function createWorkspace(): Promise<{
     "# Workspace\n\nhello from cx\n",
     "utf8",
   );
+  if (options.includeSecret === true) {
+    await fs.writeFile(
+      path.join(root, "secrets.txt"),
+      "ghp_123456789012345678901234567890123456\n",
+      "utf8",
+    );
+  }
 
   const configPath = path.join(root, "cx.toml");
   const mcpPath = path.join(root, "cx-mcp.toml");
@@ -77,6 +87,7 @@ unmatched = "ignore"
 [sections.src]
 include = ["src/**"]
 exclude = []
+${options.overlap === true ? "\n[sections.mixed]\ninclude = [\"src/**\"]\n" : ""}
 `,
     "utf8",
   );
@@ -112,6 +123,8 @@ describe("cx MCP server", () => {
     expect(toolNames).toEqual([
       "bundle",
       "doctor_mcp",
+      "doctor_overlaps",
+      "doctor_secrets",
       "doctor_workflow",
       "grep",
       "inspect",
@@ -128,6 +141,7 @@ describe("cx MCP server", () => {
       "notes_search",
       "notes_update",
       "read",
+      "replace_repomix_span",
     ]);
     expect(instructions).toContain("immutable snapshots");
     expect(instructions).toContain("interactive exploration");
@@ -156,6 +170,52 @@ describe("cx MCP server", () => {
     expect(payload.resolvedConfigPath).toBe(project.mcpPath);
     expect(payload.filesInclude).toContain("README.md");
     expect(payload.filesExclude.length).toBeGreaterThanOrEqual(0);
+  });
+
+  test("doctor_overlaps diagnoses live workspace section overlaps", async () => {
+    const project = await createWorkspace({ overlap: true });
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const result = await getRegisteredTools(server).doctor_overlaps.handler(
+      {},
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      command: string;
+      conflictCount: number;
+      conflicts: Array<{ path: string; sections: string[] }>;
+    };
+
+    expect(payload.command).toBe("doctor overlaps");
+    expect(payload.conflictCount).toBe(1);
+    expect(payload.conflicts[0]?.path).toBe("src/index.ts");
+    expect(payload.conflicts[0]?.sections).toContain("mixed");
+  });
+
+  test("doctor_secrets scans the live workspace file scope", async () => {
+    const project = await createWorkspace({ includeSecret: true });
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const result = await getRegisteredTools(server).doctor_secrets.handler(
+      {},
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      command: string;
+      securityCheckEnabled: boolean;
+      scannedFileCount: number;
+      suspiciousCount: number;
+    };
+
+    expect(payload.command).toBe("doctor secrets");
+    expect(payload.scannedFileCount).toBeGreaterThan(0);
+    expect(payload.suspiciousCount).toBeGreaterThan(0);
   });
 
   test("list returns workspace files from the active cx scope", async () => {
@@ -214,6 +274,46 @@ describe("cx MCP server", () => {
           match.path === "src/index.ts" && match.line.includes("hello"),
       ),
     ).toBe(true);
+  });
+
+  test("replace_repomix_span replaces an exact live workspace span", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tool = getRegisteredTools(server).replace_repomix_span;
+
+    const result = await tool.handler(
+      {
+        path: "src/index.ts",
+        startLine: 2,
+        endLine: 2,
+        replacement: "export const target = 'universe';",
+      },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      command: string;
+      path: string;
+      lineStart: number;
+      lineEnd: number;
+      replacementLineCount: number;
+    };
+
+    expect(payload.command).toBe("replace repomix span");
+    expect(payload.path).toBe("src/index.ts");
+    expect(payload.lineStart).toBe(2);
+    expect(payload.lineEnd).toBe(2);
+    expect(payload.replacementLineCount).toBe(1);
+
+    const updated = await fs.readFile(
+      path.join(project.root, "src", "index.ts"),
+      "utf8",
+    );
+    expect(updated).toContain("universe");
+    expect(updated).not.toContain("world");
   });
 
   test("read returns anchored workspace content", async () => {
