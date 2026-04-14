@@ -283,7 +283,7 @@ Open a new shell session after installation. Completions include:
 
 - The manifest records enough metadata for downstream tooling to route by note ID and section without reparsing Markdown.
 - The notes graph commands (`cx notes backlinks`, `cx notes orphans`, `cx notes code-links`) make the repository's knowledge layer queryable from the CLI.
-- `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile. The server exposes native file-based `list`, `grep`, and `read` tools plus note operations for creating and inspecting repository notes over the active workspace scope.
+- `cx mcp` starts the CX MCP server using `cx-mcp.toml` when available and falls back to `cx.toml` for the baseline agent profile. The server exposes native file-based `list`, `grep`, and `read` tools plus note-native tools for reading, searching, creating, updating, and graph-inspecting repository notes over the active workspace scope.
 - `cx doctor mcp` and `cx doctor secrets` provide deterministic diagnostics for the MCP inheritance boundary and the master-list secret scan.
 
 That means an LLM agent can ask for more context, retrieve just the relevant context surface, and reason about the repo as a live system rather than a static artifact.
