@@ -10,3 +10,4 @@ Use this directory as the map for the documentation set.
 - [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
 - [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules
 - [config-reference.md](./config-reference.md) - configuration knobs and precedence
+ - [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) - instructions and examples for integrating `cx mcp` with IDEs and AI agents

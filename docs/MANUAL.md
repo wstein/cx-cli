@@ -22,6 +22,8 @@ cx doctor secrets --config cx.toml
 
 `cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration.
 
+For step-by-step integration examples for VS Code, Claude Desktop, Cursor, and other agent/IDE clients, see the [Agent Integration Guide](AGENT_INTEGRATION.md).
+
 The native MCP server exposes file-based `list`, `grep`, and `read` tools over
 the workspace scope. Use `list` to enumerate visible files, `grep` to search
 their contents, and `read` to inspect a specific file with optional line
