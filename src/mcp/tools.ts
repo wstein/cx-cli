@@ -10,11 +10,11 @@ import {
   searchNotes,
   updateNote,
 } from "../notes/crud.js";
-import { collectDoctorMcpReport } from "../cli/commands/doctor-mcp.js";
-import { collectDoctorOverlapsReport } from "../cli/commands/doctor-overlaps.js";
-import { collectDoctorSecretsReport } from "../cli/commands/doctor-secrets.js";
-import { recommendWorkflow } from "../cli/commands/doctor.js";
-import { collectInspectReport } from "../cli/commands/inspect.js";
+import { collectDoctorMcpReport } from "../doctor/mcp.js";
+import { collectDoctorOverlapsReport } from "../doctor/overlaps.js";
+import { collectDoctorSecretsReport } from "../doctor/secrets.js";
+import { recommendWorkflow } from "../doctor/workflow.js";
+import { collectInspectReport } from "../inspect/report.js";
 import {
   buildNoteGraph,
   getBacklinks,
