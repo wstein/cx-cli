@@ -59,7 +59,7 @@ encoding = "o200k_base"
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = []
 mode = "copy"
-target_dir = "{project}-assets"
+target_dir = "assets"
 layout = "flat"
 
 [sections.docs]
@@ -142,7 +142,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     include: ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"],
     exclude: [],
     mode: "copy",
-    targetDir: "{project}-assets",
+    targetDir: "assets",
     layout: "flat",
   },
   behavior: {

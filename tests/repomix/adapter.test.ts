@@ -129,7 +129,7 @@ encoding = "o200k_base"
 include = []
 exclude = []
 mode = "ignore"
-target_dir = "{project}-assets"
+target_dir = "assets"
 
 [sections.src]
 include = ["src/**"]

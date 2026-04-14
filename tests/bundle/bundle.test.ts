@@ -158,7 +158,7 @@ unmatched = "ignore"
 include = ["**/*.png"]
 exclude = []
 mode = "copy"
-target_dir = "{project}-assets"
+target_dir = "assets"
 
 [sections.docs]
 include = ["README.md", "docs/**"]

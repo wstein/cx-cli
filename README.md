@@ -323,7 +323,7 @@ file_name = "{project}.sha256"
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = []
 mode = "copy"
-target_dir = "{project}-assets"
+target_dir = "assets"
 layout = "flat"
 
 [sections.docs]

@@ -485,7 +485,7 @@ The `[assets]` table controls how binary files are discovered, stored, and place
 | Discovery patterns   | `include`      | `["**/*.{png,jpg,…,pdf}"]`    | glob patterns               |
 | Exclusion patterns   | `exclude`      | `[]`                          | glob patterns               |
 | Copy mode            | `mode`         | `"copy"`                      | `copy`, `ignore`, `fail`    |
-| Output directory     | `target_dir`   | `"{project}-assets"`          | path (supports `{project}`) |
+| Output directory     | `target_dir`   | `"assets"`          | path (supports `{project}`) |
 | Directory layout     | `layout`       | `"flat"`                      | `flat`, `deep`              |
 
 **`assets.include`** and **`assets.exclude`** work the same way as section glob arrays. Duplicate patterns are governed by `config.duplicate_entry`.
@@ -530,7 +530,7 @@ flat or deep, so downstream tooling never needs to reconstruct the path.
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
 exclude = ["test/fixtures/**"]
 mode = "copy"
-target_dir = "{project}-assets"
+target_dir = "assets"
 layout = "flat"
 ```
 
