@@ -1,6 +1,3 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import {
@@ -10,7 +7,6 @@ import {
   type TemplateVariables,
 } from "../../templates/index.js";
 import { CxError } from "../../shared/errors.js";
-import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
 import {
   printWizardComplete,
@@ -97,16 +93,6 @@ async function renderProjectTemplate(
     force,
     requestedEnvironment,
   );
-}
-
-async function ensureInitTargetsAreSafe(
-  projectRoot: string,
-  force: boolean,
-): Promise<void> {
-  if (force) {
-    return;
-  }
-
 }
 
 export async function runInitCommand(args: InitArgs): Promise<number> {

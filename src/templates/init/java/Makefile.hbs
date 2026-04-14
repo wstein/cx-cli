@@ -1,13 +1,14 @@
 # Makefile for Java workspaces.
 #
-# Provides a normalized interface for Maven/Gradle builds and native workspace tasks.
+# Provides a normalized interface for Maven/Gradle builds and native
+# workspace tasks.
 #
 # Usage:
 #   make          # build the Java project
 #   make build    # run Maven or Gradle build
-# make test # run Maven or Gradle tests
+#   make test     # run Maven or Gradle tests
 #   make clean    # remove generated output
-# make notes # show the notes directory path
+#   make notes    # show the notes directory path
 #
 MAVEN ?= mvn
 GRADLE ?= gradle
@@ -17,20 +18,36 @@ CLEAN_DIR ?= dist
 all: build
 
 build: ## Build the Java project using Maven or Gradle.
-    @if [ -f pom.xml ]; then $(MAVEN) package; elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then $(GRADLE) build;
-    else echo "No Maven or Gradle build file found."; exit 1; fi
+	@if [ -f pom.xml ]; then \
+		$(MAVEN) package; \
+	elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \
+		$(GRADLE) build; \
+	else \
+		echo "No Maven or Gradle build file found."; \
+		exit 1; \
+	fi
 
 test: ## Run Java tests using Maven or Gradle.
-    @if [ -f pom.xml ]; then $(MAVEN) test; elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then $(GRADLE) test; else
-    echo "No Maven or Gradle build file found."; exit 1; fi
+	@if [ -f pom.xml ]; then \
+		$(MAVEN) test; \
+	elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \
+		$(GRADLE) test; \
+	else \
+		echo "No Maven or Gradle build file found."; \
+		exit 1; \
+	fi
 
 clean: ## Remove generated output files.
-	$(MAVEN) clean || true
-	$(GRADLE) clean || true
+	@if [ -f pom.xml ]; then \
+		$(MAVEN) clean; \
+	fi
+	@if [ -f build.gradle ] || [ -f build.gradle.kts ]; then \
+		$(GRADLE) clean; \
+	fi
 	rm -rf "$(CLEAN_DIR)"
 
 notes: ## Print the notes directory path.
 	@printf "Notes directory: notes\n"
 
 help: ## Show available targets.
-    @printf "Available targets:\n build test clean notes\n"
+	@printf "Available targets:\n  build test clean notes\n"
