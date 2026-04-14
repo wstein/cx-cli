@@ -23,6 +23,8 @@ Example note lifecycle with MCP tools:
 notes_new(title="Research Note", body="Initial observation.", tags=["research"])
 notes_read(id="20260414120000")
 notes_update(id="20260414120000", body="Refined observation after review.", tags=["research", "updated"])
+notes_rename(id="20260414120000", title="Research Note v2")
+notes_delete(id="20260414120000")
 ```
 
 Supported integration patterns

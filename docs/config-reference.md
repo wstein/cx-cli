@@ -4,7 +4,7 @@ This document describes the knobs. For the operator workflow, read [Operator Man
 
 ## JSON Schema for Editor Tooling
 
-A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. This schema validates the structural shape and enforces enum constraints.
+A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-level2.schema.json](../schemas/cx-config-level2.schema.json). These schemas validate structural shape and enforce enum constraints.
 
 ### Using the schema in VS Code with Taplo
 
@@ -16,7 +16,7 @@ schema_version = 1
 project_name = "myproject"
 ```
 
-The schema directive comment is automatically included in generated `cx.toml` files by `cx init`. The TOML parser safely ignores this comment; it does not affect `cx`'s deterministic loading pipeline.
+The schema directive comment is automatically included in generated `cx.toml` files by `cx init`, and the MCP overlay template points at the level-2 schema. The TOML parser safely ignores these comments; they do not affect `cx`'s deterministic loading pipeline.
 
 ### Schema validation vs. runtime validation
 

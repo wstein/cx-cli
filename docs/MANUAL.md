@@ -117,7 +117,7 @@ They share the same repository boundary rules, but they answer different questio
 | `cx list` | You want to browse stored files and statuses |
 | `cx extract` | You want to restore selected files from the bundle |
 | `cx mcp` | You want to start the MCP server with the agent profile |
-| `cx notes links` | You want to audit unresolved note or code references |
+| `cx notes` | You want to manage notes or inspect note graph relationships |
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
 | `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
