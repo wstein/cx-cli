@@ -82,6 +82,12 @@ The two main CX workflows are intentionally different:
 
 They share the same repository boundary rules, but they answer different questions. Use the bundle when you need something you can verify later. Use MCP when you need the model to explore, search, or update the workspace during an ongoing task.
 
+| Command | Best for | Typical output |
+| --- | --- | --- |
+| `cx inspect` | Reviewing the planned bundle before writing files | A deterministic plan, token totals, overlap signals, and extractability hints |
+| `cx bundle` | Producing an immutable artifact for review, CI, or handoff | Bundle files, manifest, lock file, and checksum sidecar |
+| `cx mcp` | Exploring the live workspace and maintaining notes during active work | Scoped file search, reads, and note tools over the current workspace |
+
 ## Core Commands
 
 | Command | Use it when |
@@ -99,6 +105,7 @@ They share the same repository boundary rules, but they answer different questio
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
 | `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
+| `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP |
 | `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
@@ -115,6 +122,14 @@ cx inspect --config cx.toml
 For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
 Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the repository contract.
+
+Example workflow: start with `cx inspect` to confirm the planned bundle, run `cx bundle` to produce the immutable artifact, then switch to `cx mcp` when the task becomes exploratory or when the agent needs to update notes in place.
+
+```bash
+cx inspect --config cx.toml --token-breakdown
+cx bundle --config cx.toml
+cx mcp
+```
 
 ### MCP Diagnostics
 
