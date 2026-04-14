@@ -24,11 +24,12 @@ import {
 
 export interface DoctorArgs {
   config?: string | undefined;
-  subcommand?: "overlaps" | "fix-overlaps" | "mcp" | "secrets";
+  subcommand?: "overlaps" | "fix-overlaps" | "mcp" | "secrets" | "workflow";
   all?: boolean | undefined;
   json?: boolean | undefined;
   dryRun?: boolean | undefined;
   interactive?: boolean | undefined;
+  task?: string | undefined;
 }
 
 interface OverlapOwnership {
@@ -40,6 +41,12 @@ interface OverlapFixPlan {
   conflicts: OverlapConflict[];
   ownership: OverlapOwnership[];
   excludesBySection: Record<string, string[]>;
+}
+
+interface WorkflowRecommendation {
+  mode: "bundle" | "inspect" | "mcp";
+  reason: string;
+  signals: string[];
 }
 
 export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
@@ -70,6 +77,8 @@ export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
       return runDoctorMcp(args);
     case "secrets":
       return runDoctorSecrets(args);
+    case "workflow":
+      return runDoctorWorkflow(args);
     default:
       throw new CxError(`Unknown doctor subcommand: ${args.subcommand}`, 2);
   }
@@ -197,6 +206,87 @@ async function runDoctorSecrets(args: DoctorArgs): Promise<number> {
   });
   printDoctorSecretsReport(report, args.json ?? false);
   return report.suspiciousCount === 0 ? 0 : 4;
+}
+
+async function runDoctorWorkflow(args: DoctorArgs): Promise<number> {
+  const task = args.task?.trim();
+  if (!task) {
+    throw new CxError("doctor workflow requires --task.", 2);
+  }
+
+  const recommendation = recommendWorkflow(task);
+
+  if (args.json ?? false) {
+    writeJson({
+      task,
+      ...recommendation,
+    });
+  } else {
+    process.stdout.write(`Task: ${task}\n`);
+    process.stdout.write(
+      `Recommended mode: cx ${recommendation.mode}\n`,
+    );
+    process.stdout.write(`Reason: ${recommendation.reason}\n`);
+    process.stdout.write(
+      `Signals: ${recommendation.signals.length > 0 ? recommendation.signals.join(", ") : "none"}\n`,
+    );
+  }
+
+  return 0;
+}
+
+function recommendWorkflow(task: string): WorkflowRecommendation {
+  const normalized = task.toLowerCase();
+  const signals: string[] = [];
+
+  const recordSignals = (
+    candidates: Array<[string, boolean]>,
+  ): boolean => {
+    let matched = false;
+    for (const [label, hit] of candidates) {
+      if (hit) {
+        signals.push(label);
+        matched = true;
+      }
+    }
+    return matched;
+  };
+
+  const bundleMatch = recordSignals([
+    ["bundle", /\b(bundle|snapshot|verify|checksum|manifest|handoff|ci)\b/.test(normalized)],
+    ["immutable review", /\b(review|approve|release|audit)\b/.test(normalized)],
+  ]);
+  if (bundleMatch) {
+    return {
+      mode: "bundle",
+      reason:
+        "The task is about a verified snapshot, review, or handoff, so a static bundle is the safest boundary.",
+      signals,
+    };
+  }
+
+  const inspectMatch = recordSignals([
+    ["inspect", /\b(inspect|preview|plan|token budget|token breakdown)\b/.test(normalized)],
+    ["compare", /\b(compare|diff|drift)\b/.test(normalized)],
+  ]);
+  if (inspectMatch) {
+    return {
+      mode: "inspect",
+      reason:
+        "The task needs planning or comparison before writing, so cx inspect is the right middle step.",
+      signals,
+    };
+  }
+
+  recordSignals([
+    ["mcp", /\b(mcp|explore|search|read|update|note|notes|agent|investigate)\b/.test(normalized)],
+  ]);
+  return {
+    mode: "mcp",
+    reason:
+      "The task is interactive or exploratory, so a live MCP workspace is the best fit.",
+    signals,
+  };
 }
 
 async function resolveOwnership(

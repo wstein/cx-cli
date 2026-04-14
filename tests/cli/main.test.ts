@@ -34,7 +34,7 @@ describe("main", () => {
     await expect(main(["-h"])).resolves.toBe(0);
     process.stdout.write = write;
 
-    expect(output).toContain("Create a bundle directory from a project.");
+    expect(output).toContain("Create an immutable bundle snapshot from a project.");
     expect(output).toContain("Examples:");
   });
 

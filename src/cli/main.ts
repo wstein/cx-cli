@@ -441,9 +441,13 @@ export async function main(argv: string[]): Promise<number> {
             "$0 doctor --all --config cx.toml",
             "Run overlaps, MCP inheritance, and secret diagnostics in order.",
           )
+          .example(
+            "$0 doctor workflow --task 'review and update linked notes'",
+            "Recommend bundle, inspect, or MCP for a task.",
+          )
           .positional("subcommand", {
             type: "string",
-            choices: ["overlaps", "fix-overlaps", "mcp", "secrets"],
+            choices: ["overlaps", "fix-overlaps", "mcp", "secrets", "workflow"],
             demandOption: false,
           })
           .option("config", { type: "string", default: "cx.toml" })
@@ -455,6 +459,11 @@ export async function main(argv: string[]): Promise<number> {
           })
           .option("dry-run", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
+          .option("task", {
+            type: "string",
+            description:
+              "Task description used by doctor workflow to recommend bundle, inspect, or MCP.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         const doctorArgs = {
@@ -462,6 +471,7 @@ export async function main(argv: string[]): Promise<number> {
           all: args.all,
           dryRun: args["dry-run"],
           interactive: args.interactive,
+          task: args.task,
           json: args.json,
           ...(args.subcommand !== undefined
             ? {
@@ -469,7 +479,8 @@ export async function main(argv: string[]): Promise<number> {
                   | "overlaps"
                   | "fix-overlaps"
                   | "mcp"
-                  | "secrets",
+                  | "secrets"
+                  | "workflow",
               }
             : {}),
         };

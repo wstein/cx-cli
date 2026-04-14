@@ -359,4 +359,68 @@ describe("doctor command", () => {
       expect(output).toContain("No suspicious files detected");
     });
   });
+
+  test("doctor workflow recommends a mode for a task", async () => {
+    await runDoctorTest(async () => {
+      const write = process.stdout.write;
+      let output = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        output += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      try {
+        await expect(
+          main([
+            "doctor",
+            "workflow",
+            "--task",
+            "review a bundle snapshot before handoff",
+          ]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = write;
+      }
+
+      expect(output).toContain("Recommended mode: cx bundle");
+      expect(output).toContain("snapshot");
+    });
+  });
+
+  test("doctor workflow emits JSON recommendations", async () => {
+    await runDoctorTest(async () => {
+      const write = process.stdout.write;
+      let output = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        output += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      try {
+        await expect(
+          main([
+            "doctor",
+            "workflow",
+            "--json",
+            "--task",
+            "update notes during investigation",
+          ]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = write;
+      }
+
+      const payload = JSON.parse(output) as {
+        task?: string;
+        mode?: string;
+        reason?: string;
+        signals?: string[];
+      };
+
+      expect(payload.task).toContain("update notes");
+      expect(payload.mode).toBe("mcp");
+      expect(payload.reason).toContain("live MCP workspace");
+      expect(payload.signals).toContain("mcp");
+    });
+  });
 });
