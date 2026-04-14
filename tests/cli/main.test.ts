@@ -191,6 +191,39 @@ describe("main", () => {
     expect(payload.config).toContain('project_name = "demo"');
   });
 
+  test("notes rename and delete work through main()", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-cli-"));
+    const cwd = process.cwd();
+
+    process.chdir(root);
+    try {
+      await expect(main(["notes", "new", "--title", "CLI Source"])).resolves.toBe(0);
+
+      const createdPath = path.join(root, "notes", "CLI Source.md");
+      const createdSource = await fs.readFile(createdPath, "utf8");
+      const idMatch = createdSource.match(/^id:\s*(\d{14})$/m);
+      const noteId = idMatch?.[1];
+      expect(noteId).toBeDefined();
+      if (!noteId) {
+        throw new Error("Failed to capture created note id");
+      }
+
+      await expect(
+        main(["notes", "rename", "--id", noteId, "--title", "CLI Target"]),
+      ).resolves.toBe(0);
+
+      const renamedPath = path.join(root, "notes", "CLI Target.md");
+      const renamedSource = await fs.readFile(renamedPath, "utf8");
+      expect(renamedSource).toContain(`id: ${noteId}`);
+      await expect(fs.stat(createdPath)).rejects.toThrow();
+
+      await expect(main(["notes", "delete", "--id", noteId])).resolves.toBe(0);
+      await expect(fs.stat(renamedPath)).rejects.toThrow();
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   test("rejects invalid init names", async () => {
     await expect(
       main(["init", "--stdout", "--name", 'demo"broken']),

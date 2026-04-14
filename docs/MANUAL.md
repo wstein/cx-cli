@@ -66,6 +66,16 @@ Example note search:
 }
 ```
 
+CLI note lifecycle:
+
+```bash
+cx notes new --title "Research Note"
+cx notes rename --id 20260414120000 --title "Research Note v2"
+cx notes delete --id 20260414120000
+```
+
+Use the CLI for direct on-disk note lifecycle operations. Use MCP when the agent needs read/update/search tools inside an active workspace session.
+
 ## Who This Manual Is For
 
 This guide is for engineers running `cx` as an operational tool: local bundle authors, CI maintainers, and remote-runner owners.
