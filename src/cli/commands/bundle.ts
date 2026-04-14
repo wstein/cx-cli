@@ -5,7 +5,7 @@ import path from "node:path";
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
-import type { CxAssetsLayout } from "../../config/types.js";
+import type { CxAssetsLayout, CxStyle } from "../../config/types.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
@@ -289,14 +289,25 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           warnings: renderResult.warnings,
           fileTokenCounts: renderResult.fileTokenCounts,
           fileContentHashes: renderResult.fileContentHashes,
-          fileSpans: renderResult.fileSpans,
+          ...(renderResult.fileSpans !== undefined
+            ? { fileSpans: renderResult.fileSpans }
+            : {}),
         };
       }),
     );
 
-    const sectionOutputs = renderedSections.map((section) => ({
+    const sectionOutputs = renderedSections.map((section): {
+      name: string;
+      style: CxStyle;
+      outputFile: string;
+      outputSha256: string;
+      fileCount: number;
+      sizeBytes: number;
+      tokenCount: number;
+      outputTokenCount: number;
+    } => ({
       name: section.name,
-      style: section.style,
+      style: section.style as CxStyle,
       outputFile: section.outputFile,
       outputSha256: section.outputSha256,
       fileCount: section.fileCount,

@@ -60,13 +60,16 @@ export function registerCxMcpTools(
       }),
     },
     async (args) => {
-      const result = await grepWorkspaceFiles(workspace, {
+      const query = {
         pattern: args.pattern,
-        regex: args.regex,
-        caseSensitive: args.caseSensitive,
-        prefix: args.prefix,
-        limit: args.limit,
-      });
+        ...(args.regex !== undefined ? { regex: args.regex } : {}),
+        ...(args.caseSensitive !== undefined
+          ? { caseSensitive: args.caseSensitive }
+          : {}),
+        ...(args.prefix !== undefined ? { prefix: args.prefix } : {}),
+        ...(args.limit !== undefined ? { limit: args.limit } : {}),
+      };
+      const result = await grepWorkspaceFiles(workspace, query);
 
       return jsonToolResult(result);
     },
@@ -85,11 +88,12 @@ export function registerCxMcpTools(
       }),
     },
     async (args) => {
-      const result = await readWorkspaceFile(workspace, {
+      const query = {
         path: args.path,
-        startLine: args.startLine,
-        endLine: args.endLine,
-      });
+        ...(args.startLine !== undefined ? { startLine: args.startLine } : {}),
+        ...(args.endLine !== undefined ? { endLine: args.endLine } : {}),
+      };
+      const result = await readWorkspaceFile(workspace, query);
 
       return jsonToolResult(result);
     },

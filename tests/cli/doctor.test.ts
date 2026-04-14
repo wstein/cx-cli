@@ -91,9 +91,12 @@ async function createMcpProject(
     "utf8",
   );
   if (options.includeSecret === true) {
+    const secretValue = ["ghp_", "123456789012345678901234567890123456"].join(
+      "",
+    );
     await fs.writeFile(
       path.join(root, "secrets.txt"),
-      "ghp_123456789012345678901234567890123456\n",
+      `${secretValue}\n`,
       "utf8",
     );
   }

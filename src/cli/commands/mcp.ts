@@ -56,9 +56,10 @@ export async function runMcpCommand(
   const cwd = path.resolve(args.cwd ?? process.cwd());
   const loadConfig = deps.loadConfig ?? loadCxConfig;
   const startServer = deps.startServer ?? runCxMcpServer;
-  const configPath = await resolveMcpConfigPath(cwd, {
-    fileExists: deps.fileExists,
-  });
+  const configPath = await resolveMcpConfigPath(
+    cwd,
+    deps.fileExists === undefined ? {} : { fileExists: deps.fileExists },
+  );
   const config = await loadConfig(configPath);
 
   await startServer(configPath, config);

@@ -49,7 +49,7 @@ interface ManifestDto {
   modifiedFiles: string[];
   sections: SectionDto[];
   assets: AssetRecord[];
-  notes?: Array<{
+  notes: Array<{
     id: string;
     title: string;
     fileName: string;
@@ -276,10 +276,7 @@ function parseManifestDto(raw: unknown): {
     ) as string[],
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
-    notes:
-      notesRaw.length > 0
-        ? notesRaw.map((note, index) => parseNoteDto(note, index))
-        : undefined,
+    notes: notesRaw.map((note, index) => parseNoteDto(note, index)),
   };
 
   if (obj.bundleIndexFile !== undefined) {
@@ -399,7 +396,7 @@ export function parseManifestJson(source: string): CxManifest {
     modifiedFiles: dto.modifiedFiles,
     sections,
     assets: dto.assets,
-    notes: dto.notes,
+    ...(dto.notes.length > 0 ? { notes: dto.notes } : {}),
     files: [...textRows, ...assetRows].sort((left, right) =>
       left.path.localeCompare(right.path, "en"),
     ),

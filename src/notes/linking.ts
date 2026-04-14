@@ -52,7 +52,8 @@ export function resolveWikilinkReference(
       return note.id;
     }
 
-    if (note.aliases.some((alias) => alias.toLowerCase() === lowerReference)) {
+    const aliases = note.aliases ?? [];
+    if (aliases.some((alias) => alias.toLowerCase() === lowerReference)) {
       return note.id;
     }
   }

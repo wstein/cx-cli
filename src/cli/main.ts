@@ -402,19 +402,23 @@ export async function main(argv: string[]): Promise<number> {
           .option("interactive", { type: "boolean", default: false })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runDoctorCommand({
+        const doctorArgs = {
           config: args.config,
-          subcommand: args.subcommand as
-            | "overlaps"
-            | "fix-overlaps"
-            | "mcp"
-            | "secrets"
-            | undefined,
           all: args.all,
           dryRun: args["dry-run"],
           interactive: args.interactive,
           json: args.json,
-        });
+          ...(args.subcommand !== undefined
+            ? {
+                subcommand: args.subcommand as
+                  | "overlaps"
+                  | "fix-overlaps"
+                  | "mcp"
+                  | "secrets",
+              }
+            : {}),
+        };
+        exitCode = await runDoctorCommand(doctorArgs);
       },
     )
     .command(
