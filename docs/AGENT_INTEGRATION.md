@@ -28,6 +28,14 @@ notes_rename(id="20260414120000", title="Research Note v2")
 notes_delete(id="20260414120000")
 ```
 
+Example live edit loop with span replacement:
+
+```text
+read(path="src/index.ts", startLine=1, endLine=12)
+replace_repomix_span(path="src/index.ts", startLine=4, endLine=4, replacement="export const target = 'universe';")
+read(path="src/index.ts", startLine=1, endLine=12)
+```
+
 Supported integration patterns
 ------------------------------
 

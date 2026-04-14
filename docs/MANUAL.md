@@ -174,6 +174,17 @@ cx doctor secrets --config cx.toml
 
 `cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor secrets` scans the master list for suspicious credentials using the same security rules the planning workflow relies on.
 
+When overlap analysis is the issue, the output names the conflicting file, the matching sections, the recommended owner, and the sections that should exclude the file. For example:
+
+```text
+Detected 1 section overlap in cx.toml.
+
+src/index.ts
+  matching sections: src, mixed
+  owner: src
+  exclude from: mixed
+```
+
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
 
 If you are checking whether a section is becoming too large, run:
