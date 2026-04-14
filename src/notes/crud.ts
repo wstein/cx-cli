@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { parseMarkdownFrontmatter } from "../../../notes/parser.js";
-import { validateNotes } from "../../../notes/validate.js";
-import { CxError } from "../../../shared/errors.js";
-import { ensureDir, pathExists } from "../../../shared/fs.js";
+import { parseMarkdownFrontmatter } from "./parser.js";
+import { validateNotes } from "./validate.js";
+import { CxError } from "../shared/errors.js";
+import { ensureDir, pathExists } from "../shared/fs.js";
 
 /**
  * Generate a note ID in YYYYMMDDHHMMSS format from the current time.

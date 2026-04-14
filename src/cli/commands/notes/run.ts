@@ -15,7 +15,7 @@ import {
   listNotes,
   renameNote,
   updateNote,
-} from "./common.js";
+} from "../../../notes/crud.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;

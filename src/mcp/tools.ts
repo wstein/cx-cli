@@ -9,7 +9,7 @@ import {
   renameNote,
   searchNotes,
   updateNote,
-} from "../cli/commands/notes/common.js";
+} from "../notes/crud.js";
 import { collectDoctorMcpReport } from "../cli/commands/doctor-mcp.js";
 import { collectDoctorOverlapsReport } from "../cli/commands/doctor-overlaps.js";
 import { collectDoctorSecretsReport } from "../cli/commands/doctor-secrets.js";

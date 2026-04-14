@@ -8,11 +8,11 @@ import {
   deleteNote,
   listNotes,
   readNote,
-  runNotesCommand,
   renameNote,
   searchNotes,
   updateNote,
-} from "../../src/cli/commands/notes.js";
+} from "../../src/notes/crud.js";
+import { runNotesCommand } from "../../src/cli/commands/notes.js";
 import {
   buildNoteGraph,
   getBacklinks,
