@@ -16,8 +16,13 @@ The MCP path is `cx`-native. It uses the active `cx` workspace scope, the
 MCP-specific `cx-mcp.toml` profile when available, and the native doctor checks
 to keep agent access deterministic.
 
+In practice, the efficient path is manifest first, file reads second. Agents
+should inspect manifest note summaries, locate the stable timestamp ids that
+match the task, and then open only those notes through MCP. That lowers token
+cost and avoids repeating a full Markdown scan on every run.
+
 ## Links
 
-- [[AI-first Toolbox]] - This is the external tooling layer of the same philosophy.
+- [[AI-first Toolbox]] - This is the external tooling layer that keeps agent work queryable and efficient.
 - [[VCS Master Base]] - Queryable context still starts from a deterministic file base.
 - [[Dirty State Taxonomy]] - External agents need the same safety signals as humans.

@@ -14,6 +14,25 @@ Agents can scan architectural intent, evaluate constraints, and fetch deeper
 context only when they need it. The live MCP workflow stays focused on
 navigation rather than re-parsing note bodies.
 
+## Before And After
+
+Before manifest-side summaries:
+
+- the agent opens the bundle
+- it sees a `notes/` directory but does not know which files matter
+- it reparses raw Markdown notes to discover relevant decisions
+- token use and latency scale with note count instead of task relevance
+
+After manifest-side summaries:
+
+- the agent reads `manifest.notes[]`
+- it filters by stable note id, title, alias, or summary text
+- it opens only the notes tied to the current task
+- token use and latency stay closer to the real scope of the request
+
+This is the mechanical win: the manifest converts note discovery from an
+unbounded Markdown scan into a structured metadata query.
+
 ## Links
 
 - [[Agentic Ecosystem MCP]] - External tools consume these summaries through

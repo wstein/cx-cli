@@ -97,9 +97,9 @@ describe("main", () => {
     expect(configSource).toContain(
       'include = ["docs/**", "notes/**", "README.md", "*.md"]',
     );
-    expect(notesGuide).toContain("# Zettelkasten 101");
-    expect(notesGuide).toContain("collector's fallacy");
-    expect(notesGuide).toContain("Barbell Method Of Triage");
+    expect(notesGuide).toContain("# Repository Notes Guide");
+    expect(notesGuide).toContain("## Before And After For Agents");
+    expect(notesGuide).toContain("manifest.notes[]");
     expect(notesTemplate).toContain("id: YYYYMMDDHHMMSS");
     expect(notesTemplate).toContain("aliases: []");
     expect(notesTemplate).toContain("tags: []");
@@ -129,7 +129,7 @@ describe("main", () => {
       path.join(root, "notes", "README.md"),
       "utf8",
     );
-    expect(refreshedGuide).toContain("# Zettelkasten 101");
+    expect(refreshedGuide).toContain("# Repository Notes Guide");
     expect(refreshedGuide).not.toBe("custom guide\n");
   });
 

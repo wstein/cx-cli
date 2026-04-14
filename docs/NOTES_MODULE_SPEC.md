@@ -2,7 +2,7 @@
 
 ## Goal
 
-The notes module gives `cx` a permanent repository knowledge layer based on the Zettelkasten method. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable concepts, and explicit links between ideas and code.
+The notes module gives `cx` a permanent repository knowledge layer for agentic workflows. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.
 
 For the document map and revision consensus, see [README.md](README.md) and
 [spec-draft.md](spec-draft.md).
@@ -18,6 +18,31 @@ This phase defines native notes support in four places:
 
 It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
 It also adds graph-level link auditing so unresolved note references can be inspected explicitly.
+
+## Why Notes Exist In The Pipeline
+
+The notes module is part of the automation path, not a philosophical sidecar.
+
+Before manifest-side summaries:
+
+- an agent receives a bundle and sees that `notes/` exists
+- it reparses raw Markdown note files one by one to discover architecture
+- token spend rises before the agent has identified which note matters
+- latency rises because every run repeats the same parsing work
+
+After manifest-side summaries:
+
+- the agent reads `manifest.notes[]` first
+- it filters by stable timestamp id, title, alias, or summary text
+- it opens only the one or two note files that are actually relevant
+- token spend and round-trip latency drop because the broad scan is already serialized into machine-readable metadata
+
+Concrete prompt contrast:
+
+- before: "Read every file in `notes/` and figure out which architectural decisions apply to the manifest writer"
+- after: "Read the manifest note summaries, find the notes about manifest writing or dirty-state checks, then open only those note ids through the MCP server"
+
+The second workflow is the reason the notes module exists inside `cx` instead of being left as an unstructured Markdown folder.
 
 ## Init Behavior
 
@@ -47,15 +72,14 @@ User-authored notes live beside those files in `notes/` and may use any human-re
 
 The guide must explain:
 
-- what Zettelkasten means in a repository context
-- why durable notes are different from project-management artefacts
+- why durable repository notes are different from project-management artefacts
 - the principle of atomicity
-- the collector's fallacy
-- the need for explicit radial links
+- the need for explicit links to adjacent notes and code paths
 - the time-based ID rule (`YYYYMMDDHHMMSS`)
-- the barbell method of triage
+- why stable IDs and manifest-side summaries reduce token spend and latency for downstream agents
+- one concrete before-and-after agent scenario that contrasts raw Markdown reparsing with manifest-first querying
 
-The guide should be instructional, not philosophical filler.
+The guide should be instructional, measurable, and tied to operator or CI outcomes rather than philosophical terminology.
 
 ## Canonical Note Anatomy
 
@@ -67,8 +91,6 @@ id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---
-# Clear, searchable title
-
 Atomic body in the author's own words.
 
 ## Links
@@ -81,7 +103,7 @@ Rules:
 
 - `id` is mandatory and machine authoritative
 - `aliases` and `tags` are always present, even when empty
-- the visible title is the H1, not the numeric ID
+- the filename is the canonical human title; do not use the numeric id as the visible title
 - the body must contain one discrete thought only
 - the links section must point to other notes, code, or both
 
@@ -110,6 +132,10 @@ This implementation now includes:
 - note summary extraction from the body for manifest use
 - a `cx notes ...` command family for note creation and graph inspection
 - unresolved note and code-reference auditing via `cx notes links`
+
+The key downstream effect is that automation can inspect the note layer through
+manifest metadata first, then open individual notes only when deeper context is
+required.
 
 ## Future Extensions
 

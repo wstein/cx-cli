@@ -1,6 +1,4 @@
-# Zettelkasten 101
-
-Welcome to the repository mind.
+# Repository Notes Guide
 
 This directory is a permanent knowledge layer for the codebase. It captures architectural intent, durable concepts, constraints, and decisions that should outlive any single sprint, ticket, or contributor.
 
@@ -16,15 +14,37 @@ inspect the note graph without reparsing raw Markdown.
 Use `cx notes links` to audit unresolved note references after you rename or
 move entries in the note graph.
 
-## What This Is
+## Why This Directory Exists
 
-The Zettelkasten method comes from Niklas Luhmann's slip-box practice. In a software repository, it means you do not treat knowledge as a pile of disconnected snippets. You grow a network of small, explicit notes that can be read, linked, revised, and reused over the full life of the codebase.
+This directory exists to keep durable repository knowledge queryable.
 
 This is not a project-management folder.
 
 - Project trackers are hierarchical and temporary.
-- Zettelkasten notes are networked and durable.
-- The goal is not task execution. The goal is preserving understanding.
+- Repository notes are durable and linkable.
+- The goal is not task execution. The goal is preserving reusable understanding.
+
+## Before And After For Agents
+
+Before manifest-side summaries:
+
+- an agent sees `notes/` and has to open raw Markdown files one by one
+- token spend rises before the agent even knows which note matters
+- latency rises because every run repeats the same broad scan
+
+After manifest-side summaries:
+
+- the agent reads `manifest.notes[]` first
+- it filters by stable timestamp id, title, alias, or summary text
+- it opens only the note files that are actually relevant
+- token spend and latency drop because the first pass is already serialized into manifest metadata
+
+Example prompt shift:
+
+- before: "Read every note and figure out how dirty-state enforcement works"
+- after: "Read manifest note summaries, find the notes about dirty-state enforcement, then open only those note ids"
+
+That is the practical value of this directory in an AI workflow.
 
 ## The Core Rules
 
@@ -47,8 +67,6 @@ If a note contains multiple unrelated ideas, split it.
 
 Do not paste raw code or external text and call it knowledge.
 
-That is the collector's fallacy: accumulating material without producing understanding.
-
 A note is only useful when it explains the idea in your own words and makes the relation to this repository explicit.
 
 ### 3. Connect Notes Radially
@@ -67,16 +85,9 @@ The value of the system comes from the graph, not from isolated pages.
 
 Every note uses a time-based frontmatter id in the form `YYYYMMDDHHMMSS`.
 
-The id is for machines, search, routing, and stable reference. The H1 is for humans. Do not put the numeric id in the visible title.
+The id is for machines, search, routing, and stable reference. The filename is the human title. Do not put the numeric id in the visible title.
 
-## The Barbell Method Of Triage
-
-Capture at two ends of the spectrum:
-
-- durable, high-value insights worth keeping for years
-- small, fresh observations that can later be linked, merged, or discarded
-
-Avoid the mushy middle of vague status notes, meeting debris, or copied snippets with no interpretation.
+Stable ids matter because downstream automation can reference notes without depending on filenames that may drift over time.
 
 ## Recommended Workflow
 
@@ -95,7 +106,7 @@ Every note must contain:
 
 - YAML frontmatter with `id`, `aliases`, and `tags`
 - one atomic body
-- one links section with radial connections
+- one links section with explicit connections to notes, code, or both
 
  This repository uses the filename as the canonical note title. Do not add an
  H1 header in the note body because Obsidian already displays the filename as

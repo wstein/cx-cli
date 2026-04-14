@@ -77,7 +77,7 @@ cx init --name demo
 cx inspect --config cx.toml
 ```
 
-`cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository's Zettelkasten 101 guide plus the default atomic note template.
+`cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository notes guide plus the default atomic note template.
 
 For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
