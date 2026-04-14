@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CX Configuration Overlay Schema (level 2)",
+  "title": "CX Configuration Overlay Schema (v1)",
   "description": "JSON Schema for inherited cx configuration files such as cx-mcp.toml. This schema validates overlay files that extend a base cx.toml while keeping additionalProperties strict and reusing the base field definitions.",
   "type": "object",
   "required": ["extends"],

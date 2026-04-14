@@ -283,7 +283,7 @@ exclude = []
 
       const mcpContent = await fs.readFile(path.join(tempDir, "cx-mcp.toml"), "utf8");
       expect(mcpContent).toContain(
-        "#:schema ./schemas/cx-config-level2.schema.json",
+        "#:schema ./schemas/cx-config-overlay-v1.schema.json",
       );
       expect(mcpContent).toContain("extends = \"./cx.toml\"");
       expect(mcpContent).not.toContain("project_name = \"existing-test\"");
@@ -314,7 +314,7 @@ exclude = []
       const mcpContent = await fs.readFile(mcpPath, "utf8");
 
       expect(mcpContent).toContain(
-        "#:schema ./schemas/cx-config-level2.schema.json",
+        "#:schema ./schemas/cx-config-overlay-v1.schema.json",
       );
       expect(mcpContent).toContain("extends = \"./cx.toml\"");
       expect(mcpContent).not.toContain("project_name = \"typescript-test\"");

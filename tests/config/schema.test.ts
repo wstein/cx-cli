@@ -216,9 +216,9 @@ describe("cx-config-v1.schema.json", async () => {
   });
 });
 
-describe("cx-config-level2.schema.json", async () => {
+describe("cx-config-overlay-v1.schema.json", async () => {
   const schemaPath = path.resolve(
-    path.join(import.meta.dir, "../../schemas/cx-config-level2.schema.json"),
+    path.join(import.meta.dir, "../../schemas/cx-config-overlay-v1.schema.json"),
   );
   const schemaContent = await fs.readFile(schemaPath, "utf8");
   const schema: JsonSchema = JSON.parse(schemaContent);
