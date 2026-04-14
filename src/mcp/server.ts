@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 import type { CxConfig } from "../config/types.js";
 import { CX_VERSION } from "../shared/version.js";
-import { registerCxMcpTools } from "./tools.js";
+import { registerCxMcpTools } from "./tools/index.js";
 import { createCxMcpWorkspace } from "./workspace.js";
 
 export interface CxMcpServerOptions {
