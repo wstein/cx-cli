@@ -1,23 +1,19 @@
 # Makefile for Rust workspaces.
 #
-# Provides a normalized interface for Cargo builds and cx packaging.
+# Provides a normalized interface for Cargo builds and native workspace tasks.
 #
 # Usage:
 #   make          # build the Rust project in release mode
 #   make build    # cargo build --release
 #   make test     # cargo test
 #   make check    # cargo check
-#   make bundle   # build and package the cx bundle
-#   make validate # validate the cx configuration
-#   make inspect  # show the computed bundle plan
 #   make clean    # remove generated output
+#   make notes    # show the notes directory path
 #
 CARGO ?= cargo
-CX ?= cx
-CX_CONFIG ?= cx.toml
 CLEAN_DIR ?= dist
 
-.PHONY: all build test check bundle validate inspect clean notes help
+.PHONY: all build test check clean notes help
 all: build
 
 build: ## Build the Rust project in release mode.
@@ -29,15 +25,6 @@ test: ## Run Rust tests.
 check: ## Check the project for compilation errors.
 	$(CARGO) check
 
-bundle: build ## Build native artifacts, then package a cx bundle.
-	$(CX) bundle --config "$(CX_CONFIG)"
-
-inspect: ## Show the computed bundle plan.
-	$(CX) inspect --config "$(CX_CONFIG)"
-
-validate: ## Validate the cx configuration.
-	$(CX) validate --config "$(CX_CONFIG)"
-
 clean: ## Remove generated output files.
 	$(CARGO) clean
 	rm -rf "$(CLEAN_DIR)"
@@ -46,4 +33,6 @@ notes: ## Print the notes directory path.
 	@printf "Notes directory: notes\n"
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build test check bundle validate inspect clean notes\n"
+	@printf "Available targets:
+  build test check clean notes
+"

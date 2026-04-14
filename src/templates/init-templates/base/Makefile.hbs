@@ -1,35 +1,21 @@
-# Makefile for cx workspaces.
+# Makefile for workspace-native development and cleanup.
 #
-# This Makefile provides a normalized interface for building, validating,
-# and packaging projects across language ecosystems.
+# This Makefile provides a normalized interface for native builds and cleanup
+# across language ecosystems.
 #
 # Usage:
 #   make          # build the native project (if any)
 #   make build    # compile using the native toolchain or no-op
-#   make bundle   # build and package the cx bundle
-#   make validate # validate the cx configuration
-#   make inspect  # show the computed bundle plan
 #   make clean    # remove generated output
 #   make notes    # show the notes directory path
 #
-CX ?= cx
-CX_CONFIG ?= cx.toml
 CLEAN_DIR ?= dist
 
-.PHONY: all build bundle validate inspect clean notes help
+.PHONY: all build clean notes help
 all: build
 
 build: ## Build the native project if present; otherwise no-op.
 	@echo "No recognized native toolchain found; skipping compile."
-
-bundle: build ## Build native artifacts, then package a cx bundle.
-	$(CX) bundle --config "$(CX_CONFIG)"
-
-inspect: ## Show the computed bundle plan.
-	$(CX) inspect --config "$(CX_CONFIG)"
-
-validate: ## Validate the cx configuration.
-	$(CX) validate --config "$(CX_CONFIG)"
 
 clean: ## Remove generated output files.
 	rm -rf "$(CLEAN_DIR)"
@@ -38,4 +24,4 @@ notes: ## Print the notes directory path.
 	@printf "Notes directory: notes\n"
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build bundle validate inspect clean notes\n"
+	@printf "Available targets:\n  build clean notes\n"
