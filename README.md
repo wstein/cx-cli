@@ -118,7 +118,7 @@ cx init --name demo
 - `notes/README.md` as the repository notes guide
 - `notes/template-new-zettel.md` as the atomic note template
 
-If any init target already exists, `cx init` rejects the operation unless `--force` is provided.
+By default, `cx init` preserves existing init files and creates only the missing targets. Use `--force` to overwrite existing generated files.
 
 Supported init templates include: `base`, `rust`, `go`, `typescript`, `python`, `java`, `elixir`, `julia`, and `crystal`.
 

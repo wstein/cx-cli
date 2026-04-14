@@ -194,29 +194,26 @@ exclude = []
     }
   });
 
-  test("cx init rejects existing init targets unless --force is used", async () => {
+  test("cx init preserves existing init targets while creating missing files", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-existing-"));
     const cwd = process.cwd();
 
     try {
       process.chdir(tempDir);
-      await fs.writeFile(path.join(tempDir, "Makefile"), "# existing\n", "utf8");
-      await fs.mkdir(path.join(tempDir, "notes"));
+      await fs.mkdir(path.join(tempDir, "notes"), { recursive: true });
+      await fs.writeFile(path.join(tempDir, "cx.toml"), "schema_version = 1\n", "utf8");
       await fs.writeFile(path.join(tempDir, "notes/README.md"), "# notes\n", "utf8");
 
-      await expect(main(["init", "--name", "existing-test"])).rejects.toThrow(
-        "Init would overwrite existing files",
-      );
+      await expect(main(["init", "--name", "existing-test"])).resolves.toBe(0);
 
-      await expect(
-        main(["init", "--name", "existing-test", "--force"]),
-      ).resolves.toBe(0);
+      const configContent = await fs.readFile(path.join(tempDir, "cx.toml"), "utf8");
+      expect(configContent).toBe("schema_version = 1\n");
 
-      const makefileContent = await fs.readFile(
-        path.join(tempDir, "Makefile"),
-        "utf8",
-      );
+      const makefileContent = await fs.readFile(path.join(tempDir, "Makefile"), "utf8");
       expect(makefileContent).toContain("build:");
+
+      const mcpContent = await fs.readFile(path.join(tempDir, "cx-mcp.toml"), "utf8");
+      expect(mcpContent).toContain("project_name = \"existing-test\"");
     } finally {
       process.chdir(cwd);
     }

@@ -107,27 +107,6 @@ async function ensureInitTargetsAreSafe(
     return;
   }
 
-  const targets = [
-    "cx.toml",
-    "Makefile",
-    "cx-mcp.toml",
-    "notes/README.md",
-    "notes/template-new-zettel.md",
-  ];
-
-  const existingTargets: string[] = [];
-  for (const relativeTarget of targets) {
-    if (await pathExists(path.join(projectRoot, relativeTarget))) {
-      existingTargets.push(relativeTarget);
-    }
-  }
-
-  if (existingTargets.length > 0) {
-    throw new CxError(
-      `Init would overwrite existing files: ${existingTargets.join(", ")}. Use --force to overwrite them.`,
-      3,
-    );
-  }
 }
 
 export async function runInitCommand(args: InitArgs): Promise<number> {
@@ -170,9 +149,14 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     return 0;
   }
 
-  await ensureInitTargetsAreSafe(process.cwd(), args.force);
-
-  await fs.writeFile("cx.toml", output, "utf8");
+  const configResult = await renderProjectTemplate(
+    process.cwd(),
+    "cx.toml",
+    "cx.toml",
+    templateVariables,
+    args.force,
+    args.template,
+  );
   const makefileResult = await renderProjectTemplate(
     process.cwd(),
     "Makefile",
@@ -195,16 +179,26 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
 
   if (!(args.json ?? false)) {
     const { printSuccess, printInfo } = await import("../../shared/format.js");
-    printSuccess("Created cx.toml");
+    if (configResult.created) {
+      printSuccess("Created cx.toml");
+    } else if (configResult.updated) {
+      printInfo("Updated cx.toml");
+    } else {
+      printInfo("Skipped existing cx.toml (use --force to overwrite)");
+    }
     if (makefileResult.created) {
       printInfo("Created Makefile");
     } else if (makefileResult.updated) {
       printInfo("Updated Makefile");
+    } else {
+      printInfo("Skipped existing Makefile (use --force to overwrite)");
     }
     if (mcpResult.created) {
       printInfo("Created cx-mcp.toml");
     } else if (mcpResult.updated) {
       printInfo("Updated cx-mcp.toml");
+    } else {
+      printInfo("Skipped existing cx-mcp.toml (use --force to overwrite)");
     }
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);
