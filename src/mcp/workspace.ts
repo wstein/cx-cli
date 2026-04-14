@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type { CxConfig } from "../config/types.js";
-import { buildMasterList } from "../planning/overlaps.js";
+import { buildMasterList } from "../planning/masterList.js";
 import { CxError } from "../shared/errors.js";
 import { detectMediaType } from "../shared/mime.js";
 import { getVCSState } from "../vcs/provider.js";

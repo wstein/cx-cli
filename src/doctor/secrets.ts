@@ -7,7 +7,7 @@ import {
 } from "@wsmy/repomix-cx-fork";
 
 import { loadCxConfig } from "../config/load.js";
-import { buildMasterList } from "../planning/overlaps.js";
+import { buildMasterList } from "../planning/masterList.js";
 import { writeJson } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 

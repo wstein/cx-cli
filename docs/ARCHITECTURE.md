@@ -79,6 +79,7 @@ cli/commands/                    ← presentation layer (thin shells)
 | `notes/crud.ts` | Note CRUD I/O and search |
 | `notes/graph.ts` | Note link graph construction and queries |
 | `notes/planner.ts` | Linked-note enrichment for bundle plans |
+| `planning/masterList.ts` | VCS-anchored master file list construction |
 | `doctor/mcp.ts` | MCP profile diagnostic report |
 | `doctor/overlaps.ts` | Section overlap diagnostic report |
 | `doctor/secrets.ts` | Secret scan diagnostic report |

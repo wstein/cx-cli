@@ -7,9 +7,9 @@ import { pathExists } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
 import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
+import { buildMasterList } from "./masterList.js";
 import {
   analyzeSectionOverlaps,
-  buildMasterList,
   compileMatchers,
   formatOverlapConflictMessage,
   getMatchingSections,

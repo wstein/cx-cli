@@ -1,9 +1,9 @@
 import path from "node:path";
 
 import { loadCxConfig } from "../config/load.js";
+import { buildMasterList } from "../planning/masterList.js";
 import {
   analyzeSectionOverlaps,
-  buildMasterList,
   type OverlapConflict,
 } from "../planning/overlaps.js";
 import { writeJson } from "../shared/output.js";
