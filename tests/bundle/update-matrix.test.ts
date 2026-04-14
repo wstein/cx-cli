@@ -50,7 +50,7 @@ unmatched = "ignore"
 include = ["**/*.png"]
 exclude = []
 mode = "copy"
-target_dir = "assets"
+target_dir = "{project}-assets"
 layout = "flat"
 
 [sections.docs]
