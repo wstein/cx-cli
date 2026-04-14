@@ -4,10 +4,15 @@ import { z } from "zod";
 
 import {
   createNewNote,
+  deleteNote,
   readNote,
+  renameNote,
   searchNotes,
   updateNote,
 } from "../cli/commands/notes/common.js";
+import { collectDoctorMcpReport } from "../cli/commands/doctor-mcp.js";
+import { recommendWorkflow } from "../cli/commands/doctor.js";
+import { collectInspectReport } from "../cli/commands/inspect.js";
 import {
   buildNoteGraph,
   getBacklinks,
@@ -119,6 +124,106 @@ export function registerCxMcpTools(
   );
 
   server.registerTool(
+    "doctor_mcp",
+    {
+      title: "Diagnose MCP profile",
+      description:
+        "Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.",
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const report = await collectDoctorMcpReport({
+        config: path.join(workspace.sourceRoot, "cx.toml"),
+      });
+
+      return jsonToolResult({
+        command: "doctor mcp",
+        ...report,
+      });
+    },
+  );
+
+  server.registerTool(
+    "doctor_workflow",
+    {
+      title: "Recommend workflow",
+      description:
+        "Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.",
+      inputSchema: z.object({
+        task: z.string().min(1),
+      }),
+    },
+    async (args) => {
+      const recommendation = recommendWorkflow(args.task);
+
+      return jsonToolResult({
+        command: "doctor workflow",
+        task: args.task,
+        ...recommendation,
+      });
+    },
+  );
+
+  server.registerTool(
+    "inspect",
+    {
+      title: "Inspect live bundle plan",
+      description:
+        "Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.",
+      inputSchema: z.object({
+        tokenBreakdown: z.boolean().optional(),
+      }),
+    },
+    async (args) => {
+      const report = await collectInspectReport({
+        config: workspace.config,
+        ...(args.tokenBreakdown !== undefined
+          ? { tokenBreakdown: args.tokenBreakdown }
+          : {}),
+      });
+
+      return jsonToolResult({
+        command: "inspect",
+        ...report,
+      });
+    },
+  );
+
+  server.registerTool(
+    "bundle",
+    {
+      title: "Preview bundle snapshot",
+      description:
+        "Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.",
+      inputSchema: z.object({
+        tokenBreakdown: z.boolean().optional(),
+      }),
+    },
+    async (args) => {
+      const report = await collectInspectReport({
+        config: workspace.config,
+        ...(args.tokenBreakdown !== undefined
+          ? { tokenBreakdown: args.tokenBreakdown }
+          : {}),
+      });
+
+      return jsonToolResult({
+        command: "bundle preview",
+        projectName: report.summary.projectName,
+        sourceRoot: report.summary.sourceRoot,
+        bundleDir: report.summary.bundleDir,
+        sectionCount: report.summary.sectionCount,
+        assetCount: report.summary.assetCount,
+        unmatchedCount: report.summary.unmatchedCount,
+        tokenBreakdown: report.tokenBreakdown ?? null,
+        warnings: report.warnings,
+        note:
+          "Use cx bundle locally to write the artifact; this MCP preview stays on the live workspace.",
+      });
+    },
+  );
+
+  server.registerTool(
     "notes_new",
     {
       title: "Create note",
@@ -197,6 +302,57 @@ export function registerCxMcpTools(
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
+      });
+    },
+  );
+
+  server.registerTool(
+    "notes_rename",
+    {
+      title: "Rename note",
+      description:
+        "Rename an existing note in the workspace notes directory and update its title in place.",
+      inputSchema: z.object({
+        id: z.string().min(1),
+        title: z.string().min(1),
+      }),
+    },
+    async (args) => {
+      const note = await renameNote(args.id, args.title, {
+        notesDir,
+      });
+
+      return jsonToolResult({
+        command: "notes rename",
+        id: note.id,
+        title: note.title,
+        previousFilePath: relativePosix(workspace.sourceRoot, note.previousFilePath),
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        tags: note.tags,
+      });
+    },
+  );
+
+  server.registerTool(
+    "notes_delete",
+    {
+      title: "Delete note",
+      description:
+        "Delete an existing note from the workspace notes directory.",
+      inputSchema: z.object({
+        id: z.string().min(1),
+      }),
+    },
+    async (args) => {
+      const note = await deleteNote(args.id, {
+        notesDir,
+      });
+
+      return jsonToolResult({
+        command: "notes delete",
+        id: note.id,
+        title: note.title,
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
       });
     },
   );

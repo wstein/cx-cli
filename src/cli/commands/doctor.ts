@@ -43,8 +43,9 @@ interface OverlapFixPlan {
   excludesBySection: Record<string, string[]>;
 }
 
-interface WorkflowRecommendation {
+export interface WorkflowRecommendation {
   mode: "bundle" | "inspect" | "mcp";
+  sequence: Array<"bundle" | "inspect" | "mcp">;
   reason: string;
   signals: string[];
 }
@@ -224,8 +225,9 @@ async function runDoctorWorkflow(args: DoctorArgs): Promise<number> {
   } else {
     process.stdout.write(`Task: ${task}\n`);
     process.stdout.write(
-      `Recommended mode: cx ${recommendation.mode}\n`,
+      `Recommended path: ${recommendation.sequence.map((step) => `cx ${step}`).join(" -> ")}\n`,
     );
+    process.stdout.write(`Primary mode: cx ${recommendation.mode}\n`);
     process.stdout.write(`Reason: ${recommendation.reason}\n`);
     process.stdout.write(
       `Signals: ${recommendation.signals.length > 0 ? recommendation.signals.join(", ") : "none"}\n`,
@@ -235,7 +237,7 @@ async function runDoctorWorkflow(args: DoctorArgs): Promise<number> {
   return 0;
 }
 
-function recommendWorkflow(task: string): WorkflowRecommendation {
+export function recommendWorkflow(task: string): WorkflowRecommendation {
   const normalized = task.toLowerCase();
   const signals: string[] = [];
 
@@ -256,33 +258,47 @@ function recommendWorkflow(task: string): WorkflowRecommendation {
     ["bundle", /\b(bundle|snapshot|verify|checksum|manifest|handoff|ci)\b/.test(normalized)],
     ["immutable review", /\b(review|approve|release|audit)\b/.test(normalized)],
   ]);
+  const inspectMatch = recordSignals([
+    ["inspect", /\b(inspect|preview|plan|token budget|token breakdown)\b/.test(normalized)],
+    ["compare", /\b(compare|diff|drift)\b/.test(normalized)],
+  ]);
+  const mcpMatch = recordSignals([
+    ["mcp", /\b(mcp|explore|search|read|update|note|notes|agent|investigate)\b/.test(normalized)],
+  ]);
+
+  if ((inspectMatch || bundleMatch) && mcpMatch) {
+    return {
+      mode: "inspect",
+      sequence: ["inspect", "bundle", "mcp"],
+      reason:
+        "The task spans planning and live note work, so inspect first, bundle the handoff snapshot next, and use MCP last against the live workspace.",
+      signals,
+    };
+  }
+
   if (bundleMatch) {
     return {
       mode: "bundle",
+      sequence: ["bundle"],
       reason:
         "The task is about a verified snapshot, review, or handoff, so a static bundle is the safest boundary.",
       signals,
     };
   }
 
-  const inspectMatch = recordSignals([
-    ["inspect", /\b(inspect|preview|plan|token budget|token breakdown)\b/.test(normalized)],
-    ["compare", /\b(compare|diff|drift)\b/.test(normalized)],
-  ]);
   if (inspectMatch) {
     return {
       mode: "inspect",
+      sequence: ["inspect"],
       reason:
         "The task needs planning or comparison before writing, so cx inspect is the right middle step.",
       signals,
     };
   }
 
-  recordSignals([
-    ["mcp", /\b(mcp|explore|search|read|update|note|notes|agent|investigate)\b/.test(normalized)],
-  ]);
   return {
     mode: "mcp",
+    sequence: ["mcp"],
     reason:
       "The task is interactive or exploratory, so a live MCP workspace is the best fit.",
     signals,

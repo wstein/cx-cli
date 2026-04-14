@@ -75,6 +75,18 @@ tags: [${tagsList}]
 ${bodySection}${renderedLinks}`;
 }
 
+function splitBodyAndLinks(body: string): {
+  bodySection: string;
+  linksSection: string;
+} {
+  const linksIndex = body.search(/^\s*##\s+Links\s*$/m);
+
+  return {
+    bodySection: linksIndex >= 0 ? body.slice(0, linksIndex).trimEnd() : body.trimEnd(),
+    linksSection: linksIndex >= 0 ? body.slice(linksIndex).trimEnd() : "## Links\n\n",
+  };
+}
+
 function createTextMatcher(params: {
   query: string;
   regex?: boolean | undefined;
@@ -154,6 +166,13 @@ export interface SearchNoteResult {
   snippet: string;
 }
 
+export interface WriteNoteResult {
+  id: string;
+  filePath: string;
+  title: string;
+  tags: string[];
+}
+
 function fileNameFromTitle(title: string): string {
   const cleaned = title
     .trim()
@@ -207,13 +226,13 @@ export async function updateNote(
     title?: string | undefined;
     notesDir?: string | undefined;
   },
-): Promise<{ id: string; filePath: string; title: string; tags: string[] }> {
+): Promise<WriteNoteResult> {
   const notesDir = options?.notesDir ?? "notes";
   const result = await validateNotes(notesDir, process.cwd());
   const note = result.notes.find((entry) => entry.id === noteId);
 
   if (!note) {
-    throw new Error(`Note not found: ${noteId}`);
+    throw new CxError(`Note not found: ${noteId}`, 2);
   }
 
   const filePath = note.filePath;
@@ -230,11 +249,7 @@ export async function updateNote(
       )
     : [];
   const body = options?.body ?? parsed.body;
-  const linksIndex = body.search(/^\s*##\s+Links\s*$/m);
-  const bodySection =
-    linksIndex >= 0 ? body.slice(0, linksIndex).trimEnd() : body.trimEnd();
-  const linksSection =
-    linksIndex >= 0 ? body.slice(linksIndex).trimEnd() : "## Links\n\n";
+  const { bodySection, linksSection } = splitBodyAndLinks(body);
   const rendered = renderUpdatedNote({
     id: note.id,
     aliases,
@@ -251,6 +266,91 @@ export async function updateNote(
     filePath,
     title: options?.title ?? note.title,
     tags: options?.tags ?? existingTags,
+  };
+}
+
+export async function renameNote(
+  noteId: string,
+  title: string,
+  options?: {
+    notesDir?: string | undefined;
+  },
+): Promise<WriteNoteResult & { previousFilePath: string }> {
+  const notesDir = options?.notesDir ?? "notes";
+  const result = await validateNotes(notesDir, process.cwd());
+  const note = result.notes.find((entry) => entry.id === noteId);
+
+  if (!note) {
+    throw new CxError(`Note not found: ${noteId}`, 2);
+  }
+
+  const currentPath = note.filePath;
+  const content = await fs.readFile(currentPath, "utf8");
+  const parsed = parseMarkdownFrontmatter(content);
+  const aliases = Array.isArray(parsed.frontmatter.aliases)
+    ? parsed.frontmatter.aliases.filter(
+        (alias): alias is string => typeof alias === "string" && alias.trim().length > 0,
+      )
+    : [];
+  const tags = Array.isArray(parsed.frontmatter.tags)
+    ? parsed.frontmatter.tags.filter(
+        (tag): tag is string => typeof tag === "string" && tag.trim().length > 0,
+      )
+    : [];
+  const { bodySection, linksSection } = splitBodyAndLinks(parsed.body);
+  const rendered = renderUpdatedNote({
+    id: note.id,
+    aliases,
+    tags,
+    title,
+    body: bodySection,
+    linksSection,
+  });
+
+  const baseName = fileNameFromTitle(title);
+  const notesPath = path.resolve(notesDir);
+  const desiredPath = path.join(notesPath, `${baseName}.md`);
+  let finalPath = desiredPath;
+  if (path.resolve(desiredPath) !== path.resolve(currentPath)) {
+    if (await pathExists(desiredPath)) {
+      finalPath = path.join(notesPath, `${baseName} - ${note.id}.md`);
+    }
+    if (path.resolve(finalPath) !== path.resolve(currentPath)) {
+      await fs.rename(currentPath, finalPath);
+    }
+  }
+
+  await fs.writeFile(finalPath, rendered, "utf8");
+
+  return {
+    id: note.id,
+    filePath: finalPath,
+    previousFilePath: currentPath,
+    title,
+    tags,
+  };
+}
+
+export async function deleteNote(
+  noteId: string,
+  options?: {
+    notesDir?: string | undefined;
+  },
+): Promise<{ id: string; filePath: string; title: string }> {
+  const notesDir = options?.notesDir ?? "notes";
+  const result = await validateNotes(notesDir, process.cwd());
+  const note = result.notes.find((entry) => entry.id === noteId);
+
+  if (!note) {
+    throw new CxError(`Note not found: ${noteId}`, 2);
+  }
+
+  await fs.rm(note.filePath, { force: true });
+
+  return {
+    id: note.id,
+    filePath: note.filePath,
+    title: note.title,
   };
 }
 

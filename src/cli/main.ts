@@ -443,7 +443,7 @@ export async function main(argv: string[]): Promise<number> {
           )
           .example(
             "$0 doctor workflow --task 'review and update linked notes'",
-            "Recommend bundle, inspect, or MCP for a task.",
+            "Recommend an ordered workflow path for a task.",
           )
           .positional("subcommand", {
             type: "string",
@@ -462,7 +462,7 @@ export async function main(argv: string[]): Promise<number> {
           .option("task", {
             type: "string",
             description:
-              "Task description used by doctor workflow to recommend bundle, inspect, or MCP.",
+              "Task description used by doctor workflow to recommend inspect, bundle, or MCP steps.",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -643,7 +643,7 @@ export async function main(argv: string[]): Promise<number> {
 
   cli.command(
     "mcp",
-    "Start the CX MCP server for live workspace exploration.",
+    "Start the CX MCP server for live workspace exploration and note maintenance.",
     (command) =>
       command.example(
         "$0 mcp",

@@ -110,15 +110,21 @@ describe("cx MCP server", () => {
     }).server._instructions;
 
     expect(toolNames).toEqual([
+      "bundle",
+      "doctor_mcp",
+      "doctor_workflow",
       "grep",
+      "inspect",
       "list",
       "notes_backlinks",
       "notes_code_links",
+      "notes_delete",
       "notes_links",
       "notes_list",
       "notes_new",
       "notes_orphans",
       "notes_read",
+      "notes_rename",
       "notes_search",
       "notes_update",
       "read",
@@ -382,6 +388,160 @@ describe("cx MCP server", () => {
       "utf8",
     );
     expect(updatedContent).toContain("Updated body.");
+  });
+
+  test("notes_rename updates the note title and filename", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Rename Source",
+        body: "The original note body.",
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+    };
+
+    const renameResult = await tools.notes_rename.handler(
+      {
+        id: createPayload.id,
+        title: "Rename Target",
+      },
+      {} as never,
+    );
+    const renamePayload = JSON.parse(renameResult.content[0].text) as {
+      id: string;
+      title: string;
+      previousFilePath: string;
+      filePath: string;
+    };
+
+    expect(renamePayload.id).toBe(createPayload.id);
+    expect(renamePayload.title).toBe("Rename Target");
+    expect(renamePayload.previousFilePath).toBe(createPayload.filePath);
+    expect(renamePayload.filePath).toContain("Rename Target");
+
+    const renamedContent = await fs.readFile(
+      path.join(project.root, renamePayload.filePath),
+      "utf8",
+    );
+    expect(renamedContent).toContain("Rename Target");
+  });
+
+  test("notes_delete removes an existing note", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Delete Source",
+        body: "A note to remove.",
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+    };
+
+    const deleteResult = await tools.notes_delete.handler(
+      {
+        id: createPayload.id,
+      },
+      {} as never,
+    );
+    const deletePayload = JSON.parse(deleteResult.content[0].text) as {
+      id: string;
+      title: string;
+      filePath: string;
+    };
+
+    expect(deletePayload.id).toBe(createPayload.id);
+    expect(deletePayload.title).toBe("Delete Source");
+    await expect(
+      fs.stat(path.join(project.root, deletePayload.filePath)),
+    ).rejects.toThrow();
+  });
+
+  test("inspect and bundle preview report live workspace planning data", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const inspectResult = await tools.inspect.handler(
+      { tokenBreakdown: true },
+      {} as never,
+    );
+    const inspectPayload = JSON.parse(inspectResult.content[0].text) as {
+      command: string;
+      summary: { projectName: string; bundleDir: string; sectionCount: number };
+      bundleComparison: { available: boolean };
+      tokenBreakdown?: { totalTokenCount: number };
+    };
+
+    expect(inspectPayload.command).toBe("inspect");
+    expect(inspectPayload.summary.projectName).toBe("demo");
+    expect(inspectPayload.summary.sectionCount).toBeGreaterThan(0);
+    expect(inspectPayload.bundleComparison.available).toBe(false);
+    expect(inspectPayload.tokenBreakdown).toBeDefined();
+
+    const bundleResult = await tools.bundle.handler(
+      {},
+      {} as never,
+    );
+    const bundlePayload = JSON.parse(bundleResult.content[0].text) as {
+      command: string;
+      bundleDir: string;
+      note: string;
+    };
+
+    expect(bundlePayload.command).toBe("bundle preview");
+    expect(bundlePayload.bundleDir).toContain("dist");
+    expect(bundlePayload.note).toContain("live workspace");
+  });
+
+  test("doctor workflow recommends an ordered path for mixed tasks", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const result = await tools.doctor_workflow.handler(
+      {
+        task: "inspect the plan, bundle a handoff snapshot, and update notes in MCP",
+      },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      mode: string;
+      sequence: string[];
+      reason: string;
+    };
+
+    expect(payload.mode).toBe("inspect");
+    expect(payload.sequence).toEqual(["inspect", "bundle", "mcp"]);
+    expect(payload.reason).toContain("live note work");
   });
 
   test("notes_links reports unresolved links for a created note", async () => {

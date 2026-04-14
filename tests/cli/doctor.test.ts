@@ -382,8 +382,37 @@ describe("doctor command", () => {
         process.stdout.write = write;
       }
 
-      expect(output).toContain("Recommended mode: cx bundle");
+      expect(output).toContain("Recommended path: cx bundle");
+      expect(output).toContain("Primary mode: cx bundle");
       expect(output).toContain("snapshot");
+    });
+  });
+
+  test("doctor workflow recommends inspect, bundle, then MCP for mixed tasks", async () => {
+    await runDoctorTest(async () => {
+      const write = process.stdout.write;
+      let output = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        output += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      try {
+        await expect(
+          main([
+            "doctor",
+            "workflow",
+            "--task",
+            "inspect the plan, bundle a handoff snapshot, and update notes in MCP",
+          ]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = write;
+      }
+
+      expect(output).toContain("Recommended path: cx inspect -> cx bundle -> cx mcp");
+      expect(output).toContain("Primary mode: cx inspect");
+      expect(output).toContain("live note work");
     });
   });
 
@@ -413,6 +442,7 @@ describe("doctor command", () => {
       const payload = JSON.parse(output) as {
         task?: string;
         mode?: string;
+        sequence?: string[];
         reason?: string;
         signals?: string[];
       };
@@ -421,6 +451,7 @@ describe("doctor command", () => {
       expect(payload.mode).toBe("mcp");
       expect(payload.reason).toContain("live MCP workspace");
       expect(payload.signals).toContain("mcp");
+      expect(payload.sequence).toEqual(["mcp"]);
     });
   });
 });

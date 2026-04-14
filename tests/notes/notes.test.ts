@@ -5,9 +5,11 @@ import path from "node:path";
 
 import {
   createNewNote,
+  deleteNote,
   listNotes,
   readNote,
   runNotesCommand,
+  renameNote,
   searchNotes,
   updateNote,
 } from "../../src/cli/commands/notes.js";
@@ -286,6 +288,48 @@ describe("Notes Commands", () => {
       expect(content).toContain("Revised body.");
       expect(content).toContain("new");
       expect(content).not.toContain("Original body.");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("renames an existing note without changing its id", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("Old Title", {
+        body: "Rename me.",
+      });
+
+      const renamed = await renameNote(created.id, "New Title");
+
+      expect(renamed.id).toBe(created.id);
+      expect(renamed.title).toBe("New Title");
+      expect(path.basename(renamed.filePath)).toContain("New Title");
+      expect(renamed.previousFilePath).toBe(created.filePath);
+
+      const content = await fs.readFile(renamed.filePath, "utf8");
+      expect(content).toContain("Rename me.");
+      expect(content).toContain("title: \"New Title\"");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("deletes an existing note", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("Disposable Note", {
+        body: "This note can be deleted.",
+      });
+
+      const deleted = await deleteNote(created.id);
+
+      expect(deleted.id).toBe(created.id);
+      await expect(fs.stat(deleted.filePath)).rejects.toThrow();
     } finally {
       process.chdir(origCwd);
     }

@@ -1,7 +1,9 @@
 export {
   createNewNote,
+  deleteNote,
   listNotes,
   readNote,
+  renameNote,
   searchNotes,
   updateNote,
 } from "./notes/common.js";
