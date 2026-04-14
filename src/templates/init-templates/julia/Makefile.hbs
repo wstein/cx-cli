@@ -1,0 +1,44 @@
+# Makefile for Julia workspaces.
+#
+# Provides a normalized interface for Julia build commands and cx packaging.
+#
+# Usage:
+#   make          # build the Julia project
+#   make build    # julia --project build.jl
+#   make test     # julia --project -e 'using Pkg; Pkg.test()'
+#   make bundle   # build and package the cx bundle
+#   make validate # validate the cx configuration
+#   make inspect  # show the computed bundle plan
+#   make clean    # remove generated output
+#
+JULIA ?= julia
+CX ?= cx
+CX_CONFIG ?= cx.toml
+CLEAN_DIR ?= dist
+
+.PHONY: all build test bundle validate inspect clean notes help
+all: build
+
+build: ## Build the Julia project.
+	$(JULIA) --project build.jl
+
+test: ## Run Julia tests.
+	$(JULIA) --project -e 'using Pkg; Pkg.test()'
+
+bundle: build ## Build native artifacts, then package a cx bundle.
+	$(CX) bundle --config "$(CX_CONFIG)"
+
+inspect: ## Show the computed bundle plan.
+	$(CX) inspect --config "$(CX_CONFIG)"
+
+validate: ## Validate the cx configuration.
+	$(CX) validate --config "$(CX_CONFIG)"
+
+clean: ## Remove generated output files.
+	rm -rf "$(CLEAN_DIR)" build
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Show available targets.
+	@printf "Available targets:\n  build test bundle validate inspect clean notes\n"

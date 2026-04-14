@@ -1,0 +1,76 @@
+#:schema ./schemas/cx-config-v1.schema.json
+schema_version = 1
+project_name = "{{projectName}}"
+source_root = "."
+output_dir = "dist/{{projectName}}-mcp-bundle"
+
+[output.extensions]
+xml = ".xml.txt"
+json = ".json.txt"
+markdown = ".md"
+plain = ".txt"
+
+[repomix]
+style = "{{style}}"
+show_line_numbers = false
+include_empty_directories = false
+security_check = true
+
+[files]
+include = []
+exclude = ["node_modules/**", "tmp/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[dedup]
+mode = "fail"
+order = "config"
+
+[manifest]
+format = "json"
+pretty = true
+include_file_sha256 = true
+include_output_sha256 = true
+include_output_spans = true
+include_source_metadata = true
+
+[checksums]
+algorithm = "sha256"
+file_name = "{project}.sha256"
+
+tokens = { encoding = "o200k_base" }
+
+[assets]
+include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
+exclude = []
+mode = "copy"
+target_dir = "assets"
+layout = "flat"
+
+[sections.docs]
+include = ["docs/**", "notes/**", "README.md", "*.md"]
+exclude = []
+
+[sections.repo]
+include = [
+  ".gitignore",
+  ".github/workflows/ci.yml",
+  "biome.json",
+  "bin/cx",
+  "cx.toml",
+  "cx-mcp.toml",
+  "scripts/**",
+  "schemas/**",
+  "package.json",
+  "tsconfig.json",
+  "tsconfig.test.json",
+]
+exclude = []
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+
+[sections.tests]
+include = ["tests/**"]
+exclude = []

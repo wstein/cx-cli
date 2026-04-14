@@ -214,6 +214,16 @@ export async function main(argv: string[]): Promise<number> {
           .option("stdout", { type: "boolean", default: false })
           .option("style", {
             choices: ["xml", "markdown", "json", "plain"] as const,
+          })
+          .option("template", {
+            type: "string",
+            description:
+              "Explicit init template name to use, e.g. base, rust, go, typescript, python, java, elixir, julia, crystal.",
+          })
+          .option("template-list", {
+            type: "boolean",
+            default: false,
+            description: "Show supported init templates and exit.",
           }),
       async (args) => {
         exitCode = await runInitCommand({
@@ -223,6 +233,8 @@ export async function main(argv: string[]): Promise<number> {
           name: args.name,
           stdout: args.stdout,
           style: args.style,
+          template: args.template,
+          templateList: args["template-list"],
         });
       },
     )

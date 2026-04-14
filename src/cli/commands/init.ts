@@ -1,9 +1,13 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 
-import { DEFAULT_CONFIG_TEMPLATE } from "../../config/defaults.js";
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
+import {
+  renderInitTemplate,
+  renderInitTemplateFile,
+  getSupportedTemplates,
+  type TemplateVariables,
+} from "../../templates/index.js";
 import { CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
@@ -23,6 +27,8 @@ export interface InitArgs {
   name: string | undefined;
   stdout: boolean;
   style: "xml" | "markdown" | "json" | "plain" | undefined;
+  template?: string | undefined;
+  templateList: boolean;
 }
 
 async function resolveInteractiveValues(
@@ -74,78 +80,49 @@ async function resolveInteractiveValues(
   return { name, style };
 }
 
-function renderMakefile(): string {
-  return `# Generic Makefile for cx projects.
-#
-# This Makefile is intentionally minimal and AI-friendly.
-# It defines common sandboxed tasks for building, inspecting,
-# validating, and cleaning cx-generated output.
-#
-# Usage:
-#   make          # build the default bundle
-#   make bundle   # run cx bundle
-#   make validate # validate project configuration
-#   make inspect  # inspect the bundle plan
-#   make clean    # remove generated artifacts
-#
-CX_CONFIG ?= cx.toml
-CLEAN_DIR ?= dist
-
-.PHONY: all bundle validate inspect clean notes help
-all: bundle
-
-bundle: ## Build a bundle from the cx configuration.
-	cx bundle --config "$(CX_CONFIG)"
-
-inspect: ## Show the computed bundle plan.
-	cx inspect --config "$(CX_CONFIG)"
-
-validate: ## Validate the current project configuration.
-	cx validate --config "$(CX_CONFIG)"
-
-clean: ## Remove generated output files.
-	rm -rf "$(CLEAN_DIR)"
-
-notes: ## Print the notes directory path.
-	@printf "Notes directory: notes\n"
-
-help: ## Describe available targets.
-	@printf "Available targets:\n  bundle validate inspect clean notes\n"
-`;
-}
-
-async function writeProjectMakefile(
+async function renderProjectTemplate(
+  projectRoot: string,
+  templateName: string,
+  destinationPath: string,
+  variables: TemplateVariables,
   force: boolean,
-): Promise<{ created: boolean; updated: boolean }> {
-  const makefilePath = path.join(process.cwd(), "Makefile");
-  const exists = await pathExists(makefilePath);
-  if (exists && !force) {
-    return { created: false, updated: false };
-  }
-
-  await fs.writeFile(makefilePath, renderMakefile(), "utf8");
-  return { created: !exists, updated: exists };
+  requestedEnvironment?: string,
+) {
+  return renderInitTemplateFile(
+    projectRoot,
+    destinationPath,
+    templateName,
+    variables,
+    force,
+    requestedEnvironment,
+  );
 }
 
 export async function runInitCommand(args: InitArgs): Promise<number> {
+  if (args.templateList) {
+    const templates = getSupportedTemplates();
+    process.stdout.write(
+      templates
+        .map((template: { name: string; description: string }) =>
+          `${template.name}: ${template.description}`,
+        )
+        .join("\n") + "\n",
+    );
+    return 0;
+  }
+
   const resolved = await resolveInteractiveValues(args);
-  let output = DEFAULT_CONFIG_TEMPLATE;
+  const templateVariables: TemplateVariables = {
+    projectName: resolved.name ?? "myproject",
+    style: resolved.style ?? "xml",
+  };
 
-  if (resolved.name) {
-    assertSafeProjectName(resolved.name);
-    output = output.replace(
-      'project_name = "myproject"',
-      `project_name = "${resolved.name}"`,
-    );
-    output = output.replace(
-      'output_dir = "dist/myproject-bundle"',
-      `output_dir = "dist/${resolved.name}-bundle"`,
-    );
-  }
-
-  if (resolved.style) {
-    output = output.replace('style = "xml"', `style = "${resolved.style}"`);
-  }
+  const output = await renderInitTemplate(
+    process.cwd(),
+    "cx.toml",
+    templateVariables,
+    args.template,
+  );
 
   if (args.stdout) {
     if (args.json ?? false) {
@@ -169,7 +146,22 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   await fs.writeFile("cx.toml", output, "utf8");
-  const makefileResult = await writeProjectMakefile(args.force);
+  const makefileResult = await renderProjectTemplate(
+    process.cwd(),
+    "Makefile",
+    "Makefile",
+    templateVariables,
+    args.force,
+    args.template,
+  );
+  const mcpResult = await renderProjectTemplate(
+    process.cwd(),
+    "cx-mcp.toml",
+    "cx-mcp.toml",
+    templateVariables,
+    args.force,
+    args.template,
+  );
   const notesScaffold = await scaffoldNotesModule(process.cwd(), {
     force: args.force,
   });
@@ -181,6 +173,11 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       printInfo("Created Makefile");
     } else if (makefileResult.updated) {
       printInfo("Updated Makefile");
+    }
+    if (mcpResult.created) {
+      printInfo("Created cx-mcp.toml");
+    } else if (mcpResult.updated) {
+      printInfo("Updated cx-mcp.toml");
     }
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);
@@ -203,6 +200,8 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       notesUpdated: notesScaffold.updatedPaths,
       makefileCreated: makefileResult.created,
       makefileUpdated: makefileResult.updated,
+      mcpCreated: mcpResult.created,
+      mcpUpdated: mcpResult.updated,
     });
   }
   return 0;

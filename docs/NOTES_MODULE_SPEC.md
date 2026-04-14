@@ -49,6 +49,7 @@ The second workflow is the reason the notes module exists inside `cx` instead of
 When `cx init` writes a project to disk, it must create:
 
 - `cx.toml`
+- `Makefile`
 - `notes/README.md`
 - `notes/template-new-zettel.md`
 

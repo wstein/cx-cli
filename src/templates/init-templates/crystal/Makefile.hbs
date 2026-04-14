@@ -1,0 +1,44 @@
+# Makefile for Crystal workspaces.
+#
+# Provides a normalized interface for Crystal build commands and cx packaging.
+#
+# Usage:
+#   make          # build the Crystal project
+#   make build    # crystal build src/main.cr --release
+#   make test     # crystal spec
+#   make bundle   # build and package the cx bundle
+#   make validate # validate the cx configuration
+#   make inspect  # show the computed bundle plan
+#   make clean    # remove generated output
+#
+CRYSTAL ?= crystal
+CX ?= cx
+CX_CONFIG ?= cx.toml
+CLEAN_DIR ?= dist
+
+.PHONY: all build test bundle validate inspect clean notes help
+all: build
+
+build: ## Build the Crystal project in release mode.
+	$(CRYSTAL) build src/main.cr --release
+
+test: ## Run Crystal specs.
+	$(CRYSTAL) spec
+
+bundle: build ## Build native artifacts, then package a cx bundle.
+	$(CX) bundle --config "$(CX_CONFIG)"
+
+inspect: ## Show the computed bundle plan.
+	$(CX) inspect --config "$(CX_CONFIG)"
+
+validate: ## Validate the cx configuration.
+	$(CX) validate --config "$(CX_CONFIG)"
+
+clean: ## Remove generated output files.
+	rm -rf "$(CLEAN_DIR)" .crystal .shards
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Show available targets.
+	@printf "Available targets:\n  build test bundle validate inspect clean notes\n"

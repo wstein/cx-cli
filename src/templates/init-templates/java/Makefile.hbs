@@ -1,0 +1,61 @@
+# Makefile for Java workspaces.
+#
+# Provides a normalized interface for Maven/Gradle builds and cx packaging.
+#
+# Usage:
+#   make          # build the Java project
+#   make build    # run Maven or Gradle build
+#   make test     # run Maven or Gradle tests
+#   make bundle   # package a cx bundle
+#   make validate # validate the cx configuration
+#   make inspect  # show the computed bundle plan
+#   make clean    # remove generated output
+#
+MAVEN ?= mvn
+GRADLE ?= gradle
+CX ?= cx
+CX_CONFIG ?= cx.toml
+CLEAN_DIR ?= dist
+
+.PHONY: all build test bundle validate inspect clean notes help
+all: build
+
+build: ## Build the Java project using Maven or Gradle.
+	@if [ -f pom.xml ]; then \
+		$(MAVEN) package; \
+	elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \
+		$(GRADLE) build; \
+	else \
+		echo "No Maven or Gradle build file found."; \
+		exit 1; \
+	fi
+
+test: ## Run Java tests using Maven or Gradle.
+	@if [ -f pom.xml ]; then \
+		$(MAVEN) test; \
+	elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \
+		$(GRADLE) test; \
+	else \
+		echo "No Maven or Gradle build file found."; \
+		exit 1; \
+	fi
+
+bundle: build ## Build native artifacts, then package a cx bundle.
+	$(CX) bundle --config "$(CX_CONFIG)"
+
+inspect: ## Show the computed bundle plan.
+	$(CX) inspect --config "$(CX_CONFIG)"
+
+validate: ## Validate the cx configuration.
+	$(CX) validate --config "$(CX_CONFIG)"
+
+clean: ## Remove generated output files.
+	$(MAVEN) clean || true
+	$(GRADLE) clean || true
+	rm -rf "$(CLEAN_DIR)"
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Show available targets.
+	@printf "Available targets:\n  build test bundle validate inspect clean notes\n"

@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { parse as parseToml } from "smol-toml";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
@@ -150,7 +152,7 @@ exclude = []
     }
   });
 
-  test("cx init creates a generic Makefile for project automation", async () => {
+  test("cx init creates a generic base Makefile for unknown workspace environments", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-makefile-"));
     const cwd = process.cwd();
 
@@ -161,15 +163,104 @@ exclude = []
       const makefilePath = path.join(tempDir, "Makefile");
       const makefileContent = await fs.readFile(makefilePath, "utf8");
 
-      expect(makefileContent).toContain("CX_CONFIG ?= cx.toml");
-      expect(makefileContent).toContain("bundle:");
-      expect(makefileContent).toContain("cx bundle --config \"$(CX_CONFIG)\"");
+      expect(makefileContent).toContain("CX ?= cx");
+      expect(makefileContent).toContain("all: build");
+      expect(makefileContent).toContain("build:");
+      expect(makefileContent).toContain("bundle: build");
+      expect(makefileContent).toContain("$(CX) bundle --config \"$(CX_CONFIG)\"");
       expect(makefileContent).toContain("validate:");
       expect(makefileContent).toContain("inspect:");
       expect(makefileContent).toContain("clean:");
     } finally {
       process.chdir(cwd);
     }
+  });
+
+  test("cx init selects a language-specific Makefile template when the workspace has detected source files", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-makefile-go-"));
+    const cwd = process.cwd();
+
+    try {
+      process.chdir(tempDir);
+      await fs.writeFile(path.join(tempDir, "go.mod"), "module example\n", "utf8");
+      await main(["init", "--name", "go-makefile-test", "--force"]);
+
+      const makefilePath = path.join(tempDir, "Makefile");
+      const makefileContent = await fs.readFile(makefilePath, "utf8");
+
+      expect(makefileContent).toContain("GO ?= go");
+      expect(makefileContent).toContain("$(GO) build ./...");
+      expect(makefileContent).toContain("bundle: build");
+      expect(makefileContent).toContain("$(CX) bundle --config \"$(CX_CONFIG)\"");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
+  test("cx init generates cx-mcp.toml and supports explicit template selection", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-template-"));
+    const cwd = process.cwd();
+
+    try {
+      process.chdir(tempDir);
+      await fs.writeFile(path.join(tempDir, "package.json"), "{}\n", "utf8");
+      await fs.writeFile(path.join(tempDir, "tsconfig.json"), "{}\n", "utf8");
+
+      await main([
+        "init",
+        "--name",
+        "typescript-test",
+        "--template",
+        "typescript",
+        "--force",
+      ]);
+
+      const mcpPath = path.join(tempDir, "cx-mcp.toml");
+      const mcpContent = await fs.readFile(mcpPath, "utf8");
+
+      expect(mcpContent).toContain("project_name = \"typescript-test\"");
+      expect(mcpContent).toContain("include = [\"src/**\", \"dist/**\"]");
+      expect(mcpContent).toContain("output_dir = \"dist/typescript-test-mcp-bundle\"");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
+  test("cx init prints supported templates with --template-list", async () => {
+    const write = process.stdout.write;
+    let output = "";
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      output += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await main(["init", "--template-list"]);
+    } finally {
+      process.stdout.write = write;
+    }
+
+    expect(output).toContain("rust: Rust workspaces using Cargo.");
+    expect(output).toContain("typescript: TypeScript/Node.js workspaces using package.json.");
+    expect(output).toContain("python: Python workspaces using pyproject.toml or requirements.txt.");
+  });
+
+  test("init templates are included in dist after build", async () => {
+    const root = process.cwd();
+    const distPath = path.join(root, "dist", "src", "templates", "init-templates");
+    await fs.rm(path.join(root, "dist"), { recursive: true, force: true });
+
+    const execAsync = promisify(exec);
+    const { stdout } = await execAsync("bun run build", { cwd: root });
+    expect(stdout).toContain("Copied init templates from");
+
+    const makefileExists = await fs.access(
+      path.join(distPath, "base", "Makefile.hbs"),
+    ).then(
+      () => true,
+      () => false,
+    );
+    expect(makefileExists).toBe(true);
   });
 
   test("generated cx.toml is accepted by load.ts", async () => {
