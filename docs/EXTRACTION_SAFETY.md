@@ -21,6 +21,10 @@ In practical terms:
 
 If a bundle was forced dirty, extraction still uses the manifest as written. The presence of `forced_dirty` does not weaken hash checking or span validation; it simply tells reviewers that the bundle came from an explicitly overridden working tree.
 
+If your promotion pipeline forbids operator overrides, quarantine the bundle
+before extraction by parsing the manifest `dirtyState` field in CI. The
+quarantine logic belongs upstream of extraction, not inside the extractor.
+
 ## Status Meanings
 
 `cx` uses four statuses during recovery:

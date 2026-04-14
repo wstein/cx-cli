@@ -111,7 +111,7 @@ cx init --name demo
 
 `cx init` writes both `cx.toml` and a `notes/` directory with:
 
-- `notes/README.md` as the Zettelkasten 101 guide
+- `notes/README.md` as the repository notes guide
 - `notes/template-new-zettel.md` as the atomic note template
 
 The generated notes directory is intentionally part of the repository contract. The idea is to keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
@@ -190,6 +190,10 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 ```
 
 `CX_STRICT=true` forces all configurable Category B behaviors to fail fast. That is the safest default for automated pipelines.
+
+If an operator ever uses `--force` outside CI, add a manifest quarantine step
+that rejects `forced_dirty` bundles before promotion. The operator manual
+includes ready-to-use `jq` and Node.js examples.
 
 ## Command Overview
 

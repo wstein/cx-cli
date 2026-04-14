@@ -292,6 +292,10 @@ When `--force` is used, the manifest records `dirtyState = "forced_dirty"` and
 includes the list of modified files in `modifiedFiles`. This lets reviewers see
 exactly which files were dirty when the bundle was built.
 
+Keep the escape hatch for local emergencies. Do not rely on terminal warnings
+alone to contain it. Downstream automation should quarantine `forced_dirty`
+bundles before they enter a promotion path.
+
 The dirty-state taxonomy is deliberately asymmetric:
 
 - `clean` and `safe_dirty` are acceptable bundle inputs.
@@ -308,6 +312,74 @@ The dirty-state check is bypassed entirely when no VCS is detected (filesystem
 fallback). In that case, `vcsProvider = "none"` and `dirtyState = "clean"` are
 recorded unconditionally.
 
+### Downstream Quarantine For `forced_dirty`
+
+If a midnight hotfix requires `--force`, treat the resulting bundle as a
+quarantine candidate until another system explicitly approves it.
+
+`jq` gate:
+
+```bash
+manifest=$(echo dist/myproject-bundle/*-manifest.json)
+
+state=$(jq -r '.dirtyState // ""' "$manifest")
+
+case "$state" in
+	clean|safe_dirty)
+		echo "cx manifest state: $state"
+		;;
+	forced_dirty)
+		echo "Quarantining forced_dirty bundle: $manifest" >&2
+		jq -r '.modifiedFiles[]?' "$manifest" >&2
+		exit 42
+		;;
+	*)
+		echo "Unknown dirtyState '$state' in $manifest" >&2
+		exit 43
+		;;
+esac
+```
+
+Node.js gate:
+
+```js
+import fs from "node:fs";
+
+const manifestPath = process.argv[2];
+
+if (!manifestPath) {
+	console.error("Usage: node quarantine-dirty.mjs <manifest.json>");
+	process.exit(64);
+}
+
+const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+const dirtyState = manifest.dirtyState;
+
+if (dirtyState === "clean" || dirtyState === "safe_dirty") {
+	console.log(`cx manifest state: ${dirtyState}`);
+	process.exit(0);
+}
+
+if (dirtyState === "forced_dirty") {
+	console.error(`Quarantining forced_dirty bundle: ${manifestPath}`);
+	for (const file of manifest.modifiedFiles ?? []) {
+		console.error(`  modified: ${file}`);
+	}
+	process.exit(42);
+}
+
+console.error(`Unknown dirtyState '${dirtyState}' in ${manifestPath}`);
+process.exit(43);
+```
+
+These scripts make the bundle self-describing for machines: operators can use
+`--force` when necessary, and CI can still halt promotion based on manifest
+data instead of log scraping.
+
+Longer term, this logic could move into a native command such as
+`cx verify --quarantine-dirty`, but the current manifest format already gives
+you the structured data needed to enforce the policy today.
+
 ## Workflow: Safe CI Operation
 
 For automated pipelines, prefer strict mode:
@@ -318,6 +390,10 @@ cx verify dist/myproject-bundle --against . --config cx.toml
 ```
 
 This forces all Category B behaviors to fail, not warn. That matters because warning-only behavior is easy to miss in logs and can otherwise drift into production habits.
+
+If your process permits emergency `--force` usage outside CI, add a post-bundle
+manifest gate like the examples above so any `forced_dirty` artifact is
+quarantined before deployment, publication, or secondary indexing.
 
 If you cannot set environment variables at the job level, use:
 
