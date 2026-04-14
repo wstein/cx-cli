@@ -213,7 +213,8 @@ exclude = []
       expect(makefileContent).toContain("build:");
 
       const mcpContent = await fs.readFile(path.join(tempDir, "cx-mcp.toml"), "utf8");
-      expect(mcpContent).toContain("project_name = \"existing-test\"");
+      expect(mcpContent).toContain("extends = \"./cx.toml\"");
+      expect(mcpContent).not.toContain("project_name = \"existing-test\"");
     } finally {
       process.chdir(cwd);
     }
@@ -240,9 +241,10 @@ exclude = []
       const mcpPath = path.join(tempDir, "cx-mcp.toml");
       const mcpContent = await fs.readFile(mcpPath, "utf8");
 
-      expect(mcpContent).toContain("project_name = \"typescript-test\"");
-      expect(mcpContent).toContain("include = [\"src/**\", \"dist/**\"]");
-      expect(mcpContent).toContain("output_dir = \"dist/typescript-test-mcp-bundle\"");
+      expect(mcpContent).toContain("extends = \"./cx.toml\"");
+      expect(mcpContent).not.toContain("project_name = \"typescript-test\"");
+      expect(mcpContent).not.toContain("include = [\"src/**\", \"dist/**\"]");
+      expect(mcpContent).not.toContain("output_dir = \"dist/typescript-test-mcp-bundle\"");
       expect(mcpContent).toContain("[mcp.clients.claude]");
       expect(mcpContent).toContain("provider = \"anthropic\"");
       expect(mcpContent).toContain("[mcp.clients.github_copilot]");
