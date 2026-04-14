@@ -1,33 +1,5 @@
 # CX Operator Manual
 
-## Who This Manual Is For
-
-This guide is for engineers running `cx` as an operational tool: local bundle authors, CI maintainers, and remote-runner owners.
-
-If you are new to the project, read the README first. If you need the invariants and internal model, read [Architecture](ARCHITECTURE.md). If you need the detailed knobs, read [Configuration Reference](config-reference.md).
-
-For the full documentation map, see [docs/README.md](README.md). For the
-editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
-
-## Core Commands
-
-| Command | Use it when |
-| --- | --- |
-| `cx init` | You need a starter config |
-| `cx inspect` | You want to preview the plan before building |
-| `cx bundle` | You want to produce the bundle artifacts |
-| `cx validate` | You want schema and structure validation |
-| `cx verify` | You want checksum and source-tree verification |
-| `cx list` | You want to browse stored files and statuses |
-| `cx extract` | You want to restore selected files from the bundle |
-| `cx mcp` | You want to start the MCP server with the agent profile |
-| `cx notes links` | You want to audit unresolved note or code references |
-| `cx doctor overlaps` | A plan fails because one file matches multiple sections |
-| `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
-| `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
-| `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
-| `cx completion` | You want shell-native command and flag completion |
-
 ## Quick Operator Path
 
 If you want the shortest path to a useful result, use this flow:
@@ -52,6 +24,49 @@ The native MCP server exposes file-based `list`, `grep`, and `read` tools over
 the workspace scope. Use `list` to enumerate visible files, `grep` to search
 their contents, and `read` to inspect a specific file with optional line
 anchors without switching back to the packaging workflow.
+
+## Who This Manual Is For
+
+This guide is for engineers running `cx` as an operational tool: local bundle authors, CI maintainers, and remote-runner owners.
+
+If you are new to the project, read the README first. If you need the invariants and internal model, read [Architecture](ARCHITECTURE.md). If you need the detailed knobs, read [Configuration Reference](config-reference.md).
+
+For the full documentation map, see [docs/README.md](README.md). For the
+editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
+
+## Friday To Monday Map
+
+Read the rest of this manual with one concrete timeline in mind.
+
+Friday afternoon, you cut a bundle from a repository state that has to survive a weekend of branch churn, half-finished experiments, and CI retries. Monday morning, a remote runner or LLM agent opens that bundle and must be able to trust what it sees without asking a human what changed in between.
+
+That is why `cx` keeps the hard edges:
+
+- SHA-256 sidecars prove the emitted artifacts were not silently edited after bundling.
+- The manifest records the exact file inventory, token counts, note summaries, and dirty-state provenance that downstream automation relies on.
+- `verify` exists so Monday's runner can compare the bundle back to a source tree instead of trusting a stale directory by habit.
+- Dirty-state gating stops tracked-file drift from becoming an unreviewable production input.
+
+The invariants are not philosophical decoration. They are the mechanisms that keep Friday's intent queryable and safe on Monday.
+
+## Core Commands
+
+| Command | Use it when |
+| --- | --- |
+| `cx init` | You need a starter config |
+| `cx inspect` | You want to preview the plan before building |
+| `cx bundle` | You want to produce the bundle artifacts |
+| `cx validate` | You want schema and structure validation |
+| `cx verify` | You want checksum and source-tree verification |
+| `cx list` | You want to browse stored files and statuses |
+| `cx extract` | You want to restore selected files from the bundle |
+| `cx mcp` | You want to start the MCP server with the agent profile |
+| `cx notes links` | You want to audit unresolved note or code references |
+| `cx doctor overlaps` | A plan fails because one file matches multiple sections |
+| `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
+| `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
+| `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
+| `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
 

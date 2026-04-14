@@ -11,6 +11,17 @@ Start with the operator path:
 5. `cx doctor mcp`
 6. `cx doctor secrets`
 
+Read those commands through one timeline.
+
+Friday, you build a bundle that has to survive branch churn, partial edits, and CI retries. Monday, an agent or remote runner opens that bundle and must be able to trust it without reconstructing the human story from scratch. That is why `cx` writes manifests, checksum sidecars, token counts, and dirty-state provenance instead of acting like a disposable prompt packer.
+
+The strict invariants protect downstream automation:
+
+- SHA-256 checksums prove the emitted artifacts were not silently edited.
+- The manifest preserves the exact file inventory, note summaries, and token budget that later jobs need.
+- `verify` compares the bundle back to a source tree so drift is explicit.
+- Dirty-state gating stops tracked-file changes from masquerading as reviewed inputs.
+
 It plans repository sections, renders one output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
 It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains. The manifest carries enough metadata for downstream agents to reason about the project without reparsing Markdown.
@@ -18,6 +29,7 @@ It also scaffolds repository notes and exposes graph-oriented note commands so t
 ## Documentation
 
 - [docs/README.md](docs/README.md) for the formal documentation index
+- [docs/MANUAL.md](docs/MANUAL.md) for the operator-first Friday-to-Monday workflow
 - [docs/spec-draft.md](docs/spec-draft.md) for the editorial consensus draft
 - [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the permanent repository knowledge layer
