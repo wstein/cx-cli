@@ -126,13 +126,96 @@ Reference & crosslinks
 - Extraction safety: `docs/EXTRACTION_SAFETY.md` — safe extraction and recovery rules.
 - MCP server implementation: `src/mcp/server.ts` (server lifecycle and stdio transport) and `src/mcp/tools.ts` (registered tools and behavior).
 
-Recommended quickstart
-----------------------
+Recommended quickstart (one-page)
+--------------------------------
 
-1. Add `cx` to PATH or use an absolute path.
-2. Ensure `cx-mcp.toml` (preferred) or `cx.toml` exists in the workspace root.
-3. Configure your client to start `cx mcp` with `cwd` set to the workspace root and `transport` set to `stdio`.
-4. Use `cx doctor mcp --config cx.toml` to verify the effective MCP profile and visible files.
+This quickstart is intended for non-expert operators who need a minimal, repeatable setup to connect an IDE or local agent to `cx mcp`.
+
+1) Verify `cx` is runnable
+
+- Open a terminal in your workspace root and run:
+
+```bash
+cx --version
+```
+
+If the command is not found, either add the `cx` binary to your `PATH` or use its absolute path (e.g. `/usr/local/bin/cx` or the `bin/cx` file in a local checkout).
+
+2) Ensure an MCP profile exists
+
+- Prefer a colocated `cx-mcp.toml`. If you do not need a separate MCP profile, a `cx.toml` in the workspace root is sufficient.
+
+3) Start a test server manually
+
+From the workspace root, start the server to confirm it launches and advertises tools:
+
+```bash
+cx mcp
+```
+
+You should see no interactive output (the process binds to stdio). Open another terminal and run diagnostics:
+
+```bash
+cx doctor mcp --config cx.toml
+```
+
+This prints the resolved profile and the effective `files.include` / `files.exclude` that govern what the agent can see.
+
+4) Configure your client
+
+- When configuring the client, use the `cx mcp` command as the executable and set its `cwd` to the repository root.
+- Prefer an absolute `command` path if the client runs in a different environment (CI, GUI app sandbox).
+
+5) Validate from the client
+
+- Once the client has started the MCP connection, verify the agent can call the `list` and `read` tools for a small, permitted file. If the agent cannot see files you expect, re-run `cx doctor mcp` and check your `cwd` and config file placement.
+
+Exact integration snippet: Claude Desktop (macOS example)
+-----------------------------------------------------
+
+On macOS the user config for Claude Desktop often lives under `~/Library/Application Support/Claude/claude_desktop_config.json`. A practical production-ready snippet follows — use an absolute path to the `cx` binary to avoid PATH differences between GUI apps and shells:
+
+```json
+{
+  "mcpServers": {
+    "cx-workspace": {
+      "command": "/usr/local/bin/cx",
+      "args": ["mcp"],
+      "cwd": "/Users/<your-username>/path/to/repo",
+      "env": {
+        "CX_STRICT": "true"
+      }
+    }
+  }
+}
+```
+
+- Replace `/usr/local/bin/cx` with the absolute path to your `cx` binary.
+- Replace the `cwd` value with the repository root. This keeps the agent scoped to the intended config file and file visibility rules.
+
+Troubleshooting FAQ (short)
+---------------------------
+
+Q: The agent reports it cannot find the server executable.
+A: Use an absolute path for `command` in your client config. GUI apps often have a different PATH than an interactive shell.
+
+Q: The agent can connect but cannot see files I expect.
+A: Confirm `cwd` is the repository root. Run `cx doctor mcp --config cx.toml` from that same directory to inspect the effective MCP profile. Verify `files.include` / `files.exclude` and section rules.
+
+Q: The agent shows missing tools (`list`, `grep`, `read`).
+A: Ensure you started the native `cx mcp` server (not a wrapper that omits tools). The native server registers these tools in `src/mcp/tools.ts`. If you need other tools, implement them as an MCP tool extension and register them with the server.
+
+Q: The agent process terminates immediately with no output.
+A: The MCP server uses stdio and typically runs as a background subprocess. Confirm you started it with the correct command and `cwd`. Check the client logs and the subprocess stderr for errors. Running `cx mcp` manually from a terminal helps identify initialization errors.
+
+Q: I want a more restricted view for the agent — how do I scope it?
+A: Create a `cx-mcp.toml` in the workspace root that narrows `files.include` and `files.exclude`. Use `cx doctor mcp` to validate the effective scope before onboarding an external agent.
+
+Q: How do I make agents treat warnings as errors in shared environments?
+A: Set `CX_STRICT=true` in the agent's environment block (or use `cx --strict` when starting the server). This forces Category B behaviors into failure mode.
+
+Q: Any recommendations for CI or automated QA?
+A: Use `cx doctor mcp` as a pre-flight check and include `cx verify` in downstream validation. Consider adding a link-checker job for docs and an automated `cx doctor` run for agent onboarding verification.
 
 Appendix: Example `claude_desktop_config.json` fragment
 
