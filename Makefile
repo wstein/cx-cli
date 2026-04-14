@@ -1,0 +1,35 @@
+# Makefile for TypeScript/Node.js workspaces.
+#
+# Provides a normalized interface for package manager commands and native workspace tasks.
+#
+# Usage:
+#   make          # install dependencies and build
+#   make build    # run the package manager build command
+#   make test     # run the package manager test command
+#   make clean    # remove generated output
+#   make notes    # show the notes directory path
+#
+BUN ?= bun
+PNPM ?= pnpm
+NPM ?= npm
+YARN ?= yarn
+CLEAN_DIR ?= dist
+
+.PHONY: all build test clean notes help
+all: build
+
+build: ## Build the project using the detected package manager.
+	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) install && $(BUN) run build; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) install && $(PNPM) run build; 	elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then 		$(NPM) install && $(NPM) run build; 	elif [ -f yarn.lock ]; then 		$(YARN) install && $(YARN) build; 	else 		$(NPM) install && $(NPM) run build; 	fi
+
+test: ## Run tests using the detected package manager.
+	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) test; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) test; 	elif [ -f yarn.lock ]; then 		$(YARN) test; 	else 		$(NPM) test; 	fi
+
+clean: ## Remove generated output files.
+	if [ -f bun.lockb ]; then $(BUN) run clean; fi
+	rm -rf node_modules dist "$(CLEAN_DIR)"
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Show available targets.
+	@printf "Available targets:\n  build test clean notes\n"
