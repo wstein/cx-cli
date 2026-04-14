@@ -12,8 +12,6 @@ concurrency:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   validate:
@@ -37,9 +35,8 @@ jobs:
     needs: validate
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,19 +95,13 @@ jobs:
           } > site/schemas/index.html
           touch site/.nojekyll
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Publish Pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          enablement: true
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - name: Deploy to Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site
+          force_orphan: true
 
   publish-release:
     needs: validate
