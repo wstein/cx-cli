@@ -2,7 +2,7 @@
 
 ## Goal
 
-The notes module gives `cx` a permanent repository knowledge layer for agentic workflows. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.
+`cx` exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native Zettelkasten knowledge graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.
 
 For the document map and revision consensus, see [README.md](README.md) and
 [spec-draft.md](spec-draft.md).
@@ -19,9 +19,9 @@ This phase defines native notes support in four places:
 It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
 It also adds graph-level link auditing so unresolved note references can be inspected explicitly.
 
-## Why Notes Exist In The Pipeline
+## Why Notes Exist In The Unified Suite
 
-The notes module is part of the automation path, not a philosophical sidecar.
+The notes module is part of the automation path, not a philosophical sidecar. It integrates architectural intent into the unified project suite so that both local machines and CI/CD pipelines can treat project knowledge with the same rigor as code.
 
 Before manifest-side summaries:
 

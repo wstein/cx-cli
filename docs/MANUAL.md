@@ -1,5 +1,7 @@
 # CX Operator Manual
 
+`cx` exists to provide a unified suite of tooling and standards for AI-driven projects. It standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools.
+
 ## Quick Operator Path
 
 If you want the shortest path to a useful result, use this flow:

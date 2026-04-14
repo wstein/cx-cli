@@ -1,6 +1,6 @@
 # CX
 
-`cx` is a deterministic context bundler and MCP-aware workflow tool for teams that need reproducible LLM inputs, not just convenient local packing.
+`cx` provides tooling and standards for AI-driven projects in one unified suite. It standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools that operate seamlessly from the local developer machine through to automated CI/CD pipelines.
 
 Start with the operator path:
 
@@ -36,6 +36,8 @@ It also scaffolds repository notes and exposes graph-oriented note commands so t
 - [schemas/cx-config-v1.schema.json](schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
 
 ## Why CX Exists
+
+`cx` exists to provide tooling and standards for AI-driven projects into one unified tool. While it began with a deterministic context bundler, it has evolved into a suite that standardizes how LLMs ingest project context, knowledge, and tools.
 
 Repomix is great for exploratory work: grab a snapshot, feed a prompt, move on.
 
