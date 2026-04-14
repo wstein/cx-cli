@@ -275,7 +275,7 @@ exclude = []
 
   test("init templates are included in dist after build", async () => {
     const root = process.cwd();
-    const distPath = path.join(root, "dist", "src", "templates", "init-templates");
+    const distPath = path.join(root, "dist", "src", "templates", "init");
     await fs.rm(path.join(root, "dist"), { recursive: true, force: true });
 
     const execAsync = promisify(exec);

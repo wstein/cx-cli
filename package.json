@@ -34,8 +34,7 @@
     "test": "bun test tests",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
     "verify": "bun run lint && bun run check && bun run build && bun test tests",
-    "smoke:repomix-version": "bun scripts/repomix-version-smoke.ts",
-    "copy:init-templates": "bun run scripts/copy-init-templates.ts"
+    "copy:init": "bun run scripts/copy-init-templates.ts"
   },
   "engines": {
     "node": ">=25.0.0"

@@ -1,7 +1,7 @@
 /**
  * Template rendering engine for cx init scaffolding.
  *
- * Loads Handlebars templates from src/templates/init-templates/{environment}/
+ * Loads Handlebars templates from src/templates/init/{environment}/
  * and renders them with explicit project variables.
  */
 
@@ -16,7 +16,7 @@ import type { EnvironmentKind, GeneratedFile, TemplateVariables } from "./types.
 
 const TEMPLATES_DIR = path.join(
   fileURLToPath(new URL("./", import.meta.url)),
-  "init-templates",
+  "init",
 );
 
 async function loadTemplateSource(

@@ -2,7 +2,7 @@
  * Template system types for cx init scaffolding.
  *
  * Templates are file-based Handlebars sources stored under
- * src/templates/init-templates/{environment}/.
+ * src/templates/init/{environment}/.
  */
 
 export type EnvironmentKind =
