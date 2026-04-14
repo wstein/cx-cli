@@ -114,7 +114,7 @@ cx init --name demo
 `cx init` writes `cx.toml`, `cx-mcp.toml`, a `Makefile`, and a `notes/` directory with:
 
 - `Makefile` as a workspace-level entry point for native builds, testing, project cleanup, and workspace tasks
-- `cx-mcp.toml` as the default MCP profile for agent workflows
+- `cx-mcp.toml` as the default MCP profile for agent workflows, including starter client configs for Claude, GitHub Copilot, and Codex
 - `notes/README.md` as the repository notes guide
 - `notes/template-new-zettel.md` as the atomic note template
 

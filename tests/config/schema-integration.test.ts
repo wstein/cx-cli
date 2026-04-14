@@ -246,6 +246,10 @@ exclude = []
       expect(mcpContent).toContain("project_name = \"typescript-test\"");
       expect(mcpContent).toContain("include = [\"src/**\", \"dist/**\"]");
       expect(mcpContent).toContain("output_dir = \"dist/typescript-test-mcp-bundle\"");
+      expect(mcpContent).toContain("[mcp.clients.claude]");
+      expect(mcpContent).toContain("provider = \"anthropic\"");
+      expect(mcpContent).toContain("[mcp.clients.github_copilot]");
+      expect(mcpContent).toContain("[mcp.clients.codex]");
     } finally {
       process.chdir(cwd);
     }

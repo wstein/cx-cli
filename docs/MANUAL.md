@@ -22,7 +22,7 @@ cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx init` now writes a generated `Makefile`, `cx-mcp.toml`, and `cx.toml` in addition to `notes/`. The Makefile is designed to detect common workspace toolchains such as Rust, Go, JavaScript/TypeScript, Python, Java, and Crystal, and expose the native workspace tasks that are available.
+`cx init` now writes a generated `Makefile`, `cx-mcp.toml`, and `cx.toml` in addition to `notes/`. The generated `cx-mcp.toml` contains starter agent client configurations for Claude, GitHub Copilot, and Codex. The Makefile is designed to detect common workspace toolchains such as Rust, Go, JavaScript/TypeScript, Python, Java, and Crystal, and expose the native workspace tasks that are available.
 
 `cx init` checks the individual init targets before writing anything and will refuse to overwrite any existing init files unless `--force` is explicitly passed.
 
