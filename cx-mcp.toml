@@ -1,4 +1,4 @@
-#:schema ./schemas/cx-config-v1.schema.json
+#:schema ./schemas/cx-config-overlay-v1.schema.json
 extends = "./cx.toml"
 
 [mcp]
