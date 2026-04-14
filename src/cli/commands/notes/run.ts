@@ -11,12 +11,15 @@ import { writeJson } from "../../../shared/output.js";
 import {
   createNewNote,
   deleteNote,
+  readNote,
   listNotes,
   renameNote,
+  updateNote,
 } from "./common.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
+  body?: string | undefined;
   title?: string | undefined;
   tags?: string[] | undefined;
   id?: string | undefined;
@@ -31,6 +34,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     }
 
     const { id, filePath } = await createNewNote(args.title, {
+      body: args.body,
       tags: args.tags ?? undefined,
     });
 
@@ -48,6 +52,73 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
       printInfo(`  Title: ${args.title}`);
       if (args.tags && args.tags.length > 0) {
         printInfo(`  Tags: ${args.tags.join(", ")}`);
+      }
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "read") {
+    if (!args.id) {
+      throw new CxError("--id is required for 'cx notes read'", 2);
+    }
+
+    const note = await readNote(args.id);
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes read",
+        ...note,
+      });
+    } else {
+      printSuccess(`Read note: ${note.id}`);
+      printInfo(`  File: ${note.filePath}`);
+      printInfo(`  Title: ${note.title}`);
+      if (note.aliases.length > 0) {
+        printInfo(`  Aliases: ${note.aliases.join(", ")}`);
+      }
+      if (note.tags.length > 0) {
+        printInfo(`  Tags: ${note.tags.join(", ")}`);
+      }
+      printInfo(`  Summary: ${note.summary}`);
+      printInfo("");
+      process.stdout.write(`${note.body.trimEnd()}\n`);
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "update") {
+    if (!args.id) {
+      throw new CxError("--id is required for 'cx notes update'", 2);
+    }
+    if (args.title === undefined && args.body === undefined && args.tags === undefined) {
+      throw new CxError(
+        "At least one of --title, --body, or --tags is required for 'cx notes update'",
+        2,
+      );
+    }
+
+    const note = await updateNote(args.id, {
+      body: args.body,
+      tags: args.tags,
+      title: args.title,
+    });
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes update",
+        id: note.id,
+        title: note.title,
+        filePath: note.filePath,
+        tags: note.tags,
+      });
+    } else {
+      printSuccess(`Updated note: ${note.id}`);
+      printInfo(`  File: ${note.filePath}`);
+      printInfo(`  Title: ${note.title}`);
+      if (note.tags.length > 0) {
+        printInfo(`  Tags: ${note.tags.join(", ")}`);
       }
     }
 

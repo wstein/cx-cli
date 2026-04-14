@@ -66,15 +66,18 @@ Example note search:
 }
 ```
 
-CLI note lifecycle:
+CLI and MCP note commands side by side:
 
-```bash
-cx notes new --title "Research Note"
-cx notes rename --id 20260414120000 --title "Research Note v2"
-cx notes delete --id 20260414120000
-```
+| Task | CLI | MCP |
+| --- | --- | --- |
+| Create a note | `cx notes new --title "Research Note" --body "Initial observation."` | `notes_new(title="Research Note", body="Initial observation.")` |
+| Read a note | `cx notes read --id 20260414120000` | `notes_read(id="20260414120000")` |
+| Update a note | `cx notes update --id 20260414120000 --body "Refined observation."` | `notes_update(id="20260414120000", body="Refined observation.")` |
+| Rename a note | `cx notes rename --id 20260414120000 --title "Research Note v2"` | `notes_rename(id="20260414120000", title="Research Note v2")` |
+| Delete a note | `cx notes delete --id 20260414120000` | `notes_delete(id="20260414120000")` |
+| Inspect the graph | `cx notes links` / `cx notes backlinks --id ...` / `cx notes orphans` / `cx notes code-links --id ...` | `notes_search(...)` / `notes_links(...)` / `notes_backlinks(...)` / `notes_orphans(...)` / `notes_code_links(...)` |
 
-Use the CLI for direct on-disk note lifecycle operations. Use MCP when the agent needs read/update/search tools inside an active workspace session.
+Use the CLI for direct on-disk note lifecycle operations. Use MCP when the agent needs live search, reads, updates, or graph inspection inside an active workspace session.
 
 ## Who This Manual Is For
 

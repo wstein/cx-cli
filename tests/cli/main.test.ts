@@ -191,33 +191,119 @@ describe("main", () => {
     expect(payload.config).toContain('project_name = "demo"');
   });
 
-  test("notes rename and delete work through main()", async () => {
+  test("notes lifecycle works through main()", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-cli-"));
     const cwd = process.cwd();
 
     process.chdir(root);
     try {
-      await expect(main(["notes", "new", "--title", "CLI Source"])).resolves.toBe(0);
+      const originalWrite = process.stdout.write;
+      let createOutput = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        createOutput += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
 
-      const createdPath = path.join(root, "notes", "CLI Source.md");
-      const createdSource = await fs.readFile(createdPath, "utf8");
-      const idMatch = createdSource.match(/^id:\s*(\d{14})$/m);
-      const noteId = idMatch?.[1];
-      expect(noteId).toBeDefined();
-      if (!noteId) {
-        throw new Error("Failed to capture created note id");
+      try {
+        await expect(
+          main([
+            "notes",
+            "new",
+            "--title",
+            "CLI Source",
+            "--body",
+            "Original body.",
+            "--tags",
+            "initial",
+            "--json",
+          ]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = originalWrite;
       }
 
+      const createdPayload = JSON.parse(createOutput) as {
+        id: string;
+        filePath: string;
+      };
+      const createdPath = createdPayload.filePath;
+      expect(path.basename(createdPath)).toBe("CLI Source.md");
+
+      const readWrite = process.stdout.write;
+      let readOutput = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        readOutput += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      try {
+        await expect(
+          main(["notes", "read", "--id", createdPayload.id, "--json"]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = readWrite;
+      }
+
+      const readPayload = JSON.parse(readOutput) as {
+        id: string;
+        title: string;
+        body: string;
+        tags: string[];
+      };
+      expect(readPayload.id).toBe(createdPayload.id);
+      expect(readPayload.title).toBe("CLI Source");
+      expect(readPayload.body).toContain("Original body.");
+      expect(readPayload.tags).toEqual(["initial"]);
+
+      const updateWrite = process.stdout.write;
+      let updateOutput = "";
+      process.stdout.write = ((chunk: string | Uint8Array) => {
+        updateOutput += String(chunk);
+        return true;
+      }) as typeof process.stdout.write;
+
+      try {
+        await expect(
+          main([
+            "notes",
+            "update",
+            "--id",
+            createdPayload.id,
+            "--body",
+            "Updated body.",
+            "--tags",
+            "revised",
+            "--json",
+          ]),
+        ).resolves.toBe(0);
+      } finally {
+        process.stdout.write = updateWrite;
+      }
+
+      const updatePayload = JSON.parse(updateOutput) as {
+        id: string;
+        title: string;
+        filePath: string;
+        tags: string[];
+      };
+      expect(updatePayload.id).toBe(createdPayload.id);
+      expect(updatePayload.title).toBe("CLI Source");
+      expect(updatePayload.tags).toEqual(["revised"]);
+
+      const updatedSource = await fs.readFile(createdPath, "utf8");
+      expect(updatedSource).toContain("Updated body.");
+      expect(updatedSource).toContain("revised");
+
       await expect(
-        main(["notes", "rename", "--id", noteId, "--title", "CLI Target"]),
+        main(["notes", "rename", "--id", createdPayload.id, "--title", "CLI Target"]),
       ).resolves.toBe(0);
 
       const renamedPath = path.join(root, "notes", "CLI Target.md");
       const renamedSource = await fs.readFile(renamedPath, "utf8");
-      expect(renamedSource).toContain(`id: ${noteId}`);
+      expect(renamedSource).toContain(`id: ${createdPayload.id}`);
       await expect(fs.stat(createdPath)).rejects.toThrow();
 
-      await expect(main(["notes", "delete", "--id", noteId])).resolves.toBe(0);
+      await expect(main(["notes", "delete", "--id", createdPayload.id])).resolves.toBe(0);
       await expect(fs.stat(renamedPath)).rejects.toThrow();
     } finally {
       process.chdir(cwd);

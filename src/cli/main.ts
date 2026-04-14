@@ -587,6 +587,14 @@ export async function main(argv: string[]): Promise<number> {
             "Create a note with tags.",
           )
           .example(
+            "$0 notes read --id 20250113143015",
+            "Read a note with parsed metadata and body content.",
+          )
+          .example(
+            "$0 notes update --id 20250113143015 --body 'Revised body.'",
+            "Update an existing note in place.",
+          )
+          .example(
             "$0 notes rename --id 20250113143015 --title 'Revised Topic'",
             "Rename an existing note in place.",
           )
@@ -614,6 +622,8 @@ export async function main(argv: string[]): Promise<number> {
             type: "string",
             choices: [
               "new",
+              "read",
+              "update",
               "rename",
               "delete",
               "list",
@@ -627,22 +637,28 @@ export async function main(argv: string[]): Promise<number> {
           .option("title", {
             type: "string",
             description:
-              "Title for the new note (required for 'new' subcommand).",
+              "Title for the new or renamed note (required for 'new', 'rename', and 'update' when changing the title).",
+          })
+          .option("body", {
+            type: "string",
+            description:
+              "Body text for the note (used by 'new' and 'update').",
           })
           .option("tags", {
             type: "array",
             string: true,
-            description: "Tags to assign to the note.",
+            description: "Tags to assign to the note or update in place.",
           })
           .option("id", {
             type: "string",
             description:
-              "Note ID (required for 'rename', 'delete', 'backlinks', 'code-links', and 'links' subcommands).",
+              "Note ID (required for 'read', 'update', 'rename', 'delete', 'backlinks', 'code-links', and 'links' subcommands).",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runNotesCommand({
           subcommand: args.subcommand as string | undefined,
+          body: args.body as string | undefined,
           title: args.title as string | undefined,
           tags: args.tags as string[] | undefined,
           id: args.id as string | undefined,
