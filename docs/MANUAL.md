@@ -6,19 +6,39 @@
 
 If you want the shortest path to a useful result, use this flow:
 
-1. Initialize the workspace config and notes.
+1. Initialize the workspace config, notes, and generated Makefile.
 2. Inspect the token budget before you bundle.
-3. Build the bundle or start the MCP server, depending on whether you are packaging or guiding an agent.
-4. Run the diagnostics that match the workflow you are changing.
+3. Build native artifacts using the workspace toolchain.
+4. Package the cx bundle and run diagnostics.
 
 ```bash
 cx init --name demo
-cx inspect --config cx.toml --token-breakdown
-cx bundle --config cx.toml
+make build
+make bundle
+make validate
+make inspect
 cx mcp
 cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
+
+`cx init` now writes a generated `Makefile`, `cx-mcp.toml`, and `cx.toml` in addition to `notes/`. The Makefile is designed to detect common workspace toolchains such as Rust, Go, JavaScript/TypeScript, Python, Java, and Crystal, and expose the native workspace tasks that are available.
+
+`cx init` checks the individual init targets before writing anything and will refuse to overwrite any existing init files unless `--force` is explicitly passed.
+
+Use `--template` to explicitly choose an init template by environment:
+
+```bash
+cx init --name demo --template typescript
+```
+
+List supported templates with:
+
+```bash
+cx init --template-list
+```
+
+When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
 `cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration.
 

@@ -163,13 +163,10 @@ exclude = []
       const makefilePath = path.join(tempDir, "Makefile");
       const makefileContent = await fs.readFile(makefilePath, "utf8");
 
-      expect(makefileContent).toContain("CX ?= cx");
+      expect(makefileContent).not.toContain("CX ?= cx");
+      expect(makefileContent).not.toContain("$(CX)");
       expect(makefileContent).toContain("all: build");
       expect(makefileContent).toContain("build:");
-      expect(makefileContent).toContain("bundle: build");
-      expect(makefileContent).toContain("$(CX) bundle --config \"$(CX_CONFIG)\"");
-      expect(makefileContent).toContain("validate:");
-      expect(makefileContent).toContain("inspect:");
       expect(makefileContent).toContain("clean:");
     } finally {
       process.chdir(cwd);
@@ -190,8 +187,36 @@ exclude = []
 
       expect(makefileContent).toContain("GO ?= go");
       expect(makefileContent).toContain("$(GO) build ./...");
-      expect(makefileContent).toContain("bundle: build");
-      expect(makefileContent).toContain("$(CX) bundle --config \"$(CX_CONFIG)\"");
+      expect(makefileContent).not.toContain("$(CX)");
+      expect(makefileContent).not.toContain("bundle: build");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
+  test("cx init rejects existing init targets unless --force is used", async () => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-existing-"));
+    const cwd = process.cwd();
+
+    try {
+      process.chdir(tempDir);
+      await fs.writeFile(path.join(tempDir, "Makefile"), "# existing\n", "utf8");
+      await fs.mkdir(path.join(tempDir, "notes"));
+      await fs.writeFile(path.join(tempDir, "notes/README.md"), "# notes\n", "utf8");
+
+      await expect(main(["init", "--name", "existing-test"])).rejects.toThrow(
+        "Init would overwrite existing files",
+      );
+
+      await expect(
+        main(["init", "--name", "existing-test", "--force"]),
+      ).resolves.toBe(0);
+
+      const makefileContent = await fs.readFile(
+        path.join(tempDir, "Makefile"),
+        "utf8",
+      );
+      expect(makefileContent).toContain("build:");
     } finally {
       process.chdir(cwd);
     }

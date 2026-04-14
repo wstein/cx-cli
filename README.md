@@ -111,10 +111,30 @@ Initialize a starter config:
 cx init --name demo
 ```
 
-`cx init` writes both `cx.toml` and a `notes/` directory with:
+`cx init` writes `cx.toml`, `cx-mcp.toml`, a `Makefile`, and a `notes/` directory with:
 
+- `Makefile` as a workspace-level entry point for native builds, testing, project cleanup, and workspace tasks
+- `cx-mcp.toml` as the default MCP profile for agent workflows
 - `notes/README.md` as the repository notes guide
 - `notes/template-new-zettel.md` as the atomic note template
+
+If any init target already exists, `cx init` rejects the operation unless `--force` is provided.
+
+Supported init templates include: `base`, `rust`, `go`, `typescript`, `python`, `java`, `elixir`, `julia`, and `crystal`.
+
+You can explicitly choose an init template name with:
+
+```bash
+cx init --name demo --template typescript
+```
+
+To list supported templates:
+
+```bash
+cx init --template-list
+```
+
+When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
 The generated notes directory is intentionally part of the repository contract. The idea is to keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
 

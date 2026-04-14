@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
@@ -98,6 +99,37 @@ async function renderProjectTemplate(
   );
 }
 
+async function ensureInitTargetsAreSafe(
+  projectRoot: string,
+  force: boolean,
+): Promise<void> {
+  if (force) {
+    return;
+  }
+
+  const targets = [
+    "cx.toml",
+    "Makefile",
+    "cx-mcp.toml",
+    "notes/README.md",
+    "notes/template-new-zettel.md",
+  ];
+
+  const existingTargets: string[] = [];
+  for (const relativeTarget of targets) {
+    if (await pathExists(path.join(projectRoot, relativeTarget))) {
+      existingTargets.push(relativeTarget);
+    }
+  }
+
+  if (existingTargets.length > 0) {
+    throw new CxError(
+      `Init would overwrite existing files: ${existingTargets.join(", ")}. Use --force to overwrite them.`,
+      3,
+    );
+  }
+}
+
 export async function runInitCommand(args: InitArgs): Promise<number> {
   if (args.templateList) {
     const templates = getSupportedTemplates();
@@ -138,12 +170,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     return 0;
   }
 
-  if (!args.force && (await pathExists("cx.toml"))) {
-    throw new CxError(
-      "cx.toml already exists. Use --force to overwrite it.",
-      3,
-    );
-  }
+  await ensureInitTargetsAreSafe(process.cwd(), args.force);
 
   await fs.writeFile("cx.toml", output, "utf8");
   const makefileResult = await renderProjectTemplate(
