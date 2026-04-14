@@ -178,10 +178,14 @@ one of four states:
 | `safe_dirty` | Only untracked files present | Plan proceeds with a warning |
 | `unsafe_dirty` | Tracked files have uncommitted modifications | Planning aborts (exit 7) |
 | `forced_dirty` | `unsafe_dirty` overridden with `--force` | Plan proceeds with a warning |
+| `ci_dirty` | `unsafe_dirty` overridden with `--ci` | Plan proceeds with a warning |
 
 The `unsafe_dirty` guard exists because a bundle built from a dirty tracked
-file cannot be reliably reproduced or verified later. The `--force` escape
-hatch is available for local experimentation but should not be used in CI.
+file cannot be reliably reproduced or verified later. Two escape hatches are
+available: `--force` for local experimentation where a human is present, and
+`--ci` for automated pipelines. Both are recorded in the manifest under
+distinct state labels so audit tooling can distinguish human overrides from
+pipeline overrides.
 
 VCS state is not tracked for filesystem-fallback workspaces. Those always
 produce `dirtyState = "clean"` and `vcsProvider = "none"`.

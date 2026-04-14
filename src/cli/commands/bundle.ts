@@ -55,14 +55,29 @@ export interface BundleArgs {
   layout?: CxAssetsLayout | undefined;
   update?: boolean | undefined;
   /**
-   * Override the unsafe-dirty safety check.
+   * Override the unsafe-dirty safety check for local development use.
    *
    * By default, `cx bundle` aborts with exit code 7 when the working tree
    * contains uncommitted changes to VCS-tracked files. Passing `--force`
    * bypasses this check and records the effective state as "forced_dirty" in
    * the manifest so the LLM knows it is reading uncommitted work.
+   *
+   * Prefer `--ci` in automated pipelines; `--force` is intended for local
+   * experimentation where a human is present to acknowledge the risk.
    */
   force?: boolean | undefined;
+  /**
+   * CI/automation mode: bypass the unsafe-dirty safety check without human
+   * acknowledgment.
+   *
+   * Records the effective state as "ci_dirty" in the manifest — distinct from
+   * "forced_dirty" — so audit tooling can distinguish automated pipeline
+   * overrides from local developer overrides.
+   *
+   * Implies non-interactive output: no wizard prompts, no ANSI formatting
+   * beyond standard stderr warnings.
+   */
+  ci?: boolean | undefined;
 }
 
 interface RenderedSectionArtifacts {
@@ -196,10 +211,15 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     throw new CxError("Note validation failed", 10);
   }
 
-  // Dirty-state enforcement: abort on unsafe working trees unless --force was
-  // explicitly passed to acknowledge the risk.
+  const ciMode = args.ci ?? false;
+  const forceMode = args.force ?? false;
+
+  // Dirty-state enforcement: abort on unsafe working trees unless the operator
+  // explicitly passes --force (local) or --ci (pipeline) to acknowledge the
+  // risk. Both flags bypass exit code 7 but record different manifest states so
+  // audit tooling can distinguish human overrides from pipeline overrides.
   if (plan.dirtyState === "unsafe_dirty") {
-    if (!(args.force ?? false)) {
+    if (!forceMode && !ciMode) {
       const listed = plan.modifiedFiles.slice(0, 10).join(", ");
       const more =
         plan.modifiedFiles.length > 10
@@ -207,24 +227,30 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           : "";
       throw new CxError(
         `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.\n` +
-          "Pass --force to override and record the dirty state in the manifest.",
+          "Pass --force (local dev) or --ci (pipeline) to override and record the dirty state in the manifest.",
         7,
       );
     }
+    const recordedState = ciMode ? "ci_dirty" : "forced_dirty";
     process.stderr.write(
-      `Warning: bundling with uncommitted changes in ${plan.modifiedFiles.length} file(s). The manifest will record dirty state as 'forced_dirty'.\n`,
+      `Warning: bundling with uncommitted changes in ${plan.modifiedFiles.length} file(s). The manifest will record dirty state as '${recordedState}'.\n`,
     );
   }
 
   // Resolve the effective dirty state written to the manifest. An unsafe_dirty
-  // plan becomes forced_dirty when --force is present.
+  // plan becomes ci_dirty (--ci) or forced_dirty (--force) when the operator
+  // explicitly bypasses the safety check.
   const effectiveDirtyState: Exclude<DirtyState, "unsafe_dirty"> =
-    plan.dirtyState === "unsafe_dirty" && (args.force ?? false)
-      ? ("forced_dirty" as const)
+    plan.dirtyState === "unsafe_dirty"
+      ? ciMode
+        ? ("ci_dirty" as const)
+        : ("forced_dirty" as const)
       : (plan.dirtyState as Exclude<DirtyState, "unsafe_dirty">);
 
   const effectiveModifiedFiles =
-    effectiveDirtyState === "forced_dirty" ? plan.modifiedFiles : [];
+    effectiveDirtyState === "forced_dirty" || effectiveDirtyState === "ci_dirty"
+      ? plan.modifiedFiles
+      : [];
   const requiresOutputSpans = plan.sections.some(
     (section) => section.style !== "json",
   );

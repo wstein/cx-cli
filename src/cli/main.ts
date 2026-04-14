@@ -285,6 +285,10 @@ export async function main(argv: string[]): Promise<number> {
             "$0 bundle --config cx.toml --force",
             "Bundle even when tracked files have uncommitted changes (records forced_dirty in the manifest).",
           )
+          .example(
+            "$0 bundle --config cx.toml --ci",
+            "Pipeline mode: bypass unsafe-dirty check and record ci_dirty in the manifest.",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false })
           .option("update", {
@@ -297,7 +301,13 @@ export async function main(argv: string[]): Promise<number> {
             type: "boolean",
             default: false,
             description:
-              "Override the unsafe-dirty safety check. Bundles tracked files with uncommitted changes and records the dirty state in the manifest.",
+              "Override the unsafe-dirty safety check for local development. Records forced_dirty in the manifest.",
+          })
+          .option("ci", {
+            type: "boolean",
+            default: false,
+            description:
+              "CI/automation mode: bypass the unsafe-dirty check and record ci_dirty in the manifest. Use instead of --force in automated pipelines.",
           })
           .option("layout", {
             choices: ["flat", "deep"] as const,
@@ -311,6 +321,7 @@ export async function main(argv: string[]): Promise<number> {
           layout: args.layout,
           update: args.update,
           force: args.force,
+          ci: args.ci,
         });
       },
     )

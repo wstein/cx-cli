@@ -28,11 +28,11 @@ export function buildManifest(params: {
    * Effective dirty state to record in the manifest.
    *
    * The planner produces "clean", "safe_dirty", or "unsafe_dirty". The bundle
-   * command passes "forced_dirty" here when the operator provided --force to
-   * override an unsafe-dirty rejection.
+   * command promotes "unsafe_dirty" to "forced_dirty" (--force) or "ci_dirty"
+   * (--ci) when the operator explicitly acknowledges the risk.
    */
   dirtyState: Exclude<DirtyState, "unsafe_dirty">;
-  /** Relative POSIX paths of modified tracked files. Populated when dirtyState is "forced_dirty". */
+  /** Relative POSIX paths of modified tracked files. Populated when dirtyState is "forced_dirty" or "ci_dirty". */
   modifiedFiles: string[];
   /** Repository notes metadata, if present. */
   notes?: NoteRecord[] | undefined;

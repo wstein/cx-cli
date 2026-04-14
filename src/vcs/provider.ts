@@ -25,17 +25,22 @@ export type VCSKind = "git" | "fossil" | "hg" | "none";
  *                list unless explicitly added via `[files] include`.
  * unsafe_dirty — One or more VCS-tracked files carry uncommitted local
  *                changes. The pipeline fails fast by default to prevent silent
- *                artifact drift. Pass `--force` to override.
+ *                artifact drift. Pass `--force` or `--ci` to override.
  * forced_dirty — The operator explicitly passed `--force` to bypass the
- *                unsafe-dirty guard. The manifest records this state and the
- *                list of modified files so the LLM knows it is reading
- *                uncommitted work.
+ *                unsafe-dirty guard. Used for local experimentation. The
+ *                manifest records this state and the list of modified files so
+ *                the LLM knows it is reading uncommitted work.
+ * ci_dirty     — A CI pipeline passed `--ci` to bypass the unsafe-dirty guard.
+ *                Semantically equivalent to forced_dirty but recorded
+ *                separately so audit tools can distinguish human overrides from
+ *                automated pipeline overrides.
  */
 export type DirtyState =
   | "clean"
   | "safe_dirty"
   | "unsafe_dirty"
-  | "forced_dirty";
+  | "forced_dirty"
+  | "ci_dirty";
 
 /**
  * Working-tree snapshot returned by the VCS provider.

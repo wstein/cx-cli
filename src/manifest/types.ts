@@ -96,13 +96,17 @@ export interface CxManifest {
    * "safe_dirty"   — only untracked files were present; bundle integrity is
    *                  unaffected.
    * "forced_dirty" — tracked files with uncommitted changes were bundled
-   *                  because the operator passed --force. The LLM must treat
-   *                  this bundle as containing uncommitted work.
+   *                  because the operator passed --force. For local
+   *                  experimentation. The LLM must treat this bundle as
+   *                  containing uncommitted work.
+   * "ci_dirty"     — same as forced_dirty but triggered by a CI pipeline that
+   *                  passed --ci. Recorded separately for audit traceability.
    */
   dirtyState: Exclude<DirtyState, "unsafe_dirty">;
   /**
    * Relative POSIX paths of VCS-tracked files that had uncommitted local
-   * changes at bundle time. Populated only when dirtyState is "forced_dirty".
+   * changes at bundle time. Populated when dirtyState is "forced_dirty" or
+   * "ci_dirty".
    */
   modifiedFiles: string[];
   sections: CxSection[];
