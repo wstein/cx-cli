@@ -462,6 +462,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         ["Location", plan.bundleDir],
         ["Handover index", bundleIndexFile],
       ]);
+      printTable([
+        ["Mode", "Immutable snapshot"],
+        ["Use MCP", "For live workspace exploration and note updates"],
+      ]);
       printDivider();
       printTable([
         ["Sections", plan.sections.length],

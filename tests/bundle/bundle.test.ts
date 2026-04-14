@@ -248,6 +248,8 @@ describe("bundle workflow", () => {
     const summary = logs.join("\n");
     expect(summary).toContain("Packed tokens");
     expect(summary).toContain("Output tokens");
+    expect(summary).toContain("Immutable snapshot");
+    expect(summary).toContain("Use MCP");
     expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
     expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
 
@@ -781,6 +783,8 @@ It should become the manifest summary.
     process.stdout.write = stdoutWrite;
     const output = writes.join("");
     expect(output).toContain("bundle_status: available");
+    expect(output).toContain("workflow: static snapshot planning");
+    expect(output).toContain("mcp: use cx mcp for live workspace exploration");
     expect(output).toContain("intact   src/index.ts");
     expect(output).toContain("copied   logo.png");
   });

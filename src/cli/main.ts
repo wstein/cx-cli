@@ -270,10 +270,13 @@ export async function main(argv: string[]): Promise<number> {
     )
     .command(
       "bundle",
-      "Create a bundle directory from a project.",
+      "Create an immutable bundle snapshot from a project.",
       (command) =>
         command
-          .example("$0 bundle --config cx.toml", "Build the configured bundle.")
+          .example(
+            "$0 bundle --config cx.toml",
+            "Build a verified snapshot from the configured project.",
+          )
           .example(
             "$0 bundle --config cx.toml --update",
             "Apply a differential update and prune orphaned bundle artifacts.",
@@ -629,11 +632,11 @@ export async function main(argv: string[]): Promise<number> {
 
   cli.command(
     "mcp",
-    "Start the CX MCP server.",
+    "Start the CX MCP server for live workspace exploration.",
     (command) =>
       command.example(
         "$0 mcp",
-        "Start the MCP server using cx-mcp.toml when available, otherwise cx.toml.",
+        "Start the live MCP server using cx-mcp.toml when available, otherwise cx.toml.",
       ),
     async () => {
       exitCode = await runMcpCommand();

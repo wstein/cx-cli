@@ -105,6 +105,9 @@ describe("cx MCP server", () => {
       config,
     });
     const toolNames = Object.keys(getRegisteredTools(server)).sort();
+    const instructions = (server as {
+      server: { _instructions: string };
+    }).server._instructions;
 
     expect(toolNames).toEqual([
       "grep",
@@ -118,6 +121,8 @@ describe("cx MCP server", () => {
       "notes_update",
       "read",
     ]);
+    expect(instructions).toContain("immutable snapshots");
+    expect(instructions).toContain("interactive exploration");
   });
 
   test("list returns workspace files from the active cx scope", async () => {

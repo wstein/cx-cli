@@ -242,6 +242,8 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
     `project: ${plan.projectName}`,
     `source_root: ${plan.sourceRoot}`,
     `bundle_dir: ${plan.bundleDir}`,
+    "workflow: static snapshot planning for verified bundle artifacts",
+    "mcp: use cx mcp for live workspace exploration and note updates",
     bundleComparison.available
       ? `bundle_status: available (${bundleComparison.manifestName})`
       : `bundle_status: unavailable (${bundleComparison.reason})`,

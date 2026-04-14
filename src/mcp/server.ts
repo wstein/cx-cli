@@ -17,7 +17,8 @@ export interface CxMcpServerDeps {
 
 function buildInstructions(configPath: string): string {
   return [
-    "cx mcp provides deterministic, file-based agent access to repository context.",
+    "cx mcp provides deterministic, file-based agent access to live repository context.",
+    "Use cx bundle for immutable snapshots and verification; use cx mcp for interactive exploration and note maintenance.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
     "Available tools: list, grep, read, notes_new, notes_update, notes_list, notes_backlinks, notes_orphans, notes_code_links, and notes_links.",
