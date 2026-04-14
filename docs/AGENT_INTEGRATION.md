@@ -5,12 +5,12 @@ This document explains how to integrate the `cx mcp` server with common AI agent
 Overview
 --------
 
-`cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent.
+`cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent. In addition to file browsing, the native server also exposes note authoring and note-graph inspection tools so agents can create and audit durable repository knowledge without leaving MCP.
 
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
 - Transport: stdio (stdin/stdout)
-- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read)
+- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `notes_new` (create a note), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
 - Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
 
 Because the server communicates over stdio, clients simply need to launch `cx mcp` as a subprocess and bind to its stdin/stdout. The examples below follow that pattern.
@@ -96,7 +96,7 @@ Example (pseudocode, conceptual):
 ```text
 spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
 bindStdioToMcpClient(process.stdin, process.stdout)
-discoverTools() -> [list, grep, read]
+discoverTools() -> [list, grep, read, notes_new, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
 ```
 
 6) Neovim / Emacs / Terminal-based workflows
@@ -116,7 +116,7 @@ Troubleshooting
 
 - Agent cannot find `cx`: use an absolute path to the `cx` binary.
 - Agent cannot find `cx-mcp.toml` or `cx.toml`: ensure `cwd` points to the repository root and the config file exists. Use `cx doctor mcp` to see the resolved profile.
-- Tools missing: confirm the running server advertises `list`, `grep`, and `read` (these are provided by the native MCP implementation). If you need additional capabilities, build a wrapper MCP server that composes other tools, or extend `cx` itself.
+- Tools missing: confirm the running server advertises `list`, `grep`, `read`, and the note tools above (these are provided by the native MCP implementation). If you need additional capabilities, build a wrapper MCP server that composes other tools, or extend `cx` itself.
 
 Reference & crosslinks
 ---------------------
@@ -231,4 +231,3 @@ Note: the example above is intentionally minimal and mirrors a common pattern in
 
 --
 This guide gives an operational baseline for integrating `cx mcp` into IDEs and agent clients. If you want, I can now add a small troubleshooting FAQ, or produce a sample `launch.json` / extension-specific snippet for a particular extension (Cline, Roo Code, Cursor). Which would you prefer next?
-
