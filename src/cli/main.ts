@@ -1,5 +1,8 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { homedir } from "node:os";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { asError, CxError } from "../shared/errors.js";
@@ -20,6 +23,64 @@ import { runValidateCommand } from "./commands/validate.js";
 import { runVerifyCommand } from "./commands/verify.js";
 
 type ShellKind = "bash" | "zsh" | "fish";
+
+function getInstallTarget(shell: ShellKind) {
+  const home = homedir();
+  switch (shell) {
+    case "bash":
+      return {
+        path: join(home, ".bashrc"),
+        snippet:
+          "\n# cx shell completion\nsource <(cx completion --shell=bash)\n",
+      };
+    case "zsh":
+      return {
+        path: join(home, ".zshrc"),
+        snippet:
+          "\n# cx shell completion\nsource <(cx completion --shell=zsh)\n",
+      };
+    case "fish":
+      return {
+        path: join(home, ".config/fish/config.fish"),
+        snippet:
+          "\n# cx shell completion\ncx completion --shell=fish | source\n",
+      };
+  }
+}
+
+function writeStdoutSafe(data: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const onError = (error: NodeJS.ErrnoException) => {
+      if (error.code === "EPIPE") {
+        resolve();
+      } else {
+        reject(error);
+      }
+    };
+
+    process.stdout.once("error", onError);
+    const callback = (err?: Error | null) => {
+      process.stdout.off("error", onError);
+      if (err) {
+        const errWithCode = err as NodeJS.ErrnoException;
+        if (errWithCode.code === "EPIPE") {
+          resolve();
+        } else {
+          reject(err);
+        }
+      } else {
+        resolve();
+      }
+    };
+
+    const writeResult = process.stdout.write(data, callback);
+    if (!writeResult) {
+      process.stdout.once("drain", () => {
+        /* allow buffer to clear */
+      });
+    }
+  });
+}
 
 export async function main(argv: string[]): Promise<number> {
   let exitCode = 0;
@@ -93,14 +154,44 @@ export async function main(argv: string[]): Promise<number> {
       "completion",
       "Generate a shell completion script for bash, zsh, or fish.",
       (command) =>
-        command.option("shell", {
-          choices: ["bash", "zsh", "fish"] as const,
-          default: "zsh",
-        }),
+        command
+          .option("shell", {
+            choices: ["bash", "zsh", "fish"] as const,
+            default: "zsh",
+          })
+          .option("install", {
+            type: "boolean",
+            default: false,
+            description:
+              "Install a dynamic loader into the shell config instead of printing the script.",
+          }),
       async (args) => {
         const shell = args.shell as ShellKind;
-        process.stdout.write(renderCompletionScript(shell));
-        exitCode = 0;
+        if (args.install === true) {
+          const target = getInstallTarget(shell);
+          const dir = dirname(target.path);
+          if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+          }
+
+          const current = existsSync(target.path)
+            ? readFileSync(target.path, "utf8")
+            : "";
+          if (current.includes(target.snippet.trim())) {
+            await writeStdoutSafe(
+              `cx completion is already installed in ${target.path}\n`,
+            );
+          } else {
+            appendFileSync(target.path, target.snippet);
+            await writeStdoutSafe(
+              `Installed cx completion dynamic loader in ${target.path}\n`,
+            );
+          }
+          exitCode = 0;
+        } else {
+          await writeStdoutSafe(renderCompletionScript(shell));
+          exitCode = 0;
+        }
       },
     )
     .command(

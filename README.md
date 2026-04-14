@@ -227,13 +227,24 @@ Generate and install professional shell completions with command descriptions an
 
 ```bash
 # bash
-cx completion --shell=bash >> ~/.bashrc
+cx completion --shell=bash --install
 
 # zsh
-cx completion --shell=zsh >> ~/.zshrc
+cx completion --shell=zsh --install
 
 # fish
-cx completion --shell=fish > ~/.config/fish/completions/cx.fish
+cx completion --shell=fish --install
+```
+
+If you prefer a one-off dynamic load instead of writing to your shell config, use:
+
+```bash
+# For bash
+. <(cx completion --shell=bash)
+# For zsh
+. <(cx completion --shell=zsh)
+# For fish
+cx completion --shell=fish | source
 ```
 
 Open a new shell session after installation. Completions include:
