@@ -36,6 +36,60 @@ Core responsibility split:
 - `cx` verification layer: confirm artifacts and source-tree alignment
 - `cx` extraction layer: recover files according to manifest truth
 
+## Module Layer Rules
+
+The codebase enforces strict import directionality. Violations are bugs, not
+style issues.
+
+```text
+config/  shared/  vcs/           ← foundation (no domain imports)
+    ↓
+notes/   planning/  manifest/    ← domain modules
+    ↓
+inspect/  doctor/   repomix/     ← cross-domain orchestration
+    ↓
+mcp/                             ← transport layer (imports domain only)
+    ↓
+cli/commands/                    ← presentation layer (thin shells)
+```
+
+**Enforced boundaries:**
+
+- `planning/` must not import from `notes/`. The planner classifies files; note
+  graph enrichment is an orchestration concern. `notes/planner.ts` provides
+  `enrichPlanWithLinkedNotes` as a post-planning step called by the CLI bundle
+  and inspect paths, not by the planner itself.
+
+- `mcp/` must not import from `cli/commands/`. MCP is a transport layer; it
+  imports domain functions from `doctor/`, `inspect/`, `notes/`, and
+  `planning/` directly. The CLI command files are thin presentation shells that
+  re-export from those same domain modules.
+
+- Note CRUD operations (`createNewNote`, `readNote`, `updateNote`, `renameNote`,
+  `deleteNote`, `searchNotes`, `listNotes`) live in `notes/crud.ts`, not in
+  `cli/commands/`. CLI and MCP both import from the domain module.
+
+- MCP config resolution (`resolveMcpConfigPath`) lives in `mcp/config.ts`, not
+  in `cli/commands/`. The CLI mcp command re-exports it from there.
+
+**Module inventory (domain layer):**
+
+| Module | Responsibility |
+|--------|---------------|
+| `notes/crud.ts` | Note CRUD I/O and search |
+| `notes/graph.ts` | Note link graph construction and queries |
+| `notes/planner.ts` | Linked-note enrichment for bundle plans |
+| `doctor/mcp.ts` | MCP profile diagnostic report |
+| `doctor/overlaps.ts` | Section overlap diagnostic report |
+| `doctor/secrets.ts` | Secret scan diagnostic report |
+| `doctor/workflow.ts` | Workflow mode recommendation |
+| `inspect/report.ts` | Bundle plan inspection report |
+| `mcp/config.ts` | MCP config path resolution |
+| `mcp/tools/workspace.ts` | Workspace navigation tools |
+| `mcp/tools/bundle.ts` | Bundle preview and inspect tools |
+| `mcp/tools/doctor.ts` | Doctor diagnostic tools |
+| `mcp/tools/notes.ts` | Note CRUD and graph tools |
+
 ## Adapter Boundary
 
 The `src/repomix/` directory is the explicit adapter boundary between `cx` core
