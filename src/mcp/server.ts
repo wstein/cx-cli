@@ -20,7 +20,7 @@ function buildInstructions(configPath: string): string {
     "cx mcp provides deterministic, file-based agent access to repository context.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
-    "Available tools: list (workspace files), grep (workspace file content search), and read (anchored file inspection).",
+    "Available tools: list, grep, read, notes_new, notes_list, notes_backlinks, notes_orphans, notes_code_links, and notes_links.",
   ].join(" ");
 }
 

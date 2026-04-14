@@ -244,6 +244,24 @@ describe("Notes Commands", () => {
     }
   });
 
+  test("creates a new note with an initial body", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const { filePath } = await createNewNote("Body Note", {
+        body: "This note starts with a concrete summary.",
+      });
+
+      const content = await fs.readFile(filePath, "utf-8");
+      expect(content).toContain("This note starts with a concrete summary.");
+      expect(content).toContain("## Links");
+      expect(content).not.toContain("Write your note here.");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
   test("lists all notes", async () => {
     const origCwd = process.cwd();
     process.chdir(testDir);

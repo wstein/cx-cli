@@ -22,17 +22,24 @@ function generateNoteId(): string {
 /**
  * Render a new note with the given parameters.
  */
-function renderNewNote(id: string, tags: string[] = []): string {
+function renderNewNote(
+  id: string,
+  tags: string[] = [],
+  body?: string | undefined,
+): string {
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
+  const noteBody =
+    body === undefined
+      ? "Write your note here. Keep it atomic and focused on one idea."
+      : body.trimEnd();
+  const renderedBody = noteBody.length > 0 ? `${noteBody}\n` : "";
   return `---
 id: ${id}
 aliases: []
 tags: [${tagsList}]
 ---
 
-Write your note here. Keep it atomic and focused on one idea.
-
-## Links
+${renderedBody}## Links
 
 `;
 }
@@ -56,6 +63,7 @@ function fileNameFromTitle(title: string): string {
 export async function createNewNote(
   title: string,
   options?: {
+    body?: string | undefined;
     tags?: string[] | undefined;
     notesDir?: string | undefined;
   },
@@ -75,7 +83,7 @@ export async function createNewNote(
     filePath = path.join(notesPath, fileName);
   }
 
-  const content = renderNewNote(id, options?.tags);
+  const content = renderNewNote(id, options?.tags, options?.body);
   await fs.writeFile(filePath, content, "utf-8");
 
   return { id, filePath };

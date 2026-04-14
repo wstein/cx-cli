@@ -97,7 +97,7 @@ include = ["README.md"]
 }
 
 describe("cx MCP server", () => {
-  test("registers only cx-native list, grep, and read tools", async () => {
+  test("registers workspace file tools and note tools", async () => {
     const project = await createWorkspace();
     const config = await loadCxConfig(project.mcpPath);
     const server = createCxMcpServer({
@@ -106,7 +106,17 @@ describe("cx MCP server", () => {
     });
     const toolNames = Object.keys(getRegisteredTools(server)).sort();
 
-    expect(toolNames).toEqual(["grep", "list", "read"]);
+    expect(toolNames).toEqual([
+      "grep",
+      "list",
+      "notes_backlinks",
+      "notes_code_links",
+      "notes_links",
+      "notes_list",
+      "notes_new",
+      "notes_orphans",
+      "read",
+    ]);
   });
 
   test("list returns workspace files from the active cx scope", async () => {
@@ -195,5 +205,103 @@ describe("cx MCP server", () => {
     expect(payload.lineStart).toBe(2);
     expect(payload.lineEnd).toBe(2);
     expect(payload.content).toContain("world");
+  });
+
+  test("notes_new creates a workspace note and notes_list returns it", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Agent Insight",
+        tags: ["agent", "workflow"],
+        body: "This note records an important observation.",
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+      title: string;
+      tags: string[];
+    };
+
+    expect(createPayload.title).toBe("Agent Insight");
+    expect(createPayload.tags).toEqual(["agent", "workflow"]);
+
+    const createdNote = path.join(project.root, createPayload.filePath);
+    const noteContent = await fs.readFile(createdNote, "utf8");
+    expect(noteContent).toContain("This note records an important observation.");
+
+    const listResult = await tools.notes_list.handler({}, {} as never);
+    const listPayload = JSON.parse(listResult.content[0].text) as {
+      count: number;
+      notes: Array<{ title: string; summary: string }>;
+    };
+
+    expect(listPayload.count).toBeGreaterThan(0);
+    expect(listPayload.notes.some((note) => note.title === "Agent Insight")).toBe(
+      true,
+    );
+    expect(
+      listPayload.notes.some((note) =>
+        note.summary.includes("important observation"),
+      ),
+    ).toBe(true);
+  });
+
+  test("notes_links reports unresolved links for a created note", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Link Audit",
+        body: "This note points to [[Missing Note]].",
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+    };
+
+    const createdNote = path.join(project.root, createPayload.filePath);
+    await fs.writeFile(
+      createdNote,
+      `---
+id: ${createPayload.id}
+aliases: []
+tags: []
+---
+
+# Link Audit
+
+This note points to [[Missing Note]].
+`,
+      "utf8",
+    );
+
+    const result = await tools.notes_links.handler(
+      { id: createPayload.id },
+      {} as never,
+    );
+    const payload = JSON.parse(result.content[0].text) as {
+      brokenCount: number;
+      brokenLinks: Array<{ reference: string }>;
+    };
+
+    expect(payload.brokenCount).toBe(1);
+    expect(payload.brokenLinks[0]?.reference).toContain("Missing Note");
   });
 });
