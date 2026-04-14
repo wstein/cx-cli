@@ -22,7 +22,7 @@ cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx init` now writes a generated `Makefile`, `cx-mcp.toml`, and `cx.toml` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and extends the baseline configuration with starter agent client profiles for Claude, GitHub Copilot, and Codex. The Makefile is designed to detect common workspace toolchains such as Rust, Go, JavaScript/TypeScript, Python, Java, and Crystal, and expose the native workspace tasks that are available.
+`cx init` now writes a generated workspace-aware `Makefile`, `cx-mcp.toml`, and `cx.toml` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and extends the baseline configuration with starter agent client profiles for Claude, GitHub Copilot, and Codex. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
 
 `cx init` checks each generated target individually. It preserves existing files by default and creates any missing init artifacts; use `--force` to overwrite existing generated files.
 
@@ -101,7 +101,7 @@ cx init --name demo
 cx inspect --config cx.toml
 ```
 
-`cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository notes guide plus the default atomic note template.
+`cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository notes guide plus the default atomic note template. It also chooses a workspace-native Makefile template so the generated recipes stay readable and aligned with the detected toolchain.
 
 For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
 
