@@ -9,6 +9,14 @@ consensus that shaped this architecture, see [spec-draft.md](spec-draft.md).
 
 The project deliberately wraps Repomix in a stricter system because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics.
 
+## The CX Triad
+
+The architecture follows the **CX Triad**, specifically designed for operational bundling:
+
+1.  **Immutable Snapshots**: Static, verifiable snapshots (via `cx bundle`) that provide bit-for-bit identity and token accounting.
+2.  **Live Agent Protocol**: Real-time workspace interaction (via `cx mcp`) following the same strict boundary rules.
+3.  **Durable Knowledge**: A machine-queryable knowledge graph (via `cx notes`) with metadata stored directly in the manifest to avoid expensive file scans.
+
 ## Philosophy
 
 Repomix is a strong exploratory packager.

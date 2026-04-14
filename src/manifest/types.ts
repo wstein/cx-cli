@@ -85,6 +85,10 @@ export interface CxManifest {
   checksumAlgorithm: "sha256";
   settings: ManifestSettings;
   /**
+   * Total token count for the entire bundle (sum of all section tokens).
+   */
+  totalTokenCount: number;
+  /**
    * VCS system detected at bundle time ("git", "fossil", or "none" for the
    * filesystem fallback).
    */

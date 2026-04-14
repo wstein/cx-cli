@@ -69,6 +69,11 @@ export function buildManifest(params: {
     return { ...sectionOutput, files };
   });
 
+  const totalTokenCount = sections.reduce(
+    (acc, section) => acc + section.tokenCount,
+    0,
+  );
+
   const textRows = sections.flatMap((s) => s.files);
 
   const assetRows: ManifestFileRow[] = params.plan.assets.map((asset) => ({
@@ -105,6 +110,7 @@ export function buildManifest(params: {
       normalizationPolicy: NORMALIZATION_POLICY,
       includeLinkedNotes: params.config.manifest.includeLinkedNotes ?? false,
     },
+    totalTokenCount,
     vcsProvider: params.plan.vcsKind,
     dirtyState: params.dirtyState,
     modifiedFiles: params.modifiedFiles,
