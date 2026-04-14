@@ -72,6 +72,10 @@ async function buildCurrentSnapshot(
         value: config.assets.layout,
         source: config.behaviorSources.assetsLayout,
       },
+      includeLinkedNotes: {
+        value: config.manifest.includeLinkedNotes ? "true" : "false",
+        source: "cx.toml",
+      },
     };
   } catch {
     return null;

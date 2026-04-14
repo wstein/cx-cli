@@ -155,6 +155,10 @@
         "include_source_metadata": {
           "type": "boolean",
           "description": "Include VCS metadata (commit, branch, author) in the manifest."
+        },
+        "include_linked_notes": {
+          "type": "boolean",
+          "description": "When true, pull notes linked from bundled source files into the bundle plan."
         }
       }
     },

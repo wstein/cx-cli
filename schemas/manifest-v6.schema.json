@@ -127,7 +127,8 @@
         "showLineNumbers",
         "includeEmptyDirectories",
         "securityCheck",
-        "normalizationPolicy"
+        "normalizationPolicy",
+        "includeLinkedNotes"
       ],
       "additionalProperties": false,
       "properties": {
@@ -146,6 +147,10 @@
         "normalizationPolicy": {
           "description": "Versioned policy describing how file content was normalized before hashing.",
           "const": "repomix-default-v1"
+        },
+        "includeLinkedNotes": {
+          "description": "Whether linked notes were included in the bundle plan.",
+          "type": "boolean"
         }
       }
     },

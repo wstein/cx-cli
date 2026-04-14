@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import path from "node:path";
 import { z } from "zod";
 
-import { createNewNote } from "../cli/commands/notes/common.js";
+import { createNewNote, updateNote } from "../cli/commands/notes/common.js";
 import {
   buildNoteGraph,
   getBacklinks,
@@ -138,6 +138,37 @@ export function registerCxMcpTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: args.tags ?? [],
+      });
+    },
+  );
+
+  server.registerTool(
+    "notes_update",
+    {
+      title: "Update note",
+      description:
+        "Update an existing note in the workspace notes directory while preserving its file path.",
+      inputSchema: z.object({
+        id: z.string().min(1),
+        title: z.string().min(1).optional(),
+        tags: z.array(z.string().min(1)).optional(),
+        body: z.string().min(1).optional(),
+      }),
+    },
+    async (args) => {
+      const note = await updateNote(args.id, {
+        notesDir,
+        title: args.title,
+        tags: args.tags,
+        body: args.body,
+      });
+
+      return jsonToolResult({
+        command: "notes update",
+        id: note.id,
+        title: note.title,
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        tags: note.tags,
       });
     },
   );

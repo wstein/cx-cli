@@ -796,6 +796,12 @@ export async function loadCxConfig(
         "manifest.include_source_metadata",
         DEFAULT_CONFIG_VALUES.manifest.includeSourceMetadata,
       ),
+      includeLinkedNotes: expectBoolean(
+        manifest.include_linked_notes ??
+          DEFAULT_CONFIG_VALUES.manifest.includeLinkedNotes,
+        "manifest.include_linked_notes",
+        false,
+      ),
     },
     checksums: {
       algorithm: "sha256",

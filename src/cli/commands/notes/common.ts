@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { parseMarkdownFrontmatter } from "../../../notes/parser.js";
 import { validateNotes } from "../../../notes/validate.js";
 import { ensureDir, pathExists } from "../../../shared/fs.js";
 
@@ -42,6 +43,35 @@ tags: [${tagsList}]
 ${renderedBody}## Links
 
 `;
+}
+
+function renderUpdatedNote(params: {
+  id: string;
+  aliases: string[];
+  tags: string[];
+  title?: string | undefined;
+  body: string;
+  linksSection: string;
+}): string {
+  const frontmatterTitle =
+    params.title !== undefined && params.title.trim().length > 0
+      ? `\ntitle: ${JSON.stringify(params.title.trim())}`
+      : "";
+  const tagsList =
+    params.tags.length > 0 ? params.tags.map((tag) => `'${tag}'`).join(", ") : "";
+  const body = params.body.trimEnd();
+  const bodySection = body.length > 0 ? `${body}\n\n` : "";
+  const linksSection = params.linksSection.trimEnd();
+  const renderedLinks =
+    linksSection.length > 0 ? `${linksSection}\n` : "## Links\n\n";
+
+  return `---
+id: ${params.id}${frontmatterTitle}
+aliases: [${params.aliases.join(", ")}]
+tags: [${tagsList}]
+---
+
+${bodySection}${renderedLinks}`;
 }
 
 function fileNameFromTitle(title: string): string {
@@ -87,6 +117,61 @@ export async function createNewNote(
   await fs.writeFile(filePath, content, "utf-8");
 
   return { id, filePath };
+}
+
+export async function updateNote(
+  noteId: string,
+  options?: {
+    body?: string | undefined;
+    tags?: string[] | undefined;
+    title?: string | undefined;
+    notesDir?: string | undefined;
+  },
+): Promise<{ id: string; filePath: string; title: string; tags: string[] }> {
+  const notesDir = options?.notesDir ?? "notes";
+  const result = await validateNotes(notesDir, process.cwd());
+  const note = result.notes.find((entry) => entry.id === noteId);
+
+  if (!note) {
+    throw new Error(`Note not found: ${noteId}`);
+  }
+
+  const filePath = note.filePath;
+  const content = await fs.readFile(filePath, "utf8");
+  const parsed = parseMarkdownFrontmatter(content);
+  const aliases = Array.isArray(parsed.frontmatter.aliases)
+    ? parsed.frontmatter.aliases.filter(
+        (alias): alias is string => typeof alias === "string" && alias.trim().length > 0,
+      )
+    : [];
+  const existingTags = Array.isArray(parsed.frontmatter.tags)
+    ? parsed.frontmatter.tags.filter(
+        (tag): tag is string => typeof tag === "string" && tag.trim().length > 0,
+      )
+    : [];
+  const body = options?.body ?? parsed.body;
+  const linksIndex = body.search(/^\s*##\s+Links\s*$/m);
+  const bodySection =
+    linksIndex >= 0 ? body.slice(0, linksIndex).trimEnd() : body.trimEnd();
+  const linksSection =
+    linksIndex >= 0 ? body.slice(linksIndex).trimEnd() : "## Links\n\n";
+  const rendered = renderUpdatedNote({
+    id: note.id,
+    aliases,
+    tags: options?.tags ?? existingTags,
+    title: options?.title ?? (typeof parsed.frontmatter.title === "string" ? parsed.frontmatter.title : undefined),
+    body: bodySection,
+    linksSection,
+  });
+
+  await fs.writeFile(filePath, rendered, "utf8");
+
+  return {
+    id: note.id,
+    filePath,
+    title: options?.title ?? note.title,
+    tags: options?.tags ?? existingTags,
+  };
 }
 
 /**

@@ -103,6 +103,7 @@ export function buildManifest(params: {
       includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
       securityCheck: params.config.repomix.securityCheck,
       normalizationPolicy: NORMALIZATION_POLICY,
+      includeLinkedNotes: params.config.manifest.includeLinkedNotes ?? false,
     },
     vcsProvider: params.plan.vcsKind,
     dirtyState: params.dirtyState,

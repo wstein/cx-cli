@@ -100,6 +100,7 @@ async function expectExtractedFilesToMatchManifest(params: {
 
 async function createProject(options?: {
   includeSpecialChecksumFile?: boolean;
+  includeLinkedNotes?: boolean;
 }): Promise<{
   root: string;
   configPath: string;
@@ -119,6 +120,31 @@ async function createProject(options?: {
     'export const demo = "================";\n',
     "utf8",
   );
+  if (options?.includeLinkedNotes) {
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      '// [[Linked Note]]\nexport const demo = "================";\n',
+      "utf8",
+    );
+    await fs.mkdir(path.join(root, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(root, "notes", "linked-note.md"),
+      `---
+id: 20260414120000
+title: Linked Note
+aliases: []
+tags: []
+---
+
+This note is linked from source code.
+
+## Links
+
+- [[README.md]]
+`,
+      "utf8",
+    );
+  }
   await fs.writeFile(
     path.join(root, "docs", "guide.md"),
     "hello\n================\nstill content\n",
@@ -136,6 +162,9 @@ async function createProject(options?: {
   }
   await fs.writeFile(path.join(root, "logo.png"), "fakepng", "utf8");
   const configPath = path.join(root, "cx.toml");
+  const linkedNotesConfig = options?.includeLinkedNotes
+    ? "\ninclude_linked_notes = true"
+    : "";
   await fs.writeFile(
     configPath,
     `schema_version = 1
@@ -167,6 +196,13 @@ exclude = []
 [sections.src]
 include = ["src/**"]
 exclude = []
+
+[manifest]
+format = "json"
+include_file_sha256 = true
+include_output_sha256 = true
+include_output_spans = true
+include_source_metadata = true${linkedNotesConfig}
 `,
     "utf8",
   );
@@ -279,21 +315,28 @@ It should become the manifest summary.
     );
   });
 
-  test("emits absolute output spans from renderWithMap for all files", async () => {
-    const project = await createProject();
-    // Add manifest section with span capture enabled
-    const configContents = await fs.readFile(project.configPath, "utf8");
-    const manifestSection = `\n[manifest]
-format = "json"
-include_file_sha256 = true
-include_output_sha256 = true
-include_output_spans = true
-include_source_metadata = true`;
-    await fs.writeFile(
-      project.configPath,
-      configContents + manifestSection,
+  test("pulls linked notes into the bundle when enabled", async () => {
+    const project = await createProject({
+      includeLinkedNotes: true,
+    });
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const docsSection = manifest.sections.find((section) => section.name === "docs");
+    expect(docsSection?.files.map((file) => file.path)).toContain(
+      "notes/linked-note.md",
+    );
+
+    const docsOutput = await fs.readFile(
+      path.join(project.bundleDir, docsSection?.outputFile ?? ""),
       "utf8",
     );
+    expect(docsOutput).toContain("This note is linked from source code.");
+  });
+
+  test("emits absolute output spans from renderWithMap for all files", async () => {
+    const project = await createProject();
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
@@ -379,11 +422,7 @@ include_source_metadata = true`;
     const configContents = await fs.readFile(project.configPath, "utf8");
     await fs.writeFile(
       project.configPath,
-      configContents
-        .replace('style = "xml"', `style = "${style}"`)
-        .concat(
-          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
-        ),
+      configContents.replace('style = "xml"', `style = "${style}"`),
       "utf8",
     );
 
@@ -454,11 +493,7 @@ include_source_metadata = true`;
     const configContents = await fs.readFile(project.configPath, "utf8");
     await fs.writeFile(
       project.configPath,
-      configContents
-        .replace('style = "xml"', 'style = "json"')
-        .concat(
-          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = true\ninclude_source_metadata = true\n`,
-        ),
+      configContents.replace('style = "xml"', 'style = "json"'),
       "utf8",
     );
 
@@ -492,6 +527,7 @@ include_source_metadata = true`;
         includeEmptyDirectories: false,
         securityCheck: false,
         normalizationPolicy: "repomix-default-v1",
+        includeLinkedNotes: false,
       },
       vcsProvider: "none",
       dirtyState: "clean",
@@ -1167,8 +1203,9 @@ include_source_metadata = true`;
     const project = await createProject();
     await fs.writeFile(
       project.configPath,
-      (await fs.readFile(project.configPath, "utf8")).concat(
-        `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = false\ninclude_source_metadata = true\n`,
+      (await fs.readFile(project.configPath, "utf8")).replace(
+        "include_output_spans = true",
+        "include_output_spans = false",
       ),
       "utf8",
     );
@@ -1185,9 +1222,7 @@ include_source_metadata = true`;
       project.configPath,
       (await fs.readFile(project.configPath, "utf8"))
         .replace('style = "xml"', 'style = "json"')
-        .concat(
-          `\n[manifest]\nformat = "json"\ninclude_file_sha256 = true\ninclude_output_sha256 = true\ninclude_output_spans = false\ninclude_source_metadata = true\n`,
-        ),
+        .replace("include_output_spans = true", "include_output_spans = false"),
       "utf8",
     );
 
@@ -1237,7 +1272,7 @@ include_source_metadata = true`;
     const preservedBefore = await sha256File(preservedSectionPath);
     const orphanedAssetPath = path.join(
       project.bundleDir,
-      "demo-assets",
+      "assets",
       "logo.png",
     );
     expect(await fs.stat(orphanedAssetPath)).toBeDefined();

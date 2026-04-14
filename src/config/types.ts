@@ -90,6 +90,11 @@ export interface CxManifestConfig {
   includeOutputSha256: boolean;
   includeOutputSpans: boolean;
   includeSourceMetadata: boolean;
+  /**
+   * When enabled, the bundle planner pulls in notes linked from bundled source
+   * files so note context travels with the code that references it.
+   */
+  includeLinkedNotes?: boolean;
 }
 
 export interface CxChecksumsConfig {

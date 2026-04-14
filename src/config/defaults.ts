@@ -45,6 +45,7 @@ include_file_sha256 = true
 include_output_sha256 = true
 include_output_spans = true
 include_source_metadata = true
+include_linked_notes = false
 
 # Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
 
@@ -130,6 +131,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     includeOutputSha256: true,
     includeOutputSpans: true,
     includeSourceMetadata: true,
+    includeLinkedNotes: false,
   },
   checksums: {
     algorithm: "sha256",

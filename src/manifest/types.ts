@@ -10,6 +10,7 @@ export interface ManifestSettings {
   includeEmptyDirectories: boolean;
   securityCheck: boolean;
   normalizationPolicy: typeof NORMALIZATION_POLICY;
+  includeLinkedNotes?: boolean;
 }
 
 export interface ManifestFileRow {

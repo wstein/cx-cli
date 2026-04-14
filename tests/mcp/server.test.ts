@@ -115,6 +115,7 @@ describe("cx MCP server", () => {
       "notes_list",
       "notes_new",
       "notes_orphans",
+      "notes_update",
       "read",
     ]);
   });
@@ -253,6 +254,50 @@ describe("cx MCP server", () => {
         note.summary.includes("important observation"),
       ),
     ).toBe(true);
+  });
+
+  test("notes_update revises an existing note in place", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.notes_new.handler(
+      {
+        title: "Editable Note",
+        body: "Original body.",
+      },
+      {} as never,
+    );
+    const createPayload = JSON.parse(createResult.content[0].text) as {
+      id: string;
+      filePath: string;
+    };
+
+    const updateResult = await tools.notes_update.handler(
+      {
+        id: createPayload.id,
+        body: "Updated body.",
+        tags: ["revised"],
+      },
+      {} as never,
+    );
+    const updatePayload = JSON.parse(updateResult.content[0].text) as {
+      title: string;
+      tags: string[];
+    };
+
+    expect(updatePayload.title).toBe("Editable Note");
+    expect(updatePayload.tags).toEqual(["revised"]);
+
+    const updatedContent = await fs.readFile(
+      path.join(project.root, createPayload.filePath),
+      "utf8",
+    );
+    expect(updatedContent).toContain("Updated body.");
   });
 
   test("notes_links reports unresolved links for a created note", async () => {

@@ -399,6 +399,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           value: config.assets.layout,
           source: config.behaviorSources.assetsLayout,
         },
+        "manifest.include_linked_notes": {
+          value: config.manifest.includeLinkedNotes ? "true" : "false",
+          source: "cx.toml",
+        },
       },
     };
     await writeLock(activeBundleDir, plan.projectName, lockFile);

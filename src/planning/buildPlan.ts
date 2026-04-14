@@ -3,9 +3,10 @@ import path from "node:path";
 
 import type { CxConfig, CxSectionConfig } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
-import { pathExists } from "../shared/fs.js";
+import { pathExists, relativePosix } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
+import { buildNoteGraph } from "../notes/graph.js";
 import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 import {
   analyzeSectionOverlaps,
@@ -17,6 +18,7 @@ import {
   getSectionOrder,
   matchesAny,
 } from "./overlaps.js";
+import type { OverlapConflict } from "./overlaps.js";
 import type {
   BundlePlan,
   PlannedAsset,
@@ -44,6 +46,26 @@ function getRequiredSectionFiles(
     throw new CxError(`Missing planned file set for ${sectionName}.`, 2);
   }
   return files;
+}
+
+function formatOverlapConflictsMessage(conflicts: OverlapConflict[]): string {
+  if (conflicts.length === 1) {
+    return formatOverlapConflictMessage(conflicts[0] as OverlapConflict);
+  }
+
+  const conflictMessages = conflicts
+    .map((conflict) =>
+      formatOverlapConflictMessage(conflict)
+        .split("\n")
+        .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
+        .join("\n"),
+    )
+    .join("\n");
+
+  return [
+    `Section overlap detected in ${conflicts.length} locations.`,
+    conflictMessages,
+  ].join("\n");
 }
 
 /**
@@ -95,9 +117,9 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
 
   // Phase 2: Overlap analysis (operates on the master list, not the disk).
   if (config.dedup.mode === "fail") {
-    const [conflict] = await analyzeSectionOverlaps(config, masterList);
-    if (conflict) {
-      throw new CxError(formatOverlapConflictMessage(conflict), 4);
+    const conflicts = await analyzeSectionOverlaps(config, masterList);
+    if (conflicts.length > 0) {
+      throw new CxError(formatOverlapConflictsMessage(conflicts), 4);
     }
   } else if (config.dedup.mode === "warn") {
     const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -271,6 +293,64 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         mtime: stat.mtime.toISOString(),
       };
       getRequiredSectionFiles(sectionFiles, catchAllName).push(plannedFile);
+    }
+  }
+
+  if (config.manifest.includeLinkedNotes) {
+    const noteGraph = await buildNoteGraph("notes", config.sourceRoot);
+    const linkedNoteIds = new Set<string>();
+    for (const link of noteGraph.links) {
+      linkedNoteIds.add(link.toNoteId);
+    }
+
+    const targetSectionName = sectionOrder.includes("docs")
+      ? "docs"
+      : sectionOrder[0];
+    if (!targetSectionName) {
+      throw new CxError("Cannot determine a target section for linked notes.", 2);
+    }
+
+    const targetSectionFiles = getRequiredSectionFiles(
+      sectionFiles,
+      targetSectionName,
+    );
+    const existingPaths = new Set<string>(
+      [...sectionFiles.values()].flatMap((files) =>
+        files.map((file) => file.relativePath),
+      ),
+    );
+
+    for (const noteId of linkedNoteIds) {
+      const note = noteGraph.notes.get(noteId);
+      if (!note) {
+        continue;
+      }
+
+      const relativePath = relativePosix(config.sourceRoot, note.filePath);
+      if (existingPaths.has(relativePath)) {
+        continue;
+      }
+      if (!availablePool.has(relativePath)) {
+        continue;
+      }
+
+      const absolutePath = note.filePath;
+      if (!(await pathExists(absolutePath))) {
+        continue;
+      }
+
+      availablePool.delete(relativePath);
+      const stat = await fs.stat(absolutePath);
+      targetSectionFiles.push({
+        relativePath,
+        absolutePath,
+        kind: "text",
+        mediaType: detectMediaType(relativePath, "text"),
+        sizeBytes: stat.size,
+        sha256: await sha256File(absolutePath),
+        mtime: stat.mtime.toISOString(),
+      });
+      existingPaths.add(relativePath);
     }
   }
 

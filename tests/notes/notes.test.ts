@@ -7,6 +7,7 @@ import {
   createNewNote,
   listNotes,
   runNotesCommand,
+  updateNote,
 } from "../../src/cli/commands/notes.js";
 import {
   buildNoteGraph,
@@ -257,6 +258,32 @@ describe("Notes Commands", () => {
       expect(content).toContain("This note starts with a concrete summary.");
       expect(content).toContain("## Links");
       expect(content).not.toContain("Write your note here.");
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("updates an existing note body and tags", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("Update Note", {
+        body: "Original body.",
+        tags: ["old"],
+      });
+
+      const updated = await updateNote(created.id, {
+        body: "Revised body.",
+        tags: ["new", "better"],
+      });
+
+      expect(updated.tags).toEqual(["new", "better"]);
+
+      const content = await fs.readFile(updated.filePath, "utf8");
+      expect(content).toContain("Revised body.");
+      expect(content).toContain("new");
+      expect(content).not.toContain("Original body.");
     } finally {
       process.chdir(origCwd);
     }

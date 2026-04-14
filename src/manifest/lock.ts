@@ -49,6 +49,7 @@ export interface CxLockFile {
     "repomix.missing_extension": LockSetting<CxRepomixMissingExtensionMode>;
     "config.duplicate_entry": LockSetting<CxConfigDuplicateEntryMode>;
     "assets.layout": LockSetting<CxAssetsLayout>;
+    "manifest.include_linked_notes": LockSetting<"true" | "false">;
   };
 }
 
@@ -125,6 +126,7 @@ export interface CurrentBehaviorSnapshot {
   repomixMissingExtension: { value: string; source: string };
   configDuplicateEntry: { value: string; source: string };
   assetsLayout: { value: string; source: string };
+  includeLinkedNotes: { value: "true" | "false"; source: string };
 }
 
 /**
@@ -145,6 +147,7 @@ export function diffLockSettings(
     ["repomix.missing_extension", current.repomixMissingExtension],
     ["config.duplicate_entry", current.configDuplicateEntry],
     ["assets.layout", current.assetsLayout],
+    ["manifest.include_linked_notes", current.includeLinkedNotes],
   ];
 
   for (const [key, cur] of pairs) {

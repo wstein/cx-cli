@@ -20,6 +20,10 @@ function makeLock(
       },
       "config.duplicate_entry": { value: "fail", source: "compiled default" },
       "assets.layout": { value: "flat", source: "compiled default" },
+      "manifest.include_linked_notes": {
+        value: "false",
+        source: "compiled default",
+      },
       ...overrides,
     },
   };
@@ -33,6 +37,7 @@ function makeSnapshot(
     repomixMissingExtension: { value: "warn", source: "compiled default" },
     configDuplicateEntry: { value: "fail", source: "compiled default" },
     assetsLayout: { value: "flat", source: "compiled default" },
+    includeLinkedNotes: { value: "false", source: "compiled default" },
     ...overrides,
   };
 }
@@ -45,6 +50,10 @@ describe("diffLockSettings", () => {
   test("detects drift in assets.layout", () => {
     const lock = makeLock({
       "assets.layout": { value: "flat", source: "compiled default" },
+      "manifest.include_linked_notes": {
+        value: "false",
+        source: "compiled default",
+      },
     });
     const current = makeSnapshot({
       assetsLayout: { value: "deep", source: "cx.toml" },
@@ -63,6 +72,10 @@ describe("diffLockSettings", () => {
   test("detects drift only in the changed setting and no others", () => {
     const lock = makeLock({
       "assets.layout": { value: "deep", source: "cx.toml" },
+      "manifest.include_linked_notes": {
+        value: "false",
+        source: "compiled default",
+      },
     });
     // All other settings match; only layout differs
     const current = makeSnapshot({

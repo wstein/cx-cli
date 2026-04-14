@@ -259,6 +259,17 @@ describe("buildBundlePlan", () => {
     );
   });
 
+  test("reports multiple overlaps in one aggregated diagnostic", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.sections.docsMirror = { include: ["docs/**"], exclude: [] };
+    config.sections.srcMirror = { include: ["src/**"], exclude: [] };
+
+    await expect(buildBundlePlan(config)).rejects.toThrow(
+      /Section overlap detected in 2 locations\.[\s\S]*docs\/guide\.md[\s\S]*src\/index\.ts/,
+    );
+  });
+
   test("resolves overlaps by priority when dedup.mode=first-wins", async () => {
     const root = await createFixture();
     const config = baseConfig(root);
