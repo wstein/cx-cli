@@ -132,7 +132,8 @@ const COMMANDS: CommandSpec[] = [
   },
   {
     name: "notes",
-    description: "Create notes, list them, and inspect note graph relationships",
+    description:
+      "Create, rename, delete, list, and inspect note graph relationships",
     options: [
       { name: "config", description: "Configuration file path", takesValue: true },
       { name: "json", description: "Output as JSON" },

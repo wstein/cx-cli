@@ -133,6 +133,31 @@ describe("cx MCP server", () => {
     expect(instructions).toContain("interactive exploration");
   });
 
+  test("doctor_mcp returns the resolved MCP profile and scope", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const result = await tools.doctor_mcp.handler({}, {} as never);
+    const payload = JSON.parse(result.content[0].text) as {
+      command: string;
+      activeProfile: string;
+      resolvedConfigPath: string;
+      filesInclude: string[];
+      filesExclude: string[];
+    };
+
+    expect(payload.command).toBe("doctor mcp");
+    expect(payload.activeProfile).toBe("cx-mcp.toml");
+    expect(payload.resolvedConfigPath).toBe(project.mcpPath);
+    expect(payload.filesInclude).toContain("README.md");
+    expect(payload.filesExclude.length).toBeGreaterThanOrEqual(0);
+  });
+
   test("list returns workspace files from the active cx scope", async () => {
     const project = await createWorkspace();
     const config = await loadCxConfig(project.mcpPath);

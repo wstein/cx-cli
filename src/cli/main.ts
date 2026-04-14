@@ -587,6 +587,14 @@ export async function main(argv: string[]): Promise<number> {
             "Create a note with tags.",
           )
           .example(
+            "$0 notes rename --id 20250113143015 --title 'Revised Topic'",
+            "Rename an existing note in place.",
+          )
+          .example(
+            "$0 notes delete --id 20250113143015",
+            "Delete a note from the notes/ directory.",
+          )
+          .example(
             "$0 notes backlinks --id 20250113143015",
             "Show all notes that link to the given note.",
           )
@@ -606,6 +614,8 @@ export async function main(argv: string[]): Promise<number> {
             type: "string",
             choices: [
               "new",
+              "rename",
+              "delete",
               "list",
               "backlinks",
               "orphans",
@@ -627,7 +637,7 @@ export async function main(argv: string[]): Promise<number> {
           .option("id", {
             type: "string",
             description:
-              "Note ID (required for 'backlinks', 'code-links', and 'links' subcommands).",
+              "Note ID (required for 'rename', 'delete', 'backlinks', 'code-links', and 'links' subcommands).",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {

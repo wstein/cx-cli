@@ -216,6 +216,7 @@ export interface CxConfigInput {
   checksums?: Record<string, unknown>;
   tokens?: Record<string, unknown>;
   display?: unknown;
+  mcp?: Record<string, unknown>;
   assets?: Record<string, unknown>;
   config?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;

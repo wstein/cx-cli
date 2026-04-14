@@ -8,7 +8,12 @@ import {
 import { CxError } from "../../../shared/errors.js";
 import { printInfo, printSuccess } from "../../../shared/format.js";
 import { writeJson } from "../../../shared/output.js";
-import { createNewNote, listNotes } from "./common.js";
+import {
+  createNewNote,
+  deleteNote,
+  listNotes,
+  renameNote,
+} from "./common.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
@@ -44,6 +49,61 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
       if (args.tags && args.tags.length > 0) {
         printInfo(`  Tags: ${args.tags.join(", ")}`);
       }
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "rename") {
+    if (!args.id) {
+      throw new CxError("--id is required for 'cx notes rename'", 2);
+    }
+    if (!args.title) {
+      throw new CxError("--title is required for 'cx notes rename'", 2);
+    }
+
+    const note = await renameNote(args.id, args.title);
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes rename",
+        id: note.id,
+        title: note.title,
+        filePath: note.filePath,
+        previousFilePath: note.previousFilePath,
+        tags: note.tags,
+      });
+    } else {
+      printSuccess(`Renamed note: ${note.id}`);
+      printInfo(`  File: ${note.filePath}`);
+      printInfo(`  Previous file: ${note.previousFilePath}`);
+      printInfo(`  Title: ${note.title}`);
+      if (note.tags.length > 0) {
+        printInfo(`  Tags: ${note.tags.join(", ")}`);
+      }
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "delete") {
+    if (!args.id) {
+      throw new CxError("--id is required for 'cx notes delete'", 2);
+    }
+
+    const note = await deleteNote(args.id);
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes delete",
+        id: note.id,
+        title: note.title,
+        filePath: note.filePath,
+      });
+    } else {
+      printSuccess(`Deleted note: ${note.id}`);
+      printInfo(`  File: ${note.filePath}`);
+      printInfo(`  Title: ${note.title}`);
     }
 
     return 0;
@@ -250,7 +310,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
   }
 
   throw new CxError(
-    `Unknown notes subcommand: ${subcommand}. Use 'new', 'list', 'backlinks', 'orphans', 'code-links', or 'links'.`,
+    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', or 'links'.`,
     2,
   );
 }

@@ -421,6 +421,61 @@ describe("Notes Commands", () => {
       process.chdir(origCwd);
     }
   });
+
+  test("rename command updates the note filename and title", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("CLI Rename", {
+        body: "Rename from the CLI.",
+      });
+
+      await expect(
+        runNotesCommand({
+          subcommand: "rename",
+          id: created.id,
+          title: "CLI Renamed",
+        }),
+      ).resolves.toBe(0);
+
+      const notes = await listNotes("notes");
+      const renamed = notes.find((note) => note.id === created.id);
+      expect(renamed?.title).toBe("CLI Renamed");
+      expect(
+        await fs.readFile(
+          path.join(testDir, "notes", renamed?.fileName ?? ""),
+          "utf8",
+        ),
+      ).toContain(
+        "Rename from the CLI.",
+      );
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
+
+  test("delete command removes the note file", async () => {
+    const origCwd = process.cwd();
+    process.chdir(testDir);
+
+    try {
+      const created = await createNewNote("CLI Delete", {
+        body: "Delete from the CLI.",
+      });
+
+      await expect(
+        runNotesCommand({
+          subcommand: "delete",
+          id: created.id,
+        }),
+      ).resolves.toBe(0);
+
+      await expect(fs.stat(created.filePath)).rejects.toThrow();
+    } finally {
+      process.chdir(origCwd);
+    }
+  });
 });
 
 describe("Notes Graph", () => {

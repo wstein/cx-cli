@@ -1,10 +1,10 @@
-#:schema ./schemas/cx-config-v1.schema.json
+#:schema ./schemas/cx-config-level2.schema.json
 extends = "./cx.toml"
 
 [mcp]
 # Default agent client configurations for common MCP workflows.
 # These values are included for downstream agent tooling and workflow hints.
-# Unknown fields are accepted by the MCP profile loader.
+# The runtime loader ignores this table; the overlay schema keeps editor validation strict.
 
 [mcp.clients.claude]
 provider = "anthropic"

@@ -25,8 +25,8 @@ interface JsonSchema {
 }
 
 /**
- * Load and validate the cx-config-v1.schema.json file.
- * This test suite ensures the schema is well-formed and its constraints
+ * Load and validate the cx configuration schemas.
+ * This test suite ensures the schemas are well-formed and their constraints
  * match the TypeScript CxConfigInput interface.
  */
 describe("cx-config-v1.schema.json", async () => {
@@ -172,6 +172,17 @@ describe("cx-config-v1.schema.json", async () => {
     expect(schema.additionalProperties).toBe(false);
   });
 
+  test("mcp profile metadata is available and strict", () => {
+    const mcpProp = (schema.properties?.mcp ?? {}) as JsonSchema & {
+      properties?: Record<string, JsonSchema>;
+    };
+
+    expect(mcpProp.type).toBe("object");
+    expect(mcpProp.additionalProperties).toBe(false);
+    expect(mcpProp.required).toContain("clients");
+    expect(mcpProp.properties?.clients).toBeDefined();
+  });
+
   test("sections property documents catch_all and include mutual exclusion", () => {
     // The schema should have some validation logic preventing both catch_all and include
     const sectionsType = schema.properties?.sections;
@@ -202,5 +213,31 @@ describe("cx-config-v1.schema.json", async () => {
     expect(typeof repomixProp).toBe("object");
     // Schema is valid if it defines the property at all
     expect(repomixProp).toBeDefined();
+  });
+});
+
+describe("cx-config-level2.schema.json", async () => {
+  const schemaPath = path.resolve(
+    path.join(import.meta.dir, "../../schemas/cx-config-level2.schema.json"),
+  );
+  const schemaContent = await fs.readFile(schemaPath, "utf8");
+  const schema: JsonSchema = JSON.parse(schemaContent);
+
+  test("overlay schema is valid JSON", () => {
+    expect(schema).toBeDefined();
+    expect(typeof schema).toBe("object");
+  });
+
+  test("overlay schema requires extends and stays strict", () => {
+    const required = schema.required ?? [];
+    expect(required).toContain("extends");
+    expect(schema.additionalProperties).toBe(false);
+  });
+
+  test("overlay schema keeps inherited fields available", () => {
+    const properties = schema.properties ?? {};
+    expect(properties.schema_version).toBeDefined();
+    expect(properties.project_name).toBeDefined();
+    expect(properties.mcp).toBeDefined();
   });
 });
