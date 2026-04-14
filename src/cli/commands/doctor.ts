@@ -96,6 +96,15 @@ async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
 
 async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   const configPath = path.resolve(args.config ?? "cx.toml");
+
+  if (args.interactive && !process.stdin.isTTY) {
+    throw new CxError(
+      "cx doctor fix-overlaps --interactive requires an interactive terminal (stdin is not a TTY).\n" +
+        "Remove --interactive to apply the recommended ownership automatically, or run this command from a terminal.",
+      3,
+    );
+  }
+
   const report = await collectDoctorOverlapsReport({
     config: configPath,
   });
