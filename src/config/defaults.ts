@@ -8,7 +8,7 @@ export const DEFAULT_BEHAVIOR_VALUES = {
   configDuplicateEntry: "fail" as const,
 };
 
-export const DEFAULT_CONFIG_TEMPLATE = `#:schema ./schemas/cx-config-v1.schema.json
+export const DEFAULT_CONFIG_TEMPLATE = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "myproject"
 source_root = "."

@@ -33,7 +33,7 @@ It also scaffolds repository notes and exposes graph-oriented note commands so t
 - [docs/spec-draft.md](docs/spec-draft.md) for the editorial consensus draft
 - [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the permanent repository knowledge layer
-- [schemas/cx-config-v1.schema.json](schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
+- [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
 
 ## Why CX Exists
 
@@ -145,7 +145,7 @@ The generated notes directory is intentionally part of the repository contract. 
 The generated `cx.toml` includes a schema directive for [Taplo](https://taplo.tamasfe.dev/) (the TOML extension in VS Code). This enables real-time autocomplete, validation, and linting:
 
 ```toml
-#:schema ./schemas/cx-config-v1.schema.json
+#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "myproject"
 ```

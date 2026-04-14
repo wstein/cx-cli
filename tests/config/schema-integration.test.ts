@@ -31,7 +31,9 @@ describe("JSON Schema Integration", () => {
     }
 
     const lines = output.split("\n");
-    expect(lines[0]).toBe("#:schema ./schemas/cx-config-v1.schema.json");
+    expect(lines[0]).toBe(
+      "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+    );
     expect(lines[1]).toContain("schema_version = 1");
   });
 
@@ -50,7 +52,9 @@ describe("JSON Schema Integration", () => {
     }
 
     const lines = output.split("\n");
-    expect(lines[0]).toBe("#:schema ./schemas/cx-config-v1.schema.json");
+    expect(lines[0]).toBe(
+      "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+    );
     expect(output).toContain('project_name = "myproject"');
     expect(output).toContain("schema_version = 1");
   });
@@ -70,12 +74,14 @@ describe("JSON Schema Integration", () => {
     }
 
     const lines = output.split("\n");
-    expect(lines[0]).toBe("#:schema ./schemas/cx-config-v1.schema.json");
+    expect(lines[0]).toBe(
+      "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+    );
     expect(output).toContain('style = "json"');
   });
 
   test("smol-toml safely ignores schema directive comment", async () => {
-    const tomlWithComment = `#:schema ./schemas/cx-config-v1.schema.json
+    const tomlWithComment = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "test"
 source_root = "."
@@ -103,7 +109,7 @@ exclude = []
     const configPath = path.join(tempDir, "cx.toml");
 
     // Write a full config with schema directive
-    const configContent = `#:schema ./schemas/cx-config-v1.schema.json
+    const configContent = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "integration-test"
 source_root = "."
@@ -144,7 +150,9 @@ exclude = []
       const configContent = await fs.readFile(configPath, "utf8");
       const lines = configContent.split("\n");
 
-      expect(lines[0]).toBe("#:schema ./schemas/cx-config-v1.schema.json");
+      expect(lines[0]).toBe(
+        "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+      );
       expect(configContent).toContain("schema_version = 1");
       expect(configContent).toContain('project_name = "schema-test"');
     } finally {
@@ -283,7 +291,7 @@ exclude = []
 
       const mcpContent = await fs.readFile(path.join(tempDir, "cx-mcp.toml"), "utf8");
       expect(mcpContent).toContain(
-        "#:schema ./schemas/cx-config-overlay-v1.schema.json",
+        "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
       );
       expect(mcpContent).toContain("extends = \"./cx.toml\"");
       expect(mcpContent).not.toContain("project_name = \"existing-test\"");
@@ -314,7 +322,7 @@ exclude = []
       const mcpContent = await fs.readFile(mcpPath, "utf8");
 
       expect(mcpContent).toContain(
-        "#:schema ./schemas/cx-config-overlay-v1.schema.json",
+        "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
       );
       expect(mcpContent).toContain("extends = \"./cx.toml\"");
       expect(mcpContent).not.toContain("project_name = \"typescript-test\"");
@@ -392,7 +400,7 @@ exclude = []
     );
     const configPath = path.join(tempDir, "cx.toml");
 
-    const configWithDirective = `#:schema ./schemas/cx-config-v1.schema.json
+    const configWithDirective = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "parse-test"
 source_root = "."
@@ -449,7 +457,7 @@ include = ["main/**"]
 exclude = []
 `;
 
-    const tomlWithDirective = `#:schema ./schemas/cx-config-v1.schema.json
+    const tomlWithDirective = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "compare"
 source_root = "."

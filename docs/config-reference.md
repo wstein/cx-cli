@@ -4,21 +4,21 @@ This document describes the knobs. For the operator workflow, read [Operator Man
 
 ## JSON Schema for Editor Tooling
 
-A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-overlay-v1.schema.json](../schemas/cx-config-overlay-v1.schema.json). These files are the source of truth for the public Pages endpoints at `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json` and `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`, and the published npm package also ships `schemas/` for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.
+A JSON Schema is available at `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json` to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`. These files are the source of truth for the public Pages endpoints, and the published npm package also ships `schemas/` for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.
 
 ### Using the schema in VS Code with Taplo
 
 Add the following comment directive to the top of your `cx.toml`:
 
 ```toml
-#:schema ./schemas/cx-config-v1.schema.json
+#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
 schema_version = 1
 project_name = "myproject"
 ```
 
 The schema directive comment is automatically included in generated `cx.toml` files by `cx init`, and the MCP overlay template points at the overlay schema. The TOML parser safely ignores these comments; they do not affect `cx`'s deterministic loading pipeline.
 
-When you reference the schema from outside the repository, prefer the published Pages URLs above. Keep the local relative `#:schema ./schemas/...` directives in checked-in repo files so contributors and offline installs continue to work without network access.
+Use the published Pages URLs in checked-in repo files and external documentation so editors always resolve the same canonical schema location.
 
 ### Schema validation vs. runtime validation
 
