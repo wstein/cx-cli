@@ -98,7 +98,7 @@ describe("main", () => {
       'include = ["docs/**", "notes/**", "README.md", "*.md"]',
     );
     expect(notesGuide).toContain("# Repository Notes Guide");
-    expect(notesGuide).toContain("## Before And After For Agents");
+    expect(notesGuide).toContain("## Before and After for Agents");
     expect(notesGuide).toContain("manifest.notes[]");
     expect(notesTemplate).toContain("id: YYYYMMDDHHMMSS");
     expect(notesTemplate).toContain("aliases: []");

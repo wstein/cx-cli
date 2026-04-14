@@ -24,20 +24,20 @@ This is not a project-management folder.
 - Repository notes are durable and linkable.
 - The goal is not task execution. The goal is preserving reusable understanding.
 
-## Before And After For Agents
+## Before and After for Agents
 
 Before manifest-side summaries:
 
 - an agent sees `notes/` and has to open raw Markdown files one by one
-- token spend rises before the agent even knows which note matters
+- token spend rises before the agent knows which note matters
 - latency rises because every run repeats the same broad scan
 
 After manifest-side summaries:
 
 - the agent reads `manifest.notes[]` first
-- it filters by stable timestamp id, title, alias, or summary text
+- it filters by stable id, title, alias, or summary text
 - it opens only the note files that are actually relevant
-- token spend and latency drop because the first pass is already serialized into manifest metadata
+- token spend and latency drop because the broad scan is already serialized
 
 Example prompt shift:
 
@@ -122,7 +122,7 @@ Do not use this directory for:
 - sprint planning
 - transient checklists
 - copied code dumps
-- meeting notes with no synthesis
+- meeting notes without synthesis
 - backlog management
 
 If the content will be obsolete as soon as the ticket closes, it probably belongs somewhere else.

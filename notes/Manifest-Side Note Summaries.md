@@ -14,7 +14,7 @@ Agents can scan architectural intent, evaluate constraints, and fetch deeper
 context only when they need it. The live MCP workflow stays focused on
 navigation rather than re-parsing note bodies.
 
-## Before And After
+## Before and After
 
 Before manifest-side summaries:
 
