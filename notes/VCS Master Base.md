@@ -4,7 +4,11 @@ aliases: ["master base", "VCS-derived master list"]
 tags: [cx, planning, vcs]
 ---
 
-The planner's real starting point is the VCS-derived master base, not a blind filesystem crawl. Section globs classify files that already exist in that base; they do not invent new membership.
+# VCS Master Base
+
+`cx` planning starts from the VCS-derived master base, not a blind filesystem
+crawl. Section globs classify files that already exist in that base; they do
+not invent new membership.
 
 ## Links
 

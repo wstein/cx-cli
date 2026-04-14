@@ -6,10 +6,10 @@ tags: [cx, philosophy, ai]
 
 # AI-first Toolbox
 
-`cx` now includes an AI-first toolbox alongside the deterministic packaging flow.
-The current surface includes note graph queries, manifest-side note summaries,
-native MCP workspace tools, and a docs split that keeps durable knowledge
-separate from the operator workflow.
+`cx` now includes an AI-first toolbox alongside the deterministic packaging
+flow. The current surface includes note graph queries, manifest-side note
+summaries, native MCP workspace tools, and a docs split that keeps durable
+knowledge separate from the operator workflow.
 
 ## Links
 

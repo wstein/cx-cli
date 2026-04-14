@@ -9,10 +9,10 @@ tags: ["manifest", "ai-tools", "optimization"]
 `cx` stores high-level note summaries in the manifest JSON. Downstream agents
 read those summaries directly instead of parsing every note body first.
 
-That makes the manifest a structured, queryable index for the repository's
-knowledge layer. Agents can scan architectural intent, evaluate constraints,
-and fetch deeper context only when they need it. The live MCP workflow stays
-focused on navigation rather than re-parsing note bodies.
+The manifest is a structured index for the repository's knowledge layer.
+Agents can scan architectural intent, evaluate constraints, and fetch deeper
+context only when they need it. The live MCP workflow stays focused on
+navigation rather than re-parsing note bodies.
 
 ## Links
 

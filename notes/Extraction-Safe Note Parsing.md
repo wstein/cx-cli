@@ -6,22 +6,17 @@ tags: ["extraction", "ai-tools"]
 
 # Extraction-Safe Note Parsing
 
-Note parsing for the AI-first toolbox must be extraction-safe. When `cx`
-routes YAML frontmatter downstream to AI agents, it must do so without
-compromising the deterministic file recovery guarantees of the original
-markdown files.
+`cx` parses note frontmatter for AI workflows without changing the stored note
+content. YAML metadata can move into agent-facing structures, but the source
+markdown must remain recoverable from the rendered output.
 
-Agents require structured metadata (IDs, aliases, tags) to traverse the
-repository's knowledge graph natively. However, `cx` is an operational context
-bundler and native MCP workspace toolset, not just an exploratory packager.
-Therefore, the parser must isolate the structured metadata for the agent while
-leaving the packed normalized representation intact. If extraction mechanisms
-mutate the markdown to serve the AI, it fundamentally breaks the line-span
-coordinates and hash verifiability of the original file.
+Agents require structured metadata such as IDs, aliases, and tags to traverse
+the repository's knowledge graph. `cx` keeps that metadata separate from the
+stored markdown text so extraction can still rely on line spans and hashes.
 
 ## Links
 
-- [[Extraction Safety]] - Mutating content during parsing breaks
-  cryptographic invariants.
-- [[AI-first Toolbox]] - AI workflows rely on parsed data, but operational
+- [[Extraction Safety]] - Mutating content during parsing breaks cryptographic
+  invariants.
+- [[AI-first Toolbox]] - AI workflows rely on parsed metadata, but operational
   recovery relies on the rendered bundle output.
