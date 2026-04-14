@@ -7,6 +7,8 @@ Overview
 
 `cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent. In addition to file browsing, the native server also exposes note authoring and note-graph inspection tools so agents can create and audit durable repository knowledge without leaving MCP.
 
+Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
+
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
 - Transport: stdio (stdin/stdout)

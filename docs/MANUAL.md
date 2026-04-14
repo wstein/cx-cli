@@ -73,6 +73,15 @@ That is why `cx` keeps the hard edges:
 
 The invariants are not philosophical decoration. They are the mechanisms that keep Friday's intent queryable and safe on Monday.
 
+## Static Bundle Versus Live MCP
+
+The two main CX workflows are intentionally different:
+
+- `cx bundle` produces a static, immutable snapshot for CI, review, verification, and handoff.
+- `cx mcp` exposes the live workspace through scoped file, search, and note tools for active investigation.
+
+They share the same repository boundary rules, but they answer different questions. Use the bundle when you need something you can verify later. Use MCP when you need the model to explore, search, or update the workspace during an ongoing task.
+
 ## Core Commands
 
 | Command | Use it when |

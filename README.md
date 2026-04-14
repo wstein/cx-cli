@@ -81,6 +81,8 @@ Use `cx` when you need:
 - a documented recovery path from bundle back to source files
 - visible failure states instead of silent best-effort behavior
 
+Use `cx bundle` when you want a static, immutable snapshot that can be verified later. Use `cx mcp` when you want a live workspace view for targeted reads, searches, and note updates. The two workflows share the same repository boundaries, but they serve different phases of the job.
+
 If you only need a quick local prompt pack, plain Repomix may be the better fit.
 
 ## Install
