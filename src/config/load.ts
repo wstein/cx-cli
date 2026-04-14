@@ -457,6 +457,10 @@ type BehaviorSource = CxBehaviorSources[keyof CxBehaviorSources];
  * The log is suppressed when the value comes from the compiled default to
  * avoid noise in the common case where no overrides are active.
  *
+ * When an env var or CLI flag wins over a conflicting explicit cx.toml value,
+ * a Warning line is emitted so the operator can see the shadowing without
+ * having to run `cx config` to discover it.
+ *
  * Returns both the resolved value and its source so callers can record the
  * source in the lock file and show-effective output.
  */
@@ -473,6 +477,11 @@ function resolveCategory<T>(params: {
     process.stderr.write(
       `Info: ${label}="${String(cliValue)}" (from cli flag)\n`,
     );
+    if (fileValue !== undefined && fileValue !== cliValue) {
+      process.stderr.write(
+        `Warning: ${label} in cx.toml ("${String(fileValue)}") is overridden by cli flag to "${String(cliValue)}"\n`,
+      );
+    }
     return { value: cliValue, source: "cli flag" };
   }
 
@@ -484,6 +493,11 @@ function resolveCategory<T>(params: {
     process.stderr.write(
       `Info: ${label}="${String(envValue)}" (from ${source})\n`,
     );
+    if (fileValue !== undefined && fileValue !== envValue) {
+      process.stderr.write(
+        `Warning: ${label} in cx.toml ("${String(fileValue)}") is overridden by ${source} to "${String(envValue)}"\n`,
+      );
+    }
     return { value: envValue, source };
   }
 
