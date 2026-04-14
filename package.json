@@ -16,7 +16,7 @@
     "access": "public"
   },
   "bin": {
-    "cx": "./bin/cx.js"
+    "cx": "./bin/cx"
   },
   "exports": {
     ".": "./dist/src/index.js"

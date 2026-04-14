@@ -98,7 +98,7 @@ Run from source:
 ```bash
 bun install
 bun run build
-node bin/cx.js --help
+node bin/cx --help
 ```
 
 ## Quick Start
@@ -314,7 +314,7 @@ include = [
   ".gitignore",
   ".github/workflows/ci.yml",
   "biome.json",
-  "bin/cx.js",
+  "bin/cx",
   "cx.toml",
   "scripts/**",
   "schemas/**",

@@ -609,7 +609,7 @@ include = [
   ".gitignore",
   ".github/workflows/ci.yml",
   "biome.json",
-  "bin/cx.js",
+  "bin/cx",
   "cx.toml",
   "scripts/**",
   "schemas/**",

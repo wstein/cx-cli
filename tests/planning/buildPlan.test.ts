@@ -48,7 +48,7 @@ async function createFixture(): Promise<string> {
   await fs.writeFile(path.join(root, "tsconfig.json"), "{}\n", "utf8");
   await fs.writeFile(path.join(root, "tsconfig.test.json"), "{}\n", "utf8");
   await fs.writeFile(
-    path.join(root, "bin", "cx.js"),
+    path.join(root, "bin", "cx"),
     "#!/usr/bin/env node\n",
     "utf8",
   );
@@ -133,7 +133,7 @@ function baseConfig(root: string): CxConfig {
           ".github/workflows/ci.yml",
           ".gitignore",
           "biome.json",
-          "bin/cx.js",
+          "bin/cx",
           "cx.toml",
           "package.json",
           "schemas/**",
@@ -170,7 +170,7 @@ describe("buildBundlePlan", () => {
         ?.files.map((file) => file.relativePath),
     ).toEqual([
       ".github/workflows/ci.yml",
-      "bin/cx.js",
+      "bin/cx",
       "biome.json",
       "cx.toml",
       "package.json",
@@ -198,7 +198,7 @@ describe("buildBundlePlan", () => {
           ".github/workflows/ci.yml",
           ".gitignore",
           "biome.json",
-          "bin/cx.js",
+          "bin/cx",
           "cx.toml",
           "package.json",
           "schemas/**",
@@ -232,7 +232,7 @@ describe("buildBundlePlan", () => {
         ?.files.map((file) => file.relativePath),
     ).toEqual([
       ".github/workflows/ci.yml",
-      "bin/cx.js",
+          "bin/cx",
       "biome.json",
       "cx.toml",
       "package.json",
