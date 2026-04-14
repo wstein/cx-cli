@@ -44,6 +44,15 @@ export interface CxMcpReadResult {
   content: string;
 }
 
+export interface CxMcpSpanReplacementResult {
+  path: string;
+  lineStart: number;
+  lineEnd: number;
+  replacementLineCount: number;
+  previousLineCount: number;
+  newLineCount: number;
+}
+
 function normalizePrefix(prefix?: string): string {
   if (!prefix) {
     return "";
@@ -83,6 +92,27 @@ function isSearchableMediaType(mediaType: string): boolean {
     mediaType !== "application/pdf" &&
     mediaType !== "application/octet-stream"
   );
+}
+
+function detectNewline(source: string): "\n" | "\r\n" {
+  return source.includes("\r\n") ? "\r\n" : "\n";
+}
+
+function clampLineRange(
+  lineCount: number,
+  startLine?: number,
+  endLine?: number,
+): { startLine: number; endLine: number } {
+  const normalizedStartLine = Math.max(1, Math.floor(startLine ?? 1));
+  const normalizedEndLine = Math.min(
+    lineCount,
+    Math.max(normalizedStartLine, Math.floor(endLine ?? lineCount)),
+  );
+
+  return {
+    startLine: normalizedStartLine,
+    endLine: normalizedEndLine,
+  };
 }
 
 export function createCxMcpWorkspace(config: CxConfig): CxMcpWorkspace {
@@ -244,10 +274,10 @@ export async function readWorkspaceFile(
 
   const lines = source.split(/\r?\n/);
   const lineCount = lines.length;
-  const startLine = Math.max(1, Math.floor(params.startLine ?? 1));
-  const endLine = Math.min(
+  const { startLine, endLine } = clampLineRange(
     lineCount,
-    Math.max(startLine, Math.floor(params.endLine ?? lineCount)),
+    params.startLine,
+    params.endLine,
   );
   const content = lines.slice(startLine - 1, endLine).join("\n");
 
@@ -257,5 +287,68 @@ export async function readWorkspaceFile(
     lineEnd: endLine,
     lineCount,
     content,
+  };
+}
+
+export async function replaceWorkspaceSpan(
+  workspace: CxMcpWorkspace,
+  params: {
+    path: string;
+    startLine: number;
+    endLine: number;
+    replacement: string;
+  },
+): Promise<CxMcpSpanReplacementResult> {
+  const normalizedPath = normalizePrefix(params.path);
+  if (!normalizedPath) {
+    throw new CxError("path is required.", 2);
+  }
+  if (params.startLine < 1 || params.endLine < params.startLine) {
+    throw new CxError("startLine and endLine must describe a valid span.", 2);
+  }
+
+  const masterList = await workspace.resolveMasterList();
+  if (!masterList.includes(normalizedPath)) {
+    throw new CxError(
+      `File ${normalizedPath} is not available in the workspace scope.`,
+      2,
+    );
+  }
+
+  const absolutePath = path.join(workspace.sourceRoot, normalizedPath);
+  const source = await fs.readFile(absolutePath, "utf8");
+  if (!isTextLike(source)) {
+    throw new CxError(`File ${normalizedPath} is not readable as text.`, 2);
+  }
+
+  const lines = source.split(/\r?\n/);
+  if (params.endLine > lines.length) {
+    throw new CxError(
+      `Span ${params.startLine}-${params.endLine} exceeds ${normalizedPath} line count of ${lines.length}.`,
+      2,
+    );
+  }
+
+  const newline = detectNewline(source);
+  const replacementLines = params.replacement.split(/\r?\n/);
+  const { startLine, endLine } = clampLineRange(
+    lines.length,
+    params.startLine,
+    params.endLine,
+  );
+  const updatedLines = [
+    ...lines.slice(0, startLine - 1),
+    ...replacementLines,
+    ...lines.slice(endLine),
+  ];
+  await fs.writeFile(absolutePath, updatedLines.join(newline), "utf8");
+
+  return {
+    path: normalizedPath,
+    lineStart: startLine,
+    lineEnd: endLine,
+    replacementLineCount: replacementLines.length,
+    previousLineCount: lines.length,
+    newLineCount: updatedLines.length,
   };
 }

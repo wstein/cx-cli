@@ -1,12 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { loadCxConfig } from "../../config/load.js";
-import {
-  analyzeSectionOverlaps,
-  buildMasterList,
-  type OverlapConflict,
-} from "../../planning/overlaps.js";
+import { type OverlapConflict } from "../../planning/overlaps.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 import {
@@ -15,12 +10,15 @@ import {
   printWizardTip,
   wizardSelect,
 } from "../../shared/wizard.js";
-import { getVCSState } from "../../vcs/provider.js";
 import { collectDoctorMcpReport, printDoctorMcpReport } from "./doctor-mcp.js";
 import {
   collectDoctorSecretsReport,
   printDoctorSecretsReport,
 } from "./doctor-secrets.js";
+import {
+  collectDoctorOverlapsReport,
+  printDoctorOverlapsReport,
+} from "./doctor-overlaps.js";
 
 export interface DoctorArgs {
   config?: string | undefined;
@@ -100,52 +98,33 @@ async function runDoctorAll(args: DoctorArgs): Promise<number> {
 }
 
 async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
-  const configPath = path.resolve(args.config ?? "cx.toml");
-  const config = await loadCxConfig(configPath);
-  const vcsState = await getVCSState(config.sourceRoot);
-  const masterList = await buildMasterList(config, vcsState);
-  const conflicts = await analyzeSectionOverlaps(config, masterList);
-
-  if (args.json ?? false) {
-    writeJson({
-      configPath,
-      conflictCount: conflicts.length,
-      conflicts,
-    });
-  } else if (conflicts.length === 0) {
-    process.stdout.write(`No section overlaps detected in ${configPath}.\n`);
-  } else {
-    process.stdout.write(
-      `Detected ${conflicts.length} section overlap${conflicts.length === 1 ? "" : "s"} in ${configPath}.\n\n`,
-    );
-    for (const conflict of conflicts) {
-      process.stdout.write(`${formatConflictSummary(conflict)}\n\n`);
-    }
-    process.stdout.write(
-      "Run `cx doctor fix-overlaps --dry-run` to review the proposed exclude updates.\n",
-    );
-  }
-
-  return conflicts.length === 0 ? 0 : 4;
+  const report = await collectDoctorOverlapsReport({
+    config: args.config,
+    json: args.json,
+  });
+  printDoctorOverlapsReport(report, args.json ?? false);
+  return report.conflictCount === 0 ? 0 : 4;
 }
 
 async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   const configPath = path.resolve(args.config ?? "cx.toml");
-  const config = await loadCxConfig(configPath);
-  const vcsState = await getVCSState(config.sourceRoot);
-  const masterList = await buildMasterList(config, vcsState);
-  const conflicts = await analyzeSectionOverlaps(config, masterList);
+  const report = await collectDoctorOverlapsReport({
+    config: configPath,
+  });
+  const conflicts = report.conflicts;
 
   if (conflicts.length === 0) {
     if (args.json ?? false) {
       writeJson({
-        configPath,
+        configPath: report.resolvedConfigPath,
         changed: false,
         conflictCount: 0,
         excludesBySection: {},
       });
     } else {
-      process.stdout.write(`No section overlaps detected in ${configPath}.\n`);
+      process.stdout.write(
+        `No section overlaps detected in ${report.resolvedConfigPath}.\n`,
+      );
     }
     return 0;
   }
@@ -158,7 +137,7 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
 
   if (args.json ?? false) {
     writeJson({
-      configPath,
+      configPath: report.resolvedConfigPath,
       changed: !(args.dryRun ?? false),
       dryRun: Boolean(args.dryRun),
       conflictCount: fixPlan.conflicts.length,
@@ -167,7 +146,7 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
     });
   } else {
     process.stdout.write(
-      `Prepared overlap fixes for ${fixPlan.conflicts.length} conflict${fixPlan.conflicts.length === 1 ? "" : "s"} in ${configPath}.\n\n`,
+      `Prepared overlap fixes for ${fixPlan.conflicts.length} conflict${fixPlan.conflicts.length === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n\n`,
     );
     for (const conflict of fixPlan.conflicts) {
       const owner = ownership.get(conflict.path);
@@ -189,6 +168,26 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   }
 
   return 0;
+}
+
+function formatConflictSummary(
+  conflict: OverlapConflict,
+  owner = conflict.recommendedOwner,
+): string {
+  const lines = [
+    `${conflict.path}`,
+    `  matching sections: ${conflict.sections.join(", ")}`,
+    `  owner: ${owner}`,
+  ];
+
+  const affectedSections = conflict.sections.filter(
+    (section) => section !== owner,
+  );
+  if (affectedSections.length > 0) {
+    lines.push(`  exclude from: ${affectedSections.join(", ")}`);
+  }
+
+  return lines.join("\n");
 }
 
 async function runDoctorMcp(args: DoctorArgs): Promise<number> {
@@ -379,27 +378,6 @@ function buildFixPlan(
     ),
   };
 }
-
-function formatConflictSummary(
-  conflict: OverlapConflict,
-  owner = conflict.recommendedOwner,
-): string {
-  const lines = [
-    `${conflict.path}`,
-    `  matching sections: ${conflict.sections.join(", ")}`,
-    `  owner: ${owner}`,
-  ];
-
-  const affectedSections = conflict.sections.filter(
-    (section) => section !== owner,
-  );
-  if (affectedSections.length > 0) {
-    lines.push(`  exclude from: ${affectedSections.join(", ")}`);
-  }
-
-  return lines.join("\n");
-}
-
 function formatFixPlan(plan: OverlapFixPlan): string {
   const entries = Object.entries(plan.excludesBySection);
   if (entries.length === 0) {

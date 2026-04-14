@@ -11,6 +11,8 @@ import {
   updateNote,
 } from "../cli/commands/notes/common.js";
 import { collectDoctorMcpReport } from "../cli/commands/doctor-mcp.js";
+import { collectDoctorOverlapsReport } from "../cli/commands/doctor-overlaps.js";
+import { collectDoctorSecretsReport } from "../cli/commands/doctor-secrets.js";
 import { recommendWorkflow } from "../cli/commands/doctor.js";
 import { collectInspectReport } from "../cli/commands/inspect.js";
 import {
@@ -28,6 +30,7 @@ import {
   grepWorkspaceFiles,
   listWorkspaceFiles,
   readWorkspaceFile,
+  replaceWorkspaceSpan,
 } from "./workspace.js";
 
 function jsonToolResult(value: unknown): {
@@ -160,6 +163,74 @@ export function registerCxMcpTools(
         command: "doctor workflow",
         task: args.task,
         ...recommendation,
+      });
+    },
+  );
+
+  server.registerTool(
+    "doctor_overlaps",
+    {
+      title: "Diagnose section overlaps",
+      description:
+        "Inspect live workspace section ownership and duplicate file assignments.",
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const report = await collectDoctorOverlapsReport({
+        config: path.join(workspace.sourceRoot, "cx.toml"),
+      });
+
+      return jsonToolResult({
+        command: "doctor overlaps",
+        ...report,
+      });
+    },
+  );
+
+  server.registerTool(
+    "doctor_secrets",
+    {
+      title: "Diagnose secret hygiene",
+      description:
+        "Scan the live workspace file scope for suspicious secrets before a patch is written.",
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const report = await collectDoctorSecretsReport({
+        config: path.join(workspace.sourceRoot, "cx.toml"),
+      });
+
+      return jsonToolResult({
+        command: "doctor secrets",
+        ...report,
+      });
+    },
+  );
+
+  server.registerTool(
+    "replace_repomix_span",
+    {
+      title: "Replace workspace span",
+      description:
+        "Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.",
+      inputSchema: z.object({
+        path: z.string().min(1),
+        startLine: z.number().int().positive(),
+        endLine: z.number().int().positive(),
+        replacement: z.string(),
+      }),
+    },
+    async (args) => {
+      const result = await replaceWorkspaceSpan(workspace, {
+        path: args.path,
+        startLine: args.startLine,
+        endLine: args.endLine,
+        replacement: args.replacement,
+      });
+
+      return jsonToolResult({
+        command: "replace repomix span",
+        ...result,
       });
     },
   );
