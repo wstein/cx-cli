@@ -7,6 +7,7 @@ import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout } from "../../config/types.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { formatNumber } from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
@@ -153,7 +154,7 @@ export async function collectInspectReport(params: {
   config: Awaited<ReturnType<typeof loadCxConfig>>;
   tokenBreakdown?: boolean | undefined;
 }): Promise<InspectReport> {
-  const plan = await buildBundlePlan(params.config);
+  const plan = await enrichPlanWithLinkedNotes(await buildBundlePlan(params.config), params.config);
   const tokenBreakdown = params.tokenBreakdown
     ? await buildTokenBreakdown(plan, params.config.tokens.encoding)
     : undefined;

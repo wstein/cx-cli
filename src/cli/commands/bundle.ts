@@ -21,6 +21,7 @@ import type {
 } from "../../manifest/types.js";
 import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
   getRepomixCapabilities,
@@ -175,7 +176,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     ...getCLIOverrides(),
     ...(args.layout !== undefined && { assetsLayout: args.layout }),
   });
-  const plan = await buildBundlePlan(config);
+  const plan = await enrichPlanWithLinkedNotes(await buildBundlePlan(config), config);
 
   // Validate notes in the source directory
   const notesResult = await validateNotes("notes", plan.sourceRoot);

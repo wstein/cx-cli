@@ -3,10 +3,9 @@ import path from "node:path";
 
 import type { CxConfig, CxSectionConfig } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
-import { pathExists, relativePosix } from "../shared/fs.js";
+import { pathExists } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
-import { buildNoteGraph } from "../notes/graph.js";
 import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 import {
   analyzeSectionOverlaps,
@@ -293,64 +292,6 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         mtime: stat.mtime.toISOString(),
       };
       getRequiredSectionFiles(sectionFiles, catchAllName).push(plannedFile);
-    }
-  }
-
-  if (config.manifest.includeLinkedNotes) {
-    const noteGraph = await buildNoteGraph("notes", config.sourceRoot);
-    const linkedNoteIds = new Set<string>();
-    for (const link of noteGraph.links) {
-      linkedNoteIds.add(link.toNoteId);
-    }
-
-    const targetSectionName = sectionOrder.includes("docs")
-      ? "docs"
-      : sectionOrder[0];
-    if (!targetSectionName) {
-      throw new CxError("Cannot determine a target section for linked notes.", 2);
-    }
-
-    const targetSectionFiles = getRequiredSectionFiles(
-      sectionFiles,
-      targetSectionName,
-    );
-    const existingPaths = new Set<string>(
-      [...sectionFiles.values()].flatMap((files) =>
-        files.map((file) => file.relativePath),
-      ),
-    );
-
-    for (const noteId of linkedNoteIds) {
-      const note = noteGraph.notes.get(noteId);
-      if (!note) {
-        continue;
-      }
-
-      const relativePath = relativePosix(config.sourceRoot, note.filePath);
-      if (existingPaths.has(relativePath)) {
-        continue;
-      }
-      if (!availablePool.has(relativePath)) {
-        continue;
-      }
-
-      const absolutePath = note.filePath;
-      if (!(await pathExists(absolutePath))) {
-        continue;
-      }
-
-      availablePool.delete(relativePath);
-      const stat = await fs.stat(absolutePath);
-      targetSectionFiles.push({
-        relativePath,
-        absolutePath,
-        kind: "text",
-        mediaType: detectMediaType(relativePath, "text"),
-        sizeBytes: stat.size,
-        sha256: await sha256File(absolutePath),
-        mtime: stat.mtime.toISOString(),
-      });
-      existingPaths.add(relativePath);
     }
   }
 
