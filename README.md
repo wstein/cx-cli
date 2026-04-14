@@ -223,7 +223,7 @@ Every command supports `--json` for machine consumption.
 
 ## Shell Completions
 
-Generate and install completion scripts:
+Generate and install professional shell completions with command descriptions and context-aware option suggestions:
 
 ```bash
 # bash
@@ -236,7 +236,11 @@ cx completion --shell=zsh >> ~/.zshrc
 cx completion --shell=fish > ~/.config/fish/completions/cx.fish
 ```
 
-Open a new shell session after installation.
+Open a new shell session after installation. Completions include:
+- Full command reference with descriptions
+- Global options (`--strict`, `--lenient`, `--adapter-path`)
+- Command-specific options for each subcommand
+- File path suggestions where applicable
 
 > For even faster discoverability, see the `cx inspect --token-breakdown` example in the Quick Start section above.
 
