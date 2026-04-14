@@ -154,8 +154,8 @@ The schema validates structural shape and enum constraints. Runtime validation i
 
 For external tooling, use the published Pages endpoints:
 
-- `https://cx-cli.dev/schemas/cx-config-v1.schema.json`
-- `https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json`
+- `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json`
+- `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`
 
 The npm package also ships `schemas/` so offline consumers can keep using the local files without depending on the public site.
 

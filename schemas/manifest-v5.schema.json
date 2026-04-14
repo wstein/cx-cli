@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cx-cli.dev/schemas/manifest-v5.schema.json",
+  "$id": "https://wstein.github.io/cx-cli/schemas/manifest-v5.schema.json",
   "title": "cx Manifest v5",
   "description": "On-disk format for a cx bundle manifest (schemaVersion 5). Each section stores its file metadata as a standard array of objects, and sha256 records the normalized packed content digest.",
   "type": "object",

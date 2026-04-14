@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://cx-cli.dev/schemas/manifest-v6.schema.json",
+  "$id": "https://wstein.github.io/cx-cli/schemas/manifest-v6.schema.json",
   "title": "cx Manifest v6",
   "description": "On-disk format for a cx bundle manifest (schemaVersion 6). Adds VCS provider and dirty-state fields so downstream consumers and LLMs know the canonical state of the source tree at bundle time.",
   "type": "object",

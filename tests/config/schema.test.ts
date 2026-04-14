@@ -44,7 +44,9 @@ describe("cx-config-v1.schema.json", async () => {
 
   test("schema has required metadata", () => {
     expect(schema.$schema).toBe("http://json-schema.org/draft-07/schema#");
-    expect(schema.$id).toBe("https://cx-cli.dev/schemas/cx-config-v1.schema.json");
+    expect(schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+    );
     expect(schema.title).toContain("CX Configuration Schema");
     expect(schema.type).toBe("object");
   });
@@ -232,7 +234,7 @@ describe("cx-config-overlay-v1.schema.json", async () => {
 
   test("overlay schema has a public id", () => {
     expect(schema.$id).toBe(
-      "https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json",
+      "https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
     );
   });
 
@@ -247,5 +249,29 @@ describe("cx-config-overlay-v1.schema.json", async () => {
     expect(properties.schema_version).toBeDefined();
     expect(properties.project_name).toBeDefined();
     expect(properties.mcp).toBeDefined();
+  });
+});
+
+describe("published manifest schemas", async () => {
+  const v5Schema = JSON.parse(
+    await fs.readFile(
+      path.resolve(path.join(import.meta.dir, "../../schemas/manifest-v5.schema.json")),
+      "utf8",
+    ),
+  ) as JsonSchema;
+  const v6Schema = JSON.parse(
+    await fs.readFile(
+      path.resolve(path.join(import.meta.dir, "../../schemas/manifest-v6.schema.json")),
+      "utf8",
+    ),
+  ) as JsonSchema;
+
+  test("use the GitHub Pages host", () => {
+    expect(v5Schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/manifest-v5.schema.json",
+    );
+    expect(v6Schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/manifest-v6.schema.json",
+    );
   });
 });

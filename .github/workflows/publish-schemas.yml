@@ -81,7 +81,6 @@ jobs:
             </body>
           </html>
           HTML
-          printf 'cx-cli.dev\n' > site/CNAME
           touch site/.nojekyll
 
       - name: Configure Pages

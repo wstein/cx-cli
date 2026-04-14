@@ -4,7 +4,7 @@ This document describes the knobs. For the operator workflow, read [Operator Man
 
 ## JSON Schema for Editor Tooling
 
-A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-overlay-v1.schema.json](../schemas/cx-config-overlay-v1.schema.json). These files are the source of truth for the public Pages endpoints at `https://cx-cli.dev/schemas/cx-config-v1.schema.json` and `https://cx-cli.dev/schemas/cx-config-overlay-v1.schema.json`, and the published npm package also ships `schemas/` for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.
+A JSON Schema is available at [schemas/cx-config-v1.schema.json](../schemas/cx-config-v1.schema.json) to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use [schemas/cx-config-overlay-v1.schema.json](../schemas/cx-config-overlay-v1.schema.json). These files are the source of truth for the public Pages endpoints at `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json` and `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`, and the published npm package also ships `schemas/` for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.
 
 ### Using the schema in VS Code with Taplo
 
