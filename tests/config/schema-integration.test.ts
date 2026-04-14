@@ -194,6 +194,75 @@ exclude = []
     }
   });
 
+  test.each([
+    {
+      template: "typescript",
+      tempDirPrefix: "cx-init-makefile-typescript-",
+      markers: [["package.json", "{}\n"], ["tsconfig.json", "{}\n"]] as const,
+      expectedSnippets: [
+        "build: ## Build the project using the detected package manager.\n\t@if command -v $(BUN) >/dev/null 2>&1; then \\\n\t\t$(BUN) install && $(BUN) run build; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) install && $(PNPM) run build; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) install && $(YARN) run build; \\\n\telse \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\tfi",
+        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test clean notes\\n\"",
+      ],
+      unexpectedSnippets: ["\t\t$(YARN) build;"],
+    },
+    {
+      template: "python",
+      tempDirPrefix: "cx-init-makefile-python-",
+      markers: [["pyproject.toml", "[project]\nname = \"example\"\n"], ["requirements.txt", "pytest\n"]] as const,
+      expectedSnippets: [
+        "build: ## Install dependencies using pip if a requirements file is present.\n\t@if [ -f requirements.txt ]; then \\\n\t\t$(PIP) install -r requirements.txt; \\\n\telif [ -f pyproject.toml ]; then \\\n\t\t$(PYTHON) -m pip install .; \\\n\telse \\\n\t\techo \"No Python dependency manifest found; skipping install.\"; \\\n\tfi",
+        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test clean notes\\n\"",
+      ],
+      unexpectedSnippets: [],
+    },
+    {
+      template: "java",
+      tempDirPrefix: "cx-init-makefile-java-",
+      markers: [["pom.xml", "<project />\n"]] as const,
+      expectedSnippets: [
+        "build: ## Build the Java project using Maven or Gradle.\n\t@if [ -f pom.xml ]; then \\\n\t\t$(MAVEN) package; \\\n\telif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \\\n\t\t$(GRADLE) build; \\\n\telse \\\n\t\techo \"No Maven or Gradle build file found.\"; \\\n\t\texit 1; \\\n\tfi",
+        "clean: ## Remove generated output files.\n\t@if [ -f pom.xml ]; then \\\n\t\t$(MAVEN) clean; \\\n\tfi\n\t@if [ -f build.gradle ] || [ -f build.gradle.kts ]; then \\\n\t\t$(GRADLE) clean; \\\n\tfi",
+      ],
+      unexpectedSnippets: [],
+    },
+    {
+      template: "rust",
+      tempDirPrefix: "cx-init-makefile-rust-",
+      markers: [["Cargo.toml", "[package]\nname = \"example\"\n"]] as const,
+      expectedSnippets: [
+        "build: ## Build the Rust project in release mode.\n\t$(CARGO) build --release",
+        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test check clean notes\\n\"",
+      ],
+      unexpectedSnippets: ['@printf "Available targets:\n  build test check clean notes\n"'],
+    },
+  ])(
+    "cx init renders a readable %s Makefile template",
+    async ({ template, tempDirPrefix, markers, expectedSnippets, unexpectedSnippets }) => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), tempDirPrefix));
+      const cwd = process.cwd();
+
+      try {
+        process.chdir(tempDir);
+        for (const [fileName, content] of markers) {
+          await fs.writeFile(path.join(tempDir, fileName), content, "utf8");
+        }
+
+        await main(["init", "--name", `${template}-test`, "--template", template, "--force"]);
+
+        const makefileContent = await fs.readFile(path.join(tempDir, "Makefile"), "utf8");
+
+        for (const snippet of expectedSnippets) {
+          expect(makefileContent).toContain(snippet);
+        }
+        for (const snippet of unexpectedSnippets) {
+          expect(makefileContent).not.toContain(snippet);
+        }
+      } finally {
+        process.chdir(cwd);
+      }
+    },
+  );
+
   test("cx init preserves existing init targets while creating missing files", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-existing-"));
     const cwd = process.cwd();
