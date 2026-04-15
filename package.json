@@ -38,7 +38,7 @@
     "copy:init": "bun run scripts/copy-init-templates.ts"
   },
   "engines": {
-    "node": ">=25.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.4.1",

@@ -250,7 +250,7 @@ function getAllCommandNames(): string[] {
   return COMMANDS.map((cmd) => cmd.name);
 }
 
-function getCommandByName(name: string): CommandSpec | undefined {
+function _getCommandByName(name: string): CommandSpec | undefined {
   return COMMANDS.find((cmd) => cmd.name === name);
 }
 
@@ -272,7 +272,7 @@ function generateBashCompletion(): string {
       .map((opt) => `--${opt.name}=`)
       .join(" ");
 
-    completionLogic += `    ${cmd.name}) _options="${optFlags}${optWithValue ? " " + optWithValue : ""}" ;;\n`;
+    completionLogic += `    ${cmd.name}) _options="${optFlags}${optWithValue ? ` ${optWithValue}` : ""}" ;;\n`;
   }
 
   return `###-begin-cx-completions-###

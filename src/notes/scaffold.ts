@@ -1,7 +1,6 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 
-import { ensureDir, pathExists, relativePosix } from "../shared/fs.js";
+import { ensureDir, relativePosix } from "../shared/fs.js";
 import {
   renderInitTemplateFile,
   type TemplateVariables,

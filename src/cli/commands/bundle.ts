@@ -229,8 +229,12 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           ? ` … and ${plan.modifiedFiles.length - 10} more`
           : "";
       throw new CxError(
-        `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.\n` +
-          "Pass --force (local dev) or --ci (pipeline) to override and record the dirty state in the manifest.",
+        `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.\n\n` +
+          "This is a safety check — bundles should reflect your VCS state, not your working directory.\n\n" +
+          "To proceed, choose one:\n" +
+          "  --force     Bundle with local changes (records 'forced_dirty' in manifest — use for local dev)\n" +
+          "  --ci        Bundle with local changes (records 'ci_dirty' in manifest — use in CI/CD pipelines)\n\n" +
+          "For details, see: docs/ARCHITECTURE.md#dirty-state-taxonomy",
         7,
       );
     }

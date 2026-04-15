@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan, PlannedSourceFile } from "../planning/types.js";

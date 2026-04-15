@@ -50,13 +50,17 @@ function extractImportSpecifiers(source: string): string[] {
   const importRe =
     /(?:^|\n)\s*(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]/g;
   let m: RegExpExecArray | null;
-  while ((m = importRe.exec(source)) !== null) {
-    specifiers.push(m[1]);
+  m = importRe.exec(source);
+  while (m !== null) {
+    specifiers.push(m[1] as string);
+    m = importRe.exec(source);
   }
   // Match bare: import "..."
   const bareRe = /(?:^|\n)\s*import\s+['"]([^'"]+)['"]/g;
-  while ((m = bareRe.exec(source)) !== null) {
-    specifiers.push(m[1]);
+  m = bareRe.exec(source);
+  while (m !== null) {
+    specifiers.push(m[1] as string);
+    m = bareRe.exec(source);
   }
   return specifiers;
 }

@@ -1,5 +1,14 @@
 # Agent Integration Guide — CX MCP
 
+⚠️ **Experimental Feature** — The MCP (Model Context Protocol) surface is
+experimental and subject to change. The MCP SDK specification itself continues to
+evolve (not yet stable at 1.0). Integrations using `cx mcp` should expect breaking
+changes in minor version releases until the feature is marked stable (planned for
+cx 1.0 when Anthropic's MCP SDK reaches 1.0). For production bundles and
+verification, use `cx bundle` which follows semantic versioning strictly.
+
+---
+
 This document explains how to integrate the `cx mcp` server with common AI agents and IDE integrations. It shows recommended, production-ready configuration patterns, security and safety notes, and troubleshooting tips. Where integrations differ across vendors, examples show the common pattern; verify the final keys with the specific client documentation before deploying.
 
 Overview

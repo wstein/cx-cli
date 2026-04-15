@@ -68,7 +68,7 @@ exclude = []
 
 describe("cx bundle --ci / --force dirty-state handling", () => {
   test("exits 7 on unsafe_dirty without --ci or --force", async () => {
-    const { root, configPath, bundleDir } = await createAndInitProject();
+    const { root, configPath } = await createAndInitProject();
 
     // Modify a tracked file without committing (creates unsafe_dirty state)
     await fs.writeFile(

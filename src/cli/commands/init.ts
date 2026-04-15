@@ -1,4 +1,3 @@
-import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
@@ -99,12 +98,12 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   if (args.templateList) {
     const templates = getSupportedTemplates();
     process.stdout.write(
-      templates
+      `${templates
         .map(
           (template: { name: string; description: string }) =>
             `${template.name}: ${template.description}`,
         )
-        .join("\n") + "\n",
+        .join("\n")}\n`,
     );
     return 0;
   }
