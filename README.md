@@ -2,14 +2,27 @@
 
 `cx` provides tooling and standards for AI-driven projects in one unified suite. It standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools that operate seamlessly from the local developer machine through to automated CI/CD pipelines.
 
-Start with the operator path:
+## Choose Your Path
 
+`cx` bifurcates into two primary operational modes depending on your immediate goal:
+
+### Track A: Pipeline Operations (The "Factory Floor")
+Focus on rigid, verifiable CI/CD bundling, artifact integrity, and strict invariant enforcement. Use this path when Monday's runner must trust what Friday's author built.
+- **Key Commands:** `cx bundle`, `cx verify`, `cx extract`, `cx validate`
+- **Goal:** Produce immutable, bit-for-bit verifiable bundle artifacts with SHA-256 sidecars.
+- **Outcome:** A locked manifest that protects downstream automation from uncommitted drift (Exit Code 7).
+
+### Track B: Live Agent Exploration (The "Laboratory")
+Focus on real-time workspace interaction, live note maintenance, and agentic search. Use this path when an LLM agent needs to explore the code or update the knowledge graph.
+- **Key Commands:** `cx mcp`, `cx notes`, `cx doctor mcp`
+- **Goal:** Expose the live workspace and note graph via the Model Context Protocol (MCP).
+- **Outcome:** A high-fidelity, tool-equipped environment for active AI reasoning and documentation.
+
+## Quick Start
 1. `cx init --name demo`
 2. `cx inspect --token-breakdown`
-3. `cx bundle --config cx.toml`
-4. `cx mcp`
-5. `cx doctor mcp`
-6. `cx doctor secrets`
+3. `cx bundle --config cx.toml` (Track A)
+4. `cx mcp` (Track B)
 
 Read those commands through one timeline.
 

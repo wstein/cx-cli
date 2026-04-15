@@ -1,15 +1,31 @@
 # CX Operator Manual
 
-`cx` exists to provide a unified suite of tooling and standards for AI-driven projects. It standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools.
+`cx` standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools.
+
+## Choose Your Path
+
+The manual is split into two tracks to respect your immediate operational goal:
+
+### Track A: Pipeline Operations (The "Factory Floor")
+**Goal:** Build, verify, and extract immutable bundle artifacts for CI/CD or handoff.
+1. `cx init --name demo`
+2. `cx inspect --token-breakdown`
+3. `cx bundle --config cx.toml`
+4. `cx verify --against .`
+5. `cx extract dist/bundle --to ./restore`
+
+### Track B: Live Agent Exploration (The "Laboratory")
+**Goal:** Expose the live workspace and maintain repository notes for active AI work.
+1. `cx mcp`
+2. `cx notes new --title "Logic Fix" --body "Documenting the fix."`
+3. `cx doctor mcp`
+4. `cx doctor workflow --task "refactor index.ts"`
+
+---
 
 ## Quick Operator Path
 
-If you want the shortest path to a useful result, use this flow:
-
-1. Initialize the workspace config, notes, and generated Makefile.
-2. Inspect the token budget before you bundle.
-3. Build native artifacts using the workspace toolchain.
-4. Package the cx bundle and run diagnostics.
+If you want the shortest path to a useful result, follow **Track A** to secure your pipeline, then launch **Track B** to let your agent work.
 
 ```bash
 cx init --name demo

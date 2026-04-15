@@ -86,18 +86,29 @@ That can happen if:
 
 It should not be caused by ordinary source-byte differences that do not affect the packed output.
 
-## Why `--allow-degraded` Is Risky
+## Why `--allow-degraded` Is Dangerous
 
-The real risk is not byte-perfect source recovery. The risk is that downstream tooling may treat a fallback reconstruction as if it were the canonical packed representation.
+> [!CAUTION]
+> ### THE DISASTER SCENARIO
+> Imagine your bundle is degraded by a single missing newline at the top of a file. Every line number in the manifest is now shifted by +1. 
+>
+> 1. You run an LLM agent that reads the degraded bundle.
+> 2. The agent identifies a vulnerability it thinks is on line 42.
+> 3. Because of the shift, line 42 in the agent's view is actually line 41 in the real file.
+> 4. The agent issues a patch to "overwrite line 42".
+> 5. **Result:** The agent blindly overwrites a critical database connection string on the real line 42 that it never even saw.
+>
+> Your production build breaks silently because the mechanical chain of causality was severed by a "minor" formatting difference.
 
-If a degraded file loses or gains even one logical line:
+### The Mechanical Chain of Causality
 
-- its packed-content hash no longer matches the manifest
-- absolute output line numbers can shift
-- span-based slicing tools can target the wrong lines
-- generated patches or follow-up prompts can reference the wrong code
+1. **Byte Shift:** A missing newline or encoding error shifts the character offsets of the entire file.
+2. **Integer Drift:** The manifest records the `outputStartLine` based on the *expected* rendering, but the *actual* recovered slice starts one line earlier/later.
+3. **Hash Mismatch:** `cx` detects that the recovered slice hash doesn't match the manifest and marks it `degraded`.
+4. **Coordinate Failure:** If you bypass this with `--allow-degraded`, you are handing the LLM a map where every coordinate is off by one.
+5. **Silent Corruption:** The LLM executes a tool (like `replace_repomix_span`) against these wrong coordinates, corrupting the file.
 
-In other words, `--allow-degraded` can turn one localized representation issue into a broader mapping error.
+In other words, `--allow-degraded` can turn one localized representation issue into a broader mapping error. Treat a `degraded` signal as a hard stop.
 
 ## Safe And Unsafe Use Cases
 

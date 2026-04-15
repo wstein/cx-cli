@@ -27,10 +27,36 @@ Local init support
 - These generated files use `cwd = "${workspaceFolder}"` so the agent starts from the repository root and resolves `cx-mcp.toml` or `cx.toml` correctly.
 
 Key behavior to remember
-- The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
+- The server is started by running `cx mcp` in the repository root.
 - Transport: stdio (stdin/stdout)
-- Tools exposed by the server: `list` (workspace file inventory), `grep` (content search), `read` (anchored file read), `inspect` (preview the live bundle plan), `bundle` (preview the live bundle snapshot without reading bundle artifacts), `doctor_mcp` (inspect the resolved MCP profile), `doctor_workflow` (recommend an ordered task path), `doctor_overlaps` (diagnose duplicate section ownership in the live workspace), `doctor_secrets` (pre-flight the workspace against the secret scanner), `replace_repomix_span` (replace an exact live file span), `notes_new` (create a note), `notes_read` (read a note with parsed metadata), `notes_update` (revise a note in place), `notes_rename` (rename a note and its file), `notes_delete` (delete a note), `notes_search` (search the note corpus), `notes_list` (list notes), `notes_backlinks` (inspect backlinks), `notes_orphans` (find orphan notes), `notes_code_links` (inspect code references), and `notes_links` (audit unresolved links or inspect one note)
-- Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
+
+### Tool Taxonomy: The Three Pillars
+
+The `cx mcp` server exposes three distinct tool groups to the agent. This grouping teaches the agent the boundaries of the system subsystems:
+
+#### 1. Core OS Neutral Tools
+Provides basic workspace visibility and content retrieval.
+- `list`: Enumerate the workspace file inventory.
+- `grep`: Perform high-speed content search.
+- `read`: Fetch file content with optional line anchors.
+- `replace_repomix_span`: Perform exact, line-based file edits.
+
+#### 2. Notes Management Commands
+Enables the maintenance of a durable repository knowledge graph.
+- `notes_new` / `notes_read` / `notes_update` / `notes_delete`: CRUD operations for atomic notes.
+- `notes_list` / `notes_search`: Discovery of existing knowledge.
+- `notes_backlinks` / `notes_links` / `notes_orphans`: Graph relationship auditing.
+
+#### 3. CX Bundler Diagnostics
+Tools for interacting with the `cx` planning and safety engine.
+- `inspect`: Preview the live bundle plan without writing files.
+- `bundle`: Preview the live bundle snapshot (metadata only).
+- `doctor_mcp`: Inspect the resolved MCP profile and file scopes.
+- `doctor_workflow`: Get a recommended tool sequence for specific tasks.
+- `doctor_overlaps`: Diagnose duplicate section ownership.
+- `doctor_secrets`: Pre-flight the workspace against the secret scanner.
+
+Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
 - Intentional boundary: MCP is for live workspace inspection and editing only. Artifact generation, verification, and extraction stay with the CLI and CI handoff path.
 
 Because the server communicates over stdio, clients simply need to launch `cx mcp` as a subprocess and bind to its stdin/stdout. The examples below follow that pattern.
