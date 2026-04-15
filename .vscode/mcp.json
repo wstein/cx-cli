@@ -1,6 +1,6 @@
 {
   "servers": {
-    "cx-workspace": {
+    "cx-mcp": {
       "type": "stdio",
       "command": "cx",
       "args": ["mcp"],
