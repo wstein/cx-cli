@@ -22,7 +22,7 @@ cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx init` now writes a generated workspace-aware `Makefile`, `cx-mcp.toml`, `cx.toml`, `.mcp.json`, `.vscode/mcp.json`, and local agent settings in `.claude/settings.json` and `.codex/settings.json` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and serves as the MCP overlay for the workspace root. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
+`cx init` now writes a generated workspace-aware `Makefile`, `.editorconfig`, `cx-mcp.toml`, `cx.toml`, `.mcp.json`, `.vscode/mcp.json`, and local agent settings in `.claude/settings.json` and `.codex/settings.json` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and serves as the MCP overlay for the workspace root. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
 
 `cx init` checks each generated target individually. It preserves existing files by default and creates any missing init artifacts; use `--force` to overwrite existing generated files.
 

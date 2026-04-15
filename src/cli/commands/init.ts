@@ -156,6 +156,14 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     args.force,
     args.template,
   );
+  const editorconfigResult = await renderProjectTemplate(
+    process.cwd(),
+    ".editorconfig",
+    ".editorconfig",
+    templateVariables,
+    args.force,
+    args.template,
+  );
   const makefileResult = await renderProjectTemplate(
     process.cwd(),
     "Makefile",
@@ -216,6 +224,13 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       printInfo("Updated cx.toml");
     } else {
       printInfo("Skipped existing cx.toml (use --force to overwrite)");
+    }
+    if (editorconfigResult.created) {
+      printInfo("Created .editorconfig");
+    } else if (editorconfigResult.updated) {
+      printInfo("Updated .editorconfig");
+    } else {
+      printInfo("Skipped existing .editorconfig (use --force to overwrite)");
     }
     if (makefileResult.created) {
       printInfo("Created Makefile");

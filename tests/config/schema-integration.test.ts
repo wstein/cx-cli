@@ -405,6 +405,13 @@ exclude = []
       expect(rootMcpJson).toContain('"command": "cx"');
       expect(rootMcpJson).toContain('"cwd": "${workspaceFolder}"');
 
+      const editorconfig = await fs.readFile(
+        path.join(tempDir, ".editorconfig"),
+        "utf8",
+      );
+      expect(editorconfig).toContain("root = true");
+      expect(editorconfig).toContain("trim_trailing_whitespace = true");
+
       const vscodeMcpJson = await fs.readFile(
         path.join(tempDir, ".vscode", "mcp.json"),
         "utf8",
