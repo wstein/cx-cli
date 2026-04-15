@@ -1,5 +1,10 @@
 # CX
 
+[![CI](https://github.com/wstein/cx-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/wstein/cx-cli/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@wsmy/cx-cli?color=informational)](https://www.npmjs.com/package/@wsmy/cx-cli)
+[![GitHub tag](https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag)](https://github.com/wstein/cx-cli/tags)
+[![License](https://img.shields.io/github/license/wstein/cx-cli)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
+
 `cx` provides tooling and standards for AI-driven projects in one unified suite. It standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools that operate seamlessly from the local developer machine through to automated CI/CD pipelines.
 
 ## Choose Your Path
