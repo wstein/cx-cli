@@ -4,10 +4,17 @@
 
 `cx` exists to make context bundling reproducible enough for automation.
 
-For the documentation map, see [README.md](README.md). For the editorial
-consensus that shaped this architecture, see [spec-draft.md](spec-draft.md).
+For the documentation map, see [README.md](README.md).
 
 The project deliberately wraps Repomix in a stricter system because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics.
+
+## Operational Bifurcation
+
+`cx` is unified by a single identity model but bifurcated in operation:
+- **Track A (Pipeline Operations):** The "Factory Floor" for deterministic CI/CD bundling, producing bit-for-bit verifiable artifacts.
+- **Track B (Live Agent Exploration):** The "Laboratory" for dynamic, interactive MCP-driven agent workflows and knowledge graph maintenance.
+
+Both tracks obey the exact same exclusion rules, hashing engines, and invariant checkpoints.
 
 ## The CX Triad
 
