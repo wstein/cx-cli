@@ -15,9 +15,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "cx": "./bin/cx"
-  },
+  "bin": "./bin/cx",
   "exports": {
     ".": "./dist/src/index.js"
   },
