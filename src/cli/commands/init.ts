@@ -1,3 +1,4 @@
+import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
@@ -109,8 +110,20 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   const resolved = await resolveInteractiveValues(args);
+  const projectName = resolved.name ?? "myproject";
+
+  // Validate the project name
+  try {
+    assertSafeProjectName(projectName);
+  } catch (error) {
+    throw new CxError(
+      `Invalid project name "${projectName}": ${error instanceof Error ? error.message : String(error)}`,
+      1,
+    );
+  }
+
   const templateVariables: TemplateVariables = {
-    projectName: resolved.name ?? "myproject",
+    projectName,
     style: resolved.style ?? "xml",
   };
 
