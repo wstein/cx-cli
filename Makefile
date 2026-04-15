@@ -1,38 +1,28 @@
-# Makefile for TypeScript/Node.js workspaces.
+# Makefile for CX.
 #
-# Provides a normalized interface for package manager commands and native workspace tasks.
-#
-# Usage:
-#   make          # install dependencies and build
-#   make build    # run the package manager build command
-#   make test     # run the package manager test command
-#   make clean    # remove generated output
-#   make notes    # show the notes directory path
+# A slim shim for the workspace build and test commands.
+# It intentionally delegates to Bun and avoids package-manager detection logic.
 #
 BUN ?= bun
-PNPM ?= pnpm
-NPM ?= npm
-YARN ?= yarn
-CLEAN_DIR ?= dist
 
 .PHONY: all build test clean notes help
 all: build
 
-build: ## Build the project using the detected package manager.
-	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) install && $(BUN) run build; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) install && $(PNPM) run build; 	elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then 		$(NPM) install && $(NPM) run build; 	elif [ -f yarn.lock ]; then 		$(YARN) install && $(YARN) build; 	else 		$(NPM) install && $(NPM) run build; 	fi
+build: ## Build the project.
+	$(BUN) run build
 
-test: ## Run tests using the detected package manager.
-	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) test; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) test; 	elif [ -f yarn.lock ]; then 		$(YARN) test; 	else 		$(NPM) test; 	fi
+test: ## Run tests.
+	$(BUN) test
 
-verify: ## Run verify using the detected package manager.
-	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) run verify; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) run verify; 	elif [ -f yarn.lock ]; then 		$(YARN) run verify; 	else 		$(NPM) run verify; 	fi
+verify: ## Run verification checks.
+	$(BUN) run verify
 
 clean: ## Remove generated output files.
-	if [ -f bun.lockb ]; then $(BUN) run clean; fi
-	rm -rf node_modules dist "$(CLEAN_DIR)"
+	$(BUN) run clean
 
-notes: ## Print the notes directory path.
-	@printf "Notes directory: notes\n"
+notes: ## List available notes in the repository.
+	cx notes list
+	cx notes orphans
 
 help: ## Show available targets.
 	@printf "Available targets:\n  build test clean notes\n"
