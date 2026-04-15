@@ -4,6 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import type { CxConfig } from "../config/types.js";
 import { CX_VERSION } from "../shared/version.js";
 import { registerCxMcpTools } from "./tools/index.js";
+import { McpRateLimiter, McpRequestLogger } from "./safeguards.js";
 import { createCxMcpWorkspace } from "./workspace.js";
 
 export interface CxMcpServerOptions {
@@ -33,8 +34,15 @@ Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lif
   ].join("\n");
 }
 
-export function createCxMcpServer(options: CxMcpServerOptions): McpServer {
+export function createCxMcpServer(
+  options: CxMcpServerOptions,
+  safeguards?: {
+    logger?: McpRequestLogger;
+    rateLimiter?: McpRateLimiter;
+  },
+): McpServer {
   const workspace = createCxMcpWorkspace(options.config);
+
   const server = new McpServer(
     {
       name: "cx-mcp-server",
@@ -44,6 +52,21 @@ export function createCxMcpServer(options: CxMcpServerOptions): McpServer {
       instructions: buildInstructions(options.configPath),
     },
   );
+
+  // Instantiate safeguards for optional per-tool integration.
+  // Tools can optionally use withTimeout(), rateLimiter.isAllowed(), and
+  // logger.logStart/logEnd for request timing and audit trails.
+  // See src/mcp/safeguards.ts for the API.
+  if (!safeguards?.logger) {
+    safeguards = {
+      logger: new McpRequestLogger(),
+      rateLimiter: new McpRateLimiter(),
+      ...safeguards,
+    };
+  }
+
+  // Store safeguards on server context for optional use by tools
+  (server as any).__cx_safeguards = safeguards;
 
   registerCxMcpTools(server, workspace);
 
