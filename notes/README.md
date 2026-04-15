@@ -1,11 +1,11 @@
 # Repository Notes Guide
 
-This directory is a permanent knowledge layer for the codebase. It captures architectural intent, durable concepts, constraints, and decisions that should outlive any single sprint, ticket, or contributor.
+This directory is the **primary source of truth** for the codebase. Every architectural aspect, idea, and mechanism must be recorded here as a note **before** it is documented or implemented. Implementation and documentation must always remain in sync with the repository notes.
 
 For the formal documentation set, start with [docs/README.md](../docs/README.md).
 The revision consensus for the repository lives in
 [docs/spec-draft.md](../docs/spec-draft.md).
-Use `notes/` for durable knowledge and `docs/` for decisions, plans, and
+Use `notes/` for the definitive knowledge graph and `docs/` for snapshots, manuals, and
 implementation contracts.
 
 Bundle manifests now carry short note summaries so downstream AI tooling can
@@ -16,13 +16,13 @@ move entries in the note graph.
 
 ## Why This Directory Exists
 
-This directory exists to keep durable repository knowledge queryable.
+This directory exists as the **upstream intent layer** for all repository work. If a concept exists in the code or docs, it must first exist here.
 
 This is not a project-management folder.
 
 - Project trackers are hierarchical and temporary.
-- Repository notes are durable and linkable.
-- The goal is not task execution. The goal is preserving reusable understanding.
+- Repository notes are durable, linkable, and machine-authoritative.
+- The goal is **complete knowledge capture**. Every design choice, mechanism, and constraint belongs in the graph.
 
 ## Before and After for Agents
 
@@ -99,6 +99,8 @@ Stable ids matter because downstream automation can reference notes without depe
 6. Save the file with a human-readable filename that matches the note title.
 
 Suggested filename style: `Clear Searchable Title.md`.
+
+For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, and `notes_code_links(...)` after renames or note additions.
 
 ## Minimum Anatomy
 
