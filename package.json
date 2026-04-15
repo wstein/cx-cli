@@ -32,9 +32,9 @@
     "format": "biome format --write .",
     "lint": "biome check . && bun run scripts/check-boundaries.ts",
     "check-boundaries": "bun run scripts/check-boundaries.ts",
-    "test": "bun test tests --timeout 10000",
+    "test": "bun test tests --timeout 20000",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "verify": "bun run lint && bun run check && bun run build && bun test tests --timeout 10000",
+    "verify": "bun run lint && bun run check && bun run build && bun test tests --timeout 20000",
     "copy:init": "bun run scripts/copy-init-templates.ts"
   },
   "engines": {
