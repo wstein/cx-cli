@@ -389,6 +389,46 @@ exclude = []
     }
   });
 
+  test("cx init generates local MCP integration files", async () => {
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-init-local-"),
+    );
+    const cwd = process.cwd();
+
+    try {
+      process.chdir(tempDir);
+      await main(["init", "--name", "local-init-test", "--force"]);
+
+      const rootMcpJson = await fs.readFile(
+        path.join(tempDir, ".mcp.json"),
+        "utf8",
+      );
+      expect(rootMcpJson).toContain('"command": "cx"');
+      expect(rootMcpJson).toContain('"cwd": "${workspaceFolder}"');
+
+      const vscodeMcpJson = await fs.readFile(
+        path.join(tempDir, ".vscode", "mcp.json"),
+        "utf8",
+      );
+      expect(vscodeMcpJson).toContain('"command": "cx"');
+      expect(vscodeMcpJson).toContain('"cwd": "${workspaceFolder}"');
+
+      const claudeSettings = await fs.readFile(
+        path.join(tempDir, ".claude", "settings.json"),
+        "utf8",
+      );
+      expect(claudeSettings).toContain('"enabledMcpjsonServers": ["cx-mcp"]');
+
+      const codexSettings = await fs.readFile(
+        path.join(tempDir, ".codex", "settings.json"),
+        "utf8",
+      );
+      expect(codexSettings).toContain('"enabledMcpjsonServers": ["cx-mcp"]');
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   test("cx init prints supported templates with --template-list", async () => {
     const write = process.stdout.write;
     let output = "";

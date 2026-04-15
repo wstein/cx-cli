@@ -1,29 +1,25 @@
 # Repository Notes Guide
 
-This directory is a permanent knowledge layer for the codebase. It captures architectural intent, durable concepts, constraints, and decisions that should outlive any single sprint, ticket, or contributor.
+This directory is the **primary source of truth** for the project. Every architectural idea, implementation decision, and invariants must enter `notes/` before it is documented or shipped.
 
 ## Why This Directory Exists
 
-This directory exists to keep durable repository knowledge queryable. It is not a project-management folder.
+`notes/` is the upstream intent layer for the repository. It captures durable knowledge in a machine-queryable graph so the project can be understood, audited, and reasoned about more reliably than raw code or ad-hoc docs.
 
-- Project trackers are hierarchical and temporary.
-- Repository notes are durable and linkable.
-- The goal is preserving reusable understanding.
+- Notes are the first place to record architectural ideas.
+- The code and docs must stay in sync with the note corpus.
+- This is not a project-management or task-tracking folder.
 
-## Before and After for Agents
+## Notes-First Workflow
 
-Before manifest-side summaries:
+Before implementing a feature or writing a design doc:
 
-- an agent sees `notes/` and has to open raw Markdown files one by one
-- token spend rises before the agent knows which note matters
-- latency rises because every run repeats the same broad scan
+1. Create a note for the idea.
+2. Link it to related notes and code paths.
+3. Keep the note atomic and explicit.
+4. Use it as the source of truth for the resulting implementation.
 
-After manifest-side summaries:
-
-- the agent reads `manifest.notes[]` first
-- it filters by stable id, title, alias, or summary text
-- it opens only the note files that are actually relevant
-- token spend and latency drop because the broad scan is already serialized
+This keeps the repository’s knowledge graph live and prevents important decisions from being hidden in code comments or scattered docs.
 
 ## Core Rules
 
@@ -40,7 +36,7 @@ If a note contains multiple unrelated ideas, split it.
 
 ### Write in Your Own Words
 
-Do not paste raw code or external text. A note is only useful when it explains the idea in your own words and makes its relationship to this repository explicit.
+Do not paste raw code or external text. A note is useful only when it explains the idea clearly and connects it back to this repository.
 
 ### Connect Notes Radially
 
@@ -49,19 +45,19 @@ Every note should link outward to:
 - code components
 - adjacent constraints or decisions
 
-The value comes from the graph, not isolated pages.
+The value is in the graph, not isolated pages.
 
 ### Keep IDs Stable
 
 Each note uses a time-based YAML id in the form `YYYYMMDDHHMMSS`.
-The filename is the canonical title; the numeric id is machine authoritative.
+The filename is the canonical title; the id is machine authoritative.
 
 ## Recommended Workflow
 
 1. Start from `template-new-zettel.md`
 2. Assign a fresh `id` using local time
-3. Give the note a clear searchable title
-4. Write one thought in your own words
+3. Use a clear searchable title
+4. Write one focused thought in your own words
 5. Add explicit links to related notes and code paths
 6. Save the file with a human-readable filename
 

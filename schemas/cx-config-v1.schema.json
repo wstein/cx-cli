@@ -255,6 +255,11 @@
                 "minLength": 1,
                 "description": "Model identifier associated with the client profile."
               },
+              "cwd": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Optional working directory placeholder for editor or agent clients, such as ${workspaceFolder}."
+              },
               "capabilities": {
                 "type": "array",
                 "items": {

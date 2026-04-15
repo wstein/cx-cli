@@ -18,6 +18,14 @@ Overview
 
 Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
 
+Local init support
+- `cx init` now generates additional local agent configuration files to simplify common editor and desktop integration workflows:
+  - `.mcp.json` — workspace-local MCP server declaration
+  - `.vscode/mcp.json` — VS Code MCP server settings
+  - `.claude/settings.json` — Claude Desktop MCP server enablement
+  - `.codex/settings.json` — Codex-compatible MCP server enablement
+- These generated files use `cwd = "${workspaceFolder}"` so the agent starts from the repository root and resolves `cx-mcp.toml` or `cx.toml` correctly.
+
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root (or another directory that contains a `cx-mcp.toml` or `cx.toml`).
 - Transport: stdio (stdin/stdout)

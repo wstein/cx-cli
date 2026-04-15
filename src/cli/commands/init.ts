@@ -172,6 +172,38 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     args.force,
     args.template,
   );
+  const mcpJsonResult = await renderProjectTemplate(
+    process.cwd(),
+    ".mcp.json",
+    ".mcp.json",
+    templateVariables,
+    args.force,
+    args.template,
+  );
+  const vscodeMcpResult = await renderProjectTemplate(
+    process.cwd(),
+    ".vscode/mcp.json",
+    ".vscode/mcp.json",
+    templateVariables,
+    args.force,
+    args.template,
+  );
+  const claudeSettingsResult = await renderProjectTemplate(
+    process.cwd(),
+    ".claude/settings.json",
+    ".claude/settings.json",
+    templateVariables,
+    args.force,
+    args.template,
+  );
+  const codexSettingsResult = await renderProjectTemplate(
+    process.cwd(),
+    ".codex/settings.json",
+    ".codex/settings.json",
+    templateVariables,
+    args.force,
+    args.template,
+  );
   const notesScaffold = await scaffoldNotesModule(process.cwd(), {
     force: args.force,
   });
@@ -198,6 +230,34 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       printInfo("Updated cx-mcp.toml");
     } else {
       printInfo("Skipped existing cx-mcp.toml (use --force to overwrite)");
+    }
+    if (mcpJsonResult.created) {
+      printInfo("Created .mcp.json");
+    } else if (mcpJsonResult.updated) {
+      printInfo("Updated .mcp.json");
+    } else {
+      printInfo("Skipped existing .mcp.json (use --force to overwrite)");
+    }
+    if (vscodeMcpResult.created) {
+      printInfo("Created .vscode/mcp.json");
+    } else if (vscodeMcpResult.updated) {
+      printInfo("Updated .vscode/mcp.json");
+    } else {
+      printInfo("Skipped existing .vscode/mcp.json (use --force to overwrite)");
+    }
+    if (claudeSettingsResult.created) {
+      printInfo("Created .claude/settings.json");
+    } else if (claudeSettingsResult.updated) {
+      printInfo("Updated .claude/settings.json");
+    } else {
+      printInfo("Skipped existing .claude/settings.json (use --force to overwrite)");
+    }
+    if (codexSettingsResult.created) {
+      printInfo("Created .codex/settings.json");
+    } else if (codexSettingsResult.updated) {
+      printInfo("Updated .codex/settings.json");
+    } else {
+      printInfo("Skipped existing .codex/settings.json (use --force to overwrite)");
     }
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);
