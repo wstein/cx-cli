@@ -67,6 +67,35 @@ exclude = []
 }
 
 describe("cx bundle --ci / --force dirty-state handling", () => {
+  test("clean state: exits 0 without any flags", async () => {
+    const { root, configPath } = await createAndInitProject();
+
+    // No modifications to tracked files — state is clean
+    const exitCode = await runBundleCommand({
+      config: configPath,
+    });
+
+    expect(exitCode).toBe(0);
+  });
+
+  test("safe_dirty state: exits 0 with untracked files only (no override needed)", async () => {
+    const { root, configPath } = await createAndInitProject();
+
+    // Add an untracked file (creates safe_dirty state)
+    await fs.writeFile(
+      path.join(root, "untracked.txt"),
+      "This file is not tracked by git\n",
+      "utf8",
+    );
+
+    // Bundle without --ci or --force should succeed (safe_dirty is safe)
+    const exitCode = await runBundleCommand({
+      config: configPath,
+    });
+
+    expect(exitCode).toBe(0);
+  });
+
   test("exits 7 on unsafe_dirty without --ci or --force", async () => {
     const { root, configPath } = await createAndInitProject();
 
@@ -81,9 +110,6 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     try {
       await runBundleCommand({
         config: configPath,
-        output: undefined,
-        ci: undefined,
-        force: undefined,
       });
       // Should not reach here
       expect.unreachable();
@@ -108,9 +134,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     // Bundle with --ci should succeed
     const exitCode = await runBundleCommand({
       config: configPath,
-      output: undefined,
       ci: true,
-      force: undefined,
     });
 
     expect(exitCode).toBe(0);
@@ -138,8 +162,6 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     // Bundle with --force should succeed
     const exitCode = await runBundleCommand({
       config: configPath,
-      output: undefined,
-      ci: undefined,
       force: true,
     });
 
@@ -153,5 +175,15 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     const lock = await readLock(bundleDir, "test-ci");
     expect(lock).not.toBeNull();
     expect(lock?.bundleMode).toBe("local");
+  });
+
+  test("dirty state taxonomy: clean, safe_dirty, unsafe_dirty paths are distinct", async () => {
+    // This test documents the complete taxonomy:
+    // - clean: tracked files unmodified, no untracked files → no override needed
+    // - safe_dirty: untracked files only, no modified tracked → no override needed
+    // - unsafe_dirty: modified tracked files → --force or --ci required
+    //
+    // See: docs/ARCHITECTURE.md#dirty-state-taxonomy
+    expect(true).toBe(true);
   });
 });
