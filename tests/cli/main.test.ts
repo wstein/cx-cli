@@ -142,8 +142,15 @@ describe("main", () => {
   ] as const)("emits completion script for %s", async (shell, expectedFragment) => {
     const write = process.stdout.write;
     let output = "";
-    process.stdout.write = ((chunk: string | Uint8Array) => {
+    process.stdout.write = ((
+      chunk: string | Uint8Array,
+      callback?: ((error?: Error | null) => void) | string,
+    ) => {
       output += String(chunk);
+      // Call the callback if it's provided (for writeStdoutSafe compatibility)
+      if (typeof callback === "function") {
+        callback();
+      }
       return true;
     }) as typeof process.stdout.write;
 
