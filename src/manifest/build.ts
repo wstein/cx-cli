@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
 import type { DirtyState } from "../vcs/provider.js";
@@ -13,8 +15,9 @@ import type {
   SectionTokenMaps,
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
+import { sha256NormalizedText } from "../shared/hashing.js";
 
-export function buildManifest(params: {
+export async function buildManifest(params: {
   config: CxConfig;
   plan: BundlePlan;
   sectionOutputs: SectionOutputRecord[];
@@ -36,38 +39,53 @@ export function buildManifest(params: {
   modifiedFiles: string[];
   /** Repository notes metadata, if present. */
   notes?: NoteRecord[] | undefined;
-}): CxManifest {
-  const sections: CxSection[] = params.sectionOutputs.map((sectionOutput) => {
-    const planSection = params.plan.sections.find(
-      (s) => s.name === sectionOutput.name,
-    );
-    const sectionSpans = params.sectionSpanMaps?.get(sectionOutput.name);
-    const sectionTokens = params.sectionTokenMaps?.get(sectionOutput.name);
-    const sectionHashes = params.sectionHashMaps?.get(sectionOutput.name);
-    const files: ManifestFileRow[] = (planSection?.files ?? []).map((file) => {
-      const fileSpan = sectionSpans?.get(file.relativePath);
-      const fileHash = sectionHashes?.get(file.relativePath);
-      if (fileHash === undefined) {
-        throw new Error(
-          `Missing normalized content hash for ${sectionOutput.name}/${file.relativePath}.`,
-        );
-      }
-      return {
-        path: file.relativePath,
-        kind: "text",
-        section: sectionOutput.name,
-        storedIn: "packed",
-        sha256: fileHash,
-        sizeBytes: file.sizeBytes,
-        tokenCount: sectionTokens?.get(file.relativePath) ?? 0,
-        mtime: file.mtime,
-        mediaType: file.mediaType,
-        outputStartLine: fileSpan?.outputStartLine ?? null,
-        outputEndLine: fileSpan?.outputEndLine ?? null,
-      };
-    });
-    return { ...sectionOutput, files };
-  });
+}): Promise<CxManifest> {
+  const sections: CxSection[] = await Promise.all(
+    params.sectionOutputs.map(async (sectionOutput) => {
+      const planSection = params.plan.sections.find(
+        (s) => s.name === sectionOutput.name,
+      );
+      const sectionSpans = params.sectionSpanMaps?.get(sectionOutput.name);
+      const sectionTokens = params.sectionTokenMaps?.get(sectionOutput.name);
+      const sectionHashes = params.sectionHashMaps?.get(sectionOutput.name);
+      const files: ManifestFileRow[] = await Promise.all(
+        (planSection?.files ?? []).map(async (file) => {
+          const fileSpan = sectionSpans?.get(file.relativePath);
+          let fileHash = sectionHashes?.get(file.relativePath);
+
+          if (fileHash === undefined) {
+            const sourceFilePath = path.join(
+              params.plan.sourceRoot,
+              file.relativePath,
+            );
+            try {
+              const sourceContents = await fs.readFile(sourceFilePath, "utf8");
+              fileHash = sha256NormalizedText(sourceContents);
+            } catch {
+              throw new Error(
+                `Missing normalized content hash for ${sectionOutput.name}/${file.relativePath}.`,
+              );
+            }
+          }
+
+          return {
+            path: file.relativePath,
+            kind: "text",
+            section: sectionOutput.name,
+            storedIn: "packed",
+            sha256: fileHash,
+            sizeBytes: file.sizeBytes,
+            tokenCount: sectionTokens?.get(file.relativePath) ?? 0,
+            mtime: file.mtime,
+            mediaType: file.mediaType,
+            outputStartLine: fileSpan?.outputStartLine ?? null,
+            outputEndLine: fileSpan?.outputEndLine ?? null,
+          };
+        }),
+      );
+      return { ...sectionOutput, files };
+    }),
+  );
 
   const totalTokenCount = sections.reduce(
     (acc, section) => acc + section.tokenCount,

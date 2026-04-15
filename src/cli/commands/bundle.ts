@@ -394,7 +394,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           }))
         : undefined;
 
-    const manifest = buildManifest({
+    const manifest = await buildManifest({
       config,
       plan,
       sectionOutputs,
