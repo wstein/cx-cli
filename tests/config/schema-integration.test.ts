@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { exec } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { parse as parseToml } from "smol-toml";
 import { main } from "../../src/cli/main.js";
@@ -161,7 +161,9 @@ exclude = []
   });
 
   test("cx init creates a generic base Makefile for unknown workspace environments", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-makefile-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-init-makefile-"),
+    );
     const cwd = process.cwd();
 
     try {
@@ -182,12 +184,18 @@ exclude = []
   });
 
   test("cx init selects a language-specific Makefile template when the workspace has detected source files", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-makefile-go-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-init-makefile-go-"),
+    );
     const cwd = process.cwd();
 
     try {
       process.chdir(tempDir);
-      await fs.writeFile(path.join(tempDir, "go.mod"), "module example\n", "utf8");
+      await fs.writeFile(
+        path.join(tempDir, "go.mod"),
+        "module example\n",
+        "utf8",
+      );
       await main(["init", "--name", "go-makefile-test", "--force"]);
 
       const makefilePath = path.join(tempDir, "Makefile");
@@ -206,20 +214,26 @@ exclude = []
     {
       template: "typescript",
       tempDirPrefix: "cx-init-makefile-typescript-",
-      markers: [["package.json", "{}\n"], ["tsconfig.json", "{}\n"]] as const,
+      markers: [
+        ["package.json", "{}\n"],
+        ["tsconfig.json", "{}\n"],
+      ] as const,
       expectedSnippets: [
         "build: ## Build the project using the detected package manager.\n\t@if command -v $(BUN) >/dev/null 2>&1; then \\\n\t\t$(BUN) install && $(BUN) run build; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) install && $(PNPM) run build; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) install && $(YARN) run build; \\\n\telse \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\tfi",
-        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test clean notes\\n\"",
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test clean notes\\n"',
       ],
       unexpectedSnippets: ["\t\t$(YARN) build;"],
     },
     {
       template: "python",
       tempDirPrefix: "cx-init-makefile-python-",
-      markers: [["pyproject.toml", "[project]\nname = \"example\"\n"], ["requirements.txt", "pytest\n"]] as const,
+      markers: [
+        ["pyproject.toml", '[project]\nname = "example"\n'],
+        ["requirements.txt", "pytest\n"],
+      ] as const,
       expectedSnippets: [
-        "build: ## Install dependencies using pip if a requirements file is present.\n\t@if [ -f requirements.txt ]; then \\\n\t\t$(PIP) install -r requirements.txt; \\\n\telif [ -f pyproject.toml ]; then \\\n\t\t$(PYTHON) -m pip install .; \\\n\telse \\\n\t\techo \"No Python dependency manifest found; skipping install.\"; \\\n\tfi",
-        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test clean notes\\n\"",
+        'build: ## Install dependencies using pip if a requirements file is present.\n\t@if [ -f requirements.txt ]; then \\\n\t\t$(PIP) install -r requirements.txt; \\\n\telif [ -f pyproject.toml ]; then \\\n\t\t$(PYTHON) -m pip install .; \\\n\telse \\\n\t\techo "No Python dependency manifest found; skipping install."; \\\n\tfi',
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test clean notes\\n"',
       ],
       unexpectedSnippets: [],
     },
@@ -228,7 +242,7 @@ exclude = []
       tempDirPrefix: "cx-init-makefile-java-",
       markers: [["pom.xml", "<project />\n"]] as const,
       expectedSnippets: [
-        "build: ## Build the Java project using Maven or Gradle.\n\t@if [ -f pom.xml ]; then \\\n\t\t$(MAVEN) package; \\\n\telif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \\\n\t\t$(GRADLE) build; \\\n\telse \\\n\t\techo \"No Maven or Gradle build file found.\"; \\\n\t\texit 1; \\\n\tfi",
+        'build: ## Build the Java project using Maven or Gradle.\n\t@if [ -f pom.xml ]; then \\\n\t\t$(MAVEN) package; \\\n\telif [ -f build.gradle ] || [ -f build.gradle.kts ]; then \\\n\t\t$(GRADLE) build; \\\n\telse \\\n\t\techo "No Maven or Gradle build file found."; \\\n\t\texit 1; \\\n\tfi',
         "clean: ## Remove generated output files.\n\t@if [ -f pom.xml ]; then \\\n\t\t$(MAVEN) clean; \\\n\tfi\n\t@if [ -f build.gradle ] || [ -f build.gradle.kts ]; then \\\n\t\t$(GRADLE) clean; \\\n\tfi",
       ],
       unexpectedSnippets: [],
@@ -236,72 +250,108 @@ exclude = []
     {
       template: "rust",
       tempDirPrefix: "cx-init-makefile-rust-",
-      markers: [["Cargo.toml", "[package]\nname = \"example\"\n"]] as const,
+      markers: [["Cargo.toml", '[package]\nname = "example"\n']] as const,
       expectedSnippets: [
         "build: ## Build the Rust project in release mode.\n\t$(CARGO) build --release",
-        "help: ## Show available targets.\n\t@printf \"Available targets:\\n  build test check clean notes\\n\"",
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test check clean notes\\n"',
       ],
-      unexpectedSnippets: ['@printf "Available targets:\n  build test check clean notes\n"'],
+      unexpectedSnippets: [
+        '@printf "Available targets:\n  build test check clean notes\n"',
+      ],
     },
-  ])(
-    "cx init renders a readable %s Makefile template",
-    async ({ template, tempDirPrefix, markers, expectedSnippets, unexpectedSnippets }) => {
-      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), tempDirPrefix));
-      const cwd = process.cwd();
+  ])("cx init renders a readable %s Makefile template", async ({
+    template,
+    tempDirPrefix,
+    markers,
+    expectedSnippets,
+    unexpectedSnippets,
+  }) => {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), tempDirPrefix));
+    const cwd = process.cwd();
 
-      try {
-        process.chdir(tempDir);
-        for (const [fileName, content] of markers) {
-          await fs.writeFile(path.join(tempDir, fileName), content, "utf8");
-        }
-
-        await main(["init", "--name", `${template}-test`, "--template", template, "--force"]);
-
-        const makefileContent = await fs.readFile(path.join(tempDir, "Makefile"), "utf8");
-
-        for (const snippet of expectedSnippets) {
-          expect(makefileContent).toContain(snippet);
-        }
-        for (const snippet of unexpectedSnippets) {
-          expect(makefileContent).not.toContain(snippet);
-        }
-      } finally {
-        process.chdir(cwd);
+    try {
+      process.chdir(tempDir);
+      for (const [fileName, content] of markers) {
+        await fs.writeFile(path.join(tempDir, fileName), content, "utf8");
       }
-    },
-  );
+
+      await main([
+        "init",
+        "--name",
+        `${template}-test`,
+        "--template",
+        template,
+        "--force",
+      ]);
+
+      const makefileContent = await fs.readFile(
+        path.join(tempDir, "Makefile"),
+        "utf8",
+      );
+
+      for (const snippet of expectedSnippets) {
+        expect(makefileContent).toContain(snippet);
+      }
+      for (const snippet of unexpectedSnippets) {
+        expect(makefileContent).not.toContain(snippet);
+      }
+    } finally {
+      process.chdir(cwd);
+    }
+  });
 
   test("cx init preserves existing init targets while creating missing files", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-existing-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-init-existing-"),
+    );
     const cwd = process.cwd();
 
     try {
       process.chdir(tempDir);
       await fs.mkdir(path.join(tempDir, "notes"), { recursive: true });
-      await fs.writeFile(path.join(tempDir, "cx.toml"), "schema_version = 1\n", "utf8");
-      await fs.writeFile(path.join(tempDir, "notes/README.md"), "# notes\n", "utf8");
+      await fs.writeFile(
+        path.join(tempDir, "cx.toml"),
+        "schema_version = 1\n",
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join(tempDir, "notes/README.md"),
+        "# notes\n",
+        "utf8",
+      );
 
       await expect(main(["init", "--name", "existing-test"])).resolves.toBe(0);
 
-      const configContent = await fs.readFile(path.join(tempDir, "cx.toml"), "utf8");
+      const configContent = await fs.readFile(
+        path.join(tempDir, "cx.toml"),
+        "utf8",
+      );
       expect(configContent).toBe("schema_version = 1\n");
 
-      const makefileContent = await fs.readFile(path.join(tempDir, "Makefile"), "utf8");
+      const makefileContent = await fs.readFile(
+        path.join(tempDir, "Makefile"),
+        "utf8",
+      );
       expect(makefileContent).toContain("build:");
 
-      const mcpContent = await fs.readFile(path.join(tempDir, "cx-mcp.toml"), "utf8");
+      const mcpContent = await fs.readFile(
+        path.join(tempDir, "cx-mcp.toml"),
+        "utf8",
+      );
       expect(mcpContent).toContain(
         "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
       );
-      expect(mcpContent).toContain("extends = \"./cx.toml\"");
-      expect(mcpContent).not.toContain("project_name = \"existing-test\"");
+      expect(mcpContent).toContain('extends = "./cx.toml"');
+      expect(mcpContent).not.toContain('project_name = "existing-test"');
     } finally {
       process.chdir(cwd);
     }
   });
 
   test("cx init generates cx-mcp.toml and supports explicit template selection", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-template-"));
+    const tempDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-init-template-"),
+    );
     const cwd = process.cwd();
 
     try {
@@ -324,12 +374,14 @@ exclude = []
       expect(mcpContent).toContain(
         "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
       );
-      expect(mcpContent).toContain("extends = \"./cx.toml\"");
-      expect(mcpContent).not.toContain("project_name = \"typescript-test\"");
-      expect(mcpContent).not.toContain("include = [\"src/**\", \"dist/**\"]");
-      expect(mcpContent).not.toContain("output_dir = \"dist/typescript-test-mcp-bundle\"");
+      expect(mcpContent).toContain('extends = "./cx.toml"');
+      expect(mcpContent).not.toContain('project_name = "typescript-test"');
+      expect(mcpContent).not.toContain('include = ["src/**", "dist/**"]');
+      expect(mcpContent).not.toContain(
+        'output_dir = "dist/typescript-test-mcp-bundle"',
+      );
       expect(mcpContent).toContain("[mcp.clients.claude]");
-      expect(mcpContent).toContain("provider = \"anthropic\"");
+      expect(mcpContent).toContain('provider = "anthropic"');
       expect(mcpContent).toContain("[mcp.clients.github_copilot]");
       expect(mcpContent).toContain("[mcp.clients.codex]");
     } finally {
@@ -352,8 +404,12 @@ exclude = []
     }
 
     expect(output).toContain("rust: Rust workspaces using Cargo.");
-    expect(output).toContain("typescript: TypeScript/Node.js workspaces using package.json.");
-    expect(output).toContain("python: Python workspaces using pyproject.toml or requirements.txt.");
+    expect(output).toContain(
+      "typescript: TypeScript/Node.js workspaces using package.json.",
+    );
+    expect(output).toContain(
+      "python: Python workspaces using pyproject.toml or requirements.txt.",
+    );
   });
 
   test("init templates are included in dist after build", async () => {
@@ -365,12 +421,12 @@ exclude = []
     const { stdout } = await execAsync("bun run build", { cwd: root });
     expect(stdout).toContain("Copied init templates from");
 
-    const makefileExists = await fs.access(
-      path.join(distPath, "base", "Makefile.hbs"),
-    ).then(
-      () => true,
-      () => false,
-    );
+    const makefileExists = await fs
+      .access(path.join(distPath, "base", "Makefile.hbs"))
+      .then(
+        () => true,
+        () => false,
+      );
     expect(makefileExists).toBe(true);
   });
 

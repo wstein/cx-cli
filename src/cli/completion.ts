@@ -28,36 +28,75 @@ const COMMANDS: CommandSpec[] = [
       { name: "interactive", description: "Prompt for configuration details" },
       { name: "json", description: "Output as JSON" },
       { name: "name", description: "Project name", takesValue: true },
-      { name: "stdout", description: "Print to stdout instead of writing files" },
-      { name: "style", description: "Output style format", takesValue: true, choices: ["xml", "markdown", "json", "plain"] },
+      {
+        name: "stdout",
+        description: "Print to stdout instead of writing files",
+      },
+      {
+        name: "style",
+        description: "Output style format",
+        takesValue: true,
+        choices: ["xml", "markdown", "json", "plain"],
+      },
     ],
   },
   {
     name: "inspect",
     description: "Show the computed plan without writing files",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
-      { name: "token-breakdown", description: "Show per-section token distribution" },
-      { name: "layout", description: "Asset layout override", takesValue: true, choices: ["flat", "deep"] },
+      {
+        name: "token-breakdown",
+        description: "Show per-section token distribution",
+      },
+      {
+        name: "layout",
+        description: "Asset layout override",
+        takesValue: true,
+        choices: ["flat", "deep"],
+      },
     ],
   },
   {
     name: "bundle",
     description: "Create a bundle directory from a project",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
-      { name: "update", description: "Apply differential update and prune orphaned artifacts" },
-      { name: "force", description: "Bundle with uncommitted changes (records forced_dirty)" },
-      { name: "layout", description: "Asset layout override", takesValue: true, choices: ["flat", "deep"] },
+      {
+        name: "update",
+        description: "Apply differential update and prune orphaned artifacts",
+      },
+      {
+        name: "force",
+        description: "Bundle with uncommitted changes (records forced_dirty)",
+      },
+      {
+        name: "layout",
+        description: "Asset layout override",
+        takesValue: true,
+        choices: ["flat", "deep"],
+      },
     ],
   },
   {
     name: "list",
     description: "List bundle contents grouped by section",
     options: [
-      { name: "bundle", description: "Bundle directory path", takesValue: true },
+      {
+        name: "bundle",
+        description: "Bundle directory path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -65,7 +104,11 @@ const COMMANDS: CommandSpec[] = [
     name: "validate",
     description: "Validate bundle structure and schema",
     options: [
-      { name: "bundle", description: "Bundle directory path", takesValue: true },
+      {
+        name: "bundle",
+        description: "Bundle directory path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -73,9 +116,21 @@ const COMMANDS: CommandSpec[] = [
     name: "verify",
     description: "Verify bundle integrity and optional source-tree drift",
     options: [
-      { name: "bundle", description: "Bundle directory path", takesValue: true },
-      { name: "against", description: "Source tree path to verify against", takesValue: true },
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "bundle",
+        description: "Bundle directory path",
+        takesValue: true,
+      },
+      {
+        name: "against",
+        description: "Source tree path to verify against",
+        takesValue: true,
+      },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
       { name: "allow-degraded", description: "Allow degraded extraction" },
     ],
@@ -84,7 +139,11 @@ const COMMANDS: CommandSpec[] = [
     name: "extract",
     description: "Restore files from a bundle",
     options: [
-      { name: "bundle", description: "Bundle directory path", takesValue: true },
+      {
+        name: "bundle",
+        description: "Bundle directory path",
+        takesValue: true,
+      },
       { name: "file", description: "File path to extract", takesValue: true },
       { name: "to", description: "Destination directory", takesValue: true },
       { name: "json", description: "Output as JSON" },
@@ -95,7 +154,11 @@ const COMMANDS: CommandSpec[] = [
     name: "mcp",
     description: "Start the MCP server for agentic workflows",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -103,7 +166,11 @@ const COMMANDS: CommandSpec[] = [
     name: "doctor",
     description: "Diagnose overlaps, MCP inheritance, and secret hygiene",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -111,7 +178,11 @@ const COMMANDS: CommandSpec[] = [
     name: "render",
     description: "Render planned sections without building a full bundle",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -119,7 +190,11 @@ const COMMANDS: CommandSpec[] = [
     name: "config",
     description: "Inspect effective configuration",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
@@ -127,7 +202,13 @@ const COMMANDS: CommandSpec[] = [
     name: "completion",
     description: "Generate shell completion scripts for bash, zsh, or fish",
     options: [
-      { name: "shell", short: "s", description: "Shell type", takesValue: true, choices: ["bash", "zsh", "fish"] },
+      {
+        name: "shell",
+        short: "s",
+        description: "Shell type",
+        takesValue: true,
+        choices: ["bash", "zsh", "fish"],
+      },
     ],
   },
   {
@@ -135,25 +216,34 @@ const COMMANDS: CommandSpec[] = [
     description:
       "Create, read, update, rename, delete, list, and inspect note graph relationships",
     options: [
-      { name: "config", description: "Configuration file path", takesValue: true },
+      {
+        name: "config",
+        description: "Configuration file path",
+        takesValue: true,
+      },
       { name: "json", description: "Output as JSON" },
     ],
   },
   {
     name: "adapter",
     description: "Inspect adapter capabilities and runtime state",
-    options: [
-      { name: "json", description: "Output as JSON" },
-    ],
+    options: [{ name: "json", description: "Output as JSON" }],
   },
 ];
 
 const GLOBAL_OPTIONS: CommandOption[] = [
   { name: "help", short: "h", description: "Show help message" },
   { name: "version", short: "v", description: "Show version" },
-  { name: "strict", description: "Force all Category B behaviors to fail fast (CI mode)" },
+  {
+    name: "strict",
+    description: "Force all Category B behaviors to fail fast (CI mode)",
+  },
   { name: "lenient", description: "Set all Category B behaviors to warn" },
-  { name: "adapter-path", description: "Path to custom Repomix adapter module", takesValue: true },
+  {
+    name: "adapter-path",
+    description: "Path to custom Repomix adapter module",
+    takesValue: true,
+  },
 ];
 
 function getAllCommandNames(): string[] {
@@ -199,39 +289,39 @@ _cx_completions() {
   local _options=""
 
   # First argument: complete commands
-  if [[ \$cword -eq 1 ]]; then
-    COMPREPLY=($(compgen -W "\$commands" -- "\$cur"))
+  if [[ $cword -eq 1 ]]; then
+    COMPREPLY=($(compgen -W "$commands" -- "$cur"))
     return
   fi
 
   # Subsequent arguments: complete options for the selected command
   local cmd="\${words[1]}"
-  case "\$cmd" in
+  case "$cmd" in
 ${completionLogic}  esac
 
   # Combine command-specific options with global options
-  _options="\$_options \$global_opts"
+  _options="$_options $global_opts"
 
   # Complete options
-  if [[ "\$cur" == -* ]]; then
-    COMPREPLY=($(compgen -W "\$_options" -- "\$cur"))
+  if [[ "$cur" == -* ]]; then
+    COMPREPLY=($(compgen -W "$_options" -- "$cur"))
     return
   fi
 
   # Complete option values (e.g., file paths)
-  case "\$prev" in
+  case "$prev" in
     --config|--bundle|--to|--against|--adapter-path)
       _filedir
       return
       ;;
     --shell|--style|--layout)
       local choices=""
-      case "\$prev" in
+      case "$prev" in
         --shell) choices="bash zsh fish" ;;
         --style) choices="xml markdown json plain" ;;
         --layout) choices="flat deep" ;;
       esac
-      COMPREPLY=($(compgen -W "\$choices" -- "\$cur"))
+      COMPREPLY=($(compgen -W "$choices" -- "$cur"))
       return
       ;;
   esac
@@ -259,7 +349,9 @@ function generateZshCompletion(): string {
         if (opt.choices) {
           return `'${optStr}[${desc}]:(${opt.choices.join("|")}):(${opt.choices.join(" ")})'`;
         }
-        return opt.takesValue ? `'${optStr}[${desc}]:value:'` : `'${optStr}[${desc}]'`;
+        return opt.takesValue
+          ? `'${optStr}[${desc}]:value:'`
+          : `'${optStr}[${desc}]'`;
       })
       .join(" \\\n        ");
 
@@ -293,10 +385,10 @@ _cx() {
     '1: :_cx_commands' \
     '*:: :->subcmd'
 
-  case \$state in
+  case $state in
     subcmd)
       local subcmd=\${line[1]}
-      case \$subcmd in
+      case $subcmd in
 ${subcommandCompletion}      esac
       ;;
   esac

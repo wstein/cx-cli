@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
+import { runNotesCommand } from "../../src/cli/commands/notes.js";
 import {
   createNewNote,
   deleteNote,
@@ -12,7 +12,6 @@ import {
   searchNotes,
   updateNote,
 } from "../../src/notes/crud.js";
-import { runNotesCommand } from "../../src/cli/commands/notes.js";
 import {
   buildNoteGraph,
   getBacklinks,
@@ -311,7 +310,7 @@ describe("Notes Commands", () => {
 
       const content = await fs.readFile(renamed.filePath, "utf8");
       expect(content).toContain("Rename me.");
-      expect(content).toContain("title: \"New Title\"");
+      expect(content).toContain('title: "New Title"');
     } finally {
       process.chdir(origCwd);
     }
@@ -447,9 +446,7 @@ describe("Notes Commands", () => {
           path.join(testDir, "notes", renamed?.fileName ?? ""),
           "utf8",
         ),
-      ).toContain(
-        "Rename from the CLI.",
-      );
+      ).toContain("Rename from the CLI.");
     } finally {
       process.chdir(origCwd);
     }

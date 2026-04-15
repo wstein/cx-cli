@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type { CxConfig } from "../config/types.js";
+import type { BundlePlan, PlannedSourceFile } from "../planning/types.js";
 import { pathExists, relativePosix } from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
-import type { BundlePlan, PlannedSourceFile } from "../planning/types.js";
 import { buildNoteGraph } from "./graph.js";
 
 /**

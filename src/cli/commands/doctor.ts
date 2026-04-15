@@ -1,11 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { collectDoctorMcpReport, printDoctorMcpReport } from "../../doctor/mcp.js";
-import { collectDoctorOverlapsReport, printDoctorOverlapsReport } from "../../doctor/overlaps.js";
-import { collectDoctorSecretsReport, printDoctorSecretsReport } from "../../doctor/secrets.js";
+import {
+  collectDoctorMcpReport,
+  printDoctorMcpReport,
+} from "../../doctor/mcp.js";
+import {
+  collectDoctorOverlapsReport,
+  printDoctorOverlapsReport,
+} from "../../doctor/overlaps.js";
+import {
+  collectDoctorSecretsReport,
+  printDoctorSecretsReport,
+} from "../../doctor/secrets.js";
 import { recommendWorkflow } from "../../doctor/workflow.js";
-import { type OverlapConflict } from "../../planning/overlaps.js";
+import type { OverlapConflict } from "../../planning/overlaps.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 import {

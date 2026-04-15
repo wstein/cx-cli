@@ -1,13 +1,12 @@
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { homedir } from "node:os";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { asError, CxError } from "../shared/errors.js";
 import { CX_VERSION } from "../shared/version.js";
-import { renderCompletionScript } from "./completion.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runConfigCommand } from "./commands/config.js";
@@ -21,6 +20,7 @@ import { runNotesCommand } from "./commands/notes.js";
 import { runRenderCommand } from "./commands/render.js";
 import { runValidateCommand } from "./commands/validate.js";
 import { runVerifyCommand } from "./commands/verify.js";
+import { renderCompletionScript } from "./completion.js";
 
 type ShellKind = "bash" | "zsh" | "fish";
 
@@ -652,8 +652,7 @@ export async function main(argv: string[]): Promise<number> {
           })
           .option("body", {
             type: "string",
-            description:
-              "Body text for the note (used by 'new' and 'update').",
+            description: "Body text for the note (used by 'new' and 'update').",
           })
           .option("tags", {
             type: "array",

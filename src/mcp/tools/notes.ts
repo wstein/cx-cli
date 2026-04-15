@@ -1,5 +1,5 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import path from "node:path";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 import {
@@ -132,7 +132,10 @@ export function registerNotesTools(
         command: "notes rename",
         id: note.id,
         title: note.title,
-        previousFilePath: relativePosix(workspace.sourceRoot, note.previousFilePath),
+        previousFilePath: relativePosix(
+          workspace.sourceRoot,
+          note.previousFilePath,
+        ),
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
       });

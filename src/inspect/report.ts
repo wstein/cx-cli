@@ -1,7 +1,4 @@
-import {
-  loadManifestFromBundle,
-  validateBundle,
-} from "../bundle/validate.js";
+import { loadManifestFromBundle, validateBundle } from "../bundle/validate.js";
 import type { CxConfig } from "../config/types.js";
 import { resolveExtractability } from "../extract/resolution.js";
 import { enrichPlanWithLinkedNotes } from "../notes/planner.js";

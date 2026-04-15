@@ -1,5 +1,4 @@
 import path from "node:path";
-import type { DirtyState } from "../../vcs/provider.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -19,6 +18,7 @@ import {
 } from "../../shared/format.js";
 import { pathExists } from "../../shared/fs.js";
 import { writeJson } from "../../shared/output.js";
+import type { DirtyState } from "../../vcs/provider.js";
 
 export interface VerifyArgs {
   bundleDir: string;

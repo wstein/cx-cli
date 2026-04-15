@@ -222,7 +222,10 @@ describe("cx-config-v1.schema.json", async () => {
 
 describe("cx-config-overlay-v1.schema.json", async () => {
   const schemaPath = path.resolve(
-    path.join(import.meta.dir, "../../schemas/cx-config-overlay-v1.schema.json"),
+    path.join(
+      import.meta.dir,
+      "../../schemas/cx-config-overlay-v1.schema.json",
+    ),
   );
   const schemaContent = await fs.readFile(schemaPath, "utf8");
   const schema: JsonSchema = JSON.parse(schemaContent);
@@ -255,13 +258,17 @@ describe("cx-config-overlay-v1.schema.json", async () => {
 describe("published manifest schemas", async () => {
   const v5Schema = JSON.parse(
     await fs.readFile(
-      path.resolve(path.join(import.meta.dir, "../../schemas/manifest-v5.schema.json")),
+      path.resolve(
+        path.join(import.meta.dir, "../../schemas/manifest-v5.schema.json"),
+      ),
       "utf8",
     ),
   ) as JsonSchema;
   const v6Schema = JSON.parse(
     await fs.readFile(
-      path.resolve(path.join(import.meta.dir, "../../schemas/manifest-v6.schema.json")),
+      path.resolve(
+        path.join(import.meta.dir, "../../schemas/manifest-v6.schema.json"),
+      ),
       "utf8",
     ),
   ) as JsonSchema;

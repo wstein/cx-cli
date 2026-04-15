@@ -21,18 +21,32 @@ export const SUPPORTED_ENVIRONMENTS: readonly EnvironmentKind[] = [
 ] as const;
 
 const TEMPLATE_METADATA: ReadonlyArray<TemplateMetadata> = [
-  { name: "base", description: "Generic fallback template for unknown environments." },
+  {
+    name: "base",
+    description: "Generic fallback template for unknown environments.",
+  },
   { name: "rust", description: "Rust workspaces using Cargo." },
   { name: "go", description: "Go workspaces using go.mod." },
-  { name: "typescript", description: "TypeScript/Node.js workspaces using package.json." },
-  { name: "python", description: "Python workspaces using pyproject.toml or requirements.txt." },
+  {
+    name: "typescript",
+    description: "TypeScript/Node.js workspaces using package.json.",
+  },
+  {
+    name: "python",
+    description: "Python workspaces using pyproject.toml or requirements.txt.",
+  },
   { name: "java", description: "Java workspaces using Maven or Gradle." },
   { name: "elixir", description: "Elixir workspaces using mix.exs." },
   { name: "julia", description: "Julia workspaces using Project.toml." },
-  { name: "crystal", description: "Crystal workspaces using shard.yml or shard.lock." },
+  {
+    name: "crystal",
+    description: "Crystal workspaces using shard.yml or shard.lock.",
+  },
 ];
 
-export function isEnvironmentSupported(value: string): value is EnvironmentKind {
+export function isEnvironmentSupported(
+  value: string,
+): value is EnvironmentKind {
   return SUPPORTED_ENVIRONMENTS.includes(value as EnvironmentKind);
 }
 

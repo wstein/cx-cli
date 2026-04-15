@@ -410,7 +410,9 @@ describe("doctor command", () => {
         process.stdout.write = write;
       }
 
-      expect(output).toContain("Recommended path: cx inspect -> cx bundle -> cx mcp");
+      expect(output).toContain(
+        "Recommended path: cx inspect -> cx bundle -> cx mcp",
+      );
       expect(output).toContain("Primary mode: cx inspect");
       expect(output).toContain("live note work");
     });

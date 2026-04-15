@@ -33,10 +33,9 @@ async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["commit", "-q", "-m", "init"], { cwd: root });
 }
 
-async function createWorkspace(options: {
-  overlap?: boolean;
-  includeSecret?: boolean;
-} = {}): Promise<{
+async function createWorkspace(
+  options: { overlap?: boolean; includeSecret?: boolean } = {},
+): Promise<{
   root: string;
   configPath: string;
   mcpPath: string;
@@ -87,7 +86,7 @@ unmatched = "ignore"
 [sections.src]
 include = ["src/**"]
 exclude = []
-${options.overlap === true ? "\n[sections.mixed]\ninclude = [\"src/**\"]\n" : ""}
+${options.overlap === true ? '\n[sections.mixed]\ninclude = ["src/**"]\n' : ""}
 `,
     "utf8",
   );
@@ -116,9 +115,11 @@ describe("cx MCP server", () => {
       config,
     });
     const toolNames = Object.keys(getRegisteredTools(server)).sort();
-    const instructions = (server as {
-      server: { _instructions: string };
-    }).server._instructions;
+    const instructions = (
+      server as {
+        server: { _instructions: string };
+      }
+    ).server._instructions;
 
     expect(toolNames).toEqual([
       "bundle",
@@ -375,7 +376,9 @@ describe("cx MCP server", () => {
 
     const createdNote = path.join(project.root, createPayload.filePath);
     const noteContent = await fs.readFile(createdNote, "utf8");
-    expect(noteContent).toContain("This note records an important observation.");
+    expect(noteContent).toContain(
+      "This note records an important observation.",
+    );
 
     const listResult = await tools.notes_list.handler({}, {} as never);
     const listPayload = JSON.parse(listResult.content[0].text) as {
@@ -384,9 +387,9 @@ describe("cx MCP server", () => {
     };
 
     expect(listPayload.count).toBeGreaterThan(0);
-    expect(listPayload.notes.some((note) => note.title === "Agent Insight")).toBe(
-      true,
-    );
+    expect(
+      listPayload.notes.some((note) => note.title === "Agent Insight"),
+    ).toBe(true);
     expect(
       listPayload.notes.some((note) =>
         note.summary.includes("important observation"),
@@ -628,10 +631,7 @@ describe("cx MCP server", () => {
     expect(inspectPayload.bundleComparison.available).toBe(false);
     expect(inspectPayload.tokenBreakdown).toBeDefined();
 
-    const bundleResult = await tools.bundle.handler(
-      {},
-      {} as never,
-    );
+    const bundleResult = await tools.bundle.handler({}, {} as never);
     const bundlePayload = JSON.parse(bundleResult.content[0].text) as {
       command: string;
       bundleDir: string;

@@ -19,9 +19,9 @@ import type {
   SectionSpanMaps,
   SectionTokenMaps,
 } from "../../manifest/types.js";
+import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
-import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
   getRepomixCapabilities,
@@ -191,7 +191,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     ...getCLIOverrides(),
     ...(args.layout !== undefined && { assetsLayout: args.layout }),
   });
-  const plan = await enrichPlanWithLinkedNotes(await buildBundlePlan(config), config);
+  const plan = await enrichPlanWithLinkedNotes(
+    await buildBundlePlan(config),
+    config,
+  );
 
   // Validate notes in the source directory
   const notesResult = await validateNotes("notes", plan.sourceRoot);
@@ -323,25 +326,29 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       }),
     );
 
-    const sectionOutputs = renderedSections.map((section): {
-      name: string;
-      style: CxStyle;
-      outputFile: string;
-      outputSha256: string;
-      fileCount: number;
-      sizeBytes: number;
-      tokenCount: number;
-      outputTokenCount: number;
-    } => ({
-      name: section.name,
-      style: section.style as CxStyle,
-      outputFile: section.outputFile,
-      outputSha256: section.outputSha256,
-      fileCount: section.fileCount,
-      sizeBytes: section.sizeBytes,
-      tokenCount: section.tokenCount,
-      outputTokenCount: section.outputTokenCount,
-    }));
+    const sectionOutputs = renderedSections.map(
+      (
+        section,
+      ): {
+        name: string;
+        style: CxStyle;
+        outputFile: string;
+        outputSha256: string;
+        fileCount: number;
+        sizeBytes: number;
+        tokenCount: number;
+        outputTokenCount: number;
+      } => ({
+        name: section.name,
+        style: section.style as CxStyle,
+        outputFile: section.outputFile,
+        outputSha256: section.outputSha256,
+        fileCount: section.fileCount,
+        sizeBytes: section.sizeBytes,
+        tokenCount: section.tokenCount,
+        outputTokenCount: section.outputTokenCount,
+      }),
+    );
     const sectionSpanMaps: SectionSpanMaps = new Map();
     const sectionTokenMaps: SectionTokenMaps = new Map();
     const sectionHashMaps: SectionHashMaps = new Map();

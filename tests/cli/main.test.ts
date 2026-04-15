@@ -34,7 +34,9 @@ describe("main", () => {
     await expect(main(["-h"])).resolves.toBe(0);
     process.stdout.write = write;
 
-    expect(output).toContain("Create an immutable bundle snapshot from a project.");
+    expect(output).toContain(
+      "Create an immutable bundle snapshot from a project.",
+    );
     expect(output).toContain("Examples:");
   });
 
@@ -295,7 +297,14 @@ describe("main", () => {
       expect(updatedSource).toContain("revised");
 
       await expect(
-        main(["notes", "rename", "--id", createdPayload.id, "--title", "CLI Target"]),
+        main([
+          "notes",
+          "rename",
+          "--id",
+          createdPayload.id,
+          "--title",
+          "CLI Target",
+        ]),
       ).resolves.toBe(0);
 
       const renamedPath = path.join(root, "notes", "CLI Target.md");
@@ -303,7 +312,9 @@ describe("main", () => {
       expect(renamedSource).toContain(`id: ${createdPayload.id}`);
       await expect(fs.stat(createdPath)).rejects.toThrow();
 
-      await expect(main(["notes", "delete", "--id", createdPayload.id])).resolves.toBe(0);
+      await expect(
+        main(["notes", "delete", "--id", createdPayload.id]),
+      ).resolves.toBe(0);
       await expect(fs.stat(renamedPath)).rejects.toThrow();
     } finally {
       process.chdir(cwd);

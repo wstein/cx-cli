@@ -1,4 +1,12 @@
 import {
+  createNewNote,
+  deleteNote,
+  listNotes,
+  readNote,
+  renameNote,
+  updateNote,
+} from "../../../notes/crud.js";
+import {
   buildNoteGraph,
   getBacklinks,
   getBrokenLinks,
@@ -8,14 +16,6 @@ import {
 import { CxError } from "../../../shared/errors.js";
 import { printInfo, printSuccess } from "../../../shared/format.js";
 import { writeJson } from "../../../shared/output.js";
-import {
-  createNewNote,
-  deleteNote,
-  readNote,
-  listNotes,
-  renameNote,
-  updateNote,
-} from "../../../notes/crud.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
@@ -92,7 +92,11 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     if (!args.id) {
       throw new CxError("--id is required for 'cx notes update'", 2);
     }
-    if (args.title === undefined && args.body === undefined && args.tags === undefined) {
+    if (
+      args.title === undefined &&
+      args.body === undefined &&
+      args.tags === undefined
+    ) {
       throw new CxError(
         "At least one of --title, --body, or --tags is required for 'cx notes update'",
         2,

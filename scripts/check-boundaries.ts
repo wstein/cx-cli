@@ -32,12 +32,14 @@ const RULES: BoundaryRule[] = [
   {
     fromPrefix: "mcp/",
     forbiddenPrefix: "cli/commands/",
-    description: "mcp/ must not import from cli/commands/ (MCP is a transport layer, not a presentation consumer)",
+    description:
+      "mcp/ must not import from cli/commands/ (MCP is a transport layer, not a presentation consumer)",
   },
   {
     fromPrefix: "planning/",
     forbiddenPrefix: "notes/",
-    description: "planning/ must not import from notes/ (note enrichment is an orchestration concern, not a planner concern)",
+    description:
+      "planning/ must not import from notes/ (note enrichment is an orchestration concern, not a planner concern)",
   },
 ];
 
@@ -45,7 +47,8 @@ const RULES: BoundaryRule[] = [
 function extractImportSpecifiers(source: string): string[] {
   const specifiers: string[] = [];
   // Match: import ... from "..."  /  export ... from "..."
-  const importRe = /(?:^|\n)\s*(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]/g;
+  const importRe =
+    /(?:^|\n)\s*(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]/g;
   let m: RegExpExecArray | null;
   while ((m = importRe.exec(source)) !== null) {
     specifiers.push(m[1]);
@@ -77,7 +80,11 @@ async function collectTsFiles(dir: string): Promise<string[]> {
   const results: string[] = [];
   const entries = await readdir(dir, { withFileTypes: true, recursive: true });
   for (const entry of entries) {
-    if (entry.isFile() && /\.ts$/.test(entry.name) && !entry.name.endsWith(".d.ts")) {
+    if (
+      entry.isFile() &&
+      /\.ts$/.test(entry.name) &&
+      !entry.name.endsWith(".d.ts")
+    ) {
       results.push(path.join(entry.parentPath, entry.name));
     }
   }

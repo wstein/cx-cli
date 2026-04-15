@@ -1,11 +1,5 @@
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
-import {
-  renderInitTemplate,
-  renderInitTemplateFile,
-  getSupportedTemplates,
-  type TemplateVariables,
-} from "../../templates/index.js";
 import { CxError } from "../../shared/errors.js";
 import { writeJson } from "../../shared/output.js";
 import {
@@ -16,6 +10,12 @@ import {
   wizardInput,
   wizardSelect,
 } from "../../shared/wizard.js";
+import {
+  getSupportedTemplates,
+  renderInitTemplate,
+  renderInitTemplateFile,
+  type TemplateVariables,
+} from "../../templates/index.js";
 
 export interface InitArgs {
   force: boolean;
@@ -100,8 +100,9 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     const templates = getSupportedTemplates();
     process.stdout.write(
       templates
-        .map((template: { name: string; description: string }) =>
-          `${template.name}: ${template.description}`,
+        .map(
+          (template: { name: string; description: string }) =>
+            `${template.name}: ${template.description}`,
         )
         .join("\n") + "\n",
     );

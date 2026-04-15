@@ -232,7 +232,7 @@ describe("buildBundlePlan", () => {
         ?.files.map((file) => file.relativePath),
     ).toEqual([
       ".github/workflows/ci.yml",
-          "bin/cx",
+      "bin/cx",
       "biome.json",
       "cx.toml",
       "package.json",

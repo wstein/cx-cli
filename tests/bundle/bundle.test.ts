@@ -325,7 +325,9 @@ It should become the manifest summary.
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
-    const docsSection = manifest.sections.find((section) => section.name === "docs");
+    const docsSection = manifest.sections.find(
+      (section) => section.name === "docs",
+    );
     expect(docsSection?.files.map((file) => file.path)).toContain(
       "notes/linked-note.md",
     );

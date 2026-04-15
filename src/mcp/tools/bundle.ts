@@ -62,8 +62,7 @@ export function registerBundleTools(
         unmatchedCount: report.summary.unmatchedCount,
         tokenBreakdown: report.tokenBreakdown ?? null,
         warnings: report.warnings,
-        note:
-          "Use cx bundle locally to write the artifact; this MCP preview stays on the live workspace.",
+        note: "Use cx bundle locally to write the artifact; this MCP preview stays on the live workspace.",
       });
     },
   );

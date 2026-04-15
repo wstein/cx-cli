@@ -12,7 +12,11 @@ import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import { ensureDir, pathExists, relativePosix } from "../shared/fs.js";
 import { detectEnvironment, isEnvironmentSupported } from "./detect.js";
-import type { EnvironmentKind, GeneratedFile, TemplateVariables } from "./types.js";
+import type {
+  EnvironmentKind,
+  GeneratedFile,
+  TemplateVariables,
+} from "./types.js";
 
 const TEMPLATES_DIR = path.join(
   fileURLToPath(new URL("./", import.meta.url)),
@@ -73,7 +77,10 @@ export async function renderInitTemplate(
   variables: TemplateVariables,
   requestedEnvironment?: string,
 ): Promise<string> {
-  const environment = await resolveEnvironment(projectRoot, requestedEnvironment);
+  const environment = await resolveEnvironment(
+    projectRoot,
+    requestedEnvironment,
+  );
   return compileTemplate(environment, templateName, variables);
 }
 

@@ -8,6 +8,7 @@ import { sha256File } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
 import { classifyDirtyState, getVCSState } from "../vcs/provider.js";
 import { buildMasterList } from "./masterList.js";
+import type { OverlapConflict } from "./overlaps.js";
 import {
   analyzeSectionOverlaps,
   compileMatchers,
@@ -17,7 +18,6 @@ import {
   getSectionOrder,
   matchesAny,
 } from "./overlaps.js";
-import type { OverlapConflict } from "./overlaps.js";
 import type {
   BundlePlan,
   PlannedAsset,

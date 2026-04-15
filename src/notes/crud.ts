@@ -1,10 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
-import { parseMarkdownFrontmatter } from "./parser.js";
-import { validateNotes } from "./validate.js";
 import { CxError } from "../shared/errors.js";
 import { ensureDir, pathExists } from "../shared/fs.js";
+import { parseMarkdownFrontmatter } from "./parser.js";
+import { validateNotes } from "./validate.js";
 
 /**
  * Generate a note ID in YYYYMMDDHHMMSS format from the current time.
@@ -59,7 +58,9 @@ function renderUpdatedNote(params: {
       ? `\ntitle: ${JSON.stringify(params.title.trim())}`
       : "";
   const tagsList =
-    params.tags.length > 0 ? params.tags.map((tag) => `'${tag}'`).join(", ") : "";
+    params.tags.length > 0
+      ? params.tags.map((tag) => `'${tag}'`).join(", ")
+      : "";
   const body = params.body.trimEnd();
   const bodySection = body.length > 0 ? `${body}\n\n` : "";
   const linksSection = params.linksSection.trimEnd();
@@ -82,8 +83,10 @@ function splitBodyAndLinks(body: string): {
   const linksIndex = body.search(/^\s*##\s+Links\s*$/m);
 
   return {
-    bodySection: linksIndex >= 0 ? body.slice(0, linksIndex).trimEnd() : body.trimEnd(),
-    linksSection: linksIndex >= 0 ? body.slice(linksIndex).trimEnd() : "## Links\n\n",
+    bodySection:
+      linksIndex >= 0 ? body.slice(0, linksIndex).trimEnd() : body.trimEnd(),
+    linksSection:
+      linksIndex >= 0 ? body.slice(linksIndex).trimEnd() : "## Links\n\n",
   };
 }
 
@@ -95,7 +98,10 @@ function createTextMatcher(params: {
   if (params.regex === true) {
     let matcher: RegExp;
     try {
-      matcher = new RegExp(params.query, params.caseSensitive === true ? "" : "i");
+      matcher = new RegExp(
+        params.query,
+        params.caseSensitive === true ? "" : "i",
+      );
     } catch (error) {
       throw new CxError(
         `Invalid regular expression for note search: ${error instanceof Error ? error.message : String(error)}`,
@@ -132,7 +138,10 @@ function buildBodySnippet(
   return body.trim().slice(0, 160);
 }
 
-function matchesTags(noteTags: string[], queryTags: string[] | undefined): boolean {
+function matchesTags(
+  noteTags: string[],
+  queryTags: string[] | undefined,
+): boolean {
   if (!queryTags || queryTags.length === 0) {
     return true;
   }
@@ -240,12 +249,14 @@ export async function updateNote(
   const parsed = parseMarkdownFrontmatter(content);
   const aliases = Array.isArray(parsed.frontmatter.aliases)
     ? parsed.frontmatter.aliases.filter(
-        (alias): alias is string => typeof alias === "string" && alias.trim().length > 0,
+        (alias): alias is string =>
+          typeof alias === "string" && alias.trim().length > 0,
       )
     : [];
   const existingTags = Array.isArray(parsed.frontmatter.tags)
     ? parsed.frontmatter.tags.filter(
-        (tag): tag is string => typeof tag === "string" && tag.trim().length > 0,
+        (tag): tag is string =>
+          typeof tag === "string" && tag.trim().length > 0,
       )
     : [];
   const body = options?.body ?? parsed.body;
@@ -254,7 +265,11 @@ export async function updateNote(
     id: note.id,
     aliases,
     tags: options?.tags ?? existingTags,
-    title: options?.title ?? (typeof parsed.frontmatter.title === "string" ? parsed.frontmatter.title : undefined),
+    title:
+      options?.title ??
+      (typeof parsed.frontmatter.title === "string"
+        ? parsed.frontmatter.title
+        : undefined),
     body: bodySection,
     linksSection,
   });
@@ -289,12 +304,14 @@ export async function renameNote(
   const parsed = parseMarkdownFrontmatter(content);
   const aliases = Array.isArray(parsed.frontmatter.aliases)
     ? parsed.frontmatter.aliases.filter(
-        (alias): alias is string => typeof alias === "string" && alias.trim().length > 0,
+        (alias): alias is string =>
+          typeof alias === "string" && alias.trim().length > 0,
       )
     : [];
   const tags = Array.isArray(parsed.frontmatter.tags)
     ? parsed.frontmatter.tags.filter(
-        (tag): tag is string => typeof tag === "string" && tag.trim().length > 0,
+        (tag): tag is string =>
+          typeof tag === "string" && tag.trim().length > 0,
       )
     : [];
   const { bodySection, linksSection } = splitBodyAndLinks(parsed.body);
@@ -407,7 +424,9 @@ export async function searchNotes(
     caseSensitive: options?.caseSensitive,
   });
   const limit =
-    options?.limit !== undefined ? Math.max(1, Math.min(options.limit, 100)) : 20;
+    options?.limit !== undefined
+      ? Math.max(1, Math.min(options.limit, 100))
+      : 20;
   const results: SearchNoteResult[] = [];
 
   const sortedNotes = [...result.notes].sort((left, right) =>

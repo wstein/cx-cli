@@ -9,9 +9,7 @@ export function recommendWorkflow(task: string): WorkflowRecommendation {
   const normalized = task.toLowerCase();
   const signals: string[] = [];
 
-  const recordSignals = (
-    candidates: Array<[string, boolean]>,
-  ): boolean => {
+  const recordSignals = (candidates: Array<[string, boolean]>): boolean => {
     let matched = false;
     for (const [label, hit] of candidates) {
       if (hit) {
@@ -23,15 +21,30 @@ export function recommendWorkflow(task: string): WorkflowRecommendation {
   };
 
   const bundleMatch = recordSignals([
-    ["bundle", /\b(bundle|snapshot|verify|checksum|manifest|handoff|ci)\b/.test(normalized)],
+    [
+      "bundle",
+      /\b(bundle|snapshot|verify|checksum|manifest|handoff|ci)\b/.test(
+        normalized,
+      ),
+    ],
     ["immutable review", /\b(review|approve|release|audit)\b/.test(normalized)],
   ]);
   const inspectMatch = recordSignals([
-    ["inspect", /\b(inspect|preview|plan|token budget|token breakdown)\b/.test(normalized)],
+    [
+      "inspect",
+      /\b(inspect|preview|plan|token budget|token breakdown)\b/.test(
+        normalized,
+      ),
+    ],
     ["compare", /\b(compare|diff|drift)\b/.test(normalized)],
   ]);
   const mcpMatch = recordSignals([
-    ["mcp", /\b(mcp|explore|search|read|update|note|notes|agent|investigate)\b/.test(normalized)],
+    [
+      "mcp",
+      /\b(mcp|explore|search|read|update|note|notes|agent|investigate)\b/.test(
+        normalized,
+      ),
+    ],
   ]);
 
   if ((inspectMatch || bundleMatch) && mcpMatch) {

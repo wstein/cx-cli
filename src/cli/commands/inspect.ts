@@ -1,7 +1,11 @@
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout } from "../../config/types.js";
-import { collectInspectReport, type InspectExtractability, type InspectReport } from "../../inspect/report.js";
+import {
+  collectInspectReport,
+  type InspectExtractability,
+  type InspectReport,
+} from "../../inspect/report.js";
 import { formatNumber } from "../../shared/format.js";
 import { writeJson } from "../../shared/output.js";
 
@@ -19,7 +23,9 @@ function formatChecksumPrefix(checksum: string | undefined): string {
   return checksum ? `${checksum.slice(0, 8)}…` : "unknown";
 }
 
-function renderTokenBreakdown(breakdown: NonNullable<InspectReport["tokenBreakdown"]>): string {
+function renderTokenBreakdown(
+  breakdown: NonNullable<InspectReport["tokenBreakdown"]>,
+): string {
   const nameWidth = Math.max(
     6,
     ...breakdown.sections.map((section) => section.name.length),
