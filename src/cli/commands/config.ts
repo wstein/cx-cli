@@ -168,6 +168,43 @@ export async function runConfigCommand(options: {
     },
   };
 
+  // Emit warnings when env vars or CLI flags override explicit cx.toml values.
+  // Matches the format used by resolveCategory() in config/load.ts.
+  const shadowChecks: Array<{
+    key: string;
+    setting: ResolvedSetting<string>;
+    fileValue: string | undefined;
+  }> = [
+    {
+      key: "dedup.mode",
+      setting: effective.dedup.mode as ResolvedSetting<string>,
+      fileValue: dedupModeFromFile,
+    },
+    {
+      key: "repomix.missing_extension",
+      setting: effective.repomix.missingExtension as ResolvedSetting<string>,
+      fileValue: repomixMissingExtensionFromFile,
+    },
+    {
+      key: "config.duplicate_entry",
+      setting: effective.config.duplicateEntry as ResolvedSetting<string>,
+      fileValue: configDuplicateEntryFromFile,
+    },
+  ];
+  for (const { key, setting, fileValue } of shadowChecks) {
+    if (
+      (setting.source === "env var" ||
+        setting.source === "CX_STRICT" ||
+        setting.source === "cli flag") &&
+      fileValue !== undefined &&
+      fileValue !== setting.value
+    ) {
+      process.stderr.write(
+        `Warning: ${key} in cx.toml ("${fileValue}") is overridden by ${setting.source} to "${setting.value}"\n`,
+      );
+    }
+  }
+
   if (options.json) {
     process.stdout.write(
       `${JSON.stringify(
