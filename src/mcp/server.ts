@@ -16,14 +16,21 @@ export interface CxMcpServerDeps {
 }
 
 function buildInstructions(configPath: string): string {
+  const toolReference = `
+Tool reference:
+Workspace: list (enumerate tracked files), grep (search file contents), read (fetch a file), replace_repomix_span (patch a span in a section output).
+Planning: inspect (live bundle plan without writing artifacts), bundle (preview snapshot metadata).
+Doctor: doctor_mcp (diagnose MCP profile), doctor_workflow (recommend inspect/bundle/mcp for a task), doctor_overlaps (find section file conflicts), doctor_secrets (scan for exposed secrets).
+Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lifecycle); notes_search, notes_list (discovery); notes_backlinks, notes_orphans, notes_code_links, notes_links (graph queries).`;
+
   return [
     "cx mcp provides deterministic, file-based agent access to live repository context.",
     "Use cx inspect and the MCP live tools for planning against the workspace filesystem; use cx bundle locally for immutable snapshots and verification, not as a reasoning source inside MCP.",
     "Use cx mcp for interactive exploration, note maintenance, and live workspace changes.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
-    "Available tools: list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, and notes_links.",
-  ].join(" ");
+    toolReference,
+  ].join("\n");
 }
 
 export function createCxMcpServer(options: CxMcpServerOptions): McpServer {
