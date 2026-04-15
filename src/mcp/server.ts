@@ -57,16 +57,8 @@ export function createCxMcpServer(
   // Tools can optionally use withTimeout(), rateLimiter.isAllowed(), and
   // logger.logStart/logEnd for request timing and audit trails.
   // See src/mcp/safeguards.ts for the API.
-  if (!safeguards?.logger) {
-    safeguards = {
-      logger: new McpRequestLogger(),
-      rateLimiter: new McpRateLimiter(),
-      ...safeguards,
-    };
-  }
-
-  // Store safeguards on server context for optional use by tools
-  (server as any).__cx_safeguards = safeguards;
+  // Note: Instantiating safeguards here makes them available, but actual
+  // per-tool integration happens in individual tool implementations.
 
   registerCxMcpTools(server, workspace);
 
