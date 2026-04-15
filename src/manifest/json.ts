@@ -57,6 +57,7 @@ interface ManifestDto {
     aliases: string[];
     tags: string[];
     summary: string;
+    lastModified: string;
   }>;
 }
 
@@ -179,6 +180,7 @@ function parseNoteDto(
   aliases: string[];
   tags: string[];
   summary: string;
+  lastModified: string;
 } {
   const obj = requireObject(raw, `note[${index}]`);
   return {
@@ -193,6 +195,7 @@ function parseNoteDto(
       requireString(value, `note[${index}].tags[${tagIndex}]`),
     ),
     summary: requireString(obj.summary, `note[${index}].summary`),
+    lastModified: requireString(obj.lastModified, `note[${index}].lastModified`),
   };
 }
 
