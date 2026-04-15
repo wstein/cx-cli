@@ -1,21 +1,37 @@
 import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { spawnSync } from "child_process";
+import { input } from "@inquirer/prompts";
 
-const version = process.env.VERSION ?? process.argv[2];
+const semver = /^\d+\.\d+\.\d+(?:[-+].+)?$/;
+const pkgPath = resolve(process.cwd(), "package.json");
+const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+
+const envVersion = process.env.VERSION ?? process.argv[2];
+let version = envVersion;
+
+const currentVersion = pkg.version as string;
+const suggestedVersion = semver.test(currentVersion)
+  ? currentVersion.replace(/(\d+)$/, (match) => String(Number(match) + 1))
+  : currentVersion;
+
 if (!version) {
-  console.error("Usage: VERSION=x.y.z bun run scripts/release.ts");
+  version = await input({
+    message: "Release version",
+    default: suggestedVersion,
+  });
+}
+
+if (!version) {
+  console.error("No version provided.");
   process.exit(1);
 }
 
-const semver = /^\d+\.\d+\.\d+(?:[-+].+)?$/;
 if (!semver.test(version)) {
   console.error(`Invalid version: ${version}`);
   process.exit(1);
 }
 
-const pkgPath = resolve(process.cwd(), "package.json");
-const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 pkg.version = version;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
 
