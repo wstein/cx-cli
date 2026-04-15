@@ -16,6 +16,6 @@ reproducible order regardless of which rendering thread completes first.
 
 ## Links
 
-- [[Architecture]] - Determinism and reproducibility take precedence over raw speed.
+- [[Deterministic Hashing Strategy]] - Deterministic output is paired with stable artifact hashes and ordering.
 - [[VCS Master Base]] - The settled plan dictates the final deterministic order,
   untouched by rendering concurrency.

@@ -16,7 +16,6 @@ stored markdown text so extraction can still rely on line spans and hashes.
 
 ## Links
 
-- [[Extraction Safety]] - Mutating content during parsing breaks cryptographic
-  invariants.
+- [[Bundle Extraction Safety Invariants]] - Mutating content during parsing breaks cryptographic invariants.
 - [[AI-first Toolbox]] - AI workflows rely on parsed metadata, but operational
   recovery relies on the rendered bundle output.
