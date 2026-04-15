@@ -409,6 +409,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       schemaVersion: 1,
       cxVersion: CX_VERSION,
       bundledAt: new Date().toISOString(),
+      bundleMode: ciMode ? "ci" : "local",
       behavioralSettings: {
         "dedup.mode": {
           value: config.dedup.mode,

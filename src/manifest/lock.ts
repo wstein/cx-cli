@@ -44,6 +44,11 @@ export interface CxLockFile {
   schemaVersion: 1;
   cxVersion: string;
   bundledAt: string;
+  /**
+   * How the bundle was produced: "local" for --force (developer machine),
+   * "ci" for --ci (automated pipeline). Recorded to distinguish audit sources.
+   */
+  bundleMode?: "local" | "ci";
   behavioralSettings: {
     "dedup.mode": LockSetting<CxDedupMode>;
     "repomix.missing_extension": LockSetting<CxRepomixMissingExtensionMode>;
