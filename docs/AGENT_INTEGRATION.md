@@ -56,6 +56,8 @@ Tools for interacting with the `cx` planning and safety engine.
 - `doctor_overlaps`: Diagnose duplicate section ownership.
 - `doctor_secrets`: Pre-flight the workspace against the secret scanner.
 
+*For prompt engineering and strict machine-tooling policies (e.g., separating safe operations from destructive edits), refer to the [MCP Tool Intent Taxonomy](MCP_TOOL_INTENT_TAXONOMY.md).*
+
 Security boundary: `cx-mcp.toml` is the intended MCP-specific profile; `cx doctor mcp` shows the resolved profile and effective `files.include` / `files.exclude` that determine tool visibility.
 - Intentional boundary: MCP is for live workspace inspection and editing only. Artifact generation, verification, and extraction stay with the CLI and CI handoff path.
 

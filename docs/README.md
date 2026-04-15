@@ -11,6 +11,7 @@ Schema publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - system boundary and core decisions
 - [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
 - [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules
+- [MCP_TOOL_INTENT_TAXONOMY.md](./MCP_TOOL_INTENT_TAXONOMY.md) - machine-oriented prompt grouping for agent usage
 - [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) - release-time schema and Pages reminders
 - [config-reference.md](./config-reference.md) - configuration knobs and precedence
 - [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) - instructions and examples for integrating `cx mcp` with IDEs and AI agents

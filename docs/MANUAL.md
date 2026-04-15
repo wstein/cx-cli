@@ -23,6 +23,16 @@ The manual is split into two tracks to respect your immediate operational goal:
 
 ---
 
+## How They Connect: The Unified Architecture
+
+While Track A and Track B serve different immediate goals, they are powered by the exact same strict hashing engine and identity model. This is the architectural beauty of `cx`:
+
+- **Shared Repository Boundaries:** The `cx mcp` server reads the exact same `cx.toml` (or `cx-mcp.toml` overlay) that `cx bundle` uses. If a file is excluded from the bundle, it is invisible to the agent.
+- **Metadata Reusability:** The token counts, note summaries, and file invariants calculated during the live `cx mcp` session are the exact same metrics that will be permanently locked into the manifest when `cx bundle` runs.
+- **Workflow Continuity:** You can use Track B (Laboratory) to explore the workspace, update notes, and test changes, then seamlessly switch to Track A (Factory Floor) to lock those changes into an immutable, verifiable bundle. The agent's live intent becomes the pipeline's Friday-to-Monday contract.
+
+---
+
 ## Quick Operator Path
 
 If you want the shortest path to a useful result, follow **Track A** to secure your pipeline, then launch **Track B** to let your agent work.
