@@ -16,6 +16,7 @@
     "repomixVersion",
     "checksumAlgorithm",
     "settings",
+    "totalTokenCount",
     "vcsProvider",
     "dirtyState",
     "modifiedFiles",
@@ -78,6 +79,11 @@
     },
     "settings": {
       "$ref": "#/$defs/ManifestSettings"
+    },
+    "totalTokenCount": {
+      "description": "Total token count for all text content represented in this bundle.",
+      "type": "integer",
+      "minimum": 0
     },
     "vcsProvider": {
       "description": "Version-control system detected at bundle time. 'none' indicates the filesystem fallback was used (no .git or Fossil repository found).",

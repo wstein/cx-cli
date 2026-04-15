@@ -217,6 +217,10 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       files: [...textRows, ...assetRows].sort((a, b) =>
         a.path.localeCompare(b.path, "en"),
       ),
+      totalTokenCount: fields.sections.reduce(
+        (sum, section) => sum + section.tokenCount,
+        0,
+      ),
       vcsProvider: fields.vcsProvider,
       dirtyState: fields.dirtyState,
       modifiedFiles: fields.modifiedFiles,

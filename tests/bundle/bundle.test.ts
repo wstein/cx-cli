@@ -531,6 +531,7 @@ It should become the manifest summary.
         normalizationPolicy: "repomix-default-v1",
         includeLinkedNotes: false,
       },
+      totalTokenCount: 20,
       vcsProvider: "none",
       dirtyState: "clean",
       modifiedFiles: [],

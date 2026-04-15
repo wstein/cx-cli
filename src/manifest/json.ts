@@ -44,6 +44,7 @@ interface ManifestDto {
   repomixVersion: string;
   checksumAlgorithm: string;
   settings: ManifestSettings;
+  totalTokenCount: number;
   vcsProvider: string;
   dirtyState: string;
   modifiedFiles: string[];
@@ -265,6 +266,7 @@ function parseManifestDto(raw: unknown): {
               "settings.normalizationPolicy",
             ) as typeof NORMALIZATION_POLICY),
     },
+    totalTokenCount: requireNumber(obj.totalTokenCount, "totalTokenCount"),
     vcsProvider: requireString(obj.vcsProvider, "vcsProvider") as VCSKind,
     dirtyState: requireString(obj.dirtyState, "dirtyState") as Exclude<
       DirtyState,
@@ -303,6 +305,7 @@ export function renderManifestJson(
     repomixVersion: manifest.repomixVersion,
     checksumAlgorithm: manifest.checksumAlgorithm,
     settings: manifest.settings,
+    totalTokenCount: manifest.totalTokenCount,
     vcsProvider: manifest.vcsProvider,
     dirtyState: manifest.dirtyState,
     modifiedFiles: manifest.modifiedFiles,
@@ -391,6 +394,7 @@ export function parseManifestJson(source: string): CxManifest {
     repomixVersion: dto.repomixVersion,
     checksumAlgorithm: "sha256",
     settings: dto.settings,
+    totalTokenCount: dto.totalTokenCount,
     vcsProvider: dto.vcsProvider as CxManifest["vcsProvider"],
     dirtyState: dto.dirtyState as CxManifest["dirtyState"],
     modifiedFiles: dto.modifiedFiles,
