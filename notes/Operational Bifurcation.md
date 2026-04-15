@@ -29,3 +29,5 @@ This bifurcation helps operators choose the correct path for their immediate goa
 * [[Config Inheritance and Overlays]]
 * [[MCP Tool Intent Taxonomy]]
 * [[MCP Transport Protocol]]
+* [[CX Triad]]
+* [[Token Accounting]]

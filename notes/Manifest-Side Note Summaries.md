@@ -43,3 +43,4 @@ Track A. See [[Operational Bifurcation]].
   the native CX MCP server and its file-based tools.
 - [[VCS Master Base]] - Summaries are derived securely from the VCS-tracked
   master list.
+- [[Token Accounting]] - Token counts are recorded in the same manifest metadata.

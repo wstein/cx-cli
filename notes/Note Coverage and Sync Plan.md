@@ -37,3 +37,10 @@ Create atomic notes for the following topics to ensure `notes/` is the primary s
 ## Goal
 
 Ensure `notes/` is not just a high-level overview, but a complete and machine-queryable record of **every** aspect of the `cx-cli` implementation.
+
+## Links
+* [[Operational Bifurcation]]
+* [[MCP Tool Intent Taxonomy]]
+* [[Manifest-Side Note Summaries]]
+* [[Deterministic Hashing Strategy]]
+* [[Bundle Extraction Safety Invariants]]

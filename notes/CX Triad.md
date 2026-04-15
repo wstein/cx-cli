@@ -10,5 +10,6 @@ The CX architecture is built upon a triad specifically designed for operational 
 3. Durable Knowledge: A machine-queryable knowledge graph maintained via `cx notes`, storing metadata directly in the manifest to avoid expensive file scans.
 
 ## Links
-* [[Operational vs Exploratory]]
-* [[Manifest-Centric Metadata]]
+* [[Operational Bifurcation]]
+* [[Agentic Ecosystem MCP]]
+* [[Manifest-Side Note Summaries]]
