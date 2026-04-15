@@ -7,6 +7,7 @@ const MIME_TYPES = new Map<string, string>([
   [".css", "text/css"],
   [".go", "text/x-go"],
   [".gif", "image/gif"],
+  [".gz", "application/gzip"],
   [".h", "text/x-c"],
   [".html", "text/html"],
   [".java", "text/x-java-source"],
@@ -17,28 +18,40 @@ const MIME_TYPES = new Map<string, string>([
   [".kt", "text/x-kotlin"],
   [".mjs", "text/javascript"],
   [".md", "text/markdown"],
+  [".mp3", "audio/mpeg"],
+  [".mp4", "video/mp4"],
   [".pdf", "application/pdf"],
   [".png", "image/png"],
   [".py", "text/x-python"],
   [".rs", "text/x-rust"],
   [".svg", "image/svg+xml"],
-  [".toml", "application/toml"],
+  [".toml", "text/toml"],
   [".ts", "text/typescript"],
-  [".tsx", "text/tsx"],
+  [".tsx", "text/typescript"],
   [".txt", "text/plain"],
+  [".wav", "audio/wav"],
   [".webp", "image/webp"],
   [".xml", "application/xml"],
-  [".yaml", "application/yaml"],
-  [".yml", "application/yaml"],
+  [".yaml", "text/yaml"],
+  [".yml", "text/yaml"],
 ]);
 
 export function detectMediaType(
   filePath: string,
-  kind: "text" | "asset",
+  kind: "text" | "asset" = "asset",
 ): string {
   const extension = path.extname(filePath).toLowerCase();
-  return (
-    MIME_TYPES.get(extension) ??
-    (kind === "asset" ? "application/octet-stream" : "text/plain")
-  );
+  
+  // If extension is in the map, use it
+  if (MIME_TYPES.has(extension)) {
+    return MIME_TYPES.get(extension)!;
+  }
+  
+  // If no extension or empty, return text/plain
+  if (extension === "") {
+    return "text/plain";
+  }
+  
+  // For unknown extensions, return based on kind
+  return kind === "asset" ? "application/octet-stream" : "text/plain";
 }
