@@ -1,3 +1,9 @@
+---
+id: 20260415164500
+aliases: ["note coverage plan", "sync audit"]
+tags: [notes, planning, architecture]
+---
+
 # Plan: Note Coverage and Sync Audit
 
 This plan outlines the steps to bring the `notes/` directory into full alignment with the project's complexity and current implementation.
