@@ -14,6 +14,8 @@ Key mechanisms:
 - **Graceful Exit**: The server listens for `SIGINT` and `SIGTERM` to ensure the transport is closed cleanly and any temporary resources are released.
 - **Tool Registration**: Tools are modularized and registered via `registerCxMcpTools`, keeping the transport logic separate from tool implementation.
 
+The registered tools can be grouped by intent: Read / Observe vs Write / Mutate. See [[MCP Tool Intent Taxonomy]] for the machine-oriented policy guidance.
+
 This stdio pattern allows any MCP-compatible client (Claude Desktop, VS Code extensions, custom agent scripts) to spawn `cx mcp` as a subprocess.
 
 ## Links

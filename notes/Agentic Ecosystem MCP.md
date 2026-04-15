@@ -16,6 +16,10 @@ The MCP path is `cx`-native. It uses the active `cx` workspace scope, the
 `cx-mcp.toml` overlay when available, and the native doctor checks to keep
 agent access deterministic.
 
+This architecture intentionally bifurcates operation into a Track A "Factory
+Floor" pipeline and a Track B "Laboratory" live exploration path, while keeping
+the same deterministic workspace boundary and manifest invariants.
+
 In practice, the efficient path is manifest first, file reads second. Agents
 should inspect manifest note summaries, locate the stable timestamp ids that
 match the task, and then open only those notes through MCP. That lowers token
@@ -23,6 +27,8 @@ cost and avoids repeating a full Markdown scan on every run.
 
 ## Links
 
+- [[Operational Bifurcation]]
+- [[MCP Tool Intent Taxonomy]]
 - [[AI-first Toolbox]] - This is the external tooling layer that keeps agent work queryable and efficient.
 - [[VCS Master Base]] - Queryable context still starts from a deterministic file base.
 - [[Dirty State Taxonomy]] - External agents need the same safety signals as humans.
