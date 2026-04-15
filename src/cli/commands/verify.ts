@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { DirtyState } from "../../vcs/provider.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -27,21 +28,6 @@ export interface VerifyArgs {
   againstDir?: string | undefined;
   /** Path to cx.toml for lock drift comparison. Defaults to "cx.toml" in cwd. */
   config?: string | undefined;
-}
-
-/**
- * Read the project name from the bundle directory so we can load the lock file
- * without requiring a full config load.
- */
-async function readProjectNameFromBundle(
-  bundleDir: string,
-): Promise<string | null> {
-  try {
-    const { manifest } = await loadManifestFromBundle(bundleDir);
-    return manifest.projectName;
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -94,19 +80,49 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
   const configPath = args.config ?? "cx.toml";
   const againstConfig = againstDir ? await loadCxConfig(configPath) : undefined;
 
+  // Initialize these outside the try block so they're accessible in error handler
+  let projectName: string | null = null;
+  let manifestDirtyState: DirtyState | null = null;
+  let bundleMode: string | null = null;
+
   try {
     await verifyBundle(bundleDir, againstDir, selection, againstConfig);
+
+    // Load manifest for projectName and dirtyState visibility
+    try {
+      const { manifest } = await loadManifestFromBundle(bundleDir);
+      projectName = manifest.projectName;
+      manifestDirtyState = manifest.dirtyState as DirtyState | null;
+    } catch {
+      // If manifest load fails, we still proceed with lock drift check
+    }
+
+    // Emit warnings for dirty state so operators see at a glance whether the
+    // bundle was built from uncommitted changes, and via what mechanism.
+    const lockWarnings: string[] = [];
+    if (manifestDirtyState === "ci_dirty") {
+      const msg =
+        "Bundle was created in a CI pipeline with uncommitted changes (ci_dirty). " +
+        "Artifact content may not reflect the committed source tree.";
+      lockWarnings.push(msg);
+      process.stderr.write(`Warning: ${msg}\n`);
+    } else if (manifestDirtyState === "forced_dirty") {
+      const msg =
+        "Bundle was created with --force while tracked files had uncommitted changes (forced_dirty).";
+      lockWarnings.push(msg);
+      process.stderr.write(`Warning: ${msg}\n`);
+    }
 
     // Lock drift check: compare behavioral settings used at bundle time with
     // the current effective settings. Warn on mismatch; --strict makes it a
     // hard error (enforced by the caller via --strict CLI flag).
-    const lockWarnings: string[] = [];
     const lockMismatches: LockSettingMismatch[] = [];
 
-    const projectName = await readProjectNameFromBundle(bundleDir);
     if (projectName !== null) {
       const lock = await readLock(bundleDir, projectName);
       if (lock !== null) {
+        bundleMode = lock.bundleMode ?? null;
+
         const current = await buildCurrentSnapshot(configPath);
         if (current !== null) {
           const mismatches = diffLockSettings(lock, current);
@@ -120,6 +136,11 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
           lockMismatches.push(...mismatches);
         }
       }
+    }
+
+    // Emit bundleMode as info for audit visibility
+    if (bundleMode !== null) {
+      process.stderr.write(`Info: bundleMode=${bundleMode}\n`);
     }
 
     if (!(args.json ?? false)) {
@@ -140,6 +161,8 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         files: args.files ?? [],
         repomix: await getRepomixCapabilities(),
         valid: true,
+        dirtyState: manifestDirtyState,
+        bundleMode: bundleMode,
         warnings: lockWarnings,
         lockDrift: lockMismatches.length > 0 ? lockMismatches : null,
       });
@@ -156,6 +179,8 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         files: string[];
         repomix: Awaited<ReturnType<typeof getRepomixCapabilities>>;
         valid: false;
+        dirtyState: DirtyState | null;
+        bundleMode: string | null;
         error: {
           type?: string;
           message: string;
@@ -168,6 +193,8 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         files: args.files ?? [],
         repomix: await getRepomixCapabilities(),
         valid: false,
+        dirtyState: manifestDirtyState,
+        bundleMode: bundleMode,
         error: {
           message: resolvedError.message,
         },
