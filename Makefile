@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test clean notes help
+.PHONY: all build test verify release clean notes help
 all: build
 
 build: ## Build the project.
@@ -17,6 +17,9 @@ test: ## Run tests.
 verify: ## Run verification checks.
 	$(BUN) run verify
 
+release: ## Release a new version (VERSION=x.y.z required).
+	$(BUN) run release
+
 clean: ## Remove generated output files.
 	$(BUN) run clean
 
@@ -25,4 +28,4 @@ notes: ## List available notes in the repository.
 	cx notes orphans
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build test clean notes\n"
+	@printf "Available targets:\n  build test verify release clean notes\n"
