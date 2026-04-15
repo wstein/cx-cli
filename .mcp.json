@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "cx-mcp": {
+            "command": "cx",
+            "args": [
+                "mcp"
+            ],
+            "env": {
+                "CX_STRICT": "true"
+            }
+        }
+    }
+}
