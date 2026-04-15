@@ -33,6 +33,10 @@ After manifest-side summaries:
 This is the mechanical win: the manifest converts note discovery from an
 unbounded Markdown scan into a structured metadata query.
 
+This manifest-driven discovery pattern is a key part of the Track B live
+agent workflow while preserving the same durable metadata contract used by
+Track A. See [[Operational Bifurcation]].
+
 ## Links
 
 - [[Agentic Ecosystem MCP]] - External tools consume these summaries through

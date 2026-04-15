@@ -15,6 +15,10 @@ The goal is operational efficiency, not abstract theory: agents should spend
 tokens on the specific code or note they need, not on rediscovering repository
 structure from scratch each time.
 
+This approach fits the bifurcated CX workflow: Track A for deterministic
+pipeline artifacts and Track B for agent-centric exploration. See
+[[Operational Bifurcation]].
+
 ## Links
 
 - [[VCS Master Base]] - The planner still starts from the VCS-derived file set.

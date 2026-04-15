@@ -18,6 +18,10 @@ Key mechanisms:
 
 This multi-stage filtering ensures that the "master list" is the only pool of files available for section sorting and tool access.
 
+The same boundary rules apply whether the workspace is being prepared for
+Track A bundle creation or for Track B live MCP exploration. See
+[[Operational Bifurcation]].
+
 ## Links
 
 - [[VCS Master Base]] - The source of the initial file pool.

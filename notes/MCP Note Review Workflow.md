@@ -12,6 +12,8 @@ Use `notes_update(...)`, `notes_rename(...)`, and `notes_delete(...)` in MCP onl
 
 This workflow keeps review work efficient, reduces token spend for agents, and preserves the durable note metadata that downstream automation depends on.
 
+Use the Read / Observe tool grouping described in [[MCP Tool Intent Taxonomy]] when performing note review before any edits.
+
 ## Links
 
 - [[Manifest-Side Note Summaries]] - The companion optimization for note discovery.
