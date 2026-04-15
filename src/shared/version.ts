@@ -1,1 +1,3 @@
-export const CX_VERSION = "0.1.0" as const;
+import packageJson from "../../package.json" assert { type: "json" };
+
+export const CX_VERSION = packageJson.version as string;
