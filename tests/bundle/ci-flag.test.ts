@@ -68,7 +68,7 @@ exclude = []
 
 describe("cx bundle --ci / --force dirty-state handling", () => {
   test("clean state: exits 0 without any flags", async () => {
-    const { root, configPath } = await createAndInitProject();
+    const { root: _root, configPath } = await createAndInitProject();
 
     // No modifications to tracked files — state is clean
     const exitCode = await runBundleCommand({

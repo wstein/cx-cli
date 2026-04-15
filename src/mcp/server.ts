@@ -3,8 +3,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 import type { CxConfig } from "../config/types.js";
 import { CX_VERSION } from "../shared/version.js";
+import type { McpRateLimiter, McpRequestLogger } from "./safeguards.js";
 import { registerCxMcpTools } from "./tools/index.js";
-import { McpRateLimiter, McpRequestLogger } from "./safeguards.js";
 import { createCxMcpWorkspace } from "./workspace.js";
 
 export interface CxMcpServerOptions {
@@ -36,7 +36,7 @@ Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lif
 
 export function createCxMcpServer(
   options: CxMcpServerOptions,
-  safeguards?: {
+  _safeguards?: {
     logger?: McpRequestLogger;
     rateLimiter?: McpRateLimiter;
   },

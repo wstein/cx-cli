@@ -25,7 +25,7 @@ export class McpRequestLogger {
   private metrics: ToolCallMetrics[] = [];
   private readonly maxHistorySize = 1000; // Keep last N tool invocations in memory
 
-  logStart(toolName: string): { startTime: number } {
+  logStart(_toolName: string): { startTime: number } {
     const startTime = Date.now();
     return { startTime };
   }

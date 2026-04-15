@@ -24,6 +24,9 @@ build: ## Build the project using the detected package manager.
 test: ## Run tests using the detected package manager.
 	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) test; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) test; 	elif [ -f yarn.lock ]; then 		$(YARN) test; 	else 		$(NPM) test; 	fi
 
+verify: ## Run verify using the detected package manager.
+	@if command -v $(BUN) >/dev/null 2>&1; then 		$(BUN) run verify; 	elif [ -f pnpm-lock.yaml ]; then 		$(PNPM) run verify; 	elif [ -f yarn.lock ]; then 		$(YARN) run verify; 	else 		$(NPM) run verify; 	fi
+
 clean: ## Remove generated output files.
 	if [ -f bun.lockb ]; then $(BUN) run clean; fi
 	rm -rf node_modules dist "$(CLEAN_DIR)"

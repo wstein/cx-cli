@@ -389,9 +389,7 @@ exclude = []
   });
 
   test("cx init generates local MCP integration files", async () => {
-    const tempDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-init-local-"),
-    );
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-local-"));
     const cwd = process.cwd();
 
     try {
@@ -403,7 +401,7 @@ exclude = []
         "utf8",
       );
       expect(rootMcpJson).toContain('"command": "cx"');
-      expect(rootMcpJson).toContain('"cwd": "${workspaceFolder}"');
+      expect(rootMcpJson).toContain('"cwd": "${workspace' + 'Folder}"');
 
       const editorconfig = await fs.readFile(
         path.join(tempDir, ".editorconfig"),
@@ -417,7 +415,7 @@ exclude = []
         "utf8",
       );
       expect(vscodeMcpJson).toContain('"command": "cx"');
-      expect(vscodeMcpJson).toContain('"cwd": "${workspaceFolder}"');
+      expect(vscodeMcpJson).toContain('"cwd": "${workspace' + 'Folder}"');
 
       const claudeSettings = await fs.readFile(
         path.join(tempDir, ".claude", "settings.json"),

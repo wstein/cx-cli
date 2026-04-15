@@ -18,9 +18,54 @@ interface RegisteredTool {
   }>;
 }
 
-function getRegisteredTools(server: unknown): Record<string, RegisteredTool> {
-  return (server as { _registeredTools: Record<string, RegisteredTool> })
+type CxMcpToolName =
+  | "bundle"
+  | "doctor_mcp"
+  | "doctor_overlaps"
+  | "doctor_secrets"
+  | "doctor_workflow"
+  | "grep"
+  | "inspect"
+  | "list"
+  | "notes_backlinks"
+  | "notes_code_links"
+  | "notes_delete"
+  | "notes_links"
+  | "notes_list"
+  | "notes_new"
+  | "notes_orphans"
+  | "notes_read"
+  | "notes_rename"
+  | "notes_search"
+  | "notes_update"
+  | "read"
+  | "replace_repomix_span";
+
+type CxMcpTools = Record<CxMcpToolName, RegisteredTool>;
+
+type ToolResult = Awaited<ReturnType<RegisteredTool["handler"]>>;
+
+function getRegisteredTools(server: unknown): CxMcpTools {
+  return (server as unknown as { _registeredTools: CxMcpTools })
     ._registeredTools;
+}
+
+function firstContentText(result: ToolResult): string {
+  if (result.content.length === 0) {
+    throw new Error("Expected at least one content block");
+  }
+  return result.content[0].text;
+}
+
+function getTool<T extends string>(
+  tools: Record<string, RegisteredTool>,
+  name: T,
+): RegisteredTool {
+  const tool = tools[name];
+  if (!tool) {
+    throw new Error(`Missing tool: ${name}`);
+  }
+  return tool;
 }
 
 async function initGitRepo(root: string): Promise<void> {
@@ -119,7 +164,7 @@ describe("cx MCP server", () => {
     });
     const toolNames = Object.keys(getRegisteredTools(server)).sort();
     const instructions = (
-      server as {
+      server as unknown as {
         server: { _instructions: string };
       }
     ).server._instructions;
@@ -160,8 +205,8 @@ describe("cx MCP server", () => {
     });
     const tools = getRegisteredTools(server);
 
-    const result = await tools.doctor_mcp.handler({}, {} as never);
-    const payload = JSON.parse(result.content[0].text) as {
+    const result = await getTool(tools, "doctor_mcp").handler({}, {} as never);
+    const payload = JSON.parse(firstContentText(result)) as {
       command: string;
       activeProfile: string;
       resolvedConfigPath: string;
@@ -183,11 +228,11 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const result = await getRegisteredTools(server).doctor_overlaps.handler(
-      {},
-      {} as never,
-    );
-    const payload = JSON.parse(result.content[0].text) as {
+    const result = await getTool(
+      getRegisteredTools(server),
+      "doctor_overlaps",
+    ).handler({}, {} as never);
+    const payload = JSON.parse(firstContentText(result)) as {
       command: string;
       conflictCount: number;
       conflicts: Array<{ path: string; sections: string[] }>;
@@ -206,11 +251,11 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const result = await getRegisteredTools(server).doctor_secrets.handler(
-      {},
-      {} as never,
-    );
-    const payload = JSON.parse(result.content[0].text) as {
+    const result = await getTool(
+      getRegisteredTools(server),
+      "doctor_secrets",
+    ).handler({}, {} as never);
+    const payload = JSON.parse(firstContentText(result)) as {
       command: string;
       securityCheckEnabled: boolean;
       scannedFileCount: number;
@@ -229,10 +274,10 @@ describe("cx MCP server", () => {
       configPath: project.mcpPath,
       config,
     });
-    const listTool = getRegisteredTools(server).list;
+    const listTool = getTool(getRegisteredTools(server), "list");
 
     const result = await listTool.handler({}, {} as never);
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       fileCount: number;
       files: Array<{ path: string }>;
     };
@@ -259,7 +304,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       matchCount: number;
       matches: Array<{
         path: string;
@@ -298,7 +343,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       command: string;
       path: string;
       lineStart: number;
@@ -337,7 +382,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       path: string;
       lineStart: number;
       lineEnd: number;
@@ -367,7 +412,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
       title: string;
@@ -384,7 +429,7 @@ describe("cx MCP server", () => {
     );
 
     const listResult = await tools.notes_list.handler({}, {} as never);
-    const listPayload = JSON.parse(listResult.content[0].text) as {
+    const listPayload = JSON.parse(firstContentText(listResult)) as {
       count: number;
       notes: Array<{ title: string; summary: string }>;
     };
@@ -417,7 +462,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
     };
@@ -426,7 +471,7 @@ describe("cx MCP server", () => {
       { id: createPayload.id },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       id: string;
       title: string;
       body: string;
@@ -466,7 +511,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       count: number;
       notes: Array<{ title: string; matchedFields: string[]; snippet: string }>;
     };
@@ -493,7 +538,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
     };
@@ -506,7 +551,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const updatePayload = JSON.parse(updateResult.content[0].text) as {
+    const updatePayload = JSON.parse(firstContentText(updateResult)) as {
       title: string;
       tags: string[];
     };
@@ -537,7 +582,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
     };
@@ -549,7 +594,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const renamePayload = JSON.parse(renameResult.content[0].text) as {
+    const renamePayload = JSON.parse(firstContentText(renameResult)) as {
       id: string;
       title: string;
       previousFilePath: string;
@@ -584,7 +629,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
     };
@@ -595,7 +640,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const deletePayload = JSON.parse(deleteResult.content[0].text) as {
+    const deletePayload = JSON.parse(firstContentText(deleteResult)) as {
       id: string;
       title: string;
       filePath: string;
@@ -621,7 +666,7 @@ describe("cx MCP server", () => {
       { tokenBreakdown: true },
       {} as never,
     );
-    const inspectPayload = JSON.parse(inspectResult.content[0].text) as {
+    const inspectPayload = JSON.parse(firstContentText(inspectResult)) as {
       command: string;
       summary: { projectName: string; bundleDir: string; sectionCount: number };
       bundleComparison: { available: boolean };
@@ -635,7 +680,7 @@ describe("cx MCP server", () => {
     expect(inspectPayload.tokenBreakdown).toBeDefined();
 
     const bundleResult = await tools.bundle.handler({}, {} as never);
-    const bundlePayload = JSON.parse(bundleResult.content[0].text) as {
+    const bundlePayload = JSON.parse(firstContentText(bundleResult)) as {
       command: string;
       bundleDir: string;
       note: string;
@@ -661,7 +706,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       mode: string;
       sequence: string[];
       reason: string;
@@ -688,7 +733,7 @@ describe("cx MCP server", () => {
       },
       {} as never,
     );
-    const createPayload = JSON.parse(createResult.content[0].text) as {
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
       id: string;
       filePath: string;
     };
@@ -713,7 +758,7 @@ This note points to [[Missing Note]].
       { id: createPayload.id },
       {} as never,
     );
-    const payload = JSON.parse(result.content[0].text) as {
+    const payload = JSON.parse(firstContentText(result)) as {
       brokenCount: number;
       brokenLinks: Array<{ reference: string }>;
     };

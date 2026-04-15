@@ -265,14 +265,18 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
     } else if (claudeSettingsResult.updated) {
       printInfo("Updated .claude/settings.json");
     } else {
-      printInfo("Skipped existing .claude/settings.json (use --force to overwrite)");
+      printInfo(
+        "Skipped existing .claude/settings.json (use --force to overwrite)",
+      );
     }
     if (codexSettingsResult.created) {
       printInfo("Created .codex/settings.json");
     } else if (codexSettingsResult.updated) {
       printInfo("Updated .codex/settings.json");
     } else {
-      printInfo("Skipped existing .codex/settings.json (use --force to overwrite)");
+      printInfo(
+        "Skipped existing .codex/settings.json (use --force to overwrite)",
+      );
     }
     printInfo(`Project name: ${resolved.name ?? "myproject"}`);
     printInfo(`Output style: ${resolved.style ?? "xml"}`);

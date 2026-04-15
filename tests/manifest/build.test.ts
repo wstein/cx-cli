@@ -2,11 +2,10 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { buildManifest } from "../../src/manifest/build.js";
-import { sha256NormalizedText } from "../../src/shared/hashing.js";
-
 import type { CxConfig } from "../../src/config/types.js";
+import { buildManifest } from "../../src/manifest/build.js";
 import type { BundlePlan } from "../../src/planning/types.js";
+import { sha256NormalizedText } from "../../src/shared/hashing.js";
 
 function createConfig(): CxConfig {
   return {
@@ -128,7 +127,7 @@ describe("manifest build", () => {
         modifiedFiles: [],
       });
 
-      expect(manifest.sections[0].files[0].sha256).toBe(
+      expect(manifest.sections[0]?.files[0]?.sha256).toBe(
         sha256NormalizedText(content),
       );
     } finally {

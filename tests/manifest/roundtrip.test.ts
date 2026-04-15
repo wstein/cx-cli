@@ -199,14 +199,13 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       outputStartLine: null,
       outputEndLine: null,
     }));
-    return {
+    const manifest: CxManifest = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
       bundleVersion: 1 as const,
       projectName: fields.projectName,
       sourceRoot: fields.sourceRoot,
       bundleDir: fields.bundleDir,
       checksumFile: fields.checksumFile,
-      bundleIndexFile: fields.bundleIndexFile,
       createdAt: fields.createdAt,
       cxVersion: fields.cxVersion,
       repomixVersion: fields.repomixVersion,
@@ -214,7 +213,6 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       settings: fields.settings,
       sections: fields.sections,
       assets: fields.assets,
-      notes: fields.notes.length > 0 ? fields.notes : undefined,
       files: [...textRows, ...assetRows].sort((a, b) =>
         a.path.localeCompare(b.path, "en"),
       ),
@@ -226,6 +224,15 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       dirtyState: fields.dirtyState,
       modifiedFiles: fields.modifiedFiles,
     };
+
+    if (fields.bundleIndexFile !== undefined) {
+      manifest.bundleIndexFile = fields.bundleIndexFile;
+    }
+    if (fields.notes.length > 0) {
+      manifest.notes = fields.notes;
+    }
+
+    return manifest;
   });
 
 // ---------------------------------------------------------------------------

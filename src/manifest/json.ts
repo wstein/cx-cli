@@ -195,7 +195,10 @@ function parseNoteDto(
       requireString(value, `note[${index}].tags[${tagIndex}]`),
     ),
     summary: requireString(obj.summary, `note[${index}].summary`),
-    lastModified: requireString(obj.lastModified, `note[${index}].lastModified`),
+    lastModified: requireString(
+      obj.lastModified,
+      `note[${index}].lastModified`,
+    ),
   };
 }
 
