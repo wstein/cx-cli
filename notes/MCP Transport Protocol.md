@@ -9,7 +9,7 @@ tags: [mcp, transport, architecture]
 The server lifecycle is managed in `src/mcp/server.ts`. It uses the `@modelcontextprotocol/sdk` to create a `McpServer` instance and binds it to `StdioServerTransport`.
 
 Key mechanisms:
-- **Initialization**: The server starts with a set of `instructions` that describe the available tools and the active configuration profile (`cx-mcp.toml` or `cx.toml`).
+- **Initialization**: The server starts with a set of `instructions` that describe the available tools and the active configuration file (`cx-mcp.toml` or `cx.toml`).
 - **Safeguards**: Request logging and rate limiting are instantiated as middleware to protect the workspace during live agent sessions.
 - **Graceful Exit**: The server listens for `SIGINT` and `SIGTERM` to ensure the transport is closed cleanly and any temporary resources are released.
 - **Tool Registration**: Tools are modularized and registered via `registerCxMcpTools`, keeping the transport logic separate from tool implementation.

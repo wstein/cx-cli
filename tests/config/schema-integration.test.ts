@@ -380,10 +380,9 @@ exclude = []
       expect(mcpContent).not.toContain(
         'output_dir = "dist/typescript-test-mcp-bundle"',
       );
-      expect(mcpContent).toContain("[mcp.clients.claude]");
-      expect(mcpContent).toContain('provider = "anthropic"');
-      expect(mcpContent).toContain("[mcp.clients.github_copilot]");
-      expect(mcpContent).toContain("[mcp.clients.codex]");
+      expect(mcpContent).not.toContain("[mcp]");
+      expect(mcpContent).not.toContain("[mcp.clients.");
+      expect(mcpContent).toContain('include = ["dist/src/**"]');
     } finally {
       process.chdir(cwd);
     }

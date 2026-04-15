@@ -22,7 +22,7 @@ cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx init` now writes a generated workspace-aware `Makefile`, `cx-mcp.toml`, `cx.toml`, `.mcp.json`, `.vscode/mcp.json`, and local agent settings in `.claude/settings.json` and `.codex/settings.json` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and extends the baseline configuration with starter agent client profiles for Claude, GitHub Copilot, and Codex. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
+`cx init` now writes a generated workspace-aware `Makefile`, `cx-mcp.toml`, `cx.toml`, `.mcp.json`, `.vscode/mcp.json`, and local agent settings in `.claude/settings.json` and `.codex/settings.json` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and serves as the MCP overlay for the workspace root. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
 
 `cx init` checks each generated target individually. It preserves existing files by default and creates any missing init artifacts; use `--force` to overwrite existing generated files.
 
@@ -40,7 +40,7 @@ cx init --template-list
 
 When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
-`cx mcp` prefers a colocated `cx-mcp.toml` profile. If that file is present, it is the default agent profile; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.
+`cx mcp` prefers a colocated `cx-mcp.toml` overlay. If that file is present, it is the default MCP config for the workspace; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code, Cursor, Claude Desktop), see the [Agent Integration Guide](AGENT_INTEGRATION.md).
 
@@ -149,7 +149,7 @@ cx inspect --config cx.toml
 
 `cx init` scaffolds both `cx.toml` and a `notes/` directory containing the repository notes guide plus the default atomic note template. It also chooses a workspace-native Makefile template so the generated recipes stay readable and aligned with the detected toolchain.
 
-For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the MCP profile when it exists and falls back to the baseline config when it does not.
+For MCP workflows, create a colocated `cx-mcp.toml` that extends `cx.toml`. `cx mcp` prefers the overlay when it exists and falls back to the baseline config when it does not.
 
 Use `cx notes links` to audit unresolved note and code references after notes have been added or renamed. That command surfaces broken graph edges without changing the repository contract.
 

@@ -1,28 +1,2 @@
 #:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json
 extends = "./cx.toml"
-
-[mcp]
-# Default agent client configurations for common MCP workflows.
-# These values are included for downstream agent tooling and workflow hints.
-# The runtime loader ignores this table; the overlay schema keeps editor validation strict.
-
-[mcp.clients.claude]
-provider = "anthropic"
-model = "claude-3.5"
-cwd = "${workspaceFolder}"
-capabilities = ["text", "code", "reasoning"]
-description = "High-capacity Claude profile for reasoning and code-aware workflows."
-
-[mcp.clients.github_copilot]
-provider = "github"
-model = "copilot"
-cwd = "${workspaceFolder}"
-capabilities = ["code", "review", "completion"]
-description = "GitHub Copilot profile for repository-aware coding assistance."
-
-[mcp.clients.codex]
-provider = "openai"
-model = "code-davinci-002"
-cwd = "${workspaceFolder}"
-capabilities = ["code", "completion"]
-description = "OpenAI Codex profile for code generation workflows."

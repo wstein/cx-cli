@@ -234,53 +234,6 @@
         }
       }
     },
-    "mcp": {
-      "type": "object",
-      "description": "Optional MCP profile metadata for editor-facing agent configuration files such as cx-mcp.toml.",
-      "properties": {
-        "clients": {
-          "type": "object",
-          "description": "Named MCP client profiles.",
-          "additionalProperties": {
-            "type": "object",
-            "required": ["provider", "model", "capabilities", "description"],
-            "properties": {
-              "provider": {
-                "type": "string",
-                "minLength": 1,
-                "description": "Provider identifier for the client profile."
-              },
-              "model": {
-                "type": "string",
-                "minLength": 1,
-                "description": "Model identifier associated with the client profile."
-              },
-              "cwd": {
-                "type": "string",
-                "minLength": 1,
-                "description": "Optional working directory placeholder for editor or agent clients, such as ${workspaceFolder}."
-              },
-              "capabilities": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "description": "Capability labels advertised by the client profile."
-              },
-              "description": {
-                "type": "string",
-                "minLength": 1,
-                "description": "Human-readable description of the client profile."
-              }
-            },
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": ["clients"],
-      "additionalProperties": false
-    },
     "sections": {
       "type": "object",
       "minProperties": 1,

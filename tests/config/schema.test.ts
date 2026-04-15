@@ -176,17 +176,6 @@ describe("cx-config-v1.schema.json", async () => {
     expect(schema.additionalProperties).toBe(false);
   });
 
-  test("mcp profile metadata is available and strict", () => {
-    const mcpProp = (schema.properties?.mcp ?? {}) as JsonSchema & {
-      properties?: Record<string, JsonSchema>;
-    };
-
-    expect(mcpProp.type).toBe("object");
-    expect(mcpProp.additionalProperties).toBe(false);
-    expect(mcpProp.required).toContain("clients");
-    expect(mcpProp.properties?.clients).toBeDefined();
-  });
-
   test("sections property documents catch_all and include mutual exclusion", () => {
     // The schema should have some validation logic preventing both catch_all and include
     const sectionsType = schema.properties?.sections;
@@ -251,7 +240,7 @@ describe("cx-config-overlay-v1.schema.json", async () => {
     const properties = schema.properties ?? {};
     expect(properties.schema_version).toBeDefined();
     expect(properties.project_name).toBeDefined();
-    expect(properties.mcp).toBeDefined();
+    expect(properties.sections).toBeDefined();
   });
 });
 

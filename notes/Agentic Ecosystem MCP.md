@@ -13,8 +13,8 @@ the master list before an agent trusts the workspace. The server exposes native
 `list`, `grep`, and `read` tools for workspace-bound navigation.
 
 The MCP path is `cx`-native. It uses the active `cx` workspace scope, the
-MCP-specific `cx-mcp.toml` profile when available, and the native doctor checks
-to keep agent access deterministic.
+`cx-mcp.toml` overlay when available, and the native doctor checks to keep
+agent access deterministic.
 
 In practice, the efficient path is manifest first, file reads second. Agents
 should inspect manifest note summaries, locate the stable timestamp ids that

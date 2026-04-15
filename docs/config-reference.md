@@ -46,7 +46,7 @@ Project configs can opt into a single inheritance step by setting `extends` at t
 extends = "cx.toml"
 ```
 
-This is intended for colocated agent profiles such as `cx-mcp.toml` inheriting from the local `cx.toml` baseline. The loader resolves the path relative to the file that declares `extends`, loads the base config first, and then overlays the child config on top.
+This is intended for colocated overlays such as `cx-mcp.toml` inheriting from the local `cx.toml` baseline. The loader resolves the path relative to the file that declares `extends`, loads the base config first, and then overlays the child config on top.
 
 Inheritance is deliberately shallow:
 
