@@ -94,6 +94,21 @@ describe("extract parsers", () => {
       expect(result[0]?.content).toBe("");
     });
 
+    it("throws when XML section open tag is missing a closing quote", () => {
+      const source = '<file path="broken.txt>\ncontent\n</file>\n';
+      expect(() => parseXmlSection(source)).toThrow();
+    });
+
+    it("throws when XML section close tag never appears", () => {
+      const source = '<file path="broken.txt">\ncontent\n';
+      expect(() => parseXmlSection(source)).toThrow();
+    });
+
+    it("throws when XML section close tag has trailing text and no later close tag", () => {
+      const source = '<file path="broken.txt">\ncontent\n</file>oops';
+      expect(() => parseXmlSection(source)).toThrow();
+    });
+
     it("skips over misleading close tags until the real one", () => {
       const source = '<file path="test.txt">\ncontent\n</file>oops\n</file>\n';
       const result = parseXmlSection(source);
@@ -221,6 +236,13 @@ describe("extract parsers", () => {
       const result = parseJsonSection(source);
       expect(result).toEqual([]);
     });
+
+    it("throws when JSON file content is null", () => {
+      const source = JSON.stringify({
+        files: { "test.txt": null },
+      });
+      expect(() => parseJsonSection(source)).toThrow();
+    });
   });
 
   describe("parseMarkdownSection", () => {
@@ -253,6 +275,20 @@ describe("extract parsers", () => {
     it("throws when a markdown file block is unterminated", () => {
       const source = ["## File: broken.txt", "```", "content"].join("\n");
       expect(() => parseMarkdownSection(source)).toThrow();
+    });
+
+    it("skips non file headings before the first file block", () => {
+      const source = [
+        "# Title",
+        "Some intro",
+        "## File: one.txt",
+        "```",
+        "content",
+        "```",
+      ].join("\n");
+
+      const result = parseMarkdownSection(source);
+      expect(result).toEqual([{ path: "one.txt", content: "content" }]);
     });
   });
 
@@ -303,6 +339,69 @@ describe("extract parsers", () => {
       ].join("\n");
 
       expect(() => parsePlainSection(source)).toThrow();
+    });
+
+    it("throws on invalid plain section separator line", () => {
+      const longSeparator = "=".repeat(64);
+      const source = [
+        longSeparator,
+        "Files",
+        longSeparator,
+        "",
+        "- not-a-separator -",
+        "File: a.txt",
+        "================",
+      ].join("\n");
+
+      expect(() => parsePlainSection(source)).toThrow();
+    });
+
+    it("skips leading blank lines before the first file block", () => {
+      const longSeparator = "=".repeat(64);
+      const shortSeparator = "=".repeat(16);
+      const source = [
+        longSeparator,
+        "Files",
+        longSeparator,
+        "",
+        "",
+        shortSeparator,
+        "File: a.txt",
+        shortSeparator,
+        "alpha",
+        longSeparator,
+        "End of Codebase",
+      ].join("\n");
+
+      const result = parsePlainSection(source);
+      expect(result).toEqual([{ path: "a.txt", content: "alpha" }]);
+    });
+
+    it("parses two plain-section file blocks and stops at the next header", () => {
+      const longSeparator = "=".repeat(64);
+      const shortSeparator = "=".repeat(16);
+      const source = [
+        longSeparator,
+        "Files",
+        longSeparator,
+        "",
+        shortSeparator,
+        "File: a.txt",
+        shortSeparator,
+        "alpha",
+        shortSeparator,
+        "File: b.txt",
+        shortSeparator,
+        "beta",
+        longSeparator,
+        "End of Codebase",
+      ].join("\n");
+
+      const result = parsePlainSection(source);
+      expect(result).toEqual([
+        { path: "a.txt", content: "alpha" },
+        { path: "b.txt", content: "beta" },
+      ]);
     });
   });
 });
