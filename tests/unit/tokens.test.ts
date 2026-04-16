@@ -1,5 +1,9 @@
 import { describe, expect, it } from "bun:test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { countTokens } from "../../src/shared/tokens";
+import { countTokensForFiles } from "../../src/shared/tokens";
 
 describe("shared token counting", () => {
   describe("countTokens", () => {
@@ -158,6 +162,27 @@ describe("shared token counting", () => {
     it("throws for undefined encoding", () => {
       const text = "Test";
       expect(() => countTokens(text, undefined as any)).toThrow();
+    });
+
+    it("counts tokens for files on disk", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-tokens-"));
+      try {
+        const firstPath = path.join(root, "first.txt");
+        const secondPath = path.join(root, "second.txt");
+        await fs.writeFile(firstPath, "Hello world", "utf8");
+        await fs.writeFile(secondPath, "Another file", "utf8");
+
+        const counts = await countTokensForFiles(
+          [firstPath, secondPath],
+          "cl100k_base",
+        );
+
+        expect(counts.get(firstPath)).toBeGreaterThan(0);
+        expect(counts.get(secondPath)).toBeGreaterThan(0);
+        expect(counts.size).toBe(2);
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
     });
   });
 });

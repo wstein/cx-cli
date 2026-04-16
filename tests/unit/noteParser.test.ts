@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import {
+  extractNoteSummary,
   parseMarkdownFrontmatter,
+  titleFromFileName,
   validateNoteIdFormat,
 } from "../../src/notes/parser";
 
@@ -230,6 +232,58 @@ describe("notes parser", () => {
       const result = parseMarkdownFrontmatter(content);
       expect(result.frontmatter).toEqual({});
       expect(result.body).toBe(content);
+    });
+
+    it("parses arrays and quoted values in frontmatter", () => {
+      const content = [
+        "---",
+        "tags: [\"alpha\", beta, 'gamma']",
+        "status: 'draft'",
+        "summary: \"Hello world\"",
+        "---",
+        "Body",
+      ].join("\n");
+
+      const result = parseMarkdownFrontmatter(content);
+      expect(result.frontmatter.tags).toEqual(["alpha", "beta", "gamma"]);
+      expect(result.frontmatter.status).toBe("draft");
+      expect(result.frontmatter.summary).toBe("Hello world");
+    });
+  });
+
+  describe("titleFromFileName", () => {
+    it("strips timestamp prefixes from note filenames", () => {
+      expect(titleFromFileName("20240101010203-my-note.md")).toBe("my-note");
+    });
+
+    it("returns the basename when no timestamp prefix exists", () => {
+      expect(titleFromFileName("plain-note.md")).toBe("plain-note");
+    });
+  });
+
+  describe("extractNoteSummary", () => {
+    it("normalizes markdown formatting and stops at the links section", () => {
+      const body = [
+        "This has a [[Wiki Link]] and a [Markdown Link](https://example.com) with `code`.",
+        "",
+        "## Details",
+        "This paragraph should not be included.",
+        "",
+        "## Links",
+        "- ignored",
+      ].join("\n");
+
+      expect(extractNoteSummary(body)).toBe(
+        "This has a Wiki Link and a Markdown Link with code.",
+      );
+    });
+
+    it("truncates summaries longer than 240 characters", () => {
+      const body = ` ${"Long summary text ".repeat(20)} `;
+      const summary = extractNoteSummary(body);
+
+      expect(summary.length).toBe(240);
+      expect(summary.endsWith("...")).toBe(true);
     });
   });
 });

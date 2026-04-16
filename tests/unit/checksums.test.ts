@@ -1,4 +1,9 @@
 import { describe, expect, it } from "bun:test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { sha256File } from "../../src/shared/hashing";
+import { writeChecksumFile } from "../../src/manifest/checksums";
 import { parseChecksumFile } from "../../src/manifest/checksums";
 
 describe("manifest checksums", () => {
@@ -148,6 +153,31 @@ describe("manifest checksums", () => {
       const hashStr = "a".repeat(63);
       const source = `${hashStr}  file.txt\n`;
       expect(() => parseChecksumFile(source)).toThrow();
+    });
+
+    it("writes a checksum file sorted lexically", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-checksums-"));
+      try {
+        await fs.writeFile(path.join(root, "b.txt"), "beta", "utf8");
+        await fs.writeFile(path.join(root, "a.txt"), "alpha", "utf8");
+
+        await writeChecksumFile(root, "checksums.txt", ["b.txt", "a.txt"]);
+
+        const checksumText = await fs.readFile(
+          path.join(root, "checksums.txt"),
+          "utf8",
+        );
+        const parsed = parseChecksumFile(checksumText);
+
+        expect(parsed.map((entry) => entry.relativePath)).toEqual([
+          "a.txt",
+          "b.txt",
+        ]);
+        expect(parsed[0]?.hash).toBe(await sha256File(path.join(root, "a.txt")));
+        expect(parsed[1]?.hash).toBe(await sha256File(path.join(root, "b.txt")));
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
     });
   });
 });
