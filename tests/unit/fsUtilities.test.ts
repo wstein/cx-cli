@@ -1,5 +1,15 @@
 import { describe, expect, it } from "bun:test";
-import { relativePosix, sortLexically } from "../../src/shared/fs";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+
+import {
+  ensureDir,
+  listFilesRecursive,
+  pathExists,
+  relativePosix,
+  sortLexically,
+} from "../../src/shared/fs";
 
 describe("shared fs utilities", () => {
   describe("sortLexically", () => {
@@ -199,6 +209,48 @@ describe("shared fs utilities", () => {
       const filePath = "/root/file.txt";
       const result = relativePosix(rootDir, filePath);
       expect(result).toBe("file.txt");
+    });
+  });
+
+  describe("filesystem helpers", () => {
+    it("ensureDir creates nested directories and pathExists reports them", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-fs-utils-"));
+      try {
+        const nestedDir = path.join(root, "nested", "deeper");
+        expect(await pathExists(nestedDir)).toBe(false);
+
+        await ensureDir(nestedDir);
+
+        expect(await pathExists(nestedDir)).toBe(true);
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
+    });
+
+    it("listFilesRecursive returns all files beneath a root", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-fs-list-"));
+      try {
+        await ensureDir(path.join(root, "nested", "deeper"));
+        await fs.writeFile(path.join(root, "root.txt"), "root", "utf8");
+        await fs.writeFile(path.join(root, "nested", "child.txt"), "child", "utf8");
+        await fs.writeFile(
+          path.join(root, "nested", "deeper", "leaf.txt"),
+          "leaf",
+          "utf8",
+        );
+
+        const files = await listFilesRecursive(root);
+
+        expect(sortLexically(files)).toEqual(
+          sortLexically([
+            path.join(root, "nested", "child.txt"),
+            path.join(root, "nested", "deeper", "leaf.txt"),
+            path.join(root, "root.txt"),
+          ]),
+        );
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
     });
   });
 });
