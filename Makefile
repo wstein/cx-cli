@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test verify release clean notes help
+.PHONY: all build test coverage verify release clean notes help
 all: build
 
 build: ## Build the project.
@@ -31,4 +31,4 @@ notes: ## List available notes in the repository.
 	cx notes orphans
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build test verify release clean notes\n"
+	@printf "Available targets:\n  build test coverage verify release clean notes\n"
