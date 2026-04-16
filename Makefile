@@ -14,6 +14,9 @@ build: ## Build the project.
 test: ## Run tests.
 	$(BUN) test
 
+coverage: ## Run tests with coverage.
+	$(BUN) run coverage
+
 verify: ## Run verification checks.
 	$(BUN) run verify
 
