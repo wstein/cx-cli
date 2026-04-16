@@ -116,6 +116,12 @@ Global install:
 npm install -g @wsmy/cx-cli
 ```
 
+Homebrew install:
+
+```bash
+brew install wstein/tap/cx-cli
+```
+
 Run from source:
 
 ```bash

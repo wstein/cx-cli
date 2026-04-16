@@ -9,3 +9,5 @@ Use this short checklist when cutting a release.
 - Mirror the same schema files into the GitHub Release assets for the tagged release.
 - Ensure `package.json` version matches the git tag before publishing to npm.
 - Add `NPM_TOKEN` to repository secrets for npm publish automation.
+- Add `HOMEBREW_TAP_TOKEN` to repository secrets for automated Homebrew tap updates.
+- Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from this repository's release workflow.
