@@ -1,6 +1,6 @@
 {
   "name": "@wsmy/cx-cli",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Deterministic context bundler built on top of Repomix.",
   "license": "MIT",
   "type": "module",
