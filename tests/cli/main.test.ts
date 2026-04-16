@@ -5,6 +5,7 @@ import path from "node:path";
 
 import { main } from "../../src/cli/main.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
+import packageJson from "../../package.json" with { type: "json" };
 
 describe("main", () => {
   test("prints top-level help when invoked without arguments", async () => {
@@ -51,7 +52,7 @@ describe("main", () => {
     await expect(main(["--version"])).resolves.toBe(0);
     process.stdout.write = write;
 
-    expect(output.trim()).toBe("0.1.0");
+    expect(output.trim()).toBe(packageJson.version);
   });
 
   test("prints init template to stdout", async () => {
