@@ -124,7 +124,7 @@ const assetArb: fc.Arbitrary<AssetRecord> = fc.record({
 
 const noteArb: fc.Arbitrary<NoteRecord> = fc.record({
   id: fc
-    .integer({ min: 20200101000000, max: 20301231235959 })
+    .integer({ min: 20200104300, max: 20301231235959 })
     .map((value) => String(value).padStart(14, "0")),
   title: nonEmptyString,
   fileName: nonEmptyString,
