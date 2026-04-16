@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -28,7 +28,9 @@ if (!requestedVersion) {
   throw new Error("A version is required to generate the Homebrew formula.");
 }
 
-const description = packageJson.description ?? "Deterministic context bundler built on top of Repomix.";
+const description =
+  packageJson.description ??
+  "Deterministic context bundler built on top of Repomix.";
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
 const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requestedVersion}.tgz`;
@@ -36,7 +38,9 @@ const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requested
 console.log(`Fetching npm tarball for version ${requestedVersion}...`);
 const response = await fetch(tarballUrl);
 if (!response.ok) {
-  throw new Error(`Failed to download tarball from ${tarballUrl}: ${response.status} ${response.statusText}`);
+  throw new Error(
+    `Failed to download tarball from ${tarballUrl}: ${response.status} ${response.statusText}`,
+  );
 }
 
 const buffer = Buffer.from(await response.arrayBuffer());

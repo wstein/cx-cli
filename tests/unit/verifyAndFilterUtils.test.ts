@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { ManifestFileRow } from "../../src/manifest/types";
-import { selectManifestRows } from "../../src/shared/verifyFilters";
 import type { VerifySelection } from "../../src/shared/verifyFilters";
+import { selectManifestRows } from "../../src/shared/verifyFilters";
 
 describe("verify and filter utilities", () => {
   const sampleRows: ManifestFileRow[] = [
@@ -118,10 +118,8 @@ describe("verify and filter utilities", () => {
       expect(
         result.every(
           (r) =>
-            r.section === "src" ||
-            r.section === "docs" ||
-            r.section === "-"
-        )
+            r.section === "src" || r.section === "docs" || r.section === "-",
+        ),
       ).toBe(true);
     });
 
@@ -291,7 +289,8 @@ describe("verify and filter utilities", () => {
         sections: ["src"],
         files: undefined,
       };
-      const result = selectManifestRows([sampleRows[0]!], selection);
+      const oneRow = sampleRows.slice(0, 1);
+      const result = selectManifestRows(oneRow, selection);
       expect(result.length).toBe(1);
       expect(result[0]?.path).toBe("src/main.ts");
     });
