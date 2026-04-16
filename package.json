@@ -35,6 +35,7 @@
     "test": "bun test tests --timeout 20000",
     "coverage": "nyc --reporter=lcov --reporter=json --reporter=text --extension .ts --all bun test tests/unit --timeout 20000",
     "release": "bun run scripts/release.ts",
+    "gen:homebrew": "bun run scripts/generate-homebrew-formula.ts",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
     "verify": "bun run lint && bun run check && bun run build && bun test tests --timeout 20000",
     "copy:init": "bun run scripts/copy-init-templates.ts"

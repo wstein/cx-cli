@@ -1,0 +1,120 @@
+name: Publish Homebrew Tap
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional package version for manual publish.'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: publish-homebrew
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate package version matches tag or input
+        run: |
+          set -euo pipefail
+          pkg_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")
+          if [ "${GITHUB_EVENT_NAME}" = 'workflow_dispatch' ]; then
+            tag_version="${{ github.event.inputs.version }}"
+            if [ -z "$tag_version" ]; then
+              echo "No version input provided; using package.json version $pkg_version."
+              exit 0
+            fi
+          else
+            tag_version=${GITHUB_REF#refs/tags/v}
+          fi
+          if [ "$pkg_version" != "$tag_version" ]; then
+            echo "Package version ($pkg_version) does not match git tag or provided version ($tag_version)."
+            exit 1
+          fi
+
+      - name: Verify package
+        run: bun run verify
+
+  publish:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Determine release version
+        id: release-version
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = 'workflow_dispatch' ]; then
+            requested_version="${{ github.event.inputs.version }}"
+            if [ -z "$requested_version" ]; then
+              requested_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")
+            fi
+          else
+            requested_version=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$requested_version" >> $GITHUB_OUTPUT
+
+      - name: Generate Homebrew formula
+        run: |
+          mkdir -p homebrew-formula
+          bun run scripts/generate-homebrew-formula.ts "${{ steps.release-version.outputs.version }}" --output homebrew-formula/cx-cli.rb
+
+      - name: Validate formula syntax
+        run: ruby -c homebrew-formula/cx-cli.rb
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: wstein/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update tap formula
+        run: |
+          set -euo pipefail
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main || git checkout -b main
+          mkdir -p Formula
+          cp ../homebrew-formula/cx-cli.rb Formula/cx-cli.rb
+          if git diff --quiet -- Formula/cx-cli.rb; then
+            echo "No formula updates required."
+            exit 0
+          fi
+          git add Formula/cx-cli.rb
+          git commit -m "chore(homebrew): update cx-cli formula for v${{ steps.release-version.outputs.version }}"
+          git push origin main
