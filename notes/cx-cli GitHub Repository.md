@@ -11,6 +11,6 @@ It defines package metadata, the single release workflow, Homebrew integration, 
 
 ## Links
 
-- `.github/workflows/publish.yml`
+- `.github/workflows/release.yml`
 - `scripts/generate-homebrew-formula.ts`
 - `README.md`

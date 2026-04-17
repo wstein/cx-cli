@@ -12,4 +12,4 @@ The Homebrew formula and the single release workflow both depend on this package
 ## Links
 
 - `package.json`
-- `.github/workflows/publish.yml`
+- `.github/workflows/release.yml`

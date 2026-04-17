@@ -124,7 +124,7 @@ brew install wstein/tap/cx-cli
 
 ### Release Flow
 
-The release workflow follows a fixed four-step order:
+The release workflow in [`.github/workflows/release.yml`](./.github/workflows/release.yml) follows a fixed four-step order:
 
 1. Build the package once.
 2. Publish the packed tarball to npm.

@@ -13,5 +13,5 @@ without turning release automation loose on normal pushes.
 ## Links
 
 - `.github/workflows/ci.yml`
-- `.github/workflows/publish.yml`
+- `.github/workflows/release.yml`
 - `.github/workflows/publish-schemas.yml`

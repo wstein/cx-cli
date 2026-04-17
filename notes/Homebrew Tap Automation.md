@@ -8,6 +8,8 @@ tags: ["homebrew", "release", "github-actions"]
 
 `wstein/homebrew-tap` should stay intentionally small: accept formula commits, validate them on push, and avoid any build or publish logic.
 
+The source repo release workflow in [`.github/workflows/release.yml`](../.github/workflows/release.yml) publishes npm first, then generates the Homebrew formula from the same tarball, then commits that formula into `wstein/homebrew-tap`.
+
 ## Tap repo workflow
 
 Use a workflow like this in `wstein/homebrew-tap/.github/workflows/formula.yml`:
@@ -90,6 +92,6 @@ The source repo owns packaging and formula generation. The release workflow shou
 
 ## Links
 
-- `.github/workflows/publish.yml`
+- `.github/workflows/release.yml`
 - `docs/RELEASE_CHECKLIST.md`
 - `notes/Homebrew Tap.md`
