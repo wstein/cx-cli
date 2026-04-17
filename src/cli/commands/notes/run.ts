@@ -1,4 +1,8 @@
 import {
+  checkNoteCoverage,
+  checkNotesConsistency,
+} from "../../../notes/consistency.js";
+import {
   createNewNote,
   deleteNote,
   listNotes,
@@ -14,7 +18,11 @@ import {
   getOutgoingLinks,
 } from "../../../notes/graph.js";
 import { CxError } from "../../../shared/errors.js";
-import { printInfo, printSuccess } from "../../../shared/format.js";
+import {
+  printInfo,
+  printSuccess,
+  printWarning,
+} from "../../../shared/format.js";
 import { writeJson } from "../../../shared/output.js";
 
 export interface NotesArgs {
@@ -384,8 +392,84 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     return 0;
   }
 
+  if (subcommand === "check") {
+    const report = await checkNotesConsistency("notes", process.cwd());
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes check",
+        ...report,
+      });
+    } else {
+      printInfo("Notes consistency check:\n");
+      printInfo(`  Total notes: ${report.totalNotes}`);
+
+      if (report.duplicateIds.length > 0) {
+        printWarning(`  Duplicate IDs: ${report.duplicateIds.length}`);
+        for (const dup of report.duplicateIds) {
+          printInfo(`    ${dup.id}:`);
+          for (const file of dup.files) {
+            printInfo(`      - ${file}`);
+          }
+        }
+      }
+
+      if (report.brokenLinks.length > 0) {
+        printWarning(`  Broken links: ${report.brokenLinks.length}`);
+        for (const issue of report.brokenLinks) {
+          printInfo(
+            `    [${issue.fromNoteId}] ${issue.fromTitle} -> ${issue.reference}`,
+          );
+        }
+      }
+
+      if (report.orphans.length > 0) {
+        printWarning(`  Orphan notes: ${report.orphans.length}`);
+        for (const orphan of report.orphans) {
+          printInfo(`    [${orphan.id}] ${orphan.title}`);
+        }
+      }
+
+      if (report.valid) {
+        printSuccess("  ✓ All checks passed");
+      } else {
+        printInfo("");
+        return 1;
+      }
+    }
+
+    return report.valid ? 0 : 1;
+  }
+
+  if (subcommand === "coverage") {
+    const coverage = await checkNoteCoverage("notes", process.cwd());
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes coverage",
+        ...coverage,
+      });
+    } else {
+      printInfo("Notes tool documentation coverage:\n");
+      printInfo(
+        `  ${coverage.documentedTools}/${coverage.totalTools} tools (${coverage.percentage}%)`,
+      );
+
+      if (coverage.undocumentedTools.length > 0) {
+        printWarning("  Undocumented tools:");
+        for (const tool of coverage.undocumentedTools) {
+          printInfo(`    - ${tool}`);
+        }
+      } else {
+        printSuccess("  ✓ All tools documented");
+      }
+    }
+
+    return 0;
+  }
+
   throw new CxError(
-    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', or 'links'.`,
+    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', 'links', 'check', or 'coverage'.`,
     2,
   );
 }

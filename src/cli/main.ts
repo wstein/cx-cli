@@ -639,6 +639,14 @@ export async function main(argv: string[]): Promise<number> {
             "$0 notes links",
             "Audit unresolved note and code references across the notes graph.",
           )
+          .example(
+            "$0 notes check",
+            "Check notes for duplicates, broken links, and orphans.",
+          )
+          .example(
+            "$0 notes coverage",
+            "Report tool documentation coverage in notes.",
+          )
           .positional("subcommand", {
             type: "string",
             choices: [
@@ -652,6 +660,8 @@ export async function main(argv: string[]): Promise<number> {
               "orphans",
               "code-links",
               "links",
+              "check",
+              "coverage",
             ],
             default: "list",
           })
