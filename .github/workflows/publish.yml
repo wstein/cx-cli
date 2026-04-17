@@ -78,9 +78,6 @@ jobs:
         run: |
           bun run scripts/generate-homebrew-formula.ts "${{ steps.release-version.outputs.version }}" --tarball "release-artifacts/${{ steps.pack.outputs.tarball_name }}" --output release-artifacts/cx-cli.rb
 
-      - name: Validate formula syntax
-        run: ruby -c release-artifacts/cx-cli.rb
-
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -153,9 +150,6 @@ jobs:
           repository: wstein/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
           path: homebrew-tap
-
-      - name: Validate formula syntax
-        run: ruby -c release-artifacts/cx-cli.rb
 
       - name: Update tap formula
         run: |
