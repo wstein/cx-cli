@@ -1,0 +1,5 @@
+Task: inspect the plan, bundle a handoff snapshot, and update notes in MCP
+Recommended path: cx inspect -> cx bundle -> cx mcp
+Primary mode: cx inspect
+Reason: The task spans planning and live note work, so inspect first, bundle the handoff snapshot next, and use MCP last against the live workspace.
+Signals: bundle, inspect, mcp

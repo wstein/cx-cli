@@ -2,13 +2,9 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { resolveMcpConfigPath, runMcpCommand } from "../../src/cli/commands/mcp.js";
 
-import {
-  resolveMcpConfigPath,
-  runMcpCommand,
-} from "../../src/cli/commands/mcp.js";
-
-describe("mcp command", () => {
+describe("mcp registration lane", () => {
   test("prefers cx-mcp.toml over cx.toml", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-"));
     const basePath = path.join(root, "cx.toml");
@@ -70,7 +66,6 @@ exclude = []
 
   test("fails when neither mcp profile nor baseline config exists", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-missing-"));
-
     await expect(resolveMcpConfigPath(root)).rejects.toThrow(
       `Unable to start cx mcp. Expected cx-mcp.toml or cx.toml in ${path.resolve(root)}.`,
     );
@@ -100,8 +95,6 @@ exclude = []
     let loadedPath = "";
     let started = false;
     let startedConfigProjectName = "";
-
-    const exitCodes: number[] = [];
 
     await expect(
       runMcpCommand(
@@ -186,17 +179,14 @@ exclude = []
             started = true;
             expect(configPath).toBe(basePath);
             startedConfigProjectName = config.projectName;
-            return;
           },
           fileExists: async (filePath) => filePath === basePath,
         },
       ),
     ).resolves.toBe(0);
 
-    exitCodes.push(0);
     expect(loadedPath).toBe(basePath);
     expect(started).toBe(true);
     expect(startedConfigProjectName).toBe("demo");
-    expect(exitCodes).toEqual([0]);
   });
 });

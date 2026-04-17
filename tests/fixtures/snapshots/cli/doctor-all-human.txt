@@ -1,0 +1,13 @@
+No section overlaps detected in <ROOT>/cx.toml.
+Resolved MCP profile: <ROOT>/cx.toml
+Active profile: cx.toml
+
+files.include:
+  - (empty)
+
+files.exclude:
+  - node_modules/**
+
+sections:
+  - src
+No suspicious files detected in <ROOT>/cx.toml.
