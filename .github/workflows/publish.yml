@@ -49,7 +49,7 @@ jobs:
             missing=1
           fi
           if [ -z "${HOMEBREW_TAP_TOKEN:-}" ]; then
-            echo "HOMEBREW_TAP_TOKEN secret is required for Homebrew tap updates."
+            echo "HOMEBREW_TAP_TOKEN secret is required to authenticate the push to wstein/homebrew-tap."
             missing=1
           fi
           if [ "$missing" -ne 0 ]; then
