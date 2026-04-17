@@ -41,17 +41,18 @@ export function detectMediaType(
   kind: "text" | "asset" = "asset",
 ): string {
   const extension = path.extname(filePath).toLowerCase();
-  
+
   // If extension is in the map, use it
-  if (MIME_TYPES.has(extension)) {
-    return MIME_TYPES.get(extension)!;
+  const mediaType = MIME_TYPES.get(extension);
+  if (mediaType !== undefined) {
+    return mediaType;
   }
-  
+
   // If no extension or empty, return text/plain
   if (extension === "") {
     return "text/plain";
   }
-  
+
   // For unknown extensions, return based on kind
   return kind === "asset" ? "application/octet-stream" : "text/plain";
 }
