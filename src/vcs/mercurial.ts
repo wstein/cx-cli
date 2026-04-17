@@ -6,6 +6,8 @@ import type { VCSState } from "./provider.js";
 
 const execFileAsync = promisify(execFile);
 
+type HgRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
+
 /**
  * Execute a hg (Mercurial) command with consistent options.
  */
@@ -21,9 +23,12 @@ async function runHg(args: string[], cwd: string): Promise<{ stdout: string }> {
  *
  * `hg identify` exits 0 when inside a Mercurial repository.
  */
-export async function detectHg(sourceRoot: string): Promise<boolean> {
+export async function detectHg(
+  sourceRoot: string,
+  run: HgRunner = runHg,
+): Promise<boolean> {
   try {
-    await runHg(["identify"], sourceRoot);
+    await run(["identify"], sourceRoot);
     return true;
   } catch {
     return false;
@@ -44,9 +49,12 @@ export async function detectHg(sourceRoot: string): Promise<boolean> {
  * - ?: untracked
  * - I: ignored
  */
-export async function getHgState(sourceRoot: string): Promise<VCSState> {
+export async function getHgState(
+  sourceRoot: string,
+  run: HgRunner = runHg,
+): Promise<VCSState> {
   // `hg files` lists all tracked files in the repository.
-  const { stdout: lsOut } = await runHg(["files"], sourceRoot);
+  const { stdout: lsOut } = await run(["files"], sourceRoot);
   const trackedFiles = sortLexically(
     lsOut
       .split("\n")
@@ -55,9 +63,9 @@ export async function getHgState(sourceRoot: string): Promise<VCSState> {
   );
 
   // `hg status` shows the status of all modified and extra files.
-  const { stdout: statusOut } = await runHg(["status"], sourceRoot).catch(
-    () => ({ stdout: "" }),
-  );
+  const { stdout: statusOut } = await run(["status"], sourceRoot).catch(() => {
+    return { stdout: "" };
+  });
 
   const modifiedFiles: string[] = [];
   const untrackedFiles: string[] = [];
