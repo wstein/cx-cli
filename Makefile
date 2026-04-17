@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test coverage verify format fix release clean notes help
+.PHONY: all build test coverage verify format fix release clean notes smoke help
 all: build
 
 build: ## Build the project.
@@ -36,6 +36,9 @@ notes: ## List available notes in the repository.
 	cx notes list
 	cx notes orphans
 
+smoke: ## Run repomix version smoke test.
+	$(BUN) run smoke:repomix-version
+
 help: ## Show available targets.
 	@printf "Available targets:\n"
 	@printf "  build     Build the project.\n"
@@ -45,3 +48,4 @@ help: ## Show available targets.
 	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
 	@printf "  clean     Remove generated output files.\n"
 	@printf "  notes     List available notes in the repository.\n"
+	@printf "  smoke     Run repomix version smoke test.\n"

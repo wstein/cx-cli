@@ -51,8 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - repomix-version: 1.13.1
+        repomix-version: ["1.13.1", "1.14.0", "1.15.0"]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,3 +95,71 @@ jobs:
 
       - name: Run bundle update transition test
         run: bun test tests/bundle/update-matrix.test.ts -t "${{ matrix.transition }}"
+
+  bun-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bun-version: ["1.3.x", "latest"]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint and typecheck
+        run: bun run lint && bun run check
+
+      - name: Build
+        run: bun run build
+
+      - name: Run deterministic test lane
+        run: bun test tests --timeout 20000
+
+  reproducibility:
+    runs-on: ubuntu-latest
+    needs:
+      - test-fast
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Install dependencies (first build)
+        run: bun install --frozen-lockfile
+
+      - name: Build first time
+        run: bun run build
+
+      - name: Capture first build hash
+        run: |
+          find dist -type f -name "*.js" -exec sha256sum {} \; | sort > /tmp/build1.sha256
+
+      - name: Clean dist directory
+        run: rm -rf dist
+
+      - name: Build second time
+        run: bun run build
+
+      - name: Capture second build hash
+        run: |
+          find dist -type f -name "*.js" -exec sha256sum {} \; | sort > /tmp/build2.sha256
+
+      - name: Compare builds
+        run: |
+          if ! diff /tmp/build1.sha256 /tmp/build2.sha256; then
+            echo "Build output differs between runs"
+            exit 1
+          fi
+          echo "✓ Builds are reproducible"
