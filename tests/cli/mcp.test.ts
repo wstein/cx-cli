@@ -170,6 +170,10 @@ exclude = []
                 configDuplicateEntry: "compiled default",
                 assetsLayout: "compiled default",
               },
+              mcp: {
+                policy: "default",
+                auditLogging: true,
+              },
               sections: {
                 src: {
                   include: ["src/**"],

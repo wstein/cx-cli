@@ -43,10 +43,6 @@ export function withPolicyEnforcement<Args extends Record<string, unknown>>(
   auditLogger?: AuditLogger,
 ) {
   return async (args: Args): Promise<string> => {
-    return enforceToolAccess(
-      toolName,
-      () => handler(args),
-      auditLogger,
-    );
+    return enforceToolAccess(toolName, () => handler(args), auditLogger);
   };
 }

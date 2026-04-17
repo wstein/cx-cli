@@ -150,6 +150,10 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   behavior: {
     ...DEFAULT_BEHAVIOR_VALUES,
   },
+  mcp: {
+    policy: "default",
+    auditLogging: true,
+  },
 };
 
 export const DEFAULT_USER_CONFIG_PATH = "~/.config/cx/cx.toml";

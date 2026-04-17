@@ -140,6 +140,25 @@ export interface CxAssetsConfig {
  * Category A invariants (section overlap with dedup.mode=fail, asset collision, missing core
  * adapter contract) are never configurable and are not represented here.
  */
+export interface CxMcpConfig {
+  /**
+   * MCP tool access control policy.
+   *
+   * - "default"      — deny mutate, allow read/observe/plan
+   * - "strict"       — allow only read/observe (CI/CD safe)
+   * - "unrestricted" — allow all (local development)
+   *
+   * Default: "default"
+   */
+  policy?: "default" | "strict" | "unrestricted";
+
+  /**
+   * Enable audit logging to .cx/audit.log.
+   * Default: true
+   */
+  auditLogging?: boolean;
+}
+
 export interface CxBehaviorConfig {
   /**
    * Controls what happens when the cx-specific Repomix adapter extensions
@@ -199,6 +218,7 @@ export interface CxConfig {
   assets: CxAssetsConfig;
   behavior: CxBehaviorConfig;
   behaviorSources: CxBehaviorSources;
+  mcp: CxMcpConfig;
   sections: Record<string, CxSectionConfig>;
 }
 
@@ -218,6 +238,7 @@ export interface CxConfigInput {
   display?: unknown;
   assets?: Record<string, unknown>;
   config?: Record<string, unknown>;
+  mcp?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;
 }
 

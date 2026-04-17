@@ -3,11 +3,11 @@ import {
   checkToolAccess,
   DEFAULT_POLICY,
   isCapabilityAllowed,
+  type McpPolicy,
   PolicyError,
   STRICT_POLICY,
   TOOL_CAPABILITIES,
   UNRESTRICTED_POLICY,
-  type McpPolicy,
 } from "../../src/mcp/policy.js";
 
 describe("MCP Policy System", () => {
@@ -85,9 +85,9 @@ describe("MCP Policy System", () => {
     });
 
     it("allows all capabilities under unrestricted policy", () => {
-      expect(checkToolAccess("workspace_list", UNRESTRICTED_POLICY).allowed).toBe(
-        true,
-      );
+      expect(
+        checkToolAccess("workspace_list", UNRESTRICTED_POLICY).allowed,
+      ).toBe(true);
       expect(checkToolAccess("bundle", UNRESTRICTED_POLICY).allowed).toBe(true);
       expect(checkToolAccess("notes_new", UNRESTRICTED_POLICY).allowed).toBe(
         true,

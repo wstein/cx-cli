@@ -562,6 +562,7 @@ export async function loadCxConfig(
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
   const configSection = parsed.config ?? {};
+  const mcp = parsed.mcp ?? {};
   const sectionsInput = parsed.sections;
 
   if (parsed.display !== undefined) {
@@ -853,6 +854,19 @@ export async function loadCxConfig(
     },
     behavior,
     behaviorSources,
+    mcp: {
+      policy: expectEnum(
+        mcp.policy,
+        "mcp.policy",
+        new Set(["default", "strict", "unrestricted"]),
+        DEFAULT_CONFIG_VALUES.mcp.policy as "default",
+      ) as "default" | "strict" | "unrestricted",
+      auditLogging: expectBoolean(
+        mcp.audit_logging,
+        "mcp.audit_logging",
+        DEFAULT_CONFIG_VALUES.mcp.auditLogging as boolean,
+      ),
+    },
     sections,
   };
 }

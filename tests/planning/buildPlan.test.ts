@@ -116,6 +116,10 @@ function baseConfig(root: string): CxConfig {
       configDuplicateEntry: "compiled default",
       assetsLayout: "compiled default",
     },
+    mcp: {
+      policy: "default",
+      auditLogging: true,
+    },
     assets: {
       include: ["**/*.png"],
       exclude: [],

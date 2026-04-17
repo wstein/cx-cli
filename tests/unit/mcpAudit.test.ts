@@ -24,11 +24,11 @@ describe("MCP Audit Logger", () => {
       expect(events.length).toBe(1);
 
       const event = events[0];
-      expect(event.tool).toBe("workspace_list");
-      expect(event.capability).toBe("read");
-      expect(event.decision).toBe("allowed");
-      expect(event.path).toBe("/src/utils");
-      expect(event.timestamp).toBeDefined();
+      expect(event?.tool).toBe("workspace_list");
+      expect(event?.capability).toBe("read");
+      expect(event?.decision).toBe("allowed");
+      expect(event?.path).toBe("/src/utils");
+      expect(event?.timestamp).toBeDefined();
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>
@@ -43,12 +43,7 @@ describe("MCP Audit Logger", () => {
 
       const logger = new AuditLogger(tmpDir, false);
 
-      await logger.logEvent(
-        "notes_new",
-        "mutate",
-        "denied",
-        "Access denied",
-      );
+      await logger.logEvent("notes_new", "mutate", "denied", "Access denied");
 
       const events = await logger.readLog();
       expect(events.length).toBe(0);
@@ -77,7 +72,7 @@ describe("MCP Audit Logger", () => {
 
       const events = await logger.readLog();
       expect(events.length).toBe(1);
-      expect(events[0].decision).toBe("allowed");
+      expect(events[0]?.decision).toBe("allowed");
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>
@@ -101,7 +96,7 @@ describe("MCP Audit Logger", () => {
 
       const events = await logger.readLog();
       expect(events.length).toBe(1);
-      expect(events[0].decision).toBe("denied");
+      expect(events[0]?.decision).toBe("denied");
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>
@@ -119,31 +114,11 @@ describe("MCP Audit Logger", () => {
       const logger = new AuditLogger(tmpDir, true);
 
       // Log various events
-      await logger.logToolAccess(
-        "workspace_list",
-        "read",
-        true,
-        "allowed",
-      );
-      await logger.logToolAccess(
-        "workspace_grep",
-        "read",
-        true,
-        "allowed",
-      );
+      await logger.logToolAccess("workspace_list", "read", true, "allowed");
+      await logger.logToolAccess("workspace_grep", "read", true, "allowed");
       await logger.logToolAccess("bundle", "plan", true, "allowed");
-      await logger.logToolAccess(
-        "notes_new",
-        "mutate",
-        false,
-        "denied",
-      );
-      await logger.logToolAccess(
-        "notes_update",
-        "mutate",
-        false,
-        "denied",
-      );
+      await logger.logToolAccess("notes_new", "mutate", false, "denied");
+      await logger.logToolAccess("notes_update", "mutate", false, "denied");
 
       const summary = await logger.getSummary();
 
@@ -190,18 +165,15 @@ describe("MCP Audit Logger", () => {
       const logger = new AuditLogger(tmpDir, true);
       const before = new Date();
 
-      await logger.logToolAccess(
-        "workspace_list",
-        "read",
-        true,
-        "allowed",
-      );
+      await logger.logToolAccess("workspace_list", "read", true, "allowed");
 
       const after = new Date();
       const events = await logger.readLog();
 
-      expect(events[0].timestamp).toBeDefined();
-      const eventTime = new Date(events[0].timestamp);
+      expect(events[0]?.timestamp).toBeDefined();
+      const timestamp = events[0]?.timestamp;
+      if (timestamp === undefined) throw new Error("timestamp undefined");
+      const eventTime = new Date(timestamp);
       expect(eventTime.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(eventTime.getTime()).toBeLessThanOrEqual(after.getTime());
 
@@ -227,13 +199,14 @@ describe("MCP Audit Logger", () => {
       );
 
       const events = await logger.readLog();
-      const event = events[0];
+      expect(events.length).toBe(1);
 
-      expect(event.tool).toBe("notes_new");
-      expect(event.capability).toBe("mutate");
-      expect(event.decision).toBe("denied");
-      expect(event.reason).toBe("Custom reason for denial");
-      expect(event.path).toBe("/notes/important");
+      const event = events[0];
+      expect(event?.tool).toBe("notes_new");
+      expect(event?.capability).toBe("mutate");
+      expect(event?.decision).toBe("denied");
+      expect(event?.reason).toBe("Custom reason for denial");
+      expect(event?.path).toBe("/notes/important");
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>

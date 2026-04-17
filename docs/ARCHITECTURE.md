@@ -396,6 +396,34 @@ When exact span capture is available, the manifest can tell downstream tooling w
 
 Those spans are only useful if the output remains deterministic. That is why degraded extraction is treated carefully: once the parser can no longer reconstruct the packed output cleanly, absolute coordinates can become unsafe for downstream automation.
 
+## Config Safety and Merge Semantics
+
+Configuration files often inherit from other configurations (e.g., project-specific settings extending organization defaults). `cx` enforces explicit merge semantics to prevent silent overwrites and make configuration conflicts visible.
+
+### Merge Rules
+
+When merging two configurations (base and override), `cx` applies these rules:
+
+- **Scalars**: Override wins (right overwrites left). Conflicting scalar values are recorded as conflicts.
+- **Arrays**: Append-only semantics (never silent replace). When both base and override have non-empty arrays, they are concatenated. This prevents accidentally dropping existing patterns or values.
+- **Objects**: Deep merge (recursive application of rules). Nested structures are merged field-by-field.
+- **Undefined**: Treated as "not set". Missing fields in override do not affect base values.
+- **Null**: Valid overwrite value. Explicit null in override overwrites base (unlike undefined).
+
+### Conflict Detection
+
+Every merge operation returns a conflict list documenting:
+
+- `path`: The configuration path (e.g., `files.exclude`, `dedup.mode`)
+- `reason`: Why the conflict occurred (e.g., "scalar value replaced", "array append behavior")
+- `baseValue` and `overrideValue`: The actual conflicting values
+
+This explicit logging lets operators audit configuration inheritance chains and detect unintended changes that silent merges would hide.
+
+### Why This Matters
+
+Configuration is not arbitrary application state. Changes to section definitions, file patterns, or dedup rules affect the reproducibility of a bundle. By making conflicts visible rather than silent, `cx` ensures that operational decisions about configuration are explicit and auditable.
+
 ## Extraction Semantics
 
 `cx` classifies extraction outcomes as:
