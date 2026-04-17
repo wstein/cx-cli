@@ -12,4 +12,4 @@ Use this short checklist when cutting a release.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
-- Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from the single release workflow.
+- Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from the single release workflow, and remember that the tap repo owns formula validation on push.
