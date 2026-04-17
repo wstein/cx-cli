@@ -20,12 +20,11 @@ permissions:
   contents: read
 
 jobs:
-  release:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+  prepare-release:
     runs-on: ubuntu-latest
-    environment: homebrew
-    permissions:
-      contents: write
+    outputs:
+      release_version: ${{ steps.release-version.outputs.version }}
+      tarball_name: ${{ steps.pack.outputs.tarball_name }}
     steps:
       - name: Checkout current repo
         uses: actions/checkout@v4
@@ -37,25 +36,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Preflight release secrets
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          HOMEBREW_TAP_PUSH_TOKEN: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
-        run: |
-          set -euo pipefail
-          missing=0
-          if [ -z "${NPM_TOKEN:-}" ]; then
-            echo "NPM_TOKEN secret is required for npm publish."
-            missing=1
-          fi
-          if [ -z "${HOMEBREW_TAP_PUSH_TOKEN:-}" ]; then
-            echo "HOMEBREW_TAP_PUSH_TOKEN secret is required to authenticate the push to wstein/homebrew-tap."
-            missing=1
-          fi
-          if [ "$missing" -ne 0 ]; then
-            exit 1
-          fi
 
       - name: Determine release version
         id: release-version
@@ -84,6 +64,53 @@ jobs:
       - name: Build package
         run: bun run build
 
+      - name: Pack release tarball
+        id: pack
+        run: |
+          set -euo pipefail
+          mkdir -p release-artifacts
+          npm pack --json --pack-destination release-artifacts > release-artifacts/pack.json
+          tarball_name=$(node -p "JSON.parse(require('fs').readFileSync('release-artifacts/pack.json', 'utf8'))[0].filename")
+          rm release-artifacts/pack.json
+          echo "tarball_name=$tarball_name" >> $GITHUB_OUTPUT
+
+      - name: Generate Homebrew formula
+        run: |
+          bun run scripts/generate-homebrew-formula.ts "${{ steps.release-version.outputs.version }}" --tarball "release-artifacts/${{ steps.pack.outputs.tarball_name }}" --output release-artifacts/cx-cli.rb
+
+      - name: Validate formula syntax
+        run: ruby -c release-artifacts/cx-cli.rb
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-npm:
+    needs: prepare-release
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: node
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts
+
+      - name: Preflight npm secret
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "NPM_TOKEN secret is required for npm publish."
+            exit 1
+          fi
+
       - name: Setup npm auth
         uses: actions/setup-node@v4
         with:
@@ -92,17 +119,33 @@ jobs:
           always-auth: true
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish --access public "release-artifacts/${{ needs.prepare-release.outputs.tarball_name }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Generate Homebrew formula
-        run: |
-          mkdir -p homebrew-formula
-          bun run scripts/generate-homebrew-formula.ts "${{ steps.release-version.outputs.version }}" --output homebrew-formula/cx-cli.rb
+  publish-homebrew:
+    needs: prepare-release
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: homebrew
+    permissions:
+      contents: write
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: release-artifacts
 
-      - name: Validate formula syntax
-        run: ruby -c homebrew-formula/cx-cli.rb
+      - name: Preflight tap secret
+        env:
+          HOMEBREW_TAP_PUSH_TOKEN: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HOMEBREW_TAP_PUSH_TOKEN:-}" ]; then
+            echo "HOMEBREW_TAP_PUSH_TOKEN secret is required to authenticate the push to wstein/homebrew-tap."
+            exit 1
+          fi
 
       - name: Checkout Homebrew tap
         uses: actions/checkout@v4
@@ -110,6 +153,9 @@ jobs:
           repository: wstein/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
           path: homebrew-tap
+
+      - name: Validate formula syntax
+        run: ruby -c release-artifacts/cx-cli.rb
 
       - name: Update tap formula
         run: |
@@ -119,11 +165,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout main || git checkout -b main
           mkdir -p Formula
-          cp ../homebrew-formula/cx-cli.rb Formula/cx-cli.rb
+          cp ../release-artifacts/cx-cli.rb Formula/cx-cli.rb
           if git diff --quiet -- Formula/cx-cli.rb; then
             echo "No formula updates required."
             exit 0
           fi
           git add Formula/cx-cli.rb
-          git commit -m "chore(homebrew): update cx-cli formula for v${{ steps.release-version.outputs.version }}"
+          git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.prepare-release.outputs.release_version }}"
           git push origin main
