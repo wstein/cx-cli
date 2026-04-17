@@ -48,6 +48,16 @@ function getInstallTarget(shell: ShellKind) {
   }
 }
 
+function normalizeArrayArg(value: unknown): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => String(entry));
+  }
+  return [String(value)];
+}
+
 function writeStdoutSafe(data: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const onError = (error: NodeJS.ErrnoException) => {
@@ -347,8 +357,8 @@ export async function main(argv: string[]): Promise<number> {
         exitCode = await runExtractCommand({
           bundleDir: args.bundleDir,
           destinationDir: args.to,
-          sections: args.section as string[] | undefined,
-          files: args.file as string[] | undefined,
+          sections: normalizeArrayArg(args.section),
+          files: normalizeArrayArg(args.file),
           assetsOnly: args["assets-only"],
           allowDegraded: args["allow-degraded"],
           json: args.json,
@@ -373,9 +383,9 @@ export async function main(argv: string[]): Promise<number> {
       async (args) => {
         exitCode = await runListCommand({
           bundleDir: args.bundleDir,
-          files: args.file as string[] | undefined,
+          files: normalizeArrayArg(args.file),
           json: args.json,
-          sections: args.section as string[] | undefined,
+          sections: normalizeArrayArg(args.section),
         });
       },
     )
@@ -420,9 +430,9 @@ export async function main(argv: string[]): Promise<number> {
         exitCode = await runVerifyCommand({
           bundleDir: args.bundleDir,
           againstDir: args.against,
-          files: args.file as string[] | undefined,
+          files: normalizeArrayArg(args.file),
           json: args.json,
-          sections: args.section as string[] | undefined,
+          sections: normalizeArrayArg(args.section),
           config: args.config,
         });
       },
@@ -520,8 +530,8 @@ export async function main(argv: string[]): Promise<number> {
       async (args) => {
         exitCode = await runRenderCommand({
           config: args.config,
-          sections: args.section as string[] | undefined,
-          files: args.file as string[] | undefined,
+          sections: normalizeArrayArg(args.section),
+          files: normalizeArrayArg(args.file),
           allSections: args["all-sections"],
           style: args.style,
           stdout: args.stdout,
@@ -578,7 +588,7 @@ export async function main(argv: string[]): Promise<number> {
         exitCode = await runAdapterCommand({
           config: args.config,
           subcommand: args.subcommand as "capabilities" | "inspect" | "doctor",
-          sections: args.section as string[] | undefined,
+          sections: normalizeArrayArg(args.section),
           json: args.json,
         });
       },
@@ -670,7 +680,7 @@ export async function main(argv: string[]): Promise<number> {
           subcommand: args.subcommand as string | undefined,
           body: args.body as string | undefined,
           title: args.title as string | undefined,
-          tags: args.tags as string[] | undefined,
+          tags: normalizeArrayArg(args.tags),
           id: args.id as string | undefined,
           json: args.json,
         });

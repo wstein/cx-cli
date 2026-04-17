@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
-import { spawnSync } from "child_process";
+import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { input } from "@inquirer/prompts";
 
 const semver = /^\d+\.\d+\.\d+(?:[-+].+)?$/;
@@ -33,7 +33,7 @@ if (!semver.test(version)) {
 }
 
 pkg.version = version;
-writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
+writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
 
 function run(command: string, args: string[]) {
   const result = spawnSync(command, args, { stdio: "inherit" });

@@ -13,6 +13,7 @@ let versionProvided = false;
 
 for (let index = 0; index < args.length; index += 1) {
   const arg = args[index];
+  if (!arg) continue;
   if (arg === "--output") {
     outputPath = args[index + 1] ?? outputPath;
     index += 1;
