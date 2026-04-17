@@ -18,7 +18,7 @@ export interface ScaffoldNotesResult {
 
 const NOTES_DIR_NAME = "notes";
 const NOTES_GUIDE_FILE = "README.md";
-const NOTES_TEMPLATE_FILE = "template-new-zettel.md";
+const NOTES_TEMPLATE_FILE = "template-new-note.md";
 
 async function writeScaffoldFile(
   absolutePath: string,
@@ -72,7 +72,7 @@ export async function scaffoldNotesModule(
   );
   await writeScaffoldFile(
     path.join(notesDir, NOTES_TEMPLATE_FILE),
-    "notes/template-new-zettel.md",
+    "notes/template-new-note.md",
     options,
     result,
     projectRoot,

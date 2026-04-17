@@ -1,6 +1,6 @@
 # CX Operator Manual
 
-`cx` standardizes LLM context ingestion, integrates repository-native Zettelkasten knowledge graphs, and provides OS-neutral MCP tools.
+`cx` standardizes LLM context ingestion, integrates repository-native notes graphs, and provides OS-neutral MCP tools.
 
 ## Choose Your Path
 

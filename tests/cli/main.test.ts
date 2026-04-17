@@ -91,7 +91,7 @@ describe("main", () => {
       "utf8",
     );
     const notesTemplate = await fs.readFile(
-      path.join(root, "notes", "template-new-zettel.md"),
+      path.join(root, "notes", "template-new-note.md"),
       "utf8",
     );
 

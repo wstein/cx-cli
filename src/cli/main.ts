@@ -595,7 +595,7 @@ export async function main(argv: string[]): Promise<number> {
     )
     .command(
       "notes [subcommand]",
-      "Manage Zettelkasten notes.",
+      "Manage repository notes.",
       (command) =>
         command
           .example("$0 notes list", "List all notes in the notes/ directory.")

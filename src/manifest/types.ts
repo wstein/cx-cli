@@ -118,6 +118,6 @@ export interface CxManifest {
   assets: AssetRecord[];
   /** Flat list of all file rows (text + asset), reconstructed after parsing. */
   files: ManifestFileRow[];
-  /** Repository notes metadata (Zettelkasten), if notes were present during bundling. */
+  /** Repository notes metadata, if notes were present during bundling. */
   notes?: NoteRecord[];
 }

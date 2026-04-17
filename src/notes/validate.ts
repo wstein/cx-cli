@@ -197,8 +197,8 @@ export async function validateNotes(
       const baseName = path.basename(file);
       return (
         baseName !== "README.md" &&
-        baseName !== "template-new-zettel.md" &&
-        baseName !== "New Zettel Template.md"
+        baseName !== "template-new-note.md" &&
+        baseName !== "Atomic Note Template.md"
       );
     });
 

@@ -62,7 +62,7 @@ This is a valid note.
     await fs.mkdir(nestedDir, { recursive: true });
 
     await fs.writeFile(
-      path.join(nestedDir, "New Zettel Template.md"),
+      path.join(nestedDir, "Atomic Note Template.md"),
       `---
 id: YYYYMMDDHHMMSS
 aliases: []

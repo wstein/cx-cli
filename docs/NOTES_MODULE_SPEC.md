@@ -2,7 +2,7 @@
 
 ## Goal
 
-`cx` exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native Zettelkasten knowledge graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.
+`cx` exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native notes graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.
 
 For the document map and revision consensus, see [README.md](README.md) and
 [spec-draft.md](spec-draft.md).
@@ -51,7 +51,7 @@ When `cx init` writes a project to disk, it must create:
 - `cx.toml`
 - `Makefile`
 - `notes/README.md`
-- `notes/template-new-zettel.md`
+- `notes/template-new-note.md`
 
 Rules:
 
@@ -65,7 +65,7 @@ Rules:
 Required files:
 
 - `notes/README.md` — the mandatory 101 guide
-- `notes/template-new-zettel.md` — the canonical atomic note template
+- `notes/template-new-note.md` — the canonical atomic note template
 
 User-authored notes live beside those files in `notes/` and may use any human-readable filename.
 
