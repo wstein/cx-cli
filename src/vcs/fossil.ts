@@ -6,6 +6,11 @@ import type { VCSState } from "./provider.js";
 
 const execFileAsync = promisify(execFile);
 
+type FossilRunner = (
+  args: string[],
+  cwd: string,
+) => Promise<{ stdout: string }>;
+
 /**
  * Execute a fossil command with consistent options.
  */
@@ -24,9 +29,12 @@ async function runFossil(
  *
  * `fossil ls` exits 0 only from inside a checked-out repository.
  */
-export async function detectFossil(sourceRoot: string): Promise<boolean> {
+export async function detectFossil(
+  sourceRoot: string,
+  run: FossilRunner = runFossil,
+): Promise<boolean> {
   try {
-    await runFossil(["ls"], sourceRoot);
+    await run(["ls"], sourceRoot);
     return true;
   } catch {
     return false;
@@ -38,8 +46,11 @@ export async function detectFossil(sourceRoot: string): Promise<boolean> {
  *
  * @returns VCSState with kind="fossil" containing tracked, modified, and untracked files.
  */
-export async function getFossilState(sourceRoot: string): Promise<VCSState> {
-  const { stdout: lsOut } = await runFossil(["ls"], sourceRoot);
+export async function getFossilState(
+  sourceRoot: string,
+  run: FossilRunner = runFossil,
+): Promise<VCSState> {
+  const { stdout: lsOut } = await run(["ls"], sourceRoot);
   const trackedFiles = sortLexically(
     lsOut
       .split("\n")
@@ -50,9 +61,9 @@ export async function getFossilState(sourceRoot: string): Promise<VCSState> {
   // `fossil status` prints one "STATUS   path" line per changed or extra file.
   // Lines with status EXTRA are untracked; all other non-UNCHANGED statuses
   // represent tracked files with local modifications.
-  const { stdout: statusOut } = await runFossil(["status"], sourceRoot).catch(
-    () => ({ stdout: "" }),
-  );
+  const { stdout: statusOut } = await run(["status"], sourceRoot).catch(() => ({
+    stdout: "",
+  }));
 
   const modifiedFiles: string[] = [];
   const untrackedFiles: string[] = [];
