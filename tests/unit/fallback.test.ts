@@ -11,7 +11,11 @@ describe("filesystem VCS fallback", () => {
     try {
       await fs.mkdir(path.join(root, "nested"), { recursive: true });
       await fs.writeFile(path.join(root, "root.txt"), "root", "utf8");
-      await fs.writeFile(path.join(root, "nested", "child.txt"), "child", "utf8");
+      await fs.writeFile(
+        path.join(root, "nested", "child.txt"),
+        "child",
+        "utf8",
+      );
 
       const state = await getFilesystemState(root);
 

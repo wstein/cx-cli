@@ -6,7 +6,7 @@ import {
   DEFAULT_STYLE,
   DEFAULT_USER_CONFIG_TEMPLATE,
   DEFAULT_USER_CONFIG_VALUES,
-} from "../../src/config/defaults";
+} from "../../src/config/defaults.js";
 
 describe("config defaults", () => {
   describe("DEFAULT_STYLE", () => {
@@ -33,10 +33,10 @@ describe("config defaults", () => {
 
     it("values are read-only string literals", () => {
       expect(typeof DEFAULT_BEHAVIOR_VALUES.repomixMissingExtension).toBe(
-        "string"
+        "string",
       );
       expect(typeof DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry).toBe(
-        "string"
+        "string",
       );
     });
   });
@@ -52,9 +52,7 @@ describe("config defaults", () => {
     it("includes repomix settings", () => {
       expect(DEFAULT_CONFIG_VALUES.repomix.style).toBe("xml");
       expect(DEFAULT_CONFIG_VALUES.repomix.showLineNumbers).toBe(false);
-      expect(DEFAULT_CONFIG_VALUES.repomix.includeEmptyDirectories).toBe(
-        false
-      );
+      expect(DEFAULT_CONFIG_VALUES.repomix.includeEmptyDirectories).toBe(false);
       expect(DEFAULT_CONFIG_VALUES.repomix.securityCheck).toBe(true);
     });
 
@@ -98,7 +96,7 @@ describe("config defaults", () => {
 
     it("includes behavior values", () => {
       expect(DEFAULT_CONFIG_VALUES.behavior.repomixMissingExtension).toBe(
-        "warn"
+        "warn",
       );
       expect(DEFAULT_CONFIG_VALUES.behavior.configDuplicateEntry).toBe("fail");
     });
@@ -195,7 +193,7 @@ describe("config defaults", () => {
       expect(displayList.timePalette.length).toBeGreaterThan(0);
       // Palette values should be valid color codes
       expect(displayList.timePalette.every((v) => v >= 0 && v <= 255)).toBe(
-        true
+        true,
       );
     });
   });
@@ -230,22 +228,20 @@ describe("config defaults", () => {
   describe("config defaults consistency", () => {
     it("template references match config values for output extensions", () => {
       expect(DEFAULT_CONFIG_TEMPLATE).toContain(
-        DEFAULT_CONFIG_VALUES.output.extensions.xml
+        DEFAULT_CONFIG_VALUES.output.extensions.xml,
       );
       expect(DEFAULT_CONFIG_TEMPLATE).toContain(
-        DEFAULT_CONFIG_VALUES.output.extensions.json
+        DEFAULT_CONFIG_VALUES.output.extensions.json,
       );
     });
 
     it("template references match dedup values", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("mode = \"fail\"");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("order = \"config\"");
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain('mode = "fail"');
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain('order = "config"');
     });
 
     it("behavior values are included in config values", () => {
-      expect(DEFAULT_CONFIG_VALUES.behavior).toEqual(
-        DEFAULT_BEHAVIOR_VALUES
-      );
+      expect(DEFAULT_CONFIG_VALUES.behavior).toEqual(DEFAULT_BEHAVIOR_VALUES);
     });
 
     it("user config defaults have sensible values", () => {
@@ -254,7 +250,7 @@ describe("config defaults", () => {
       expect(displayList.bytesHot).toBeGreaterThan(displayList.bytesWarm);
       expect(displayList.tokensHot).toBeGreaterThan(displayList.tokensWarm);
       expect(displayList.mtimeHotHours).toBeGreaterThan(
-        displayList.mtimeWarmMinutes / 60
+        displayList.mtimeWarmMinutes / 60,
       );
     });
   });

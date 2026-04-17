@@ -4,7 +4,7 @@ import {
   parseMarkdownSection,
   parsePlainSection,
   parseXmlSection,
-} from "../../src/extract/parsers";
+} from "../../src/extract/parsers.js";
 
 describe("extract parsers", () => {
   describe("parseXmlSection", () => {
@@ -32,8 +32,7 @@ describe("extract parsers", () => {
     });
 
     it("handles multiline content within file tags", () => {
-      const source =
-        '<file path="code.js">\nline1\nline2\nline3\n</file>\n';
+      const source = '<file path="code.js">\nline1\nline2\nline3\n</file>\n';
       const result = parseXmlSection(source);
       expect(result[0]?.content).toBe("line1\nline2\nline3");
     });
@@ -67,8 +66,7 @@ describe("extract parsers", () => {
     });
 
     it("handles whitespace on close tag line", () => {
-      const source =
-        '<file path="test.txt">\ncontent\n</file>  \t  \n';
+      const source = '<file path="test.txt">\ncontent\n</file>  \t  \n';
       const result = parseXmlSection(source);
       expect(result[0]?.content).toBe("content");
     });

@@ -9,7 +9,7 @@ import {
   pathExists,
   relativePosix,
   sortLexically,
-} from "../../src/shared/fs";
+} from "../../src/shared/fs.js";
 
 describe("shared fs utilities", () => {
   describe("sortLexically", () => {
@@ -106,7 +106,7 @@ describe("shared fs utilities", () => {
 
     it("handles very long list", () => {
       const input = Array.from({ length: 1000 }, (_, i) =>
-        String.fromCharCode(97 + (i % 26))
+        String.fromCharCode(97 + (i % 26)),
       );
       const result = sortLexically(input);
       // Just verify it completes and returns array
@@ -232,7 +232,11 @@ describe("shared fs utilities", () => {
       try {
         await ensureDir(path.join(root, "nested", "deeper"));
         await fs.writeFile(path.join(root, "root.txt"), "root", "utf8");
-        await fs.writeFile(path.join(root, "nested", "child.txt"), "child", "utf8");
+        await fs.writeFile(
+          path.join(root, "nested", "child.txt"),
+          "child",
+          "utf8",
+        );
         await fs.writeFile(
           path.join(root, "nested", "deeper", "leaf.txt"),
           "leaf",

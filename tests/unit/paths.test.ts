@@ -11,7 +11,9 @@ describe("shared path utilities", () => {
 
   test("isSubpath returns true for valid child paths", () => {
     expect(isSubpath("/home/user", "/home/user/project")).toBe(true);
-    expect(isSubpath("/home/user/project", "/home/user/project/src")).toBe(true);
+    expect(isSubpath("/home/user/project", "/home/user/project/src")).toBe(
+      true,
+    );
     expect(isSubpath("/home/user", "/home/user/a/b/c")).toBe(true);
   });
 

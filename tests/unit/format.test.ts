@@ -35,7 +35,7 @@ describe("shared format utilities", () => {
   test("printHeader prints a styled section header", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -51,7 +51,7 @@ describe("shared format utilities", () => {
   test("printTable prints padded key/value rows", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -73,7 +73,7 @@ describe("shared format utilities", () => {
   test("printSuccess prints a green success message", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -90,7 +90,7 @@ describe("shared format utilities", () => {
   test("printSubheader prints a simple subsection label", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -107,7 +107,7 @@ describe("shared format utilities", () => {
   test("printStat emits a label/value row", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -124,7 +124,7 @@ describe("shared format utilities", () => {
   test("printWarning prints a warning message", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -141,7 +141,7 @@ describe("shared format utilities", () => {
   test("printInfo prints an informational message", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -158,7 +158,7 @@ describe("shared format utilities", () => {
   test("printError prints an error message", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -175,7 +175,7 @@ describe("shared format utilities", () => {
   test("printProgress renders a progress bar and percentage", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -192,7 +192,7 @@ describe("shared format utilities", () => {
   test("printDivider prints a divider line", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
@@ -219,13 +219,15 @@ describe("shared format utilities", () => {
   test("printBundleSummary prints header and stats sections", () => {
     const originalLog = console.log;
     const out: string[] = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       out.push(String(message));
     };
 
     try {
       printBundleSummary("myproj", "/tmp/bundle", 4, 2, 4096, 1024);
-      expect(out.some((line) => line.includes("Bundle Created Successfully"))).toBe(true);
+      expect(
+        out.some((line) => line.includes("Bundle Created Successfully")),
+      ).toBe(true);
       expect(out.some((line) => line.includes("Project"))).toBe(true);
       expect(out.some((line) => line.includes("Sections"))).toBe(true);
       expect(out.some((line) => line.includes("Assets"))).toBe(true);

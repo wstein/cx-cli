@@ -1,33 +1,40 @@
 import { describe, expect, it } from "bun:test";
-import type { CxConfig } from "../../src/config/types";
+import type { CxConfig } from "../../src/config/types.js";
 import {
   analyzeSectionOverlaps,
   formatOverlapConflictMessage,
-} from "../../src/planning/overlaps";
+} from "../../src/planning/overlaps.js";
+
+function makeConfig(partial: Pick<CxConfig, "sections" | "dedup">): CxConfig {
+  return {
+    sections: partial.sections,
+    dedup: partial.dedup,
+  } as unknown as CxConfig;
+}
 
 describe("planning section overlap analysis", () => {
   describe("analyzeSectionOverlaps", () => {
     it("returns empty array for non-overlapping sections", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           src: { include: ["src/**"], exclude: [] },
           tests: { include: ["tests/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts", "tests/main.test.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       expect(conflicts).toEqual([]);
     });
 
     it("detects overlapping sections", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       expect(conflicts.length).toBeGreaterThan(0);
@@ -35,13 +42,13 @@ describe("planning section overlap analysis", () => {
     });
 
     it("includes recommended owner in conflict", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [], priority: 1 },
           src: { include: ["src/**"], exclude: [], priority: 5 },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       if (conflicts.length > 0) {
@@ -51,13 +58,13 @@ describe("planning section overlap analysis", () => {
     });
 
     it("includes suggestions for exclusions", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       if (conflicts.length > 0) {
@@ -67,13 +74,13 @@ describe("planning section overlap analysis", () => {
     });
 
     it("handles multiple paths with overlaps", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/a.ts", "src/b.ts", "tests/c.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       // Should have conflicts for src/a.ts and src/b.ts
@@ -81,13 +88,13 @@ describe("planning section overlap analysis", () => {
     });
 
     it("respects catch_all flag", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [], catch_all: true },
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       // catch_all sections should not participate in overlap analysis
@@ -95,25 +102,25 @@ describe("planning section overlap analysis", () => {
     });
 
     it("handles empty master list", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const conflicts = await analyzeSectionOverlaps(config, []);
       expect(conflicts).toEqual([]);
     });
 
     it("returns conflicts for all overlapping sections", async () => {
-      const config: CxConfig = {
+      const config = makeConfig({
         sections: {
           all: { include: ["**/*"], exclude: [] },
           code: { include: ["**/*.ts", "**/*.js"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       // Should detect overlaps for src/main.ts with multiple sections
@@ -158,7 +165,7 @@ describe("planning section overlap analysis", () => {
       const message = formatOverlapConflictMessage(conflict);
       expect(message).toContain("exclude");
       expect(message.includes("all") || message.includes("sections")).toBe(
-        true
+        true,
       );
     });
 
@@ -183,9 +190,9 @@ describe("planning section overlap analysis", () => {
       };
       const message = formatOverlapConflictMessage(conflict);
       // Should suggest using doctor fix-overlaps or setting priority
-      expect(
-        message.includes("doctor") || message.includes("priority")
-      ).toBe(true);
+      expect(message.includes("doctor") || message.includes("priority")).toBe(
+        true,
+      );
     });
   });
 });

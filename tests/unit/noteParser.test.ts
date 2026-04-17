@@ -4,7 +4,7 @@ import {
   parseMarkdownFrontmatter,
   titleFromFileName,
   validateNoteIdFormat,
-} from "../../src/notes/parser";
+} from "../../src/notes/parser.js";
 
 describe("notes parser", () => {
   describe("validateNoteIdFormat", () => {
@@ -148,7 +148,8 @@ describe("notes parser", () => {
     });
 
     it("trims whitespace from values", () => {
-      const content = "---\ntitle:   My Note   \nauthor:  John Doe  \n---\nBody";
+      const content =
+        "---\ntitle:   My Note   \nauthor:  John Doe  \n---\nBody";
       const result = parseMarkdownFrontmatter(content);
       expect(result.frontmatter.title).toBe("My Note");
       expect(result.frontmatter.author).toBe("John Doe");
@@ -169,7 +170,8 @@ describe("notes parser", () => {
     });
 
     it("skips lines without colons in frontmatter", () => {
-      const content = "---\ntitle: My Note\ninvalid line\nauthor: John\n---\nBody";
+      const content =
+        "---\ntitle: My Note\ninvalid line\nauthor: John\n---\nBody";
       const result = parseMarkdownFrontmatter(content);
       expect(result.frontmatter.title).toBe("My Note");
       expect(result.frontmatter.author).toBe("John");
@@ -206,7 +208,7 @@ describe("notes parser", () => {
       const content = "---\nmy-key: value\nmy_key: value2\n---\nBody";
       const result = parseMarkdownFrontmatter(content);
       expect(result.frontmatter["my-key"]).toBe("value");
-      expect(result.frontmatter["my_key"]).toBe("value2");
+      expect(result.frontmatter.my_key).toBe("value2");
     });
 
     it("handles body starting with empty lines", () => {
@@ -239,7 +241,7 @@ describe("notes parser", () => {
         "---",
         "tags: [\"alpha\", beta, 'gamma']",
         "status: 'draft'",
-        "summary: \"Hello world\"",
+        'summary: "Hello world"',
         "---",
         "Body",
       ].join("\n");

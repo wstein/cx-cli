@@ -13,7 +13,7 @@ describe("shared wizard utilities", () => {
 
   beforeEach(() => {
     output = [];
-    console.log = (message?: any) => {
+    console.log = (message?: unknown) => {
       output.push(String(message ?? ""));
     };
   });

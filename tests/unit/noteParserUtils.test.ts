@@ -30,9 +30,7 @@ describe("notes parser utilities", () => {
     });
 
     it("handles deeply nested paths", () => {
-      const title = titleFromFileName(
-        "/root/a/b/c/d/e/f/filename.md"
-      );
+      const title = titleFromFileName("/root/a/b/c/d/e/f/filename.md");
       expect(title).toBe("filename");
     });
 
@@ -121,8 +119,7 @@ describe("notes parser utilities", () => {
     });
 
     it("handles very long first lines", () => {
-      const longLine =
-        "A".repeat(500) + "\n\nSecond paragraph";
+      const longLine = `${"A".repeat(500)}\n\nSecond paragraph`;
       const summary = extractNoteSummary(longLine);
       expect(summary.length).toBeGreaterThan(100);
     });

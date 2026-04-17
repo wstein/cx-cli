@@ -31,7 +31,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag1", 42, "tag3"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("error" in result).toBe(true);
       if ("error" in result) {
@@ -43,7 +43,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["  tag1  ", "tag2", "\ttag3\n"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -55,7 +55,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag1", "   ", "", "tag2"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -67,7 +67,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["zebra", "apple", "banana"],
         "test.md",
-        "aliases"
+        "aliases",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -87,7 +87,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         { notAnArray: true },
         "my-note.md",
-        "aliases"
+        "aliases",
       );
       expect("error" in result).toBe(true);
       if ("error" in result) {
@@ -109,7 +109,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag1", null, "tag2"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("error" in result).toBe(true);
       if ("error" in result) {
@@ -121,7 +121,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag1", true, "tag2"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("error" in result).toBe(true);
       if ("error" in result) {
@@ -133,7 +133,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag1", { key: "value" }, "tag2"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("error" in result).toBe(true);
       if ("error" in result) {
@@ -145,7 +145,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["😊", "unicode-tag", "中文"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -157,7 +157,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["tag-with-dash", "tag_with_underscore", "tag.with.dot"],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -182,7 +182,7 @@ describe("note validation utilities", () => {
       const result = normalizeStringArray(
         ["\t\t  tag1  \t\n", "   tag2   "],
         "test.md",
-        "tags"
+        "tags",
       );
       expect("value" in result).toBe(true);
       if ("value" in result) {
@@ -261,7 +261,7 @@ describe("note validation utilities", () => {
 function normalizeStringArray(
   value: unknown,
   filePath: string,
-  fieldName: "aliases" | "tags"
+  fieldName: "aliases" | "tags",
 ): { value: string[] } | { error: string } {
   if (value === undefined) {
     return { value: [] };
