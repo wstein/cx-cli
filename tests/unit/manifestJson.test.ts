@@ -1,6 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { parseManifestJson, renderManifestJson } from "../../src/manifest/json";
-import type { CxManifest } from "../../src/manifest/types";
+import {
+  parseManifestJson,
+  renderManifestJson,
+} from "../../src/manifest/json.js";
+import type { CxManifest } from "../../src/manifest/types.js";
 
 const VALID_MINIMAL_MANIFEST: CxManifest = {
   schemaVersion: 6,
@@ -19,7 +22,7 @@ const VALID_MINIMAL_MANIFEST: CxManifest = {
     showLineNumbers: false,
     includeEmptyDirectories: false,
     securityCheck: true,
-    normalizationPolicy: "utf8",
+    normalizationPolicy: "repomix-default-v1",
   },
   totalTokenCount: 1000,
   vcsProvider: "git",
@@ -81,7 +84,7 @@ describe("manifest JSON parsing and rendering", () => {
             aliases: [],
             tags: ["test"],
             summary: "A test note",
-            lastModified: "2025-01-13T14:30:15Z",
+            lastModified: "2025-01-13T14:30:15.000Z",
           },
         ],
       };
@@ -130,11 +133,10 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "src/main.ts",
                 kind: "text",
                 section: "src",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "def456",
                 sizeBytes: 1024,
                 tokenCount: 100,
-                mtime: "2025-01-13T14:30:15Z",
                 mediaType: "text/plain",
                 outputStartLine: 1,
                 outputEndLine: 50,
@@ -157,7 +159,6 @@ describe("manifest JSON parsing and rendering", () => {
             storedPath: "assets/logo.png",
             sha256: "ghi789",
             sizeBytes: 2048,
-            mtime: "2025-01-13T14:30:15Z",
             mediaType: "image/png",
           },
         ],
@@ -224,7 +225,7 @@ describe("manifest JSON parsing and rendering", () => {
     it("preserves all manifest fields except bundleVersion", () => {
       const original: CxManifest = {
         ...VALID_MINIMAL_MANIFEST,
-        bundleVersion: 2,
+        bundleVersion: 1,
         sourceRoot: "/project",
         totalTokenCount: 12345,
       };
@@ -252,7 +253,7 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "src/main.ts",
                 kind: "text",
                 section: "src",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "fhash",
                 sizeBytes: 512,
                 tokenCount: 50,
@@ -301,7 +302,7 @@ describe("manifest JSON parsing and rendering", () => {
             aliases: ["alias1"],
             tags: ["tag1", "tag2"],
             summary: "A short summary",
-            lastModified: "2025-01-13T14:30:15Z",
+            lastModified: "2025-01-13T14:30:15.000Z",
           },
         ],
       });
@@ -325,9 +326,7 @@ describe("manifest JSON parsing and rendering", () => {
       const invalidJson = JSON.stringify({
         ...JSON.parse(renderManifestJson(VALID_MINIMAL_MANIFEST)),
         settings: {
-          ...JSON.parse(
-            renderManifestJson(VALID_MINIMAL_MANIFEST)
-          ).settings,
+          ...JSON.parse(renderManifestJson(VALID_MINIMAL_MANIFEST)).settings,
           globalStyle: 123,
         },
       });
@@ -362,7 +361,7 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "src/index.ts",
                 kind: "text",
                 section: "src",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "sh2",
                 sizeBytes: 512,
                 tokenCount: 50,
@@ -407,7 +406,7 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "z.ts",
                 kind: "text",
                 section: "src",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "sh2",
                 sizeBytes: 256,
                 tokenCount: 50,
@@ -420,7 +419,7 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "a.ts",
                 kind: "text",
                 section: "src",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "sh3",
                 sizeBytes: 256,
                 tokenCount: 50,
@@ -479,7 +478,7 @@ describe("manifest JSON parsing and rendering", () => {
                 path: "README.md",
                 kind: "text",
                 section: "docs",
-                storedIn: "output",
+                storedIn: "packed",
                 sha256: "dh2",
                 sizeBytes: 1024,
                 tokenCount: 200,
@@ -509,7 +508,7 @@ describe("manifest JSON parsing and rendering", () => {
             aliases: ["arch", "design-doc"],
             tags: ["architecture", "design"],
             summary: "Architecture decisions",
-            lastModified: "2025-01-13T14:30:15Z",
+            lastModified: "2025-01-13T14:30:15.000Z",
           },
         ],
       };

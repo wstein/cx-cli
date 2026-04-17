@@ -131,7 +131,7 @@ const noteArb: fc.Arbitrary<NoteRecord> = fc.record({
   aliases: fc.array(nonEmptyString, { maxLength: 4 }),
   tags: fc.array(nonEmptyString, { maxLength: 4 }),
   summary: nonEmptyString,
-  lastModified: fc.date().map((d) => d.toISOString()),
+  lastModified: isoTimestamp,
 });
 
 function sectionArb(): fc.Arbitrary<CxSection> {
