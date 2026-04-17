@@ -93,6 +93,7 @@ interface RenderedSectionArtifacts {
   fileTokenCounts: Map<string, number>;
   fileContentHashes: Map<string, string>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
+  planHash?: string;
 }
 
 function assertSafeBundleRelativePath(value: string): void {
@@ -326,6 +327,9 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
           ...(renderResult.fileSpans !== undefined
             ? { fileSpans: renderResult.fileSpans }
             : {}),
+          ...(renderResult.planHash !== undefined
+            ? { planHash: renderResult.planHash }
+            : {}),
         };
       }),
     );
@@ -356,6 +360,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     const sectionSpanMaps: SectionSpanMaps = new Map();
     const sectionTokenMaps: SectionTokenMaps = new Map();
     const sectionHashMaps: SectionHashMaps = new Map();
+    const sectionPlanHashes = new Map<string, string>();
     const renderWarnings: string[] = [];
 
     for (const section of renderedSections) {
@@ -364,6 +369,9 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       sectionHashMaps.set(section.name, section.fileContentHashes);
       if (section.fileSpans) {
         sectionSpanMaps.set(section.name, section.fileSpans);
+      }
+      if (section.planHash) {
+        sectionPlanHashes.set(section.name, section.planHash);
       }
     }
 
@@ -404,6 +412,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       sectionSpanMaps,
       sectionTokenMaps,
       sectionHashMaps,
+      sectionPlanHashes,
       dirtyState: effectiveDirtyState,
       modifiedFiles: effectiveModifiedFiles,
       notes: notesRecords,

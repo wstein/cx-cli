@@ -14,6 +14,12 @@ import {
   validateRepomixContract,
 } from "./capabilities.js";
 import { buildSectionHeaderText } from "./handover.js";
+import {
+  computePlanHash,
+  extractStructuredPlan,
+  planToMaps,
+  type StructuredRenderPlan,
+} from "./structured.js";
 
 export interface RenderSectionResult {
   outputText: string;
@@ -21,6 +27,8 @@ export interface RenderSectionResult {
   fileTokenCounts: Map<string, number>;
   fileContentHashes: Map<string, string>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
+  structuredPlan?: StructuredRenderPlan;
+  planHash?: string;
   warnings: string[];
 }
 
@@ -259,31 +267,29 @@ export async function renderSectionWithRepomix(params: {
   }
 
   if (capabilities.supportsPackStructured && packStructured) {
-    const structuredPlan = await packStructured(
+    const structuredPack = await packStructured(
       [params.sourceRoot],
       mergedConfig,
       {
         explicitFiles: params.explicitFiles,
       },
     );
-    const fileTokenCounts = new Map<string, number>();
-    const fileContentHashes = new Map<string, string>();
 
-    for (const entry of structuredPlan.entries) {
-      fileTokenCounts.set(entry.path, entry.metadata.tokenCount ?? 0);
-      fileContentHashes.set(entry.path, sha256Text(entry.content));
-    }
+    // Extract structured plan with deterministic ordering and hashes
+    const plan = extractStructuredPlan(structuredPack);
+    const planHash = computePlanHash(plan);
+    const { fileTokenCounts, fileContentHashes } = planToMaps(plan);
 
     if (
       params.config.manifest.includeOutputSpans &&
       params.style !== "json" &&
-      typeof structuredPlan.renderWithMap === "function"
+      typeof structuredPack.renderWithMap === "function"
     ) {
-      const rendered = await structuredPlan.renderWithMap(params.style);
+      const rendered = await structuredPack.renderWithMap(params.style);
       await fs.writeFile(params.outputPath, rendered.output, "utf8");
 
       const entryByPath = new Map(
-        structuredPlan.entries.map((entry) => [entry.path, entry]),
+        structuredPack.entries.map((entry) => [entry.path, entry]),
       );
       const fileSpans = new Map<
         string,
@@ -320,6 +326,8 @@ export async function renderSectionWithRepomix(params: {
         fileTokenCounts,
         fileContentHashes,
         fileSpans,
+        structuredPlan: plan,
+        planHash,
         warnings,
       };
     }
@@ -338,7 +346,7 @@ export async function renderSectionWithRepomix(params: {
       emitWarning(message);
     }
 
-    const outputText = await structuredPlan.render(params.style);
+    const outputText = await structuredPack.render(params.style);
     await fs.writeFile(params.outputPath, outputText, "utf8");
 
     return {
@@ -350,6 +358,8 @@ export async function renderSectionWithRepomix(params: {
       fileTokenCounts,
       fileContentHashes,
       fileSpans: new Map(),
+      structuredPlan: plan,
+      planHash,
       warnings,
     };
   }
@@ -417,3 +427,4 @@ export async function renderSectionWithRepomix(params: {
     warnings,
   };
 }
+

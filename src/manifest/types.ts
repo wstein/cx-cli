@@ -84,6 +84,11 @@ export interface CxManifest {
   cxVersion: string;
   repomixVersion: string;
   checksumAlgorithm: "sha256";
+  /**
+   * Hash of the render plan (if structured rendering was used).
+   * Provides integrity verification of the deterministic render contract.
+   */
+  renderPlanHash?: string;
   settings: ManifestSettings;
   /**
    * Total token count for the entire bundle (sum of all section tokens).

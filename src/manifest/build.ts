@@ -27,6 +27,8 @@ export async function buildManifest(params: {
   sectionSpanMaps?: SectionSpanMaps | undefined;
   sectionTokenMaps?: SectionTokenMaps | undefined;
   sectionHashMaps?: SectionHashMaps | undefined;
+  /** Section render plan hashes (if structured rendering was used). */
+  sectionPlanHashes?: Map<string, string> | undefined;
   /**
    * Effective dirty state to record in the manifest.
    *
@@ -108,6 +110,16 @@ export async function buildManifest(params: {
     outputEndLine: null,
   }));
 
+  // Compute aggregate render plan hash from all section hashes
+  let aggregatePlanHash: string | undefined;
+  if (params.sectionPlanHashes && params.sectionPlanHashes.size > 0) {
+    const planHashesArray = Array.from(params.sectionPlanHashes.entries()).sort(
+      ([keyA], [keyB]) => keyA.localeCompare(keyB),
+    );
+    const planHashContent = JSON.stringify(planHashesArray);
+    aggregatePlanHash = sha256NormalizedText(planHashContent);
+  }
+
   const manifest: CxManifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     bundleVersion: 1,
@@ -119,6 +131,7 @@ export async function buildManifest(params: {
     cxVersion: params.cxVersion,
     repomixVersion: params.repomixVersion,
     checksumAlgorithm: "sha256",
+    ...(aggregatePlanHash ? { renderPlanHash: aggregatePlanHash } : {}),
     settings: {
       globalStyle: params.config.repomix.style,
       tokenEncoding: params.config.tokens.encoding,
