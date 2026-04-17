@@ -6,6 +6,12 @@ import type { CxConfig } from "../config/types.js";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
 import { renderSectionWithRepomix } from "../repomix/render.js";
+import {
+  computePlanHash,
+  extractStructuredPlan,
+  validateEntryHashes,
+  validatePlanOrdering,
+} from "../repomix/structured.js";
 import { CxError } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
 import {
@@ -18,7 +24,10 @@ export type VerifyFailureType =
   | "checksum_omission"
   | "checksum_mismatch"
   | "unexpected_checksum_reference"
-  | "source_tree_drift";
+  | "source_tree_drift"
+  | "structured_contract_mismatch"
+  | "ordering_violation"
+  | "render_plan_drift";
 
 export class VerifyError extends CxError {
   readonly type: VerifyFailureType;
@@ -84,6 +93,35 @@ async function verifyBundleAgainstSourceTree(
         explicitFiles,
         requireStructured: true,
       });
+
+      // Verify structured plan integrity if available
+      if (
+        renderResult.structuredPlan &&
+        renderResult.planHash &&
+        manifest.renderPlanHash
+      ) {
+        // Validate ordering is deterministic
+        if (!validatePlanOrdering(renderResult.structuredPlan)) {
+          throw new VerifyError(
+            "ordering_violation",
+            `Render plan ordering is not deterministic for section ${section.name}.`,
+            section.name,
+          );
+        }
+
+        // Validate all entry hashes are consistent
+        const hashErrors = validateEntryHashes(
+          renderResult.structuredPlan.entries,
+        );
+        if (hashErrors.size > 0) {
+          const errorDetails = Array.from(hashErrors.values()).join(", ");
+          throw new VerifyError(
+            "structured_contract_mismatch",
+            `Content hash validation failed for section ${section.name}: ${errorDetails}`,
+            section.name,
+          );
+        }
+      }
 
       for (const file of sectionRows) {
         const sourceHash = renderResult.fileContentHashes.get(file.path);
