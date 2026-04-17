@@ -51,6 +51,56 @@ Core responsibility split:
 - `cx` verification layer: confirm artifacts and source-tree alignment
 - `cx` extraction layer: recover files according to manifest truth
 
+## Structured Render Contract (Phase 1)
+
+Starting with v0.3.17, `cx` enforces a **deterministic structured render contract** instead of heuristic span parsing.
+
+### The Problem
+
+Previous versions computed file spans by parsing rendered output markers (XML tags, Markdown headings, plain-text delimiters). This approach suffered from:
+- Marker-based heuristics that could fail silently on rendering variations
+- Span calculations dependent on indirect inference
+- No cryptographic verification of render plan integrity
+
+### The Solution
+
+**Structured truth at render time:** The repomix adapter now provides `packStructured()`, which returns:
+
+```ts
+interface StructuredRenderEntry {
+  path: string;
+  content: string;
+  sha256: string;        // Content hash, not dependent on rendering
+  tokenCount: number;
+}
+
+interface StructuredRenderPlan {
+  entries: StructuredRenderEntry[];
+  ordering: string[];    // Canonical lexicographic ordering
+}
+```
+
+### Enforcement
+
+1. **Deterministic ordering**: All files are sorted lexicographically. `validatePlanOrdering()` enforces this invariant.
+
+2. **Content integrity**: Each file's sha256 is computed during structured extraction, not after rendering. `validateEntryHashes()` verifies consistency.
+
+3. **Plan hash**: The manifest stores `renderPlanHash`, computed from the deterministic JSON representation of the plan. This provides cryptographic proof that the render plan is correct.
+
+4. **Verification**: `cx verify` now checks:
+   - Ordering is deterministic (no regressions in file order)
+   - All entry hashes are consistent (content didn't drift)
+   - Plan hash is reproducible (render contract is sound)
+
+### Files
+
+- `src/repomix/structured.ts`: Core types and utilities
+- `src/repomix/render.ts`: Updated to extract and return structured plans
+- `src/manifest/types.ts`: Added `renderPlanHash` field
+- `src/manifest/build.ts`: Computes aggregate plan hash from sections
+- `src/bundle/verify.ts`: Validates plan integrity during verification
+
 ## Module Layer Rules
 
 The codebase enforces strict import directionality. Violations are bugs, not
