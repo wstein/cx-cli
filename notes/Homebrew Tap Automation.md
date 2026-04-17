@@ -45,6 +45,8 @@ jobs:
           brew audit --strict --online Formula/cx-cli.rb
 ```
 
+That workflow is the tap repo's responsibility. It owns formula validation on push and does not publish or rebuild anything.
+
 ## Source repo release step
 
 The source repo owns packaging and formula generation. The release job should publish the packed tarball to npm first, then keep a step like this to generate `release-artifacts/cx-cli.rb` from the same tarball and update the tap:
@@ -77,7 +79,7 @@ The source repo owns packaging and formula generation. The release job should pu
 
 ## Why this lines up cleanly
 
-- The source repo owns packaging, formula generation, and the commit that updates the tap.
+- The source repo owns packaging, npm publishing, formula generation, and the commit that updates the tap.
 - npm publish happens first, so the formula is generated from the exact tarball that was released.
 - The tap repo owns formula validation on push.
 - A PAT or GitHub App token with write access to `wstein/homebrew-tap` triggers the tap repo workflow normally.
