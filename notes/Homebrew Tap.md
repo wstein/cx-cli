@@ -13,5 +13,6 @@ This tap is updated from tagged releases in this repository by the single releas
 
 - `scripts/generate-homebrew-formula.ts`
 - `.github/workflows/publish.yml`
+- `notes/Homebrew Tap Automation.md`
 - `README.md`
 - `package.json`
