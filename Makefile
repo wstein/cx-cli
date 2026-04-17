@@ -11,13 +11,13 @@ all: build
 build: ## Build the project.
 	$(BUN) run build
 
-test: ## Run tests.
-	$(BUN) test
+test: ## Run unit tests.
+	$(BUN) run test:unit
 
 coverage: ## Run tests with coverage.
 	$(BUN) run coverage
 
-verify: ## Run verification checks.
+verify: ## Run lint, typecheck, build, and the full test suite.
 	$(BUN) run verify
 
 release: ## Release a new version (VERSION=x.y.z required).
