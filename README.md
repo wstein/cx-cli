@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/wstein/cx-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/wstein/cx-cli/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/wstein/cx-cli?logo=codecov)](https://codecov.io/gh/wstein/cx-cli)
+[![Security](https://img.shields.io/badge/security-policy-blue)](./SECURITY.md)
 [![npm version](https://img.shields.io/npm/v/@wsmy/cx-cli?color=informational)](https://www.npmjs.com/package/@wsmy/cx-cli)
 [![GitHub tag](https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag)](https://github.com/wstein/cx-cli/tags)
 [![License](https://img.shields.io/github/license/wstein/cx-cli)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
