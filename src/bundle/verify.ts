@@ -7,8 +7,6 @@ import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
 import { renderSectionWithRepomix } from "../repomix/render.js";
 import {
-  computePlanHash,
-  extractStructuredPlan,
   validateEntryHashes,
   validatePlanOrdering,
 } from "../repomix/structured.js";

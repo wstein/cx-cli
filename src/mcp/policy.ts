@@ -171,7 +171,7 @@ export function checkToolAccess(
 /**
  * Resolve policy from config or use default.
  */
-export function resolvePolicy(config?: CxConfig): McpPolicy {
+export function resolvePolicy(_config?: CxConfig): McpPolicy {
   // TODO: In the future, read policy from config.mcp.policy
   // For now, use default
   return DEFAULT_POLICY;

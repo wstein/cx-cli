@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 
 import { sha256Text } from "../shared/hashing.js";

@@ -44,7 +44,7 @@ export class AuditLogger {
       await ensureDir(path.dirname(this.logFilePath));
       await fs.appendFile(
         this.logFilePath,
-        JSON.stringify(event) + "\n",
+        `${JSON.stringify(event)}\n`,
         "utf8",
       );
     } catch (error) {

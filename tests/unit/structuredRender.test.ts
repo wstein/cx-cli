@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import {
   computePlanHash,
-  extractStructuredPlan,
   planToMaps,
   type StructuredRenderEntry,
   type StructuredRenderPlan,

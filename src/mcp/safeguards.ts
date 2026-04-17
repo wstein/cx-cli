@@ -3,7 +3,7 @@
  * request logging, and basic rate limiting to prevent abuse and provide audit trails.
  */
 
-import { AuditLogger } from "./audit.js";
+import type { AuditLogger } from "./audit.js";
 import { checkToolAccess, PolicyError, resolvePolicy } from "./policy.js";
 
 interface ToolCallMetrics {
