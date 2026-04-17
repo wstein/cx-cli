@@ -95,7 +95,7 @@ Stable ids matter because downstream automation can reference notes without depe
 
 ## Recommended Workflow
 
-1. Start from `template-new-note.md`.
+1. Start from `Templates/Atomic Note Template.md`.
 2. Assign a fresh `id` using local time in `YYYYMMDDHHMMSS` format.
 3. Give the note a clear searchable title.
 4. Write one thought in your own words.

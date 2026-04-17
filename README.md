@@ -144,7 +144,7 @@ cx init --name demo
 - `cx-mcp.toml` as the default MCP overlay for agent workflows; it extends `cx.toml` and keeps the MCP workspace config colocated with the repo root
 - `.editorconfig` as the shared editor baseline for whitespace and line-ending defaults
 - `notes/README.md` as the repository notes guide
-- `notes/template-new-note.md` as the atomic note template
+- `notes/Templates/Atomic Note Template.md` as the atomic note template
 
 By default, `cx init` preserves existing init files and creates only the missing targets. Use `--force` to overwrite existing generated files.
 

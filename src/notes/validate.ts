@@ -195,11 +195,7 @@ export async function validateNotes(
     .filter((file) => file.endsWith(".md"))
     .filter((file) => {
       const baseName = path.basename(file);
-      return (
-        baseName !== "README.md" &&
-        baseName !== "template-new-note.md" &&
-        baseName !== "Atomic Note Template.md"
-      );
+      return baseName !== "README.md" && baseName !== "Atomic Note Template.md";
     });
 
   const notes: NoteMetadata[] = [];

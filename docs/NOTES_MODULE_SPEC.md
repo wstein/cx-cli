@@ -51,7 +51,7 @@ When `cx init` writes a project to disk, it must create:
 - `cx.toml`
 - `Makefile`
 - `notes/README.md`
-- `notes/template-new-note.md`
+- `notes/Templates/Atomic Note Template.md`
 
 Rules:
 
@@ -65,7 +65,7 @@ Rules:
 Required files:
 
 - `notes/README.md` — the mandatory 101 guide
-- `notes/template-new-note.md` — the canonical atomic note template
+- `notes/Templates/Atomic Note Template.md` — the canonical atomic note template
 
 User-authored notes live beside those files in `notes/` and may use any human-readable filename.
 

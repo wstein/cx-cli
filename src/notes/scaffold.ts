@@ -18,7 +18,7 @@ export interface ScaffoldNotesResult {
 
 const NOTES_DIR_NAME = "notes";
 const NOTES_GUIDE_FILE = "README.md";
-const NOTES_TEMPLATE_FILE = "template-new-note.md";
+const NOTES_TEMPLATE_FILE = path.join("Templates", "Atomic Note Template.md");
 
 async function writeScaffoldFile(
   absolutePath: string,
