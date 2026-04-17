@@ -12,5 +12,5 @@ The release workflow computes the Homebrew SHA-256 from a local `npm pack` tarba
 ## Links
 
 - `scripts/generate-homebrew-formula.ts`
-- `.github/workflows/publish-homebrew.yml`
+- `.github/workflows/publish.yml`
 - `package.json`

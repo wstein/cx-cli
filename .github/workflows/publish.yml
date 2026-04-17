@@ -1,4 +1,4 @@
-name: Publish npm package
+name: Publish release artifacts
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
         type: string
 
 concurrency:
-  group: publish-npm
+  group: publish-release
   cancel-in-progress: false
 
 permissions:
@@ -59,8 +59,10 @@ jobs:
     needs: validate
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
+      - name: Checkout current repo
         uses: actions/checkout@v4
 
       - name: Setup Bun
@@ -70,6 +72,20 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Determine release version
+        id: release-version
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = 'workflow_dispatch' ]; then
+            requested_version="${{ github.event.inputs.version }}"
+            if [ -z "$requested_version" ]; then
+              requested_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")
+            fi
+          else
+            requested_version=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$requested_version" >> $GITHUB_OUTPUT
 
       - name: Build package
         run: bun run build
@@ -84,3 +100,35 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate Homebrew formula
+        run: |
+          mkdir -p homebrew-formula
+          bun run scripts/generate-homebrew-formula.ts "${{ steps.release-version.outputs.version }}" --output homebrew-formula/cx-cli.rb
+
+      - name: Validate formula syntax
+        run: ruby -c homebrew-formula/cx-cli.rb
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: wstein/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update tap formula
+        run: |
+          set -euo pipefail
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main || git checkout -b main
+          mkdir -p Formula
+          cp ../homebrew-formula/cx-cli.rb Formula/cx-cli.rb
+          if git diff --quiet -- Formula/cx-cli.rb; then
+            echo "No formula updates required."
+            exit 0
+          fi
+          git add Formula/cx-cli.rb
+          git commit -m "chore(homebrew): update cx-cli formula for v${{ steps.release-version.outputs.version }}"
+          git push origin main

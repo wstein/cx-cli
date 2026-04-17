@@ -7,10 +7,9 @@ tags: ["distribution","npm"]
 # npm Package Page
 
 `https://www.npmjs.com/package/@wsmy/cx-cli` is the public npm package listing for the CLI.
-The Homebrew formula and the npm publish workflow both depend on this package as the authoritative release artifact.
+The Homebrew formula and the combined release workflow both depend on this package as the authoritative release artifact.
 
 ## Links
 
 - `package.json`
-- `.github/workflows/publish-npm.yml`
-- `.github/workflows/publish-homebrew.yml`
+- `.github/workflows/publish.yml`

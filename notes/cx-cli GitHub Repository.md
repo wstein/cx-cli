@@ -7,11 +7,10 @@ tags: ["repository","source","distribution"]
 # cx-cli GitHub Repository
 
 `https://github.com/wstein/cx-cli` is the source repository for the CLI project.
-It defines package metadata, release workflows, Homebrew integration, and the public documentation that drives distribution and CI/CD.
+It defines package metadata, the combined release workflow, Homebrew integration, and the public documentation that drives distribution and CI/CD.
 
 ## Links
 
-- `.github/workflows/publish-npm.yml`
-- `.github/workflows/publish-homebrew.yml`
+- `.github/workflows/publish.yml`
 - `scripts/generate-homebrew-formula.ts`
 - `README.md`
