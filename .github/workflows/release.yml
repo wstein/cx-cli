@@ -74,6 +74,9 @@ jobs:
           rm tarball-artifacts/pack.json
           echo "npm_tarball_name=$npm_tarball_name" >> $GITHUB_OUTPUT
 
+      - name: Generate release integrity SBOM
+        run: bun run integrity
+
       - name: Upload release artifacts
         # Keep the packed npm tarball and generated formula together so both publish jobs use the same release payload.
         uses: actions/upload-artifact@v4

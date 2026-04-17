@@ -1,0 +1,87 @@
+<!-- Source: RELEASE_INTEGRITY.md | Status: CANONICAL | Stability: STABLE -->
+
+# Release Integrity
+
+cx-cli releases include cryptographic integrity verification to detect unintended changes and ensure builds are reproducible.
+
+## What's Verified
+
+Each release publishes a **Software Bill of Materials (SBOM)** with:
+- **Release version** — semantic version from package.json
+- **Timestamp** — UTC ISO-8601 timestamp of build
+- **Node version** — Node.js version used to build
+- **Bun version** — Bun runtime version used to build
+- **Tarball name** — published npm tarball filename
+- **Tarball hash** — SHA-256 digest of the tarball
+
+The SBOM is generated at build time and released as `dist/release-integrity.json`.
+
+## Verification Steps
+
+### 1. Obtain the SBOM
+
+Download `release-integrity.json` from the GitHub release artifacts page.
+
+### 2. Run Local Verification
+
+```bash
+bun run verify-release
+```
+
+This command:
+- Reads the SBOM from `dist/release-integrity.json`
+- Locates the tarball in `tarball-artifacts/`
+- Computes its SHA-256 hash
+- Compares against the SBOM hash
+- Reports success or failure with details
+
+### 3. Manual Verification
+
+```bash
+# Compute tarball hash
+sha256sum cx-cli-X.Y.Z.tgz
+
+# Compare against SBOM
+cat dist/release-integrity.json | jq '.tarballHash'
+```
+
+## Design
+
+### Reproducibility
+
+The integrity system depends on **reproducible builds**: the same source, dependencies, and compiler versions produce byte-identical output.
+
+The CI/CD pipeline includes a `reproducibility` job that:
+- Builds dist/ twice in sequence
+- Captures SHA-256 of all dist/*.js files
+- Fails if any file differs between runs
+
+This catches timestamp injection, non-deterministic compilation, or other drift.
+
+### Trust Model
+
+The SBOM is released alongside the tarball as a GitHub release artifact. Operators can:
+1. Verify the tarball's SHA-256 matches the SBOM
+2. Confirm build environment (Node, Bun versions)
+3. Audit the release timestamp
+
+The SBOM itself is **not signed**. For full cryptographic verification, operators should validate the GitHub release against the repository's public keys or use GitHub's own release verification.
+
+## Interpreting Failures
+
+**Hash mismatch** → Tarball has been modified or corrupted. Do not use; re-download from the official GitHub release.
+
+**Tarball not found** → Missing or renamed tarball. Verify you have the correct artifact.
+
+**SBOM missing or corrupt** → Release metadata is missing. Contact the maintainers.
+
+## Release Integrity Artifact Retention
+
+The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. GitHub retains these for the lifetime of the release.
+
+## Future Enhancements
+
+Planned improvements:
+- GPG signing of release tarballs
+- Signed attestation of reproducible builds
+- Supply chain integrity proofs (SLSA provenance)
