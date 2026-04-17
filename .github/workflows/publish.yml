@@ -149,6 +149,11 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
           path: homebrew-tap
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
       - name: Generate Homebrew formula
         run: |
           bun run scripts/generate-homebrew-formula.ts "${{ needs.prepare-release.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.prepare-release.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
