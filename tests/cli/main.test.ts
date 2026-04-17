@@ -2,10 +2,9 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
+import packageJson from "../../package.json" with { type: "json" };
 import { main } from "../../src/cli/main.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
-import packageJson from "../../package.json" with { type: "json" };
 
 describe("main", () => {
   test("prints top-level help when invoked without arguments", async () => {
