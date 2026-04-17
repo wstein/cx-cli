@@ -1,0 +1,244 @@
+import { describe, expect, it } from "bun:test";
+import os from "node:os";
+import path from "node:path";
+import { AuditLogger } from "../../src/mcp/audit.js";
+
+describe("MCP Audit Logger", () => {
+  describe("logEvent", () => {
+    it("logs tool access decision", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      await logger.logEvent(
+        "workspace_list",
+        "read",
+        "allowed",
+        "Tool workspace_list (capability: read) is allowed",
+        "/src/utils",
+      );
+
+      const events = await logger.readLog();
+      expect(events.length).toBe(1);
+
+      const event = events[0];
+      expect(event.tool).toBe("workspace_list");
+      expect(event.capability).toBe("read");
+      expect(event.decision).toBe("allowed");
+      expect(event.path).toBe("/src/utils");
+      expect(event.timestamp).toBeDefined();
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+
+    it("handles disabled audit logging gracefully", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, false);
+
+      await logger.logEvent(
+        "notes_new",
+        "mutate",
+        "denied",
+        "Access denied",
+      );
+
+      const events = await logger.readLog();
+      expect(events.length).toBe(0);
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+  });
+
+  describe("logToolAccess", () => {
+    it("logs allowed access", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      await logger.logToolAccess(
+        "doctor_mcp",
+        "observe",
+        true,
+        "Tool allowed under policy",
+      );
+
+      const events = await logger.readLog();
+      expect(events.length).toBe(1);
+      expect(events[0].decision).toBe("allowed");
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+
+    it("logs denied access", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      await logger.logToolAccess(
+        "notes_delete",
+        "mutate",
+        false,
+        "Tool denied by policy",
+      );
+
+      const events = await logger.readLog();
+      expect(events.length).toBe(1);
+      expect(events[0].decision).toBe("denied");
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+  });
+
+  describe("getSummary", () => {
+    it("computes correct summary statistics", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      // Log various events
+      await logger.logToolAccess(
+        "workspace_list",
+        "read",
+        true,
+        "allowed",
+      );
+      await logger.logToolAccess(
+        "workspace_grep",
+        "read",
+        true,
+        "allowed",
+      );
+      await logger.logToolAccess("bundle", "plan", true, "allowed");
+      await logger.logToolAccess(
+        "notes_new",
+        "mutate",
+        false,
+        "denied",
+      );
+      await logger.logToolAccess(
+        "notes_update",
+        "mutate",
+        false,
+        "denied",
+      );
+
+      const summary = await logger.getSummary();
+
+      expect(summary.totalEvents).toBe(5);
+      expect(summary.allowedCount).toBe(3);
+      expect(summary.deniedCount).toBe(2);
+      expect(summary.byCapability.read).toBe(2);
+      expect(summary.byCapability.plan).toBe(1);
+      expect(summary.byCapability.mutate).toBe(2);
+      expect(summary.byCapability.observe).toBe(0);
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+
+    it("handles empty audit log", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      const summary = await logger.getSummary();
+
+      expect(summary.totalEvents).toBe(0);
+      expect(summary.allowedCount).toBe(0);
+      expect(summary.deniedCount).toBe(0);
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+  });
+
+  describe("Audit Trail Integrity", () => {
+    it("records timestamp for each event", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+      const before = new Date();
+
+      await logger.logToolAccess(
+        "workspace_list",
+        "read",
+        true,
+        "allowed",
+      );
+
+      const after = new Date();
+      const events = await logger.readLog();
+
+      expect(events[0].timestamp).toBeDefined();
+      const eventTime = new Date(events[0].timestamp);
+      expect(eventTime.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(eventTime.getTime()).toBeLessThanOrEqual(after.getTime());
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+
+    it("preserves all event data across read/write cycles", async () => {
+      const tmpDir = await import("node:fs/promises").then((fs) =>
+        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
+      );
+
+      const logger = new AuditLogger(tmpDir, true);
+
+      await logger.logEvent(
+        "notes_new",
+        "mutate",
+        "denied",
+        "Custom reason for denial",
+        "/notes/important",
+      );
+
+      const events = await logger.readLog();
+      const event = events[0];
+
+      expect(event.tool).toBe("notes_new");
+      expect(event.capability).toBe("mutate");
+      expect(event.decision).toBe("denied");
+      expect(event.reason).toBe("Custom reason for denial");
+      expect(event.path).toBe("/notes/important");
+
+      // Cleanup
+      await import("node:fs/promises").then((fs) =>
+        fs.rm(tmpDir, { recursive: true, force: true }),
+      );
+    });
+  });
+});
