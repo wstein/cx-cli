@@ -31,4 +31,11 @@ notes: ## List available notes in the repository.
 	cx notes orphans
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build test coverage verify release clean notes\n"
+	@printf "Available targets:\n"
+	@printf "  build     Build the project.\n"
+	@printf "  test      Run unit tests with coverage.\n"
+	@printf "  coverage  Run tests with coverage.\n"
+	@printf "  verify    Run lint, typecheck, build, and the full test suite.\n"
+	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
+	@printf "  clean     Remove generated output files.\n"
+	@printf "  notes     List available notes in the repository.\n"

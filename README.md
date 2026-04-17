@@ -438,6 +438,14 @@ plain = ".txt"
 
 ## Development
 
+The repository-local `make` commands are intentionally small and explicit:
+
+| Command | Use it when |
+| --- | --- |
+| `make test` | You want fast unit coverage while iterating |
+| `make verify` | You want the full local gate before merging |
+| `make release VERSION=x.y.z` | You are cutting a tagged release |
+
 ```bash
 bun install
 make test

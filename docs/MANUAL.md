@@ -37,13 +37,22 @@ While Track A and Track B serve different immediate goals, they are powered by t
 
 If you want the shortest path to a useful result, follow **Track A** to secure your pipeline, then launch **Track B** to let your agent work.
 
+### Repository Commands
+
+Use the repository-local `make` targets for day-to-day development:
+
+| Command | Use it when |
+| --- | --- |
+| `make test` | You want unit coverage while iterating |
+| `make verify` | You want the full local gate before merging |
+| `make release VERSION=x.y.z` | You are cutting a tagged release |
+
+### CX Commands
+
 ```bash
 cx init --name demo
 cx inspect --token-breakdown
 cx bundle --config cx.toml
-make test
-make verify
-make release VERSION=x.y.z
 cx mcp
 cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
