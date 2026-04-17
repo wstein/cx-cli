@@ -2,6 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { collectInspectReport } from "../../inspect/report.js";
 import { withPolicyEnforcement } from "../enforce.js";
+import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import { jsonToolResult } from "./utils.js";
 
@@ -32,8 +33,7 @@ export function registerBundleTools(
     "inspect",
     {
       title: "Inspect live bundle plan",
-      description:
-        "Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.",
+      description: `${tierLabel("inspect")} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
       inputSchema: z.object({
         tokenBreakdown: z.boolean().optional(),
       }),
@@ -72,8 +72,7 @@ export function registerBundleTools(
     "bundle",
     {
       title: "Preview bundle snapshot",
-      description:
-        "Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.",
+      description: `${tierLabel("bundle")} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,
       inputSchema: z.object({
         tokenBreakdown: z.boolean().optional(),
       }),

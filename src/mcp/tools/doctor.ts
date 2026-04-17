@@ -6,6 +6,7 @@ import { collectDoctorOverlapsReport } from "../../doctor/overlaps.js";
 import { collectDoctorSecretsReport } from "../../doctor/secrets.js";
 import { recommendWorkflow } from "../../doctor/workflow.js";
 import { withPolicyEnforcement } from "../enforce.js";
+import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import { jsonToolResult } from "./utils.js";
 
@@ -33,8 +34,7 @@ export function registerDoctorTools(
     "doctor_mcp",
     {
       title: "Diagnose MCP profile",
-      description:
-        "Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.",
+      description: `${tierLabel("doctor_mcp")} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
       inputSchema: z.object({}),
     },
     doctorMcpHandler,
@@ -59,8 +59,7 @@ export function registerDoctorTools(
     "doctor_workflow",
     {
       title: "Recommend workflow",
-      description:
-        "Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.",
+      description: `${tierLabel("doctor_workflow")} Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.`,
       inputSchema: z.object({
         task: z.string().min(1),
       }),
@@ -88,8 +87,7 @@ export function registerDoctorTools(
     "doctor_overlaps",
     {
       title: "Diagnose section overlaps",
-      description:
-        "Inspect live workspace section ownership and duplicate file assignments.",
+      description: `${tierLabel("doctor_overlaps")} Inspect live workspace section ownership and duplicate file assignments.`,
       inputSchema: z.object({}),
     },
     doctorOverlapsHandler,
@@ -115,8 +113,7 @@ export function registerDoctorTools(
     "doctor_secrets",
     {
       title: "Diagnose secret hygiene",
-      description:
-        "Scan the live workspace file scope for suspicious secrets before a patch is written.",
+      description: `${tierLabel("doctor_secrets")} Scan the live workspace file scope for suspicious secrets before a patch is written.`,
       inputSchema: z.object({}),
     },
     doctorSecretsHandler,

@@ -20,6 +20,7 @@ import { validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
 import { withPolicyEnforcement } from "../enforce.js";
+import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import { jsonToolResult } from "./utils.js";
 
@@ -54,8 +55,7 @@ export function registerNotesTools(
     "notes_new",
     {
       title: "Create note",
-      description:
-        "Create a new note in the workspace notes directory with optional tags and body text.",
+      description: `${tierLabel("notes_new")} Create a new note in the workspace notes directory with optional tags and body text.`,
       inputSchema: z.object({
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
@@ -86,8 +86,7 @@ export function registerNotesTools(
     "notes_read",
     {
       title: "Read note",
-      description:
-        "Read a note from the workspace notes directory with parsed metadata and body content.",
+      description: `${tierLabel("notes_read")} Read a note from the workspace notes directory with parsed metadata and body content.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -121,8 +120,7 @@ export function registerNotesTools(
     "notes_update",
     {
       title: "Update note",
-      description:
-        "Update an existing note in the workspace notes directory while preserving its file path.",
+      description: `${tierLabel("notes_update")} Update an existing note in the workspace notes directory while preserving its file path.`,
       inputSchema: z.object({
         id: z.string().min(1),
         title: z.string().min(1).optional(),
@@ -160,8 +158,7 @@ export function registerNotesTools(
     "notes_rename",
     {
       title: "Rename note",
-      description:
-        "Rename an existing note in the workspace notes directory and update its title in place.",
+      description: `${tierLabel("notes_rename")} Rename an existing note in the workspace notes directory and update its title in place.`,
       inputSchema: z.object({
         id: z.string().min(1),
         title: z.string().min(1),
@@ -192,8 +189,7 @@ export function registerNotesTools(
     "notes_delete",
     {
       title: "Delete note",
-      description:
-        "Delete an existing note from the workspace notes directory.",
+      description: `${tierLabel("notes_delete")} Delete an existing note from the workspace notes directory.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -230,8 +226,7 @@ export function registerNotesTools(
     "notes_search",
     {
       title: "Search notes",
-      description:
-        "Search the workspace notes directory by title, aliases, tags, summary, or body text.",
+      description: `${tierLabel("notes_search")} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
       inputSchema: z.object({
         query: z.string().min(1),
         regex: z.boolean().optional(),
@@ -269,8 +264,7 @@ export function registerNotesTools(
     "notes_list",
     {
       title: "List notes",
-      description:
-        "List notes in the workspace notes directory with summaries and tags.",
+      description: `${tierLabel("notes_list")} List notes in the workspace notes directory with summaries and tags.`,
       inputSchema: z.object({}),
     },
     notesListHandler,
@@ -302,8 +296,7 @@ export function registerNotesTools(
     "notes_backlinks",
     {
       title: "List note backlinks",
-      description:
-        "List notes that link to a specific note from the workspace notes graph.",
+      description: `${tierLabel("notes_backlinks")} List notes that link to a specific note from the workspace notes graph.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -337,8 +330,7 @@ export function registerNotesTools(
     "notes_orphans",
     {
       title: "List orphan notes",
-      description:
-        "List notes with no incoming or outgoing links in the workspace notes graph.",
+      description: `${tierLabel("notes_orphans")} List notes with no incoming or outgoing links in the workspace notes graph.`,
       inputSchema: z.object({}),
     },
     notesOrphansHandler,
@@ -370,8 +362,7 @@ export function registerNotesTools(
     "notes_code_links",
     {
       title: "List code references",
-      description:
-        "List source files that reference a note through wikilinks in code comments or text.",
+      description: `${tierLabel("notes_code_links")} List source files that reference a note through wikilinks in code comments or text.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -419,8 +410,7 @@ export function registerNotesTools(
     "notes_links",
     {
       title: "Audit note links",
-      description:
-        "Audit unresolved note and code references, or inspect one note's outgoing links.",
+      description: `${tierLabel("notes_links")} Audit unresolved note and code references, or inspect one note's outgoing links.`,
       inputSchema: z.object({
         id: z.string().min(1).optional(),
       }),

@@ -32,6 +32,7 @@ Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lif
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
     toolReference,
+    "Stability: [STABLE] semver-protected · [BETA] schema may change · [EXPERIMENTAL] may be removed",
   ].join("\n");
 }
 
