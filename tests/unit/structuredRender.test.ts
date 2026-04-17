@@ -7,7 +7,7 @@ import {
   validatePlanOrdering,
   type StructuredRenderEntry,
   type StructuredRenderPlan,
-} from "../../src/repomix/structured";
+} from "../../src/repomix/structured.js";
 
 describe("Structured Render Contract", () => {
   describe("validatePlanOrdering", () => {
