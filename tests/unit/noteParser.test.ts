@@ -280,6 +280,30 @@ describe("notes parser", () => {
       );
     });
 
+    it("skips a leading heading before the first paragraph", () => {
+      const body = [
+        "## Overview",
+        "This paragraph should become the summary.",
+      ].join("\n");
+
+      expect(extractNoteSummary(body)).toBe(
+        "This paragraph should become the summary.",
+      );
+    });
+
+    it("stops after the first paragraph when a heading follows", () => {
+      const body = [
+        "First paragraph stays in the summary.",
+        "",
+        "## Details",
+        "This paragraph should be ignored.",
+      ].join("\n");
+
+      expect(extractNoteSummary(body)).toBe(
+        "First paragraph stays in the summary.",
+      );
+    });
+
     it("truncates summaries longer than 240 characters", () => {
       const body = ` ${"Long summary text ".repeat(20)} `;
       const summary = extractNoteSummary(body);

@@ -337,6 +337,54 @@ describe("manifest JSON parsing and rendering", () => {
       }).toThrow();
     });
 
+    it("validates boolean manifest settings", () => {
+      const invalidJson = JSON.stringify({
+        ...JSON.parse(renderManifestJson(VALID_MINIMAL_MANIFEST)),
+        settings: {
+          ...JSON.parse(renderManifestJson(VALID_MINIMAL_MANIFEST)).settings,
+          showLineNumbers: "yes",
+        },
+      });
+      expect(() => {
+        parseManifestJson(invalidJson);
+      }).toThrow();
+    });
+
+    it("preserves null output spans on file rows", () => {
+      const json = renderManifestJson({
+        ...VALID_MINIMAL_MANIFEST,
+        sections: [
+          {
+            name: "src",
+            style: "xml",
+            outputFile: "src.xml",
+            outputSha256: "sh1",
+            fileCount: 1,
+            tokenCount: 100,
+            files: [
+              {
+                path: "src/index.ts",
+                kind: "text",
+                section: "src",
+                storedIn: "packed",
+                sha256: "sh2",
+                sizeBytes: 512,
+                tokenCount: 50,
+                mtime: "2025-01-13T00:00:00Z",
+                mediaType: "text/plain",
+                outputStartLine: null,
+                outputEndLine: null,
+              },
+            ],
+          },
+        ],
+      });
+
+      const parsed = parseManifestJson(json);
+      expect(parsed.sections[0]?.files[0]?.outputStartLine).toBeNull();
+      expect(parsed.sections[0]?.files[0]?.outputEndLine).toBeNull();
+    });
+
     it("defaults modifiedFiles to empty array when absent", () => {
       const json = JSON.stringify({
         ...JSON.parse(renderManifestJson(VALID_MINIMAL_MANIFEST)),

@@ -227,6 +227,26 @@ describe("shared fs utilities", () => {
       }
     });
 
+    it("listFilesRecursive ignores symbolic links and still returns files", async () => {
+      const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-fs-link-"));
+      try {
+        await fs.writeFile(path.join(root, "root.txt"), "root", "utf8");
+        await fs.writeFile(path.join(root, "target.txt"), "target", "utf8");
+        await fs.symlink(
+          path.join(root, "target.txt"),
+          path.join(root, "linked.txt"),
+        );
+
+        const files = await listFilesRecursive(root);
+
+        expect(files).toContain(path.join(root, "root.txt"));
+        expect(files).toContain(path.join(root, "target.txt"));
+        expect(files).not.toContain(path.join(root, "linked.txt"));
+      } finally {
+        await fs.rm(root, { recursive: true, force: true });
+      }
+    });
+
     it("listFilesRecursive returns all files beneath a root", async () => {
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-fs-list-"));
       try {

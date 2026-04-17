@@ -112,6 +112,17 @@ describe("extract parsers", () => {
       const result = parseXmlSection(source);
       expect(result[0]?.content).toBe("content\n</file>oops");
     });
+
+    it("throws when a misleading close tag is never followed by a real close", () => {
+      const source = '<file path="test.txt">\ncontent\n</file>oops';
+      expect(() => parseXmlSection(source)).toThrow();
+    });
+
+    it("throws when multiple misleading close tags never resolve", () => {
+      const source =
+        '<file path="test.txt">\ncontent\n</file>oops\n</file>still-no-close';
+      expect(() => parseXmlSection(source)).toThrow();
+    });
   });
 
   describe("parseJsonSection", () => {
@@ -398,6 +409,60 @@ describe("extract parsers", () => {
       const result = parsePlainSection(source);
       expect(result).toEqual([
         { path: "a.txt", content: "alpha" },
+        { path: "b.txt", content: "beta" },
+      ]);
+    });
+
+    it("stops a file block when the next block header begins", () => {
+      const longSeparator = "=".repeat(64);
+      const shortSeparator = "=".repeat(16);
+      const source = [
+        longSeparator,
+        "Files",
+        longSeparator,
+        "",
+        shortSeparator,
+        "File: a.txt",
+        shortSeparator,
+        "alpha",
+        "",
+        shortSeparator,
+        "File: b.txt",
+        shortSeparator,
+        "beta",
+        "",
+        longSeparator,
+        "End of Codebase",
+      ].join("\n");
+
+      const result = parsePlainSection(source);
+      expect(result).toHaveLength(2);
+      expect(result[0]?.content).toBe("alpha");
+      expect(result[1]?.content).toBe("beta");
+    });
+
+    it("handles back-to-back file headers with empty file content", () => {
+      const longSeparator = "=".repeat(64);
+      const shortSeparator = "=".repeat(16);
+      const source = [
+        longSeparator,
+        "Files",
+        longSeparator,
+        "",
+        shortSeparator,
+        "File: a.txt",
+        shortSeparator,
+        shortSeparator,
+        "File: b.txt",
+        shortSeparator,
+        "beta",
+        longSeparator,
+        "End of Codebase",
+      ].join("\n");
+
+      const result = parsePlainSection(source);
+      expect(result).toEqual([
+        { path: "a.txt", content: "" },
         { path: "b.txt", content: "beta" },
       ]);
     });
