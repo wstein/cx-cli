@@ -99,6 +99,24 @@ describe("loadCxConfig object model", () => {
     );
   });
 
+  test("expands the project token in checksum and asset paths", async () => {
+    const workspace = await createWorkspace({
+      fixture: "minimal",
+      config: buildConfig({
+        checksums: {
+          fileName: "{project}.lock",
+        },
+        assets: {
+          targetDir: "{project}-assets",
+        },
+      }),
+    });
+
+    const config = await loadCxConfig(workspace.configPath);
+    expect(config.checksums.fileName).toBe("demo.lock");
+    expect(config.assets.targetDir).toBe("demo-assets");
+  });
+
   test("loads section priority from config", async () => {
     const workspace = await createWorkspace({
       fixture: "minimal",
