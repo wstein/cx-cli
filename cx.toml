@@ -21,7 +21,7 @@ security_check = true
 # include is intentionally empty: the VCS-controlled file list is the master base.
 # Add patterns here only to pull in generated or deliberately git-ignored files.
 include = []
-exclude = ["node_modules/**", "dist/**", "tmp/**"]
+exclude = ["node_modules/**", "dist/**", "tmp/**", "tests/fixtures/**"]
 follow_symlinks = false
 unmatched = "ignore"
 
