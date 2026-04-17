@@ -173,10 +173,10 @@ jobs:
           git checkout main || git checkout -b main
           mkdir -p Formula
           cp ../tarball-artifacts/cx-cli.rb Formula/cx-cli.rb
-          if git diff --quiet -- Formula/cx-cli.rb; then
+          git add Formula/cx-cli.rb
+          if git diff --cached --quiet -- Formula/cx-cli.rb; then
             echo "No formula updates required."
             exit 0
           fi
-          git add Formula/cx-cli.rb
           git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.tarball.outputs.release_version }}"
           git push origin main
