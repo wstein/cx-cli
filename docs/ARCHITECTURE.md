@@ -152,6 +152,10 @@ control, not from a broad filesystem walk. The priority order is:
 
 That VCS-derived list is the master base for all later planning decisions.
 
+> Tests validate VCS dispatch using real temporary repositories rather than module mocking.
+> This avoids worker-global mock leakage and keeps the planner behavior identical to the actual
+> Git/Fossil/Hg provider code paths used in production.
+
 #### Phase 2: Apply global list shaping
 
 The global `[files] include` array can extend the master base with extra paths
