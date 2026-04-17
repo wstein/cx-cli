@@ -49,7 +49,7 @@ That workflow is the tap repo's responsibility. It owns formula validation on pu
 
 ## Source repo release step
 
-The source repo owns packaging and formula generation. The release job should publish the packed tarball to npm first, then keep a step like this to generate `release-artifacts/cx-cli.rb` from the same tarball and update the tap:
+The source repo owns packaging and formula generation. The release workflow should run `tarball`, then `npm`, then `homebrew`. The `homebrew` job should keep a step like this to generate `tarball-artifacts/cx-cli.rb` from the same tarball and update the tap:
 
 ```yaml
 - name: Checkout Homebrew tap
@@ -73,7 +73,7 @@ The source repo owns packaging and formula generation. The release job should pu
       exit 0
     fi
     git add Formula/cx-cli.rb
-    git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.prepare-release.outputs.release_version }}"
+    git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.tarball.outputs.release_version }}"
     git push origin main
 ```
 

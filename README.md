@@ -122,6 +122,15 @@ Homebrew install:
 brew install wstein/tap/cx-cli
 ```
 
+### Release Flow
+
+The release workflow follows a fixed four-step order:
+
+1. Build the package once.
+2. Publish the packed tarball to npm.
+3. Generate `Formula/cx-cli.rb` from the same tarball.
+4. Commit the formula into `wstein/homebrew-tap`.
+
 Run from source:
 
 ```bash
