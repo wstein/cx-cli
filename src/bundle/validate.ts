@@ -35,10 +35,21 @@ export async function loadManifestFromBundle(bundleDir: string): Promise<{
   return { manifest: parseManifestJson(manifestSource), manifestName };
 }
 
+export interface BundleValidationDeps {
+  loadManifestFromBundle?: typeof loadManifestFromBundle;
+  pathExists?: typeof pathExists;
+  readFile?: typeof fs.readFile;
+}
+
 export async function validateBundle(
   bundleDir: string,
+  deps: BundleValidationDeps = {},
 ): Promise<{ manifestName: string }> {
-  const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
+  const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
+  const pathExistsFn = deps.pathExists ?? pathExists;
+  const readFile = deps.readFile ?? fs.readFile;
+
+  const { manifest, manifestName } = await loadManifest(bundleDir);
   if (manifest.bundleVersion !== 1) {
     throw new CxError(
       `Unsupported bundle version ${manifest.bundleVersion}. ` +
@@ -48,7 +59,7 @@ export async function validateBundle(
   }
 
   for (const section of manifest.sections) {
-    if (!(await pathExists(path.join(bundleDir, section.outputFile)))) {
+    if (!(await pathExistsFn(path.join(bundleDir, section.outputFile)))) {
       throw new CxError(
         `Bundle is missing section output ${section.outputFile}.`,
         2,
@@ -58,7 +69,7 @@ export async function validateBundle(
 
   if (
     manifest.bundleIndexFile &&
-    !(await pathExists(path.join(bundleDir, manifest.bundleIndexFile)))
+    !(await pathExistsFn(path.join(bundleDir, manifest.bundleIndexFile)))
   ) {
     throw new CxError(
       `Bundle is missing bundle index ${manifest.bundleIndexFile}.`,
@@ -67,19 +78,19 @@ export async function validateBundle(
   }
 
   for (const asset of manifest.assets) {
-    if (!(await pathExists(path.join(bundleDir, asset.storedPath)))) {
+    if (!(await pathExistsFn(path.join(bundleDir, asset.storedPath)))) {
       throw new CxError(`Bundle is missing asset ${asset.storedPath}.`, 2);
     }
   }
 
   const checksumPath = path.join(bundleDir, manifest.checksumFile);
-  if (!(await pathExists(checksumPath))) {
+  if (!(await pathExistsFn(checksumPath))) {
     throw new CxError(
       `Bundle is missing checksum file ${manifest.checksumFile}.`,
       2,
     );
   }
 
-  parseChecksumFile(await fs.readFile(checksumPath, "utf8"));
+  parseChecksumFile(await readFile(checksumPath, "utf8"));
   return { manifestName };
 }
