@@ -1,7 +1,6 @@
 import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-
 import {
   createNewNote,
   deleteNote,
@@ -20,6 +19,7 @@ import {
 import { validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
+import { withPolicyEnforcement } from "../enforce.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import { jsonToolResult } from "./utils.js";
 
@@ -28,6 +28,27 @@ export function registerNotesTools(
   workspace: CxMcpWorkspace,
 ): void {
   const notesDir = path.join(workspace.sourceRoot, "notes");
+
+  const notesNewHandler = withPolicyEnforcement(
+    "notes_new",
+    async (args: Record<string, unknown>) => {
+      const note = await createNewNote(args.title as string, {
+        notesDir,
+        tags: args.tags as string[] | undefined,
+        body: args.body as string | undefined,
+      });
+
+      return jsonToolResult({
+        command: "notes new",
+        id: note.id,
+        title: args.title,
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        tags: (args.tags as string[] | undefined) ?? [],
+      });
+    },
+    workspace.policy,
+    workspace.auditLogger,
+  );
 
   server.registerTool(
     "notes_new",
@@ -41,21 +62,24 @@ export function registerNotesTools(
         body: z.string().min(1).optional(),
       }),
     },
-    async (args) => {
-      const note = await createNewNote(args.title, {
+    notesNewHandler,
+  );
+
+  const notesReadHandler = withPolicyEnforcement(
+    "notes_read",
+    async (args: Record<string, unknown>) => {
+      const note = await readNote(args.id as string, {
         notesDir,
-        tags: args.tags,
-        body: args.body,
       });
 
       return jsonToolResult({
-        command: "notes new",
-        id: note.id,
-        title: args.title,
+        command: "notes read",
+        ...note,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        tags: args.tags ?? [],
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -68,17 +92,29 @@ export function registerNotesTools(
         id: z.string().min(1),
       }),
     },
-    async (args) => {
-      const note = await readNote(args.id, {
+    notesReadHandler,
+  );
+
+  const notesUpdateHandler = withPolicyEnforcement(
+    "notes_update",
+    async (args: Record<string, unknown>) => {
+      const note = await updateNote(args.id as string, {
         notesDir,
+        title: args.title as string | undefined,
+        tags: args.tags as string[] | undefined,
+        body: args.body as string | undefined,
       });
 
       return jsonToolResult({
-        command: "notes read",
-        ...note,
+        command: "notes update",
+        id: note.id,
+        title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        tags: note.tags,
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -94,37 +130,13 @@ export function registerNotesTools(
         body: z.string().min(1).optional(),
       }),
     },
-    async (args) => {
-      const note = await updateNote(args.id, {
-        notesDir,
-        title: args.title,
-        tags: args.tags,
-        body: args.body,
-      });
-
-      return jsonToolResult({
-        command: "notes update",
-        id: note.id,
-        title: note.title,
-        filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        tags: note.tags,
-      });
-    },
+    notesUpdateHandler,
   );
 
-  server.registerTool(
+  const notesRenameHandler = withPolicyEnforcement(
     "notes_rename",
-    {
-      title: "Rename note",
-      description:
-        "Rename an existing note in the workspace notes directory and update its title in place.",
-      inputSchema: z.object({
-        id: z.string().min(1),
-        title: z.string().min(1),
-      }),
-    },
-    async (args) => {
-      const note = await renameNote(args.id, args.title, {
+    async (args: Record<string, unknown>) => {
+      const note = await renameNote(args.id as string, args.title as string, {
         notesDir,
       });
 
@@ -140,6 +152,40 @@ export function registerNotesTools(
         tags: note.tags,
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
+  );
+
+  server.registerTool(
+    "notes_rename",
+    {
+      title: "Rename note",
+      description:
+        "Rename an existing note in the workspace notes directory and update its title in place.",
+      inputSchema: z.object({
+        id: z.string().min(1),
+        title: z.string().min(1),
+      }),
+    },
+    notesRenameHandler,
+  );
+
+  const notesDeleteHandler = withPolicyEnforcement(
+    "notes_delete",
+    async (args: Record<string, unknown>) => {
+      const note = await deleteNote(args.id as string, {
+        notesDir,
+      });
+
+      return jsonToolResult({
+        command: "notes delete",
+        id: note.id,
+        title: note.title,
+        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+      });
+    },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -152,18 +198,32 @@ export function registerNotesTools(
         id: z.string().min(1),
       }),
     },
-    async (args) => {
-      const note = await deleteNote(args.id, {
+    notesDeleteHandler,
+  );
+
+  const notesSearchHandler = withPolicyEnforcement(
+    "notes_search",
+    async (args: Record<string, unknown>) => {
+      const result = await searchNotes(args.query as string, {
         notesDir,
+        regex: args.regex as boolean | undefined,
+        caseSensitive: args.caseSensitive as boolean | undefined,
+        limit: args.limit as number | undefined,
+        tags: args.tags as string[] | undefined,
       });
 
       return jsonToolResult({
-        command: "notes delete",
-        id: note.id,
-        title: note.title,
-        filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        command: "notes search",
+        query: result.query,
+        count: result.count,
+        notes: result.notes.map((note) => ({
+          ...note,
+          filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        })),
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -180,35 +240,11 @@ export function registerNotesTools(
         tags: z.array(z.string().min(1)).optional(),
       }),
     },
-    async (args) => {
-      const result = await searchNotes(args.query, {
-        notesDir,
-        regex: args.regex,
-        caseSensitive: args.caseSensitive,
-        limit: args.limit,
-        tags: args.tags,
-      });
-
-      return jsonToolResult({
-        command: "notes search",
-        query: result.query,
-        count: result.count,
-        notes: result.notes.map((note) => ({
-          ...note,
-          filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        })),
-      });
-    },
+    notesSearchHandler,
   );
 
-  server.registerTool(
+  const notesListHandler = withPolicyEnforcement(
     "notes_list",
-    {
-      title: "List notes",
-      description:
-        "List notes in the workspace notes directory with summaries and tags.",
-      inputSchema: z.object({}),
-    },
     async () => {
       const result = await validateNotes("notes", workspace.sourceRoot);
       const notes = result.notes.map((note) => ({
@@ -225,6 +261,41 @@ export function registerNotesTools(
         notes,
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
+  );
+
+  server.registerTool(
+    "notes_list",
+    {
+      title: "List notes",
+      description:
+        "List notes in the workspace notes directory with summaries and tags.",
+      inputSchema: z.object({}),
+    },
+    notesListHandler,
+  );
+
+  const notesBacklinksHandler = withPolicyEnforcement(
+    "notes_backlinks",
+    async (args: Record<string, unknown>) => {
+      const graph = await buildNoteGraph("notes", workspace.sourceRoot);
+      const note = graph.notes.get(args.id as string);
+      if (!note) {
+        throw new CxError(`Note not found: ${args.id}`, 2);
+      }
+
+      const backlinks = getBacklinks(graph, args.id as string);
+      return jsonToolResult({
+        command: "notes backlinks",
+        noteId: args.id,
+        noteTitle: note.title,
+        count: backlinks.length,
+        backlinks,
+      });
+    },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -237,32 +308,11 @@ export function registerNotesTools(
         id: z.string().min(1),
       }),
     },
-    async (args) => {
-      const graph = await buildNoteGraph("notes", workspace.sourceRoot);
-      const note = graph.notes.get(args.id);
-      if (!note) {
-        throw new CxError(`Note not found: ${args.id}`, 2);
-      }
-
-      const backlinks = getBacklinks(graph, args.id);
-      return jsonToolResult({
-        command: "notes backlinks",
-        noteId: args.id,
-        noteTitle: note.title,
-        count: backlinks.length,
-        backlinks,
-      });
-    },
+    notesBacklinksHandler,
   );
 
-  server.registerTool(
+  const notesOrphansHandler = withPolicyEnforcement(
     "notes_orphans",
-    {
-      title: "List orphan notes",
-      description:
-        "List notes with no incoming or outgoing links in the workspace notes graph.",
-      inputSchema: z.object({}),
-    },
     async () => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const orphans = graph.orphans.map((id) => {
@@ -279,6 +329,41 @@ export function registerNotesTools(
         orphans,
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
+  );
+
+  server.registerTool(
+    "notes_orphans",
+    {
+      title: "List orphan notes",
+      description:
+        "List notes with no incoming or outgoing links in the workspace notes graph.",
+      inputSchema: z.object({}),
+    },
+    notesOrphansHandler,
+  );
+
+  const notesCodeLinksHandler = withPolicyEnforcement(
+    "notes_code_links",
+    async (args: Record<string, unknown>) => {
+      const graph = await buildNoteGraph("notes", workspace.sourceRoot);
+      const note = graph.notes.get(args.id as string);
+      if (!note) {
+        throw new CxError(`Note not found: ${args.id}`, 2);
+      }
+
+      const codeFiles = getCodeReferences(graph, args.id as string);
+      return jsonToolResult({
+        command: "notes code-links",
+        noteId: args.id,
+        noteTitle: note.title,
+        count: codeFiles.length,
+        codeFiles,
+      });
+    },
+    workspace.policy,
+    workspace.auditLogger,
   );
 
   server.registerTool(
@@ -291,45 +376,22 @@ export function registerNotesTools(
         id: z.string().min(1),
       }),
     },
-    async (args) => {
-      const graph = await buildNoteGraph("notes", workspace.sourceRoot);
-      const note = graph.notes.get(args.id);
-      if (!note) {
-        throw new CxError(`Note not found: ${args.id}`, 2);
-      }
-
-      const codeFiles = getCodeReferences(graph, args.id);
-      return jsonToolResult({
-        command: "notes code-links",
-        noteId: args.id,
-        noteTitle: note.title,
-        count: codeFiles.length,
-        codeFiles,
-      });
-    },
+    notesCodeLinksHandler,
   );
 
-  server.registerTool(
+  const notesLinksHandler = withPolicyEnforcement(
     "notes_links",
-    {
-      title: "Audit note links",
-      description:
-        "Audit unresolved note and code references, or inspect one note's outgoing links.",
-      inputSchema: z.object({
-        id: z.string().min(1).optional(),
-      }),
-    },
-    async (args) => {
+    async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
 
       if (args.id) {
-        const note = graph.notes.get(args.id);
+        const note = graph.notes.get(args.id as string);
         if (!note) {
           throw new CxError(`Note not found: ${args.id}`, 2);
         }
 
-        const outgoing = getOutgoingLinks(graph, args.id);
-        const broken = getBrokenLinks(graph, args.id);
+        const outgoing = getOutgoingLinks(graph, args.id as string);
+        const broken = getBrokenLinks(graph, args.id as string);
 
         return jsonToolResult({
           command: "notes links",
@@ -349,5 +411,20 @@ export function registerNotesTools(
         brokenLinks: broken,
       });
     },
+    workspace.policy,
+    workspace.auditLogger,
+  );
+
+  server.registerTool(
+    "notes_links",
+    {
+      title: "Audit note links",
+      description:
+        "Audit unresolved note and code references, or inspect one note's outgoing links.",
+      inputSchema: z.object({
+        id: z.string().min(1).optional(),
+      }),
+    },
+    notesLinksHandler,
   );
 }

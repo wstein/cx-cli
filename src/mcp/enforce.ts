@@ -1,5 +1,5 @@
 import type { AuditLogger } from "./audit.js";
-import { checkToolAccess, PolicyError, resolvePolicy } from "./policy.js";
+import { checkToolAccess, type McpPolicy, PolicyError } from "./policy.js";
 
 /**
  * Tool enforcement wrapper: checks policy before executing a tool handler.
@@ -8,9 +8,9 @@ import { checkToolAccess, PolicyError, resolvePolicy } from "./policy.js";
 export async function enforceToolAccess<T>(
   toolName: string,
   handler: () => Promise<T>,
+  policy: McpPolicy,
   auditLogger?: AuditLogger,
 ): Promise<T> {
-  const policy = resolvePolicy();
   const decision = checkToolAccess(toolName, policy);
 
   if (auditLogger) {
@@ -36,13 +36,20 @@ export async function enforceToolAccess<T>(
 /**
  * Create a policy-enforcing tool handler wrapper.
  * Returns a function that enforces policy before calling the original handler.
+ * Works with MCP SDK handlers that return TextContent[].
  */
-export function withPolicyEnforcement<Args extends Record<string, unknown>>(
+export function withPolicyEnforcement<T>(
   toolName: string,
-  handler: (args: Args) => Promise<string>,
+  handler: (args: Record<string, unknown>) => Promise<T>,
+  policy: McpPolicy,
   auditLogger?: AuditLogger,
-) {
-  return async (args: Args): Promise<string> => {
-    return enforceToolAccess(toolName, () => handler(args), auditLogger);
+): (args: Record<string, unknown>) => Promise<T> {
+  return async (args: Record<string, unknown>): Promise<T> => {
+    return enforceToolAccess(
+      toolName,
+      () => handler(args),
+      policy,
+      auditLogger,
+    );
   };
 }

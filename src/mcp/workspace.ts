@@ -1,15 +1,18 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import type { CxConfig } from "../config/types.js";
 import { buildMasterList } from "../planning/masterList.js";
 import { CxError } from "../shared/errors.js";
 import { detectMediaType } from "../shared/mime.js";
 import { getVCSState } from "../vcs/provider.js";
+import type { AuditLogger } from "./audit.js";
+import type { McpPolicy } from "./policy.js";
 
 export interface CxMcpWorkspace {
   config: CxConfig;
   sourceRoot: string;
+  policy: McpPolicy;
+  auditLogger?: AuditLogger;
   resolveMasterList(): Promise<string[]>;
 }
 
@@ -115,13 +118,17 @@ function clampLineRange(
   };
 }
 
-export function createCxMcpWorkspace(config: CxConfig): CxMcpWorkspace {
+export function createCxMcpWorkspace(
+  config: CxConfig,
+  options?: { policy?: McpPolicy; auditLogger?: AuditLogger },
+): CxMcpWorkspace {
   const sourceRoot = path.resolve(config.sourceRoot);
   let masterListPromise: Promise<string[]> | undefined;
 
-  return {
+  const workspace: CxMcpWorkspace = {
     config,
     sourceRoot,
+    policy: options?.policy || ({} as McpPolicy),
     resolveMasterList: async () => {
       if (!masterListPromise) {
         masterListPromise = (async () => {
@@ -133,6 +140,12 @@ export function createCxMcpWorkspace(config: CxConfig): CxMcpWorkspace {
       return masterListPromise;
     },
   };
+
+  if (options?.auditLogger) {
+    workspace.auditLogger = options.auditLogger;
+  }
+
+  return workspace;
 }
 
 export async function listWorkspaceFiles(

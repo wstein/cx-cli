@@ -16,13 +16,14 @@ export type McpCapability = "read" | "observe" | "plan" | "mutate";
  */
 export const TOOL_CAPABILITIES: Record<string, McpCapability> = {
   // Workspace (read)
-  workspace_list: "read",
-  workspace_grep: "read",
-  workspace_read: "read",
+  list: "read",
+  grep: "read",
+  read: "read",
+  replace_repomix_span: "mutate",
 
   // Bundle (plan)
+  inspect: "plan",
   bundle: "plan",
-  bundle_preview: "plan",
 
   // Doctor (observe)
   doctor_mcp: "observe",
@@ -38,6 +39,10 @@ export const TOOL_CAPABILITIES: Record<string, McpCapability> = {
   notes_rename: "mutate",
   notes_search: "observe",
   notes_list: "observe",
+  notes_backlinks: "observe",
+  notes_orphans: "observe",
+  notes_code_links: "observe",
+  notes_links: "observe",
 };
 
 /**
@@ -171,10 +176,15 @@ export function checkToolAccess(
 /**
  * Resolve policy from config or use default.
  */
-export function resolvePolicy(_config?: CxConfig): McpPolicy {
-  // TODO: In the future, read policy from config.mcp.policy
-  // For now, use default
-  return DEFAULT_POLICY;
+export function resolvePolicy(config?: CxConfig): McpPolicy {
+  switch (config?.mcp.policy) {
+    case "strict":
+      return STRICT_POLICY;
+    case "unrestricted":
+      return UNRESTRICTED_POLICY;
+    default:
+      return DEFAULT_POLICY;
+  }
 }
 
 /**

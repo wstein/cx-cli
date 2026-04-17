@@ -44,7 +44,7 @@ describe("MCP Policy System", () => {
 
   describe("checkToolAccess", () => {
     it("allows read tools under default policy", () => {
-      const decision = checkToolAccess("workspace_list", DEFAULT_POLICY);
+      const decision = checkToolAccess("list", DEFAULT_POLICY);
       expect(decision.allowed).toBe(true);
       expect(decision.capability).toBe("read");
       expect(decision.reason).toContain("allowed");
@@ -76,18 +76,14 @@ describe("MCP Policy System", () => {
     });
 
     it("enforces strict policy (read+observe only)", () => {
-      expect(checkToolAccess("workspace_list", STRICT_POLICY).allowed).toBe(
-        true,
-      );
+      expect(checkToolAccess("list", STRICT_POLICY).allowed).toBe(true);
       expect(checkToolAccess("doctor_mcp", STRICT_POLICY).allowed).toBe(true);
       expect(checkToolAccess("bundle", STRICT_POLICY).allowed).toBe(false);
       expect(checkToolAccess("notes_new", STRICT_POLICY).allowed).toBe(false);
     });
 
     it("allows all capabilities under unrestricted policy", () => {
-      expect(
-        checkToolAccess("workspace_list", UNRESTRICTED_POLICY).allowed,
-      ).toBe(true);
+      expect(checkToolAccess("list", UNRESTRICTED_POLICY).allowed).toBe(true);
       expect(checkToolAccess("bundle", UNRESTRICTED_POLICY).allowed).toBe(true);
       expect(checkToolAccess("notes_new", UNRESTRICTED_POLICY).allowed).toBe(
         true,
@@ -97,7 +93,7 @@ describe("MCP Policy System", () => {
 
   describe("Tool Capability Classification", () => {
     it("classifies all read tools correctly", () => {
-      const readTools = ["workspace_list", "workspace_grep", "workspace_read"];
+      const readTools = ["list", "grep", "read"];
       for (const tool of readTools) {
         expect(TOOL_CAPABILITIES[tool]).toBe("read");
       }
@@ -119,7 +115,7 @@ describe("MCP Policy System", () => {
     });
 
     it("classifies all plan tools correctly", () => {
-      const planTools = ["bundle", "bundle_preview"];
+      const planTools = ["inspect", "bundle"];
       for (const tool of planTools) {
         expect(TOOL_CAPABILITIES[tool]).toBe("plan");
       }

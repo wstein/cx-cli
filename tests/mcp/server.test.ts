@@ -143,6 +143,9 @@ ${options.overlap === true ? '\n[sections.mixed]\ninclude = ["src/**"]\n' : ""}
     mcpPath,
     `extends = "cx.toml"
 
+[mcp]
+policy = "unrestricted"
+
 [files]
 include = ["README.md"]
 `,

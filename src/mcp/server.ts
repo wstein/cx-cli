@@ -1,8 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
 import type { CxConfig } from "../config/types.js";
 import { CX_VERSION } from "../shared/version.js";
+import { AuditLogger } from "./audit.js";
+import { resolvePolicy } from "./policy.js";
 import type { McpRateLimiter, McpRequestLogger } from "./safeguards.js";
 import { registerCxMcpTools } from "./tools/index.js";
 import { createCxMcpWorkspace } from "./workspace.js";
@@ -41,7 +42,20 @@ export function createCxMcpServer(
     rateLimiter?: McpRateLimiter;
   },
 ): McpServer {
-  const workspace = createCxMcpWorkspace(options.config);
+  const policy = resolvePolicy(options.config);
+  const auditLogger = options.config.mcp.auditLogging
+    ? new AuditLogger(".cx", options.config.mcp.auditLogging)
+    : undefined;
+
+  const workspaceOptions: {
+    policy?: import("./policy.js").McpPolicy;
+    auditLogger?: AuditLogger;
+  } = { policy };
+  if (auditLogger) {
+    workspaceOptions.auditLogger = auditLogger;
+  }
+
+  const workspace = createCxMcpWorkspace(options.config, workspaceOptions);
 
   const server = new McpServer(
     {
