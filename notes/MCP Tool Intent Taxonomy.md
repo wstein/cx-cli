@@ -11,7 +11,6 @@ Safe inspection and context gathering tools. They do not mutate state.
 - `list`
 - `grep`
 - `read`
-- `inspect`
 - `doctor_mcp`
 - `doctor_workflow`
 - `doctor_overlaps`
@@ -24,11 +23,16 @@ Safe inspection and context gathering tools. They do not mutate state.
 - `notes_code_links`
 - `notes_links`
 
+## Plan / Preview
+Deterministic plan generation and bundle metadata preview tools. These do not mutate workspace files.
+
+- `inspect`
+- `bundle`
+
 ## Write / Mutate
 State-changing tools. Expose them only when the agent is explicitly authorized to modify content.
 
 - `replace_repomix_span`
-- `bundle`
 - `notes_new`
 - `notes_update`
 - `notes_rename`

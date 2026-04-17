@@ -2,9 +2,10 @@
 
 This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.
 
-`cx mcp` exposes tools in two intent-focused groups:
+`cx mcp` exposes tools in three intent-focused groups:
 
 - `Read / Observe` tools: safe inspection, search, and non-mutating note reads.
+- `Plan / Preview` tools: deterministic planning and bundle metadata previews.
 - `Write / Mutate` tools: state changes, edits, and new note or bundle actions.
 
 Use this taxonomy when building system prompts, tool selectors, or agent policies to enforce deterministic behavior and reduce accidental state changes.
@@ -16,7 +17,6 @@ These tools should be exposed to agents when the task is exploratory, investigat
 - `list`
 - `grep`
 - `read`
-- `inspect`
 - `doctor_mcp`
 - `doctor_workflow`
 - `doctor_overlaps`
@@ -29,6 +29,19 @@ These tools should be exposed to agents when the task is exploratory, investigat
 - `notes_code_links`
 - `notes_links`
 
+## Plan / Preview
+
+These tools produce deterministic plans or bundle metadata without mutating the workspace.
+
+- `inspect`
+- `bundle`
+
+### Plan/Preview Usage Guidance
+
+- Use these tools after gathering enough context from Read / Observe tools.
+- Treat plan outputs as review artifacts; apply mutations through explicit Write / Mutate tools only.
+- In strict MCP policy mode, these tools are denied by design.
+
 ### Read/Observe Usage Guidance
 
 - Use these tools to understand the repository, verify state, and gather evidence.
@@ -40,7 +53,6 @@ These tools should be exposed to agents when the task is exploratory, investigat
 These tools change repository state, notes, or bundle planning metadata. Expose them only when the agent is explicitly authorized to modify content.
 
 - `replace_repomix_span`
-- `bundle`
 - `notes_new`
 - `notes_update`
 - `notes_rename`
@@ -60,9 +72,10 @@ Use this format when constructing a system prompt for an agent that consumes the
 You have access to two tool categories:
 
 1. Read / Observe tools for safe inspection and context gathering.
-2. Write / Mutate tools for explicit, authorized changes.
+2. Plan / Preview tools for deterministic planning and bundle metadata.
+3. Write / Mutate tools for explicit, authorized changes.
 
-Start by using Read / Observe tools to locate the relevant file, section, or note. Only when you have high confidence in the exact target should you request a Write / Mutate tool.
+Start by using Read / Observe tools to locate the relevant file, section, or note. Use Plan / Preview tools to confirm deterministic outputs, then request Write / Mutate tools only with high confidence in the exact target.
 ```
 
 ## Recommended Policy
