@@ -11,8 +11,8 @@ all: build
 build: ## Build the project.
 	$(BUN) run build
 
-test: ## Run unit tests.
-	$(BUN) run test:unit
+test: ## Run unit tests with coverage.
+	$(BUN) run coverage
 
 coverage: ## Run tests with coverage.
 	$(BUN) run coverage

@@ -440,15 +440,14 @@ plain = ".txt"
 
 ```bash
 bun install
-bun run format
-bun run lint
-bun run check
-bun run build
-bun test tests
+make test
+make verify
 ```
 
-Full verification:
+If you prefer the underlying Bun commands directly:
 
 ```bash
+bun run coverage
+bun run test
 bun run verify
 ```
