@@ -32,8 +32,7 @@ describe("comprehensive edge cases and integration scenarios", () => {
 
   describe("path and file handling edge cases", () => {
     it("handles deeply nested paths", () => {
-      const deep =
-        "a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z";
+      const deep = "a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z";
       expect(deep).toContain("/");
       expect(deep.split("/").length).toBe(26);
     });
@@ -150,7 +149,7 @@ describe("comprehensive edge cases and integration scenarios", () => {
     });
 
     it("handles large numbers", () => {
-      const large = Math.pow(2, 32);
+      const large = 2 ** 32;
       expect(large).toBeGreaterThan(0);
       expect(large).toBeGreaterThan(1000000);
     });
@@ -297,7 +296,7 @@ describe("comprehensive edge cases and integration scenarios", () => {
 
     it("instanceof checks class hierarchy", () => {
       const arr: unknown = [];
-      expect(arr instanceof Array).toBe(true);
+      expect(Array.isArray(arr)).toBe(true);
     });
 
     it("Array.isArray discriminates arrays", () => {
@@ -321,7 +320,7 @@ describe("comprehensive edge cases and integration scenarios", () => {
 
     it("optional chaining prevents errors", () => {
       const obj = { nested: { value: 42 } };
-      // @ts-ignore - intentionally accessing undefined property
+      // @ts-expect-error - intentionally accessing undefined property
       expect(obj?.missing?.value ?? "default").toBe("default");
     });
   });
