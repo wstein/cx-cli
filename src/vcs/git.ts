@@ -6,6 +6,8 @@ import type { VCSState } from "./provider.js";
 
 const execFileAsync = promisify(execFile);
 
+type GitRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
+
 /**
  * Execute a git command with consistent options.
  */
@@ -31,9 +33,12 @@ async function runGit(
  * `git rev-parse --git-dir` succeeds from any directory inside a work tree,
  * including subdirectories of the repository root.
  */
-export async function detectGit(sourceRoot: string): Promise<boolean> {
+export async function detectGit(
+  sourceRoot: string,
+  run: GitRunner = runGit,
+): Promise<boolean> {
   try {
-    await runGit(["rev-parse", "--git-dir"], sourceRoot);
+    await run(["rev-parse", "--git-dir"], sourceRoot);
     return true;
   } catch {
     return false;
@@ -45,9 +50,12 @@ export async function detectGit(sourceRoot: string): Promise<boolean> {
  *
  * @returns VCSState with kind="git" containing tracked, modified, and untracked files.
  */
-export async function getGitState(sourceRoot: string): Promise<VCSState> {
+export async function getGitState(
+  sourceRoot: string,
+  run: GitRunner = runGit,
+): Promise<VCSState> {
   // Null-delimited output is safe against filenames with newlines or spaces.
-  const { stdout: lsOut } = await runGit(
+  const { stdout: lsOut } = await run(
     ["ls-files", "--cached", "-z"],
     sourceRoot,
   );
@@ -55,7 +63,7 @@ export async function getGitState(sourceRoot: string): Promise<VCSState> {
 
   // --no-renames keeps entries simple (one path per line, no rename pairs).
   // --porcelain=v1 is stable across git versions.
-  const { stdout: statusOut } = await runGit(
+  const { stdout: statusOut } = await run(
     ["status", "--porcelain=v1", "--no-renames"],
     sourceRoot,
   );
