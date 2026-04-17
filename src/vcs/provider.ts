@@ -58,6 +58,26 @@ export interface VCSState {
   untrackedFiles: string[];
 }
 
+export interface VCSProviderHandlers {
+  detectGit: (sourceRoot: string) => Promise<boolean>;
+  getGitState: (sourceRoot: string) => Promise<VCSState>;
+  detectFossil: (sourceRoot: string) => Promise<boolean>;
+  getFossilState: (sourceRoot: string) => Promise<VCSState>;
+  detectHg: (sourceRoot: string) => Promise<boolean>;
+  getHgState: (sourceRoot: string) => Promise<VCSState>;
+  getFilesystemState: (sourceRoot: string) => Promise<VCSState>;
+}
+
+const DEFAULT_HANDLERS: VCSProviderHandlers = {
+  detectGit,
+  getGitState,
+  detectFossil,
+  getFossilState,
+  detectHg,
+  getHgState,
+  getFilesystemState,
+};
+
 /**
  * Detect the VCS in use at `sourceRoot` and return the current working-tree state.
  *
@@ -69,24 +89,31 @@ export interface VCSState {
  * and the dirty state is always "clean".
  */
 export async function getVCSState(sourceRoot: string): Promise<VCSState> {
+  return getVCSStateWithHandlers(sourceRoot, DEFAULT_HANDLERS);
+}
+
+export async function getVCSStateWithHandlers(
+  sourceRoot: string,
+  handlers: VCSProviderHandlers,
+): Promise<VCSState> {
   // Try Git: `rev-parse --git-dir` succeeds from any directory inside a
   // work tree, including subdirectories of the repository root.
-  if (await detectGit(sourceRoot)) {
-    return await getGitState(sourceRoot);
+  if (await handlers.detectGit(sourceRoot)) {
+    return await handlers.getGitState(sourceRoot);
   }
 
   // Try Fossil: `info` exits 0 only from inside a checked-out repository.
-  if (await detectFossil(sourceRoot)) {
-    return await getFossilState(sourceRoot);
+  if (await handlers.detectFossil(sourceRoot)) {
+    return await handlers.getFossilState(sourceRoot);
   }
 
   // Try Mercurial: `identify` exits 0 when inside a Mercurial repository.
-  if (await detectHg(sourceRoot)) {
-    return await getHgState(sourceRoot);
+  if (await handlers.detectHg(sourceRoot)) {
+    return await handlers.getHgState(sourceRoot);
   }
 
   // No VCS detected — fall back to full filesystem traversal.
-  return getFilesystemState(sourceRoot);
+  return handlers.getFilesystemState(sourceRoot);
 }
 
 /**
