@@ -55,13 +55,22 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardInput forwards defaults and descriptions to the prompt", async () => {
-    const inputMock = mock(async () => "typed answer");
+    const inputMock = mock(
+      async (_options: { message: string; default: string }) => "typed answer",
+    );
 
     mock.module("@inquirer/prompts", () => ({
       input: inputMock,
-      select: mock(async () => "unused"),
-      confirm: mock(async () => true),
-      checkbox: mock(async () => []),
+      select: mock(async (_options: { message: string }) => "unused"),
+      confirm: mock(
+        async (_options: { message: string; default: boolean }) => true,
+      ),
+      checkbox: mock(
+        async (_options: {
+          message: string;
+          choices: Array<{ name: string; value: unknown }>;
+        }) => [],
+      ),
     }));
 
     const wizard = await import("../../src/shared/wizard.js");
@@ -82,13 +91,27 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardSelect maps choices before prompting", async () => {
-    const selectMock = mock(async () => "two");
+    const selectMock = mock(
+      async (_options: {
+        message: string;
+        choices: Array<{ name: string; value: string }>;
+      }) => "two",
+    );
 
     mock.module("@inquirer/prompts", () => ({
-      input: mock(async () => "unused"),
+      input: mock(
+        async (_options: { message: string; default: string }) => "unused",
+      ),
       select: selectMock,
-      confirm: mock(async () => true),
-      checkbox: mock(async () => []),
+      confirm: mock(
+        async (_options: { message: string; default: boolean }) => true,
+      ),
+      checkbox: mock(
+        async (_options: {
+          message: string;
+          choices: Array<{ name: string; value: unknown }>;
+        }) => [],
+      ),
     }));
 
     const wizard = await import("../../src/shared/wizard.js");
@@ -111,13 +134,22 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardConfirm respects default values", async () => {
-    const confirmMock = mock(async () => false);
+    const confirmMock = mock(
+      async (_options: { message: string; default: boolean }) => false,
+    );
 
     mock.module("@inquirer/prompts", () => ({
-      input: mock(async () => "unused"),
-      select: mock(async () => "unused"),
+      input: mock(
+        async (_options: { message: string; default: string }) => "unused",
+      ),
+      select: mock(async (_options: { message: string }) => "unused"),
       confirm: confirmMock,
-      checkbox: mock(async () => []),
+      checkbox: mock(
+        async (_options: {
+          message: string;
+          choices: Array<{ name: string; value: unknown }>;
+        }) => [],
+      ),
     }));
 
     const wizard = await import("../../src/shared/wizard.js");
@@ -136,12 +168,21 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardCheckbox maps choices and returns selected values", async () => {
-    const checkboxMock = mock(async () => ["alpha", "beta"]);
+    const checkboxMock = mock(
+      async (_options: {
+        message: string;
+        choices: Array<{ name: string; value: string }>;
+      }) => ["alpha", "beta"],
+    );
 
     mock.module("@inquirer/prompts", () => ({
-      input: mock(async () => "unused"),
-      select: mock(async () => "unused"),
-      confirm: mock(async () => true),
+      input: mock(
+        async (_options: { message: string; default: string }) => "unused",
+      ),
+      select: mock(async (_options: { message: string }) => "unused"),
+      confirm: mock(
+        async (_options: { message: string; default: boolean }) => true,
+      ),
       checkbox: checkboxMock,
     }));
 

@@ -111,9 +111,7 @@ describe("VCS provider dispatch", () => {
       return;
     }
 
-    const tempDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), "cx-dispatch-hg-"),
-    );
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-dispatch-hg-"));
     try {
       execSync("hg init", { cwd: tempDir, stdio: "ignore" });
       await fs.writeFile(path.join(tempDir, "tracked.txt"), "hello", "utf8");

@@ -40,10 +40,11 @@ describe("shared manifest summary utilities", () => {
         style: "xml",
         outputFile: "src.xml",
         outputSha256: "hash",
-        outputSizeBytes: 0,
-        outputTokenCount: 0,
-        outputStartLine: 1,
-        outputEndLine: 1,
+      } as unknown as CxManifest["sections"][number] & {
+        outputSizeBytes: number;
+        outputTokenCount: number;
+        outputStartLine: number;
+        outputEndLine: number;
       },
       {
         name: "docs",
@@ -51,10 +52,11 @@ describe("shared manifest summary utilities", () => {
         style: "xml",
         outputFile: "docs.xml",
         outputSha256: "hash",
-        outputSizeBytes: 0,
-        outputTokenCount: 0,
-        outputStartLine: 1,
-        outputEndLine: 1,
+      } as unknown as CxManifest["sections"][number] & {
+        outputSizeBytes: number;
+        outputTokenCount: number;
+        outputStartLine: number;
+        outputEndLine: number;
       },
     ],
     assets: [
@@ -131,8 +133,32 @@ describe("shared manifest summary utilities", () => {
 
   test("selectManifestSections filters only selected sections", () => {
     const rows: ManifestFileRow[] = [
-      { path: "src/index.ts", section: "src", kind: "text" },
-      { path: "docs/guide.md", section: "docs", kind: "text" },
+      {
+        path: "src/index.ts",
+        section: "src",
+        kind: "text",
+        storedIn: "packed",
+        sha256: "hash",
+        sizeBytes: 100,
+        tokenCount: 10,
+        mtime: "2025-01-01T00:00:00Z",
+        mediaType: "text/plain",
+        outputStartLine: 1,
+        outputEndLine: 10,
+      },
+      {
+        path: "docs/guide.md",
+        section: "docs",
+        kind: "text",
+        storedIn: "packed",
+        sha256: "hash",
+        sizeBytes: 100,
+        tokenCount: 10,
+        mtime: "2025-01-01T00:00:00Z",
+        mediaType: "text/markdown",
+        outputStartLine: 1,
+        outputEndLine: 10,
+      },
     ];
     const sections = selectManifestSections(manifest, rows);
     expect(sections.map((section) => section.name)).toEqual(["src", "docs"]);
@@ -155,6 +181,6 @@ describe("shared manifest summary utilities", () => {
       },
     ];
     const assets = selectManifestAssets(manifest, rows);
-    expect(assets[0].sourcePath).toBe("images/logo.png");
+    expect(assets[0]?.sourcePath).toBe("images/logo.png");
   });
 });

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { extractNoteSummary, titleFromFileName } from "../../src/notes/parser";
+import {
+  extractNoteSummary,
+  titleFromFileName,
+} from "../../src/notes/parser.js";
 
 describe("notes parser utilities", () => {
   describe("titleFromFileName", () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import type { ManifestFileRow } from "../../src/manifest/types";
-import type { VerifySelection } from "../../src/shared/verifyFilters";
-import { selectManifestRows } from "../../src/shared/verifyFilters";
+import type { ManifestFileRow } from "../../src/manifest/types.js";
+import type { VerifySelection } from "../../src/shared/verifyFilters.js";
+import { selectManifestRows } from "../../src/shared/verifyFilters.js";
 
 describe("verify and filter utilities", () => {
   const sampleRows: ManifestFileRow[] = [
@@ -9,7 +9,7 @@ describe("verify and filter utilities", () => {
       path: "src/main.ts",
       kind: "text",
       section: "src",
-      storedIn: "output",
+      storedIn: "packed",
       sha256: "h1",
       sizeBytes: 512,
       tokenCount: 100,
@@ -22,7 +22,7 @@ describe("verify and filter utilities", () => {
       path: "src/util.ts",
       kind: "text",
       section: "src",
-      storedIn: "output",
+      storedIn: "packed",
       sha256: "h2",
       sizeBytes: 256,
       tokenCount: 50,
@@ -35,7 +35,7 @@ describe("verify and filter utilities", () => {
       path: "docs/README.md",
       kind: "text",
       section: "docs",
-      storedIn: "output",
+      storedIn: "packed",
       sha256: "h3",
       sizeBytes: 1024,
       tokenCount: 200,
@@ -48,7 +48,7 @@ describe("verify and filter utilities", () => {
       path: "tests/main.test.ts",
       kind: "text",
       section: "tests",
-      storedIn: "output",
+      storedIn: "packed",
       sha256: "h4",
       sizeBytes: 512,
       tokenCount: 100,

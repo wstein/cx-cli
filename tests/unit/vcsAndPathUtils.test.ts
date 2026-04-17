@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { isSubpath, toPosixPath } from "../../src/shared/paths";
-import type { VCSState } from "../../src/vcs/provider";
-import { classifyDirtyState } from "../../src/vcs/provider";
+import { isSubpath, toPosixPath } from "../../src/shared/paths.js";
+import type { VCSState } from "../../src/vcs/provider.js";
+import { classifyDirtyState } from "../../src/vcs/provider.js";
 
 describe("VCS and path utilities", () => {
   describe("classifyDirtyState", () => {
