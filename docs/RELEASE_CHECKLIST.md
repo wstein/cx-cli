@@ -10,7 +10,6 @@ Use this short checklist when cutting a release.
 - Mirror the same schema files into the GitHub Release assets for the tagged release.
 - Use `make release VERSION=x.y.z` to hand off the tagged release to the release script.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
-- Confirm `NPM_TOKEN` and `HOMEBREW_TAP_TOKEN` are set before the release workflow starts.
-- Add `NPM_TOKEN` to repository secrets for npm publish automation.
-- Add `HOMEBREW_TAP_TOKEN` to repository secrets for automated Homebrew tap updates.
+- The release workflow requires `NPM_TOKEN` so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_TOKEN` so it can push the updated formula to `wstein/homebrew-tap`.
+- Confirm both secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
 - Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from the single release workflow.
