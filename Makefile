@@ -17,7 +17,7 @@ test: ## Run unit tests with coverage.
 coverage: ## Run tests with coverage.
 	$(BUN) run coverage
 
-verify: ## Run lint, typecheck, build, and the full test suite.
+verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
 
 release: ## Release a new version (VERSION=x.y.z required).
@@ -35,7 +35,7 @@ help: ## Show available targets.
 	@printf "  build     Build the project.\n"
 	@printf "  test      Run unit tests with coverage.\n"
 	@printf "  coverage  Run tests with coverage.\n"
-	@printf "  verify    Run lint, typecheck, build, and the full test suite.\n"
+	@printf "  verify    Run lint, typecheck, build, and the full test suite with coverage.\n"
 	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
 	@printf "  clean     Remove generated output files.\n"
 	@printf "  notes     List available notes in the repository.\n"

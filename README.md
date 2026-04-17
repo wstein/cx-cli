@@ -443,7 +443,7 @@ The repository-local `make` commands are intentionally small and explicit:
 | Command | Use it when |
 | --- | --- |
 | `make test` | You want fast unit coverage while iterating |
-| `make verify` | You want the full local gate before merging |
+| `make verify` | You want the full local gate with coverage before merging |
 | `make release VERSION=x.y.z` | You are cutting a tagged release |
 
 ```bash
@@ -454,7 +454,7 @@ make release VERSION=x.y.z
 ```
 
 `make test` runs the unit suite with coverage output. `make verify` is the full
-local gate: lint, typecheck, build, and the complete test suite. `make release`
+local gate: lint, typecheck, build, and the complete test suite with coverage. `make release`
 delegates to the release script and requires an explicit semantic version.
 
 If you prefer the underlying Bun commands directly:

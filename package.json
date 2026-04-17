@@ -37,7 +37,7 @@
     "release": "bun run scripts/release.ts",
     "gen:homebrew": "bun run scripts/generate-homebrew-formula.ts",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "verify": "bun run lint && bun run check && bun run build && bun run test",
+    "verify": "bun run lint && bun run check && bun run build && bun test --coverage --coverage-dir coverage tests --timeout 20000",
     "copy:init": "bun run scripts/copy-init-templates.ts",
     "smoke:repomix-version": "bun run scripts/repomix-version-smoke.ts"
   },

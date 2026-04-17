@@ -44,7 +44,7 @@ Use the repository-local `make` targets for day-to-day development:
 | Command | Use it when |
 | --- | --- |
 | `make test` | You want unit coverage while iterating |
-| `make verify` | You want the full local gate before merging |
+| `make verify` | You want the full local gate with coverage before merging |
 | `make release VERSION=x.y.z` | You are cutting a tagged release |
 
 ### CX Commands
@@ -85,7 +85,7 @@ For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code,
 Repository-local `make` shortcuts keep the developer loop compact:
 
 - `make test` runs the unit suite with coverage.
-- `make verify` runs lint, typecheck, build, and the full test suite.
+- `make verify` runs lint, typecheck, build, and the full test suite with coverage.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 
 The `make` targets are wrappers around the corresponding Bun scripts. Use them
