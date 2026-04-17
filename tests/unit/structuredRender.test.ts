@@ -7,6 +7,7 @@ import {
   validateEntryHashes,
   validatePlanOrdering,
 } from "../../src/repomix/structured.js";
+import { sha256Text } from "../../src/shared/hashing.js";
 
 describe("Structured Render Contract", () => {
   describe("validatePlanOrdering", () => {
@@ -45,20 +46,18 @@ describe("Structured Render Contract", () => {
 
   describe("validateEntryHashes", () => {
     it("returns empty map for valid hashes", () => {
+      const content = "console.log('hello');";
       const entries: StructuredRenderEntry[] = [
         {
           path: "file1.ts",
-          content: "console.log('hello');",
-          sha256:
-            "7991f8999b5d3f3dedbf5d9f92b8e5a3a2e2e8f5f3f3f3f3f3f3f3f3f3f3f3f",
+          content,
+          sha256: sha256Text(content),
           tokenCount: 5,
         },
       ];
 
-      // This will fail because we're using a dummy hash
-      // In real tests, we'd compute the correct hash
       const errors = validateEntryHashes(entries);
-      expect(errors.size).toBeGreaterThan(0);
+      expect(errors.size).toBe(0);
     });
 
     it("detects hash mismatch", () => {
@@ -85,15 +84,13 @@ describe("Structured Render Contract", () => {
           {
             path: "a.ts",
             content: "content_a",
-            sha256:
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            sha256: sha256Text("content_a"),
             tokenCount: 10,
           },
           {
             path: "b.ts",
             content: "content_b",
-            sha256:
-              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            sha256: sha256Text("content_b"),
             tokenCount: 20,
           },
         ],
@@ -113,15 +110,13 @@ describe("Structured Render Contract", () => {
           {
             path: "a.ts",
             content: "content_a",
-            sha256:
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            sha256: sha256Text("content_a"),
             tokenCount: 10,
           },
           {
             path: "b.ts",
             content: "content_b",
-            sha256:
-              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            sha256: sha256Text("content_b"),
             tokenCount: 20,
           },
         ],
@@ -133,15 +128,13 @@ describe("Structured Render Contract", () => {
           {
             path: "a.ts",
             content: "content_a",
-            sha256:
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            sha256: sha256Text("content_a"),
             tokenCount: 10,
           },
           {
             path: "b.ts",
             content: "content_b",
-            sha256:
-              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            sha256: sha256Text("content_b"),
             tokenCount: 20,
           },
         ],
@@ -162,15 +155,13 @@ describe("Structured Render Contract", () => {
           {
             path: "file1.ts",
             content: "content1",
-            sha256:
-              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            sha256: sha256Text("content1"),
             tokenCount: 10,
           },
           {
             path: "file2.ts",
             content: "content2",
-            sha256:
-              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            sha256: sha256Text("content2"),
             tokenCount: 20,
           },
         ],
@@ -181,12 +172,8 @@ describe("Structured Render Contract", () => {
 
       expect(fileTokenCounts.get("file1.ts")).toBe(10);
       expect(fileTokenCounts.get("file2.ts")).toBe(20);
-      expect(fileContentHashes.get("file1.ts")).toBe(
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      );
-      expect(fileContentHashes.get("file2.ts")).toBe(
-        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      );
+      expect(fileContentHashes.get("file1.ts")).toBe(sha256Text("content1"));
+      expect(fileContentHashes.get("file2.ts")).toBe(sha256Text("content2"));
     });
   });
 
@@ -199,22 +186,19 @@ describe("Structured Render Contract", () => {
         {
           path: "z.ts",
           content: "z",
-          sha256:
-            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          sha256: sha256Text("z"),
           tokenCount: 1,
         },
         {
           path: "a.ts",
           content: "a",
-          sha256:
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          sha256: sha256Text("a"),
           tokenCount: 1,
         },
         {
           path: "m.ts",
           content: "m",
-          sha256:
-            "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+          sha256: sha256Text("m"),
           tokenCount: 1,
         },
       ];
@@ -233,15 +217,13 @@ describe("Structured Render Contract", () => {
           {
             path: "src/index.ts",
             content: "export const version = '1.0.0'",
-            sha256:
-              "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            sha256: sha256Text("export const version = '1.0.0'"),
             tokenCount: 8,
           },
           {
             path: "src/types.ts",
             content: "export interface Config {}",
-            sha256:
-              "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+            sha256: sha256Text("export interface Config {}"),
             tokenCount: 6,
           },
         ],
