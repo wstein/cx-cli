@@ -1,0 +1,5 @@
+extends = "cx.toml"
+
+[mcp]
+policy = "default"
+audit_logging = true

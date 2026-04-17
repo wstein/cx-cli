@@ -1,0 +1,11 @@
+schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+
+[sections.src]
+include = ["src/**"]
+exclude = []

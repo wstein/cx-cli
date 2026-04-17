@@ -17,6 +17,9 @@ import {
 } from "../../src/manifest/json.js";
 import type { CxManifest } from "../../src/manifest/types.js";
 import { sha256File } from "../../src/shared/hashing.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
+import { buildConfig } from "../helpers/config/buildConfig.js";
+import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 function countLogicalLines(content: string): number {
   if (content === "") {
@@ -106,30 +109,22 @@ async function createProject(options?: {
   configPath: string;
   bundleDir: string;
 }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-bundle-"));
-  const bundleDir = path.join(root, "dist", "demo-bundle");
-  await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.mkdir(path.join(root, "docs"), { recursive: true });
-  await fs.writeFile(
-    path.join(root, "README.md"),
-    "# Demo\n\n```\ncode fence\n```\n",
-    "utf8",
-  );
-  await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    'export const demo = "================";\n',
-    "utf8",
-  );
-  if (options?.includeLinkedNotes) {
-    await fs.writeFile(
-      path.join(root, "src", "index.ts"),
-      '// [[Linked Note]]\nexport const demo = "================";\n',
-      "utf8",
-    );
-    await fs.mkdir(path.join(root, "notes"), { recursive: true });
-    await fs.writeFile(
-      path.join(root, "notes", "linked-note.md"),
-      `---
+  const workspace = await createWorkspace({
+    fixture: "bundle-basic",
+    config: buildConfig({
+      assets: {
+        targetDir: "assets",
+      },
+      manifest: {
+        includeLinkedNotes: options?.includeLinkedNotes ?? false,
+      },
+    }),
+    files: {
+      ...(options?.includeLinkedNotes
+        ? {
+            "src/index.ts":
+              '// [[Linked Note]]\nexport const demo = "================";\n',
+            "notes/linked-note.md": `---
 id: 20260414120000
 title: Linked Note
 aliases: []
@@ -142,72 +137,22 @@ This note is linked from source code.
 
 - [[README.md]]
 `,
-      "utf8",
-    );
-  }
-  await fs.writeFile(
-    path.join(root, "docs", "guide.md"),
-    "hello\n================\nstill content\n",
-    "utf8",
-  );
-  if (options?.includeSpecialChecksumFile) {
-    await fs.mkdir(path.join(root, "src", "special cases"), {
-      recursive: true,
-    });
-    await fs.writeFile(
-      path.join(root, "src", "special cases", "checksum + edge.ts"),
-      "export const special = true;\n",
-      "utf8",
-    );
-  }
-  await fs.writeFile(path.join(root, "logo.png"), "fakepng", "utf8");
-  const configPath = path.join(root, "cx.toml");
-  const linkedNotesConfig = options?.includeLinkedNotes
-    ? "\ninclude_linked_notes = true"
-    : "";
-  await fs.writeFile(
-    configPath,
-    `schema_version = 1
-project_name = "demo"
-source_root = "."
-output_dir = "dist/demo-bundle"
+          }
+        : {}),
+      ...(options?.includeSpecialChecksumFile
+        ? {
+            "src/special cases/checksum + edge.ts":
+              "export const special = true;\n",
+          }
+        : {}),
+    },
+  });
 
-[repomix]
-style = "xml"
-show_line_numbers = false
-include_empty_directories = false
-security_check = false
-
-[files]
-exclude = ["dist/**"]
-follow_symlinks = false
-unmatched = "ignore"
-
-[assets]
-include = ["**/*.png"]
-exclude = []
-mode = "copy"
-target_dir = "assets"
-
-[sections.docs]
-include = ["README.md", "docs/**"]
-exclude = []
-
-[sections.src]
-include = ["src/**"]
-exclude = []
-
-[manifest]
-format = "json"
-include_file_sha256 = true
-include_output_sha256 = true
-include_output_spans = true
-include_source_metadata = true${linkedNotesConfig}
-`,
-    "utf8",
-  );
-
-  return { root, configPath, bundleDir };
+  return {
+    root: workspace.rootDir,
+    configPath: workspace.configPath,
+    bundleDir: workspace.bundleDir,
+  };
 }
 
 async function tamperSectionOutput(
@@ -233,19 +178,13 @@ async function tamperSectionOutput(
 describe("bundle workflow", () => {
   test("creates, validates, lists, and verifies a bundle", async () => {
     const project = await createProject();
-    const logs: string[] = [];
-    const consoleLog = console.log;
-    console.log = ((...args: unknown[]) => {
-      logs.push(args.map((value) => String(value)).join(" "));
-    }) as typeof console.log;
+    const bundleRun = await captureCli({
+      run: () => runBundleCommand({ config: project.configPath }),
+      captureConsoleLog: true,
+    });
 
-    try {
-      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    } finally {
-      console.log = consoleLog;
-    }
-
-    const summary = logs.join("\n");
+    expect(bundleRun.exitCode).toBe(0);
+    const summary = bundleRun.logs;
     expect(summary).toContain("Packed tokens");
     expect(summary).toContain("Output tokens");
     expect(summary).toContain("Immutable snapshot");
@@ -253,21 +192,15 @@ describe("bundle workflow", () => {
     expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
     expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
 
-    const listWrites: string[] = [];
-    const listStdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      listWrites.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-    expect(
-      await runListCommand({ bundleDir: project.bundleDir, json: false }),
-    ).toBe(0);
-    process.stdout.write = listStdoutWrite;
+    const listRun = await captureCli({
+      run: () => runListCommand({ bundleDir: project.bundleDir, json: false }),
+    });
+    expect(listRun.exitCode).toBe(0);
 
-    expect(listWrites.join("")).toContain("README.md");
-    expect(listWrites.join("")).toContain("docs");
-    expect(listWrites.join("")).toContain("status");
-    expect(listWrites.join("")).not.toContain("kind\tsection\tstored_in");
+    expect(listRun.stdout).toContain("README.md");
+    expect(listRun.stdout).toContain("docs");
+    expect(listRun.stdout).toContain("status");
+    expect(listRun.stdout).not.toContain("kind\tsection\tstored_in");
     const bundleIndexPath = path.join(
       project.bundleDir,
       "demo-bundle-index.txt",
