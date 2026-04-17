@@ -3,6 +3,7 @@
 Use this directory as the map for the documentation set.
 
 Schema publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), which keeps the public GitHub Pages host and release mirror aligned with the checked-in `schemas/` files.
+Developer command conventions for `make test`, `make verify`, and `make release` live in the repository notes and the operator manual.
 
 ## Start Here
 

@@ -442,7 +442,12 @@ plain = ".txt"
 bun install
 make test
 make verify
+make release VERSION=x.y.z
 ```
+
+`make test` runs the unit suite with coverage output. `make verify` is the full
+local gate: lint, typecheck, build, and the complete test suite. `make release`
+delegates to the release script and requires an explicit semantic version.
 
 If you prefer the underlying Bun commands directly:
 
@@ -450,4 +455,5 @@ If you prefer the underlying Bun commands directly:
 bun run coverage
 bun run test
 bun run verify
+VERSION=x.y.z bun run release
 ```

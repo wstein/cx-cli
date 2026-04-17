@@ -14,6 +14,10 @@ inspect the note graph without reparsing raw Markdown.
 Use `cx notes links` to audit unresolved note references after you rename or
 move entries in the note graph.
 
+Operational command contracts such as `make test`, `make verify`, and
+`make release` should live here as durable notes instead of ad hoc workflow
+comments in docs or issue trackers.
+
 ## Why This Directory Exists
 
 This directory exists as the **upstream intent layer** for all repository work. If a concept exists in the code or docs, it must first exist here.

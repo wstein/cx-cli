@@ -39,10 +39,11 @@ If you want the shortest path to a useful result, follow **Track A** to secure y
 
 ```bash
 cx init --name demo
-make build
-make bundle
-make validate
-make inspect
+cx inspect --token-breakdown
+cx bundle --config cx.toml
+make test
+make verify
+make release VERSION=x.y.z
 cx mcp
 cx doctor mcp --config cx.toml
 cx doctor secrets --config cx.toml
@@ -69,6 +70,12 @@ When `--template` is omitted, `cx init` autodetects the workspace environment fr
 `cx mcp` prefers a colocated `cx-mcp.toml` overlay. If that file is present, it is the default MCP config for the workspace; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code, Cursor, Claude Desktop), see the [Agent Integration Guide](AGENT_INTEGRATION.md).
+
+Repository-local `make` shortcuts keep the developer loop compact:
+
+- `make test` runs the unit suite with coverage.
+- `make verify` runs lint, typecheck, build, and the full test suite.
+- `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 
 The native MCP server exposes file-based `list`, `grep`, and `read` tools over
 the workspace scope. It also exposes `inspect`, `bundle`, `doctor_mcp`, and
