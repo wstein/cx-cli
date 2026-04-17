@@ -47,7 +47,7 @@ jobs:
 
 ## Source repo release step
 
-The source repo already owns formula generation. The release job should keep a step like this after generating `release-artifacts/cx-cli.rb`:
+The source repo owns packaging and formula generation. The release job should publish the packed tarball to npm first, then keep a step like this to generate `release-artifacts/cx-cli.rb` from the same tarball and update the tap:
 
 ```yaml
 - name: Checkout Homebrew tap
@@ -78,6 +78,7 @@ The source repo already owns formula generation. The release job should keep a s
 ## Why this lines up cleanly
 
 - The source repo owns packaging, formula generation, and the commit that updates the tap.
+- npm publish happens first, so the formula is generated from the exact tarball that was released.
 - The tap repo owns formula validation on push.
 - A PAT or GitHub App token with write access to `wstein/homebrew-tap` triggers the tap repo workflow normally.
 - There is no second packaging path and no duplicated release logic.
