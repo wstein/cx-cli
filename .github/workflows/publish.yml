@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 jobs:
-  prepare-release:
+  tarball:
     runs-on: ubuntu-latest
     outputs:
       release_version: ${{ steps.release-version.outputs.version }}
@@ -82,8 +82,8 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  publish-npm:
-    needs: prepare-release
+  npm:
+    needs: tarball
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment: node
@@ -112,14 +112,14 @@ jobs:
           always-auth: true
 
       - name: Publish to npm
-        run: npm publish --access public "./tarball-artifacts/${{ needs.prepare-release.outputs.npm_tarball_name }}"
+        run: npm publish --access public "./tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  publish-homebrew:
+  homebrew:
     needs:
-      - prepare-release
-      - publish-npm
+      - tarball
+      - npm
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment: homebrew
@@ -156,7 +156,7 @@ jobs:
 
       - name: Generate Homebrew formula
         run: |
-          bun run scripts/generate-homebrew-formula.ts "${{ needs.prepare-release.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.prepare-release.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
+          bun run scripts/generate-homebrew-formula.ts "${{ needs.tarball.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
 
       - name: Update tap formula
         run: |
@@ -172,5 +172,5 @@ jobs:
             exit 0
           fi
           git add Formula/cx-cli.rb
-          git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.prepare-release.outputs.release_version }}"
+          git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.tarball.outputs.release_version }}"
           git push origin main
