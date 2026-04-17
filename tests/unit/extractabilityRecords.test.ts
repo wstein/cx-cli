@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { ExtractabilityRecord } from "../../src/extract/resolution";
+import type { ExtractabilityRecord } from "../../src/extract/resolution.js";
 
 describe("extract resolution utilities", () => {
   describe("ExtractabilityRecord structure", () => {
@@ -363,7 +363,7 @@ describe("extract resolution utilities", () => {
       ];
 
       for (const message of messages) {
-        const record: ExtractabilityRecord = {
+        const _record: ExtractabilityRecord = {
           path: "f.ts",
           section: "src",
           kind: "text",

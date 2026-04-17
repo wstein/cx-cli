@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { asError, CxError } from "../../src/shared/errors";
+import { asError, CxError } from "../../src/shared/errors.js";
 import {
   normalizeText,
-  sha256Text,
   sha256NormalizedText,
-} from "../../src/shared/hashing";
-import { detectMediaType } from "../../src/shared/mime";
+  sha256Text,
+} from "../../src/shared/hashing.js";
+import { detectMediaType } from "../../src/shared/mime.js";
 
 describe("shared utilities - errors, hashing, and media type", () => {
   describe("CxError", () => {
@@ -117,14 +117,12 @@ describe("shared utilities - errors, hashing, and media type", () => {
   describe("normalizeText", () => {
     it("converts CRLF to LF", () => {
       expect(normalizeText("line1\r\nline2\r\nline3")).toBe(
-        "line1\nline2\nline3"
+        "line1\nline2\nline3",
       );
     });
 
     it("converts CR to LF", () => {
-      expect(normalizeText("line1\rline2\rline3")).toBe(
-        "line1\nline2\nline3"
-      );
+      expect(normalizeText("line1\rline2\rline3")).toBe("line1\nline2\nline3");
     });
 
     it("preserves LF as-is", () => {
@@ -184,7 +182,7 @@ describe("shared utilities - errors, hashing, and media type", () => {
     it("produces empty string hash for empty input", () => {
       const hash = sha256Text("");
       expect(hash).toBe(
-        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       );
     });
 
@@ -381,7 +379,7 @@ describe("shared utilities - errors, hashing, and media type", () => {
 
     it("handles paths with directories", () => {
       expect(detectMediaType("src/components/Button.tsx")).toBe(
-        "text/typescript"
+        "text/typescript",
       );
       expect(detectMediaType("public/images/logo.png")).toBe("image/png");
     });
@@ -390,18 +388,14 @@ describe("shared utilities - errors, hashing, and media type", () => {
   describe("hash consistency and determinism", () => {
     it("same content always produces same hash", () => {
       const content = "Deterministic content";
-      const hashes = Array.from(
-        { length: 5 },
-        () => sha256Text(content)
-      );
+      const hashes = Array.from({ length: 5 }, () => sha256Text(content));
       expect(new Set(hashes).size).toBe(1); // All hashes are identical
     });
 
     it("normalized hashes are consistent", () => {
       const content = "line1\r\nline2\r\nline3";
-      const hashes = Array.from(
-        { length: 5 },
-        () => sha256NormalizedText(content)
+      const hashes = Array.from({ length: 5 }, () =>
+        sha256NormalizedText(content),
       );
       expect(new Set(hashes).size).toBe(1); // All hashes are identical
     });

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import type { NoteMetadata } from "../../src/notes/validate";
 import {
   extractWikilinkReferences,
   normalizeWikilinkReference,
   resolveWikilinkReference,
-} from "../../src/notes/linking";
+} from "../../src/notes/linking.js";
+import type { NoteMetadata } from "../../src/notes/validate.js";
 
 describe("notes linking", () => {
   describe("normalizeWikilinkReference", () => {
@@ -151,13 +151,14 @@ describe("notes linking", () => {
     const createNote = (
       id: string,
       title: string,
-      aliases?: string[]
+      aliases?: string[],
     ): NoteMetadata => ({
       id,
       title,
-      aliases,
-      path: "",
-      createdAt: new Date(),
+      aliases: aliases ?? [],
+      filePath: "",
+      fileName: "",
+      summary: "",
     });
 
     it("resolves reference by exact ID match", () => {
@@ -186,10 +187,7 @@ describe("notes linking", () => {
 
     it("resolves reference by alias", () => {
       const notesMap = new Map<string, NoteMetadata>([
-        [
-          "id1",
-          createNote("id1", "My Note", ["OldName", "Alternate"]),
-        ],
+        ["id1", createNote("id1", "My Note", ["OldName", "Alternate"])],
       ]);
       const result = resolveWikilinkReference("Alternate", notesMap);
       expect(result).toBe("id1");
@@ -197,10 +195,7 @@ describe("notes linking", () => {
 
     it("resolves reference case-insensitively by alias", () => {
       const notesMap = new Map<string, NoteMetadata>([
-        [
-          "id1",
-          createNote("id1", "My Note", ["OldName"]),
-        ],
+        ["id1", createNote("id1", "My Note", ["OldName"])],
       ]);
       const result = resolveWikilinkReference("oldname", notesMap);
       expect(result).toBe("id1");
@@ -251,14 +246,7 @@ describe("notes linking", () => {
 
     it("handles multiple aliases and finds first match", () => {
       const notesMap = new Map<string, NoteMetadata>([
-        [
-          "id1",
-          createNote("id1", "Primary", [
-            "Alias1",
-            "Alias2",
-            "Alias3",
-          ]),
-        ],
+        ["id1", createNote("id1", "Primary", ["Alias1", "Alias2", "Alias3"])],
       ]);
       const result = resolveWikilinkReference("Alias2", notesMap);
       expect(result).toBe("id1");

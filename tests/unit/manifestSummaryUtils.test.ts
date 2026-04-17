@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import type { CxManifest, ManifestFileRow } from "../../src/manifest/types.js";
 import {
   selectManifestAssets,
   selectManifestSections,
   summarizeManifest,
-} from "../../src/shared/manifestSummary";
-import type { AssetRecord, CxManifest, ManifestFileRow } from "../../src/manifest/types";
+} from "../../src/shared/manifestSummary.js";
 
 // Helper to create test manifest
 function createTestManifest(): CxManifest {
@@ -25,7 +25,7 @@ function createTestManifest(): CxManifest {
       showLineNumbers: false,
       includeEmptyDirectories: false,
       securityCheck: true,
-      normalizationPolicy: "utf8",
+      normalizationPolicy: "repomix-default-v1",
     },
     totalTokenCount: 5000,
     vcsProvider: "git",
@@ -83,7 +83,7 @@ function createTestManifest(): CxManifest {
         path: "src/main.ts",
         kind: "text",
         section: "src",
-        storedIn: "output",
+        storedIn: "packed",
         sha256: "f1",
         sizeBytes: 512,
         tokenCount: 100,
@@ -96,7 +96,7 @@ function createTestManifest(): CxManifest {
         path: "src/util.ts",
         kind: "text",
         section: "src",
-        storedIn: "output",
+        storedIn: "packed",
         sha256: "f2",
         sizeBytes: 256,
         tokenCount: 50,
@@ -109,7 +109,7 @@ function createTestManifest(): CxManifest {
         path: "docs/README.md",
         kind: "text",
         section: "docs",
-        storedIn: "output",
+        storedIn: "packed",
         sha256: "f3",
         sizeBytes: 1024,
         tokenCount: 200,
@@ -158,8 +158,9 @@ describe("manifest summary utilities", () => {
       const manifest = createTestManifest();
       const summary = summarizeManifest("test.json", manifest);
 
-      const assetCount = manifest.files.filter((f) => f.kind === "asset")
-        .length;
+      const assetCount = manifest.files.filter(
+        (f) => f.kind === "asset",
+      ).length;
       expect(summary.assetFileCount).toBe(assetCount);
     });
 
@@ -167,12 +168,12 @@ describe("manifest summary utilities", () => {
       const manifest = createTestManifest();
       // Select only rows from src and docs sections
       const selectedRows = manifest.files.filter(
-        (f) => f.section === "src" || f.section === "docs"
+        (f) => f.section === "src" || f.section === "docs",
       );
       const summary = summarizeManifestSections(
         "test.json",
         manifest,
-        selectedRows
+        selectedRows,
       );
 
       expect(summary.sectionCount).toBe(2); // src and docs
@@ -182,12 +183,12 @@ describe("manifest summary utilities", () => {
       const manifest = createTestManifest();
       // Select only logo asset
       const selectedRows = manifest.files.filter((f) =>
-        f.path === "logo.png" ? true : f.kind === "text"
+        f.path === "logo.png" ? true : f.kind === "text",
       );
       const summary = summarizeManifestSections(
         "test.json",
         manifest,
-        selectedRows
+        selectedRows,
       );
 
       expect(summary.assetCount).toBeLessThanOrEqual(manifest.assets.length);
@@ -196,7 +197,11 @@ describe("manifest summary utilities", () => {
     it("uses custom rows when provided", () => {
       const manifest = createTestManifest();
       const filteredRows = manifest.files.filter((f) => f.section === "src");
-      const summary = summarizeManifest("filtered.json", manifest, filteredRows);
+      const summary = summarizeManifest(
+        "filtered.json",
+        manifest,
+        filteredRows,
+      );
 
       expect(summary.fileCount).toBe(filteredRows.length);
     });
@@ -250,13 +255,13 @@ describe("manifest summary utilities", () => {
     it("selects sections used in rows", () => {
       const manifest = createTestManifest();
       const rowsWithSrcDocs = manifest.files.filter(
-        (f) => f.section === "src" || f.section === "docs"
+        (f) => f.section === "src" || f.section === "docs",
       );
       const selected = selectManifestSections(manifest, rowsWithSrcDocs);
 
       expect(selected.length).toBe(2);
       expect(selected.map((s) => s.name)).toEqual(
-        expect.arrayContaining(["src", "docs"])
+        expect.arrayContaining(["src", "docs"]),
       );
     });
 
@@ -330,8 +335,10 @@ describe("manifest summary utilities", () => {
 
       expect(selected).toEqual(
         expect.arrayContaining(
-          manifest.assets.filter((a) => assetRows.some((r) => r.path === a.sourcePath))
-        )
+          manifest.assets.filter((a) =>
+            assetRows.some((r) => r.path === a.sourcePath),
+          ),
+        ),
       );
     });
 
@@ -401,7 +408,7 @@ describe("manifest summary utilities", () => {
 
       expect(srcSummary.fileCount).toBeLessThanOrEqual(allSummary.fileCount);
       expect(srcSummary.sectionCount).toBeLessThanOrEqual(
-        allSummary.sectionCount
+        allSummary.sectionCount,
       );
     });
 
@@ -410,12 +417,12 @@ describe("manifest summary utilities", () => {
       const allSummary = summarizeManifest("all.json", manifest);
 
       const oneAssetRow = manifest.files.filter(
-        (f) => f.path === "logo.png" || f.kind === "text"
+        (f) => f.path === "logo.png" || f.kind === "text",
       );
       const oneSummary = summarizeManifest("one.json", manifest, oneAssetRow);
 
       expect(oneSummary.assetFileCount).toBeLessThanOrEqual(
-        allSummary.assetFileCount
+        allSummary.assetFileCount,
       );
     });
 
@@ -425,14 +432,15 @@ describe("manifest summary utilities", () => {
       const assets = selectManifestAssets(manifest, manifest.files);
 
       for (const section of sections) {
-        expect(
-          manifest.sections.some((s) => s.name === section.name)
-        ).toBe(true);
+        expect(manifest.sections.some((s) => s.name === section.name)).toBe(
+          true,
+        );
       }
 
       for (const asset of assets) {
-        expect(manifest.assets.some((a) => a.sourcePath === asset.sourcePath))
-          .toBe(true);
+        expect(
+          manifest.assets.some((a) => a.sourcePath === asset.sourcePath),
+        ).toBe(true);
       }
     });
   });
@@ -442,7 +450,7 @@ describe("manifest summary utilities", () => {
 function summarizeManifestSections(
   manifestName: string,
   manifest: CxManifest,
-  rows: ManifestFileRow[]
+  rows: ManifestFileRow[],
 ) {
   return summarizeManifest(manifestName, manifest, rows);
 }

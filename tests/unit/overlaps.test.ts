@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import type { CxConfig } from "../../src/config/types";
+import type { CxConfig } from "../../src/config/types.js";
 import {
   compileMatchers,
   getMatchingSections,
   getSectionEntries,
   getSectionOrder,
   matchesAny,
-} from "../../src/planning/overlaps";
+} from "../../src/planning/overlaps.js";
 
 describe("planning overlaps", () => {
   describe("compileMatchers", () => {
@@ -84,7 +84,7 @@ describe("planning overlaps", () => {
           tests: { include: ["tests/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order).toEqual(["core", "tests"]);
     });
@@ -97,7 +97,7 @@ describe("planning overlaps", () => {
           middle: { include: [], exclude: [] },
         },
         dedup: { order: "lexical", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order).toEqual(["apple", "middle", "zebra"]);
     });
@@ -110,7 +110,7 @@ describe("planning overlaps", () => {
           medium: { include: [], exclude: [], priority: 5 },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order[0]).toBe("high");
       expect(order[1]).toBe("medium");
@@ -124,7 +124,7 @@ describe("planning overlaps", () => {
           high: { include: [], exclude: [], priority: 5 },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order[0]).toBe("high");
     });
@@ -137,7 +137,7 @@ describe("planning overlaps", () => {
           third: { include: [], exclude: [], priority: 5 },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order).toEqual(["first", "second", "third"]);
     });
@@ -146,7 +146,7 @@ describe("planning overlaps", () => {
       const config: CxConfig = {
         sections: {},
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order).toEqual([]);
     });
@@ -157,7 +157,7 @@ describe("planning overlaps", () => {
           only: { include: ["**/*"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const order = getSectionOrder(config);
       expect(order).toEqual(["only"]);
     });
@@ -171,7 +171,7 @@ describe("planning overlaps", () => {
           tests: { include: ["tests/**"], exclude: [] },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const entries = getSectionEntries(config);
       expect(entries.size).toBe(2);
       expect(entries.has("core")).toBe(true);
@@ -185,7 +185,7 @@ describe("planning overlaps", () => {
           apple: { include: [], exclude: [], priority: 5 },
         },
         dedup: { order: "lexical", mode: "fail" },
-      } as any;
+      } as unknown;
       const entries = getSectionEntries(config);
       const keys = [...entries.keys()];
       expect(keys[0]).toBe("apple");
@@ -196,7 +196,7 @@ describe("planning overlaps", () => {
       const config: CxConfig = {
         sections: {},
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const entries = getSectionEntries(config);
       expect(entries.size).toBe(0);
     });
@@ -211,7 +211,7 @@ describe("planning overlaps", () => {
           },
         },
         dedup: { order: "config", mode: "fail" },
-      } as any;
+      } as unknown;
       const entries = getSectionEntries(config);
       const srcSection = entries.get("src");
       expect(srcSection).toEqual({
@@ -225,8 +225,8 @@ describe("planning overlaps", () => {
   describe("getMatchingSections", () => {
     it("returns sections that match file path", () => {
       const sections = new Map([
-        ["src", { include: ["src/**"], exclude: [] } as any],
-        ["tests", { include: ["tests/**"], exclude: [] } as any],
+        ["src", { include: ["src/**"], exclude: [] } as unknown],
+        ["tests", { include: ["tests/**"], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("src/main.ts", sections);
       expect(result).toContain("src");
@@ -235,7 +235,7 @@ describe("planning overlaps", () => {
 
     it("returns empty array when no sections match", () => {
       const sections = new Map([
-        ["src", { include: ["src/**"], exclude: [] } as any],
+        ["src", { include: ["src/**"], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("docs/readme.md", sections);
       expect(result).toEqual([]);
@@ -243,8 +243,8 @@ describe("planning overlaps", () => {
 
     it("returns multiple sections if path matches multiple", () => {
       const sections = new Map([
-        ["all", { include: ["**/*"], exclude: [] } as any],
-        ["src", { include: ["src/**"], exclude: [] } as any],
+        ["all", { include: ["**/*"], exclude: [] } as unknown],
+        ["src", { include: ["src/**"], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("src/main.ts", sections);
       expect(result).toContain("all");
@@ -258,7 +258,7 @@ describe("planning overlaps", () => {
           {
             include: ["src/**"],
             exclude: ["src/test/**"],
-          } as any,
+          } as unknown,
         ],
       ]);
       const result1 = getMatchingSections("src/main.ts", sections);
@@ -269,7 +269,7 @@ describe("planning overlaps", () => {
 
     it("doesn't match sections without include patterns", () => {
       const sections = new Map([
-        ["empty", { include: [], exclude: [] } as any],
+        ["empty", { include: [], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("any/file.ts", sections);
       expect(result).toEqual([]);
@@ -277,7 +277,13 @@ describe("planning overlaps", () => {
 
     it("handles complex glob patterns", () => {
       const sections = new Map([
-        ["code", { include: ["src/**/*.{ts,js}", "lib/**/*.ts"], exclude: [] } as any],
+        [
+          "code",
+          {
+            include: ["src/**/*.{ts,js}", "lib/**/*.ts"],
+            exclude: [],
+          } as unknown,
+        ],
       ]);
       const result1 = getMatchingSections("src/main.ts", sections);
       const result2 = getMatchingSections("lib/utils.ts", sections);
@@ -289,8 +295,8 @@ describe("planning overlaps", () => {
 
     it("preserves section order from input map", () => {
       const sections = new Map([
-        ["z", { include: ["**/*"], exclude: [] } as any],
-        ["a", { include: ["**/*"], exclude: [] } as any],
+        ["z", { include: ["**/*"], exclude: [] } as unknown],
+        ["a", { include: ["**/*"], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("file.txt", sections);
       // Order should be preserved from the Map insertion order
@@ -300,7 +306,7 @@ describe("planning overlaps", () => {
 
     it("handles paths with special characters", () => {
       const sections = new Map([
-        ["src", { include: ["src/**"], exclude: [] } as any],
+        ["src", { include: ["src/**"], exclude: [] } as unknown],
       ]);
       const result = getMatchingSections("src/my-file_v1.test.ts", sections);
       expect(result).toContain("src");
@@ -319,7 +325,7 @@ describe("planning overlaps", () => {
           {
             include: ["src/**"],
             exclude: ["src/**/test/**", "src/**/*.spec.ts"],
-          } as any,
+          } as unknown,
         ],
       ]);
       const result1 = getMatchingSections("src/lib/code.ts", sections);

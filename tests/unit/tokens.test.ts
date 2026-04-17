@@ -2,8 +2,7 @@ import { describe, expect, it } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { countTokens } from "../../src/shared/tokens";
-import { countTokensForFiles } from "../../src/shared/tokens";
+import { countTokens, countTokensForFiles } from "../../src/shared/tokens.js";
 
 describe("shared token counting", () => {
   describe("countTokens", () => {
@@ -63,7 +62,10 @@ describe("shared token counting", () => {
 
     it("returns different counts for different text", () => {
       const result1 = countTokens("Short", "cl100k_base");
-      const result2 = countTokens("This is a much longer text with more words", "cl100k_base");
+      const result2 = countTokens(
+        "This is a much longer text with more words",
+        "cl100k_base",
+      );
       expect(result1).toBeLessThan(result2);
     });
 
@@ -156,12 +158,12 @@ describe("shared token counting", () => {
 
     it("throws for null encoding", () => {
       const text = "Test";
-      expect(() => countTokens(text, null as any)).toThrow();
+      expect(() => countTokens(text, null as unknown as string)).toThrow();
     });
 
     it("throws for undefined encoding", () => {
       const text = "Test";
-      expect(() => countTokens(text, undefined as any)).toThrow();
+      expect(() => countTokens(text, undefined as unknown as string)).toThrow();
     });
 
     it("counts tokens for files on disk", async () => {

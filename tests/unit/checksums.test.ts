@@ -2,9 +2,11 @@ import { describe, expect, it } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { sha256File } from "../../src/shared/hashing";
-import { writeChecksumFile } from "../../src/manifest/checksums";
-import { parseChecksumFile } from "../../src/manifest/checksums";
+import {
+  parseChecksumFile,
+  writeChecksumFile,
+} from "../../src/manifest/checksums.js";
+import { sha256File } from "../../src/shared/hashing.js";
 
 describe("manifest checksums", () => {
   describe("parseChecksumFile", () => {
@@ -173,8 +175,12 @@ describe("manifest checksums", () => {
           "a.txt",
           "b.txt",
         ]);
-        expect(parsed[0]?.hash).toBe(await sha256File(path.join(root, "a.txt")));
-        expect(parsed[1]?.hash).toBe(await sha256File(path.join(root, "b.txt")));
+        expect(parsed[0]?.hash).toBe(
+          await sha256File(path.join(root, "a.txt")),
+        );
+        expect(parsed[1]?.hash).toBe(
+          await sha256File(path.join(root, "b.txt")),
+        );
       } finally {
         await fs.rm(root, { recursive: true, force: true });
       }

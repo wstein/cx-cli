@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { readSpanContent, splitOutputLines } from "../../src/extract/lineSpans";
+import {
+  readSpanContent,
+  splitOutputLines,
+} from "../../src/extract/lineSpans.js";
 
 describe("extract line spans", () => {
   describe("splitOutputLines", () => {
