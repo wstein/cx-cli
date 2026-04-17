@@ -441,7 +441,7 @@ describe("extract parsers", () => {
       expect(result[1]?.content).toBe("beta");
     });
 
-    it("handles back-to-back file headers with empty file content", () => {
+    it("breaks after file content when the next header begins", () => {
       const longSeparator = "=".repeat(64);
       const shortSeparator = "=".repeat(16);
       const source = [
@@ -452,6 +452,7 @@ describe("extract parsers", () => {
         shortSeparator,
         "File: a.txt",
         shortSeparator,
+        "alpha",
         shortSeparator,
         "File: b.txt",
         shortSeparator,
@@ -462,7 +463,7 @@ describe("extract parsers", () => {
 
       const result = parsePlainSection(source);
       expect(result).toEqual([
-        { path: "a.txt", content: "" },
+        { path: "a.txt", content: "alpha" },
         { path: "b.txt", content: "beta" },
       ]);
     });
