@@ -5,6 +5,7 @@ import {
   isCapabilityAllowed,
   type McpPolicy,
   PolicyError,
+  resolvePolicy,
   STRICT_POLICY,
   TOOL_CAPABILITIES,
   UNRESTRICTED_POLICY,
@@ -191,6 +192,35 @@ describe("MCP Policy System", () => {
         "Access denied by policy",
       );
       expect(error.exitCode).toBe(15);
+    });
+
+    it("preserves a custom exit code", () => {
+      const error = new PolicyError("bundle", "plan", "Custom exit", 22);
+      expect(error.exitCode).toBe(22);
+    });
+  });
+
+  describe("resolvePolicy", () => {
+    it("returns the default policy when config is missing", () => {
+      expect(resolvePolicy()).toBe(DEFAULT_POLICY);
+    });
+
+    it("returns strict policy when configured", () => {
+      expect(resolvePolicy({ mcp: { policy: "strict" } } as never)).toBe(
+        STRICT_POLICY,
+      );
+    });
+
+    it("returns unrestricted policy when configured", () => {
+      expect(resolvePolicy({ mcp: { policy: "unrestricted" } } as never)).toBe(
+        UNRESTRICTED_POLICY,
+      );
+    });
+
+    it("falls back to default policy for unknown values", () => {
+      expect(resolvePolicy({ mcp: { policy: "unknown" } } as never)).toBe(
+        DEFAULT_POLICY,
+      );
     });
   });
 });

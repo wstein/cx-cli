@@ -3,13 +3,16 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  checkToolAccess,
   DEFAULT_POLICY,
   STRICT_POLICY,
   TOOL_CAPABILITIES,
-  checkToolAccess,
 } from "../../src/mcp/policy.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 
 const REGISTERED_TOOL_NAMES = [
   "list",

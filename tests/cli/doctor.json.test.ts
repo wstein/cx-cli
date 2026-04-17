@@ -21,10 +21,17 @@ async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["commit", "-q", "-m", "init"], { cwd: root });
 }
 
-async function createOverlapProject(): Promise<{ root: string; configPath: string }> {
+async function createOverlapProject(): Promise<{
+  root: string;
+  configPath: string;
+}> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-doctor-"));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(path.join(root, "src", "index.ts"), "export const value = 1;\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    "export const value = 1;\n",
+    "utf8",
+  );
 
   const configPath = path.join(root, "cx.toml");
   await fs.writeFile(
@@ -63,7 +70,11 @@ async function createMcpProject(
 ): Promise<{ root: string; configPath: string; mcpPath: string }> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-doctor-mcp-"));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(path.join(root, "src", "index.ts"), "export const value = 1;\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    "export const value = 1;\n",
+    "utf8",
+  );
 
   if (options.includeSecret === true) {
     await fs.writeFile(
@@ -144,7 +155,11 @@ describe("doctor JSON lane", () => {
 
     const payload = JSON.parse(capture.output()) as {
       conflictCount?: number;
-      conflicts?: Array<{ path: string; sections: string[]; recommendedOwner: string }>;
+      conflicts?: Array<{
+        path: string;
+        sections: string[];
+        recommendedOwner: string;
+      }>;
     };
 
     expect(payload.conflictCount).toBe(1);
@@ -186,7 +201,9 @@ describe("doctor JSON lane", () => {
 
   test("doctor fix-overlaps updates cx.toml and unblocks planning", async () => {
     const project = await createOverlapProject();
-    await expect(main(["doctor", "fix-overlaps", "--config", project.configPath])).resolves.toBe(0);
+    await expect(
+      main(["doctor", "fix-overlaps", "--config", project.configPath]),
+    ).resolves.toBe(0);
 
     const configSource = await fs.readFile(project.configPath, "utf8");
     expect(configSource).toContain(
@@ -203,7 +220,9 @@ describe("doctor JSON lane", () => {
     process.chdir(project.root);
     const capture = captureStdout();
     try {
-      await expect(main(["doctor", "mcp", "--json", "--config", project.configPath])).resolves.toBe(0);
+      await expect(
+        main(["doctor", "mcp", "--json", "--config", project.configPath]),
+      ).resolves.toBe(0);
     } finally {
       capture.restore();
       process.chdir(cwd);
@@ -243,7 +262,9 @@ describe("doctor JSON lane", () => {
     };
     expect(payload.suspiciousCount).toBe(1);
     expect(payload.suspiciousFiles?.[0]?.filePath).toBe("secrets.txt");
-    expect(payload.suspiciousFiles?.[0]?.messages?.[0]).toContain("GitHub Token");
+    expect(payload.suspiciousFiles?.[0]?.messages?.[0]).toContain(
+      "GitHub Token",
+    );
   });
 
   test("doctor workflow emits JSON recommendations", async () => {

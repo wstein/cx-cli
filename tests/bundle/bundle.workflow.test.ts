@@ -40,14 +40,21 @@ describe("bundle workflow", () => {
     expect(listRun.stdout).toContain("status");
     expect(listRun.stdout).not.toContain("kind\tsection\tstored_in");
 
-    const bundleIndexPath = path.join(project.bundleDir, "demo-bundle-index.txt");
+    const bundleIndexPath = path.join(
+      project.bundleDir,
+      "demo-bundle-index.txt",
+    );
     expect(await fs.stat(bundleIndexPath)).toBeDefined();
     const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
     expect(bundleIndex).toContain("cx bundle index");
     expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
     expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
-    expect(await fs.stat(path.join(project.bundleDir, "demo-manifest.json"))).toBeDefined();
-    expect(await fs.stat(path.join(project.bundleDir, "demo.sha256"))).toBeDefined();
+    expect(
+      await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),
+    ).toBeDefined();
+    expect(
+      await fs.stat(path.join(project.bundleDir, "demo.sha256")),
+    ).toBeDefined();
   });
 
   test("emits structured JSON for list and inspect automation", async () => {
@@ -60,7 +67,9 @@ describe("bundle workflow", () => {
     }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(await runInspectCommand({ config: project.configPath, json: true })).toBe(0);
+    expect(
+      await runInspectCommand({ config: project.configPath, json: true }),
+    ).toBe(0);
     const inspectPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { sectionCount?: number; assetCount?: number };
       bundleComparison?: { available?: boolean };
@@ -72,7 +81,9 @@ describe("bundle workflow", () => {
       }>;
     };
 
-    expect(await runListCommand({ bundleDir: project.bundleDir, json: true })).toBe(0);
+    expect(
+      await runListCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(0);
     process.stdout.write = stdoutWrite;
     const listPayload = JSON.parse(writes.pop() ?? "{}") as {
       summary?: { fileCount?: number; textFileCount?: number };
@@ -97,7 +108,10 @@ describe("bundle workflow", () => {
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
     expect(listPayload.repomix?.spanCapability).toBe("supported");
-    expect(listPayload.sections?.map((section) => section.name)).toEqual(["docs", "src"]);
+    expect(listPayload.sections?.map((section) => section.name)).toEqual([
+      "docs",
+      "src",
+    ]);
     expect(
       listPayload.files?.every(
         (file) =>
@@ -106,9 +120,9 @@ describe("bundle workflow", () => {
           file.extractability?.status === "copied",
       ),
     ).toBe(true);
-    expect(listPayload.files?.find((file) => file.path === "src/index.ts")?.status).toBe(
-      "intact",
-    );
+    expect(
+      listPayload.files?.find((file) => file.path === "src/index.ts")?.status,
+    ).toBe("intact");
     expect(inspectPayload.bundleComparison?.available).toBe(true);
   });
 
@@ -129,7 +143,9 @@ describe("bundle workflow", () => {
         'export const demo = "================";\n',
         'export const demo = "tampered";\n',
       );
-      expect(await runInspectCommand({ config: project.configPath, json: true })).toBe(0);
+      expect(
+        await runInspectCommand({ config: project.configPath, json: true }),
+      ).toBe(0);
     } finally {
       process.stdout.write = stdoutWrite;
     }
@@ -168,7 +184,9 @@ describe("bundle workflow", () => {
     }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(await runInspectCommand({ config: project.configPath, json: false })).toBe(0);
+    expect(
+      await runInspectCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
 
     process.stdout.write = stdoutWrite;
     const output = writes.join("");
@@ -196,7 +214,9 @@ describe("bundle workflow", () => {
         'export const demo = "================";\n',
         'export const demo = "tampered";\n',
       );
-      expect(await runInspectCommand({ config: project.configPath, json: false })).toBe(0);
+      expect(
+        await runInspectCommand({ config: project.configPath, json: false }),
+      ).toBe(0);
     } finally {
       process.stdout.write = stdoutWrite;
     }
@@ -244,7 +264,9 @@ describe("bundle workflow", () => {
       return true;
     }) as typeof process.stdout.write;
 
-    expect(await runBundleCommand({ config: project.configPath, json: true })).toBe(0);
+    expect(
+      await runBundleCommand({ config: project.configPath, json: true }),
+    ).toBe(0);
     const bundlePayload = JSON.parse(writes.pop() ?? "{}") as {
       checksumFile?: string;
       repomix?: {
@@ -276,10 +298,14 @@ describe("bundle workflow", () => {
     expect(bundlePayload.repomix?.compatibilityStrategy).toBe(
       "core contract with optional structured rendering and span capture",
     );
-    expect(bundlePayload.repomix?.packageVersion).toMatch(/^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/);
+    expect(bundlePayload.repomix?.packageVersion).toMatch(
+      /^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/,
+    );
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
-    expect(verifyPayload.repomix?.spanCapabilityReason).toContain("renderWithMap");
+    expect(verifyPayload.repomix?.spanCapabilityReason).toContain(
+      "renderWithMap",
+    );
   });
 
   test("emits structured JSON failure payload for checksum omission", async () => {
@@ -302,7 +328,9 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    expect(await runVerifyCommand({ bundleDir: project.bundleDir, json: true })).toBe(10);
+    expect(
+      await runVerifyCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(10);
     process.stdout.write = stdoutWrite;
 
     const payload = JSON.parse(writes.pop() ?? "{}") as {
@@ -328,7 +356,11 @@ describe("bundle workflow", () => {
     }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
 
     expect(
       await runVerifyCommand({
@@ -347,7 +379,9 @@ describe("bundle workflow", () => {
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("source_tree_drift");
     expect(payload.error?.path).toBe("README.md");
-    expect(payload.error?.message).toContain("Source tree mismatch for README.md");
+    expect(payload.error?.message).toContain(
+      "Source tree mismatch for README.md",
+    );
   });
 
   test("emits detailed JSON for validate automation", async () => {
@@ -360,7 +394,9 @@ describe("bundle workflow", () => {
     }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(await runValidateCommand({ bundleDir: project.bundleDir, json: true })).toBe(0);
+    expect(
+      await runValidateCommand({ bundleDir: project.bundleDir, json: true }),
+    ).toBe(0);
     process.stdout.write = stdoutWrite;
 
     const payload = JSON.parse(writes.pop() ?? "{}") as {
@@ -403,9 +439,16 @@ describe("bundle workflow", () => {
     const project = await createProject();
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
-    const preservedSectionPath = path.join(project.bundleDir, "demo-repomix-src.xml.txt");
+    const preservedSectionPath = path.join(
+      project.bundleDir,
+      "demo-repomix-src.xml.txt",
+    );
     const preservedBefore = await sha256File(preservedSectionPath);
-    const orphanedAssetPath = path.join(project.bundleDir, "assets", "logo.png");
+    const orphanedAssetPath = path.join(
+      project.bundleDir,
+      "assets",
+      "logo.png",
+    );
     expect(await fs.stat(orphanedAssetPath)).toBeDefined();
 
     await fs.writeFile(
@@ -417,7 +460,9 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath, update: true })).toBe(0);
+    expect(
+      await runBundleCommand({ config: project.configPath, update: true }),
+    ).toBe(0);
 
     await expect(fs.stat(orphanedAssetPath)).rejects.toThrow();
     const preservedAfter = await sha256File(preservedSectionPath);
@@ -427,7 +472,11 @@ describe("bundle workflow", () => {
   test("--update refuses to prune non-bundle directories", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-update-safety-"));
     await fs.mkdir(path.join(root, "src"), { recursive: true });
-    await fs.writeFile(path.join(root, "src", "index.ts"), "export const x = 1;\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const x = 1;\n",
+      "utf8",
+    );
     await fs.writeFile(path.join(root, "README.md"), "# keep\n", "utf8");
     const configPath = path.join(root, "cx.toml");
     await fs.writeFile(
@@ -455,17 +504,23 @@ exclude = []
       "utf8",
     );
 
-    await expect(runBundleCommand({ config: configPath, update: true })).rejects.toThrow(
-      "Refusing --update prune",
+    await expect(
+      runBundleCommand({ config: configPath, update: true }),
+    ).rejects.toThrow("Refusing --update prune");
+    expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
+      "# keep\n",
     );
-    expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe("# keep\n");
   });
 
   test("fails verify --against when the source tree drifts", async () => {
     const project = await createProject();
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
 
     await expect(
       runVerifyCommand({
@@ -481,8 +536,14 @@ exclude = []
   test("supports selective verify --against by file", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath, json: false })).toBe(0);
-    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+    expect(
+      await runBundleCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
 
     expect(
       await runVerifyCommand({
@@ -508,8 +569,14 @@ exclude = []
   test("supports selective verify --against by section", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath, json: false })).toBe(0);
-    await fs.writeFile(path.join(project.root, "README.md"), "# Drifted\n", "utf8");
+    expect(
+      await runBundleCommand({ config: project.configPath, json: false }),
+    ).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
 
     expect(
       await runVerifyCommand({
@@ -546,7 +613,9 @@ exclude = []
       "utf8",
     );
 
-    await expect(runVerifyCommand({ bundleDir: project.bundleDir, json: false })).rejects.toThrow(
+    await expect(
+      runVerifyCommand({ bundleDir: project.bundleDir, json: false }),
+    ).rejects.toThrow(
       "Checksum file is missing an entry for demo-manifest.json.",
     );
   });

@@ -67,7 +67,9 @@ describe("bundle extract", () => {
     expect(listPayload.summary?.sectionCount).toBe(1);
     expect(listPayload.selection?.sections).toEqual(["src"]);
     expect(listPayload.selection?.files).toEqual(["src/index.ts"]);
-    expect(listPayload.files?.map((file) => file.path)).toEqual(["src/index.ts"]);
+    expect(listPayload.files?.map((file) => file.path)).toEqual([
+      "src/index.ts",
+    ]);
     expect(listPayload.files?.[0]?.status).toBe("intact");
     expect(listPayload.files?.[0]?.mtime).toBeDefined();
     expect(listPayload.files?.[0]?.extractability?.status).toBe("intact");
@@ -75,7 +77,10 @@ describe("bundle extract", () => {
     expect(extractPayload.summary?.fileCount).toBe(2);
     expect(extractPayload.summary?.textFileCount).toBe(1);
     expect(extractPayload.extractedSections).toEqual(["src"]);
-    expect(extractPayload.extractedFiles?.sort()).toEqual(["logo.png", "src/index.ts"]);
+    expect(extractPayload.extractedFiles?.sort()).toEqual([
+      "logo.png",
+      "src/index.ts",
+    ]);
     expect(extractPayload.selection?.sections).toEqual(["src"]);
   });
 
@@ -96,7 +101,10 @@ describe("bundle extract", () => {
       }),
     ).toBe(0);
 
-    await expectExtractedFilesToMatchManifest({ bundleDir: project.bundleDir, restoreDir });
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for json bundles", async () => {
@@ -124,7 +132,10 @@ describe("bundle extract", () => {
       }),
     ).toBe(0);
 
-    await expectExtractedFilesToMatchManifest({ bundleDir: project.bundleDir, restoreDir });
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for markdown bundles", async () => {
@@ -152,7 +163,10 @@ describe("bundle extract", () => {
       }),
     ).toBe(0);
 
-    await expectExtractedFilesToMatchManifest({ bundleDir: project.bundleDir, restoreDir });
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("round-trips extracted files exactly for plain bundles", async () => {
@@ -180,7 +194,10 @@ describe("bundle extract", () => {
       }),
     ).toBe(0);
 
-    await expectExtractedFilesToMatchManifest({ bundleDir: project.bundleDir, restoreDir });
+    await expectExtractedFilesToMatchManifest({
+      bundleDir: project.bundleDir,
+      restoreDir,
+    });
   });
 
   test("blocks degraded extraction unless explicitly allowed", async () => {
@@ -337,7 +354,9 @@ describe("bundle extract", () => {
     expect(payload.files?.[0]?.path).toBe("src/index.ts");
     expect(payload.files?.[0]?.status).toBe("degraded");
     expect(payload.files?.[0]?.extractability?.status).toBe("degraded");
-    expect(payload.files?.[0]?.extractability?.reason).toBe("manifest_hash_mismatch");
+    expect(payload.files?.[0]?.extractability?.reason).toBe(
+      "manifest_hash_mismatch",
+    );
     expect(payload.files?.[0]?.extractability?.expectedSha256).toBeDefined();
     expect(payload.files?.[0]?.extractability?.actualSha256).toBeDefined();
   });
@@ -365,7 +384,9 @@ describe("bundle extract", () => {
       }),
     ).resolves.toBe(0);
 
-    expect(await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8")).not.toBe(
+    expect(
+      await fs.readFile(path.join(restoreDir, "src", "index.ts"), "utf8"),
+    ).not.toBe(
       await fs.readFile(path.join(project.root, "src", "index.ts"), "utf8"),
     );
   });

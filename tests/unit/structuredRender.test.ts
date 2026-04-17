@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   computePlanHash,
+  extractStructuredPlan,
   planToMaps,
   type StructuredRenderEntry,
   type StructuredRenderPlan,
@@ -174,6 +175,31 @@ describe("Structured Render Contract", () => {
       expect(fileTokenCounts.get("file2.ts")).toBe(20);
       expect(fileContentHashes.get("file1.ts")).toBe(sha256Text("content1"));
       expect(fileContentHashes.get("file2.ts")).toBe(sha256Text("content2"));
+    });
+  });
+
+  describe("extractStructuredPlan", () => {
+    it("sorts entries and defaults missing token counts to zero", () => {
+      const plan = extractStructuredPlan({
+        entries: [
+          {
+            path: "b.ts",
+            content: "beta",
+            metadata: {},
+          },
+          {
+            path: "a.ts",
+            content: "alpha",
+            metadata: { tokenCount: 7 },
+          },
+        ],
+      } as never);
+
+      expect(plan.ordering).toEqual(["a.ts", "b.ts"]);
+      expect(plan.entries[0]?.path).toBe("a.ts");
+      expect(plan.entries[0]?.tokenCount).toBe(7);
+      expect(plan.entries[1]?.path).toBe("b.ts");
+      expect(plan.entries[1]?.tokenCount).toBe(0);
     });
   });
 

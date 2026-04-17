@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { resolveMcpConfigPath, runMcpCommand } from "../../src/cli/commands/mcp.js";
+import {
+  resolveMcpConfigPath,
+  runMcpCommand,
+} from "../../src/cli/commands/mcp.js";
 
 describe("mcp registration lane", () => {
   test("prefers cx-mcp.toml over cx.toml", async () => {

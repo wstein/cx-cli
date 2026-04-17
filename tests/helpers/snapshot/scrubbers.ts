@@ -55,7 +55,10 @@ export function scrubTextSnapshot(
   }
 
   if (resolved.stripVersions) {
-    output = output.replace(/\b\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?\b/g, "<VERSION>");
+    output = output.replace(
+      /\b\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?\b/g,
+      "<VERSION>",
+    );
   }
 
   return output;

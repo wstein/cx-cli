@@ -118,7 +118,9 @@ exclude = []
   });
 
   test("rejects an invalid assets.layout value", async () => {
-    const configPath = await writeRawConfig(buildToml({ assetsExtra: `layout = "sideways"` }));
+    const configPath = await writeRawConfig(
+      buildToml({ assetsExtra: `layout = "sideways"` }),
+    );
     await expect(loadCxConfig(configPath)).rejects.toThrow(
       "assets.layout must be one of: flat, deep.",
     );
@@ -167,13 +169,17 @@ priority = 1.5
   });
 
   test("env overrides win over file values", async () => {
-    const configPath = await writeRawConfig(buildToml({ dedupExtra: `mode = "warn"` }));
+    const configPath = await writeRawConfig(
+      buildToml({ dedupExtra: `mode = "warn"` }),
+    );
     const config = await loadCxConfig(configPath, { dedupMode: "first-wins" });
     expect(config.dedup.mode).toBe("first-wins");
   });
 
   test("CLI overrides win over env overrides for assets.layout", async () => {
-    const configPath = await writeRawConfig(buildToml({ assetsExtra: `layout = "deep"` }));
+    const configPath = await writeRawConfig(
+      buildToml({ assetsExtra: `layout = "deep"` }),
+    );
     const config = await loadCxConfig(
       configPath,
       { assetsLayout: "flat" },
@@ -184,7 +190,9 @@ priority = 1.5
   });
 
   test("rejects invalid dedup.mode values", async () => {
-    const configPath = await writeRawConfig(buildToml({ dedupExtra: `mode = "silent"` }));
+    const configPath = await writeRawConfig(
+      buildToml({ dedupExtra: `mode = "silent"` }),
+    );
     await expect(loadCxConfig(configPath, {})).rejects.toThrow(
       "dedup.mode must be one of: fail, warn, first-wins.",
     );
@@ -200,7 +208,9 @@ priority = 1.5
   });
 
   test("rejects invalid config.duplicate_entry values", async () => {
-    const configPath = await writeRawConfig(buildToml({ configExtra: `duplicate_entry = "skip"` }));
+    const configPath = await writeRawConfig(
+      buildToml({ configExtra: `duplicate_entry = "skip"` }),
+    );
     await expect(loadCxConfig(configPath, {})).rejects.toThrow(
       "config.duplicate_entry must be one of: fail, warn, first-wins.",
     );
@@ -235,7 +245,9 @@ include = ["src/**"]
 exclude = []
 `);
 
-    await expect(loadCxConfig(configPath, { configDuplicateEntry: "fail" })).rejects.toThrow(
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
       'files.exclude contains duplicate pattern(s): ".git/**".',
     );
   });
@@ -258,7 +270,9 @@ include = ["src/**"]
 exclude = []
 `);
 
-    await expect(loadCxConfig(configPath, { configDuplicateEntry: "fail" })).rejects.toThrow(
+    await expect(
+      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+    ).rejects.toThrow(
       'assets.exclude contains duplicate pattern(s): "test/**".',
     );
   });

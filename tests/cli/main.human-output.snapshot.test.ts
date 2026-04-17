@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
 import { main } from "../../src/cli/main.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
-import path from "node:path";
 
 function captureStdout(): { restore: () => void; output: () => string } {
   const write = process.stdout.write;
@@ -28,9 +28,14 @@ describe("main human snapshot lane", () => {
     } finally {
       capture.restore();
     }
-    const scrubbed = scrubTextSnapshot(capture.output(), { stripVersions: true });
+    const scrubbed = scrubTextSnapshot(capture.output(), {
+      stripVersions: true,
+    });
     await assertTextSnapshot({
-      snapshotPath: path.join(process.cwd(), "tests/fixtures/snapshots/cli/main-help-human.txt"),
+      snapshotPath: path.join(
+        process.cwd(),
+        "tests/fixtures/snapshots/cli/main-help-human.txt",
+      ),
       actual: scrubbed,
     });
   });
@@ -44,7 +49,10 @@ describe("main human snapshot lane", () => {
     }
     const scrubbed = scrubTextSnapshot(capture.output());
     await assertTextSnapshot({
-      snapshotPath: path.join(process.cwd(), "tests/fixtures/snapshots/cli/main-init-stdout-human.txt"),
+      snapshotPath: path.join(
+        process.cwd(),
+        "tests/fixtures/snapshots/cli/main-init-stdout-human.txt",
+      ),
       actual: scrubbed,
     });
   });

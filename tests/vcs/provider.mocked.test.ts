@@ -14,7 +14,9 @@ function baseState(kind: VCSState["kind"]): VCSState {
   };
 }
 
-function makeHandlers(overrides: Partial<VCSProviderHandlers>): VCSProviderHandlers {
+function makeHandlers(
+  overrides: Partial<VCSProviderHandlers>,
+): VCSProviderHandlers {
   return {
     detectGit: async () => false,
     getGitState: async () => baseState("git"),

@@ -8,7 +8,9 @@ import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 
 describe("mcp human snapshot lane", () => {
   test("missing profile error snapshot", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-missing-human-"));
+    const root = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-mcp-missing-human-"),
+    );
     let message = "";
     try {
       await resolveMcpConfigPath(root);

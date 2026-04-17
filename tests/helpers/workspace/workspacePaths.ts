@@ -13,12 +13,16 @@ export function workspacePaths(params: {
   configFileName?: string;
   overlayFileName?: string;
 }): TestWorkspacePaths {
-  const configPath = path.join(params.rootDir, params.configFileName ?? "cx.toml");
+  const configPath = path.join(
+    params.rootDir,
+    params.configFileName ?? "cx.toml",
+  );
   const overlayConfigPath =
     params.overlayFileName === undefined
       ? path.join(params.rootDir, "cx-mcp.toml")
       : path.join(params.rootDir, params.overlayFileName);
-  const configuredOutputDir = params.outputDir ?? path.join("dist", "demo-bundle");
+  const configuredOutputDir =
+    params.outputDir ?? path.join("dist", "demo-bundle");
   const bundleDir = path.isAbsolute(configuredOutputDir)
     ? configuredOutputDir
     : path.join(params.rootDir, configuredOutputDir);

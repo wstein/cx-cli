@@ -25,7 +25,15 @@ describe("main JSON lane", () => {
     const capture = captureStdout();
     try {
       await expect(
-        main(["init", "--stdout", "--json", "--name", "demo", "--style", "json"]),
+        main([
+          "init",
+          "--stdout",
+          "--json",
+          "--name",
+          "demo",
+          "--style",
+          "json",
+        ]),
       ).resolves.toBe(0);
     } finally {
       capture.restore();
@@ -44,7 +52,11 @@ describe("main JSON lane", () => {
   test("supports validate JSON output", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-"));
     await fs.mkdir(path.join(root, "src"), { recursive: true });
-    await fs.writeFile(path.join(root, "src", "index.ts"), "export const ok = 1;\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
     await fs.writeFile(
       path.join(root, "cx.toml"),
       `schema_version = 1
@@ -76,7 +88,9 @@ exclude = []
 
     const capture = captureStdout();
     try {
-      await expect(main(["validate", "dist/demo-bundle", "--json"])).resolves.toBe(0);
+      await expect(
+        main(["validate", "dist/demo-bundle", "--json"]),
+      ).resolves.toBe(0);
     } finally {
       capture.restore();
       process.chdir(cwd);
@@ -87,7 +101,11 @@ exclude = []
       checksumFile?: string;
       schemaVersion?: number;
       bundleVersion?: number;
-      summary?: { manifestName?: string; sectionCount?: number; fileCount?: number };
+      summary?: {
+        manifestName?: string;
+        sectionCount?: number;
+        fileCount?: number;
+      };
     };
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
@@ -100,8 +118,16 @@ exclude = []
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-list-"));
     await fs.mkdir(path.join(root, "src"), { recursive: true });
     await fs.mkdir(path.join(root, "docs"), { recursive: true });
-    await fs.writeFile(path.join(root, "src", "index.ts"), "export const ok = 1;\n", "utf8");
-    await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "docs", "guide.md"),
+      "# Guide\n",
+      "utf8",
+    );
     await fs.writeFile(
       path.join(root, "cx.toml"),
       `schema_version = 1

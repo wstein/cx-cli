@@ -20,10 +20,17 @@ async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["commit", "-q", "-m", "init"], { cwd: root });
 }
 
-async function createMcpProject(): Promise<{ root: string; configPath: string }> {
+async function createMcpProject(): Promise<{
+  root: string;
+  configPath: string;
+}> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-doctor-human-"));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(path.join(root, "src", "index.ts"), "export const value = 1;\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    "export const value = 1;\n",
+    "utf8",
+  );
   const configPath = path.join(root, "cx.toml");
   await fs.writeFile(
     configPath,
@@ -75,7 +82,9 @@ describe("doctor human snapshot lane", () => {
     process.chdir(project.root);
     const capture = captureStdout();
     try {
-      await expect(main(["doctor", "--all", "--config", project.configPath])).resolves.toBe(0);
+      await expect(
+        main(["doctor", "--all", "--config", project.configPath]),
+      ).resolves.toBe(0);
     } finally {
       capture.restore();
       process.chdir(cwd);

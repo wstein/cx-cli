@@ -99,7 +99,9 @@ function emitTable(
   path: string[],
   value: Record<string, unknown>,
 ): void {
-  const entries = sortKeys(Object.keys(value), path).map((key) => [key, value[key]] as const);
+  const entries = sortKeys(Object.keys(value), path).map(
+    (key) => [key, value[key]] as const,
+  );
   const scalarEntries = entries.filter(([, entry]) => !isPlainObject(entry));
   const tableEntries = entries.filter(([, entry]) => isPlainObject(entry));
 
@@ -138,7 +140,9 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
       exclude: section.exclude,
       ...(section.style !== undefined ? { style: section.style } : {}),
       ...(section.priority !== undefined ? { priority: section.priority } : {}),
-      ...(section.catch_all !== undefined ? { catch_all: section.catch_all } : {}),
+      ...(section.catch_all !== undefined
+        ? { catch_all: section.catch_all }
+        : {}),
     };
   }
 

@@ -44,11 +44,15 @@ describe("structured render contract", () => {
 
   test("detects entry hash drift", () => {
     const plan = makePlan("plain");
+    const original = plan.entries[0];
+    if (!original) {
+      throw new Error("Missing plan entry");
+    }
     const drifted = {
-      ...plan.entries[0],
-      content: `${plan.entries[0]?.content ?? ""}tampered\n`,
+      ...original,
+      content: `${original.content}tampered\n`,
     };
-    const errors = validateEntryHashes([drifted, ...(plan.entries.slice(1) ?? [])]);
+    const errors = validateEntryHashes([drifted, ...plan.entries.slice(1)]);
     expect(errors.size).toBe(1);
     expect(errors.get("docs/guide.md")).toContain("hash mismatch");
   });

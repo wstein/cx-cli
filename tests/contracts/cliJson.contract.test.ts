@@ -20,9 +20,15 @@ function captureStdout(): { restore: () => void; output: () => string } {
 }
 
 async function createProject(): Promise<{ root: string; configPath: string }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-cli-json-contract-"));
+  const root = await fs.mkdtemp(
+    path.join(os.tmpdir(), "cx-cli-json-contract-"),
+  );
   await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(path.join(root, "src", "index.ts"), "export const ok = 1;\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    "export const ok = 1;\n",
+    "utf8",
+  );
   const configPath = path.join(root, "cx.toml");
   await fs.writeFile(
     configPath,
@@ -56,8 +62,9 @@ describe("CLI JSON contract", () => {
     const project = await createProject();
     const capture = captureStdout();
     try {
-      await expect(main(["inspect", "--config", project.configPath, "--json"]))
-        .resolves.toBe(0);
+      await expect(
+        main(["inspect", "--config", project.configPath, "--json"]),
+      ).resolves.toBe(0);
     } finally {
       capture.restore();
     }
@@ -102,7 +109,9 @@ describe("CLI JSON contract", () => {
     const project = await createProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    await expect(main(["bundle", "--config", project.configPath])).resolves.toBe(0);
+    await expect(
+      main(["bundle", "--config", project.configPath]),
+    ).resolves.toBe(0);
     const capture = captureStdout();
     try {
       await expect(

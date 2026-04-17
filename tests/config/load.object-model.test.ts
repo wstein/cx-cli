@@ -72,7 +72,7 @@ describe("loadCxConfig object model", () => {
       const workspace = await createWorkspace({
         fixture: "minimal",
         config: buildConfig({
-          sourceRoot: "${HOME}/workspace",
+          sourceRoot: `\${HOME}/workspace`,
           outputDir: "$CX_OUTPUT_BASE/{project}",
         }),
       });
@@ -94,7 +94,9 @@ describe("loadCxConfig object model", () => {
     });
 
     const config = await loadCxConfig(workspace.configPath);
-    expect(config.outputDir).toBe(path.join(os.homedir(), "Downloads/demo-bundle"));
+    expect(config.outputDir).toBe(
+      path.join(os.homedir(), "Downloads/demo-bundle"),
+    );
   });
 
   test("loads section priority from config", async () => {

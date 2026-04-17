@@ -53,6 +53,33 @@ describe("MCP Audit Logger", () => {
         fs.rm(tmpDir, { recursive: true, force: true }),
       );
     });
+
+    it("warns and continues when audit logging fails", async () => {
+      const fs = await import("node:fs/promises");
+      const tmpDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), "cx-audit-failure-"),
+      );
+      const blockedRoot = path.join(tmpDir, "workspace-root.txt");
+      await fs.writeFile(blockedRoot, "not a directory", "utf8");
+
+      const logger = new AuditLogger(blockedRoot, true);
+      const stderrWrite = process.stderr.write;
+      let output = "";
+      process.stderr.write = ((chunk: string | Uint8Array) => {
+        output += String(chunk);
+        return true;
+      }) as typeof process.stderr.write;
+
+      try {
+        await logger.logEvent("list", "read", "allowed", "ok");
+      } finally {
+        process.stderr.write = stderrWrite;
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+
+      expect(output).toContain("Warning: Failed to write audit log");
+      expect(await logger.readLog()).toEqual([]);
+    });
   });
 
   describe("logToolAccess", () => {
@@ -153,6 +180,25 @@ describe("MCP Audit Logger", () => {
       await import("node:fs/promises").then((fs) =>
         fs.rm(tmpDir, { recursive: true, force: true }),
       );
+    });
+  });
+
+  describe("clear", () => {
+    it("removes the audit log file", async () => {
+      const fs = await import("node:fs/promises");
+      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-"));
+
+      const logger = new AuditLogger(tmpDir, true);
+      await logger.logToolAccess("workspace_list", "read", true, "allowed");
+
+      expect((await logger.readLog()).length).toBe(1);
+
+      await logger.clear();
+
+      await expect(logger.readLog()).resolves.toEqual([]);
+      await expect(fs.access(logger.getLogPath())).rejects.toThrow();
+
+      await fs.rm(tmpDir, { recursive: true, force: true });
     });
   });
 

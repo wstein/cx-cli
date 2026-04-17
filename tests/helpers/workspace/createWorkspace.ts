@@ -43,18 +43,39 @@ export async function createWorkspace(
     });
   }
 
-  const paths = workspacePaths({
+  const workspaceParams: {
+    rootDir: string;
+    outputDir?: string;
+    configFileName?: string;
+    overlayFileName?: string;
+  } = {
     rootDir,
-    outputDir: options.outputDir ?? options.config?.outputDir,
-    configFileName: options.configFileName,
-    overlayFileName:
-      options.overlayConfig === undefined && options.overlayFileName === undefined
-        ? undefined
-        : options.overlayFileName ?? "cx-mcp.toml",
-  });
+  };
+
+  if (options.configFileName !== undefined) {
+    workspaceParams.configFileName = options.configFileName;
+  }
+
+  const outputDir = options.outputDir ?? options.config?.outputDir;
+  if (outputDir !== undefined) {
+    workspaceParams.outputDir = outputDir;
+  }
+
+  if (
+    options.overlayConfig !== undefined ||
+    options.overlayFileName !== undefined
+  ) {
+    workspaceParams.overlayFileName = options.overlayFileName ?? "cx-mcp.toml";
+  }
+
+  const paths = workspacePaths(workspaceParams);
 
   if (options.config) {
-    await fs.writeFile(paths.configPath, toToml(options.config), "utf8");
+    await fs.writeFile(
+      paths.configPath,
+      toToml(options.config as unknown as Record<string, unknown>),
+      "utf8",
+    );
   }
 
   if (options.overlayConfig && paths.overlayConfigPath) {
@@ -65,10 +86,15 @@ export async function createWorkspace(
     );
   }
 
-  return {
+  const result: CreatedWorkspace = {
     rootDir,
     configPath: paths.configPath,
-    overlayConfigPath: options.overlayConfig ? paths.overlayConfigPath : undefined,
     bundleDir: paths.bundleDir,
   };
+
+  if (options.overlayConfig && paths.overlayConfigPath) {
+    result.overlayConfigPath = paths.overlayConfigPath;
+  }
+
+  return result;
 }

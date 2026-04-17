@@ -51,8 +51,12 @@ It should become the manifest summary.
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
-    const docsSection = manifest.sections.find((section) => section.name === "docs");
-    expect(docsSection?.files.map((file) => file.path)).toContain("notes/linked-note.md");
+    const docsSection = manifest.sections.find(
+      (section) => section.name === "docs",
+    );
+    expect(docsSection?.files.map((file) => file.path)).toContain(
+      "notes/linked-note.md",
+    );
 
     const docsOutput = await fs.readFile(
       path.join(project.bundleDir, docsSection?.outputFile ?? ""),
@@ -156,7 +160,9 @@ It should become the manifest summary.
     expect(rendered.indexOf("myproject-repomix-docs.xml.txt")).toBeLessThan(
       rendered.indexOf("docs/a.md"),
     );
-    expect(rendered.indexOf("docs/a.md")).toBeLessThan(rendered.indexOf("docs/b.md"));
+    expect(rendered.indexOf("docs/a.md")).toBeLessThan(
+      rendered.indexOf("docs/b.md"),
+    );
     expect(rendered.indexOf("myproject-repomix-src.xml.txt")).toBeLessThan(
       rendered.indexOf("src/c.ts"),
     );
@@ -173,10 +179,15 @@ It should become the manifest summary.
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
     const entries = await fs.readdir(project.bundleDir);
-    const manifestName = entries.find((entry) => entry.endsWith("-manifest.json"));
+    const manifestName = entries.find((entry) =>
+      entry.endsWith("-manifest.json"),
+    );
     expect(manifestName).toBeDefined();
 
-    const source = await fs.readFile(path.join(project.bundleDir, manifestName as string), "utf8");
+    const source = await fs.readFile(
+      path.join(project.bundleDir, manifestName as string),
+      "utf8",
+    );
     const parsed = JSON.parse(source) as Record<string, unknown>;
 
     expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);

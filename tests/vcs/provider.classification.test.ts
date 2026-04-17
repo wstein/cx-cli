@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { classifyDirtyState, type VCSKind, type VCSState } from "../../src/vcs/provider.js";
+import {
+  classifyDirtyState,
+  type VCSKind,
+  type VCSState,
+} from "../../src/vcs/provider.js";
 
 describe("VCS dirty-state classification", () => {
   test("classifies clean state correctly", () => {

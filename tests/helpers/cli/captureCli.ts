@@ -41,7 +41,9 @@ export async function captureCli<T = unknown>(params: {
       stdout,
       stderr: stderrChunks.join(""),
       logs: logChunks.join("\n"),
-      ...(params.parseJson ? { parsedJson: JSON.parse(stdout || "{}") as T } : {}),
+      ...(params.parseJson
+        ? { parsedJson: JSON.parse(stdout || "{}") as T }
+        : {}),
     };
   } finally {
     process.stdout.write = originalStdoutWrite;

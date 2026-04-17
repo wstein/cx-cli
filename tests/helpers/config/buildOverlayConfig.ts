@@ -1,4 +1,13 @@
-import type { CxAssetsConfig, CxChecksumsConfig, CxFilesConfig, CxManifestConfig, CxMcpConfig, CxOutputConfig, CxRepomixConfig, CxTokensConfig } from "../../../src/config/types.js";
+import type {
+  CxAssetsConfig,
+  CxChecksumsConfig,
+  CxFilesConfig,
+  CxManifestConfig,
+  CxMcpConfig,
+  CxOutputConfig,
+  CxRepomixConfig,
+  CxTokensConfig,
+} from "../../../src/config/types.js";
 import type { BuildSectionOptions } from "./buildConfig.js";
 
 export interface BuildOverlayConfigOptions {
@@ -56,7 +65,11 @@ export function buildOverlayConfig(
       options.repomix.includeEmptyDirectories,
     );
     addIfDefined(repomix, "security_check", options.repomix.securityCheck);
-    addIfDefined(repomix, "missing_extension", options.repomix.missingExtension);
+    addIfDefined(
+      repomix,
+      "missing_extension",
+      options.repomix.missingExtension,
+    );
     if (Object.keys(repomix).length > 0) {
       overlay.repomix = repomix;
     }

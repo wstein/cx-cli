@@ -54,13 +54,27 @@ function buildSections(
   const built: Record<string, CxSectionConfig> = {};
 
   for (const [name, section] of entries) {
-    built[name] = {
-      include: section.catchAll ? undefined : [...(section.include ?? [])],
+    const builtSection: CxSectionConfig = {
       exclude: [...(section.exclude ?? [])],
-      style: section.style,
-      priority: section.priority,
-      catch_all: section.catchAll,
     };
+
+    if (section.style !== undefined) {
+      builtSection.style = section.style;
+    }
+
+    if (section.priority !== undefined) {
+      builtSection.priority = section.priority;
+    }
+
+    if (section.catchAll !== undefined) {
+      builtSection.catch_all = section.catchAll;
+    }
+
+    if (!section.catchAll) {
+      builtSection.include = [...(section.include ?? [])];
+    }
+
+    built[name] = builtSection;
   }
 
   return built;
