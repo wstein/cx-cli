@@ -16,28 +16,28 @@ export type McpCapability = "read" | "observe" | "plan" | "mutate";
  */
 export const TOOL_CAPABILITIES: Record<string, McpCapability> = {
   // Workspace (read)
-  "workspace_list": "read",
-  "workspace_grep": "read",
-  "workspace_read": "read",
+  workspace_list: "read",
+  workspace_grep: "read",
+  workspace_read: "read",
 
   // Bundle (plan)
-  "bundle": "plan",
-  "bundle_preview": "plan",
+  bundle: "plan",
+  bundle_preview: "plan",
 
   // Doctor (observe)
-  "doctor_mcp": "observe",
-  "doctor_overlaps": "observe",
-  "doctor_secrets": "observe",
-  "doctor_workflow": "observe",
+  doctor_mcp: "observe",
+  doctor_overlaps: "observe",
+  doctor_secrets: "observe",
+  doctor_workflow: "observe",
 
   // Notes (mutate)
-  "notes_new": "mutate",
-  "notes_read": "observe", // Reading is observe, not mutate
-  "notes_update": "mutate",
-  "notes_delete": "mutate",
-  "notes_rename": "mutate",
-  "notes_search": "observe",
-  "notes_list": "observe",
+  notes_new: "mutate",
+  notes_read: "observe", // Reading is observe, not mutate
+  notes_update: "mutate",
+  notes_delete: "mutate",
+  notes_rename: "mutate",
+  notes_search: "observe",
+  notes_list: "observe",
 };
 
 /**

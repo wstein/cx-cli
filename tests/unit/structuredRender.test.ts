@@ -3,10 +3,10 @@ import {
   computePlanHash,
   extractStructuredPlan,
   planToMaps,
-  validateEntryHashes,
-  validatePlanOrdering,
   type StructuredRenderEntry,
   type StructuredRenderPlan,
+  validateEntryHashes,
+  validatePlanOrdering,
 } from "../../src/repomix/structured.js";
 
 describe("Structured Render Contract", () => {
@@ -67,7 +67,8 @@ describe("Structured Render Contract", () => {
         {
           path: "file1.ts",
           content: "console.log('hello');",
-          sha256: "wronghash0000000000000000000000000000000000000000000000000000000",
+          sha256:
+            "wronghash0000000000000000000000000000000000000000000000000000000",
           tokenCount: 5,
         },
       ];
@@ -220,9 +221,7 @@ describe("Structured Render Contract", () => {
       ];
 
       // Simulate extracting and sorting
-      const sorted = [...entries].sort((a, b) =>
-        a.path.localeCompare(b.path),
-      );
+      const sorted = [...entries].sort((a, b) => a.path.localeCompare(b.path));
       const ordering = sorted.map((e) => e.path);
 
       expect(ordering).toEqual(["a.ts", "m.ts", "z.ts"]);

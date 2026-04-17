@@ -427,4 +427,3 @@ export async function renderSectionWithRepomix(params: {
     warnings,
   };
 }
-

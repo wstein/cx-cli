@@ -51,9 +51,7 @@ export class AuditLogger {
       // Audit logging failures should not crash the tool
       // Log to stderr and continue
       const errorMsg = error instanceof Error ? error.message : String(error);
-      process.stderr.write(
-        `Warning: Failed to write audit log: ${errorMsg}\n`,
-      );
+      process.stderr.write(`Warning: Failed to write audit log: ${errorMsg}\n`);
     }
   }
 
