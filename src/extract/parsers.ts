@@ -194,18 +194,23 @@ export function parsePlainSection(source: string): ExtractedTextFile[] {
     index += 3;
     const contentLines: string[] = [];
 
-    while (
-      index < lines.length &&
-      !(
-        lines[index] === shortSeparator &&
-        lines[index + 1]?.startsWith("File: ") === true &&
-        lines[index + 2] === shortSeparator
-      ) &&
-      !(
-        lines[index] === longSeparator && lines[index + 1] === "End of Codebase"
-      )
-    ) {
-      contentLines.push(lines[index] ?? "");
+    while (index < lines.length) {
+      const currentLine = lines[index];
+      const nextLine = lines[index + 1];
+      const nextNextLine = lines[index + 2];
+      if (
+        currentLine === shortSeparator &&
+        nextLine?.startsWith("File: ") &&
+        nextNextLine === shortSeparator
+      ) {
+        break;
+      }
+
+      if (currentLine === longSeparator && nextLine === "End of Codebase") {
+        break;
+      }
+
+      contentLines.push(currentLine ?? "");
       index += 1;
     }
 
