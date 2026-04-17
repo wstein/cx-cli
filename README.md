@@ -6,33 +6,31 @@
 [![GitHub tag](https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag)](https://github.com/wstein/cx-cli/tags)
 [![License](https://img.shields.io/github/license/wstein/cx-cli)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
 
-`cx` provides tooling and standards for AI-driven projects in one unified suite. It standardizes LLM context ingestion, integrates repository-native notes graphs, and provides OS-neutral MCP tools that operate seamlessly from the local developer machine through to automated CI/CD pipelines.
+`cx` standardizes AI project context, notes, and agent workflows in one repository-native toolchain.
 
 ## Choose Your Path
 
-`cx` bifurcates into two primary operational modes depending on your immediate goal:
+`cx` has two practical modes:
 
-### Track A: Pipeline Operations (The "Factory Floor")
-Focus on rigid, verifiable CI/CD bundling, artifact integrity, and strict invariant enforcement. Use this path when Monday's runner must trust what Friday's author built.
+### Track A: Pipeline Operations
+Use this path when you need deterministic bundles, artifact integrity, and hard failure semantics.
 - **Key Commands:** `cx bundle`, `cx verify`, `cx extract`, `cx validate`
 - **Goal:** Produce immutable, bit-for-bit verifiable bundle artifacts with SHA-256 sidecars.
-- **Outcome:** A locked manifest that protects downstream automation from uncommitted drift (Exit Code 7).
+- **Outcome:** A locked manifest that keeps downstream automation honest.
 
-### Track B: Live Agent Exploration (The "Laboratory")
-Focus on real-time workspace interaction, live note maintenance, and agentic search. Use this path when an LLM agent needs to explore the code or update the knowledge graph.
+### Track B: Live Agent Exploration
+Use this path when an LLM agent needs live workspace access, note maintenance, or targeted search.
 - **Key Commands:** `cx mcp`, `cx notes`, `cx doctor mcp`
 - **Goal:** Expose the live workspace and note graph via the Model Context Protocol (MCP).
-- **Outcome:** A high-fidelity, tool-equipped environment for active AI reasoning and documentation.
+- **Outcome:** A live workspace surface for active AI reasoning and documentation.
 
 ## Quick Start
 1. `cx init --name demo`
 2. `cx inspect --token-breakdown`
-3. `cx bundle --config cx.toml` (Track A)
-4. `cx mcp` (Track B)
+3. `cx bundle --config cx.toml` for the static bundle path
+4. `cx mcp` for the live agent path
 
-Read those commands through one timeline.
-
-Friday, you build a bundle that has to survive branch churn, partial edits, and CI retries. Monday, an agent or remote runner opens that bundle and must be able to trust it without reconstructing the human story from scratch. That is why `cx` writes manifests, checksum sidecars, token counts, and dirty-state provenance instead of acting like a disposable prompt packer.
+Start with the same timeline in mind: build the bundle once, then let later tools trust the manifest, checksums, token counts, and dirty-state provenance without reconstructing the story from scratch.
 
 The strict invariants protect downstream automation:
 
@@ -43,7 +41,7 @@ The strict invariants protect downstream automation:
 
 It plans repository sections, renders one output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
 
-It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains. The manifest carries enough metadata for downstream agents to reason about the project without reparsing Markdown.
+It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains.
 
 ## Documentation
 
@@ -124,12 +122,7 @@ brew install wstein/tap/cx-cli
 
 ### Release Flow
 
-The release workflow in [`.github/workflows/release.yml`](./.github/workflows/release.yml) follows a fixed four-step order:
-
-1. Build the package once.
-2. Publish the packed tarball to npm.
-3. Generate `Formula/cx-cli.rb` from the same tarball.
-4. Commit the formula into `wstein/homebrew-tap`.
+See [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) for the release order, environment secrets, and Homebrew tap handoff.
 
 Run from source:
 
@@ -173,7 +166,7 @@ cx init --template-list
 
 When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
-The generated notes directory is intentionally part of the repository contract. The idea is to keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
+The generated notes directory is intentionally part of the repository contract. Keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
 
 ### Editor autocomplete and linting
 
