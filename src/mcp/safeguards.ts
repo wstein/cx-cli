@@ -1,7 +1,10 @@
 /**
- * MCP Server operational safeguards: timeout enforcement, request logging, and
- * basic rate limiting to prevent abuse and provide audit trails.
+ * MCP Server operational safeguards: policy enforcement, timeout enforcement,
+ * request logging, and basic rate limiting to prevent abuse and provide audit trails.
  */
+
+import { AuditLogger } from "./audit.js";
+import { checkToolAccess, PolicyError, resolvePolicy } from "./policy.js";
 
 interface ToolCallMetrics {
   toolName: string;
@@ -20,10 +23,42 @@ interface RateLimitState {
 /**
  * Request metrics logger for audit trail and debugging.
  * Logs all tool invocations with timing and status.
+ * Also enforces policy-based tool access control.
  */
 export class McpRequestLogger {
   private metrics: ToolCallMetrics[] = [];
   private readonly maxHistorySize = 1000; // Keep last N tool invocations in memory
+  private readonly auditLogger: AuditLogger | undefined;
+
+  constructor(auditLogger?: AuditLogger) {
+    this.auditLogger = auditLogger;
+  }
+
+  /**
+   * Verify tool access before execution.
+   * Throws PolicyError if access is denied.
+   */
+  async checkToolAccess(toolName: string): Promise<void> {
+    const policy = resolvePolicy();
+    const decision = checkToolAccess(toolName, policy);
+
+    if (this.auditLogger) {
+      await this.auditLogger.logToolAccess(
+        toolName,
+        decision.capability,
+        decision.allowed,
+        decision.reason,
+      );
+    }
+
+    if (!decision.allowed) {
+      throw new PolicyError(
+        toolName,
+        decision.capability,
+        `Access denied: ${decision.reason}`,
+      );
+    }
+  }
 
   logStart(_toolName: string): { startTime: number } {
     const startTime = Date.now();
