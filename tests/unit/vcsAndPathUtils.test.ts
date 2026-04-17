@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { classifyDirtyState } from "../../src/vcs/provider";
-import type { VCSState } from "../../src/vcs/provider";
 import { isSubpath, toPosixPath } from "../../src/shared/paths";
+import type { VCSState } from "../../src/vcs/provider";
+import { classifyDirtyState } from "../../src/vcs/provider";
 
 describe("VCS and path utilities", () => {
   describe("classifyDirtyState", () => {
@@ -284,7 +284,8 @@ describe("VCS and path utilities", () => {
     });
 
     it("handles long paths", () => {
-      const longPath = "src/components/form/inputs/TextField/utils/validation/rules.ts";
+      const longPath =
+        "src/components/form/inputs/TextField/utils/validation/rules.ts";
       const result = toPosixPath(longPath);
       expect(result).toBe(longPath);
     });
@@ -305,8 +306,9 @@ describe("VCS and path utilities", () => {
 
   describe("VCS state classification edge cases", () => {
     it("handles many modified files", () => {
-      const modifiedFiles = Array.from({ length: 100 }, (_, i) =>
-        `file${i}.ts`
+      const modifiedFiles = Array.from(
+        { length: 100 },
+        (_, i) => `file${i}.ts`,
       );
       const vcsState: VCSState = {
         kind: "git",
@@ -318,8 +320,9 @@ describe("VCS and path utilities", () => {
     });
 
     it("handles many untracked files", () => {
-      const untrackedFiles = Array.from({ length: 100 }, (_, i) =>
-        `untracked${i}.ts`
+      const untrackedFiles = Array.from(
+        { length: 100 },
+        (_, i) => `untracked${i}.ts`,
       );
       const vcsState: VCSState = {
         kind: "git",
