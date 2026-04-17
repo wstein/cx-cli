@@ -49,6 +49,8 @@ Use the repository-local `make` targets for day-to-day development:
 
 ### CX Commands
 
+Use `cx` commands for repository planning, bundle generation, verification, and live MCP work.
+
 ```bash
 cx init --name demo
 cx inspect --token-breakdown
@@ -85,6 +87,10 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
+
+The `make` targets are wrappers around the corresponding Bun scripts. Use them
+for local ergonomics; use `cx` when you are working with bundle planning,
+verification, extraction, or MCP sessions.
 
 The native MCP server exposes file-based `list`, `grep`, and `read` tools over
 the workspace scope. It also exposes `inspect`, `bundle`, `doctor_mcp`, and
