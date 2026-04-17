@@ -75,6 +75,7 @@ jobs:
           echo "npm_tarball_name=$npm_tarball_name" >> $GITHUB_OUTPUT
 
       - name: Upload release artifacts
+        # Keep the packed npm tarball and generated formula together so both publish jobs use the same release payload.
         uses: actions/upload-artifact@v4
         with:
           name: tarball-artifacts
@@ -89,6 +90,7 @@ jobs:
     environment: node
     steps:
       - name: Download release artifacts
+        # Reuse the same tarball payload that npm published when generating the Homebrew formula.
         uses: actions/download-artifact@v4
         with:
           name: tarball-artifacts
@@ -149,6 +151,7 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
           path: homebrew-tap
 
+      # Bun is required here because this job generates the Homebrew formula from the packed tarball.
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
