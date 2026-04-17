@@ -7,7 +7,7 @@ tags: ["distribution","homebrew","release"]
 # Homebrew Tap
 
 `wstein/homebrew-tap` hosts the Homebrew formula used to install `@wsmy/cx-cli`.
-This tap is updated from tagged releases in this repository. The formula is generated from the published npm tarball and installed with Homebrew's Node integration.
+This tap is updated from tagged releases in this repository. The formula is generated from a locally packed release tarball and installed with Homebrew's Node integration.
 
 ## Links
 

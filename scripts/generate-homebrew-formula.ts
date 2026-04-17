@@ -1,6 +1,8 @@
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -10,6 +12,7 @@ const args = process.argv.slice(2);
 let outputPath = "formula/cx-cli.rb";
 let requestedVersion = packageVersion;
 let versionProvided = false;
+let tarballPath: string | undefined;
 
 for (let index = 0; index < args.length; index += 1) {
   const arg = args[index];
@@ -19,6 +22,11 @@ for (let index = 0; index < args.length; index += 1) {
     index += 1;
   } else if (arg.startsWith("--output=")) {
     outputPath = arg.slice("--output=".length);
+  } else if (arg === "--tarball") {
+    tarballPath = args[index + 1] ?? tarballPath;
+    index += 1;
+  } else if (arg.startsWith("--tarball=")) {
+    tarballPath = arg.slice("--tarball=".length);
   } else if (!arg.startsWith("-") && !versionProvided) {
     requestedVersion = arg;
     versionProvided = true;
@@ -29,6 +37,12 @@ if (!requestedVersion) {
   throw new Error("A version is required to generate the Homebrew formula.");
 }
 
+if (!tarballPath && requestedVersion !== packageVersion) {
+  throw new Error(
+    `Requested version ${requestedVersion} does not match package.json version ${packageVersion}. Pass --tarball for a prebuilt release artifact or run from the tagged release checkout.`,
+  );
+}
+
 const description =
   packageJson.description ??
   "Deterministic context bundler built on top of Repomix.";
@@ -36,19 +50,59 @@ const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
 const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requestedVersion}.tgz`;
 
-console.log(`Fetching npm tarball for version ${requestedVersion}...`);
-const response = await fetch(tarballUrl);
-if (!response.ok) {
-  throw new Error(
-    `Failed to download tarball from ${tarballUrl}: ${response.status} ${response.statusText}`,
-  );
+function packLocalTarball(): { tarballPath: string; cleanupDir: string } {
+  console.log(`Packing local npm tarball for version ${requestedVersion}...`);
+  const tempDir = mkdtempSync(join(tmpdir(), "cx-cli-homebrew-"));
+  try {
+    const packResult = spawnSync(
+      "npm",
+      ["pack", "--json", "--pack-destination", tempDir],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+
+    if (packResult.status !== 0) {
+      throw new Error(
+        `Failed to pack local npm tarball: ${packResult.stderr || packResult.stdout || "unknown error"}`,
+      );
+    }
+
+    const packedOutput = packResult.stdout.trim();
+    if (!packedOutput) {
+      throw new Error("npm pack did not return tarball metadata.");
+    }
+
+    const packMetadata = JSON.parse(packedOutput) as Array<{
+      filename?: string;
+    }>;
+    const filename = packMetadata[0]?.filename;
+    if (!filename) {
+      throw new Error("npm pack did not report a tarball filename.");
+    }
+
+    return {
+      tarballPath: resolve(tempDir, filename),
+      cleanupDir: tempDir,
+    };
+  } catch (error) {
+    rmSync(tempDir, { recursive: true, force: true });
+    throw error;
+  }
 }
 
-const buffer = Buffer.from(await response.arrayBuffer());
-const sha256 = createHash("sha256").update(buffer).digest("hex");
+const tarballArtifact = tarballPath
+  ? { tarballPath: resolve(process.cwd(), tarballPath), cleanupDir: undefined }
+  : packLocalTarball();
 
-const escapedDescription = description.replace(/"/g, '\\"');
-const formula = `class CxCli < Formula
+try {
+  const buffer = readFileSync(tarballArtifact.tarballPath);
+  const sha256 = createHash("sha256").update(buffer).digest("hex");
+
+  const escapedDescription = description.replace(/"/g, '\\"');
+  const formula = `class CxCli < Formula
   desc "${escapedDescription}"
   homepage "${homepage}"
   url "${tarballUrl}"
@@ -68,6 +122,11 @@ const formula = `class CxCli < Formula
 end
 `;
 
-writeFileSync(outputPath, formula, "utf8");
-console.log(`Wrote Homebrew formula to ${outputPath}`);
-console.log(`Computed sha256: ${sha256}`);
+  writeFileSync(outputPath, formula, "utf8");
+  console.log(`Wrote Homebrew formula to ${outputPath}`);
+  console.log(`Computed sha256: ${sha256}`);
+} finally {
+  if (tarballArtifact.cleanupDir) {
+    rmSync(tarballArtifact.cleanupDir, { recursive: true, force: true });
+  }
+}
