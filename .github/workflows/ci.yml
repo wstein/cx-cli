@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CX_RUN_REAL_VCS: "1"
+    needs:
+      - test-fast
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,6 +64,11 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Install Mercurial and Fossil
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mercurial fossil
 
       - name: Run real VCS integration tests
         run: bun test tests/vcs/provider.real.integration.test.ts --timeout 20000
