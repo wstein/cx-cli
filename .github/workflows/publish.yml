@@ -119,7 +119,7 @@ jobs:
           always-auth: true
 
       - name: Publish to npm
-        run: npm publish --access public "release-artifacts/${{ needs.prepare-release.outputs.tarball_name }}"
+        run: npm publish --access public "./release-artifacts/${{ needs.prepare-release.outputs.tarball_name }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
