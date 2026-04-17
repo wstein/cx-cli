@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_version: ${{ steps.release-version.outputs.version }}
-      tarball_name: ${{ steps.pack.outputs.tarball_name }}
+      npm_tarball_name: ${{ steps.pack.outputs.npm_tarball_name }}
     steps:
       - name: Checkout current repo
         uses: actions/checkout@v4
@@ -68,17 +68,17 @@ jobs:
         id: pack
         run: |
           set -euo pipefail
-          mkdir -p release-artifacts
-          npm pack --json --pack-destination release-artifacts > release-artifacts/pack.json
-          tarball_name=$(node -p "JSON.parse(require('fs').readFileSync('release-artifacts/pack.json', 'utf8'))[0].filename")
-          rm release-artifacts/pack.json
-          echo "tarball_name=$tarball_name" >> $GITHUB_OUTPUT
+          mkdir -p tarball-artifacts
+          npm pack --json --pack-destination tarball-artifacts > tarball-artifacts/pack.json
+          npm_tarball_name=$(node -p "JSON.parse(require('fs').readFileSync('tarball-artifacts/pack.json', 'utf8'))[0].filename")
+          rm tarball-artifacts/pack.json
+          echo "npm_tarball_name=$npm_tarball_name" >> $GITHUB_OUTPUT
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts
-          path: release-artifacts
+          name: tarball-artifacts
+          path: tarball-artifacts
           if-no-files-found: error
           retention-days: 1
 
@@ -91,8 +91,8 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
-          path: release-artifacts
+          name: tarball-artifacts
+          path: tarball-artifacts
 
       - name: Preflight npm secret
         env:
@@ -112,7 +112,7 @@ jobs:
           always-auth: true
 
       - name: Publish to npm
-        run: npm publish --access public "./release-artifacts/${{ needs.prepare-release.outputs.tarball_name }}"
+        run: npm publish --access public "./tarball-artifacts/${{ needs.prepare-release.outputs.npm_tarball_name }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -129,8 +129,8 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts
-          path: release-artifacts
+          name: tarball-artifacts
+          path: tarball-artifacts
 
       - name: Preflight tap secret
         env:
@@ -151,7 +151,7 @@ jobs:
 
       - name: Generate Homebrew formula
         run: |
-          bun run scripts/generate-homebrew-formula.ts "${{ needs.prepare-release.outputs.release_version }}" --tarball "release-artifacts/${{ needs.prepare-release.outputs.tarball_name }}" --output release-artifacts/cx-cli.rb
+          bun run scripts/generate-homebrew-formula.ts "${{ needs.prepare-release.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.prepare-release.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
 
       - name: Update tap formula
         run: |
@@ -161,7 +161,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout main || git checkout -b main
           mkdir -p Formula
-          cp ../release-artifacts/cx-cli.rb Formula/cx-cli.rb
+          cp ../tarball-artifacts/cx-cli.rb Formula/cx-cli.rb
           if git diff --quiet -- Formula/cx-cli.rb; then
             echo "No formula updates required."
             exit 0
