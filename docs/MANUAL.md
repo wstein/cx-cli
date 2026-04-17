@@ -1,21 +1,21 @@
 # CX Operator Manual
 
-`cx` standardizes LLM context ingestion, integrates repository-native notes graphs, and provides OS-neutral MCP tools.
+`cx` standardizes AI project context, notes, and MCP workflows in one repository-native toolchain.
 
 ## Choose Your Path
 
-The manual is split into two tracks to respect your immediate operational goal:
+The manual is split into two tracks:
 
-### Track A: Pipeline Operations (The "Factory Floor")
-**Goal:** Build, verify, and extract immutable bundle artifacts for CI/CD or handoff.
+### Track A: Pipeline Operations
+Use this path for deterministic bundles, verification, and extraction.
 1. `cx init --name demo`
 2. `cx inspect --token-breakdown`
 3. `cx bundle --config cx.toml`
 4. `cx verify --against .`
 5. `cx extract dist/bundle --to ./restore`
 
-### Track B: Live Agent Exploration (The "Laboratory")
-**Goal:** Expose the live workspace and maintain repository notes for active AI work.
+### Track B: Live Agent Exploration
+Use this path for live workspace access and note maintenance.
 1. `cx mcp`
 2. `cx notes new --title "Logic Fix" --body "Documenting the fix."`
 3. `cx doctor mcp`
@@ -23,19 +23,9 @@ The manual is split into two tracks to respect your immediate operational goal:
 
 ---
 
-## How They Connect: The Unified Architecture
-
-While Track A and Track B serve different immediate goals, they are powered by the exact same strict hashing engine and identity model. This is the architectural beauty of `cx`:
-
-- **Shared Repository Boundaries:** The `cx mcp` server reads the exact same `cx.toml` (or `cx-mcp.toml` overlay) that `cx bundle` uses. If a file is excluded from the bundle, it is invisible to the agent.
-- **Metadata Reusability:** The token counts, note summaries, and file invariants calculated during the live `cx mcp` session are the exact same metrics that will be permanently locked into the manifest when `cx bundle` runs.
-- **Workflow Continuity:** You can use Track B (Laboratory) to explore the workspace, update notes, and test changes, then seamlessly switch to Track A (Factory Floor) to lock those changes into an immutable, verifiable bundle. The agent's live intent becomes the pipeline's Friday-to-Monday contract.
-
----
-
 ## Quick Operator Path
 
-If you want the shortest path to a useful result, follow **Track A** to secure your pipeline, then launch **Track B** to let your agent work.
+If you want the shortest path, use Track A for the bundle and Track B for live agent work.
 
 ### Repository Commands
 
@@ -138,18 +128,14 @@ editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
 
 ## Friday To Monday Map
 
-Read the rest of this manual with one concrete timeline in mind.
-
-Friday afternoon, you cut a bundle from a repository state that has to survive a weekend of branch churn, half-finished experiments, and CI retries. Monday morning, a remote runner or LLM agent opens that bundle and must be able to trust what it sees without asking a human what changed in between.
-
-That is why `cx` keeps the hard edges:
+Read the rest of this manual with one concrete timeline in mind:
 
 - SHA-256 sidecars prove the emitted artifacts were not silently edited after bundling.
 - The manifest records the exact file inventory, token counts, note summaries, and dirty-state provenance that downstream automation relies on.
 - `verify` exists so Monday's runner can compare the bundle back to a source tree instead of trusting a stale directory by habit.
 - Dirty-state gating stops tracked-file drift from becoming an unreviewable production input.
 
-The invariants are not philosophical decoration. They are the mechanisms that keep Friday's intent queryable and safe on Monday.
+The invariants are the mechanisms that keep Friday's intent queryable and safe on Monday.
 
 ## Static Bundle Versus Live MCP
 

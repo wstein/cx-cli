@@ -8,6 +8,11 @@
 
 `cx` standardizes AI project context, notes, and agent workflows in one repository-native toolchain.
 
+> Start here:
+> 1. `cx init --name demo`
+> 2. `cx inspect --token-breakdown`
+> 3. `cx bundle --config cx.toml`
+
 ## Choose Your Path
 
 `cx` has two practical modes:
