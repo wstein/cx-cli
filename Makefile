@@ -5,11 +5,14 @@
 #
 BUN ?= bun
 
-.PHONY: all build test coverage verify release clean notes help
+.PHONY: all build test coverage verify format fix release clean notes help
 all: build
 
 build: ## Build the project.
 	$(BUN) run build
+
+format: ## Format the project source.
+	$(BUN) run format
 
 test: ## Run unit tests with coverage.
 	$(BUN) run coverage
@@ -19,6 +22,9 @@ coverage: ## Run tests with coverage.
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
+
+fix: ## Correct fixable formatting and lint issues.
+	$(BUN) run fix
 
 release: ## Release a new version (VERSION=x.y.z required).
 	$(BUN) run release
