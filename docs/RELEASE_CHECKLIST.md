@@ -12,6 +12,9 @@ Use this short checklist when cutting a release.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
+- Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.
+- Scope that token to the `wstein/homebrew-tap` repository only, and grant `Contents: Read and write` so the release workflow can commit and push `Formula/cx-cli.rb`.
+- Store the token in the `homebrew` environment of the source repo under the name `HOMEBREW_TAP_PUSH_TOKEN`.
 - Release order:
   1. Build the package once.
   2. Publish the packed tarball to npm.

@@ -82,6 +82,9 @@ The source repo owns packaging and formula generation. The release workflow shou
 - The source repo owns packaging, npm publishing, formula generation, and the commit that updates the tap.
 - npm publish happens first, so the formula is generated from the exact tarball that was released.
 - The tap repo owns formula validation on push.
+- Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.
+- Scope the token to the `wstein/homebrew-tap` repository only, and grant `Contents: Read and write` so the source repo can push the formula commit.
+- Store that token in the `homebrew` environment of the source repo as `HOMEBREW_TAP_PUSH_TOKEN`.
 - A PAT or GitHub App token with write access to `wstein/homebrew-tap` triggers the tap repo workflow normally.
 - There is no second packaging path and no duplicated release logic.
 
