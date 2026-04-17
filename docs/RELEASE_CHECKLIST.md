@@ -1,3 +1,5 @@
+<!-- Source: RELEASE_CHECKLIST.md | Status: CANONICAL | Stability: STABLE -->
+
 # Release Checklist
 
 Use this short checklist when cutting a release.

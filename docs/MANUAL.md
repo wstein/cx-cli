@@ -1,3 +1,5 @@
+<!-- Source: MANUAL.md | Status: CANONICAL | Stability: STABLE -->
+
 # CX Operator Manual
 
 `cx` standardizes AI project context, notes, and MCP workflows in one repository-native toolchain.

@@ -1,3 +1,5 @@
+<!-- Source: AGENT_INTEGRATION.md | Status: CANONICAL | Stability: STABLE -->
+
 # Agent Integration Guide — CX MCP
 
 ⚠️ **Experimental Feature** — The MCP (Model Context Protocol) surface is
@@ -294,6 +296,3 @@ Appendix: Example `claude_desktop_config.json` fragment
 ```
 
 Note: the example above is intentionally minimal and mirrors a common pattern in several desktop clients. Always verify the file and key names with the client you are configuring.
-
---
-This guide gives an operational baseline for integrating `cx mcp` into IDEs and agent clients. If you want, I can now add a small troubleshooting FAQ, or produce a sample `launch.json` / extension-specific snippet for a particular extension (Cline, Roo Code, Cursor). Which would you prefer next?

@@ -1,3 +1,5 @@
+<!-- Source: NOTES_MODULE_SPEC.md | Status: CANONICAL | Stability: STABLE -->
+
 # CX Notes Module Specification
 
 ## Goal

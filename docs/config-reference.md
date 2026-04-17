@@ -1,3 +1,5 @@
+<!-- Source: config-reference.md | Status: CANONICAL | Stability: STABLE -->
+
 # CX Configuration Reference
 
 This document describes the knobs. For the operator workflow, read [Operator Manual](MANUAL.md). For the invariants behind these settings, read [Architecture](ARCHITECTURE.md).

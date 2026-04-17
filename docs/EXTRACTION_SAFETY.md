@@ -1,3 +1,5 @@
+<!-- Source: EXTRACTION_SAFETY.md | Status: CANONICAL | Stability: STABLE -->
+
 # Extraction Safety
 
 ## Why This Document Exists

@@ -1,3 +1,5 @@
+<!-- Source: ARCHITECTURE.md | Status: CANONICAL | Stability: STABLE -->
+
 # CX Architecture
 
 ## Design Goal

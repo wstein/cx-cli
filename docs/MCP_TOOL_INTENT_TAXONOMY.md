@@ -1,3 +1,5 @@
+<!-- Source: MCP_TOOL_INTENT_TAXONOMY.md | Status: CANONICAL | Stability: STABLE -->
+
 # MCP Tool Intent Taxonomy
 
 This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.
