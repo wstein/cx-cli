@@ -30,7 +30,7 @@ jobs:
         run: bun run build
 
       - name: Run deterministic test lane
-        run: bun test tests --timeout 60000
+        run: bun test "tests/**/*.test.ts" --timeout 60000
 
   test-contracts:
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run contract tests
-        run: bun test tests/contracts --timeout 20000
+        run: bun test "tests/contracts/**/*.test.ts" --timeout 20000
 
   repomix-matrix:
     runs-on: ubuntu-latest
@@ -120,7 +120,7 @@ jobs:
         run: bun run build
 
       - name: Run deterministic test lane
-        run: bun test tests --timeout 60000
+        run: bun test "tests/**/*.test.ts" --timeout 60000
 
   reproducibility:
     runs-on: ubuntu-latest
