@@ -1,12 +1,16 @@
 import { describe, expect, it } from "bun:test";
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 
 import {
   checkNoteCoverage,
   checkNotesConsistency,
 } from "../../src/notes/consistency.js";
+
+const execFileAsync = promisify(execFile);
 
 describe("Notes Consistency Check", () => {
   describe("checkNotesConsistency", () => {
@@ -21,6 +25,7 @@ describe("Notes Consistency Check", () => {
         expect(report.totalNotes).toBe(0);
         expect(report.duplicateIds).toHaveLength(0);
         expect(report.brokenLinks).toHaveLength(0);
+        expect(report.codePathWarnings).toHaveLength(0);
         expect(report.orphans).toHaveLength(0);
       } finally {
         await fs.rm(tempDir, { recursive: true });
@@ -150,8 +155,78 @@ This is a well-formed note`,
         expect(report.totalNotes).toBe(1);
         expect(report.duplicateIds).toHaveLength(0);
         expect(report.brokenLinks).toHaveLength(0);
+        expect(report.codePathWarnings).toHaveLength(0);
       } finally {
         await fs.rm(tempDir, { recursive: true });
+      }
+    });
+
+    it("warns when notes reference code paths missing from the repository", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      await fs.mkdir(notesDir, { recursive: true });
+
+      await fs.writeFile(
+        path.join(notesDir, "drift.md"),
+        `---
+id: 20250113143002
+title: Drift Warning
+---
+
+See [[src/missing.ts]] for the implementation details.`,
+      );
+
+      try {
+        const report = await checkNotesConsistency("notes", tempDir);
+        expect(report.valid).toBe(true);
+        expect(report.codePathWarnings).toHaveLength(1);
+        expect(report.codePathWarnings[0]?.path).toBe("src/missing.ts");
+        expect(report.codePathWarnings[0]?.status).toBe("missing");
+      } finally {
+        await fs.rm(tempDir, { recursive: true, force: true });
+      }
+    });
+
+    it("warns when notes reference code paths outside the VCS master list", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      const srcDir = path.join(tempDir, "src");
+      await fs.mkdir(notesDir, { recursive: true });
+      await fs.mkdir(srcDir, { recursive: true });
+
+      await fs.writeFile(
+        path.join(notesDir, "untracked.md"),
+        `---
+id: 20250113143003
+title: Untracked Code Path
+---
+
+See [[src/generated.ts]] before changing the generator.`,
+      );
+      await fs.writeFile(
+        path.join(srcDir, "generated.ts"),
+        "export const generated = true;\n",
+      );
+      await execFileAsync("git", ["init", "-q"], { cwd: tempDir });
+      await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
+        cwd: tempDir,
+      });
+      await execFileAsync("git", ["config", "user.name", "cx"], {
+        cwd: tempDir,
+      });
+      await execFileAsync("git", ["add", "notes"], { cwd: tempDir });
+      await execFileAsync("git", ["commit", "-q", "-m", "init"], {
+        cwd: tempDir,
+      });
+
+      try {
+        const report = await checkNotesConsistency("notes", tempDir);
+        expect(report.valid).toBe(true);
+        expect(report.codePathWarnings).toHaveLength(1);
+        expect(report.codePathWarnings[0]?.path).toBe("src/generated.ts");
+        expect(report.codePathWarnings[0]?.status).toBe("outside_master_list");
+      } finally {
+        await fs.rm(tempDir, { recursive: true, force: true });
       }
     });
 

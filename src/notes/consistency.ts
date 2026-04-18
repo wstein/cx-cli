@@ -1,8 +1,24 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import { CX_MCP_TOOL_NAMES } from "../mcp/tools/catalog.js";
+import { pathExists } from "../shared/fs.js";
+import { getVCSState } from "../vcs/provider.js";
 import { buildNoteGraph } from "./graph.js";
+import {
+  extractWikilinkReferences,
+  normalizeWikilinkReference,
+  resolveWikilinkReference,
+} from "./linking.js";
 import { validateNotes } from "./validate.js";
+
+export interface NoteCodePathWarning {
+  fromNoteId: string;
+  fromTitle: string;
+  reference: string;
+  path: string;
+  status: "missing" | "outside_master_list";
+}
 
 export interface ConsistencyReport {
   duplicateIds: Array<{ id: string; files: string[] }>;
@@ -12,9 +28,68 @@ export interface ConsistencyReport {
     reference: string;
     source: "note" | "code";
   }>;
+  codePathWarnings: NoteCodePathWarning[];
   orphans: Array<{ id: string; title: string }>;
   totalNotes: number;
   valid: boolean;
+}
+
+function looksLikeRepositoryPath(reference: string): boolean {
+  return /^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*\.[A-Za-z0-9._-]+$/u.test(
+    reference,
+  );
+}
+
+async function collectNoteCodePathWarnings(
+  notes: Awaited<ReturnType<typeof validateNotes>>["notes"],
+  projectRoot: string,
+): Promise<NoteCodePathWarning[]> {
+  const notesMap = new Map(notes.map((note) => [note.id, note]));
+  const vcsState = await getVCSState(projectRoot);
+  const trackedPaths = new Set(
+    vcsState.trackedFiles.map((filePath) => filePath.replaceAll("\\", "/")),
+  );
+  const warnings = new Map<string, NoteCodePathWarning>();
+
+  for (const note of notes) {
+    let content: string;
+    try {
+      content = await fs.readFile(note.filePath, "utf8");
+    } catch {
+      continue;
+    }
+
+    for (const reference of extractWikilinkReferences(content)) {
+      const normalized = normalizeWikilinkReference(reference.raw);
+      if (resolveWikilinkReference(normalized, notesMap) !== null) {
+        continue;
+      }
+
+      const normalizedPath = normalized.replace(/^\.\/+/u, "");
+      if (!looksLikeRepositoryPath(normalizedPath)) {
+        continue;
+      }
+
+      const status = trackedPaths.has(normalizedPath)
+        ? null
+        : (await pathExists(path.join(projectRoot, normalizedPath)))
+          ? "outside_master_list"
+          : "missing";
+      if (status === null) {
+        continue;
+      }
+
+      warnings.set(`${note.id}:${normalizedPath}`, {
+        fromNoteId: note.id,
+        fromTitle: note.title,
+        reference: reference.raw,
+        path: normalizedPath,
+        status,
+      });
+    }
+  }
+
+  return [...warnings.values()];
 }
 
 export async function checkNotesConsistency(
@@ -23,6 +98,10 @@ export async function checkNotesConsistency(
 ): Promise<ConsistencyReport> {
   const validation = await validateNotes(notesDir, projectRoot);
   const graph = await buildNoteGraph(notesDir, projectRoot);
+  const codePathWarnings = await collectNoteCodePathWarnings(
+    validation.notes,
+    projectRoot,
+  );
 
   const orphanDetails = graph.orphans.map((id) => {
     const note = graph.notes.get(id);
@@ -32,21 +111,31 @@ export async function checkNotesConsistency(
     };
   });
 
-  const brokenLinksFormatted = graph.brokenLinks.map((issue) => ({
-    fromNoteId: issue.fromNoteId,
-    fromTitle: issue.fromTitle,
-    reference: issue.reference,
-    source: issue.source,
-  }));
+  const brokenLinksFormatted = graph.brokenLinks
+    .filter((issue) => {
+      if (issue.source !== "note") {
+        return true;
+      }
+
+      const normalizedReference = normalizeWikilinkReference(issue.reference);
+      return !looksLikeRepositoryPath(normalizedReference);
+    })
+    .map((issue) => ({
+      fromNoteId: issue.fromNoteId,
+      fromTitle: issue.fromTitle,
+      reference: issue.reference,
+      source: issue.source,
+    }));
 
   const valid =
     validation.errors.length === 0 &&
     validation.duplicateIds.length === 0 &&
-    graph.brokenLinks.length === 0;
+    brokenLinksFormatted.length === 0;
 
   return {
     duplicateIds: validation.duplicateIds,
     brokenLinks: brokenLinksFormatted,
+    codePathWarnings,
     orphans: orphanDetails,
     totalNotes: validation.notes.length,
     valid,

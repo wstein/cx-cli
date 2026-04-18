@@ -430,6 +430,21 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
         }
       }
 
+      if (report.codePathWarnings.length > 0) {
+        printWarning(
+          `  Code path drift warnings: ${report.codePathWarnings.length}`,
+        );
+        for (const warning of report.codePathWarnings) {
+          const detail =
+            warning.status === "missing"
+              ? "missing from repository"
+              : "present on disk but outside the VCS master list";
+          printInfo(
+            `    [${warning.fromNoteId}] ${warning.fromTitle} -> ${warning.path} (${detail})`,
+          );
+        }
+      }
+
       if (report.valid) {
         printSuccess("  ✓ All checks passed");
       } else {

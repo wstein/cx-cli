@@ -315,6 +315,11 @@ cx extract dist/demo-bundle --to /tmp/restore --file src/index.ts
 
 Use `list` when you want visibility. Use `extract` when you need reconstruction.
 
+`cx notes check` also audits note wikilinks that look like repository file
+paths. If a note points at a missing file or one that exists on disk but is not
+part of the VCS-derived master list, `cx` reports a warning without failing the
+check.
+
 ## Recommended Bundle Layout
 
 For this repository, prefer four stable sections:

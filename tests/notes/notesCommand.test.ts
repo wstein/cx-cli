@@ -676,6 +676,32 @@ describe("Notes Command Subcommands", () => {
       expect(json.command).toBe("notes check");
       expect(json.valid).toBeDefined();
     });
+
+    test("surfaces code-path drift warnings without failing the check", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143004-code-path.md"),
+        `---
+id: 20250113143004
+title: Code Path Warning
+---
+
+Check [[src/missing.ts]] before touching the pipeline.
+`,
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "check",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain("Code path drift warnings");
+      expect(result.logs).toContain("missing from repository");
+    });
   });
 
   describe("coverage subcommand", () => {
