@@ -70,7 +70,7 @@ const shouldInclude = (filePath) => {
 
 const main = async () => {
   const lcovPath = "coverage/lcov.info";
-  const outputPath = "./COVERAGE.md";
+  const outputPath = "coverage/COVERAGE.md";
 
   try {
     await fs.access(lcovPath);
