@@ -59,18 +59,15 @@ exclude = []
       "utf8",
     );
 
-    const cwd = process.cwd();
-    process.chdir(root);
-    await expect(main(["bundle"])).resolves.toBe(0);
+    const bundleCapture = createBufferedCommandIo({ cwd: root });
+    await expect(main(["bundle"], bundleCapture.io)).resolves.toBe(0);
 
-    const capture = createBufferedCommandIo();
-    let exitCode: number;
-    try {
-      exitCode = await main(["validate", "dist/demo-bundle", "--json"], capture.io);
-    } finally {
-      process.chdir(cwd);
-    }
-    expect(exitCode!).toBe(0);
+    const capture = createBufferedCommandIo({ cwd: root });
+    const exitCode = await main(
+      ["validate", "dist/demo-bundle", "--json"],
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
@@ -133,29 +130,23 @@ exclude = []
       "utf8",
     );
 
-    const cwd = process.cwd();
-    process.chdir(root);
-    await expect(main(["bundle"])).resolves.toBe(0);
+    const bundleCapture = createBufferedCommandIo({ cwd: root });
+    await expect(main(["bundle"], bundleCapture.io)).resolves.toBe(0);
 
-    const capture = createBufferedCommandIo();
-    let exitCode: number;
-    try {
-      exitCode = await main(
-        [
-          "list",
-          "dist/demo-bundle",
-          "--json",
-          "--section",
-          "src",
-          "--file",
-          "src/index.ts",
-        ],
-        capture.io,
-      );
-    } finally {
-      process.chdir(cwd);
-    }
-    expect(exitCode!).toBe(0);
+    const capture = createBufferedCommandIo({ cwd: root });
+    const exitCode = await main(
+      [
+        "list",
+        "dist/demo-bundle",
+        "--json",
+        "--section",
+        "src",
+        "--file",
+        "src/index.ts",
+      ],
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       summary?: { fileCount?: number; sectionCount?: number };
@@ -216,115 +207,116 @@ exclude = []
       "utf8",
     );
 
-    const cwd = process.cwd();
-    process.chdir(root);
+    const workspaceIo = createBufferedCommandIo({ cwd: root });
 
-    try {
-      await expect(
-        main(["bundle", "--config", path.join(root, "cx.toml")]),
-      ).resolves.toBe(0);
+    await expect(
+      main(["bundle", "--config", path.join(root, "cx.toml")], workspaceIo.io),
+    ).resolves.toBe(0);
 
-      const completionCapture = createBufferedCommandIo();
-      const completionExitCode = await main(
-        ["completion", "--shell", "bash"],
-        completionCapture.io,
-      );
-      expect(completionExitCode).toBe(0);
-      expect(completionCapture.stdout()).toContain(
-        "###-begin-cx-completions-###",
-      );
+    const completionCapture = createBufferedCommandIo();
+    const completionExitCode = await main(
+      ["completion", "--shell", "bash"],
+      completionCapture.io,
+    );
+    expect(completionExitCode).toBe(0);
+    expect(completionCapture.stdout()).toContain(
+      "###-begin-cx-completions-###",
+    );
 
-      const configCapture = createBufferedCommandIo();
-      expect(
-        await main(
-          [
-            "config",
-            "show-effective",
-            "--config",
-            path.join(root, "cx.toml"),
-            "--json",
-          ],
-          configCapture.io,
-        ),
-      ).toBe(0);
-      expect(parseJsonOutput(configCapture.stdout())).toMatchObject({
-        configFile: path.join(root, "cx.toml"),
-        cxStrict: false,
-        cliMode: null,
-        settings: {
-          "dedup.mode": { value: "fail", source: "compiled default" },
-          "repomix.missing_extension": {
-            value: "warn",
-            source: "compiled default",
-          },
-          "config.duplicate_entry": {
-            value: "fail",
-            source: "compiled default",
-          },
+    const configCapture = createBufferedCommandIo();
+    expect(
+      await main(
+        [
+          "config",
+          "show-effective",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--json",
+        ],
+        configCapture.io,
+      ),
+    ).toBe(0);
+    expect(parseJsonOutput(configCapture.stdout())).toMatchObject({
+      configFile: path.join(root, "cx.toml"),
+      cxStrict: false,
+      cliMode: null,
+      settings: {
+        "dedup.mode": { value: "fail", source: "compiled default" },
+        "repomix.missing_extension": {
+          value: "warn",
+          source: "compiled default",
         },
-      });
+        "config.duplicate_entry": {
+          value: "fail",
+          source: "compiled default",
+        },
+      },
+    });
 
-      const adapterCapture = createBufferedCommandIo();
-      expect(
-        await main(
-          [
-            "adapter",
-            "capabilities",
-            "--config",
-            path.join(root, "cx.toml"),
-            "--json",
-          ],
-          adapterCapture.io,
-        ),
-      ).toBe(0);
-      expect(parseJsonOutput(adapterCapture.stdout())).toMatchObject({
-        cx: { version: expect.any(String) },
-      });
+    const adapterCapture = createBufferedCommandIo();
+    expect(
+      await main(
+        [
+          "adapter",
+          "capabilities",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--json",
+        ],
+        adapterCapture.io,
+      ),
+    ).toBe(0);
+    expect(parseJsonOutput(adapterCapture.stdout())).toMatchObject({
+      cx: { version: expect.any(String) },
+    });
 
-      const renderCapture = createBufferedCommandIo();
-      expect(
-        await main(
-          [
-            "render",
-            "--config",
-            path.join(root, "cx.toml"),
-            "--section",
-            "src",
-            "--stdout",
-          ],
-          renderCapture.io,
-        ),
-      ).toBe(0);
-      expect(renderCapture.stdout()).toContain("index.ts");
+    const renderCapture = createBufferedCommandIo();
+    expect(
+      await main(
+        [
+          "render",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--section",
+          "src",
+          "--stdout",
+        ],
+        renderCapture.io,
+      ),
+    ).toBe(0);
+    expect(renderCapture.stdout()).toContain("index.ts");
 
-      const validateCapture = createBufferedCommandIo();
-      expect(
-        await main(
-          ["validate", path.join(root, "dist", "demo-bundle")],
-          validateCapture.io,
-        ),
-      ).toBe(0);
-      expect(validateCapture.stdout()).toBe("");
+    const validateCapture = createBufferedCommandIo();
+    expect(
+      await main(
+        ["validate", path.join(root, "dist", "demo-bundle")],
+        validateCapture.io,
+      ),
+    ).toBe(0);
+    expect(validateCapture.stdout()).toBe("");
 
-      await expect(
-        main(["verify", path.join(root, "dist", "demo-bundle")]),
-      ).resolves.toBe(0);
+    await expect(
+      main(
+        ["verify", path.join(root, "dist", "demo-bundle")],
+        workspaceIo.io,
+      ),
+    ).resolves.toBe(0);
 
-      await expect(
-        main([
+    await expect(
+      main(
+        [
           "extract",
           path.join(root, "dist", "demo-bundle"),
           "--to",
           restoreDir,
           "--file",
           "src/index.ts",
-        ]),
-      ).resolves.toBe(0);
+        ],
+        workspaceIo.io,
+      ),
+    ).resolves.toBe(0);
 
-      await expect(main(["notes", "list"])).resolves.toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+    await expect(main(["notes", "list"], workspaceIo.io)).resolves.toBe(0);
   });
 
   test("bundle surfaces note errors through main", async () => {
@@ -377,14 +369,9 @@ exclude = []
       "utf8",
     );
 
-    const cwd = process.cwd();
-    process.chdir(root);
-    try {
-      await expect(
-        main(["bundle", "--config", path.join(root, "cx.toml")]),
-      ).rejects.toThrow("Note validation failed");
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createBufferedCommandIo({ cwd: root });
+    await expect(
+      main(["bundle", "--config", path.join(root, "cx.toml")], capture.io),
+    ).rejects.toThrow("Note validation failed");
   });
 });

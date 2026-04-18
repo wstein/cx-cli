@@ -2,21 +2,31 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { runNotesCommand } from "../../src/cli/commands/notes.js";
+import {
+  type NotesArgs,
+  runNotesCommand as runNotesCommandBase,
+} from "../../src/cli/commands/notes.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
 
 let testDir: string;
-let origCwd: string;
+
+function runNotesCommand(args: NotesArgs) {
+  return runNotesCommandBase({
+    ...args,
+    workspaceRoot: testDir,
+  });
+}
+
+function noteFilePath(fileName: string): string {
+  return path.join(testDir, "notes", fileName);
+}
 
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-cmd-"));
   await fs.mkdir(path.join(testDir, "notes"));
-  origCwd = process.cwd();
-  process.chdir(testDir);
 });
 
 afterEach(async () => {
-  process.chdir(origCwd);
   await fs.rm(testDir, { recursive: true, force: true });
 });
 
@@ -166,7 +176,7 @@ describe("Notes Command Subcommands", () => {
 
     test("reads a note with aliases and tags in text output", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143015.md"),
+        noteFilePath("20250113143015.md"),
         `---
 id: 20250113143015
 title: Alias Note
@@ -563,7 +573,7 @@ This note has aliases and tags.
 
     test("shows backlinks for a referenced note", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143016.md"),
+        noteFilePath("20250113143016.md"),
         `---
 id: 20250113143016
 title: Source Note
@@ -574,7 +584,7 @@ See [[Target Note]].
         "utf8",
       );
       await fs.writeFile(
-        path.join("notes", "20250113143017.md"),
+        noteFilePath("20250113143017.md"),
         `---
 id: 20250113143017
 title: Target Note
@@ -704,9 +714,9 @@ Target content.
     });
 
     test("returns code links in JSON output", async () => {
-      await fs.mkdir("src", { recursive: true });
+      await fs.mkdir(path.join(testDir, "src"), { recursive: true });
       await fs.writeFile(
-        path.join("notes", "20250113143018.md"),
+        noteFilePath("20250113143018.md"),
         `---
 id: 20250113143018
 title: Code Link Note
@@ -717,7 +727,7 @@ Note content.
         "utf8",
       );
       await fs.writeFile(
-        "src/app.ts",
+        path.join(testDir, "src", "app.ts"),
         `// Reference the note via wikilink
 // [[Code Link Note]]
 `,
@@ -787,7 +797,7 @@ Note content.
 
     test("shows outgoing and broken links in text output", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143019.md"),
+        noteFilePath("20250113143019.md"),
         `---
 id: 20250113143019
 title: Links Source
@@ -798,7 +808,7 @@ See [[Links Target]] and [[Missing Note]].
         "utf8",
       );
       await fs.writeFile(
-        path.join("notes", "20250113143020.md"),
+        noteFilePath("20250113143020.md"),
         `---
 id: 20250113143020
 title: Links Target
@@ -871,7 +881,7 @@ title: Links Target
 
     test("surfaces code-path drift warnings without failing the check", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143004-code-path.md"),
+        noteFilePath("20250113143004-code-path.md"),
         `---
 id: 20250113143004
 title: Code Path Warning
@@ -914,7 +924,7 @@ Check [[src/missing.ts]] before touching the pipeline.
 
     test("graph subcommand returns reachable notes in text output", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143021.md"),
+        noteFilePath("20250113143021.md"),
         `---
 id: 20250113143021
 title: Graph Root
@@ -925,7 +935,7 @@ See [[Graph Hop]].
         "utf8",
       );
       await fs.writeFile(
-        path.join("notes", "20250113143022.md"),
+        noteFilePath("20250113143022.md"),
         `---
 id: 20250113143022
 title: Graph Hop
@@ -953,7 +963,7 @@ Terminal note.
 
     test("graph subcommand outputs JSON", async () => {
       await fs.writeFile(
-        path.join("notes", "20250113143023.md"),
+        noteFilePath("20250113143023.md"),
         `---
 id: 20250113143023
 title: Graph Root JSON
@@ -964,7 +974,7 @@ See [[Graph Hop JSON]].
         "utf8",
       );
       await fs.writeFile(
-        path.join("notes", "20250113143024.md"),
+        noteFilePath("20250113143024.md"),
         `---
 id: 20250113143024
 title: Graph Hop JSON

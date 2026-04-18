@@ -2,22 +2,31 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { runNotesCommand } from "../../src/cli/commands/notes.js";
+import {
+  type NotesArgs,
+  runNotesCommand as runNotesCommandBase,
+} from "../../src/cli/commands/notes.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 let testDir: string;
-let originalCwd: string;
+
+function runNotesCommand(args: NotesArgs, io?: Parameters<typeof runNotesCommandBase>[1]) {
+  return runNotesCommandBase(
+    {
+      ...args,
+      workspaceRoot: testDir,
+    },
+    io,
+  );
+}
 
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-io-"));
   await fs.mkdir(path.join(testDir, "notes"), { recursive: true });
-  originalCwd = process.cwd();
-  process.chdir(testDir);
 });
 
 afterEach(async () => {
-  process.chdir(originalCwd);
   await fs.rm(testDir, { recursive: true, force: true });
 });
 

@@ -19,6 +19,7 @@ function createBufferedWriter(chunks: string[]) {
 }
 
 export function createBufferedCommandIo(options: {
+  cwd?: string;
   env?: NodeJS.ProcessEnv;
   isTTY?: boolean;
 } = {}): {
@@ -42,6 +43,7 @@ export function createBufferedCommandIo(options: {
       stdin: {
         isTTY: options.isTTY ?? false,
       },
+      ...(options.cwd !== undefined ? { cwd: options.cwd } : {}),
     },
     stdout: () => stdoutChunks.join(""),
     stderr: () => stderrChunks.join(""),
