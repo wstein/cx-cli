@@ -74,6 +74,22 @@ describe("Notes Command Subcommands", () => {
       expect(json.tags).toEqual(["important", "architecture"]);
     });
 
+    test("creates a note with tags in text output", async () => {
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "new",
+            title: "Tagged Text Note",
+            tags: ["alpha", "beta"],
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain("Tags: alpha, beta");
+    });
+
     test("throws when title is missing", async () => {
       await expect(
         runNotesCommand({
@@ -146,6 +162,36 @@ describe("Notes Command Subcommands", () => {
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.id).toBe(noteId);
       expect(json.title).toBe("JSON Read");
+    });
+
+    test("reads a note with aliases and tags in text output", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143015.md"),
+        `---
+id: 20250113143015
+title: Alias Note
+aliases: [Alias One, Alias Two]
+tags: [test, example]
+---
+
+This note has aliases and tags.
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "read",
+            id: "20250113143015",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain("Aliases: Alias One, Alias Two");
+      expect(result.logs).toContain("Tags: test, example");
     });
 
     test("throws when id is missing", async () => {
@@ -309,6 +355,28 @@ describe("Notes Command Subcommands", () => {
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.title).toBe("JSON Renamed");
     });
+
+    test("throws when title is missing", async () => {
+      const created = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "new",
+            title: "Missing Title Test",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      const noteId = (created.parsedJson as Record<string, unknown>)
+        .id as string;
+
+      await expect(
+        runNotesCommand({
+          subcommand: "rename",
+          id: noteId,
+        }),
+      ).rejects.toThrow("--title is required");
+    });
   });
 
   describe("delete subcommand", () => {
@@ -367,6 +435,14 @@ describe("Notes Command Subcommands", () => {
       expect(result.exitCode).toBe(0);
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.id).toBe(noteId);
+    });
+
+    test("throws when id is missing", async () => {
+      await expect(
+        runNotesCommand({
+          subcommand: "delete",
+        }),
+      ).rejects.toThrow("--id is required");
     });
   });
 
@@ -484,6 +560,45 @@ describe("Notes Command Subcommands", () => {
         }),
       ).rejects.toThrow("--id is required");
     });
+
+    test("shows backlinks for a referenced note", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143016.md"),
+        `---
+id: 20250113143016
+title: Source Note
+---
+
+See [[Target Note]].
+`,
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join("notes", "20250113143017.md"),
+        `---
+id: 20250113143017
+title: Target Note
+---
+
+Target content.
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "backlinks",
+            id: "20250113143017",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain('Backlinks to "Target Note"');
+      expect(result.logs).toContain("[20250113143016] Source Note");
+    });
   });
 
   describe("orphans subcommand", () => {
@@ -587,6 +702,42 @@ describe("Notes Command Subcommands", () => {
         }),
       ).rejects.toThrow("--id is required");
     });
+
+    test("returns code links in JSON output", async () => {
+      await fs.mkdir("src", { recursive: true });
+      await fs.writeFile(
+        path.join("notes", "20250113143018.md"),
+        `---
+id: 20250113143018
+title: Code Link Note
+---
+
+Note content.
+`,
+        "utf8",
+      );
+      await fs.writeFile(
+        "src/app.ts",
+        `// Reference the note via wikilink
+// [[Code Link Note]]
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "code-links",
+            id: "20250113143018",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      const json = result.parsedJson as Record<string, unknown>;
+      expect(json.codeFiles).toContain("src/app.ts");
+    });
   });
 
   describe("links subcommand", () => {
@@ -632,6 +783,47 @@ describe("Notes Command Subcommands", () => {
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.noteId).toBe(noteId);
       expect(json.outgoing).toBeDefined();
+    });
+
+    test("shows outgoing and broken links in text output", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143019.md"),
+        `---
+id: 20250113143019
+title: Links Source
+---
+
+See [[Links Target]] and [[Missing Note]].
+`,
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join("notes", "20250113143020.md"),
+        `---
+id: 20250113143020
+title: Links Target
+---
+
+# Some heading
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "links",
+            id: "20250113143019",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain("Outgoing:");
+      expect(result.logs).toContain("[20250113143020] Links Target");
+      expect(result.logs).toContain("Broken links:");
+      expect(result.logs).toContain("unresolved");
     });
   });
 
@@ -718,6 +910,85 @@ Check [[src/missing.ts]] before touching the pipeline.
       expect(result.exitCode).toBe(0);
       expect(result.logs).toContain("coverage");
       expect(result.logs).toContain("tools");
+    });
+
+    test("graph subcommand returns reachable notes in text output", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143021.md"),
+        `---
+id: 20250113143021
+title: Graph Root
+---
+
+See [[Graph Hop]].
+`,
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join("notes", "20250113143022.md"),
+        `---
+id: 20250113143022
+title: Graph Hop
+---
+
+Terminal note.
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "graph",
+            id: "20250113143021",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain('Reachable notes from "Graph Root"');
+      expect(result.logs).toContain("[20250113143022] Graph Hop");
+    });
+
+    test("graph subcommand outputs JSON", async () => {
+      await fs.writeFile(
+        path.join("notes", "20250113143023.md"),
+        `---
+id: 20250113143023
+title: Graph Root JSON
+---
+
+See [[Graph Hop JSON]].
+`,
+        "utf8",
+      );
+      await fs.writeFile(
+        path.join("notes", "20250113143024.md"),
+        `---
+id: 20250113143024
+title: Graph Hop JSON
+---
+
+Terminal note.
+`,
+        "utf8",
+      );
+
+      const result = await captureCli({
+        run: () =>
+          runNotesCommand({
+            subcommand: "graph",
+            id: "20250113143023",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      const json = result.parsedJson as Record<string, unknown>;
+      expect(json.command).toBe("notes graph");
+      expect(json.reachableCount).toBe(1);
     });
 
     test("outputs JSON format", async () => {

@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { listFilesRecursive, pathExists } from "../shared/fs.js";
+import { toPosixPath } from "../shared/paths.js";
 import {
   extractHeadings,
   extractWikilinkReferences,
@@ -90,6 +91,7 @@ async function extractLinksFromNote(
 async function extractCodeReferences(
   srcDir: string,
   notesMap: Map<string, NoteMetadata>,
+  projectRoot: string,
 ): Promise<{ links: NoteLink[]; brokenLinks: NoteLinkIssue[] }> {
   const codeLinks: NoteLink[] = [];
   const brokenLinks: NoteLinkIssue[] = [];
@@ -127,19 +129,20 @@ async function extractCodeReferences(
       try {
         const content = await fs.readFile(file, "utf-8");
         const wikilinks = extractWikilinkReferences(content);
+        const relativeFile = toPosixPath(path.relative(projectRoot, file));
 
         for (const link of wikilinks) {
           const resolvedId = resolveWikilinkReference(link.target, notesMap);
           if (resolvedId) {
             codeLinks.push({
-              fromNoteId: `_code:${file}`,
+              fromNoteId: `_code:${relativeFile}`,
               toNoteId: resolvedId,
               type: "code-reference",
             });
           } else {
             brokenLinks.push({
-              fromNoteId: `_code:${file}`,
-              fromTitle: file,
+              fromNoteId: `_code:${relativeFile}`,
+              fromTitle: relativeFile,
               fromPath: file,
               reference: link.raw,
               source: "code",
@@ -197,7 +200,11 @@ export async function buildNoteGraph(
 
   if (includeSrcAnalysis) {
     const srcDir = path.join(projectRoot, "src");
-    const codeReferences = await extractCodeReferences(srcDir, notesMap);
+    const codeReferences = await extractCodeReferences(
+      srcDir,
+      notesMap,
+      projectRoot,
+    );
     links.push(...codeReferences.links);
     brokenLinks.push(...codeReferences.brokenLinks);
   }
