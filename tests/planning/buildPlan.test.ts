@@ -283,7 +283,9 @@ describe("buildBundlePlan", () => {
     const plan = await buildBundlePlan(config);
 
     expect(plan.warnings.length).toBeGreaterThan(0);
-    expect(plan.warnings[0]).toContain("Section overlap detected for src/index.ts");
+    expect(plan.warnings[0]).toContain(
+      "Section overlap detected for src/index.ts",
+    );
   });
 
   test("resolves overlaps by priority when dedup.mode=first-wins", async () => {
@@ -338,7 +340,11 @@ describe("buildBundlePlan", () => {
     const root = await createFixture();
     const config = baseConfig(root);
     config.assets.include = ["**/*.png"];
-    config.sections.repo.include = [...config.sections.repo.include, "**/*.png"];
+    const repoSection = config.sections.repo;
+    if (!repoSection) {
+      throw new Error("Missing repo section");
+    }
+    repoSection.include = [...(repoSection.include ?? []), "**/*.png"];
 
     await expect(buildBundlePlan(config)).rejects.toThrow(
       /Asset conflict detected for logo\.png: file matches both an asset rule and section repo\./,
@@ -378,7 +384,7 @@ describe("buildBundlePlan", () => {
         exclude: [],
       },
       rest: {
-        catchAll: true,
+        catch_all: true,
         exclude: ["misc.txt"],
       },
     };

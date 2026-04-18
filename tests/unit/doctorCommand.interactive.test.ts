@@ -107,6 +107,11 @@ describe("runDoctorCommand coverage helpers", () => {
     const project = await createOverlapProject();
     const { selectMock } = installInquirerMock("mixed");
     const originalCwd = process.cwd();
+    const originalIsTTY = process.stdin.isTTY;
+    Object.defineProperty(process.stdin, "isTTY", {
+      configurable: true,
+      value: true,
+    });
     process.chdir(project.root);
 
     const capture = captureStdout();
@@ -123,6 +128,10 @@ describe("runDoctorCommand coverage helpers", () => {
       ).resolves.toBe(0);
     } finally {
       capture.restore();
+      Object.defineProperty(process.stdin, "isTTY", {
+        configurable: true,
+        value: originalIsTTY,
+      });
       process.chdir(originalCwd);
     }
 
