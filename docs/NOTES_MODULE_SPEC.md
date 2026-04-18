@@ -129,22 +129,30 @@ This ensures the repository contract carries both machine state and human intent
 This implementation now includes:
 
 - note frontmatter parsing during validation
-- strict `id` format checks using `YYYYMMDDHHMMSS`
+- strict `id` format checks using `YYYYMMDDHHMMSS` (with optional milliseconds)
 - duplicate-ID detection across the notes directory
 - aliases and tags normalization
 - note summary extraction from the body for manifest use
+- `codeLinks[]` extraction from note bodies and propagation into `manifest.notes[]` records, enabling manifest-first querying of which notes reference specific source files
 - a `cx notes ...` command family for note creation and graph inspection
 - unresolved note and code-reference auditing via `cx notes links`
+- cross-file anchor validation: `[[Note Title#Section Heading]]` wikilinks are checked against actual headings in the target note, reported as `anchor-not-found` broken links
+- graph reachability queries via `cx notes graph --id <id> --depth <n>` and the `notes_graph` MCP tool, returning all notes reachable within N wikilink hops from a seed note
 
 The key downstream effect is that automation can inspect the note layer through
 manifest metadata first, then open individual notes only when deeper context is
 required.
 
+## Note ID Format
+
+IDs use the format `YYYYMMDDHHmmSS` at a minimum. `cx` also accepts and
+generates IDs with millisecond precision (`YYYYMMDDHHmmSSmmm`). The frontmatter
+parser treats the `id` field as a string — not a number — so precision is never
+lost regardless of digit count.
+
 ## Future Extensions
 
-The next production candidates are:
+The following candidates remain for future implementation:
 
-1. extraction-safe note parsing for downstream routing
-2. richer note graph queries and traversals
-3. manifest-side summaries beyond the first body paragraph
-4. cross-file anchor validation for repository-local note references
+1. extraction-safe note parsing for downstream routing (unimplemented)
+2. manifest-side summaries beyond the first body paragraph (unimplemented)

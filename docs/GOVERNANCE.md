@@ -39,6 +39,7 @@ Every documentation file includes an HTML comment at the top declaring its sourc
 | RELEASE_INTEGRITY.md | CANONICAL | STABLE | Release SBOM format and verification |
 | EXTRACTION_SAFETY.md | CANONICAL | STABLE | Content filtering and safe extraction |
 | NOTES_MODULE_SPEC.md | CANONICAL | STABLE | Notes schema and structure |
+| GOVERNANCE.md | CANONICAL | STABLE | Documentation governance and doc map |
 | config-reference.md | CANONICAL | STABLE | All cx.toml options and semantics |
 | RELEASE_CHECKLIST.md | CANONICAL | STABLE | Release process and validation steps |
 
