@@ -7,10 +7,15 @@ import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 
+const ANSI_ESCAPE_PATTERN = new RegExp(
+  `${String.fromCharCode(27)}\\[[0-9;]*m`,
+  "g",
+);
+
 function scrubListSnapshot(output: string): string {
   return scrubTextSnapshot(
     output
-      .replace(/\\u001B\[[0-9;]*m/g, "")
+      .replace(ANSI_ESCAPE_PATTERN, "")
       .replace(/\bjust now\b/g, "<RELATIVE_TIME>")
       .replace(/\b\d+m ago\b/g, "<RELATIVE_TIME>")
       .replace(/\b\d+h ago\b/g, "<RELATIVE_TIME>")
