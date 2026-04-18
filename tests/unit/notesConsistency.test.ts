@@ -201,5 +201,40 @@ Documentation for tools`,
         await fs.rm(tempDir, { recursive: true });
       }
     });
+
+    it("counts tool as documented when a code file named after it references the note", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      const srcDir = path.join(tempDir, "src");
+      await fs.mkdir(notesDir, { recursive: true });
+      await fs.mkdir(srcDir, { recursive: true });
+
+      await fs.writeFile(
+        path.join(notesDir, "20250113143000-notes_list.md"),
+        `---
+id: 20250113143000
+aliases: []
+tags: []
+---
+
+# notes_list
+`,
+      );
+
+      // File named after a known tool that contains a reference to the note
+      await fs.writeFile(
+        path.join(srcDir, "notes_list.ts"),
+        `// See [[20250113143000]] for documentation\nexport const x = 1;\n`,
+      );
+
+      try {
+        const report = await checkNoteCoverage("notes", tempDir);
+        expect(report.totalTools).toBeGreaterThan(0);
+        expect(report.documentedTools).toBeGreaterThan(0);
+        expect(report.undocumentedTools).not.toContain("notes_list");
+      } finally {
+        await fs.rm(tempDir, { recursive: true });
+      }
+    });
   });
 });

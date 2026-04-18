@@ -199,7 +199,6 @@ describe("buildNoteGraph with code analysis", () => {
   });
 
   test("tracks broken code references", async () => {
-    const notesDir = path.join(testDir, "notes");
     const srcDir = path.join(testDir, "src");
     await fs.mkdir(srcDir, { recursive: true });
 
