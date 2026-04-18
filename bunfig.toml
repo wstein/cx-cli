@@ -6,21 +6,7 @@ coverageSkipTestFiles = true
 randomize = true
 rerunEach = 2
 timeout = 20000
-# Keep raw `bun test` aligned with `make test` by defaulting discovery to
-# unit-test directories only. Full-suite commands use bunfig.full.toml.
-pathIgnorePatterns = [
-	"tests/bundle/**",
-	"tests/cli/**",
-	"tests/config/**",
-	"tests/contracts/**",
-	"tests/manifest/**",
-	"tests/mcp/**",
-	"tests/notes/**",
-	"tests/planning/**",
-	"tests/repomix/**",
-	"tests/shared/**",
-	"tests/vcs/**",
-]
+# Default Bun test discovery should run the full repository test suite.
 
 [test.coverageThreshold]
 line = { per_file = 0.80, summary = 0.95 }
