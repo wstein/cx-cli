@@ -70,4 +70,44 @@ describe("runInitCommand", () => {
     expect(exitCode).toBe(0);
     expect(stdout.length).toBeGreaterThan(0);
   });
+
+  test("invalid project name throws CxError", async () => {
+    await expect(
+      captureCli({ run: () => runInitCommand({ ...BASE_ARGS, name: "../../etc/passwd" }) }),
+    ).rejects.toThrow();
+  });
+
+  test("stdout=true + json=true outputs JSON to stdout without writing files", async () => {
+    const { stdout, exitCode } = await captureCli({
+      run: () => runInitCommand({ ...BASE_ARGS, stdout: true, json: true }),
+      parseJson: true,
+    });
+    expect(exitCode).toBe(0);
+    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    expect(parsed.projectName).toBe("testproject");
+    expect(parsed.config).toBeDefined();
+    expect(parsed.path).toBeNull();
+    const exists = await import("node:fs/promises").then((m) =>
+      m.access(path.join(testDir, "cx.toml")).then(() => true).catch(() => false),
+    );
+    expect(exists).toBe(false);
+  });
+
+  test("stdout=true without json outputs raw config text", async () => {
+    const { stdout, exitCode } = await captureCli({
+      run: () => runInitCommand({ ...BASE_ARGS, stdout: true }),
+    });
+    expect(exitCode).toBe(0);
+    expect(stdout).toContain("testproject");
+    expect(stdout).toContain("schema_version");
+  });
+
+  test("force=true on second run prints 'Updated' messages", async () => {
+    await captureCli({ run: () => runInitCommand(BASE_ARGS) });
+    const { logs } = await captureCli({
+      run: () => runInitCommand({ ...BASE_ARGS, force: true }),
+      captureConsoleLog: true,
+    });
+    expect(logs).toContain("Updated cx.toml");
+  });
 });

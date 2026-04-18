@@ -111,6 +111,63 @@ Body.
   });
 });
 
+describe("validateNotes — normalizeStringArray branches", () => {
+  test("aliases is not an array → error", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await fs.writeFile(
+      path.join(notesDir, "bad-aliases.md"),
+      `---
+id: 20250113143015
+aliases: "not-an-array"
+tags: []
+---
+
+# Test
+`,
+    );
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain("must be an array");
+  });
+
+  test("invalid ID format → error with format hint", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await fs.writeFile(
+      path.join(notesDir, "bad-id.md"),
+      `---
+id: not-a-timestamp
+aliases: []
+tags: []
+---
+
+# Test
+`,
+    );
+    const result = await validateNotes("notes", testDir);
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain("Invalid note ID format");
+  });
+
+  test("duplicate IDs across two notes → reported in duplicateIds", async () => {
+    const notesDir = path.join(testDir, "notes");
+    const note = `---
+id: 20250113143015
+aliases: []
+tags: []
+---
+
+# Note
+`;
+    await fs.writeFile(path.join(notesDir, "note-a.md"), note);
+    await fs.writeFile(path.join(notesDir, "note-b.md"), note);
+    const result = await validateNotes("notes", testDir);
+    expect(result.duplicateIds).toHaveLength(1);
+    expect(result.duplicateIds[0]?.id).toBe("20250113143015");
+    expect(result.duplicateIds[0]?.files).toHaveLength(2);
+    expect(result.valid).toBe(false);
+  });
+});
+
 describe("validateNotes — read errors", () => {
   test("reports error when file becomes unreadable (perm denied)", async () => {
     const notesDir = path.join(testDir, "notes");
