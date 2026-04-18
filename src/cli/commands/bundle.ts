@@ -22,6 +22,7 @@ import type {
 import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
+import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { buildBundleIndexText } from "../../repomix/handover.js";
 import {
   getRepomixCapabilities,
@@ -294,6 +295,11 @@ export async function runBundleCommand(
   await ensureDir(activeBundleDir);
 
   try {
+    const provenanceSummary = summarizeInclusionProvenance([
+      ...plan.sections.flatMap((section) => section.files),
+      ...plan.assets,
+    ]);
+
     await Promise.all(
       plan.assets.map(async (asset) => {
         const destination = path.join(activeBundleDir, asset.storedPath);
@@ -399,6 +405,7 @@ export async function runBundleCommand(
           sourcePath: asset.relativePath,
           storedPath: asset.storedPath,
         })),
+        provenanceSummary,
       }),
       "utf8",
     );
@@ -559,6 +566,18 @@ export async function runBundleCommand(
             ["    Packed tokens", formatNumber(section.tokenCount)],
             ["    Output tokens", formatNumber(section.outputTokenCount)],
           ],
+          io,
+        );
+      }
+
+      if (provenanceSummary.length > 0) {
+        printDivider(io);
+        printSubheader("Inclusion Provenance", io);
+        printTable(
+          provenanceSummary.map((entry) => [
+            `  ${entry.marker}`,
+            `${formatNumber(entry.count)} path${entry.count === 1 ? "" : "s"}`,
+          ]),
           io,
         );
       }

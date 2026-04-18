@@ -1,4 +1,5 @@
 import type { CxStyle } from "../config/types.js";
+import type { InclusionProvenanceSummary } from "../planning/provenance.js";
 
 export interface SectionHandoverSummary {
   name: string;
@@ -44,6 +45,7 @@ export function buildBundleIndexText(params: {
   projectName: string;
   sectionOutputs: SectionHandoverSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
+  provenanceSummary?: InclusionProvenanceSummary[] | undefined;
 }): string {
   const lines = [
     "cx bundle index",
@@ -63,6 +65,15 @@ export function buildBundleIndexText(params: {
     lines.push("", "assets:");
     for (const asset of params.assetPaths) {
       lines.push(`- ${asset.sourcePath} -> ${asset.storedPath}`);
+    }
+  }
+
+  if ((params.provenanceSummary?.length ?? 0) > 0) {
+    lines.push("", "inclusion provenance:");
+    for (const entry of params.provenanceSummary ?? []) {
+      lines.push(
+        `- ${entry.marker}: ${entry.count} path${entry.count === 1 ? "" : "s"}`,
+      );
     }
   }
 

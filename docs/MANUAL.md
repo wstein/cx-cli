@@ -262,6 +262,9 @@ Injected note rows expose explicit inclusion provenance in the inspect payload:
 `manifest_note_inclusion` records that the manifest setting caused the note to
 appear, direct section members report `section_match`, catch-all section members
 report `catch_all_section_match`, and copied assets report `asset_rule_match`.
+Human-facing `cx bundle` output and the generated bundle index also include a
+provenance rollup so operators can confirm inclusion reasons without switching
+to JSON inspection first.
 
 Then verify graph reachability from a seed note:
 

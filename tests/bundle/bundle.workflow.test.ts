@@ -12,19 +12,21 @@ import { runVerifyCommand } from "../../src/cli/commands/verify.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { sha256File } from "../../src/shared/hashing.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { createProject, tamperSectionOutput } from "./helpers.js";
 
 describe("bundle workflow", () => {
   test("creates, validates, lists, and verifies a bundle", async () => {
     const project = await createProject();
-    const bundleRun = await captureCli({
-      run: () => runBundleCommand({ config: project.configPath }),
-      captureConsoleLog: true,
-    });
+    const bundleCapture = createBufferedCommandIo();
+    const bundleExitCode = await runBundleCommand(
+      { config: project.configPath },
+      bundleCapture.io,
+    );
 
-    expect(bundleRun.exitCode).toBe(0);
-    const summary = bundleRun.logs;
+    expect(bundleExitCode).toBe(0);
+    const summary = bundleCapture.logs();
     expect(summary).toContain("Packed tokens");
     expect(summary).toContain("Output tokens");
     expect(summary).toContain("Immutable snapshot");
@@ -62,10 +64,12 @@ describe("bundle workflow", () => {
     const project = await createProject();
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const inspectRun = await captureCli({
-      run: () => runInspectCommand({ config: project.configPath, json: true }),
-    });
-    expect(inspectRun.exitCode).toBe(0);
+    const inspectCapture = createBufferedCommandIo();
+    const inspectExitCode = await runInspectCommand(
+      { config: project.configPath, json: true },
+      inspectCapture.io,
+    );
+    expect(inspectExitCode).toBe(0);
     const inspectPayload = parseJsonOutput<{
       summary?: { sectionCount?: number; assetCount?: number };
       bundleComparison?: { available?: boolean };
@@ -75,7 +79,7 @@ describe("bundle workflow", () => {
           extractability?: { status?: string } | null;
         }>;
       }>;
-    }>(inspectRun.stdout);
+    }>(inspectCapture.stdout());
 
     const listRun = await captureCli({
       run: () => runListCommand({ bundleDir: project.bundleDir, json: true }),
@@ -131,10 +135,12 @@ describe("bundle workflow", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    const inspectRun = await captureCli({
-      run: () => runInspectCommand({ config: project.configPath, json: true }),
-    });
-    expect(inspectRun.exitCode).toBe(0);
+    const inspectCapture = createBufferedCommandIo();
+    const inspectExitCode = await runInspectCommand(
+      { config: project.configPath, json: true },
+      inspectCapture.io,
+    );
+    expect(inspectExitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       sections?: Array<{
@@ -148,7 +154,7 @@ describe("bundle workflow", () => {
           } | null;
         }>;
       }>;
-    }>(inspectRun.stdout);
+    }>(inspectCapture.stdout());
 
     const degradedFile = payload.sections
       ?.flatMap((section) => section.files ?? [])
@@ -161,19 +167,24 @@ describe("bundle workflow", () => {
   });
 
   test("renders human inspect output with bundle status vocabulary", async () => {
-    const project = await createProject();
+    const project = await createProject({ includeLinkedNotes: true });
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const inspectRun = await captureCli({
-      run: () => runInspectCommand({ config: project.configPath, json: false }),
-    });
-    expect(inspectRun.exitCode).toBe(0);
-    const output = inspectRun.stdout;
+    const inspectCapture = createBufferedCommandIo();
+    const inspectExitCode = await runInspectCommand(
+      { config: project.configPath, json: false },
+      inspectCapture.io,
+    );
+    expect(inspectExitCode).toBe(0);
+    const output = inspectCapture.stdout();
     expect(output).toContain("bundle_status: available");
     expect(output).toContain("workflow: static snapshot planning");
     expect(output).toContain("mcp: use cx mcp for live workspace exploration");
     expect(output).toContain("intact   src/index.ts");
     expect(output).toContain("copied   logo.png");
+    expect(output).toContain(
+      "[linked_note_enrichment, manifest_note_inclusion]",
+    );
   });
 
   test("shows checksum prefixes in degraded inspect output", async () => {
@@ -185,32 +196,61 @@ describe("bundle workflow", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    const inspectRun = await captureCli({
-      run: () => runInspectCommand({ config: project.configPath, json: false }),
-    });
-    expect(inspectRun.exitCode).toBe(0);
-    const output = inspectRun.stdout;
+    const inspectCapture = createBufferedCommandIo();
+    const inspectExitCode = await runInspectCommand(
+      { config: project.configPath, json: false },
+      inspectCapture.io,
+    );
+    expect(inspectExitCode).toBe(0);
+    const output = inspectCapture.stdout();
     expect(output).toContain("manifest_hash_mismatch");
     expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
   });
 
   test("renders token breakdown histogram when requested", async () => {
     const project = await createProject();
-    const inspectRun = await captureCli({
-      run: () =>
-        runInspectCommand({
-          config: project.configPath,
-          json: false,
-          tokenBreakdown: true,
-        }),
-    });
-    expect(inspectRun.exitCode).toBe(0);
-    const output = inspectRun.stdout;
+    const inspectCapture = createBufferedCommandIo();
+    const inspectExitCode = await runInspectCommand(
+      {
+        config: project.configPath,
+        json: false,
+        tokenBreakdown: true,
+      },
+      inspectCapture.io,
+    );
+    expect(inspectExitCode).toBe(0);
+    const output = inspectCapture.stdout();
     expect(output).toContain("Token breakdown");
     expect(output).toContain("SECTION  TOKENS   SHARE   GRAPH");
     expect(output).toContain("docs");
     expect(output).toContain("src");
     expect(output).toContain("█");
+  });
+
+  test("renders provenance rollups in bundle summary and index", async () => {
+    const project = await createProject({ includeLinkedNotes: true });
+    const capture = createBufferedCommandIo();
+
+    expect(
+      await runBundleCommand({ config: project.configPath }, capture.io),
+    ).toBe(0);
+
+    const summary = capture.logs();
+    expect(summary).toContain("Inclusion Provenance");
+    expect(summary).toContain("section_match");
+    expect(summary).toContain("asset_rule_match");
+    expect(summary).toContain("linked_note_enrichment");
+    expect(summary).toContain("manifest_note_inclusion");
+
+    const bundleIndex = await fs.readFile(
+      path.join(project.bundleDir, "demo-bundle-index.txt"),
+      "utf8",
+    );
+    expect(bundleIndex).toContain("inclusion provenance:");
+    expect(bundleIndex).toContain("section_match:");
+    expect(bundleIndex).toContain("asset_rule_match:");
+    expect(bundleIndex).toContain("linked_note_enrichment:");
+    expect(bundleIndex).toContain("manifest_note_inclusion:");
   });
 
   test("emits structured JSON for bundle and verify automation", async () => {

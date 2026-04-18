@@ -7,7 +7,12 @@ import {
   type InspectReport,
 } from "../../inspect/report.js";
 import { formatNumber } from "../../shared/format.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStdout,
+} from "../../shared/output.js";
 
 export type { InspectReport } from "../../inspect/report.js";
 export { collectInspectReport } from "../../inspect/report.js";
@@ -46,10 +51,14 @@ function renderTokenBreakdown(
   return lines.join("\n");
 }
 
-export async function runInspectCommand(args: InspectArgs): Promise<number> {
+export async function runInspectCommand(
+  args: InspectArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const config = await loadCxConfig(
     args.config ?? "cx.toml",
-    readEnvOverrides(),
+    readEnvOverrides(io.env),
     {
       ...getCLIOverrides(),
       ...(args.layout !== undefined && { assetsLayout: args.layout }),
@@ -63,7 +72,7 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
   });
 
   if (args.json) {
-    writeJson(report);
+    writeJson(report, io);
     return 0;
   }
 
@@ -127,8 +136,9 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       : []),
   ];
 
-  process.stdout.write(
+  writeStdout(
     `${lines.join("\n").trimEnd()}${report.tokenBreakdown ? renderTokenBreakdown(report.tokenBreakdown) : ""}\n`,
+    io,
   );
   return 0;
 }
