@@ -45,6 +45,24 @@ process-global leakage, and make failures easier to read.
 - Keep startup and transport anomaly handling in explicit boundary tests (for
   example, stalled startup, delayed failures, and malformed protocol payloads).
 
+### Lane Matrix
+
+| Path | Primary lane | Notes |
+| --- | --- | --- |
+| `tests/unit` | Unit | Pure logic and helper seams; prefer in-memory fixtures. |
+| `tests/config` | Unit/Integration | Parser and precedence logic; use property matrices for override conflicts. |
+| `tests/mcp` | Integration + Adversarial | MCP tool wiring and boundary fault behavior (timeouts, malformed startup payloads). |
+| `tests/notes` | Unit/Integration | Keep parser/validation in-memory; keep CLI and note-graph workflows realistic. |
+| `tests/planning` | Unit | Plan/provenance logic with deterministic fixtures. |
+| `tests/manifest` | Unit/Integration | Schema/render round-trips plus manifest file compatibility checks. |
+| `tests/repomix` | Integration | Adapter/runtime resolution against real module boundaries. |
+| `tests/bundle` | Integration | Real workspace and artifact workflow tests; keep filesystem-backed. |
+| `tests/cli` | Process/Integration | Command entrypoint behavior, user-facing JSON/human output contracts. |
+| `tests/contracts` | Contract | CI/docs/script/operator surface invariants. |
+| `tests/shared` | Unit | Shared primitives and utility behavior. |
+| `tests/vcs` | Unit/Integration | VCS adapters, dispatch rules, and command integration edges. |
+| `tests/init` | Integration | Template generation and initialization outcomes. |
+
 ## Property Matrices
 
 - Use `fast-check` for combinatorial override behavior where input vectors
