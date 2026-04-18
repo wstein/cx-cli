@@ -32,6 +32,8 @@
     "check-boundaries": "node scripts/check-boundaries.js",
     "test:unit": "bun test --coverage tests/unit --timeout 20000",
     "test:integration": "bun test --coverage tests/cli tests/bundle --timeout 20000",
+    "ci:test:all": "bun test $(find ./tests -type f -name '*.test.ts' | sort) --timeout 60000",
+    "ci:test:contracts": "bun test $(find ./tests/contracts -type f -name '*.test.ts' | sort) --timeout 20000",
     "test": "bun test --coverage tests --timeout 20000",
     "release": "node scripts/release.js",
     "gen:homebrew": "node scripts/generate-homebrew-formula.js",
