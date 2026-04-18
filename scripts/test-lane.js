@@ -7,10 +7,10 @@
  * to `bun test`, ensuring the same file list on every OS regardless of shell
  * globbing behaviour.
  */
-import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execa } from "execa";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -54,9 +54,16 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-const result = spawnSync("bun", ["test", ...files, ...extraArgs], {
-  stdio: "inherit",
-  cwd: ROOT,
-});
-
-process.exit(result.status ?? 1);
+try {
+  await execa("bun", ["test", ...files, ...extraArgs], {
+    stdio: "inherit",
+    cwd: ROOT,
+    env: process.env,
+  });
+} catch (error) {
+  process.exit(
+    error instanceof Error && "exitCode" in error
+      ? Number(error.exitCode) || 1
+      : 1,
+  );
+}

@@ -1,27 +1,22 @@
-import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { execa } from "execa";
 
-function run(command, args) {
-  const result = spawnSync(command, args, {
+async function run(command, args, envOverrides = {}) {
+  await execa(command, args, {
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, ...envOverrides },
   });
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status ?? 1}`);
-  }
 }
 
-function runJson(command, args) {
-  const result = spawnSync(command, args, {
-    stdio: ["ignore", "pipe", "inherit"],
-    env: process.env,
-    encoding: "utf8",
+async function runJson(command, args, envOverrides = {}) {
+  const { stdout } = await execa(command, args, {
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "inherit",
+    env: { ...process.env, ...envOverrides },
   });
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status ?? 1}`);
-  }
-  return result.stdout;
+  return stdout;
 }
 
 async function main() {
@@ -31,16 +26,20 @@ async function main() {
     "dist",
     "release-integrity.json",
   );
+  const npmCacheDir = path.join(tarballDir, ".npm-cache");
 
   await fs.rm(tarballDir, { recursive: true, force: true });
   await fs.mkdir(tarballDir, { recursive: true });
+  await fs.mkdir(npmCacheDir, { recursive: true });
 
-  const packOutput = runJson("npm", [
+  const packOutput = await runJson("npm", [
     "pack",
     "--json",
     "--pack-destination",
     "tarball-artifacts",
-  ]);
+  ], {
+    npm_config_cache: npmCacheDir,
+  });
   const packResult = JSON.parse(packOutput);
   const tarballName = packResult[0]?.filename;
   if (typeof tarballName !== "string" || tarballName.length === 0) {
@@ -48,8 +47,8 @@ async function main() {
   }
   console.log(`✓ Packed release tarball: ${tarballName}`);
 
-  run(process.execPath, ["scripts/release-integrity.js"]);
-  run(process.execPath, ["scripts/verify-release.js"]);
+  await run(process.execPath, ["scripts/release-integrity.js"]);
+  await run(process.execPath, ["scripts/verify-release.js"]);
 
   // Keep local certify runs clean by removing transient release-smoke artifacts.
   await fs.rm(tarballDir, { recursive: true, force: true });

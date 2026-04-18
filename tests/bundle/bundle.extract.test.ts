@@ -40,6 +40,10 @@ describe("bundle extract", () => {
     });
     expect(listRun.exitCode).toBe(0);
     const listPayload = listRun.parsedJson;
+    expect(listPayload).toBeDefined();
+    if (!listPayload) {
+      throw new Error("Expected list JSON payload");
+    }
 
     const extractRun = await captureCli<{
       summary?: { fileCount?: number; textFileCount?: number };
@@ -62,6 +66,10 @@ describe("bundle extract", () => {
     });
     expect(extractRun.exitCode).toBe(0);
     const extractPayload = extractRun.parsedJson;
+    expect(extractPayload).toBeDefined();
+    if (!extractPayload) {
+      throw new Error("Expected extract JSON payload");
+    }
 
     expect(listPayload.summary?.fileCount).toBe(1);
     expect(listPayload.summary?.sectionCount).toBe(1);
@@ -266,6 +274,10 @@ describe("bundle extract", () => {
     });
     expect(extractRun.exitCode).toBe(8);
     const payload = extractRun.parsedJson;
+    expect(payload).toBeDefined();
+    if (!payload) {
+      throw new Error("Expected extract failure JSON payload");
+    }
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("extractability_mismatch");
