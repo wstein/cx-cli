@@ -5,6 +5,7 @@ import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
+import { type CommandIo, writeStderr } from "../shared/output.js";
 import { countTokensForFiles } from "../shared/tokens.js";
 import {
   detectRepomixCapabilities,
@@ -122,8 +123,11 @@ async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
 
 export const REPOMIX_ADAPTER_CONTRACT = "repomix-pack-v1";
 
-function emitWarning(message: string): void {
-  process.stderr.write(`Warning: ${message}\n`);
+function emitWarning(
+  message: string,
+  io: Partial<CommandIo> | undefined,
+): void {
+  writeStderr(`Warning: ${message}\n`, io);
 }
 
 // Re-export with extended info for backward compatibility
@@ -175,6 +179,7 @@ export async function renderSectionWithRepomix(params: {
   bundleIndexFile?: string;
   requireStructured?: boolean;
   requireOutputSpans?: boolean;
+  io?: Partial<CommandIo>;
 }): Promise<RenderSectionResult> {
   await assertCompatibleRepomixAdapter();
 
@@ -262,7 +267,7 @@ export async function renderSectionWithRepomix(params: {
       throw new CxError(message, 5);
     }
 
-    emitWarning(message);
+    emitWarning(message, params.io);
   }
 
   if (capabilities.supportsPackStructured && packStructured) {
@@ -342,7 +347,7 @@ export async function renderSectionWithRepomix(params: {
       const message =
         "Exact output spans are unavailable for this render; text bundles now require them.";
       warnings.push(message);
-      emitWarning(message);
+      emitWarning(message, params.io);
     }
 
     const outputText = await structuredPack.render(params.style);
@@ -388,7 +393,7 @@ export async function renderSectionWithRepomix(params: {
     const message =
       "Exact output spans are unavailable for this render; text bundles now require them.";
     warnings.push(message);
-    emitWarning(message);
+    emitWarning(message, params.io);
   }
 
   await pack(

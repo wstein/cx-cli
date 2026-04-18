@@ -322,6 +322,7 @@ export async function runBundleCommand(
           bundleIndexFile,
           requireStructured: true,
           requireOutputSpans: requiresOutputSpans,
+          io,
         });
 
         const totalSectionBytes = section.files.reduce(

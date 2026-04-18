@@ -10,7 +10,7 @@ import {
   getRepomixCapabilities,
   renderSectionWithRepomix,
 } from "../../src/repomix/render.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { createRenderFixture } from "./helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
@@ -158,22 +158,22 @@ describe("Repomix adapter fallback behavior", () => {
       },
     });
 
-    const renderRun = await captureCli({
-      run: async () => {
-        const result = await renderSectionWithRepomix({
-          config: fixture.config,
-          style: "markdown",
-          sourceRoot: fixture.rootDir,
-          outputPath: fixture.outputPath,
-          sectionName: "src",
-          explicitFiles: [path.join(fixture.rootDir, "src", "index.ts")],
-        });
-        expect(result.fileSpans?.size).toBe(0);
-        return 0;
-      },
-    });
-    expect(renderRun.exitCode).toBe(0);
-    expect(renderRun.stderr).toContain("Exact output spans are unavailable");
+    const capture = createBufferedCommandIo();
+    const renderExitCode = await (async () => {
+      const result = await renderSectionWithRepomix({
+        config: fixture.config,
+        style: "markdown",
+        sourceRoot: fixture.rootDir,
+        outputPath: fixture.outputPath,
+        sectionName: "src",
+        explicitFiles: [path.join(fixture.rootDir, "src", "index.ts")],
+        io: capture.io,
+      });
+      expect(result.fileSpans?.size).toBe(0);
+      return 0;
+    })();
+    expect(renderExitCode).toBe(0);
+    expect(capture.stderr()).toContain("Exact output spans are unavailable");
 
     await expect(
       renderSectionWithRepomix({
@@ -262,20 +262,17 @@ describe("Repomix adapter fallback behavior", () => {
       },
     });
 
+    const capture = createBufferedCommandIo();
     let thrown: unknown;
-    const bundleRun = await captureCli({
-      run: async () => {
-        try {
-          await runBundleCommand({ config: fixture.configPath });
-          return 0;
-        } catch (error) {
-          thrown = error;
-          return 1;
-        }
-      },
-    });
+    let exitCode = 0;
+    try {
+      await runBundleCommand({ config: fixture.configPath }, capture.io);
+    } catch (error) {
+      thrown = error;
+      exitCode = 1;
+    }
 
-    expect(bundleRun.exitCode).toBe(1);
+    expect(exitCode).toBe(1);
     expect(thrown).toBeInstanceOf(Error);
     expect((thrown as Error).message).toContain(
       "packStructured() is required for normalized content hashing",
@@ -285,7 +282,7 @@ describe("Repomix adapter fallback behavior", () => {
     expect(capabilities.contractValid).toBe(true);
     expect(capabilities.capabilities.supportsPackStructured).toBe(false);
     expect(capabilities.spanCapability).toBe("unsupported");
-    expect(bundleRun.stderr).toContain("missing the cx extension");
+    expect(capture.stderr()).toContain("missing the cx extension");
   });
 
   test("renderSectionWithRepomix falls back to pack when structured rendering is unavailable", async () => {
