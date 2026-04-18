@@ -148,7 +148,9 @@ describe("notes linking", () => {
     });
 
     it("extracts anchor from [[Note#Section]] wikilink", () => {
-      const result = extractWikilinkReferences("See [[My Note#Implementation]].");
+      const result = extractWikilinkReferences(
+        "See [[My Note#Implementation]].",
+      );
       expect(result[0]?.target).toBe("My Note");
       expect(result[0]?.anchor).toBe("Implementation");
     });
@@ -160,7 +162,9 @@ describe("notes linking", () => {
     });
 
     it("strips display text before extracting anchor [[Note#Section|label]]", () => {
-      const result = extractWikilinkReferences("See [[My Note#Section|click here]].");
+      const result = extractWikilinkReferences(
+        "See [[My Note#Section|click here]].",
+      );
       expect(result[0]?.target).toBe("My Note");
       expect(result[0]?.anchor).toBe("Section");
     });
@@ -174,7 +178,14 @@ describe("notes linking", () => {
 
     it("handles all heading levels", () => {
       const content = "# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6";
-      expect(extractHeadings(content)).toEqual(["h1", "h2", "h3", "h4", "h5", "h6"]);
+      expect(extractHeadings(content)).toEqual([
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+      ]);
     });
 
     it("returns empty array when no headings", () => {

@@ -8,6 +8,7 @@ import {
   getBrokenLinks,
   getCodeReferences,
   getOutgoingLinks,
+  getReachableNotes,
 } from "../../src/notes/graph.js";
 
 let testDir: string;
@@ -215,8 +216,18 @@ describe("buildNoteGraph with code analysis", () => {
 
   test("reports anchor-not-found when #section heading is missing in target note", async () => {
     const notesDir = path.join(testDir, "notes");
-    await writeNote(notesDir, "20260201120000", "Source", "See [[20260201130000#Missing Section]].");
-    await writeNote(notesDir, "20260201130000", "Target", "## Present Section\n\nContent here.");
+    await writeNote(
+      notesDir,
+      "20260201120000",
+      "Source",
+      "See [[20260201130000#Missing Section]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260201130000",
+      "Target",
+      "## Present Section\n\nContent here.",
+    );
 
     const graph = await buildNoteGraph("notes", testDir, false);
     const broken = getBrokenLinks(graph);
@@ -228,8 +239,18 @@ describe("buildNoteGraph with code analysis", () => {
 
   test("does not report broken link when #section heading exists in target note", async () => {
     const notesDir = path.join(testDir, "notes");
-    await writeNote(notesDir, "20260202120000", "Source", "See [[20260202130000#Present Section]].");
-    await writeNote(notesDir, "20260202130000", "Target", "## Present Section\n\nContent here.");
+    await writeNote(
+      notesDir,
+      "20260202120000",
+      "Source",
+      "See [[20260202130000#Present Section]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260202130000",
+      "Target",
+      "## Present Section\n\nContent here.",
+    );
 
     const graph = await buildNoteGraph("notes", testDir, false);
     const broken = getBrokenLinks(graph);
@@ -239,8 +260,18 @@ describe("buildNoteGraph with code analysis", () => {
 
   test("anchor matching is case-insensitive", async () => {
     const notesDir = path.join(testDir, "notes");
-    await writeNote(notesDir, "20260203120000", "Source", "See [[20260203130000#present section]].");
-    await writeNote(notesDir, "20260203130000", "Target", "## Present Section\n\nContent here.");
+    await writeNote(
+      notesDir,
+      "20260203120000",
+      "Source",
+      "See [[20260203130000#present section]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260203130000",
+      "Target",
+      "## Present Section\n\nContent here.",
+    );
 
     const graph = await buildNoteGraph("notes", testDir, false);
     const broken = getBrokenLinks(graph);
@@ -250,8 +281,18 @@ describe("buildNoteGraph with code analysis", () => {
 
   test("still counts note link in outgoing links when anchor is valid", async () => {
     const notesDir = path.join(testDir, "notes");
-    await writeNote(notesDir, "20260204120000", "Source", "See [[20260204130000#My Section]].");
-    await writeNote(notesDir, "20260204130000", "Target", "## My Section\n\nContent here.");
+    await writeNote(
+      notesDir,
+      "20260204120000",
+      "Source",
+      "See [[20260204130000#My Section]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260204130000",
+      "Target",
+      "## My Section\n\nContent here.",
+    );
 
     const graph = await buildNoteGraph("notes", testDir, false);
     const outgoing = getOutgoingLinks(graph, "20260204120000");
@@ -275,5 +316,136 @@ describe("buildNoteGraph with code analysis", () => {
     expect(getCodeReferences(graph, "20260101120000").length).toBeGreaterThan(
       0,
     );
+  });
+});
+
+describe("getReachableNotes", () => {
+  test("returns notes reachable within default depth of 2", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260301000001",
+      "Root",
+      "See [[20260301000002]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260301000002",
+      "Hop1",
+      "See [[20260301000003]].",
+    );
+    await writeNote(notesDir, "20260301000003", "Hop2");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260301000001");
+
+    expect(reachable.map((r) => r.noteId)).toContain("20260301000002");
+    expect(reachable.map((r) => r.noteId)).toContain("20260301000003");
+  });
+
+  test("respects maxDepth=1 and excludes deeper notes", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260302000001",
+      "Root",
+      "See [[20260302000002]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260302000002",
+      "Hop1",
+      "See [[20260302000003]].",
+    );
+    await writeNote(notesDir, "20260302000003", "Hop2");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260302000001", 1);
+
+    expect(reachable).toHaveLength(1);
+    expect(reachable[0]?.noteId).toBe("20260302000002");
+    expect(reachable[0]?.depth).toBe(1);
+  });
+
+  test("excludes the seed note from results", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260303000001",
+      "Seed",
+      "See [[20260303000002]].",
+    );
+    await writeNote(notesDir, "20260303000002", "Target");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260303000001");
+
+    expect(reachable.map((r) => r.noteId)).not.toContain("20260303000001");
+  });
+
+  test("returns empty array for note with no outgoing links", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260304000001", "Isolated");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260304000001");
+
+    expect(reachable).toEqual([]);
+  });
+
+  test("handles cycles without infinite loop", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260305000001", "A", "See [[20260305000002]].");
+    await writeNote(notesDir, "20260305000002", "B", "See [[20260305000001]].");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260305000001", 10);
+
+    const ids = reachable.map((r) => r.noteId);
+    expect(ids).toContain("20260305000002");
+    expect(ids).not.toContain("20260305000001");
+  });
+
+  test("sorts results by depth then title", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260306000001",
+      "Root",
+      "See [[20260306000002]] and [[20260306000003]].",
+    );
+    await writeNote(notesDir, "20260306000002", "Bravo");
+    await writeNote(notesDir, "20260306000003", "Alpha");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260306000001", 1);
+
+    expect(reachable).toHaveLength(2);
+    expect(reachable[0]?.title).toBe("Alpha");
+    expect(reachable[1]?.title).toBe("Bravo");
+  });
+
+  test("includes depth value for each reachable note", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260307000001",
+      "Root",
+      "See [[20260307000002]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260307000002",
+      "Middle",
+      "See [[20260307000003]].",
+    );
+    await writeNote(notesDir, "20260307000003", "Far");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const reachable = getReachableNotes(graph, "20260307000001", 3);
+
+    const byId = Object.fromEntries(reachable.map((r) => [r.noteId, r.depth]));
+    expect(byId["20260307000002"]).toBe(1);
+    expect(byId["20260307000003"]).toBe(2);
   });
 });

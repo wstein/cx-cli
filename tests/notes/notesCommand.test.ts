@@ -601,7 +601,7 @@ describe("Notes Command Subcommands", () => {
       });
 
       expect(result.exitCode).toBe(0);
-      expect(result.logs).toContain("No unresolved links");
+      expect(result.logs).toContain("No broken links found in notes/");
     });
 
     test("per-note links with JSON output", async () => {

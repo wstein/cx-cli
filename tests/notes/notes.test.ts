@@ -650,7 +650,7 @@ This note points to [[Missing Note]].
         console.log = consoleLog;
       }
 
-      expect(writes.join("")).toContain("Unresolved");
+      expect(writes.join("")).toContain("Broken links:");
       expect(writes.join("")).toContain("Missing Note");
     } finally {
       process.chdir(origCwd);

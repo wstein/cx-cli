@@ -15,6 +15,7 @@ import {
   getBrokenLinks,
   getCodeReferences,
   getOutgoingLinks,
+  getReachableNotes,
 } from "../../notes/graph.js";
 import { validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
@@ -69,6 +70,10 @@ const NOTES_LINKS_TOOL = {
   name: "notes_links",
   capability: "observe",
 } as const satisfies CxMcpToolDefinition;
+const NOTES_GRAPH_TOOL = {
+  name: "notes_graph",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
 
 export const NOTES_TOOL_DEFINITIONS = [
   NOTES_NEW_TOOL,
@@ -82,6 +87,7 @@ export const NOTES_TOOL_DEFINITIONS = [
   NOTES_ORPHANS_TOOL,
   NOTES_CODE_LINKS_TOOL,
   NOTES_LINKS_TOOL,
+  NOTES_GRAPH_TOOL,
 ] as const satisfies readonly CxMcpToolDefinition[];
 
 export function registerNotesTools(
@@ -420,6 +426,41 @@ export function registerNotesTools(
         command: "notes links",
         count: broken.length,
         brokenLinks: broken,
+      });
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_GRAPH_TOOL,
+    {
+      title: "Note graph reachability",
+      description: `${tierLabel("notes_graph")} Return all notes reachable from a given note within a configurable hop depth following outgoing wikilinks.`,
+      inputSchema: z.object({
+        id: z.string().min(1),
+        depth: z.number().int().positive().max(10).optional(),
+      }),
+    },
+    async (args: Record<string, unknown>) => {
+      const depth =
+        typeof args.depth === "number" && args.depth > 0
+          ? (args.depth as number)
+          : 2;
+      const graph = await buildNoteGraph("notes", workspace.sourceRoot, false);
+      const note = graph.notes.get(args.id as string);
+      if (!note) {
+        throw new CxError(`Note not found: ${args.id}`, 2);
+      }
+
+      const reachable = getReachableNotes(graph, args.id as string, depth);
+      return jsonToolResult({
+        command: "notes graph",
+        id: args.id,
+        title: note.title,
+        depth,
+        reachableCount: reachable.length,
+        reachable,
       });
     },
   );

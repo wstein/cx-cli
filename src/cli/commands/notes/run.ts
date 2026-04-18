@@ -16,6 +16,7 @@ import {
   getBrokenLinks,
   getCodeReferences,
   getOutgoingLinks,
+  getReachableNotes,
 } from "../../../notes/graph.js";
 import { CxError } from "../../../shared/errors.js";
 import {
@@ -31,6 +32,7 @@ export interface NotesArgs {
   title?: string | undefined;
   tags?: string[] | undefined;
   id?: string | undefined;
+  depth?: number | undefined;
   json?: boolean | undefined;
 }
 export async function runNotesCommand(args: NotesArgs): Promise<number> {
@@ -491,8 +493,49 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     return 0;
   }
 
+  if (subcommand === "graph") {
+    if (!args.id) {
+      throw new CxError("--id is required for 'cx notes graph'", 2);
+    }
+
+    const depth =
+      typeof args.depth === "number" && args.depth > 0 ? args.depth : 2;
+    const graph = await buildNoteGraph("notes", process.cwd(), false);
+    const note = graph.notes.get(args.id);
+
+    if (!note) {
+      throw new CxError(`Note not found: ${args.id}`, 2);
+    }
+
+    const reachable = getReachableNotes(graph, args.id, depth);
+
+    if (args.json ?? false) {
+      writeJson({
+        command: "notes graph",
+        id: args.id,
+        title: note.title,
+        depth,
+        reachableCount: reachable.length,
+        reachable,
+      });
+    } else {
+      printInfo(
+        `Reachable notes from "${note.title}" within ${depth} hop${depth === 1 ? "" : "s"}:\n`,
+      );
+      if (reachable.length === 0) {
+        printInfo("  (no reachable notes)");
+      } else {
+        for (const item of reachable) {
+          printInfo(`  hop ${item.depth}: [${item.noteId}] ${item.title}`);
+        }
+      }
+    }
+
+    return 0;
+  }
+
   throw new CxError(
-    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', 'links', 'check', or 'coverage'.`,
+    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', 'links', 'graph', 'check', or 'coverage'.`,
     2,
   );
 }

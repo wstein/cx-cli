@@ -279,3 +279,57 @@ export function getBrokenLinks(
 
   return graph.brokenLinks.filter((issue) => issue.fromNoteId === noteId);
 }
+
+export interface ReachableNote {
+  noteId: string;
+  depth: number;
+  title: string;
+}
+
+/**
+ * BFS traversal from noteId up to maxDepth hops following outgoing wikilinks.
+ * The seed note is not included in the result.
+ */
+export function getReachableNotes(
+  graph: NoteGraph,
+  noteId: string,
+  maxDepth = 2,
+): ReachableNote[] {
+  const visited = new Map<string, number>();
+  const queue: Array<{ id: string; depth: number }> = [
+    { id: noteId, depth: 0 },
+  ];
+
+  while (queue.length > 0) {
+    const item = queue.shift();
+    if (!item || visited.has(item.id)) {
+      continue;
+    }
+    visited.set(item.id, item.depth);
+
+    if (item.depth < maxDepth) {
+      for (const link of graph.links) {
+        if (link.fromNoteId === item.id && link.type === "wikilink") {
+          if (!visited.has(link.toNoteId)) {
+            queue.push({ id: link.toNoteId, depth: item.depth + 1 });
+          }
+        }
+      }
+    }
+  }
+
+  visited.delete(noteId);
+
+  return [...visited.entries()]
+    .map(([id, depth]) => ({
+      noteId: id,
+      depth,
+      title: graph.notes.get(id)?.title ?? "Unknown",
+    }))
+    .sort((left, right) => {
+      const depthDiff = left.depth - right.depth;
+      return depthDiff !== 0
+        ? depthDiff
+        : left.title.localeCompare(right.title, "en");
+    });
+}

@@ -8,7 +8,9 @@ import { validateNotes } from "./validate.js";
 /**
  * Generate a note ID in YYYYMMDDHHMMSS format from the current time.
  */
-function generateNoteId(): string {
+let lastGeneratedNoteTimestamp = "";
+
+function getCurrentTimestamp(): string {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -18,6 +20,17 @@ function generateNoteId(): string {
   const second = String(now.getSeconds()).padStart(2, "0");
 
   return `${year}${month}${day}${hour}${minute}${second}`;
+}
+
+async function generateNoteId(): Promise<string> {
+  let timestamp = getCurrentTimestamp();
+  while (timestamp === lastGeneratedNoteTimestamp) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    timestamp = getCurrentTimestamp();
+  }
+
+  lastGeneratedNoteTimestamp = timestamp;
+  return timestamp;
 }
 
 /**
@@ -213,7 +226,7 @@ export async function createNewNote(
 
   await ensureDir(notesPath);
 
-  const id = generateNoteId();
+  const id = await generateNoteId();
   const baseName = fileNameFromTitle(title);
   let fileName = `${baseName}.md`;
   let filePath = path.join(notesPath, fileName);

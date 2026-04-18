@@ -5,7 +5,7 @@ export interface ParsedMarkdownFrontmatter {
   body: string;
 }
 
-const NOTE_ID_REGEX = /^\d{14}$/;
+const NOTE_ID_REGEX = /^\d{14}(?:-\d{3})?$/;
 
 function normalizeMarkdownText(value: string): string {
   return value

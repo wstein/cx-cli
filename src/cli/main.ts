@@ -672,6 +672,7 @@ export async function main(argv: string[]): Promise<number> {
               "orphans",
               "code-links",
               "links",
+              "graph",
               "check",
               "coverage",
             ],
@@ -694,7 +695,12 @@ export async function main(argv: string[]): Promise<number> {
           .option("id", {
             type: "string",
             description:
-              "Note ID (required for 'read', 'update', 'rename', 'delete', 'backlinks', 'code-links', and 'links' subcommands).",
+              "Note ID (required for 'read', 'update', 'rename', 'delete', 'backlinks', 'code-links', 'links', and 'graph' subcommands).",
+          })
+          .option("depth", {
+            type: "number",
+            description:
+              "Maximum traversal depth for 'graph' subcommand (default: 2).",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
@@ -704,6 +710,7 @@ export async function main(argv: string[]): Promise<number> {
           title: args.title as string | undefined,
           tags: normalizeArrayArg(args.tags),
           id: args.id as string | undefined,
+          depth: args.depth as number | undefined,
           json: args.json,
         });
       },

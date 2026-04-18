@@ -30,6 +30,7 @@ type CxMcpToolName =
   | "notes_backlinks"
   | "notes_code_links"
   | "notes_delete"
+  | "notes_graph"
   | "notes_links"
   | "notes_list"
   | "notes_new"
@@ -185,6 +186,7 @@ describe("cx MCP server", () => {
       "notes_backlinks",
       "notes_code_links",
       "notes_delete",
+      "notes_graph",
       "notes_links",
       "notes_list",
       "notes_new",
@@ -719,6 +721,48 @@ describe("cx MCP server", () => {
     expect(payload.mode).toBe("inspect");
     expect(payload.sequence).toEqual(["inspect", "bundle", "mcp"]);
     expect(payload.reason).toContain("live note work");
+  });
+
+  test("notes_graph returns reachable notes from a seed note", async () => {
+    const project = await createWorkspace();
+    const config = await loadCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createA = await tools.notes_new.handler(
+      { title: "Graph Root", body: "See [[Graph Hop]]." },
+      {} as never,
+    );
+    const idA = (JSON.parse(firstContentText(createA)) as { id: string }).id;
+
+    await tools.notes_new.handler(
+      { title: "Graph Hop", body: "Terminal note." },
+      {} as never,
+    );
+
+    const result = await getTool(
+      tools as unknown as Record<string, RegisteredTool>,
+      "notes_graph",
+    ).handler({ id: idA, depth: 2 }, {} as never);
+    const payload = JSON.parse(firstContentText(result)) as {
+      command: string;
+      id: string;
+      title: string;
+      depth: number;
+      reachableCount: number;
+      reachable: Array<{ noteId: string; depth: number; title: string }>;
+    };
+
+    expect(payload.command).toBe("notes graph");
+    expect(payload.id).toBe(idA);
+    expect(payload.title).toBe("Graph Root");
+    expect(payload.depth).toBe(2);
+    expect(payload.reachableCount).toBe(1);
+    expect(payload.reachable[0]?.title).toBe("Graph Hop");
+    expect(payload.reachable[0]?.depth).toBe(1);
   });
 
   test("notes_links reports unresolved links for a created note", async () => {

@@ -97,7 +97,7 @@ async function extractNoteMetadata(filePath: string): Promise<{
         metadata: null,
         error: {
           filePath,
-          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS (e.g., 20250113143015)`,
+          error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS or YYYYMMDDHHMMSS-XXX for same-second collisions (e.g., 20250113143015 or 20250113143015-001)`,
         },
       };
     }
