@@ -112,7 +112,8 @@ describe("collectDoctorSecretsReport", () => {
           >,
         getMasterList: async () => [] as unknown as string[],
         runScan: async () => [],
-        readFile: (async () => "") as unknown as typeof import("node:fs/promises").readFile,
+        readFile: (async () =>
+          "") as unknown as typeof import("node:fs/promises").readFile,
       },
     );
     expect(report.suspiciousCount).toBe(0);
