@@ -274,6 +274,18 @@ describe("buildBundlePlan", () => {
     );
   });
 
+  test("warns instead of failing when dedup.mode=warn", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.dedup.mode = "warn";
+    config.sections.mixed = { include: ["src/**"], exclude: [] };
+
+    const plan = await buildBundlePlan(config);
+
+    expect(plan.warnings.length).toBeGreaterThan(0);
+    expect(plan.warnings[0]).toContain("Section overlap detected for src/index.ts");
+  });
+
   test("resolves overlaps by priority when dedup.mode=first-wins", async () => {
     const root = await createFixture();
     const config = baseConfig(root);
@@ -320,6 +332,60 @@ describe("buildBundlePlan", () => {
     // docs and repo follow in their config order
     expect(names[0]).toBe("src");
     expect(names.slice(1)).toEqual(["docs", "repo"]);
+  });
+
+  test("rejects asset conflicts when a file matches both a section and an asset rule", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.assets.include = ["**/*.png"];
+    config.sections.repo.include = [...config.sections.repo.include, "**/*.png"];
+
+    await expect(buildBundlePlan(config)).rejects.toThrow(
+      /Asset conflict detected for logo\.png: file matches both an asset rule and section repo\./,
+    );
+  });
+
+  test("rejects asset-only matches when assets.mode=fail", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.assets.mode = "fail";
+    config.assets.include = ["**/*.png"];
+    config.sections = {
+      docs: {
+        include: ["docs/**"],
+        exclude: [],
+      },
+      src: {
+        include: ["src/**"],
+        exclude: [],
+      },
+    };
+
+    await expect(buildBundlePlan(config)).rejects.toThrow(
+      /Asset logo\.png matched an asset rule while assets\.mode=fail\./,
+    );
+  });
+
+  test("rejects unmatched files after a catch-all exclusion", async () => {
+    const root = await createFixture();
+    await fs.writeFile(path.join(root, "misc.txt"), "misc\n", "utf8");
+
+    const config = baseConfig(root);
+    config.files.unmatched = "fail";
+    config.sections = {
+      src: {
+        include: ["src/**"],
+        exclude: [],
+      },
+      rest: {
+        catchAll: true,
+        exclude: ["misc.txt"],
+      },
+    };
+
+    await expect(buildBundlePlan(config)).rejects.toThrow(
+      /Unmatched files detected: misc\.txt\./,
+    );
   });
 });
 

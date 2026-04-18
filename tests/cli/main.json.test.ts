@@ -188,4 +188,204 @@ exclude = []
     expect(payload.selection?.sections).toEqual(["src"]);
     expect(payload.selection?.files).toEqual(["src/index.ts"]);
   });
+
+  test("covers wrapper commands that dispatch through main", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-main-coverage-"));
+    const restoreDir = path.join(root, "restore");
+
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.mkdir(path.join(root, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "notes", "valid.md"),
+      `---
+id: 20260418120000
+title: Valid Note
+aliases: []
+tags: []
+---
+
+Body.
+`,
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "cx.toml"),
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const cwd = process.cwd();
+    const stdoutWrite = process.stdout.write;
+    let stdout = "";
+    process.chdir(root);
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      stdout += String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+
+    try {
+      await expect(
+        main(["bundle", "--config", path.join(root, "cx.toml")]),
+      ).resolves.toBe(0);
+
+      stdout = "";
+      await expect(main(["completion", "--shell", "bash"])).resolves.toBe(0);
+      expect(stdout).toContain("###-begin-cx-completions-###");
+
+      stdout = "";
+      await expect(
+        main([
+          "config",
+          "show-effective",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--json",
+        ]),
+      ).resolves.toBe(0);
+      expect(JSON.parse(stdout)).toMatchObject({ projectName: "demo" });
+
+      stdout = "";
+      await expect(
+        main([
+          "adapter",
+          "capabilities",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--json",
+        ]),
+      ).resolves.toBe(0);
+      expect(JSON.parse(stdout)).toMatchObject({
+        cx: { version: expect.any(String) },
+      });
+
+      stdout = "";
+      await expect(
+        main([
+          "render",
+          "--config",
+          path.join(root, "cx.toml"),
+          "--section",
+          "src",
+          "--stdout",
+        ]),
+      ).resolves.toBe(0);
+      expect(stdout).toContain("index.ts");
+
+      stdout = "";
+      await expect(
+        main(["validate", path.join(root, "dist", "demo-bundle")]),
+      ).resolves.toBe(0);
+      expect(stdout).toContain("Note validation passed");
+
+      await expect(
+        main(["verify", path.join(root, "dist", "demo-bundle")]),
+      ).resolves.toBe(0);
+
+      await expect(
+        main([
+          "extract",
+          path.join(root, "dist", "demo-bundle"),
+          "--to",
+          restoreDir,
+          "--file",
+          "src/index.ts",
+        ]),
+      ).resolves.toBe(0);
+
+      stdout = "";
+      await expect(main(["notes", "list"])).resolves.toBe(0);
+      expect(stdout).toContain("Valid Note");
+    } finally {
+      process.stdout.write = stdoutWrite;
+      process.chdir(cwd);
+    }
+  });
+
+  test("validate surfaces note errors through main", async () => {
+    const root = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-main-validate-fail-"),
+    );
+
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.mkdir(path.join(root, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const ok = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "notes", "broken.md"),
+      `---
+id: 20260418120001
+title: Broken Note
+tags:
+  - 123
+---
+
+Body.
+`,
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(root, "cx.toml"),
+      `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[repomix]
+style = "xml"
+show_line_numbers = false
+include_empty_directories = false
+security_check = false
+
+[files]
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+      "utf8",
+    );
+
+    const cwd = process.cwd();
+    process.chdir(root);
+    try {
+      await expect(
+        main(["bundle", "--config", path.join(root, "cx.toml")]),
+      ).resolves.toBe(0);
+      await expect(
+        main(["validate", path.join(root, "dist", "demo-bundle")]),
+      ).rejects.toThrow("Note validation failed");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
 });
