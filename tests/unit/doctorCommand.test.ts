@@ -44,14 +44,28 @@ describe("runDoctorCommand — argument validation", () => {
   });
 
   test("throws CxError for fix-overlaps --interactive when stdin is not a TTY", async () => {
-    // process.stdin.isTTY is undefined (falsy) in the test runner
-    await expect(
-      runDoctorCommand({
-        subcommand: "fix-overlaps",
-        interactive: true,
-        config: "/nonexistent/cx.toml",
-      }),
-    ).rejects.toThrow(CxError);
+    const originalIsTTY = process.stdin.isTTY;
+    Object.defineProperty(process.stdin, "isTTY", {
+      value: false,
+      writable: true,
+      configurable: true,
+    });
+
+    try {
+      await expect(
+        runDoctorCommand({
+          subcommand: "fix-overlaps",
+          interactive: true,
+          config: "/nonexistent/cx.toml",
+        }),
+      ).rejects.toThrow(CxError);
+    } finally {
+      Object.defineProperty(process.stdin, "isTTY", {
+        value: originalIsTTY,
+        writable: true,
+        configurable: true,
+      });
+    }
   });
 });
 
