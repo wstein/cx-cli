@@ -34,4 +34,10 @@ describe("Mercurial exec wrapper", () => {
     expect(state.modifiedFiles).toEqual(["missing.txt"]);
     expect(state.untrackedFiles).toEqual(["stray.txt"]);
   });
+
+  test("detectHg with default runner returns false in non-hg dir", async () => {
+    const { detectHg } = await import("../../src/vcs/mercurial.js");
+    const result = await detectHg("/tmp");
+    expect(result).toBe(false);
+  });
 });

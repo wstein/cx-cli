@@ -30,4 +30,10 @@ describe("Fossil exec wrapper", () => {
     expect(state.modifiedFiles).toEqual(["modified.txt"]);
     expect(state.untrackedFiles).toEqual(["stray.txt"]);
   });
+
+  test("detectFossil with default runner returns false in non-fossil dir", async () => {
+    const { detectFossil } = await import("../../src/vcs/fossil.js");
+    const result = await detectFossil("/tmp");
+    expect(result).toBe(false);
+  });
 });

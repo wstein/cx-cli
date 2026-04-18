@@ -32,4 +32,16 @@ describe("Git exec wrapper", () => {
     expect(state.modifiedFiles).toEqual(["modified.txt"]);
     expect(state.untrackedFiles).toEqual(["stray.txt"]);
   });
+
+  test("detectGit returns true for real git repo using default runner", async () => {
+    const { detectGit } = await import("../../src/vcs/git.js");
+    const result = await detectGit(process.cwd());
+    expect(result).toBe(true);
+  });
+
+  test("detectGit returns false for non-git directory using default runner", async () => {
+    const { detectGit } = await import("../../src/vcs/git.js");
+    const result = await detectGit("/tmp");
+    expect(result).toBe(false);
+  });
 });
