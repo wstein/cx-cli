@@ -73,7 +73,9 @@ describe("runInitCommand", () => {
 
   test("invalid project name throws CxError", async () => {
     await expect(
-      captureCli({ run: () => runInitCommand({ ...BASE_ARGS, name: "../../etc/passwd" }) }),
+      captureCli({
+        run: () => runInitCommand({ ...BASE_ARGS, name: "../../etc/passwd" }),
+      }),
     ).rejects.toThrow();
   });
 
@@ -88,7 +90,10 @@ describe("runInitCommand", () => {
     expect(parsed.config).toBeDefined();
     expect(parsed.path).toBeNull();
     const exists = await import("node:fs/promises").then((m) =>
-      m.access(path.join(testDir, "cx.toml")).then(() => true).catch(() => false),
+      m
+        .access(path.join(testDir, "cx.toml"))
+        .then(() => true)
+        .catch(() => false),
     );
     expect(exists).toBe(false);
   });

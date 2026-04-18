@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { buildMasterList } from "../../src/planning/masterList.js";
 import type { CxConfig } from "../../src/config/types.js";
+import { buildMasterList } from "../../src/planning/masterList.js";
 import type { VCSState } from "../../src/vcs/provider.js";
 
 let testDir: string;
@@ -22,16 +22,52 @@ function makeConfig(overrides: Partial<CxConfig> = {}): CxConfig {
     projectName: "test",
     sourceRoot: testDir,
     outputDir: path.join(testDir, "dist"),
-    output: { extensions: { xml: ".xml.txt", json: ".json.txt", markdown: ".md", plain: ".txt" } },
-    repomix: { style: "xml", showLineNumbers: false, includeEmptyDirectories: false, securityCheck: false },
-    files: { include: [], exclude: [], followSymlinks: false, unmatched: "ignore" },
+    output: {
+      extensions: {
+        xml: ".xml.txt",
+        json: ".json.txt",
+        markdown: ".md",
+        plain: ".txt",
+      },
+    },
+    repomix: {
+      style: "xml",
+      showLineNumbers: false,
+      includeEmptyDirectories: false,
+      securityCheck: false,
+    },
+    files: {
+      include: [],
+      exclude: [],
+      followSymlinks: false,
+      unmatched: "ignore",
+    },
     dedup: { mode: "fail", order: "config" },
-    manifest: { format: "json", pretty: false, includeFileSha256: false, includeOutputSha256: false, includeOutputSpans: false, includeSourceMetadata: false, includeLinkedNotes: false },
+    manifest: {
+      format: "json",
+      pretty: false,
+      includeFileSha256: false,
+      includeOutputSha256: false,
+      includeOutputSpans: false,
+      includeSourceMetadata: false,
+      includeLinkedNotes: false,
+    },
     checksums: { algorithm: "sha256", fileName: "test.sha256" },
     tokens: { encoding: "o200k_base" },
-    assets: { include: [], exclude: [], mode: "copy", targetDir: "assets", layout: "flat" },
+    assets: {
+      include: [],
+      exclude: [],
+      mode: "copy",
+      targetDir: "assets",
+      layout: "flat",
+    },
     behavior: { repomixMissingExtension: "warn", configDuplicateEntry: "fail" },
-    behaviorSources: { dedupMode: "compiled default", repomixMissingExtension: "compiled default", configDuplicateEntry: "compiled default", assetsLayout: "compiled default" },
+    behaviorSources: {
+      dedupMode: "compiled default",
+      repomixMissingExtension: "compiled default",
+      configDuplicateEntry: "compiled default",
+      assetsLayout: "compiled default",
+    },
     mcp: { policy: "default", auditLogging: false },
     sections: { main: { include: ["src/**"], exclude: [] } },
     ...overrides,
@@ -56,9 +92,17 @@ describe("buildMasterList", () => {
 
   test("files.exclude strips matching files", async () => {
     const config = makeConfig({
-      files: { include: [], exclude: ["node_modules/**"], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: [],
+        exclude: ["node_modules/**"],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
-    const result = await buildMasterList(config, vcs(["src/a.ts", "node_modules/pkg/index.js"]));
+    const result = await buildMasterList(
+      config,
+      vcs(["src/a.ts", "node_modules/pkg/index.js"]),
+    );
     expect(result).toEqual(["src/a.ts"]);
     expect(result).not.toContain("node_modules/pkg/index.js");
   });
@@ -66,9 +110,17 @@ describe("buildMasterList", () => {
   test("output dir inside source root is always excluded", async () => {
     const config = makeConfig({
       outputDir: path.join(testDir, "dist"),
-      files: { include: [], exclude: [], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: [],
+        exclude: [],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
-    const result = await buildMasterList(config, vcs(["src/a.ts", "dist/bundle.xml"]));
+    const result = await buildMasterList(
+      config,
+      vcs(["src/a.ts", "dist/bundle.xml"]),
+    );
     expect(result).toContain("src/a.ts");
     expect(result).not.toContain("dist/bundle.xml");
   });
@@ -77,9 +129,17 @@ describe("buildMasterList", () => {
     const config = makeConfig({
       sourceRoot: testDir,
       outputDir: path.join(os.tmpdir(), "external-out"),
-      files: { include: [], exclude: [], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: [],
+        exclude: [],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
-    const result = await buildMasterList(config, vcs(["src/a.ts", "dist/local.txt"]));
+    const result = await buildMasterList(
+      config,
+      vcs(["src/a.ts", "dist/local.txt"]),
+    );
     expect(result).toContain("src/a.ts");
     expect(result).toContain("dist/local.txt");
   });
@@ -89,7 +149,12 @@ describe("buildMasterList", () => {
     await fs.writeFile(path.join(testDir, "gen", "output.ts"), "");
 
     const config = makeConfig({
-      files: { include: ["gen/**"], exclude: [], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: ["gen/**"],
+        exclude: [],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
     const result = await buildMasterList(config, vcs(["src/a.ts"]));
     expect(result).toContain("src/a.ts");
@@ -101,7 +166,12 @@ describe("buildMasterList", () => {
     await fs.writeFile(path.join(testDir, "src", "a.ts"), "");
 
     const config = makeConfig({
-      files: { include: ["src/**"], exclude: [], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: ["src/**"],
+        exclude: [],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
     const result = await buildMasterList(config, vcs(["src/a.ts"]));
     expect(result.filter((f) => f === "src/a.ts")).toHaveLength(1);
@@ -110,7 +180,12 @@ describe("buildMasterList", () => {
   test("files.exclude and output dir both apply", async () => {
     const config = makeConfig({
       outputDir: path.join(testDir, "dist"),
-      files: { include: [], exclude: ["*.log"], followSymlinks: false, unmatched: "ignore" },
+      files: {
+        include: [],
+        exclude: ["*.log"],
+        followSymlinks: false,
+        unmatched: "ignore",
+      },
     });
     const result = await buildMasterList(
       config,

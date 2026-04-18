@@ -120,7 +120,8 @@ describe("runDoctorCommand — workflow subcommand", () => {
 describe("runDoctorCommand — overlaps subcommand", () => {
   test("exits 0 when no overlaps in config", async () => {
     const { exitCode } = await captureCli({
-      run: () => runDoctorCommand({ subcommand: "overlaps", config: configPath }),
+      run: () =>
+        runDoctorCommand({ subcommand: "overlaps", config: configPath }),
     });
     expect(exitCode).toBe(0);
   });

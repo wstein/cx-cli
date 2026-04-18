@@ -104,9 +104,7 @@ describe("collectDoctorSecretsReport", () => {
           >,
         getState: async () =>
           ({}) as unknown as Awaited<
-            ReturnType<
-              typeof import("../../src/vcs/provider.js").getVCSState
-            >
+            ReturnType<typeof import("../../src/vcs/provider.js").getVCSState>
           >,
         getMasterList: async () => [] as unknown as string[],
         runScan: async () => [],
