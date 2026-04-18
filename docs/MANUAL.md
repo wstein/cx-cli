@@ -70,6 +70,8 @@ cx doctor secrets --config cx.toml
 
 `cx init` now writes a generated workspace-aware `Makefile`, `.editorconfig`, `cx-mcp.toml`, `cx.toml`, `.mcp.json`, `.vscode/mcp.json`, and local agent settings in `.claude/settings.json` and `.codex/settings.json` in addition to `notes/`. The generated `cx-mcp.toml` is a minimal diff to `cx.toml` and serves as the MCP overlay for the workspace root. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, or Crystal, and otherwise falls back to the base template.
 
+For the TypeScript template, the generated `Makefile` uses lockfile-first package-manager selection (`bun.lock*`, `pnpm-lock.yaml`, `yarn.lock`, then `package-lock.json` / `npm-shrinkwrap.json`) and keeps `install` separate from `build`. The generated `cx-mcp.toml` is source-oriented by default and includes `src/**`, `package.json`, `tsconfig*.json`, and `README.md` while excluding `node_modules/**`, `dist/**`, and common cache or coverage directories. A companion `cx-mcp-build.toml` is also generated for compiled-output inspection. Adjust either overlay if your workspace uses a different layout.
+
 `cx init` checks each generated target individually. It preserves existing files by default and creates any missing init artifacts; use `--force` to overwrite existing generated files.
 
 Use `--template` to explicitly choose an init template by environment:

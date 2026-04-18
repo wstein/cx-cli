@@ -197,10 +197,14 @@ exclude = []
         ["tsconfig.json", "{}\n"],
       ] as const,
       expectedSnippets: [
-        "build: ## Build the project using the detected package manager.\n\t@if command -v $(BUN) >/dev/null 2>&1; then \\\n\t\t$(BUN) install && $(BUN) run build; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) install && $(PNPM) run build; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) install && $(YARN) run build; \\\n\telse \\\n\t\t$(NPM) install && $(NPM) run build; \\\n\tfi",
-        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test clean notes\\n"',
+        "install: ## Install dependencies using the detected package manager.\n\t@if [ -f bun.lockb ] || [ -f bun.lock ]; then \\\n\t\t$(BUN) install; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) install; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) install; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) install; \\\n\telse \\\n\t\t$(NPM) install; \\\n\tfi",
+        "build: ## Build the project using the detected package manager.\n\t@if [ -f bun.lockb ] || [ -f bun.lock ]; then \\\n\t\t$(BUN) run build; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) run build; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) run build; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) run build; \\\n\telse \\\n\t\t$(NPM) run build; \\\n\tfi",
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  install build test check lint verify clean notes\\n"',
       ],
-      unexpectedSnippets: ["\t\t$(YARN) build;"],
+      unexpectedSnippets: [
+        "if command -v $(BUN) >/dev/null 2>&1; then",
+        "\t\t$(BUN) install && $(BUN) run build;",
+      ],
     },
     {
       template: "python",
@@ -348,19 +352,35 @@ exclude = []
 
       const mcpPath = path.join(tempDir, "cx-mcp.toml");
       const mcpContent = await fs.readFile(mcpPath, "utf8");
+      const buildMcpContent = await fs.readFile(
+        path.join(tempDir, "cx-mcp-build.toml"),
+        "utf8",
+      );
 
       expect(mcpContent).toContain(
         "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
       );
       expect(mcpContent).toContain('extends = "./cx.toml"');
       expect(mcpContent).not.toContain('project_name = "typescript-test"');
-      expect(mcpContent).not.toContain('include = ["src/**", "dist/**"]');
+      expect(mcpContent).not.toContain('include = ["dist/src/**"]');
       expect(mcpContent).not.toContain(
         'output_dir = "dist/typescript-test-mcp-bundle"',
       );
       expect(mcpContent).not.toContain("[mcp]");
       expect(mcpContent).not.toContain("[mcp.clients.");
-      expect(mcpContent).toContain('include = ["dist/src/**"]');
+      expect(mcpContent).toContain('"src/**"');
+      expect(mcpContent).toContain('"package.json"');
+      expect(mcpContent).toContain('"tsconfig.json"');
+      expect(mcpContent).toContain("exclude = [");
+      expect(mcpContent).toContain('"node_modules/**"');
+      expect(mcpContent).toContain('"dist/**"');
+      expect(buildMcpContent).toContain('extends = "./cx.toml"');
+      expect(buildMcpContent).toContain(
+        'include = ["dist/**", "package.json", "README.md"]',
+      );
+      expect(buildMcpContent).toContain(
+        'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
+      );
     } finally {
       process.chdir(cwd);
     }

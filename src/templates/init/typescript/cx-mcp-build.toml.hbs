@@ -1,0 +1,6 @@
+#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json
+extends = "./cx.toml"
+
+[files]
+include = ["dist/**", "package.json", "README.md"]
+exclude = ["node_modules/**", "coverage/**", ".git/**"]

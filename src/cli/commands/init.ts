@@ -16,6 +16,7 @@ import {
   wizardSelect,
 } from "../../shared/wizard.js";
 import {
+  detectEnvironment,
   getSupportedTemplates,
   renderInitTemplate,
   renderInitTemplateFile,
@@ -115,6 +116,17 @@ async function renderProjectTemplate(
   );
 }
 
+async function shouldGenerateTypeScriptBuildOverlay(
+  projectRoot: string,
+  requestedEnvironment?: string,
+): Promise<boolean> {
+  if (requestedEnvironment !== undefined) {
+    return requestedEnvironment === "typescript";
+  }
+
+  return (await detectEnvironment(projectRoot)) === "typescript";
+}
+
 export async function runInitCommand(
   args: InitArgs,
   ioArg: Partial<CommandIo> = {},
@@ -152,6 +164,8 @@ export async function runInitCommand(
     projectName,
     style: resolved.style ?? "xml",
   };
+  const generateTypeScriptBuildOverlay =
+    await shouldGenerateTypeScriptBuildOverlay(projectRoot, args.template);
 
   const output = await renderInitTemplate(
     projectRoot,
@@ -210,6 +224,21 @@ export async function runInitCommand(
     args.force,
     args.template,
   );
+  const buildMcpResult = generateTypeScriptBuildOverlay
+    ? await renderProjectTemplate(
+        projectRoot,
+        "cx-mcp-build.toml",
+        "cx-mcp-build.toml",
+        templateVariables,
+        args.force,
+        args.template,
+      )
+    : {
+        path: "cx-mcp-build.toml",
+        content: "",
+        created: false,
+        updated: false,
+      };
   const mcpJsonResult = await renderProjectTemplate(
     projectRoot,
     ".mcp.json",
@@ -279,6 +308,16 @@ export async function runInitCommand(
     } else {
       printInfo("Skipped existing cx-mcp.toml (use --force to overwrite)", io);
     }
+    if (buildMcpResult.created) {
+      printInfo("Created cx-mcp-build.toml", io);
+    } else if (buildMcpResult.updated) {
+      printInfo("Updated cx-mcp-build.toml", io);
+    } else if (generateTypeScriptBuildOverlay) {
+      printInfo(
+        "Skipped existing cx-mcp-build.toml (use --force to overwrite)",
+        io,
+      );
+    }
     if (mcpJsonResult.created) {
       printInfo("Created .mcp.json", io);
     } else if (mcpJsonResult.updated) {
@@ -347,6 +386,8 @@ export async function runInitCommand(
         makefileUpdated: makefileResult.updated,
         mcpCreated: mcpResult.created,
         mcpUpdated: mcpResult.updated,
+        buildMcpCreated: buildMcpResult.created,
+        buildMcpUpdated: buildMcpResult.updated,
       },
       io,
     );

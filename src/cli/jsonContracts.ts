@@ -443,6 +443,8 @@ export const InitCommandJsonSchema = z.object({
   makefileUpdated: z.boolean(),
   mcpCreated: z.boolean(),
   mcpUpdated: z.boolean(),
+  buildMcpCreated: z.boolean(),
+  buildMcpUpdated: z.boolean(),
 });
 
 export const DoctorWorkflowJsonSchema = z.object({

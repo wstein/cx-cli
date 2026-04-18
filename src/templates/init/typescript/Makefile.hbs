@@ -3,10 +3,20 @@
 # Provides a normalized interface for package manager commands and native
 # workspace tasks.
 #
+# Package manager selection is lockfile-first:
+#   bun.lock*                -> bun
+#   pnpm-lock.yaml           -> pnpm
+#   yarn.lock                -> yarn
+#   package-lock.json / npm-shrinkwrap.json -> npm
+#   no lockfile              -> npm
+#
 # Usage:
-#   make          # install dependencies and build
+#   make install  # install dependencies using the detected package manager
 #   make build    # run the package manager build command
 #   make test     # run the package manager test command
+#   make check    # run typecheck/check if present
+#   make lint     # run lint if present
+#   make verify   # run lint + check + test + build
 #   make clean    # remove generated output
 #   make notes    # show the notes directory path
 #
@@ -16,24 +26,37 @@ NPM ?= npm
 YARN ?= yarn
 CLEAN_DIR ?= dist
 
-.PHONY: all build test clean notes help
+.PHONY: all install build test check lint verify clean notes help
 all: build
 
-build: ## Build the project using the detected package manager.
-	@if command -v $(BUN) >/dev/null 2>&1; then \
-		$(BUN) install && $(BUN) run build; \
+install: ## Install dependencies using the detected package manager.
+	@if [ -f bun.lockb ] || [ -f bun.lock ]; then \
+		$(BUN) install; \
 	elif [ -f pnpm-lock.yaml ]; then \
-		$(PNPM) install && $(PNPM) run build; \
-	elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \
-		$(NPM) install && $(NPM) run build; \
+		$(PNPM) install; \
 	elif [ -f yarn.lock ]; then \
-		$(YARN) install && $(YARN) run build; \
+		$(YARN) install; \
+	elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \
+		$(NPM) install; \
 	else \
-		$(NPM) install && $(NPM) run build; \
+		$(NPM) install; \
+	fi
+
+build: ## Build the project using the detected package manager.
+	@if [ -f bun.lockb ] || [ -f bun.lock ]; then \
+		$(BUN) run build; \
+	elif [ -f pnpm-lock.yaml ]; then \
+		$(PNPM) run build; \
+	elif [ -f yarn.lock ]; then \
+		$(YARN) run build; \
+	elif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \
+		$(NPM) run build; \
+	else \
+		$(NPM) run build; \
 	fi
 
 test: ## Run tests using the detected package manager.
-	@if command -v $(BUN) >/dev/null 2>&1; then \
+	@if [ -f bun.lockb ] || [ -f bun.lock ]; then \
 		$(BUN) test; \
 	elif [ -f pnpm-lock.yaml ]; then \
 		$(PNPM) test; \
@@ -43,6 +66,31 @@ test: ## Run tests using the detected package manager.
 		$(NPM) test; \
 	fi
 
+check: ## Run typecheck/check if the script exists.
+	@if [ -f bun.lockb ] || [ -f bun.lock ]; then \
+		($(BUN) run typecheck || $(BUN) run check); \
+	elif [ -f pnpm-lock.yaml ]; then \
+		($(PNPM) run typecheck || $(PNPM) run check); \
+	elif [ -f yarn.lock ]; then \
+		($(YARN) typecheck || $(YARN) check); \
+	else \
+		($(NPM) run typecheck || $(NPM) run check); \
+	fi
+
+lint: ## Run lint if the script exists.
+	@if [ -f bun.lockb ] || [ -f bun.lock ]; then \
+		$(BUN) run lint; \
+	elif [ -f pnpm-lock.yaml ]; then \
+		$(PNPM) run lint; \
+	elif [ -f yarn.lock ]; then \
+		$(YARN) lint; \
+	else \
+		$(NPM) run lint; \
+	fi
+
+verify: ## Run the standard local quality gate.
+	@$(MAKE) lint && $(MAKE) check && $(MAKE) test && $(MAKE) build
+
 clean: ## Remove generated output files.
 	rm -rf node_modules dist "$(CLEAN_DIR)"
 
@@ -50,4 +98,4 @@ notes: ## Print the notes directory path.
 	@printf "Notes directory: notes\n"
 
 help: ## Show available targets.
-	@printf "Available targets:\n  build test clean notes\n"
+	@printf "Available targets:\n  install build test check lint verify clean notes\n"

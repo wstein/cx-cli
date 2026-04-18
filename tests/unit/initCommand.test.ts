@@ -18,6 +18,30 @@ const BASE_ARGS = {
   style: "xml" as const,
 };
 
+async function initializeTypescriptTemplate(
+  rootDir: string,
+  projectName = "typescript-test",
+) {
+  await fs.writeFile(
+    path.join(rootDir, "package.json"),
+    JSON.stringify({ name: projectName, private: true }, null, 2),
+    "utf8",
+  );
+  await fs.writeFile(path.join(rootDir, "tsconfig.json"), "{}\n", "utf8");
+
+  const capture = createBufferedCommandIo({ cwd: rootDir });
+  const exitCode = await runInitCommand(
+    {
+      ...BASE_ARGS,
+      force: true,
+      name: projectName,
+      template: "typescript",
+    },
+    capture.io,
+  );
+  expect(exitCode).toBe(0);
+}
+
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-init-test-"));
   origCwd = process.cwd();
@@ -114,5 +138,86 @@ describe("runInitCommand", () => {
     const capture = createBufferedCommandIo();
     await runInitCommand({ ...BASE_ARGS, force: true }, capture.io);
     expect(capture.logs()).toContain("Updated cx.toml");
+  });
+
+  test("typescript MCP overlay is source-oriented and excludes build artifacts", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const mcpContent = await fs.readFile(
+      path.join(testDir, "cx-mcp.toml"),
+      "utf8",
+    );
+
+    expect(mcpContent).not.toContain('include = ["dist/src/**"]');
+    expect(mcpContent).not.toContain(
+      'output_dir = "dist/typescript-test-mcp-bundle"',
+    );
+    expect(mcpContent).not.toContain("[mcp]");
+    expect(mcpContent).not.toContain("[mcp.clients.");
+    expect(mcpContent).toContain('"src/**"');
+    expect(mcpContent).toContain('"package.json"');
+    expect(mcpContent).toContain('"tsconfig.json"');
+    expect(mcpContent).toContain("exclude = [");
+    expect(mcpContent).toContain('"node_modules/**"');
+    expect(mcpContent).toContain('"dist/**"');
+  });
+
+  test("typescript Makefile documents lockfile-first package manager selection", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const makefile = await fs.readFile(path.join(testDir, "Makefile"), "utf8");
+    expect(makefile).toContain("[ -f bun.lockb ] || [ -f bun.lock ]");
+    expect(makefile).toContain("[ -f pnpm-lock.yaml ]");
+    expect(makefile).toContain("[ -f yarn.lock ]");
+    expect(makefile).toContain(
+      "[ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]",
+    );
+    expect(makefile).not.toContain(
+      "if command -v $(BUN) >/dev/null 2>&1; then",
+    );
+  });
+
+  test("typescript Makefile keeps install separate from build", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const makefile = await fs.readFile(path.join(testDir, "Makefile"), "utf8");
+    expect(makefile).toContain("install: ## Install dependencies");
+    expect(makefile).toContain("build: ## Build the project");
+    expect(makefile).not.toContain("install && $(BUN) run build");
+    expect(makefile).not.toContain("install && $(PNPM) run build");
+    expect(makefile).not.toContain("install && $(NPM) run build");
+    expect(makefile).not.toContain("install && $(YARN) run build");
+  });
+
+  test("typescript Makefile includes normalized quality targets", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const makefile = await fs.readFile(path.join(testDir, "Makefile"), "utf8");
+    expect(makefile).toContain(
+      "check: ## Run typecheck/check if the script exists.",
+    );
+    expect(makefile).toContain("lint: ## Run lint if the script exists.");
+    expect(makefile).toContain(
+      "verify: ## Run the standard local quality gate.",
+    );
+    expect(makefile).toContain(
+      "Available targets:\\n  install build test check lint verify clean notes",
+    );
+  });
+
+  test("typescript init also generates a build-artifact MCP overlay", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const buildOverlay = await fs.readFile(
+      path.join(testDir, "cx-mcp-build.toml"),
+      "utf8",
+    );
+    expect(buildOverlay).toContain('extends = "./cx.toml"');
+    expect(buildOverlay).toContain(
+      'include = ["dist/**", "package.json", "README.md"]',
+    );
+    expect(buildOverlay).toContain(
+      'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
+    );
   });
 });
