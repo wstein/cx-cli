@@ -36,10 +36,23 @@ process-global leakage, and make failures easier to read.
 
 - Keep pure behavior in unit tests and avoid filesystem-backed module fixtures
   unless resolution itself is the subject.
+- For parser or validator units, prefer in-memory fixtures and pure helpers over
+  temp-directory file setup.
 - Reserve contract tests for operator-visible JSON, manifest, and docs
   guarantees.
 - Isolate true filesystem/module-resolution coverage in clearly named
   integration tests.
+- Keep startup and transport anomaly handling in explicit boundary tests (for
+  example, stalled startup, delayed failures, and malformed protocol payloads).
+
+## Property Matrices
+
+- Use `fast-check` for combinatorial override behavior where input vectors
+  multiply quickly (CLI flags, env vars, and cx.toml values).
+- Assert precedence and invariants as properties, not only as hand-picked
+  examples.
+- Keep generated inputs semantically valid so shrinking produces minimal,
+  actionable failures.
 
 ## Notes
 
