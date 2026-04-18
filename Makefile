@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test coverage verify format fix lint release clean notes smoke help
+.PHONY: all build test verify format fix lint release clean notes smoke help
 all: build
 
 build: ## Build the project.
@@ -17,11 +17,8 @@ format: ## Format the project source.
 lint: ## Run lint checks and boundary validation.
 	$(BUN) run lint
 
-test: ## Run unit tests.
-	$(BUN) run test:unit
-
-coverage: ## Run all tests with coverage.
-	$(BUN) run coverage
+test: ## Run unit tests with coverage.
+	$(BUN) run test
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
@@ -36,16 +33,15 @@ clean: ## Remove generated output files.
 	$(BUN) run clean
 
 notes: ## List available notes in the repository.
-	$(BUN) run notes:list
+	$(BUN) run notes
 
 smoke: ## Run repomix version smoke test.
-	$(BUN) run smoke:repomix-version
+	$(BUN) run smoke
 
 help: ## Show available targets.
 	@printf "Available targets:\n"
 	@printf "  build     Build the project.\n"
 	@printf "  test      Run unit tests with coverage.\n"
-	@printf "  coverage  Run tests with coverage.\n"
 	@printf "  verify    Run lint, typecheck, build, and the full test suite with coverage.\n"
 	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
 	@printf "  clean     Remove generated output files.\n"
