@@ -1,5 +1,14 @@
 import { parseJsonOutput } from "./parseJsonOutput.js";
 
+/**
+ * Legacy process-global CLI capture helper.
+ *
+ * Prefer createBufferedCommandIo() for direct command tests and any suite that
+ * can inject stdout/stderr/log/cwd explicitly. Keep this helper only for true
+ * process-level or interactive coverage where global stdio interception is the
+ * point of the test.
+ */
+
 export interface CapturedCliResult<T = unknown> {
   exitCode: number;
   stdout: string;

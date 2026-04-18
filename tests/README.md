@@ -18,7 +18,11 @@ process-global leakage, and make failures easier to read.
 
 ## CLI Output
 
-- Use `tests/helpers/cli/captureCli.ts` for top-level CLI integration tests.
+- Prefer `tests/helpers/cli/createBufferedCommandIo.ts` for command tests.
+- Pass `cwd` or a command-specific workspace root explicitly instead of using
+  `process.chdir()` for ordinary command execution.
+- Use `tests/helpers/cli/captureCli.ts` only for true process-level or
+  interactive integration tests.
 - Reserve `captureCli()` for true process-level or interactive behavior only;
   prefer buffered `CommandIo` injection everywhere else.
 - Use `tests/helpers/cli/parseJsonOutput.ts` for JSON assertions instead of

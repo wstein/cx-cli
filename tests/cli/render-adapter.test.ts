@@ -64,25 +64,22 @@ exclude = []
   return { root, configPath };
 }
 
+function createProjectIo(projectRoot: string) {
+  return createBufferedCommandIo({ cwd: projectRoot });
+}
+
 describe("render command", () => {
   test("renders a single section to stdout", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    let exitCode: number | undefined;
-    try {
-      exitCode = await runRenderCommand(
-        {
-          config: project.configPath,
-          sections: ["src"],
-          stdout: true,
-        },
-        capture.io,
-      );
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    const exitCode = await runRenderCommand(
+      {
+        config: project.configPath,
+        sections: ["src"],
+        stdout: true,
+      },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
 
     const output = capture.stdout();
@@ -94,20 +91,17 @@ describe("render command", () => {
   test("renders all sections to output directory", async () => {
     const project = await createRenderTestProject();
     const outputDir = path.join(project.root, "render-output");
-
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    try {
-      expect(
-        await runRenderCommand({
+    const capture = createProjectIo(project.root);
+    expect(
+      await runRenderCommand(
+        {
           config: project.configPath,
           allSections: true,
           outputDir,
-        }),
-      ).toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+        },
+        capture.io,
+      ),
+    ).toBe(0);
 
     const files = await fs.readdir(outputDir);
     expect(files).toContain("demo-repomix-docs.xml.txt");
@@ -116,23 +110,16 @@ describe("render command", () => {
 
   test("renders with style override", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    let exitCode: number | undefined;
-    try {
-      exitCode = await runRenderCommand(
-        {
-          config: project.configPath,
-          sections: ["src"],
-          style: "markdown",
-          stdout: true,
-        },
-        capture.io,
-      );
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    const exitCode = await runRenderCommand(
+      {
+        config: project.configPath,
+        sections: ["src"],
+        style: "markdown",
+        stdout: true,
+      },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
 
     const output = capture.stdout();
@@ -142,22 +129,15 @@ describe("render command", () => {
 
   test("emits JSON metadata for multiple sections", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    let exitCode: number | undefined;
-    try {
-      exitCode = await runRenderCommand(
-        {
-          config: project.configPath,
-          allSections: true,
-          json: true,
-        },
-        capture.io,
-      );
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    const exitCode = await runRenderCommand(
+      {
+        config: project.configPath,
+        allSections: true,
+        json: true,
+      },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
@@ -180,53 +160,40 @@ describe("render command", () => {
 
   test("fails with no selection", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    try {
-      await expect(
-        runRenderCommand({
+    await expect(
+      runRenderCommand(
+        {
           config: project.configPath,
-        }),
-      ).rejects.toThrow("Selection required");
-    } finally {
-      process.chdir(cwd);
-    }
+        },
+        createProjectIo(project.root).io,
+      ),
+    ).rejects.toThrow("Selection required");
   });
 
   test("fails with unknown section", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    try {
-      await expect(
-        runRenderCommand({
+    await expect(
+      runRenderCommand(
+        {
           config: project.configPath,
           sections: ["nonexistent"],
-        }),
-      ).rejects.toThrow("not found in plan");
-    } finally {
-      process.chdir(cwd);
-    }
+        },
+        createProjectIo(project.root).io,
+      ),
+    ).rejects.toThrow("not found in plan");
   });
 
   test("renders by specific file selection", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    let exitCode: number | undefined;
-    try {
-      exitCode = await runRenderCommand(
-        {
-          config: project.configPath,
-          files: ["src/index.ts"],
-          stdout: true,
-        },
-        capture.io,
-      );
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    const exitCode = await runRenderCommand(
+      {
+        config: project.configPath,
+        files: ["src/index.ts"],
+        stdout: true,
+      },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
 
     const output = capture.stdout();
@@ -273,39 +240,30 @@ describe("adapter command", () => {
 
   test("adapter inspect requires section", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    try {
-      await expect(
-        runAdapterCommand({
+    await expect(
+      runAdapterCommand(
+        {
           config: project.configPath,
           subcommand: "inspect",
-        }),
-      ).rejects.toThrow("inspect requires --section");
-    } finally {
-      process.chdir(cwd);
-    }
+        },
+        createProjectIo(project.root).io,
+      ),
+    ).rejects.toThrow("inspect requires --section");
   });
 
   test("adapter inspect shows section details", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    try {
-      expect(
-        await runAdapterCommand(
-          {
-            config: project.configPath,
-            subcommand: "inspect",
-            sections: ["src"],
-          },
-          capture.io,
-        ),
-      ).toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    expect(
+      await runAdapterCommand(
+        {
+          config: project.configPath,
+          subcommand: "inspect",
+          sections: ["src"],
+        },
+        capture.io,
+      ),
+    ).toBe(0);
 
     const output = capture.stdout();
     expect(output).toContain("Section: src");
@@ -314,24 +272,18 @@ describe("adapter command", () => {
 
   test("adapter inspect emits JSON with files", async () => {
     const project = await createRenderTestProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    const capture = createBufferedCommandIo();
-    try {
-      expect(
-        await runAdapterCommand(
-          {
-            config: project.configPath,
-            subcommand: "inspect",
-            sections: ["src"],
-            json: true,
-          },
-          capture.io,
-        ),
-      ).toBe(0);
-    } finally {
-      process.chdir(cwd);
-    }
+    const capture = createProjectIo(project.root);
+    expect(
+      await runAdapterCommand(
+        {
+          config: project.configPath,
+          subcommand: "inspect",
+          sections: ["src"],
+          json: true,
+        },
+        capture.io,
+      ),
+    ).toBe(0);
 
     const payload = parseJsonOutput<{
       sections?: Array<{ name: string; files?: string[] }>;

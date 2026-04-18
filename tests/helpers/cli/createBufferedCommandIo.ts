@@ -1,5 +1,12 @@
 import type { CommandIo } from "../../../src/shared/output.js";
 
+/**
+ * Preferred command-test helper.
+ *
+ * Use this for direct command coverage instead of captureCli() so tests can
+ * inject stdout/stderr/log and cwd explicitly without mutating process globals.
+ */
+
 function createBufferedWriter(chunks: string[]) {
   return {
     write(
