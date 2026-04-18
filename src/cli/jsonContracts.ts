@@ -459,5 +459,12 @@ export const DoctorFixOverlapsJsonSchema = z.object({
   conflictCount: z.number().int().nonnegative(),
   excludesBySection: z.record(z.string(), z.array(z.string())),
   dryRun: z.boolean().optional(),
-  ownership: z.record(z.string(), z.string()).optional(),
+  ownership: z
+    .array(
+      z.object({
+        path: z.string(),
+        owner: z.string(),
+      }),
+    )
+    .optional(),
 });
