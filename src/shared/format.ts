@@ -1,4 +1,9 @@
 import kleur from "kleur";
+import type { CommandIo } from "./output.js";
+
+function getLogger(io: Partial<CommandIo> = {}): (...args: unknown[]) => void {
+  return io.log ?? console.log;
+}
 
 /**
  * Format bytes into human-readable size strings
@@ -23,22 +28,29 @@ export function formatNumber(n: number): string {
 /**
  * Create a colored section header
  */
-export function printHeader(text: string): void {
-  console.log(kleur.bold().cyan(`\n📦 ${text}\n`));
+export function printHeader(text: string, io: Partial<CommandIo> = {}): void {
+  getLogger(io)(kleur.bold().cyan(`\n📦 ${text}\n`));
 }
 
 /**
  * Create a colored subsection header
  */
-export function printSubheader(text: string): void {
-  console.log(kleur.bold().white(`  ${text}`));
+export function printSubheader(
+  text: string,
+  io: Partial<CommandIo> = {},
+): void {
+  getLogger(io)(kleur.bold().white(`  ${text}`));
 }
 
 /**
  * Print a stat line with label and value
  */
-export function printStat(label: string, value: string | number): void {
-  console.log(`  ${kleur.gray(label)}: ${kleur.bold().white(String(value))}`);
+export function printStat(
+  label: string,
+  value: string | number,
+  io: Partial<CommandIo> = {},
+): void {
+  getLogger(io)(`  ${kleur.gray(label)}: ${kleur.bold().white(String(value))}`);
 }
 
 /**
@@ -46,42 +58,48 @@ export function printStat(label: string, value: string | number): void {
  */
 export function printTable(
   rows: Array<[label: string, value: string | number]>,
+  io: Partial<CommandIo> = {},
 ): void {
   const maxLabelLength = Math.max(...rows.map(([label]) => label.length));
+  const log = getLogger(io);
   for (const [label, value] of rows) {
     const paddedLabel = label.padEnd(maxLabelLength);
-    console.log(
-      `  ${kleur.gray(paddedLabel)} ${kleur.bold().white(String(value))}`,
-    );
+    log(`  ${kleur.gray(paddedLabel)} ${kleur.bold().white(String(value))}`);
   }
 }
 
 /**
  * Print a success message
  */
-export function printSuccess(message: string): void {
-  console.log(`${kleur.green("✓")} ${kleur.green(message)}`);
+export function printSuccess(
+  message: string,
+  io: Partial<CommandIo> = {},
+): void {
+  getLogger(io)(`${kleur.green("✓")} ${kleur.green(message)}`);
 }
 
 /**
  * Print a warning message
  */
-export function printWarning(message: string): void {
-  console.log(`${kleur.yellow("⚠")} ${kleur.yellow(message)}`);
+export function printWarning(
+  message: string,
+  io: Partial<CommandIo> = {},
+): void {
+  getLogger(io)(`${kleur.yellow("⚠")} ${kleur.yellow(message)}`);
 }
 
 /**
  * Print an info message
  */
-export function printInfo(message: string): void {
-  console.log(`${kleur.blue("ℹ")} ${kleur.blue(message)}`);
+export function printInfo(message: string, io: Partial<CommandIo> = {}): void {
+  getLogger(io)(`${kleur.blue("ℹ")} ${kleur.blue(message)}`);
 }
 
 /**
  * Print an error message
  */
-export function printError(message: string): void {
-  console.log(`${kleur.red("✗")} ${kleur.red(message)}`);
+export function printError(message: string, io: Partial<CommandIo> = {}): void {
+  getLogger(io)(`${kleur.red("✗")} ${kleur.red(message)}`);
 }
 
 /**
@@ -91,18 +109,19 @@ export function printProgress(
   step: number,
   total: number,
   label: string,
+  io: Partial<CommandIo> = {},
 ): void {
   const percentage = Math.round((step / total) * 100);
   const filled = Math.floor((step / total) * 20);
   const bar = "█".repeat(filled) + "░".repeat(20 - filled);
-  console.log(`  ${kleur.cyan(bar)} ${percentage}% ${kleur.gray(label)}`);
+  getLogger(io)(`  ${kleur.cyan(bar)} ${percentage}% ${kleur.gray(label)}`);
 }
 
 /**
  * Print a divider line
  */
-export function printDivider(): void {
-  console.log(kleur.gray(`  ${"─".repeat(50)}`));
+export function printDivider(io: Partial<CommandIo> = {}): void {
+  getLogger(io)(kleur.gray(`  ${"─".repeat(50)}`));
 }
 
 /**
@@ -132,15 +151,16 @@ export function printBundleSummary(
   assetCount: number,
   totalBytes: number,
   tokenCount: number,
+  io: Partial<CommandIo> = {},
 ): void {
-  printHeader("Bundle Created Successfully");
-  printStat("Project", projectName);
-  printStat("Location", bundleDir);
-  printDivider();
-  printStat("Sections", sectionCount);
-  printStat("Assets", assetCount);
-  printDivider();
-  printStat("Total size", formatBytes(totalBytes));
-  printStat("Total tokens", formatNumber(tokenCount));
-  console.log();
+  printHeader("Bundle Created Successfully", io);
+  printStat("Project", projectName, io);
+  printStat("Location", bundleDir, io);
+  printDivider(io);
+  printStat("Sections", sectionCount, io);
+  printStat("Assets", assetCount, io);
+  printDivider(io);
+  printStat("Total size", formatBytes(totalBytes), io);
+  printStat("Total tokens", formatNumber(tokenCount), io);
+  getLogger(io)();
 }

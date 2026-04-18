@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { loadCxConfig } from "../config/load.js";
 import { resolveMcpConfigPath } from "../mcp/config.js";
-import { writeJson } from "../shared/output.js";
+import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 
 export interface DoctorMcpArgs {
   config?: string | undefined;
@@ -52,32 +52,34 @@ export async function collectDoctorMcpReport(
 export function printDoctorMcpReport(
   report: DoctorMcpReport,
   json: boolean,
+  io: Partial<CommandIo> = {},
 ): void {
   if (json) {
-    writeJson(report);
+    writeJson(report, io);
     return;
   }
 
-  process.stdout.write(`Resolved MCP profile: ${report.resolvedConfigPath}\n`);
-  process.stdout.write(`Active profile: ${report.activeProfile}\n`);
-  process.stdout.write(`Policy: ${report.policy}\n`);
-  process.stdout.write(
+  writeStdout(`Resolved MCP profile: ${report.resolvedConfigPath}\n`, io);
+  writeStdout(`Active profile: ${report.activeProfile}\n`, io);
+  writeStdout(`Policy: ${report.policy}\n`, io);
+  writeStdout(
     `Mutation enabled: ${report.mutationEnabled ? "yes" : "no"}\n`,
+    io,
   );
-  process.stdout.write(`\nfiles.include:\n`);
+  writeStdout(`\nfiles.include:\n`, io);
   if (report.filesInclude.length === 0) {
-    process.stdout.write(`  - (empty)\n`);
+    writeStdout(`  - (empty)\n`, io);
   } else {
     for (const pattern of report.filesInclude) {
-      process.stdout.write(`  - ${pattern}\n`);
+      writeStdout(`  - ${pattern}\n`, io);
     }
   }
-  process.stdout.write(`\nfiles.exclude:\n`);
+  writeStdout(`\nfiles.exclude:\n`, io);
   for (const pattern of report.filesExclude) {
-    process.stdout.write(`  - ${pattern}\n`);
+    writeStdout(`  - ${pattern}\n`, io);
   }
-  process.stdout.write(`\nsections:\n`);
+  writeStdout(`\nsections:\n`, io);
   for (const name of report.sectionNames) {
-    process.stdout.write(`  - ${name}\n`);
+    writeStdout(`  - ${name}\n`, io);
   }
 }

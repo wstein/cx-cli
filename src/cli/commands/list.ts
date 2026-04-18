@@ -14,7 +14,12 @@ import {
   selectManifestSections,
   summarizeManifest,
 } from "../../shared/manifestSummary.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStdout,
+} from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
 
 export interface ListArgs {
@@ -253,7 +258,11 @@ function renderGroupedList(
   return `${lines.join("\n")}\n`;
 }
 
-export async function runListCommand(args: ListArgs): Promise<number> {
+export async function runListCommand(
+  args: ListArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const bundleDir = path.resolve(args.bundleDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const userConfig = await loadCxUserConfig();
@@ -298,24 +307,28 @@ export async function runListCommand(args: ListArgs): Promise<number> {
   });
 
   if (args.json) {
-    writeJson({
-      summary: summarizeManifest(manifestName, manifest, rows),
-      repomix: await getRepomixCapabilities(),
-      settings: manifest.settings,
-      display: userConfig.display,
-      selection: {
-        sections: args.sections ?? [],
-        files: args.files ?? [],
+    writeJson(
+      {
+        summary: summarizeManifest(manifestName, manifest, rows),
+        repomix: await getRepomixCapabilities(),
+        settings: manifest.settings,
+        display: userConfig.display,
+        selection: {
+          sections: args.sections ?? [],
+          files: args.files ?? [],
+        },
+        sections,
+        assets,
+        files: rowsWithMeta,
       },
-      sections,
-      assets,
-      files: rowsWithMeta,
-    });
+      io,
+    );
     return 0;
   }
 
-  process.stdout.write(
+  writeStdout(
     renderGroupedList(manifestName, rowsWithMeta, userConfig.display.list),
+    io,
   );
   return 0;
 }

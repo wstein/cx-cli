@@ -18,7 +18,12 @@ import {
   selectManifestSections,
   summarizeManifest,
 } from "../../shared/manifestSummary.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStderr,
+} from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
 
 export interface ExtractArgs {
@@ -67,9 +72,12 @@ function formatChecksumPrefix(checksum: string | undefined): string {
   return checksum ? checksum.slice(0, 8) : "—";
 }
 
-function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
+function writeExtractionErrorTable(
+  files: ExtractabilityRecord[],
+  io: Partial<CommandIo> = {},
+): void {
   const header = `\nEXTRACTION ERRORS (${files.length} file${files.length === 1 ? "" : "s"} cannot be reconstructed deterministically)\n`;
-  process.stderr.write(header);
+  writeStderr(header, io);
 
   const pathW = Math.max(4, ...files.map((f) => f.path.length));
   const statusW = Math.max(6, ...files.map((f) => f.status.length));
@@ -77,10 +85,11 @@ function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
   const pad = (s: string, w: number) => s.padEnd(w);
   const sep = `  ${"─".repeat(pathW)}  ${"─".repeat(statusW)}  ${"─".repeat(40)}\n`;
 
-  process.stderr.write(
+  writeStderr(
     `\n  ${pad("PATH", pathW)}  ${pad("STATUS", statusW)}  HINT\n`,
+    io,
   );
-  process.stderr.write(sep);
+  writeStderr(sep, io);
 
   for (const file of files) {
     let hint = DIFF_HINTS[file.reason] ?? file.message;
@@ -93,28 +102,36 @@ function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
       const actual = formatChecksumPrefix(file.actualSha256);
       hint = `expected ${expected}… got ${actual}…`;
     }
-    process.stderr.write(
+    writeStderr(
       `  ${pad(file.path, pathW)}  ${pad(file.status, statusW)}  ${hint}\n`,
+      io,
     );
   }
 
-  process.stderr.write("\n");
+  writeStderr("\n", io);
 }
 
-function writeRemediationBlock(error: unknown): void {
+function writeRemediationBlock(
+  error: unknown,
+  io: Partial<CommandIo> = {},
+): void {
   const lines = formatErrorRemediation(getErrorRemediation(error));
   if (lines.length === 0) {
     return;
   }
 
-  process.stderr.write("REMEDIATION\n");
+  writeStderr("REMEDIATION\n", io);
   for (const line of lines) {
-    process.stderr.write(`${line}\n`);
+    writeStderr(`${line}\n`, io);
   }
-  process.stderr.write("\n");
+  writeStderr("\n", io);
 }
 
-export async function runExtractCommand(args: ExtractArgs): Promise<number> {
+export async function runExtractCommand(
+  args: ExtractArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const bundleDir = path.resolve(args.bundleDir);
   const destinationDir = path.resolve(args.destinationDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
@@ -160,7 +177,53 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
         extractabilityFiles.length > 0
           ? "extractability_mismatch"
           : "extract_failed";
-      writeJson({
+      writeJson(
+        {
+          bundleDir,
+          destinationDir,
+          selection: {
+            sections: args.sections ?? [],
+            files: args.files ?? [],
+          },
+          assetsOnly: args.assetsOnly,
+          allowDegraded: args.allowDegraded ?? false,
+          summary: summarizeManifest(manifestName, manifest, rows),
+          verify: args.verify,
+          repomix: await getRepomixCapabilities(),
+          extractedSections: [],
+          extractedAssets: [],
+          extractedFiles: [],
+          valid: false,
+          error: {
+            type: extractabilityType,
+            message: resolved.message,
+            remediation: getErrorRemediation(error) ?? null,
+            files: extractabilityFiles.map((file: ExtractabilityRecord) => ({
+              path: file.path,
+              section: file.section,
+              status: file.status,
+              reason: file.reason,
+              expectedSha256: file.expectedSha256,
+              actualSha256: file.actualSha256,
+              message: file.message,
+            })),
+          },
+        },
+        io,
+      );
+      return error instanceof CxError ? error.exitCode : 1;
+    }
+
+    if (isExtractResolutionError(error)) {
+      writeExtractionErrorTable(error.files, io);
+      writeRemediationBlock(error, io);
+      return error.exitCode;
+    }
+    throw error;
+  }
+  if (args.json ?? false) {
+    writeJson(
+      {
         bundleDir,
         destinationDir,
         selection: {
@@ -169,59 +232,19 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
         },
         assetsOnly: args.assetsOnly,
         allowDegraded: args.allowDegraded ?? false,
+        extractedSections: selectManifestSections(manifest, rows).map(
+          (section) => section.name,
+        ),
+        extractedAssets: selectManifestAssets(manifest, rows).map(
+          (asset) => asset.sourcePath,
+        ),
+        extractedFiles: rows.map((row) => row.path),
         summary: summarizeManifest(manifestName, manifest, rows),
         verify: args.verify,
-        repomix: await getRepomixCapabilities(),
-        extractedSections: [],
-        extractedAssets: [],
-        extractedFiles: [],
-        valid: false,
-        error: {
-          type: extractabilityType,
-          message: resolved.message,
-          remediation: getErrorRemediation(error) ?? null,
-          files: extractabilityFiles.map((file: ExtractabilityRecord) => ({
-            path: file.path,
-            section: file.section,
-            status: file.status,
-            reason: file.reason,
-            expectedSha256: file.expectedSha256,
-            actualSha256: file.actualSha256,
-            message: file.message,
-          })),
-        },
-      });
-      return error instanceof CxError ? error.exitCode : 1;
-    }
-
-    if (isExtractResolutionError(error)) {
-      writeExtractionErrorTable(error.files);
-      writeRemediationBlock(error);
-      return error.exitCode;
-    }
-    throw error;
-  }
-  if (args.json ?? false) {
-    writeJson({
-      bundleDir,
-      destinationDir,
-      selection: {
-        sections: args.sections ?? [],
-        files: args.files ?? [],
+        valid: true,
       },
-      assetsOnly: args.assetsOnly,
-      allowDegraded: args.allowDegraded ?? false,
-      extractedSections: selectManifestSections(manifest, rows).map(
-        (section) => section.name,
-      ),
-      extractedAssets: selectManifestAssets(manifest, rows).map(
-        (asset) => asset.sourcePath,
-      ),
-      extractedFiles: rows.map((row) => row.path),
-      summary: summarizeManifest(manifestName, manifest, rows),
-      verify: args.verify,
-      valid: true,
-    });
+      io,
+    );
   }
   return 0;
 }

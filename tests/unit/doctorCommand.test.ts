@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { runDoctorCommand } from "../../src/cli/commands/doctor.js";
 import { CxError } from "../../src/shared/errors.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 const MIN_CONFIG = `schema_version = 1
 project_name = "proj"
@@ -53,11 +54,18 @@ describe("runDoctorCommand — argument validation", () => {
 
     try {
       await expect(
-        runDoctorCommand({
-          subcommand: "fix-overlaps",
-          interactive: true,
-          config: "/nonexistent/cx.toml",
-        }),
+        runDoctorCommand(
+          {
+            subcommand: "fix-overlaps",
+            interactive: true,
+            config: "/nonexistent/cx.toml",
+          },
+          {
+            stdin: {
+              isTTY: false,
+            },
+          },
+        ),
       ).rejects.toThrow(CxError);
     } finally {
       Object.defineProperty(process.stdin, "isTTY", {
@@ -87,10 +95,12 @@ describe("runDoctorCommand — workflow subcommand", () => {
   });
 
   test("text output: prints task, recommended path, mode, reason, signals", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({ subcommand: "workflow", task: "inspect tokens" }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "workflow", task: "inspect tokens" },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
     expect(stdout).toContain("Task: inspect tokens");
     expect(stdout).toContain("Recommended path:");
@@ -100,17 +110,18 @@ describe("runDoctorCommand — workflow subcommand", () => {
   });
 
   test("json=true outputs structured JSON with task and mode", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({
-          subcommand: "workflow",
-          task: "bundle the snapshot",
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      {
+        subcommand: "workflow",
+        task: "bundle the snapshot",
+        json: true,
+      },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(parsed.task).toBe("bundle the snapshot");
     expect(typeof parsed.mode).toBe("string");
     expect(Array.isArray(parsed.sequence)).toBe(true);
@@ -119,51 +130,56 @@ describe("runDoctorCommand — workflow subcommand", () => {
 
 describe("runDoctorCommand — overlaps subcommand", () => {
   test("exits 0 when no overlaps in config", async () => {
-    const { exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({ subcommand: "overlaps", config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "overlaps", config: configPath },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
   });
 
   test("json=true outputs structured JSON", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({
-          subcommand: "overlaps",
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      {
+        subcommand: "overlaps",
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(typeof parsed.conflictCount).toBe("number");
   });
 });
 
 describe("runDoctorCommand — fix-overlaps subcommand", () => {
   test("no-conflicts path exits 0 and reports clean", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({ subcommand: "fix-overlaps", config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "fix-overlaps", config: configPath },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
     expect(stdout).toContain("No section overlaps");
   });
 
   test("no-conflicts + json=true outputs changed:false", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({
-          subcommand: "fix-overlaps",
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      {
+        subcommand: "fix-overlaps",
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(parsed.changed).toBe(false);
     expect(parsed.conflictCount).toBe(0);
   });
@@ -171,20 +187,23 @@ describe("runDoctorCommand — fix-overlaps subcommand", () => {
 
 describe("runDoctorCommand — mcp subcommand", () => {
   test("exits 0 with valid config", async () => {
-    const { exitCode } = await captureCli({
-      run: () => runDoctorCommand({ subcommand: "mcp", config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "mcp", config: configPath },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
   });
 
   test("json=true outputs structured JSON with activeProfile", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({ subcommand: "mcp", config: configPath, json: true }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "mcp", config: configPath, json: true },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(typeof parsed.activeProfile).toBe("string");
   });
 });
@@ -210,9 +229,11 @@ See [[src/index.ts]] before refactoring.
       "utf8",
     );
 
-    const { exitCode } = await captureCli({
-      run: () => runDoctorCommand({ subcommand: "notes", config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "notes", config: configPath },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
   });
 
@@ -236,17 +257,18 @@ See [[src/missing.ts]] before refactoring.
       "utf8",
     );
 
-    const { stdout, exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({
-          subcommand: "notes",
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      {
+        subcommand: "notes",
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
+    const stdout = capture.stdout();
     expect(exitCode).toBe(4);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(parsed.driftCount).toBe(1);
     expect(parsed.missingCount).toBe(1);
   });
@@ -254,19 +276,22 @@ See [[src/missing.ts]] before refactoring.
 
 describe("runDoctorCommand — secrets subcommand", () => {
   test("exits 0 when no suspicious files", async () => {
-    const { exitCode } = await captureCli({
-      run: () =>
-        runDoctorCommand({ subcommand: "secrets", config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { subcommand: "secrets", config: configPath },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
   });
 });
 
 describe("runDoctorCommand — --all flag", () => {
   test("runs all diagnostics and exits 0 with clean config", async () => {
-    const { exitCode } = await captureCli({
-      run: () => runDoctorCommand({ all: true, config: configPath }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runDoctorCommand(
+      { all: true, config: configPath },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
   });
 });

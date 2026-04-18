@@ -8,7 +8,7 @@ import {
 
 import { loadCxConfig } from "../config/load.js";
 import { buildMasterList } from "../planning/masterList.js";
-import { writeJson } from "../shared/output.js";
+import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 
 export interface DoctorSecretsArgs {
@@ -84,31 +84,35 @@ export async function collectDoctorSecretsReport(
 export function printDoctorSecretsReport(
   report: DoctorSecretsReport,
   json: boolean,
+  io: Partial<CommandIo> = {},
 ): void {
   if (json) {
-    writeJson(report);
+    writeJson(report, io);
     return;
   }
 
   if (report.suspiciousCount === 0) {
-    process.stdout.write(
+    writeStdout(
       `No suspicious files detected in ${report.resolvedConfigPath}.\n`,
+      io,
     );
     if (!report.securityCheckEnabled) {
-      process.stdout.write(
+      writeStdout(
         "repomix.security_check is disabled in cx.toml, but this diagnostic still scanned the master list explicitly.\n",
+        io,
       );
     }
     return;
   }
 
-  process.stdout.write(
+  writeStdout(
     `Detected ${report.suspiciousCount} suspicious file${report.suspiciousCount === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n\n`,
+    io,
   );
   for (const result of report.suspiciousFiles) {
-    process.stdout.write(`${result.filePath}\n`);
+    writeStdout(`${result.filePath}\n`, io);
     for (const message of result.messages) {
-      process.stdout.write(`  - ${message}\n`);
+      writeStdout(`  - ${message}\n`, io);
     }
   }
 }

@@ -8,7 +8,7 @@ import {
 import { validateNotes } from "../notes/validate.js";
 import { buildMasterList } from "../planning/masterList.js";
 import { getSectionEntries } from "../planning/overlaps.js";
-import { writeJson } from "../shared/output.js";
+import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 
 export interface DoctorNotesArgs {
@@ -79,27 +79,32 @@ export async function collectDoctorNotesReport(
 export function printDoctorNotesReport(
   report: DoctorNotesReport,
   json: boolean,
+  io: Partial<CommandIo> = {},
 ): void {
   if (json) {
-    writeJson(report);
+    writeJson(report, io);
     return;
   }
 
   if (report.driftCount === 0) {
-    process.stdout.write(
+    writeStdout(
       `No note-to-code drift detected against the master list in ${report.resolvedConfigPath}.\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `Checked ${report.totalNotes} note${report.totalNotes === 1 ? "" : "s"} against ${report.masterFileCount} repository-backed path${report.masterFileCount === 1 ? "" : "s"}.\n`,
+      io,
     );
     return;
   }
 
-  process.stdout.write(
+  writeStdout(
     `Detected ${report.driftCount} note-to-code drift warning${report.driftCount === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n`,
+    io,
   );
-  process.stdout.write(
+  writeStdout(
     "These references do not resolve against the planning master list derived from VCS and files.include/files.exclude.\n\n",
+    io,
   );
   for (const drift of report.drifts) {
     const detail =
@@ -108,8 +113,9 @@ export function printDoctorNotesReport(
         : drift.status === "outside_master_list"
           ? "present on disk but outside the master list"
           : "tracked by VCS but not claimed by any bundle section";
-    process.stdout.write(
+    writeStdout(
       `[${drift.fromNoteId}] ${drift.fromTitle} -> ${drift.path} (${detail})\n`,
+      io,
     );
   }
 }

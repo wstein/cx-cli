@@ -53,8 +53,9 @@ const VALID_ASSETS_LAYOUT = new Set<CxAssetsLayout>(["flat", "deep"]);
 function readEnumVar<T extends string>(
   name: string,
   valid: Set<T>,
+  env: NodeJS.ProcessEnv,
 ): T | undefined {
-  const raw = process.env[name];
+  const raw = env[name];
   if (raw === undefined) return undefined;
 
   if (!valid.has(raw as T)) {
@@ -96,9 +97,11 @@ export function getCLIOverrides(): Readonly<CxEnvOverrides> {
  * When CX_STRICT=true (or CX_STRICT=1), all Category B settings are forced to
  * "fail". Per-area env vars are ignored when CX_STRICT is active.
  */
-export function readEnvOverrides(): CxEnvOverrides {
+export function readEnvOverrides(
+  env: NodeJS.ProcessEnv = process.env,
+): CxEnvOverrides {
   const overrides: CxEnvOverrides = {};
-  const strict = process.env.CX_STRICT;
+  const strict = env.CX_STRICT;
 
   if (strict === "true" || strict === "1") {
     // CX_STRICT forces the three strictness settings to "fail".
@@ -107,12 +110,13 @@ export function readEnvOverrides(): CxEnvOverrides {
     overrides.repomixMissingExtension = "fail";
     overrides.configDuplicateEntry = "fail";
   } else {
-    const dedupMode = readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES);
+    const dedupMode = readEnumVar("CX_DEDUP_MODE", VALID_DEDUP_MODES, env);
     if (dedupMode !== undefined) overrides.dedupMode = dedupMode;
 
     const repomixMissingExtension = readEnumVar(
       "CX_REPOMIX_MISSING_EXTENSION",
       VALID_REPOMIX_MISSING,
+      env,
     );
     if (repomixMissingExtension !== undefined) {
       overrides.repomixMissingExtension = repomixMissingExtension;
@@ -121,6 +125,7 @@ export function readEnvOverrides(): CxEnvOverrides {
     const configDuplicateEntry = readEnumVar(
       "CX_CONFIG_DUPLICATE_ENTRY",
       VALID_CONFIG_DUPLICATE,
+      env,
     );
     if (configDuplicateEntry !== undefined) {
       overrides.configDuplicateEntry = configDuplicateEntry;
@@ -128,7 +133,11 @@ export function readEnvOverrides(): CxEnvOverrides {
   }
 
   // CX_ASSETS_LAYOUT is always read — it is independent of CX_STRICT.
-  const assetsLayout = readEnumVar("CX_ASSETS_LAYOUT", VALID_ASSETS_LAYOUT);
+  const assetsLayout = readEnumVar(
+    "CX_ASSETS_LAYOUT",
+    VALID_ASSETS_LAYOUT,
+    env,
+  );
   if (assetsLayout !== undefined) overrides.assetsLayout = assetsLayout;
 
   return overrides;

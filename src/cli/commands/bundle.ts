@@ -44,7 +44,12 @@ import {
   relativePosix,
 } from "../../shared/fs.js";
 import { sha256File } from "../../shared/hashing.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStderr,
+} from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
 import { CX_VERSION } from "../../shared/version.js";
 import type { DirtyState } from "../../vcs/provider.js";
@@ -187,8 +192,12 @@ async function performDifferentialSync(params: {
   await pruneEmptyDirectories(finalDir);
 }
 
-export async function runBundleCommand(args: BundleArgs): Promise<number> {
-  const config = await loadCxConfig(args.config, readEnvOverrides(), {
+export async function runBundleCommand(
+  args: BundleArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
+  const config = await loadCxConfig(args.config, readEnvOverrides(io.env), {
     ...getCLIOverrides(),
     ...(args.layout !== undefined && { assetsLayout: args.layout }),
   });
@@ -201,15 +210,15 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
   const notesResult = await validateNotes("notes", plan.sourceRoot);
   if (!notesResult.valid) {
     if (notesResult.errors.length > 0) {
-      printWarning("Note validation errors:");
+      printWarning("Note validation errors:", io);
       for (const error of notesResult.errors) {
-        process.stderr.write(`  ${error.filePath}: ${error.error}\n`);
+        writeStderr(`  ${error.filePath}: ${error.error}\n`, io);
       }
     }
     if (notesResult.duplicateIds.length > 0) {
-      printWarning("Duplicate note IDs detected:");
+      printWarning("Duplicate note IDs detected:", io);
       for (const { id, files } of notesResult.duplicateIds) {
-        process.stderr.write(`  ID ${id}: ${files.join(", ")}\n`);
+        writeStderr(`  ID ${id}: ${files.join(", ")}\n`, io);
       }
     }
     throw new CxError("Note validation failed", 10);
@@ -240,12 +249,14 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
       );
     }
     const recordedState = ciMode ? "ci_dirty" : "forced_dirty";
-    process.stderr.write(
+    writeStderr(
       `Warning: bundling with uncommitted changes in ${plan.modifiedFiles.length} file(s). The manifest will record dirty state as '${recordedState}'.\n`,
+      io,
     );
   } else if (plan.dirtyState === "safe_dirty") {
-    process.stderr.write(
+    writeStderr(
       "Note: working tree has untracked files. These are outside the VCS master list and do not affect bundle integrity (safe_dirty). Use files.include to explicitly pull untracked files into the plan.\n",
+      io,
     );
   }
 
@@ -510,46 +521,61 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
 
     // Print human-friendly report
     if (!(args.json ?? false)) {
-      printHeader("Bundle Summary");
-      printTable([
-        ["Project", plan.projectName],
-        ["Location", plan.bundleDir],
-        ["Handover index", bundleIndexFile],
-      ]);
-      printTable([
-        ["Mode", "Immutable snapshot"],
-        ["Use MCP", "For live workspace exploration and note updates"],
-      ]);
-      printDivider();
-      printTable([
-        ["Sections", plan.sections.length],
-        ["Assets", plan.assets.length],
-        ["Unmatched files", plan.unmatchedFiles.length],
-      ]);
-      printDivider();
+      printHeader("Bundle Summary", io);
+      printTable(
+        [
+          ["Project", plan.projectName],
+          ["Location", plan.bundleDir],
+          ["Handover index", bundleIndexFile],
+        ],
+        io,
+      );
+      printTable(
+        [
+          ["Mode", "Immutable snapshot"],
+          ["Use MCP", "For live workspace exploration and note updates"],
+        ],
+        io,
+      );
+      printDivider(io);
+      printTable(
+        [
+          ["Sections", plan.sections.length],
+          ["Assets", plan.assets.length],
+          ["Unmatched files", plan.unmatchedFiles.length],
+        ],
+        io,
+      );
+      printDivider(io);
 
       // Section details
-      printSubheader("Sections");
+      printSubheader("Sections", io);
       for (const section of sectionOutputs) {
-        printTable([
-          [`  ${section.name}`, ""],
-          ["    Files", section.fileCount],
-          ["    Size", formatBytes(section.sizeBytes)],
-          ["    Packed tokens", formatNumber(section.tokenCount)],
-          ["    Output tokens", formatNumber(section.outputTokenCount)],
-        ]);
+        printTable(
+          [
+            [`  ${section.name}`, ""],
+            ["    Files", section.fileCount],
+            ["    Size", formatBytes(section.sizeBytes)],
+            ["    Packed tokens", formatNumber(section.tokenCount)],
+            ["    Output tokens", formatNumber(section.outputTokenCount)],
+          ],
+          io,
+        );
       }
 
-      printDivider();
-      printTable([
-        ["Total sections size", formatBytes(totalSectionBytes)],
-        ["Total assets size", formatBytes(totalAssetBytes)],
-        ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
-        ["Total packed tokens", formatNumber(totalTokens)],
-        ["Total output tokens", formatNumber(totalOutputTokens)],
-      ]);
-      printDivider();
-      printSuccess("Bundle created successfully");
+      printDivider(io);
+      printTable(
+        [
+          ["Total sections size", formatBytes(totalSectionBytes)],
+          ["Total assets size", formatBytes(totalAssetBytes)],
+          ["Combined", formatBytes(totalSectionBytes + totalAssetBytes)],
+          ["Total packed tokens", formatNumber(totalTokens)],
+          ["Total output tokens", formatNumber(totalOutputTokens)],
+        ],
+        io,
+      );
+      printDivider(io);
+      printSuccess("Bundle created successfully", io);
     }
 
     if (args.json ?? false) {
@@ -561,28 +587,31 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
             : effectiveDirtyState === "forced_dirty"
               ? "Bundle produced with uncommitted tracked changes (--force override)."
               : "Bundle produced with uncommitted tracked changes (--ci override).";
-      writeJson({
-        projectName: plan.projectName,
-        bundleDir: plan.bundleDir,
-        manifestName: `${plan.projectName}-manifest.json`,
-        checksumFile: plan.checksumFile,
-        bundleIndexFile,
-        sections: sectionOutputs,
-        sectionCount: plan.sections.length,
-        assetCount: plan.assets.length,
-        unmatchedCount: plan.unmatchedFiles.length,
-        dirtyState: effectiveDirtyState,
-        dirtyStateNote,
-        statistics: {
-          totalSectionBytes,
-          totalAssetBytes,
-          totalBytes: totalSectionBytes + totalAssetBytes,
-          totalPackedTokens: totalTokens,
-          totalOutputTokens,
+      writeJson(
+        {
+          projectName: plan.projectName,
+          bundleDir: plan.bundleDir,
+          manifestName: `${plan.projectName}-manifest.json`,
+          checksumFile: plan.checksumFile,
+          bundleIndexFile,
+          sections: sectionOutputs,
+          sectionCount: plan.sections.length,
+          assetCount: plan.assets.length,
+          unmatchedCount: plan.unmatchedFiles.length,
+          dirtyState: effectiveDirtyState,
+          dirtyStateNote,
+          statistics: {
+            totalSectionBytes,
+            totalAssetBytes,
+            totalBytes: totalSectionBytes + totalAssetBytes,
+            totalPackedTokens: totalTokens,
+            totalOutputTokens,
+          },
+          warnings: [...plan.warnings, ...renderWarnings],
+          repomix: await getRepomixCapabilities(),
         },
-        warnings: [...plan.warnings, ...renderWarnings],
-        repomix: await getRepomixCapabilities(),
-      });
+        io,
+      );
     }
   } finally {
     if (stagingRoot) {

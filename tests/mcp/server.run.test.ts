@@ -1,12 +1,11 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { execFile } from "node:child_process";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { promisify } from "node:util";
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { loadCxConfig } from "../../src/config/load.js";
+import { buildConfig } from "../helpers/config/buildConfig.js";
+import { createWorkspace as createTestWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -27,55 +26,40 @@ async function initGitRepo(root: string): Promise<void> {
 async function createWorkspace(): Promise<{
   mcpPath: string;
 }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-server-"));
-  await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    ["export const greeting = 'hello';", "export const target = 'world';"].join(
-      "\n",
-    ),
-    "utf8",
-  );
+  const workspace = await createTestWorkspace({
+    config: buildConfig({
+      assets: {
+        include: [],
+        exclude: [],
+        mode: "ignore",
+        targetDir: "assets",
+      },
+      sections: {
+        src: {
+          include: ["src/**"],
+          exclude: [],
+        },
+      },
+    }),
+    overlayConfig: {
+      extends: "cx.toml",
+      mcp: {
+        policy: "unrestricted",
+      },
+    },
+    files: {
+      "src/index.ts": [
+        "export const greeting = 'hello';",
+        "export const target = 'world';",
+      ].join("\n"),
+    },
+  });
 
-  const configPath = path.join(root, "cx.toml");
-  const mcpPath = path.join(root, "cx-mcp.toml");
-  await fs.writeFile(
-    configPath,
-    `schema_version = 1
-project_name = "demo"
-source_root = "."
-output_dir = "dist/demo-bundle"
+  await initGitRepo(workspace.rootDir);
 
-[repomix]
-style = "xml"
-show_line_numbers = false
-include_empty_directories = false
-security_check = false
-
-[files]
-exclude = ["dist/**"]
-follow_symlinks = false
-unmatched = "ignore"
-
-[sections.src]
-include = ["src/**"]
-exclude = []
-`,
-    "utf8",
-  );
-  await fs.writeFile(
-    mcpPath,
-    `extends = "cx.toml"
-
-[mcp]
-policy = "unrestricted"
-`,
-    "utf8",
-  );
-
-  await initGitRepo(root);
-
-  return { mcpPath };
+  return {
+    mcpPath: workspace.overlayConfigPath as string,
+  };
 }
 
 describe("runCxMcpServer", () => {

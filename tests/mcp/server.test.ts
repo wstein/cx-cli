@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { loadCxConfig } from "../../src/config/load.js";
 import { createCxMcpServer } from "../../src/mcp/server.js";
+import { buildConfig } from "../helpers/config/buildConfig.js";
+import { createWorkspace as createTestWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -86,77 +87,64 @@ async function createWorkspace(
   configPath: string;
   mcpPath: string;
 }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-server-"));
-  await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    ["export const greeting = 'hello';", "export const target = 'world';"].join(
-      "\n",
-    ),
-    "utf8",
-  );
-  await fs.writeFile(
-    path.join(root, "README.md"),
-    "# Workspace\n\nhello from cx\n",
-    "utf8",
-  );
-  if (options.includeSecret === true) {
-    const secretValue = ["ghp_", "123456789012345678901234567890123456"].join(
-      "",
-    );
-    await fs.writeFile(
-      path.join(root, "secrets.txt"),
-      `${secretValue}\n`,
-      "utf8",
-    );
-  }
+  const workspace = await createTestWorkspace({
+    config: buildConfig({
+      assets: {
+        include: [],
+        exclude: [],
+        mode: "ignore",
+        targetDir: "assets",
+      },
+      sections:
+        options.overlap === true
+          ? {
+              src: {
+                include: ["src/**"],
+                exclude: [],
+              },
+              mixed: {
+                include: ["src/**"],
+                exclude: [],
+              },
+            }
+          : {
+              src: {
+                include: ["src/**"],
+                exclude: [],
+              },
+            },
+    }),
+    overlayConfig: {
+      extends: "cx.toml",
+      mcp: {
+        policy: "unrestricted",
+        enable_mutation: true,
+      },
+      files: {
+        include: ["README.md"],
+      },
+    },
+    files: {
+      "src/index.ts": [
+        "export const greeting = 'hello';",
+        "export const target = 'world';",
+      ].join("\n"),
+      "README.md": "# Workspace\n\nhello from cx\n",
+      ...(options.includeSecret === true
+        ? {
+            "secrets.txt": "ghp_123456789012345678901234567890123456\n",
+          }
+        : {}),
+    },
+  });
 
-  const configPath = path.join(root, "cx.toml");
-  const mcpPath = path.join(root, "cx-mcp.toml");
+  await initGitRepo(workspace.rootDir);
 
-  await fs.writeFile(
-    configPath,
-    `schema_version = 1
-project_name = "demo"
-source_root = "."
-output_dir = "dist/demo-bundle"
-
-[repomix]
-style = "xml"
-show_line_numbers = false
-include_empty_directories = false
-security_check = false
-
-[files]
-exclude = ["dist/**"]
-follow_symlinks = false
-unmatched = "ignore"
-
-[sections.src]
-include = ["src/**"]
-exclude = []
-${options.overlap === true ? '\n[sections.mixed]\ninclude = ["src/**"]\n' : ""}
-`,
-    "utf8",
-  );
-
-  await fs.writeFile(
-    mcpPath,
-    `extends = "cx.toml"
-
-[mcp]
-policy = "unrestricted"
-enable_mutation = true
-
-[files]
-include = ["README.md"]
-`,
-    "utf8",
-  );
-
-  await initGitRepo(root);
-
-  return { root, configPath, mcpPath };
+  return {
+    root: workspace.rootDir,
+    configPath: workspace.configPath,
+    mcpPath: workspace.overlayConfigPath as string,
+  };
 }
 
 describe("cx MCP server", () => {

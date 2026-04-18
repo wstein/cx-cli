@@ -20,11 +20,16 @@ import {
 } from "../../../notes/graph.js";
 import { CxError } from "../../../shared/errors.js";
 import {
-  printInfo,
-  printSuccess,
-  printWarning,
+  printInfo as basePrintInfo,
+  printSuccess as basePrintSuccess,
+  printWarning as basePrintWarning,
 } from "../../../shared/format.js";
-import { writeJson } from "../../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStdout,
+} from "../../../shared/output.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
@@ -35,7 +40,15 @@ export interface NotesArgs {
   depth?: number | undefined;
   json?: boolean | undefined;
 }
-export async function runNotesCommand(args: NotesArgs): Promise<number> {
+export async function runNotesCommand(
+  args: NotesArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
+  const printInfo = (message: string) => basePrintInfo(message, io);
+  const printSuccess = (message: string) => basePrintSuccess(message, io);
+  const printWarning = (message: string) => basePrintWarning(message, io);
+  const writeJsonOutput = (value: unknown) => writeJson(value, io);
   const subcommand = args.subcommand ?? "list";
 
   if (subcommand === "new") {
@@ -49,7 +62,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     });
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes new",
         id,
         title: args.title,
@@ -76,7 +89,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const note = await readNote(args.id);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes read",
         ...note,
       });
@@ -92,7 +105,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
       }
       printInfo(`  Summary: ${note.summary}`);
       printInfo("");
-      process.stdout.write(`${note.body.trimEnd()}\n`);
+      writeStdout(`${note.body.trimEnd()}\n`, io);
     }
 
     return 0;
@@ -120,7 +133,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     });
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes update",
         id: note.id,
         title: note.title,
@@ -150,7 +163,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const note = await renameNote(args.id, args.title);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes rename",
         id: note.id,
         title: note.title,
@@ -179,7 +192,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const note = await deleteNote(args.id);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes delete",
         id: note.id,
         title: note.title,
@@ -198,7 +211,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const notes = await listNotes("notes");
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes list",
         count: notes.length,
         notes,
@@ -236,7 +249,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const backlinks = getBacklinks(graph, args.id);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes backlinks",
         noteId: args.id,
         noteTitle: note.title,
@@ -268,7 +281,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     });
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes orphans",
         count: orphans.length,
         orphans,
@@ -303,7 +316,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const codeFiles = getCodeReferences(graph, args.id);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes code-links",
         noteId: args.id,
         noteTitle: note.title,
@@ -337,7 +350,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
       const broken = getBrokenLinks(graph, args.id);
 
       if (args.json ?? false) {
-        writeJson({
+        writeJsonOutput({
           command: "notes links",
           noteId: args.id,
           noteTitle: note.title,
@@ -377,7 +390,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const broken = getBrokenLinks(graph);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes links",
         count: broken.length,
         brokenLinks: broken,
@@ -406,7 +419,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const report = await checkNotesConsistency("notes", process.cwd());
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes check",
         ...report,
       });
@@ -470,7 +483,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const coverage = await checkNoteCoverage("notes", process.cwd());
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes coverage",
         ...coverage,
       });
@@ -510,7 +523,7 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
     const reachable = getReachableNotes(graph, args.id, depth);
 
     if (args.json ?? false) {
-      writeJson({
+      writeJsonOutput({
         command: "notes graph",
         id: args.id,
         title: note.title,

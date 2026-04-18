@@ -20,7 +20,12 @@ import {
 import { recommendWorkflow } from "../../doctor/workflow.js";
 import type { OverlapConflict } from "../../planning/overlaps.js";
 import { CxError } from "../../shared/errors.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStdout,
+} from "../../shared/output.js";
 import {
   printWizardComplete,
   printWizardHeader,
@@ -55,7 +60,11 @@ interface OverlapFixPlan {
   excludesBySection: Record<string, string[]>;
 }
 
-export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
+export async function runDoctorCommand(
+  args: DoctorArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   if (args.all === true && args.json === true) {
     throw new CxError(
       "doctor --all does not support --json. Run individual diagnostics with --json instead.",
@@ -64,7 +73,7 @@ export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
   }
 
   if (args.all === true) {
-    return runDoctorAll(args);
+    return runDoctorAll(args, io);
   }
 
   if (!args.subcommand) {
@@ -76,54 +85,63 @@ export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
 
   switch (args.subcommand) {
     case "overlaps":
-      return runDoctorOverlaps(args);
+      return runDoctorOverlaps(args, io);
     case "fix-overlaps":
-      return runDoctorFixOverlaps(args);
+      return runDoctorFixOverlaps(args, io);
     case "mcp":
-      return runDoctorMcp(args);
+      return runDoctorMcp(args, io);
     case "notes":
-      return runDoctorNotes(args);
+      return runDoctorNotes(args, io);
     case "secrets":
-      return runDoctorSecrets(args);
+      return runDoctorSecrets(args, io);
     case "workflow":
-      return runDoctorWorkflow(args);
+      return runDoctorWorkflow(args, io);
     default:
       throw new CxError(`Unknown doctor subcommand: ${args.subcommand}`, 2);
   }
 }
 
-async function runDoctorAll(args: DoctorArgs): Promise<number> {
-  const overlapExitCode = await runDoctorOverlaps(args);
+async function runDoctorAll(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
+  const overlapExitCode = await runDoctorOverlaps(args, io);
   if (overlapExitCode !== 0) {
     return overlapExitCode;
   }
 
-  const mcpExitCode = await runDoctorMcp(args);
+  const mcpExitCode = await runDoctorMcp(args, io);
   if (mcpExitCode !== 0) {
     return mcpExitCode;
   }
 
-  const notesExitCode = await runDoctorNotes(args);
+  const notesExitCode = await runDoctorNotes(args, io);
   if (notesExitCode !== 0) {
     return notesExitCode;
   }
 
-  return await runDoctorSecrets(args);
+  return await runDoctorSecrets(args, io);
 }
 
-async function runDoctorOverlaps(args: DoctorArgs): Promise<number> {
+async function runDoctorOverlaps(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const report = await collectDoctorOverlapsReport({
     config: args.config,
     json: args.json,
   });
-  printDoctorOverlapsReport(report, args.json ?? false);
+  printDoctorOverlapsReport(report, args.json ?? false, io);
   return report.conflictCount === 0 ? 0 : 4;
 }
 
-async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
+async function runDoctorFixOverlaps(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const configPath = path.resolve(args.config ?? "cx.toml");
 
-  if (args.interactive && !process.stdin.isTTY) {
+  if (args.interactive && !io.stdin?.isTTY) {
     throw new CxError(
       "cx doctor fix-overlaps --interactive requires an interactive terminal (stdin is not a TTY).\n" +
         "Remove --interactive to apply the recommended ownership automatically, or run this command from a terminal.",
@@ -138,15 +156,19 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
 
   if (conflicts.length === 0) {
     if (args.json ?? false) {
-      writeJson({
-        configPath: report.resolvedConfigPath,
-        changed: false,
-        conflictCount: 0,
-        excludesBySection: {},
-      });
+      writeJson(
+        {
+          configPath: report.resolvedConfigPath,
+          changed: false,
+          conflictCount: 0,
+          excludesBySection: {},
+        },
+        io,
+      );
     } else {
-      process.stdout.write(
+      writeStdout(
         `No section overlaps detected in ${report.resolvedConfigPath}.\n`,
+        io,
       );
     }
     return 0;
@@ -159,23 +181,27 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   const fixPlan = buildFixPlan(conflicts, ownership);
 
   if (args.json ?? false) {
-    writeJson({
-      configPath: report.resolvedConfigPath,
-      changed: !(args.dryRun ?? false),
-      dryRun: Boolean(args.dryRun),
-      conflictCount: fixPlan.conflicts.length,
-      ownership: fixPlan.ownership,
-      excludesBySection: fixPlan.excludesBySection,
-    });
+    writeJson(
+      {
+        configPath: report.resolvedConfigPath,
+        changed: !(args.dryRun ?? false),
+        dryRun: Boolean(args.dryRun),
+        conflictCount: fixPlan.conflicts.length,
+        ownership: fixPlan.ownership,
+        excludesBySection: fixPlan.excludesBySection,
+      },
+      io,
+    );
   } else {
-    process.stdout.write(
+    writeStdout(
       `Prepared overlap fixes for ${fixPlan.conflicts.length} conflict${fixPlan.conflicts.length === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n\n`,
+      io,
     );
     for (const conflict of fixPlan.conflicts) {
       const owner = ownership.get(conflict.path);
-      process.stdout.write(`${formatConflictSummary(conflict, owner)}\n\n`);
+      writeStdout(`${formatConflictSummary(conflict, owner)}\n\n`, io);
     }
-    process.stdout.write(`${formatFixPlan(fixPlan)}\n`);
+    writeStdout(`${formatFixPlan(fixPlan)}\n`, io);
   }
 
   if (args.dryRun ?? false) {
@@ -187,7 +213,7 @@ async function runDoctorFixOverlaps(args: DoctorArgs): Promise<number> {
   await fs.writeFile(configPath, updated, "utf8");
 
   if (!(args.json ?? false)) {
-    process.stdout.write(`Updated ${configPath}.\n`);
+    writeStdout(`Updated ${configPath}.\n`, io);
   }
 
   return 0;
@@ -213,34 +239,46 @@ function formatConflictSummary(
   return lines.join("\n");
 }
 
-async function runDoctorMcp(args: DoctorArgs): Promise<number> {
+async function runDoctorMcp(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const report = await collectDoctorMcpReport({
     config: args.config,
     json: args.json,
   });
-  printDoctorMcpReport(report, args.json ?? false);
+  printDoctorMcpReport(report, args.json ?? false, io);
   return 0;
 }
 
-async function runDoctorNotes(args: DoctorArgs): Promise<number> {
+async function runDoctorNotes(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const report = await collectDoctorNotesReport({
     config: args.config,
     json: args.json,
   });
-  printDoctorNotesReport(report, args.json ?? false);
+  printDoctorNotesReport(report, args.json ?? false, io);
   return report.driftCount === 0 ? 0 : 4;
 }
 
-async function runDoctorSecrets(args: DoctorArgs): Promise<number> {
+async function runDoctorSecrets(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const report = await collectDoctorSecretsReport({
     config: args.config,
     json: args.json,
   });
-  printDoctorSecretsReport(report, args.json ?? false);
+  printDoctorSecretsReport(report, args.json ?? false, io);
   return report.suspiciousCount === 0 ? 0 : 4;
 }
 
-async function runDoctorWorkflow(args: DoctorArgs): Promise<number> {
+async function runDoctorWorkflow(
+  args: DoctorArgs,
+  io: Partial<CommandIo>,
+): Promise<number> {
   const task = args.task?.trim();
   if (!task) {
     throw new CxError("doctor workflow requires --task.", 2);
@@ -249,19 +287,24 @@ async function runDoctorWorkflow(args: DoctorArgs): Promise<number> {
   const recommendation = recommendWorkflow(task);
 
   if (args.json ?? false) {
-    writeJson({
-      task,
-      ...recommendation,
-    });
-  } else {
-    process.stdout.write(`Task: ${task}\n`);
-    process.stdout.write(
-      `Recommended path: ${recommendation.sequence.map((step) => `cx ${step}`).join(" -> ")}\n`,
+    writeJson(
+      {
+        task,
+        ...recommendation,
+      },
+      io,
     );
-    process.stdout.write(`Primary mode: cx ${recommendation.mode}\n`);
-    process.stdout.write(`Reason: ${recommendation.reason}\n`);
-    process.stdout.write(
+  } else {
+    writeStdout(`Task: ${task}\n`, io);
+    writeStdout(
+      `Recommended path: ${recommendation.sequence.map((step) => `cx ${step}`).join(" -> ")}\n`,
+      io,
+    );
+    writeStdout(`Primary mode: cx ${recommendation.mode}\n`, io);
+    writeStdout(`Reason: ${recommendation.reason}\n`, io);
+    writeStdout(
       `Signals: ${recommendation.signals.length > 0 ? recommendation.signals.join(", ") : "none"}\n`,
+      io,
     );
   }
 

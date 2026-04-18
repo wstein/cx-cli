@@ -6,7 +6,7 @@ import {
   analyzeSectionOverlaps,
   type OverlapConflict,
 } from "../planning/overlaps.js";
-import { writeJson } from "../shared/output.js";
+import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 
 export interface DoctorOverlapsArgs {
@@ -51,27 +51,31 @@ export async function collectDoctorOverlapsReport(
 export function printDoctorOverlapsReport(
   report: DoctorOverlapsReport,
   json: boolean,
+  io: Partial<CommandIo> = {},
 ): void {
   if (json) {
-    writeJson(report);
+    writeJson(report, io);
     return;
   }
 
   if (report.conflictCount === 0) {
-    process.stdout.write(
+    writeStdout(
       `No section overlaps detected in ${report.resolvedConfigPath}.\n`,
+      io,
     );
     return;
   }
 
-  process.stdout.write(
+  writeStdout(
     `Detected ${report.conflictCount} section overlap${report.conflictCount === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n\n`,
+    io,
   );
   for (const conflict of report.conflicts) {
-    process.stdout.write(`${formatConflictSummary(conflict)}\n\n`);
+    writeStdout(`${formatConflictSummary(conflict)}\n\n`, io);
   }
-  process.stdout.write(
+  writeStdout(
     "Run `cx doctor fix-overlaps --dry-run` to review the proposed exclude updates.\n",
+    io,
   );
 }
 

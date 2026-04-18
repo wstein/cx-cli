@@ -6,6 +6,12 @@ import { hideBin } from "yargs/helpers";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
 import { asError, CxError, formatErrorRemediation } from "../shared/errors.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeStderr,
+  writeStdout,
+} from "../shared/output.js";
 import { CX_VERSION } from "../shared/version.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
@@ -58,7 +64,16 @@ function normalizeArrayArg(value: unknown): string[] | undefined {
   return [String(value)];
 }
 
-function writeStdoutSafe(data: string): Promise<void> {
+function writeStdoutSafe(
+  data: string,
+  io: Partial<CommandIo> = {},
+): Promise<void> {
+  const resolvedIo = resolveCommandIo(io);
+  if (resolvedIo.stdout !== process.stdout) {
+    resolvedIo.stdout.write(data);
+    return Promise.resolve();
+  }
+
   return new Promise((resolve, reject) => {
     const onError = (error: NodeJS.ErrnoException) => {
       if (error.code === "EPIPE") {
@@ -92,7 +107,11 @@ function writeStdoutSafe(data: string): Promise<void> {
   });
 }
 
-export async function main(argv: string[]): Promise<number> {
+export async function main(
+  argv: string[],
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   let exitCode = 0;
 
   const cli = yargs(hideBin(["node", "cx", ...argv]))
@@ -190,16 +209,18 @@ export async function main(argv: string[]): Promise<number> {
           if (current.includes(target.snippet.trim())) {
             await writeStdoutSafe(
               `cx completion is already installed in ${target.path}\n`,
+              io,
             );
           } else {
             appendFileSync(target.path, target.snippet);
             await writeStdoutSafe(
               `Installed cx completion dynamic loader in ${target.path}\n`,
+              io,
             );
           }
           exitCode = 0;
         } else {
-          await writeStdoutSafe(renderCompletionScript(shell));
+          await writeStdoutSafe(renderCompletionScript(shell), io);
           exitCode = 0;
         }
       },
@@ -325,14 +346,17 @@ export async function main(argv: string[]): Promise<number> {
               'Override assets.layout for this run ("flat" or "deep"). Takes precedence over CX_ASSETS_LAYOUT and cx.toml.',
           }),
       async (args) => {
-        exitCode = await runBundleCommand({
-          config: args.config,
-          json: args.json,
-          layout: args.layout,
-          update: args.update,
-          force: args.force,
-          ci: args.ci,
-        });
+        exitCode = await runBundleCommand(
+          {
+            config: args.config,
+            json: args.json,
+            layout: args.layout,
+            update: args.update,
+            force: args.force,
+            ci: args.ci,
+          },
+          io,
+        );
       },
     )
     .command(
@@ -354,17 +378,20 @@ export async function main(argv: string[]): Promise<number> {
           .option("overwrite", { type: "boolean", default: false })
           .option("verify", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runExtractCommand({
-          bundleDir: args.bundleDir,
-          destinationDir: args.to,
-          sections: normalizeArrayArg(args.section),
-          files: normalizeArrayArg(args.file),
-          assetsOnly: args["assets-only"],
-          allowDegraded: args["allow-degraded"],
-          json: args.json,
-          overwrite: args.overwrite,
-          verify: args.verify,
-        });
+        exitCode = await runExtractCommand(
+          {
+            bundleDir: args.bundleDir,
+            destinationDir: args.to,
+            sections: normalizeArrayArg(args.section),
+            files: normalizeArrayArg(args.file),
+            assetsOnly: args["assets-only"],
+            allowDegraded: args["allow-degraded"],
+            json: args.json,
+            overwrite: args.overwrite,
+            verify: args.verify,
+          },
+          io,
+        );
       },
     )
     .command(
@@ -381,12 +408,15 @@ export async function main(argv: string[]): Promise<number> {
           .option("file", { type: "array", string: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runListCommand({
-          bundleDir: args.bundleDir,
-          files: normalizeArrayArg(args.file),
-          json: args.json,
-          sections: normalizeArrayArg(args.section),
-        });
+        exitCode = await runListCommand(
+          {
+            bundleDir: args.bundleDir,
+            files: normalizeArrayArg(args.file),
+            json: args.json,
+            sections: normalizeArrayArg(args.section),
+          },
+          io,
+        );
       },
     )
     .command(
@@ -517,7 +547,7 @@ export async function main(argv: string[]): Promise<number> {
               }
             : {}),
         };
-        exitCode = await runDoctorCommand(doctorArgs);
+        exitCode = await runDoctorCommand(doctorArgs, io);
       },
     )
     .command(
@@ -704,15 +734,18 @@ export async function main(argv: string[]): Promise<number> {
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runNotesCommand({
-          subcommand: args.subcommand as string | undefined,
-          body: args.body as string | undefined,
-          title: args.title as string | undefined,
-          tags: normalizeArrayArg(args.tags),
-          id: args.id as string | undefined,
-          depth: args.depth as number | undefined,
-          json: args.json,
-        });
+        exitCode = await runNotesCommand(
+          {
+            subcommand: args.subcommand as string | undefined,
+            body: args.body as string | undefined,
+            title: args.title as string | undefined,
+            tags: normalizeArrayArg(args.tags),
+            id: args.id as string | undefined,
+            depth: args.depth as number | undefined,
+            json: args.json,
+          },
+          io,
+        );
       },
     );
 
@@ -733,12 +766,12 @@ export async function main(argv: string[]): Promise<number> {
     argv.length === 0 ||
     (argv.length === 1 && (argv[0] === "-h" || argv[0] === "--help"))
   ) {
-    process.stdout.write(`${await cli.getHelp()}\n`);
+    writeStdout(`${await cli.getHelp()}\n`, io);
     return 0;
   }
 
   if (argv.length === 1 && (argv[0] === "-v" || argv[0] === "--version")) {
-    process.stdout.write(`${CX_VERSION}\n`);
+    writeStdout(`${CX_VERSION}\n`, io);
     return 0;
   }
 
@@ -754,10 +787,10 @@ if (import.meta.main) {
     })
     .catch((error: unknown) => {
       const resolved = asError(error);
-      process.stderr.write(`${resolved.message}\n`);
+      writeStderr(`${resolved.message}\n`);
       if (resolved instanceof CxError) {
         for (const line of formatErrorRemediation(resolved.remediation)) {
-          process.stderr.write(`${line}\n`);
+          writeStderr(`${line}\n`);
         }
       }
       process.exitCode = resolved instanceof CxError ? resolved.exitCode : 1;
