@@ -1,9 +1,9 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       version:
@@ -20,47 +20,22 @@ permissions:
   contents: read
 
 jobs:
-  test-fast:
+  gate:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout current repo
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.11
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Lint and typecheck
-        run: bun run lint && bun run check
-
-      - name: Build
-        run: bun run build
-
-      - name: Run deterministic test lane
-        run: bun test tests --timeout 20000
-
-  tarball:
-    runs-on: ubuntu-latest
-    needs:
-      - test-fast
     outputs:
+      run_release: ${{ steps.release-version.outputs.run_release }}
       release_version: ${{ steps.release-version.outputs.version }}
-      npm_tarball_name: ${{ steps.pack.outputs.npm_tarball_name }}
     steps:
       - name: Checkout current repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.11
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
 
       - name: Determine release version
         id: release-version
@@ -71,16 +46,47 @@ jobs:
             if [ -z "$requested_version" ]; then
               requested_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")
             fi
-          else
-            requested_version=${GITHUB_REF#refs/tags/v}
+            echo "run_release=true" >> "$GITHUB_OUTPUT"
+            echo "version=$requested_version" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          echo "version=$requested_version" >> $GITHUB_OUTPUT
+
+          tag_name=$(git tag --points-at HEAD --list 'v*' | head -n 1 || true)
+          if [ -z "$tag_name" ]; then
+            echo "run_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "run_release=true" >> "$GITHUB_OUTPUT"
+          echo "version=${tag_name#v}" >> "$GITHUB_OUTPUT"
+
+  tarball:
+    needs: gate
+    if: needs.gate.outputs.run_release == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ needs.gate.outputs.release_version }}
+      npm_tarball_name: ${{ steps.pack.outputs.npm_tarball_name }}
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       - name: Validate package version matches tag or input
         run: |
           set -euo pipefail
           pkg_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")
-          requested_version="${{ steps.release-version.outputs.version }}"
+          requested_version="${{ needs.gate.outputs.release_version }}"
           if [ "$pkg_version" != "$requested_version" ]; then
             echo "Package version ($pkg_version) does not match git tag or provided version ($requested_version)."
             exit 1
@@ -113,9 +119,9 @@ jobs:
 
   npm:
     needs:
-      - test-fast
+      - gate
       - tarball
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     environment: node
     steps:
@@ -150,10 +156,10 @@ jobs:
 
   homebrew:
     needs:
-      - test-fast
+      - gate
       - tarball
       - npm
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     environment: homebrew
     permissions:
