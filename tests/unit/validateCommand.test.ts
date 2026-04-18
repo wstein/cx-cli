@@ -38,9 +38,13 @@ Body.
   );
 
   for (let index = 0; index < noteContents.length; index += 1) {
+    const noteContent = noteContents[index];
+    if (noteContent === undefined) {
+      throw new Error(`Missing note content for index ${index}`);
+    }
     await fs.writeFile(
       path.join(notesDir, `note-${index + 1}.md`),
-      noteContents[index],
+      noteContent,
       "utf8",
     );
   }
@@ -119,7 +123,11 @@ Body.
 `,
     ]);
 
-    const result = await captureCli({
+    const result = await captureCli<{
+      bundleDir: string;
+      notes: { count: number; valid: boolean };
+      valid: boolean;
+    }>({
       run: () => runValidateCommand({ bundleDir, json: true }),
       parseJson: true,
     });
