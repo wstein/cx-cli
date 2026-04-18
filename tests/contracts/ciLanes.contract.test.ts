@@ -41,10 +41,10 @@ describe("CI lanes contract", () => {
     expect(scripts["test:contracts"]).not.toContain("find ./tests");
   });
 
-  test("CI reproducibility job delegates to scripts/reproducibility-check.js", async () => {
+  test("CI reproducibility job delegates to a reproducibility assurance wrapper", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain("node scripts/reproducibility-check.js");
+    expect(workflow).toContain("run: bun run ci:assurance:reproducibility");
     // inline hash-capture steps must not remain in the workflow
     expect(workflow).not.toContain("sha256sum");
     expect(workflow).not.toContain("build1.sha256");
@@ -54,7 +54,7 @@ describe("CI lanes contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("release-assurance:");
-    expect(workflow).toContain("run: bun run smoke:release-integrity");
+    expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
   });
 
   test("repomix matrix installs known-good fork versions", async () => {

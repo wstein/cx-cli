@@ -22,11 +22,11 @@ describe("assurance ladder contract", () => {
     const certify = scripts.certify ?? "";
 
     expect(certify).toContain("bun run verify");
-    expect(certify).toContain("bun run test:contracts");
-    expect(certify).toContain("bun run smoke:repomix-version");
-    expect(certify).toContain("bun run smoke:bundle-transition");
-    expect(certify).toContain("bun run smoke:release-integrity");
-    expect(certify).toContain("node scripts/reproducibility-check.js");
+    expect(certify).toContain("bun run ci:test:contracts");
+    expect(certify).toContain("bun run ci:smoke:repomix-version");
+    expect(certify).toContain("bun run ci:smoke:bundle-transition");
+    expect(certify).toContain("bun run ci:assurance:release-integrity");
+    expect(certify).toContain("bun run ci:assurance:reproducibility");
   });
 
   test("assurance lane scripts are defined", async () => {
