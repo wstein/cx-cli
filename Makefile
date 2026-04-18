@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test coverage verify format fix release clean notes smoke help
+.PHONY: all build test coverage verify format fix lint release clean notes smoke help
 all: build
 
 build: ## Build the project.
@@ -13,6 +13,9 @@ build: ## Build the project.
 
 format: ## Format the project source.
 	$(BUN) run format
+
+lint: ## Run lint checks and boundary validation.
+	$(BUN) run lint
 
 test: ## Run unit tests with coverage.
 	$(BUN) run coverage
