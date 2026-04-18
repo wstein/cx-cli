@@ -48,7 +48,10 @@ describe("runInitCommand", () => {
 
   test("json=true outputs structured JSON without writing stdout text", async () => {
     const capture = createBufferedCommandIo();
-    const exitCode = await runInitCommand({ ...BASE_ARGS, json: true }, capture.io);
+    const exitCode = await runInitCommand(
+      { ...BASE_ARGS, json: true },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
     const parsed = parseJsonOutput<Record<string, unknown>>(capture.stdout());
     expect(parsed.projectName).toBe("testproject");

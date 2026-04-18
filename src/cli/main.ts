@@ -268,16 +268,19 @@ export async function main(
             description: "Show supported init templates and exit.",
           }),
       async (args) => {
-        exitCode = await runInitCommand({
-          force: args.force,
-          interactive: args.interactive,
-          json: args.json,
-          name: args.name,
-          stdout: args.stdout,
-          style: args.style,
-          template: args.template,
-          templateList: args["template-list"],
-        }, io);
+        exitCode = await runInitCommand(
+          {
+            force: args.force,
+            interactive: args.interactive,
+            json: args.json,
+            name: args.name,
+            stdout: args.stdout,
+            style: args.style,
+            template: args.template,
+            templateList: args["template-list"],
+          },
+          io,
+        );
       },
     )
     .command(
@@ -442,10 +445,13 @@ export async function main(
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runValidateCommand({
-          bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
-          json: args.json,
-        }, io);
+        exitCode = await runValidateCommand(
+          {
+            bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
+            json: args.json,
+          },
+          io,
+        );
       },
     )
     .command(
@@ -584,16 +590,19 @@ export async function main(
           .option("output-dir", { type: "string" })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runRenderCommand({
-          config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
-          sections: normalizeArrayArg(args.section),
-          files: normalizeArrayArg(args.file),
-          allSections: args["all-sections"],
-          style: args.style,
-          stdout: args.stdout,
-          outputDir: args["output-dir"],
-          json: args.json,
-        }, io);
+        exitCode = await runRenderCommand(
+          {
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
+            sections: normalizeArrayArg(args.section),
+            files: normalizeArrayArg(args.file),
+            allSections: args["all-sections"],
+            style: args.style,
+            stdout: args.stdout,
+            outputDir: args["output-dir"],
+            json: args.json,
+          },
+          io,
+        );
       },
     )
     .command(

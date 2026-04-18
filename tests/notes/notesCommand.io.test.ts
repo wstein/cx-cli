@@ -11,7 +11,10 @@ import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 let testDir: string;
 
-function runNotesCommand(args: NotesArgs, io?: Parameters<typeof runNotesCommandBase>[1]) {
+function runNotesCommand(
+  args: NotesArgs,
+  io?: Parameters<typeof runNotesCommandBase>[1],
+) {
   return runNotesCommandBase(
     {
       ...args,

@@ -151,21 +151,27 @@ export async function runRenderCommand(
   if (!(args.stdout && outputs.length === 1) && !(args.json ?? false)) {
     printHeader("Render Complete", io);
     for (const output of outputs) {
-      printTable([
-        [`📄 ${output.section}`, ""],
-        ["  Files", output.fileCount],
-        ["  Size", formatBytes(output.sizeBytes)],
-        ["  Tokens", formatNumber(output.tokenCount)],
-      ], io);
+      printTable(
+        [
+          [`📄 ${output.section}`, ""],
+          ["  Files", output.fileCount],
+          ["  Size", formatBytes(output.sizeBytes)],
+          ["  Tokens", formatNumber(output.tokenCount)],
+        ],
+        io,
+      );
     }
     if (outputs.length > 0) {
       printDivider(io);
       const totalSize = outputs.reduce((sum, o) => sum + o.sizeBytes, 0);
       const totalTokens = outputs.reduce((sum, o) => sum + o.tokenCount, 0);
-      printTable([
-        ["Total size", formatBytes(totalSize)],
-        ["Total tokens", formatNumber(totalTokens)],
-      ], io);
+      printTable(
+        [
+          ["Total size", formatBytes(totalSize)],
+          ["Total tokens", formatNumber(totalTokens)],
+        ],
+        io,
+      );
       printSuccess(
         `Rendered ${outputs.length} section${outputs.length === 1 ? "" : "s"}`,
         io,
@@ -174,15 +180,19 @@ export async function runRenderCommand(
   }
 
   if (args.json ?? false) {
-    writeValidatedJson(RenderCommandJsonSchema, {
-      projectName: config.projectName,
-      sourceRoot: config.sourceRoot,
-      selection: {
-        sections: selectedSectionNames,
-        files: requestedFiles,
+    writeValidatedJson(
+      RenderCommandJsonSchema,
+      {
+        projectName: config.projectName,
+        sourceRoot: config.sourceRoot,
+        selection: {
+          sections: selectedSectionNames,
+          files: requestedFiles,
+        },
+        outputs,
       },
-      outputs,
-    }, io);
+      io,
+    );
   }
 
   return 0;

@@ -296,10 +296,7 @@ exclude = []
     expect(validateCapture.stdout()).toBe("");
 
     await expect(
-      main(
-        ["verify", path.join(root, "dist", "demo-bundle")],
-        workspaceIo.io,
-      ),
+      main(["verify", path.join(root, "dist", "demo-bundle")], workspaceIo.io),
     ).resolves.toBe(0);
 
     await expect(

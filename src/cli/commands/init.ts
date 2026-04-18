@@ -50,22 +50,31 @@ async function resolveInteractiveValues(
 
   const name =
     args.name ??
-    (await wizardInput("Project name", {
-      default: "myproject",
-      description:
-        "  Alphanumeric, dots, hyphens, underscores. Must start with letter or number.",
-    }, io));
+    (await wizardInput(
+      "Project name",
+      {
+        default: "myproject",
+        description:
+          "  Alphanumeric, dots, hyphens, underscores. Must start with letter or number.",
+      },
+      io,
+    ));
 
   printWizardStep(2, 3, "Output style", io);
 
   const style =
     args.style ??
-    (await wizardSelect<InitArgs["style"]>("Repomix output style", [
-      { name: "XML (recommended for LLMs)", value: "xml" },
-      { name: "JSON (structured data)", value: "json" },
-      { name: "Markdown (human-readable)", value: "markdown" },
-      { name: "Plain text (simple)", value: "plain" },
-    ], {}, io));
+    (await wizardSelect<InitArgs["style"]>(
+      "Repomix output style",
+      [
+        { name: "XML (recommended for LLMs)", value: "xml" },
+        { name: "JSON (structured data)", value: "json" },
+        { name: "Markdown (human-readable)", value: "markdown" },
+        { name: "Plain text (simple)", value: "plain" },
+      ],
+      {},
+      io,
+    ));
 
   printWizardStep(3, 3, "Confirmation", io);
 
@@ -152,12 +161,16 @@ export async function runInitCommand(
 
   if (args.stdout) {
     if (args.json ?? false) {
-      writeValidatedJson(InitStdoutJsonSchema, {
-        config: output,
-        projectName: resolved.name ?? "myproject",
-        style: resolved.style ?? "xml",
-        path: null,
-      }, io);
+      writeValidatedJson(
+        InitStdoutJsonSchema,
+        {
+          config: output,
+          projectName: resolved.name ?? "myproject",
+          style: resolved.style ?? "xml",
+          path: null,
+        },
+        io,
+      );
     } else {
       writeStdout(output, io);
     }
@@ -312,23 +325,30 @@ export async function runInitCommand(
       );
     }
     if (notesScaffold.updatedPaths.length > 0) {
-      printInfo(`Notes refreshed: ${notesScaffold.updatedPaths.join(", ")}`, io);
+      printInfo(
+        `Notes refreshed: ${notesScaffold.updatedPaths.join(", ")}`,
+        io,
+      );
     }
   }
 
   if (args.json ?? false) {
-    writeValidatedJson(InitCommandJsonSchema, {
-      projectName: resolved.name ?? "myproject",
-      style: resolved.style ?? "xml",
-      path: "cx.toml",
-      notesDir: notesScaffold.notesDir,
-      notesCreated: notesScaffold.createdPaths,
-      notesUpdated: notesScaffold.updatedPaths,
-      makefileCreated: makefileResult.created,
-      makefileUpdated: makefileResult.updated,
-      mcpCreated: mcpResult.created,
-      mcpUpdated: mcpResult.updated,
-    }, io);
+    writeValidatedJson(
+      InitCommandJsonSchema,
+      {
+        projectName: resolved.name ?? "myproject",
+        style: resolved.style ?? "xml",
+        path: "cx.toml",
+        notesDir: notesScaffold.notesDir,
+        notesCreated: notesScaffold.createdPaths,
+        notesUpdated: notesScaffold.updatedPaths,
+        makefileCreated: makefileResult.created,
+        makefileUpdated: makefileResult.updated,
+        mcpCreated: mcpResult.created,
+        mcpUpdated: mcpResult.updated,
+      },
+      io,
+    );
   }
   return 0;
 }

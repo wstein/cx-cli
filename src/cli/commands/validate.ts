@@ -32,7 +32,7 @@ export async function runValidateCommand(
   const sourceRoot = path.dirname(bundleDir);
   const notesResult = await validateNotes("notes", sourceRoot);
 
-    if (!notesResult.valid) {
+  if (!notesResult.valid) {
     if (notesResult.errors.length > 0) {
       printWarning("Note validation errors:", io);
       for (const error of notesResult.errors) {
@@ -52,20 +52,24 @@ export async function runValidateCommand(
 
   if (args.json ?? false) {
     const { manifest } = await loadManifestFromBundle(bundleDir);
-    writeValidatedJson(ValidateCommandJsonSchema, {
-      bundleDir,
-      summary: summarizeManifest(manifestName, manifest),
-      checksumFile: manifest.checksumFile,
-      sourceRoot: manifest.sourceRoot,
-      bundleVersion: manifest.bundleVersion,
-      schemaVersion: manifest.schemaVersion,
-      repomix: await getRepomixCapabilities(),
-      valid: true,
-      notes: {
-        count: notesResult.notes.length,
-        valid: notesResult.valid,
+    writeValidatedJson(
+      ValidateCommandJsonSchema,
+      {
+        bundleDir,
+        summary: summarizeManifest(manifestName, manifest),
+        checksumFile: manifest.checksumFile,
+        sourceRoot: manifest.sourceRoot,
+        bundleVersion: manifest.bundleVersion,
+        schemaVersion: manifest.schemaVersion,
+        repomix: await getRepomixCapabilities(),
+        valid: true,
+        notes: {
+          count: notesResult.notes.length,
+          valid: notesResult.valid,
+        },
       },
-    }, io);
+      io,
+    );
   } else if (notesResult.notes.length > 0) {
     printInfo(
       `Note validation passed: ${notesResult.notes.length} notes found`,
