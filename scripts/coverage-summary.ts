@@ -75,11 +75,34 @@ const formatCodeBlock = async (
   return `\`\`\`\n${lines.join("\n")}\n\`\`\``;
 };
 
+const shouldInclude = (filePath: string): boolean => {
+  // Exclude test helpers and test infrastructure
+  if (filePath.includes("/tests/") || filePath.startsWith("tests/"))
+    return false;
+  // Exclude temp/mock files outside the project
+  if (filePath.startsWith("/tmp/") || filePath.includes("/var/folders/"))
+    return false;
+  if (filePath.startsWith("/private/")) return false;
+  return true;
+};
+
 const main = async () => {
   const lcovPath = "coverage/lcov.info";
   const outputPath = "coverage/COVERAGE.md";
 
-  const coverage = await readLcovFile(lcovPath);
+  try {
+    await fs.access(lcovPath);
+  } catch {
+    console.log(
+      "⚠️  No full-suite coverage data found. Run `make verify` first.",
+    );
+    return;
+  }
+
+  const rawCoverage = await readLcovFile(lcovPath);
+  const coverage = new Map(
+    Array.from(rawCoverage.entries()).filter(([file]) => shouldInclude(file)),
+  );
   const sorted = Array.from(coverage.values()).sort(
     (a, b) => a.hit / a.total - b.hit / b.total,
   );
