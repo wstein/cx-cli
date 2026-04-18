@@ -96,12 +96,14 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
       `section ${section.name} (${section.style}) -> ${section.outputFile} [${section.files.length} files]`,
       ...section.files.map((file) => {
         const record = extractabilityByPath.get(file.relativePath);
+        const provenanceSuffix =
+          file.provenance.length > 0 ? ` [${file.provenance.join(", ")}]` : "";
         const suffix =
           record && record.status !== "intact"
             ? ` (${record.reason}; expected ${formatChecksumPrefix(record.expectedSha256)} got ${formatChecksumPrefix(record.actualSha256)})`
             : "";
         const status = (record?.status ?? "unknown").padEnd(8);
-        return `  ${status} ${file.relativePath}${suffix}`;
+        return `  ${status} ${file.relativePath}${provenanceSuffix}${suffix}`;
       }),
       "",
     ]),

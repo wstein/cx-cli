@@ -1,47 +1,54 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { main } from "../../src/cli/main.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
+import { buildConfig } from "../helpers/config/buildConfig.js";
+import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
-async function createProject(): Promise<{ root: string; configPath: string }> {
-  const root = await fs.mkdtemp(
-    path.join(os.tmpdir(), "cx-cli-json-contract-"),
+const workspaceRoots: string[] = [];
+
+afterEach(async () => {
+  await Promise.all(
+    workspaceRoots
+      .splice(0)
+      .map((root) => fs.rm(root, { recursive: true, force: true })),
   );
-  await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    "export const ok = 1;\n",
-    "utf8",
-  );
-  const configPath = path.join(root, "cx.toml");
-  await fs.writeFile(
-    configPath,
-    `schema_version = 1
-project_name = "demo"
-source_root = "."
-output_dir = "dist/demo-bundle"
+});
 
-[repomix]
-style = "xml"
-show_line_numbers = false
-include_empty_directories = false
-security_check = false
+async function createProject(options?: {
+  includeLinkedNotes?: boolean;
+}): Promise<{ root: string; configPath: string }> {
+  const workspace = await createWorkspace({
+    config: buildConfig({
+      manifest: {
+        includeLinkedNotes: options?.includeLinkedNotes ?? false,
+      },
+    }),
+    files: {
+      "src/index.ts": "export const ok = 1;\n",
+      ...(options?.includeLinkedNotes
+        ? {
+            "notes/linked-note.md": `---
+id: 20260418120000
+aliases: []
+tags: []
+---
 
-[files]
-exclude = ["dist/**"]
-follow_symlinks = false
-unmatched = "ignore"
+# Linked Note
 
-[sections.src]
-include = ["src/**"]
-exclude = []
+Visible through inspect provenance.
 `,
-    "utf8",
-  );
-  return { root, configPath };
+          }
+        : {}),
+    },
+  });
+  workspaceRoots.push(workspace.rootDir);
+  return {
+    root: workspace.rootDir,
+    configPath: workspace.configPath,
+  };
 }
 
 describe("CLI JSON contract", () => {
@@ -58,6 +65,49 @@ describe("CLI JSON contract", () => {
     expect(payload.summary?.sectionCount).toBeGreaterThan(0);
     expect(payload.summary?.textFileCount).toBeGreaterThan(0);
     expect(Array.isArray(payload.sections)).toBe(true);
+  });
+
+  test("inspect --json exposes linked-note provenance markers", async () => {
+    const project = await createProject({ includeLinkedNotes: true });
+    const notePath = path.join(project.root, "notes", "seed.md");
+    await fs.writeFile(
+      notePath,
+      `---
+id: 20260418115900
+aliases: []
+tags: []
+---
+
+# Seed
+
+See [[20260418120000]].
+`,
+      "utf8",
+    );
+
+    const result = await captureCli({
+      run: () => main(["inspect", "--config", project.configPath, "--json"]),
+    });
+    expect(result.exitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      sections?: Array<{
+        name?: string;
+        files?: Array<{
+          relativePath?: string;
+          provenance?: string[];
+        }>;
+      }>;
+    }>(result.stdout);
+    const docs = payload.sections?.find((section) => section.name === "docs");
+    const linkedNote = docs?.files?.find(
+      (file) => file.relativePath === "notes/linked-note.md",
+    );
+
+    expect(linkedNote?.provenance).toEqual([
+      "linked_note_enrichment",
+      "manifest_note_inclusion",
+    ]);
   });
 
   test("doctor workflow --json returns required fields", async () => {

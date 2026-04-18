@@ -272,4 +272,35 @@ describe("linked-note enrichment — operator surface (cx inspect --json)", () =
     // enabling linked-note enrichment must increase the reported file count
     expect(countOn).toBeGreaterThan(countOff);
   });
+
+  test("inspect report exposes inclusion provenance for linked-note enrichment", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260907120000",
+      "Seed",
+      "See [[20260907130000]].",
+    );
+    await writeNote(notesDir, "20260907130000", "InspectableTarget");
+
+    const config = baseConfig(testDir);
+    config.manifest.includeLinkedNotes = true;
+
+    const report = await collectInspectReport({ config });
+    const docsSection = report.sections.find(
+      (section) => section.name === "docs",
+    );
+    const guide = docsSection?.files.find(
+      (file) => file.relativePath === "docs/guide.md",
+    );
+    const injected = docsSection?.files.find((file) =>
+      file.relativePath.includes("20260907130000"),
+    );
+
+    expect(guide?.provenance).toEqual(["section_match"]);
+    expect(injected?.provenance).toEqual([
+      "linked_note_enrichment",
+      "manifest_note_inclusion",
+    ]);
+  });
 });

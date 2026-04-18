@@ -3,6 +3,7 @@ import type { CxConfig } from "../config/types.js";
 import { resolveExtractability } from "../extract/resolution.js";
 import { enrichPlanWithLinkedNotes } from "../notes/planner.js";
 import { buildBundlePlan } from "../planning/buildPlan.js";
+import type { InclusionProvenance } from "../planning/types.js";
 import { getRepomixCapabilities } from "../repomix/render.js";
 import { countTokensForFiles } from "../shared/tokens.js";
 
@@ -59,6 +60,7 @@ export interface InspectReport {
       absolutePath: string;
       sizeBytes: number;
       mediaType?: string;
+      provenance: InclusionProvenance[];
       extractability: InspectExtractability | null;
     }>;
   }>;
@@ -218,6 +220,7 @@ export async function collectInspectReport(params: {
         absolutePath: file.absolutePath,
         sizeBytes: file.sizeBytes,
         mediaType: file.mediaType,
+        provenance: file.provenance,
         extractability: extractabilityByPath.get(file.relativePath) ?? null,
       })),
     })),

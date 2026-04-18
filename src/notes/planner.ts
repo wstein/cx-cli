@@ -86,6 +86,7 @@ export async function enrichPlanWithLinkedNotes(
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
       mtime: stat.mtime.toISOString(),
+      provenance: ["linked_note_enrichment", "manifest_note_inclusion"],
     };
     targetSection.files.push(plannedFile);
     claimedPaths.add(relativePath);

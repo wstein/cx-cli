@@ -20,6 +20,7 @@ import {
 } from "./overlaps.js";
 import type {
   BundlePlan,
+  InclusionProvenance,
   PlannedAsset,
   PlannedSection,
   PlannedSourceFile,
@@ -65,6 +66,12 @@ function formatOverlapConflictsMessage(conflicts: OverlapConflict[]): string {
     `Section overlap detected in ${conflicts.length} locations.`,
     conflictMessages,
   ].join("\n");
+}
+
+function buildTextFileProvenance(
+  ...markers: InclusionProvenance[]
+): InclusionProvenance[] {
+  return [...new Set(markers)];
 }
 
 /**
@@ -220,6 +227,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
             sizeBytes: stat.size,
             sha256: await sha256File(absolutePath),
             mtime: stat.mtime.toISOString(),
+            provenance: [],
           });
         }
         availablePool.delete(relativePath);
@@ -248,6 +256,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
       sizeBytes: stat.size,
       sha256: await sha256File(absolutePath),
       mtime: stat.mtime.toISOString(),
+      provenance: buildTextFileProvenance("section_match"),
     };
     getRequiredSectionFiles(sectionFiles, sectionName).push(plannedFile);
   }
@@ -290,6 +299,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         sizeBytes: stat.size,
         sha256: await sha256File(absolutePath),
         mtime: stat.mtime.toISOString(),
+        provenance: buildTextFileProvenance("section_match"),
       };
       getRequiredSectionFiles(sectionFiles, catchAllName).push(plannedFile);
     }

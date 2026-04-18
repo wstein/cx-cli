@@ -1,4 +1,5 @@
 import type { CxStyle } from "../config/types.js";
+import type { InclusionProvenance } from "../planning/types.js";
 import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
 export const NORMALIZATION_POLICY = "repomix-default-v1" as const;
@@ -25,6 +26,7 @@ export interface ManifestFileRow {
   mediaType: string;
   outputStartLine: number | null;
   outputEndLine: number | null;
+  provenance?: InclusionProvenance[];
 }
 
 export interface SectionOutputRecord {

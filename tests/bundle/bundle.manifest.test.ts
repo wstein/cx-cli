@@ -57,6 +57,17 @@ It should become the manifest summary.
     expect(docsSection?.files.map((file) => file.path)).toContain(
       "notes/linked-note.md",
     );
+    const linkedNote = docsSection?.files.find(
+      (file) => file.path === "notes/linked-note.md",
+    );
+    const guide = docsSection?.files.find(
+      (file) => file.path === "docs/guide.md",
+    );
+    expect(linkedNote?.provenance).toEqual([
+      "linked_note_enrichment",
+      "manifest_note_inclusion",
+    ]);
+    expect(guide?.provenance).toEqual(["section_match"]);
 
     const docsOutput = await fs.readFile(
       path.join(project.bundleDir, docsSection?.outputFile ?? ""),
@@ -111,6 +122,7 @@ It should become the manifest summary.
               mediaType: "text/markdown",
               outputStartLine: 5,
               outputEndLine: 5,
+              provenance: ["section_match"],
             },
             {
               path: "docs/b.md",
@@ -124,6 +136,7 @@ It should become the manifest summary.
               mediaType: "text/markdown",
               outputStartLine: 6,
               outputEndLine: 6,
+              provenance: ["section_match"],
             },
           ],
         },
@@ -147,6 +160,7 @@ It should become the manifest summary.
               mediaType: "text/typescript",
               outputStartLine: 10,
               outputEndLine: 10,
+              provenance: ["section_match"],
             },
           ],
         },
@@ -172,6 +186,9 @@ It should become the manifest summary.
     expect(reparsed.sections[0]?.files).toHaveLength(2);
     expect(reparsed.sections[1]?.files).toHaveLength(1);
     expect(reparsed.sections[0]?.files[0]?.path).toBe("docs/a.md");
+    expect(reparsed.sections[0]?.files[0]?.provenance).toEqual([
+      "section_match",
+    ]);
   });
 
   test("manifest file is valid JSON with correct schemaVersion and object-list structure", async () => {

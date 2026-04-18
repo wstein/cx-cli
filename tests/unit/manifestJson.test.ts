@@ -142,6 +142,7 @@ describe("manifest JSON parsing and rendering", () => {
                 mediaType: "text/plain",
                 outputStartLine: 1,
                 outputEndLine: 50,
+                provenance: ["section_match"],
               },
             ],
           },
@@ -150,6 +151,65 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(manifestWithSections);
       expect(json).toContain("src");
       expect(json).toContain("src/main.ts");
+    });
+
+    it("round-trips file provenance when present", () => {
+      const manifestWithProvenance: CxManifest = {
+        ...VALID_MINIMAL_MANIFEST,
+        sections: [
+          {
+            name: "docs",
+            style: "xml",
+            outputFile: "docs.xml.txt",
+            outputSha256: "abc123",
+            fileCount: 1,
+            tokenCount: 10,
+            files: [
+              {
+                path: "notes/linked-note.md",
+                kind: "text",
+                section: "docs",
+                storedIn: "packed",
+                sha256: "def456",
+                sizeBytes: 128,
+                tokenCount: 10,
+                mtime: "2025-01-13T14:30:15Z",
+                mediaType: "text/markdown",
+                outputStartLine: 1,
+                outputEndLine: 12,
+                provenance: [
+                  "linked_note_enrichment",
+                  "manifest_note_inclusion",
+                ],
+              },
+            ],
+          },
+        ],
+        files: [
+          {
+            path: "notes/linked-note.md",
+            kind: "text",
+            section: "docs",
+            storedIn: "packed",
+            sha256: "def456",
+            sizeBytes: 128,
+            tokenCount: 10,
+            mtime: "2025-01-13T14:30:15Z",
+            mediaType: "text/markdown",
+            outputStartLine: 1,
+            outputEndLine: 12,
+            provenance: ["linked_note_enrichment", "manifest_note_inclusion"],
+          },
+        ],
+      };
+
+      const parsed = parseManifestJson(
+        renderManifestJson(manifestWithProvenance),
+      );
+      expect(parsed.sections[0]?.files[0]?.provenance).toEqual([
+        "linked_note_enrichment",
+        "manifest_note_inclusion",
+      ]);
     });
 
     it("handles manifest with assets", () => {

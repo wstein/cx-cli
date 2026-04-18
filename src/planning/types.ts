@@ -1,6 +1,11 @@
 import type { CxStyle } from "../config/types.js";
 import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
+export type InclusionProvenance =
+  | "section_match"
+  | "linked_note_enrichment"
+  | "manifest_note_inclusion";
+
 export interface PlannedSourceFile {
   relativePath: string;
   absolutePath: string;
@@ -9,6 +14,7 @@ export interface PlannedSourceFile {
   sizeBytes: number;
   sha256: string;
   mtime: string;
+  provenance: InclusionProvenance[];
 }
 
 export interface PlannedSection {

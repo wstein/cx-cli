@@ -2,12 +2,27 @@
  * Reproducibility check: build twice, compare sha256 of dist/*.js.
  * Mirrors the CI reproducibility job for local certification.
  */
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
-import { execSync } from "node:child_process";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+function run(command, args) {
+  const result = spawnSync(command, args, {
+    cwd: ROOT,
+    stdio: "inherit",
+    env: process.env,
+  });
+
+  if (result.status !== 0) {
+    throw new Error(
+      `${command} ${args.join(" ")} failed with exit code ${result.status ?? 1}`,
+    );
+  }
+}
 
 async function hashDir(dir) {
   const entries = await fs.readdir(dir, { recursive: true });
@@ -27,14 +42,14 @@ async function hashDir(dir) {
 const distDir = path.join(ROOT, "dist");
 
 console.log("reproducibility: first build...");
-execSync("bun run build", { cwd: ROOT, stdio: "inherit" });
+run("bun", ["run", "build"]);
 const first = await hashDir(distDir);
 
 console.log("reproducibility: cleaning dist/...");
-execSync("rm -rf dist", { cwd: ROOT, stdio: "inherit" });
+await fs.rm(distDir, { recursive: true, force: true });
 
 console.log("reproducibility: second build...");
-execSync("bun run build", { cwd: ROOT, stdio: "inherit" });
+run("bun", ["run", "build"]);
 const second = await hashDir(distDir);
 
 if (first !== second) {

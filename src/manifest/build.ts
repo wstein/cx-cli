@@ -82,6 +82,7 @@ export async function buildManifest(params: {
             mediaType: file.mediaType,
             outputStartLine: fileSpan?.outputStartLine ?? null,
             outputEndLine: fileSpan?.outputEndLine ?? null,
+            provenance: file.provenance,
           };
         }),
       );

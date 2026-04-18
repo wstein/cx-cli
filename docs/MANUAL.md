@@ -257,6 +257,11 @@ You can inspect the effect before bundling:
 cx inspect --config cx.toml --json
 ```
 
+Injected note rows expose explicit inclusion provenance in the inspect payload:
+`linked_note_enrichment` marks the post-planning note injection step,
+`manifest_note_inclusion` records that the manifest setting caused the note to
+appear, and normal planned section members report `section_match`.
+
 Then verify graph reachability from a seed note:
 
 ```bash

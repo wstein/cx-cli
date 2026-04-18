@@ -88,6 +88,7 @@ describe("manifest build", () => {
                 sizeBytes: content.length,
                 sha256: "",
                 mtime: new Date().toISOString(),
+                provenance: ["section_match"],
               },
             ],
           },

@@ -154,6 +154,12 @@ Operator inspection path:
 1. Run `cx inspect --json` to see the planned section file lists before rendering.
 2. Run `cx notes graph --id <seed> --depth <n>` to inspect graph reachability from the seed note.
 
+Inspect JSON reports inclusion provenance for each planned text file:
+
+- `section_match` for files claimed directly by a configured section
+- `linked_note_enrichment` for notes injected by the post-planning graph pass
+- `manifest_note_inclusion` when `manifest.includeLinkedNotes` is the setting that made the note appear
+
 Depth semantics for graph inspection:
 
 - `depth = 1` includes direct wikilink neighbors.

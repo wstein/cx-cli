@@ -104,6 +104,19 @@ function requireArray(value: unknown, label: string): unknown[] {
   return value;
 }
 
+function requireOptionalStringArray(
+  value: unknown,
+  label: string,
+): string[] | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return requireArray(value, label).map((entry, index) =>
+    requireString(entry, `${label}[${index}]`),
+  );
+}
+
 type FileRowWithoutSection = Omit<ManifestFileRow, "section">;
 
 function parseManifestFileRow(
@@ -111,6 +124,13 @@ function parseManifestFileRow(
   label: string,
 ): FileRowWithoutSection {
   const obj = requireObject(raw, label);
+  const provenance =
+    obj.provenance === undefined
+      ? undefined
+      : (requireOptionalStringArray(
+          obj.provenance,
+          `${label}.provenance`,
+        ) as ManifestFileRow["provenance"]);
 
   return {
     path: requireString(obj.path, `${label}.path`),
@@ -132,6 +152,7 @@ function parseManifestFileRow(
       obj.outputEndLine,
       `${label}.outputEndLine`,
     ),
+    ...(provenance !== undefined ? { provenance } : {}),
   };
 }
 
@@ -343,6 +364,7 @@ export function renderManifestJson(
         mediaType: row.mediaType,
         outputStartLine: row.outputStartLine,
         outputEndLine: row.outputEndLine,
+        ...(row.provenance !== undefined ? { provenance: row.provenance } : {}),
       })),
     })),
     assets: manifest.assets,

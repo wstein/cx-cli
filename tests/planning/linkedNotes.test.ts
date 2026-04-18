@@ -296,5 +296,21 @@ describe("enrichPlanWithLinkedNotes", () => {
     expect(injected?.sizeBytes).toBeGreaterThan(0);
     expect(injected?.sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(injected?.mtime).toBeTruthy();
+    expect(injected?.provenance).toEqual([
+      "linked_note_enrichment",
+      "manifest_note_inclusion",
+    ]);
+  });
+
+  test("section-owned files retain section_match provenance", async () => {
+    const config = baseConfig(testDir);
+
+    const plan = await buildBundlePlan(config);
+    const docs = plan.sections.find((section) => section.name === "docs");
+    const guide = docs?.files.find(
+      (file) => file.relativePath === "docs/guide.md",
+    );
+
+    expect(guide?.provenance).toEqual(["section_match"]);
   });
 });
