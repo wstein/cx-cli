@@ -20,6 +20,7 @@ export function buildSectionHeaderText(params: {
 }): string {
   const lines = [
     "cx section handover",
+    "artifact: deterministic section snapshot for human and AI review.",
     `project: ${params.projectName}`,
     `section: ${params.sectionName}`,
     `style: ${params.style}`,
@@ -35,6 +36,9 @@ export function buildSectionHeaderText(params: {
   }
 
   lines.push(
+    "usage: review and cite the logical paths in this snapshot, but make repository edits in the original source tree.",
+    "path semantics: each logical path points to the original repository location for that file.",
+    "authoritative semantics: cx-meta, cx-policy, archive markers, manifests, and validation rules remain canonical.",
     "shared context: keep this file together with the bundle index when handing off multiple sections.",
   );
 

@@ -54,6 +54,16 @@ describe("bundle workflow", () => {
     expect(bundleIndex).toContain("cx bundle index");
     expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
     expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
+    const docsOutput = await fs.readFile(
+      path.join(project.bundleDir, "demo-repomix-docs.xml.txt"),
+      "utf8",
+    );
+    expect(docsOutput).toContain(
+      "artifact: deterministic section snapshot for human and AI review.",
+    );
+    expect(docsOutput).toContain(
+      "authoritative semantics: cx-meta, cx-policy, archive markers, manifests, and validation rules remain canonical.",
+    );
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),
     ).toBeDefined();
