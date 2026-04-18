@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
 
+const MIN_OVERALL_COVERAGE = 80;
+
 const readLcovFile = async (filePath) => {
   const content = await fs.readFile(filePath, "utf-8");
   const coverage = new Map();
@@ -97,7 +99,13 @@ const main = async () => {
     (sum, c) => sum + c.total,
     0,
   );
-  const overall = ((totalHit / totalLines) * 100).toFixed(2);
+  if (totalLines === 0) {
+    console.error("✗ Coverage gate failed: no executable lines were recorded.");
+    process.exit(1);
+  }
+
+  const overallCoverage = (totalHit / totalLines) * 100;
+  const overall = overallCoverage.toFixed(2);
 
   const below80 = sorted.filter((c) => c.hit / c.total < 0.8);
   const output = [];
@@ -143,6 +151,13 @@ const main = async () => {
     });
   }
   console.log(`📄 Details: ${outputPath}`);
+
+  if (overallCoverage < MIN_OVERALL_COVERAGE) {
+    console.error(
+      `✗ Coverage gate failed: overall coverage ${overall}% is below the ${MIN_OVERALL_COVERAGE}% minimum.`,
+    );
+    process.exit(1);
+  }
 };
 
 main().catch(console.error);
