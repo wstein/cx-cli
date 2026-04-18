@@ -28,6 +28,7 @@ async function createProject(options?: {
     }),
     files: {
       "src/index.ts": "export const ok = 1;\n",
+      "logo.png": "fake-png",
       ...(options?.includeLinkedNotes
         ? {
             "notes/linked-note.md": `---
@@ -65,6 +66,26 @@ describe("CLI JSON contract", () => {
     expect(payload.summary?.sectionCount).toBeGreaterThan(0);
     expect(payload.summary?.textFileCount).toBeGreaterThan(0);
     expect(Array.isArray(payload.sections)).toBe(true);
+  });
+
+  test("inspect --json exposes asset provenance markers", async () => {
+    const project = await createProject();
+    const result = await captureCli({
+      run: () => main(["inspect", "--config", project.configPath, "--json"]),
+    });
+    expect(result.exitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      assets?: Array<{
+        relativePath?: string;
+        provenance?: string[];
+      }>;
+    }>(result.stdout);
+    const asset = payload.assets?.find(
+      (entry) => entry.relativePath === "logo.png",
+    );
+
+    expect(asset?.provenance).toEqual(["asset_rule_match"]);
   });
 
   test("inspect --json exposes linked-note provenance markers", async () => {

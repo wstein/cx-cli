@@ -279,6 +279,8 @@
           "items": {
             "enum": [
               "section_match",
+              "catch_all_section_match",
+              "asset_rule_match",
               "linked_note_enrichment",
               "manifest_note_inclusion"
             ]
@@ -322,6 +324,20 @@
           "description": "MIME media type.",
           "type": "string",
           "minLength": 1
+        },
+        "provenance": {
+          "description": "Optional ordered markers describing why this asset was included in the plan.",
+          "type": "array",
+          "items": {
+            "enum": [
+              "section_match",
+              "catch_all_section_match",
+              "asset_rule_match",
+              "linked_note_enrichment",
+              "manifest_note_inclusion"
+            ]
+          },
+          "uniqueItems": true
         }
       }
     },

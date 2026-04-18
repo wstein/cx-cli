@@ -223,11 +223,13 @@ describe("manifest JSON parsing and rendering", () => {
             sizeBytes: 2048,
             mtime: "2025-01-13T14:30:15Z",
             mediaType: "image/png",
+            provenance: ["asset_rule_match"],
           },
         ],
       };
       const json = renderManifestJson(manifestWithAssets);
       expect(json).toContain("images/logo.png");
+      expect(json).toContain("asset_rule_match");
     });
   });
 

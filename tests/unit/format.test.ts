@@ -16,6 +16,7 @@ import {
   printTable,
   printWarning,
 } from "../../src/shared/format.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 describe("shared format utilities", () => {
   test("formatBytes formats zero and multiples correctly", () => {
@@ -33,176 +34,108 @@ describe("shared format utilities", () => {
   });
 
   test("printHeader prints a styled section header", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printHeader("Unit Test");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("📦 Unit Test");
-    } finally {
-      console.log = originalLog;
-    }
+    printHeader("Unit Test", capture.io);
+    const out = capture.logs();
+    expect(out).toContain("📦 Unit Test");
   });
 
   test("printTable prints padded key/value rows", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printTable([
+    printTable(
+      [
         ["Alpha", "one"],
         ["Beta", "two"],
-      ]);
-      expect(out.length).toBe(2);
-      expect(out[0]).toContain("Alpha");
-      expect(out[0]).toContain("one");
-      expect(out[1]).toContain("Beta");
-      expect(out[1]).toContain("two");
-    } finally {
-      console.log = originalLog;
-    }
+      ],
+      capture.io,
+    );
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(2);
+    expect(out[0]).toContain("Alpha");
+    expect(out[0]).toContain("one");
+    expect(out[1]).toContain("Beta");
+    expect(out[1]).toContain("two");
   });
 
   test("printSuccess prints a green success message", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printSuccess("done");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("✓");
-      expect(out[0]).toContain("done");
-    } finally {
-      console.log = originalLog;
-    }
+    printSuccess("done", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("✓");
+    expect(out[0]).toContain("done");
   });
 
   test("printSubheader prints a simple subsection label", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printSubheader("Details");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("Details");
-      expect(out[0]).toContain("  ");
-    } finally {
-      console.log = originalLog;
-    }
+    printSubheader("Details", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("Details");
+    expect(out[0]).toContain("  ");
   });
 
   test("printStat emits a label/value row", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printStat("Count", 42);
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("Count");
-      expect(out[0]).toContain("42");
-    } finally {
-      console.log = originalLog;
-    }
+    printStat("Count", 42, capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("Count");
+    expect(out[0]).toContain("42");
   });
 
   test("printWarning prints a warning message", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printWarning("be careful");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("⚠");
-      expect(out[0]).toContain("be careful");
-    } finally {
-      console.log = originalLog;
-    }
+    printWarning("be careful", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("⚠");
+    expect(out[0]).toContain("be careful");
   });
 
   test("printInfo prints an informational message", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printInfo("note");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("ℹ");
-      expect(out[0]).toContain("note");
-    } finally {
-      console.log = originalLog;
-    }
+    printInfo("note", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("ℹ");
+    expect(out[0]).toContain("note");
   });
 
   test("printError prints an error message", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printError("failed");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("✗");
-      expect(out[0]).toContain("failed");
-    } finally {
-      console.log = originalLog;
-    }
+    printError("failed", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("✗");
+    expect(out[0]).toContain("failed");
   });
 
   test("printProgress renders a progress bar and percentage", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printProgress(5, 10, "Loading");
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("50%");
-      expect(out[0]).toContain("Loading");
-    } finally {
-      console.log = originalLog;
-    }
+    printProgress(5, 10, "Loading", capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("50%");
+    expect(out[0]).toContain("Loading");
   });
 
   test("printDivider prints a divider line", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printDivider();
-      expect(out.length).toBe(1);
-      expect(out[0]).toContain("─");
-    } finally {
-      console.log = originalLog;
-    }
+    printDivider(capture.io);
+    const out = capture.logs().split("\n");
+    expect(out.length).toBe(1);
+    expect(out[0]).toContain("─");
   });
 
   test("formatSectionStats returns formatted stats lines", () => {
@@ -217,22 +150,15 @@ describe("shared format utilities", () => {
   });
 
   test("printBundleSummary prints header and stats sections", () => {
-    const originalLog = console.log;
-    const out: string[] = [];
-    console.log = (message?: unknown) => {
-      out.push(String(message));
-    };
+    const capture = createBufferedCommandIo();
 
-    try {
-      printBundleSummary("myproj", "/tmp/bundle", 4, 2, 4096, 1024);
-      expect(
-        out.some((line) => line.includes("Bundle Created Successfully")),
-      ).toBe(true);
-      expect(out.some((line) => line.includes("Project"))).toBe(true);
-      expect(out.some((line) => line.includes("Sections"))).toBe(true);
-      expect(out.some((line) => line.includes("Assets"))).toBe(true);
-    } finally {
-      console.log = originalLog;
-    }
+    printBundleSummary("myproj", "/tmp/bundle", 4, 2, 4096, 1024, capture.io);
+    const out = capture.logs().split("\n");
+    expect(
+      out.some((line) => line.includes("Bundle Created Successfully")),
+    ).toBe(true);
+    expect(out.some((line) => line.includes("Project"))).toBe(true);
+    expect(out.some((line) => line.includes("Sections"))).toBe(true);
+    expect(out.some((line) => line.includes("Assets"))).toBe(true);
   });
 });

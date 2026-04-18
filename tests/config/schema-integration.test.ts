@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { parse as parseToml } from "smol-toml";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
 
 /**
  * End-to-end integration tests for JSON Schema support.
@@ -17,18 +18,10 @@ import { loadCxConfig } from "../../src/config/load.js";
  */
 describe("JSON Schema Integration", () => {
   test("cx init --stdout includes schema directive at line 1", async () => {
-    const write = process.stdout.write;
-    let output = "";
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      output += String(chunk);
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      await main(["init", "--stdout"]);
-    } finally {
-      process.stdout.write = write;
-    }
+    const { stdout: output, exitCode } = await captureCli({
+      run: () => main(["init", "--stdout"]),
+    });
+    expect(exitCode).toBe(0);
 
     const lines = output.split("\n");
     expect(lines[0]).toBe(
@@ -38,18 +31,10 @@ describe("JSON Schema Integration", () => {
   });
 
   test("cx init --name preserves schema directive", async () => {
-    const write = process.stdout.write;
-    let output = "";
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      output += String(chunk);
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      await main(["init", "--name", "myproject", "--stdout"]);
-    } finally {
-      process.stdout.write = write;
-    }
+    const { stdout: output, exitCode } = await captureCli({
+      run: () => main(["init", "--name", "myproject", "--stdout"]),
+    });
+    expect(exitCode).toBe(0);
 
     const lines = output.split("\n");
     expect(lines[0]).toBe(
@@ -60,18 +45,11 @@ describe("JSON Schema Integration", () => {
   });
 
   test("cx init --style preserves schema directive", async () => {
-    const write = process.stdout.write;
-    let output = "";
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      output += String(chunk);
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      await main(["init", "--name", "demo", "--style", "json", "--stdout"]);
-    } finally {
-      process.stdout.write = write;
-    }
+    const { stdout: output, exitCode } = await captureCli({
+      run: () =>
+        main(["init", "--name", "demo", "--style", "json", "--stdout"]),
+    });
+    expect(exitCode).toBe(0);
 
     const lines = output.split("\n");
     expect(lines[0]).toBe(
@@ -434,18 +412,10 @@ exclude = []
   });
 
   test("cx init prints supported templates with --template-list", async () => {
-    const write = process.stdout.write;
-    let output = "";
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      output += String(chunk);
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      await main(["init", "--template-list"]);
-    } finally {
-      process.stdout.write = write;
-    }
+    const { stdout: output, exitCode } = await captureCli({
+      run: () => main(["init", "--template-list"]),
+    });
+    expect(exitCode).toBe(0);
 
     expect(output).toContain("rust: Rust workspaces using Cargo.");
     expect(output).toContain(

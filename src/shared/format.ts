@@ -29,7 +29,8 @@ export function formatNumber(n: number): string {
  * Create a colored section header
  */
 export function printHeader(text: string, io: Partial<CommandIo> = {}): void {
-  getLogger(io)(kleur.bold().cyan(`\n📦 ${text}\n`));
+  const formatted = kleur.bold().cyan(`📦 ${text}`);
+  getLogger(io)(`\n${formatted}\n`);
 }
 
 /**

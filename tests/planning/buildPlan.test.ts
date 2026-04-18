@@ -187,6 +187,33 @@ describe("buildBundlePlan", () => {
       "logo.png",
     ]);
     expect(plan.assets[0]?.storedPath).toBe("demo-assets/logo.png");
+    expect(plan.assets[0]?.provenance).toEqual(["asset_rule_match"]);
+    expect(plan.sections[0]?.files[0]?.provenance).toEqual(["section_match"]);
+  });
+
+  test("marks catch-all files with catch_all_section_match provenance", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.sections = {
+      docs: {
+        include: ["docs/**"],
+        exclude: [],
+      },
+      overflow: {
+        exclude: [],
+        catch_all: true,
+      },
+    };
+
+    const plan = await buildBundlePlan(config);
+    const overflow = plan.sections.find(
+      (section) => section.name === "overflow",
+    );
+    const srcFile = overflow?.files.find(
+      (file) => file.relativePath === "src/index.ts",
+    );
+
+    expect(srcFile?.provenance).toEqual(["catch_all_section_match"]);
   });
 
   test("keeps scripts and schemas inside the repo section", async () => {

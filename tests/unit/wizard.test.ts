@@ -1,25 +1,23 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-
 import {
   printWizardComplete,
   printWizardHeader,
   printWizardStep,
   printWizardTip,
 } from "../../src/shared/wizard.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 describe("shared wizard utilities", () => {
-  const originalLog = console.log;
   let output: string[] = [];
+  let log: (...args: unknown[]) => void;
 
   beforeEach(() => {
+    const capture = createBufferedCommandIo();
     output = [];
-    console.log = (message?: unknown) => {
-      output.push(String(message ?? ""));
+    log = (...args: unknown[]) => {
+      output.push(args.map((value) => String(value ?? "")).join(" "));
+      capture.io.log?.(...args);
     };
-  });
-
-  afterEach(() => {
-    console.log = originalLog;
   });
 
   afterEach(() => {
@@ -27,7 +25,7 @@ describe("shared wizard utilities", () => {
   });
 
   test("printWizardHeader renders a title block", () => {
-    printWizardHeader("Welcome");
+    printWizardHeader("Welcome", { log });
     expect(output.length).toBe(3);
     expect(output[1]).toContain("Welcome");
     expect(output[0]).toContain("=");
@@ -35,21 +33,21 @@ describe("shared wizard utilities", () => {
   });
 
   test("printWizardStep displays the current step and title", () => {
-    printWizardStep(2, 5, "Configure");
+    printWizardStep(2, 5, "Configure", { log });
     expect(output.length).toBe(1);
     expect(output[0]).toContain("[2/5]");
     expect(output[0]).toContain("Configure");
   });
 
   test("printWizardTip displays a tip line", () => {
-    printWizardTip("Choose wisely");
+    printWizardTip("Choose wisely", { log });
     expect(output.length).toBe(1);
     expect(output[0]).toContain("💡");
     expect(output[0]).toContain("Choose wisely");
   });
 
   test("printWizardComplete displays completion status", () => {
-    printWizardComplete("Setup");
+    printWizardComplete("Setup", { log });
     expect(output.length).toBe(1);
     expect(output[0]).toContain("✓ Setup complete");
   });
@@ -74,10 +72,14 @@ describe("shared wizard utilities", () => {
     }));
 
     const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardInput("Your name", {
-      default: "fallback",
-      description: "Enter the name to use",
-    });
+    const result = await wizard.wizardInput(
+      "Your name",
+      {
+        default: "fallback",
+        description: "Enter the name to use",
+      },
+      { log },
+    );
 
     expect(result).toBe("typed answer");
     expect(inputMock).toHaveBeenCalledTimes(1);
@@ -122,6 +124,7 @@ describe("shared wizard utilities", () => {
         { name: "Two", value: "two" },
       ],
       { description: "Pick a value" },
+      { log },
     );
 
     expect(result).toBe("two");
@@ -153,10 +156,14 @@ describe("shared wizard utilities", () => {
     }));
 
     const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardConfirm("Proceed?", {
-      default: false,
-      description: "Confirm the action",
-    });
+    const result = await wizard.wizardConfirm(
+      "Proceed?",
+      {
+        default: false,
+        description: "Confirm the action",
+      },
+      { log },
+    );
 
     expect(result).toBe(false);
     expect(confirmMock).toHaveBeenCalledTimes(1);
@@ -194,6 +201,7 @@ describe("shared wizard utilities", () => {
         { name: "Beta", value: "beta" },
       ],
       { description: "Pick all that apply" },
+      { log },
     );
 
     expect(result).toEqual(["alpha", "beta"]);

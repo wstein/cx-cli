@@ -182,6 +182,13 @@ function parseSectionDto(
 
 function parseAssetDto(raw: unknown, index: number): AssetRecord {
   const obj = requireObject(raw, `asset[${index}]`);
+  const provenance =
+    obj.provenance === undefined
+      ? undefined
+      : (requireOptionalStringArray(
+          obj.provenance,
+          `asset[${index}].provenance`,
+        ) as AssetRecord["provenance"]);
   return {
     sourcePath: requireString(obj.sourcePath, `asset[${index}].sourcePath`),
     storedPath: requireString(obj.storedPath, `asset[${index}].storedPath`),
@@ -189,6 +196,7 @@ function parseAssetDto(raw: unknown, index: number): AssetRecord {
     sizeBytes: requireNumber(obj.sizeBytes, `asset[${index}].sizeBytes`),
     mtime: requireString(obj.mtime, `asset[${index}].mtime`),
     mediaType: requireString(obj.mediaType, `asset[${index}].mediaType`),
+    ...(provenance !== undefined ? { provenance } : {}),
   };
 }
 
@@ -367,7 +375,17 @@ export function renderManifestJson(
         ...(row.provenance !== undefined ? { provenance: row.provenance } : {}),
       })),
     })),
-    assets: manifest.assets,
+    assets: manifest.assets.map((asset) => ({
+      sourcePath: asset.sourcePath,
+      storedPath: asset.storedPath,
+      sha256: asset.sha256,
+      sizeBytes: asset.sizeBytes,
+      mtime: asset.mtime,
+      mediaType: asset.mediaType,
+      ...(asset.provenance !== undefined
+        ? { provenance: asset.provenance }
+        : {}),
+    })),
     ...(manifest.notes !== undefined ? { notes: manifest.notes } : {}),
     ...(manifest.bundleIndexFile !== undefined
       ? { bundleIndexFile: manifest.bundleIndexFile }
@@ -418,6 +436,7 @@ export function parseManifestJson(source: string): CxManifest {
     mediaType: asset.mediaType,
     outputStartLine: null,
     outputEndLine: null,
+    ...(asset.provenance !== undefined ? { provenance: asset.provenance } : {}),
   }));
 
   const manifest: CxManifest = {

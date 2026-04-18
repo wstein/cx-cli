@@ -3,6 +3,8 @@ import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
 export type InclusionProvenance =
   | "section_match"
+  | "catch_all_section_match"
+  | "asset_rule_match"
   | "linked_note_enrichment"
   | "manifest_note_inclusion";
 

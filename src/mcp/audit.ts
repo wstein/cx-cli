@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { ensureDir } from "../shared/fs.js";
+import type { CommandWriteStream } from "../shared/output.js";
 import type { McpCapability } from "./capabilities.js";
 import type { AuditEvent } from "./policy.js";
 
@@ -12,10 +13,16 @@ import type { AuditEvent } from "./policy.js";
 export class AuditLogger {
   private logFilePath: string;
   private enabled: boolean;
+  private stderr: CommandWriteStream;
 
-  constructor(workspaceRoot: string, enabled: boolean = true) {
+  constructor(
+    workspaceRoot: string,
+    enabled: boolean = true,
+    stderr: CommandWriteStream = process.stderr,
+  ) {
     this.logFilePath = path.join(workspaceRoot, ".cx", "audit.log");
     this.enabled = enabled;
+    this.stderr = stderr;
   }
 
   /**
@@ -52,7 +59,7 @@ export class AuditLogger {
       // Audit logging failures should not crash the tool
       // Log to stderr and continue
       const errorMsg = error instanceof Error ? error.message : String(error);
-      process.stderr.write(`Warning: Failed to write audit log: ${errorMsg}\n`);
+      this.stderr.write(`Warning: Failed to write audit log: ${errorMsg}\n`);
     }
   }
 

@@ -18,6 +18,7 @@ import {
   getBrokenLinks,
 } from "../../src/notes/graph.js";
 import { validateNotes } from "../../src/notes/validate.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 let testDir: string;
 
@@ -636,22 +637,14 @@ This note points to [[Missing Note]].
         "utf8",
       );
 
-      const writes: string[] = [];
-      const consoleLog = console.log;
-      console.log = ((...args: unknown[]) => {
-        writes.push(args.map((value) => String(value)).join(" "));
-      }) as typeof console.log;
+      const capture = createBufferedCommandIo();
 
-      try {
-        expect(
-          await runNotesCommand({ subcommand: "links", id: note.id }),
-        ).toBe(0);
-      } finally {
-        console.log = consoleLog;
-      }
+      expect(
+        await runNotesCommand({ subcommand: "links", id: note.id }, capture.io),
+      ).toBe(0);
 
-      expect(writes.join("")).toContain("Broken links:");
-      expect(writes.join("")).toContain("Missing Note");
+      expect(capture.logs()).toContain("Broken links:");
+      expect(capture.logs()).toContain("Missing Note");
     } finally {
       process.chdir(origCwd);
     }

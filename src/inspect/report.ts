@@ -69,6 +69,7 @@ export interface InspectReport {
     absolutePath: string;
     storedPath: string;
     sizeBytes: number;
+    provenance: InclusionProvenance[];
     extractability: InspectExtractability | null;
   }>;
   unmatchedFiles: string[];
@@ -229,6 +230,7 @@ export async function collectInspectReport(params: {
       absolutePath: asset.absolutePath,
       storedPath: asset.storedPath,
       sizeBytes: asset.sizeBytes,
+      provenance: asset.provenance,
       extractability: extractabilityByPath.get(asset.relativePath) ?? null,
     })),
     unmatchedFiles: plan.unmatchedFiles,

@@ -76,6 +76,17 @@ It should become the manifest summary.
     expect(docsOutput).toContain("This note is linked from source code.");
   });
 
+  test("records asset provenance in manifest outputs", async () => {
+    const project = await createProject();
+
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    expect(manifest.assets[0]?.provenance).toEqual(["asset_rule_match"]);
+    const assetRow = manifest.files.find((file) => file.path === "logo.png");
+    expect(assetRow?.provenance).toEqual(["asset_rule_match"]);
+  });
+
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -165,7 +176,17 @@ It should become the manifest summary.
           ],
         },
       ],
-      assets: [],
+      assets: [
+        {
+          sourcePath: "logo.png",
+          storedPath: "assets/logo.png",
+          sha256: "ccc",
+          sizeBytes: 7,
+          mtime: "2026-04-11T00:00:00.000Z",
+          mediaType: "image/png",
+          provenance: ["asset_rule_match"],
+        },
+      ],
       files: [],
     };
 
@@ -189,6 +210,7 @@ It should become the manifest summary.
     expect(reparsed.sections[0]?.files[0]?.provenance).toEqual([
       "section_match",
     ]);
+    expect(reparsed.assets[0]?.provenance).toEqual(["asset_rule_match"]);
   });
 
   test("manifest file is valid JSON with correct schemaVersion and object-list structure", async () => {

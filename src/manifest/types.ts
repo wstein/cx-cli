@@ -57,6 +57,7 @@ export interface AssetRecord {
   sizeBytes: number;
   mtime: string;
   mediaType: string;
+  provenance?: InclusionProvenance[];
 }
 
 export interface NoteRecord {

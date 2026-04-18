@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import os from "node:os";
 import path from "node:path";
 import { AuditLogger } from "../../src/mcp/audit.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 describe("MCP Audit Logger", () => {
   describe("logEvent", () => {
@@ -62,22 +63,20 @@ describe("MCP Audit Logger", () => {
       const blockedRoot = path.join(tmpDir, "workspace-root.txt");
       await fs.writeFile(blockedRoot, "not a directory", "utf8");
 
-      const logger = new AuditLogger(blockedRoot, true);
-      const stderrWrite = process.stderr.write;
-      let output = "";
-      process.stderr.write = ((chunk: string | Uint8Array) => {
-        output += String(chunk);
-        return true;
-      }) as typeof process.stderr.write;
+      const capture = createBufferedCommandIo();
+      const logger = new AuditLogger(
+        blockedRoot,
+        true,
+        capture.io.stderr ?? process.stderr,
+      );
 
       try {
         await logger.logEvent("list", "read", "allowed", "ok");
       } finally {
-        process.stderr.write = stderrWrite;
         await fs.rm(tmpDir, { recursive: true, force: true });
       }
 
-      expect(output).toContain("Warning: Failed to write audit log");
+      expect(capture.stderr()).toContain("Warning: Failed to write audit log");
       expect(await logger.readLog()).toEqual([]);
     });
   });

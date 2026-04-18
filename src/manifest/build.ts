@@ -109,6 +109,7 @@ export async function buildManifest(params: {
     mediaType: asset.mediaType,
     outputStartLine: null,
     outputEndLine: null,
+    provenance: asset.provenance,
   }));
 
   // Compute aggregate render plan hash from all section hashes
@@ -154,6 +155,7 @@ export async function buildManifest(params: {
       sizeBytes: asset.sizeBytes,
       mtime: asset.mtime,
       mediaType: asset.mediaType,
+      provenance: asset.provenance,
     })),
     files: [...textRows, ...assetRows].sort((left, right) =>
       left.path.localeCompare(right.path, "en"),

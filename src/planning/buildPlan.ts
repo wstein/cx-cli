@@ -227,7 +227,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
             sizeBytes: stat.size,
             sha256: await sha256File(absolutePath),
             mtime: stat.mtime.toISOString(),
-            provenance: [],
+            provenance: ["asset_rule_match"],
           });
         }
         availablePool.delete(relativePath);
@@ -299,7 +299,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
         sizeBytes: stat.size,
         sha256: await sha256File(absolutePath),
         mtime: stat.mtime.toISOString(),
-        provenance: buildTextFileProvenance("section_match"),
+        provenance: buildTextFileProvenance("catch_all_section_match"),
       };
       getRequiredSectionFiles(sectionFiles, catchAllName).push(plannedFile);
     }

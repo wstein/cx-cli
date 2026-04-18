@@ -113,7 +113,11 @@ export async function runInspectCommand(args: InspectArgs): Promise<number> {
           ...report.assets.map((asset) => {
             const record = extractabilityByPath.get(asset.relativePath);
             const status = (record?.status ?? "planned").padEnd(8);
-            return `  ${status} ${asset.relativePath} -> ${asset.storedPath}`;
+            const provenanceSuffix =
+              asset.provenance.length > 0
+                ? ` [${asset.provenance.join(", ")}]`
+                : "";
+            return `  ${status} ${asset.relativePath} -> ${asset.storedPath}${provenanceSuffix}`;
           }),
           "",
         ]
