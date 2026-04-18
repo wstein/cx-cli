@@ -121,7 +121,7 @@ Operators can review logs to understand what agents accessed and modified.
 
 ## Tool Capability Tiers
 
-All 22 tools are classified by capability. Policy enforcement maps tool → capability → allowed/denied:
+All 22 tools are classified by capability. The MCP registration wrapper carries that capability into policy enforcement directly, so the same declaration controls registration, audit logging, and allow/deny decisions:
 
 - **read**: list, grep, read (file access)
 - **observe**: doctor_*, notes_read, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links (inspection)

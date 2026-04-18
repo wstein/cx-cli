@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import {
@@ -10,6 +9,7 @@ import {
   replaceWorkspaceSpan,
 } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
+import { registerCxMcpTool } from "./register.js";
 import { jsonToolResult } from "./utils.js";
 
 const LIST_TOOL = {
@@ -40,8 +40,17 @@ export function registerWorkspaceTools(
   server: McpServer,
   workspace: CxMcpWorkspace,
 ): void {
-  const listHandler = withPolicyEnforcement(
-    LIST_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    LIST_TOOL,
+    {
+      title: "List workspace files",
+      description: `${tierLabel("list")} List files from the cx workspace file scope using the active cx configuration.`,
+      inputSchema: z.object({
+        prefix: z.string().optional(),
+      }),
+    },
     async (args: Record<string, unknown>) => {
       const files = await listWorkspaceFiles(
         workspace,
@@ -53,24 +62,23 @@ export function registerWorkspaceTools(
         files,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    LIST_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    GREP_TOOL,
     {
-      title: "List workspace files",
-      description: `${tierLabel("list")} List files from the cx workspace file scope using the active cx configuration.`,
+      title: "Search workspace files",
+      description: `${tierLabel("grep")} Search files from the cx workspace file scope with a string or regular expression.`,
       inputSchema: z.object({
+        pattern: z.string().min(1),
+        regex: z.boolean().optional(),
+        caseSensitive: z.boolean().optional(),
         prefix: z.string().optional(),
+        limit: z.number().int().positive().max(1000).optional(),
       }),
     },
-    listHandler,
-  );
-
-  const grepHandler = withPolicyEnforcement(
-    GREP_TOOL.name,
     async (args: Record<string, unknown>) => {
       const query = {
         pattern: args.pattern as string,
@@ -85,28 +93,21 @@ export function registerWorkspaceTools(
 
       return jsonToolResult(result);
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    GREP_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    READ_TOOL,
     {
-      title: "Search workspace files",
-      description: `${tierLabel("grep")} Search files from the cx workspace file scope with a string or regular expression.`,
+      title: "Read workspace file",
+      description: `${tierLabel("read")} Read a text file from the cx workspace scope with optional line anchors.`,
       inputSchema: z.object({
-        pattern: z.string().min(1),
-        regex: z.boolean().optional(),
-        caseSensitive: z.boolean().optional(),
-        prefix: z.string().optional(),
-        limit: z.number().int().positive().max(1000).optional(),
+        path: z.string().min(1),
+        startLine: z.number().int().positive().optional(),
+        endLine: z.number().int().positive().optional(),
       }),
     },
-    grepHandler,
-  );
-
-  const readHandler = withPolicyEnforcement(
-    READ_TOOL.name,
     async (args: Record<string, unknown>) => {
       const query = {
         path: args.path as string,
@@ -121,26 +122,22 @@ export function registerWorkspaceTools(
 
       return jsonToolResult(result);
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    READ_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    REPLACE_REPOMIX_SPAN_TOOL,
     {
-      title: "Read workspace file",
-      description: `${tierLabel("read")} Read a text file from the cx workspace scope with optional line anchors.`,
+      title: "Replace workspace span",
+      description: `${tierLabel("replace_repomix_span")} Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.`,
       inputSchema: z.object({
         path: z.string().min(1),
-        startLine: z.number().int().positive().optional(),
-        endLine: z.number().int().positive().optional(),
+        startLine: z.number().int().positive(),
+        endLine: z.number().int().positive(),
+        replacement: z.string(),
       }),
     },
-    readHandler,
-  );
-
-  const replaceHandler = withPolicyEnforcement(
-    REPLACE_REPOMIX_SPAN_TOOL.name,
     async (args: Record<string, unknown>) => {
       const result = await replaceWorkspaceSpan(workspace, {
         path: args.path as string,
@@ -154,22 +151,5 @@ export function registerWorkspaceTools(
         ...result,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
-  );
-
-  server.registerTool(
-    REPLACE_REPOMIX_SPAN_TOOL.name,
-    {
-      title: "Replace workspace span",
-      description: `${tierLabel("replace_repomix_span")} Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.`,
-      inputSchema: z.object({
-        path: z.string().min(1),
-        startLine: z.number().int().positive(),
-        endLine: z.number().int().positive(),
-        replacement: z.string(),
-      }),
-    },
-    replaceHandler,
   );
 }

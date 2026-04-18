@@ -22,6 +22,12 @@ export const CX_MCP_TOOL_CAPABILITIES = Object.freeze(
   ) as Record<string, McpCapability>,
 );
 
+export const CX_MCP_TOOL_DEFINITION_MAP = Object.freeze(
+  Object.fromEntries(
+    CX_MCP_TOOL_DEFINITIONS.map((tool) => [tool.name, tool]),
+  ) as Record<string, CxMcpToolDefinition>,
+);
+
 export const CX_MCP_TOOL_NAMES = Object.freeze(
   CX_MCP_TOOL_DEFINITIONS.map((tool) => tool.name),
 );
@@ -30,4 +36,10 @@ export function getCxMcpToolCapability(
   toolName: string,
 ): McpCapability | undefined {
   return CX_MCP_TOOL_CAPABILITIES[toolName];
+}
+
+export function getCxMcpToolDefinition(
+  toolName: string,
+): CxMcpToolDefinition | undefined {
+  return CX_MCP_TOOL_DEFINITION_MAP[toolName];
 }

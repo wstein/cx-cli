@@ -19,10 +19,10 @@ import {
 import { validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
-import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
+import { registerCxMcpTool } from "./register.js";
 import { jsonToolResult } from "./utils.js";
 
 const NOTES_NEW_TOOL = {
@@ -90,8 +90,19 @@ export function registerNotesTools(
 ): void {
   const notesDir = path.join(workspace.sourceRoot, "notes");
 
-  const notesNewHandler = withPolicyEnforcement(
-    NOTES_NEW_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_NEW_TOOL,
+    {
+      title: "Create note",
+      description: `${tierLabel("notes_new")} Create a new note in the workspace notes directory with optional tags and body text.`,
+      inputSchema: z.object({
+        title: z.string().min(1),
+        tags: z.array(z.string().min(1)).optional(),
+        body: z.string().min(1).optional(),
+      }),
+    },
     async (args: Record<string, unknown>) => {
       const note = await createNewNote(args.title as string, {
         notesDir,
@@ -107,26 +118,19 @@ export function registerNotesTools(
         tags: (args.tags as string[] | undefined) ?? [],
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_NEW_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_READ_TOOL,
     {
-      title: "Create note",
-      description: `${tierLabel("notes_new")} Create a new note in the workspace notes directory with optional tags and body text.`,
+      title: "Read note",
+      description: `${tierLabel("notes_read")} Read a note from the workspace notes directory with parsed metadata and body content.`,
       inputSchema: z.object({
-        title: z.string().min(1),
-        tags: z.array(z.string().min(1)).optional(),
-        body: z.string().min(1).optional(),
+        id: z.string().min(1),
       }),
     },
-    notesNewHandler,
-  );
-
-  const notesReadHandler = withPolicyEnforcement(
-    NOTES_READ_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await readNote(args.id as string, {
         notesDir,
@@ -138,24 +142,22 @@ export function registerNotesTools(
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_READ_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_UPDATE_TOOL,
     {
-      title: "Read note",
-      description: `${tierLabel("notes_read")} Read a note from the workspace notes directory with parsed metadata and body content.`,
+      title: "Update note",
+      description: `${tierLabel("notes_update")} Update an existing note in the workspace notes directory while preserving its file path.`,
       inputSchema: z.object({
         id: z.string().min(1),
+        title: z.string().min(1).optional(),
+        tags: z.array(z.string().min(1)).optional(),
+        body: z.string().min(1).optional(),
       }),
     },
-    notesReadHandler,
-  );
-
-  const notesUpdateHandler = withPolicyEnforcement(
-    NOTES_UPDATE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await updateNote(args.id as string, {
         notesDir,
@@ -172,27 +174,20 @@ export function registerNotesTools(
         tags: note.tags,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_UPDATE_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_RENAME_TOOL,
     {
-      title: "Update note",
-      description: `${tierLabel("notes_update")} Update an existing note in the workspace notes directory while preserving its file path.`,
+      title: "Rename note",
+      description: `${tierLabel("notes_rename")} Rename an existing note in the workspace notes directory and update its title in place.`,
       inputSchema: z.object({
         id: z.string().min(1),
-        title: z.string().min(1).optional(),
-        tags: z.array(z.string().min(1)).optional(),
-        body: z.string().min(1).optional(),
+        title: z.string().min(1),
       }),
     },
-    notesUpdateHandler,
-  );
-
-  const notesRenameHandler = withPolicyEnforcement(
-    NOTES_RENAME_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await renameNote(args.id as string, args.title as string, {
         notesDir,
@@ -210,25 +205,19 @@ export function registerNotesTools(
         tags: note.tags,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_RENAME_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_DELETE_TOOL,
     {
-      title: "Rename note",
-      description: `${tierLabel("notes_rename")} Rename an existing note in the workspace notes directory and update its title in place.`,
+      title: "Delete note",
+      description: `${tierLabel("notes_delete")} Delete an existing note from the workspace notes directory.`,
       inputSchema: z.object({
         id: z.string().min(1),
-        title: z.string().min(1),
       }),
     },
-    notesRenameHandler,
-  );
-
-  const notesDeleteHandler = withPolicyEnforcement(
-    NOTES_DELETE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await deleteNote(args.id as string, {
         notesDir,
@@ -241,24 +230,23 @@ export function registerNotesTools(
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_DELETE_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_SEARCH_TOOL,
     {
-      title: "Delete note",
-      description: `${tierLabel("notes_delete")} Delete an existing note from the workspace notes directory.`,
+      title: "Search notes",
+      description: `${tierLabel("notes_search")} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
       inputSchema: z.object({
-        id: z.string().min(1),
+        query: z.string().min(1),
+        regex: z.boolean().optional(),
+        caseSensitive: z.boolean().optional(),
+        limit: z.number().int().positive().max(100).optional(),
+        tags: z.array(z.string().min(1)).optional(),
       }),
     },
-    notesDeleteHandler,
-  );
-
-  const notesSearchHandler = withPolicyEnforcement(
-    NOTES_SEARCH_TOOL.name,
     async (args: Record<string, unknown>) => {
       const result = await searchNotes(args.query as string, {
         notesDir,
@@ -278,28 +266,17 @@ export function registerNotesTools(
         })),
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_SEARCH_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_LIST_TOOL,
     {
-      title: "Search notes",
-      description: `${tierLabel("notes_search")} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
-      inputSchema: z.object({
-        query: z.string().min(1),
-        regex: z.boolean().optional(),
-        caseSensitive: z.boolean().optional(),
-        limit: z.number().int().positive().max(100).optional(),
-        tags: z.array(z.string().min(1)).optional(),
-      }),
+      title: "List notes",
+      description: `${tierLabel("notes_list")} List notes in the workspace notes directory with summaries and tags.`,
+      inputSchema: z.object({}),
     },
-    notesSearchHandler,
-  );
-
-  const notesListHandler = withPolicyEnforcement(
-    NOTES_LIST_TOOL.name,
     async () => {
       const result = await validateNotes("notes", workspace.sourceRoot);
       const notes = result.notes.map((note) => ({
@@ -316,22 +293,19 @@ export function registerNotesTools(
         notes,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_LIST_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_BACKLINKS_TOOL,
     {
-      title: "List notes",
-      description: `${tierLabel("notes_list")} List notes in the workspace notes directory with summaries and tags.`,
-      inputSchema: z.object({}),
+      title: "List note backlinks",
+      description: `${tierLabel("notes_backlinks")} List notes that link to a specific note from the workspace notes graph.`,
+      inputSchema: z.object({
+        id: z.string().min(1),
+      }),
     },
-    notesListHandler,
-  );
-
-  const notesBacklinksHandler = withPolicyEnforcement(
-    NOTES_BACKLINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const note = graph.notes.get(args.id as string);
@@ -348,24 +322,17 @@ export function registerNotesTools(
         backlinks,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_BACKLINKS_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_ORPHANS_TOOL,
     {
-      title: "List note backlinks",
-      description: `${tierLabel("notes_backlinks")} List notes that link to a specific note from the workspace notes graph.`,
-      inputSchema: z.object({
-        id: z.string().min(1),
-      }),
+      title: "List orphan notes",
+      description: `${tierLabel("notes_orphans")} List notes with no incoming or outgoing links in the workspace notes graph.`,
+      inputSchema: z.object({}),
     },
-    notesBacklinksHandler,
-  );
-
-  const notesOrphansHandler = withPolicyEnforcement(
-    NOTES_ORPHANS_TOOL.name,
     async () => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const orphans = graph.orphans.map((id) => {
@@ -382,22 +349,19 @@ export function registerNotesTools(
         orphans,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_ORPHANS_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_CODE_LINKS_TOOL,
     {
-      title: "List orphan notes",
-      description: `${tierLabel("notes_orphans")} List notes with no incoming or outgoing links in the workspace notes graph.`,
-      inputSchema: z.object({}),
+      title: "List code references",
+      description: `${tierLabel("notes_code_links")} List source files that reference a note through wikilinks in code comments or text.`,
+      inputSchema: z.object({
+        id: z.string().min(1),
+      }),
     },
-    notesOrphansHandler,
-  );
-
-  const notesCodeLinksHandler = withPolicyEnforcement(
-    NOTES_CODE_LINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const note = graph.notes.get(args.id as string);
@@ -414,24 +378,19 @@ export function registerNotesTools(
         codeFiles,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    NOTES_CODE_LINKS_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_LINKS_TOOL,
     {
-      title: "List code references",
-      description: `${tierLabel("notes_code_links")} List source files that reference a note through wikilinks in code comments or text.`,
+      title: "Audit note links",
+      description: `${tierLabel("notes_links")} Audit unresolved note and code references, or inspect one note's outgoing links.`,
       inputSchema: z.object({
-        id: z.string().min(1),
+        id: z.string().min(1).optional(),
       }),
     },
-    notesCodeLinksHandler,
-  );
-
-  const notesLinksHandler = withPolicyEnforcement(
-    NOTES_LINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
 
@@ -462,19 +421,5 @@ export function registerNotesTools(
         brokenLinks: broken,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
-  );
-
-  server.registerTool(
-    NOTES_LINKS_TOOL.name,
-    {
-      title: "Audit note links",
-      description: `${tierLabel("notes_links")} Audit unresolved note and code references, or inspect one note's outgoing links.`,
-      inputSchema: z.object({
-        id: z.string().min(1).optional(),
-      }),
-    },
-    notesLinksHandler,
   );
 }

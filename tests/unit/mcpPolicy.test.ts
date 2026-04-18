@@ -9,7 +9,10 @@ import {
   STRICT_POLICY,
   UNRESTRICTED_POLICY,
 } from "../../src/mcp/policy.js";
-import { CX_MCP_TOOL_CAPABILITIES } from "../../src/mcp/tools/catalog.js";
+import {
+  CX_MCP_TOOL_CAPABILITIES,
+  getCxMcpToolDefinition,
+} from "../../src/mcp/tools/catalog.js";
 
 describe("MCP Policy System", () => {
   describe("isCapabilityAllowed", () => {
@@ -44,6 +47,17 @@ describe("MCP Policy System", () => {
   });
 
   describe("checkToolAccess", () => {
+    it("accepts a tool definition object directly", () => {
+      const tool = getCxMcpToolDefinition("bundle");
+      if (!tool) {
+        throw new Error("bundle tool definition missing");
+      }
+
+      const decision = checkToolAccess(tool, DEFAULT_POLICY);
+      expect(decision.allowed).toBe(true);
+      expect(decision.capability).toBe("plan");
+    });
+
     it("allows read tools under default policy", () => {
       const decision = checkToolAccess("list", DEFAULT_POLICY);
       expect(decision.allowed).toBe(true);

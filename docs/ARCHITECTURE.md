@@ -154,6 +154,7 @@ cli/commands/                    ← presentation layer (thin shells)
 | `inspect/report.ts` | Bundle plan inspection report |
 | `mcp/config.ts` | MCP config path resolution |
 | `mcp/tools/catalog.ts` | Shared MCP tool catalog and capability metadata |
+| `mcp/tools/register.ts` | Shared MCP registration wrapper that carries capability into enforcement |
 | `mcp/tools/workspace.ts` | Workspace navigation tools |
 | `mcp/tools/bundle.ts` | Bundle preview and inspect tools |
 | `mcp/tools/doctor.ts` | Doctor diagnostic tools |

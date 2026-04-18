@@ -1,7 +1,10 @@
 import type { CxConfig } from "../config/types.js";
 import { CxError, type ErrorRemediation } from "../shared/errors.js";
 import type { McpCapability } from "./capabilities.js";
-import { getCxMcpToolCapability } from "./tools/catalog.js";
+import {
+  getCxMcpToolDefinition,
+  type CxMcpToolDefinition,
+} from "./tools/catalog.js";
 
 /**
  * File scope configuration for a policy.
@@ -37,6 +40,12 @@ export interface ToolAccessDecision {
   allowed: boolean;
   reason: string;
   capability: McpCapability;
+}
+
+function resolveToolDefinition(
+  tool: string | CxMcpToolDefinition,
+): CxMcpToolDefinition | undefined {
+  return typeof tool === "string" ? getCxMcpToolDefinition(tool) : tool;
 }
 
 /**
@@ -106,12 +115,13 @@ export function isCapabilityAllowed(
  * Returns decision with reason.
  */
 export function checkToolAccess(
-  toolName: string,
+  tool: string | CxMcpToolDefinition,
   policy: McpPolicy,
 ): ToolAccessDecision {
-  const capability = getCxMcpToolCapability(toolName);
+  const resolvedTool = resolveToolDefinition(tool);
+  const toolName = typeof tool === "string" ? tool : tool.name;
 
-  if (!capability) {
+  if (!resolvedTool) {
     return {
       allowed: false,
       reason: `Unknown tool: ${toolName}`,
@@ -119,15 +129,15 @@ export function checkToolAccess(
     };
   }
 
-  const allowed = isCapabilityAllowed(policy, capability);
+  const allowed = isCapabilityAllowed(policy, resolvedTool.capability);
   const reason = allowed
-    ? `Tool ${toolName} (capability: ${capability}) is allowed`
-    : `Tool ${toolName} (capability: ${capability}) is denied by policy`;
+    ? `Tool ${toolName} (capability: ${resolvedTool.capability}) is allowed`
+    : `Tool ${toolName} (capability: ${resolvedTool.capability}) is denied by policy`;
 
   return {
     allowed,
     reason,
-    capability,
+    capability: resolvedTool.capability,
   };
 }
 

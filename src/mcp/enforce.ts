@@ -1,21 +1,22 @@
 import type { AuditLogger } from "./audit.js";
 import { checkToolAccess, type McpPolicy, PolicyError } from "./policy.js";
+import type { CxMcpToolDefinition } from "./tools/catalog.js";
 
 /**
  * Tool enforcement wrapper: checks policy before executing a tool handler.
  * Throws PolicyError if access is denied, logs decision to audit trail.
  */
 export async function enforceToolAccess<T>(
-  toolName: string,
+  tool: CxMcpToolDefinition,
   handler: () => Promise<T>,
   policy: McpPolicy,
   auditLogger?: AuditLogger,
 ): Promise<T> {
-  const decision = checkToolAccess(toolName, policy);
+  const decision = checkToolAccess(tool, policy);
 
   if (auditLogger) {
     await auditLogger.logToolAccess(
-      toolName,
+      tool.name,
       decision.capability,
       decision.allowed,
       decision.reason,
@@ -24,7 +25,7 @@ export async function enforceToolAccess<T>(
 
   if (!decision.allowed) {
     throw new PolicyError(
-      toolName,
+      tool.name,
       decision.capability,
       `Access denied: ${decision.reason}`,
     );
@@ -39,14 +40,14 @@ export async function enforceToolAccess<T>(
  * Works with MCP SDK handlers that return TextContent[].
  */
 export function withPolicyEnforcement<T>(
-  toolName: string,
+  tool: CxMcpToolDefinition,
   handler: (args: Record<string, unknown>) => Promise<T>,
   policy: McpPolicy,
   auditLogger?: AuditLogger,
 ): (args: Record<string, unknown>) => Promise<T> {
   return async (args: Record<string, unknown>): Promise<T> => {
     return enforceToolAccess(
-      toolName,
+      tool,
       () => handler(args),
       policy,
       auditLogger,

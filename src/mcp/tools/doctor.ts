@@ -5,10 +5,10 @@ import { collectDoctorMcpReport } from "../../doctor/mcp.js";
 import { collectDoctorOverlapsReport } from "../../doctor/overlaps.js";
 import { collectDoctorSecretsReport } from "../../doctor/secrets.js";
 import { recommendWorkflow } from "../../doctor/workflow.js";
-import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
+import { registerCxMcpTool } from "./register.js";
 import { jsonToolResult } from "./utils.js";
 
 const DOCTOR_MCP_TOOL = {
@@ -39,8 +39,15 @@ export function registerDoctorTools(
   server: McpServer,
   workspace: CxMcpWorkspace,
 ): void {
-  const doctorMcpHandler = withPolicyEnforcement(
-    DOCTOR_MCP_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    DOCTOR_MCP_TOOL,
+    {
+      title: "Diagnose MCP profile",
+      description: `${tierLabel("doctor_mcp")} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
+      inputSchema: z.object({}),
+    },
     async () => {
       const report = await collectDoctorMcpReport({
         config: path.join(workspace.sourceRoot, "cx.toml"),
@@ -51,22 +58,19 @@ export function registerDoctorTools(
         ...report,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    DOCTOR_MCP_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    DOCTOR_WORKFLOW_TOOL,
     {
-      title: "Diagnose MCP profile",
-      description: `${tierLabel("doctor_mcp")} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
-      inputSchema: z.object({}),
+      title: "Recommend workflow",
+      description: `${tierLabel("doctor_workflow")} Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.`,
+      inputSchema: z.object({
+        task: z.string().min(1),
+      }),
     },
-    doctorMcpHandler,
-  );
-
-  const doctorWorkflowHandler = withPolicyEnforcement(
-    DOCTOR_WORKFLOW_TOOL.name,
     async (args: Record<string, unknown>) => {
       const recommendation = recommendWorkflow(args.task as string);
 
@@ -76,24 +80,17 @@ export function registerDoctorTools(
         ...recommendation,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    DOCTOR_WORKFLOW_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    DOCTOR_OVERLAPS_TOOL,
     {
-      title: "Recommend workflow",
-      description: `${tierLabel("doctor_workflow")} Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.`,
-      inputSchema: z.object({
-        task: z.string().min(1),
-      }),
+      title: "Diagnose section overlaps",
+      description: `${tierLabel("doctor_overlaps")} Inspect live workspace section ownership and duplicate file assignments.`,
+      inputSchema: z.object({}),
     },
-    doctorWorkflowHandler,
-  );
-
-  const doctorOverlapsHandler = withPolicyEnforcement(
-    DOCTOR_OVERLAPS_TOOL.name,
     async () => {
       const report = await collectDoctorOverlapsReport({
         config: path.join(workspace.sourceRoot, "cx.toml"),
@@ -104,22 +101,17 @@ export function registerDoctorTools(
         ...report,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    DOCTOR_OVERLAPS_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    DOCTOR_SECRETS_TOOL,
     {
-      title: "Diagnose section overlaps",
-      description: `${tierLabel("doctor_overlaps")} Inspect live workspace section ownership and duplicate file assignments.`,
+      title: "Diagnose secret hygiene",
+      description: `${tierLabel("doctor_secrets")} Scan the live workspace file scope for suspicious secrets before a patch is written.`,
       inputSchema: z.object({}),
     },
-    doctorOverlapsHandler,
-  );
-
-  const doctorSecretsHandler = withPolicyEnforcement(
-    DOCTOR_SECRETS_TOOL.name,
     async () => {
       const report = await collectDoctorSecretsReport({
         config: path.join(workspace.sourceRoot, "cx.toml"),
@@ -130,17 +122,5 @@ export function registerDoctorTools(
         ...report,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
-  );
-
-  server.registerTool(
-    DOCTOR_SECRETS_TOOL.name,
-    {
-      title: "Diagnose secret hygiene",
-      description: `${tierLabel("doctor_secrets")} Scan the live workspace file scope for suspicious secrets before a patch is written.`,
-      inputSchema: z.object({}),
-    },
-    doctorSecretsHandler,
   );
 }

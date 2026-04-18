@@ -6,8 +6,10 @@ tags: ["mcp", "agent", "documentation"]
 The native `cx mcp` tool set can be grouped by agent intent instead of implementation origin. This machine-oriented taxonomy is useful for prompt engineering, policy enforcement, and safe agent session design.
 
 Capability declarations now live beside the MCP tool registration metadata in
-source, and policy evaluation derives from that shared catalog. There is no
-separately maintained capability map to keep in sync.
+source, and the shared registration wrapper carries that capability straight
+into policy enforcement. There is no separately maintained capability map to
+keep in sync, and the enforcement path does not need to rediscover capability
+from a later name lookup when a tool is registered normally.
 
 ## Read / Observe
 Safe inspection and context gathering tools. They do not mutate state.

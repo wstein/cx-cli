@@ -1,10 +1,10 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { collectInspectReport } from "../../inspect/report.js";
-import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
+import { registerCxMcpTool } from "./register.js";
 import { jsonToolResult } from "./utils.js";
 
 const INSPECT_TOOL = {
@@ -25,8 +25,17 @@ export function registerBundleTools(
   server: McpServer,
   workspace: CxMcpWorkspace,
 ): void {
-  const inspectHandler = withPolicyEnforcement(
-    INSPECT_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    INSPECT_TOOL,
+    {
+      title: "Inspect live bundle plan",
+      description: `${tierLabel("inspect")} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
+      inputSchema: z.object({
+        tokenBreakdown: z.boolean().optional(),
+      }),
+    },
     async (args: Record<string, unknown>) => {
       const report = await collectInspectReport({
         config: workspace.config,
@@ -40,24 +49,19 @@ export function registerBundleTools(
         ...report,
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
   );
 
-  server.registerTool(
-    INSPECT_TOOL.name,
+  registerCxMcpTool(
+    server,
+    workspace,
+    BUNDLE_TOOL,
     {
-      title: "Inspect live bundle plan",
-      description: `${tierLabel("inspect")} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
+      title: "Preview bundle snapshot",
+      description: `${tierLabel("bundle")} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,
       inputSchema: z.object({
         tokenBreakdown: z.boolean().optional(),
       }),
     },
-    inspectHandler,
-  );
-
-  const bundleHandler = withPolicyEnforcement(
-    BUNDLE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const report = await collectInspectReport({
         config: workspace.config,
@@ -79,19 +83,5 @@ export function registerBundleTools(
         note: "Use cx bundle locally to write the artifact; this MCP preview stays on the live workspace.",
       });
     },
-    workspace.policy,
-    workspace.auditLogger,
-  );
-
-  server.registerTool(
-    BUNDLE_TOOL.name,
-    {
-      title: "Preview bundle snapshot",
-      description: `${tierLabel("bundle")} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,
-      inputSchema: z.object({
-        tokenBreakdown: z.boolean().optional(),
-      }),
-    },
-    bundleHandler,
   );
 }
