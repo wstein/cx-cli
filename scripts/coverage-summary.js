@@ -1,18 +1,9 @@
 import fs from "node:fs/promises";
 
-interface FileCoverage {
-  file: string;
-  lines: Map<number, number>;
-  total: number;
-  hit: number;
-}
-
-const readLcovFile = async (
-  filePath: string,
-): Promise<Map<string, FileCoverage>> => {
+const readLcovFile = async (filePath) => {
   const content = await fs.readFile(filePath, "utf-8");
-  const coverage = new Map<string, FileCoverage>();
-  let current: FileCoverage | null = null;
+  const coverage = new Map();
+  let current = null;
 
   for (const line of content.split("\n")) {
     if (line.startsWith("SF:")) {
@@ -32,7 +23,7 @@ const readLcovFile = async (
   return coverage;
 };
 
-const readSourceFile = async (filePath: string): Promise<string[]> => {
+const readSourceFile = async (filePath) => {
   try {
     const content = await fs.readFile(filePath, "utf-8");
     return content.split("\n");
@@ -41,10 +32,8 @@ const readSourceFile = async (filePath: string): Promise<string[]> => {
   }
 };
 
-const getUncoveredRanges = (
-  lines: Map<number, number>,
-): Array<[number, number]> => {
-  const uncovered: Array<[number, number]> = [];
+const getUncoveredRanges = (lines) => {
+  const uncovered = [];
   let start = -1;
 
   const sorted = Array.from(lines.entries()).sort(([a], [b]) => a - b);
@@ -62,24 +51,17 @@ const getUncoveredRanges = (
   return uncovered;
 };
 
-const formatCodeBlock = async (
-  startLine: number,
-  endLine: number,
-  source: string[],
-): Promise<string> => {
-  const lines: string[] = [];
+const formatCodeBlock = async (startLine, endLine, source) => {
+  const lines = [];
   for (let i = startLine - 1; i < endLine; i++) {
     lines.push(source[i] || "");
   }
-
   return `\`\`\`\n${lines.join("\n")}\n\`\`\``;
 };
 
-const shouldInclude = (filePath: string): boolean => {
-  // Exclude test helpers and test infrastructure
+const shouldInclude = (filePath) => {
   if (filePath.includes("/tests/") || filePath.startsWith("tests/"))
     return false;
-  // Exclude temp/mock files outside the project
   if (filePath.startsWith("/tmp/") || filePath.includes("/var/folders/"))
     return false;
   if (filePath.startsWith("/private/")) return false;

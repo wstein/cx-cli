@@ -1,34 +1,10 @@
-/**
- * Import boundary checker.
- *
- * Enforces the module layer rules documented in docs/ARCHITECTURE.md:
- *
- *   - mcp/** must not import from cli/commands/**
- *   - planning/** must not import from notes/**
- *
- * Run via: bun run scripts/check-boundaries.ts
- * Integrated into the `lint` npm script.
- */
-
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-interface Violation {
-  file: string;
-  importPath: string;
-  rule: string;
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-interface BoundaryRule {
-  /** Glob-style prefix of the importing module (relative to src/) */
-  fromPrefix: string;
-  /** Forbidden import prefix (relative to src/) */
-  forbiddenPrefix: string;
-  /** Human-readable description for the error message */
-  description: string;
-}
-
-const RULES: BoundaryRule[] = [
+const RULES = [
   {
     fromPrefix: "mcp/",
     forbiddenPrefix: "cli/commands/",
@@ -43,45 +19,33 @@ const RULES: BoundaryRule[] = [
   },
 ];
 
-/** Extract all static import/export-from specifiers from TypeScript source. */
-function extractImportSpecifiers(source: string): string[] {
-  const specifiers: string[] = [];
-  // Match: import ... from "..."  /  export ... from "..."
+function extractImportSpecifiers(source) {
+  const specifiers = [];
   const importRe =
     /(?:^|\n)\s*(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]/g;
-  let m: RegExpExecArray | null;
-  m = importRe.exec(source);
+  let m = importRe.exec(source);
   while (m !== null) {
-    specifiers.push(m[1] as string);
+    specifiers.push(m[1]);
     m = importRe.exec(source);
   }
-  // Match bare: import "..."
   const bareRe = /(?:^|\n)\s*import\s+['"]([^'"]+)['"]/g;
   m = bareRe.exec(source);
   while (m !== null) {
-    specifiers.push(m[1] as string);
+    specifiers.push(m[1]);
     m = bareRe.exec(source);
   }
   return specifiers;
 }
 
-/**
- * Resolve a relative specifier to a src/-relative path, or return null for
- * non-relative (package) imports.
- */
-function resolveToSrcRelative(
-  importingFileSrcRelative: string,
-  specifier: string,
-): string | null {
+function resolveToSrcRelative(importingFileSrcRelative, specifier) {
   if (!specifier.startsWith(".")) return null;
   const dir = path.dirname(importingFileSrcRelative);
   const resolved = path.normalize(path.join(dir, specifier));
-  // Strip any .js / .ts extension that crept in
   return resolved.replace(/\.(js|ts)$/, "");
 }
 
-async function collectTsFiles(dir: string): Promise<string[]> {
-  const results: string[] = [];
+async function collectTsFiles(dir) {
+  const results = [];
   const entries = await readdir(dir, { withFileTypes: true, recursive: true });
   for (const entry of entries) {
     if (
@@ -95,11 +59,11 @@ async function collectTsFiles(dir: string): Promise<string[]> {
   return results;
 }
 
-async function main(): Promise<void> {
-  const srcDir = path.resolve(import.meta.dirname, "../src");
+async function main() {
+  const srcDir = path.resolve(__dirname, "../src");
   const files = await collectTsFiles(srcDir);
 
-  const violations: Violation[] = [];
+  const violations = [];
 
   for (const absFile of files) {
     const srcRelative = path.relative(srcDir, absFile).replace(/\\/g, "/");

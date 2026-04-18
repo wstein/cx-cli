@@ -25,24 +25,24 @@
     "schemas"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && bun run scripts/copy-init-templates.ts",
+    "build": "tsc -p tsconfig.json && node scripts/copy-init-templates.js",
     "clean": "rm -rf dist",
     "format": "biome format --write .",
-    "lint": "biome check . && bun run scripts/check-boundaries.ts",
-    "check-boundaries": "bun run scripts/check-boundaries.ts",
+    "lint": "biome check . && node scripts/check-boundaries.js",
+    "check-boundaries": "node scripts/check-boundaries.js",
     "test:unit": "bun test tests/unit --timeout 20000",
     "test:integration": "bun test tests/cli tests/bundle --timeout 20000",
     "test": "bun test tests/unit",
-    "release": "bun run scripts/release.ts",
-    "gen:homebrew": "bun run scripts/generate-homebrew-formula.ts",
+    "release": "node scripts/release.js",
+    "gen:homebrew": "node scripts/generate-homebrew-formula.js",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
     "fix": "biome check --write .",
-    "verify": "bun run lint && bun run check && bun run build && bun test tests --timeout 20000 && bun run scripts/coverage-summary.ts",
-    "copy:init": "bun run scripts/copy-init-templates.ts",
+    "verify": "bun run lint && bun run check && bun run build && bun test tests --timeout 20000 && node scripts/coverage-summary.js",
+    "copy:init": "node scripts/copy-init-templates.js",
     "notes": "cx notes list && cx notes orphans",
-    "smoke": "bun run scripts/repomix-version-smoke.ts",
-    "integrity": "bun run scripts/release-integrity.ts",
-    "verify-release": "bun run scripts/verify-release.ts"
+    "smoke": "node scripts/repomix-version-smoke.js",
+    "integrity": "node scripts/release-integrity.js",
+    "verify-release": "node scripts/verify-release.js"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -6,13 +6,13 @@ import { join, resolve } from "node:path";
 
 const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
-const packageVersion = packageJson.version as string;
+const packageVersion = packageJson.version;
 
 const args = process.argv.slice(2);
 let outputPath = "formula/cx-cli.rb";
 let requestedVersion = packageVersion;
 let versionProvided = false;
-let tarballPath: string | undefined;
+let tarballPath;
 
 for (let index = 0; index < args.length; index += 1) {
   const arg = args[index];
@@ -50,7 +50,7 @@ const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
 const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requestedVersion}.tgz`;
 
-function packLocalTarball(): { tarballPath: string; cleanupDir: string } {
+function packLocalTarball() {
   console.log(`Packing local npm tarball for version ${requestedVersion}...`);
   const tempDir = mkdtempSync(join(tmpdir(), "cx-cli-homebrew-"));
   try {
@@ -75,9 +75,7 @@ function packLocalTarball(): { tarballPath: string; cleanupDir: string } {
       throw new Error("npm pack did not return tarball metadata.");
     }
 
-    const packMetadata = JSON.parse(packedOutput) as Array<{
-      filename?: string;
-    }>;
+    const packMetadata = JSON.parse(packedOutput);
     const filename = packMetadata[0]?.filename;
     if (!filename) {
       throw new Error("npm pack did not report a tarball filename.");

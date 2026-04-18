@@ -10,7 +10,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 const envVersion = process.env.VERSION ?? process.argv[2];
 let version = envVersion;
 
-const currentVersion = pkg.version as string;
+const currentVersion = pkg.version;
 const suggestedVersion = semver.test(currentVersion)
   ? currentVersion.replace(/(\d+)$/, (match) => String(Number(match) + 1))
   : currentVersion;
@@ -35,7 +35,7 @@ if (!semver.test(version)) {
 pkg.version = version;
 writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
 
-function run(command: string, args: string[]) {
+function run(command, args) {
   const result = spawnSync(command, args, { stdio: "inherit" });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);

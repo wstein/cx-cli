@@ -2,13 +2,13 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { runBundleCommand } from "../src/cli/commands/bundle.js";
+import { runBundleCommand } from "../dist/src/cli/commands/bundle.js";
 import {
   getRepomixCapabilities,
   REPOMIX_ADAPTER_CONTRACT,
-} from "../src/repomix/render.js";
+} from "../dist/src/repomix/render.js";
 
-async function main(): Promise<void> {
+async function main() {
   const capabilities = await getRepomixCapabilities();
   if (capabilities.adapterContract !== REPOMIX_ADAPTER_CONTRACT) {
     throw new Error("Repomix adapter contract metadata is inconsistent.");

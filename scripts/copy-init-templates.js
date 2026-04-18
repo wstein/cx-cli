@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// Copy the runtime init templates into the published dist tree.
-// The compiled package needs the template files available at runtime
-// so `cx init` can render project scaffolding after installation.
-async function copyDirectory(source: string, target: string): Promise<void> {
+async function copyDirectory(source, target) {
   const entries = await fs.readdir(source, { withFileTypes: true });
   await fs.mkdir(target, { recursive: true });
 
@@ -20,7 +17,7 @@ async function copyDirectory(source: string, target: string): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+async function main() {
   const root = path.resolve(".");
   const source = path.join(root, "src", "templates", "init");
   const target = path.join(root, "dist", "src", "templates", "init");

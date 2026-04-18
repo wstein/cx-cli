@@ -2,23 +2,12 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-interface ReleaseSBOM {
-  version: string;
-  timestamp: string;
-  nodeVersion: string;
-  bunVersion: string;
-  tarballName: string;
-  tarballHash: string;
-}
-
-async function main(): Promise<void> {
+async function main() {
   try {
-    // Read the SBOM
     const sbomPath = path.join("dist", "release-integrity.json");
     const sbomContent = await fs.readFile(sbomPath, "utf-8");
-    const sbom: ReleaseSBOM = JSON.parse(sbomContent);
+    const sbom = JSON.parse(sbomContent);
 
-    // Find the tarball
     const tarballDir = "tarball-artifacts";
     const files = await fs.readdir(tarballDir);
     const tarballFile = files.find((f) => f.endsWith(".tgz"));
@@ -33,12 +22,10 @@ async function main(): Promise<void> {
       );
     }
 
-    // Compute hash
     const tarballPath = path.join(tarballDir, tarballFile);
     const fileContent = await fs.readFile(tarballPath);
     const hash = createHash("sha256").update(fileContent).digest("hex");
 
-    // Verify
     if (hash !== sbom.tarballHash) {
       throw new Error(
         `Hash mismatch: expected ${sbom.tarballHash}, got ${hash}`,
