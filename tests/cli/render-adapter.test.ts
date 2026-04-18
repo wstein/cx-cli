@@ -83,7 +83,7 @@ describe("render command", () => {
     } finally {
       process.chdir(cwd);
     }
-    expect(exitCode!).toBe(0);
+    expect(exitCode).toBe(0);
 
     const output = capture.stdout();
     expect(output).toContain("cx section handover");
@@ -133,7 +133,7 @@ describe("render command", () => {
     } finally {
       process.chdir(cwd);
     }
-    expect(exitCode!).toBe(0);
+    expect(exitCode).toBe(0);
 
     const output = capture.stdout();
     expect(output).toContain("index.ts");
@@ -158,7 +158,7 @@ describe("render command", () => {
     } finally {
       process.chdir(cwd);
     }
-    expect(exitCode!).toBe(0);
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       projectName?: string;
@@ -227,7 +227,7 @@ describe("render command", () => {
     } finally {
       process.chdir(cwd);
     }
-    expect(exitCode!).toBe(0);
+    expect(exitCode).toBe(0);
 
     const output = capture.stdout();
     expect(output).toContain("index.ts");
