@@ -41,6 +41,22 @@ That distinction explains most of the architecture:
 
 This is why `cx` records token accounting in the manifest, writes canonical JSON, and protects emitted artifacts with SHA-256 checksums. Those are not decorative constraints. They are the mechanisms that let a bundle survive time, transport, and automation boundaries.
 
+## Deferred Framework Migration
+
+The current reliability program deliberately avoids broad framework churn.
+
+For the next cleanup wave, `cx` keeps:
+
+- `yargs` as the CLI framework
+- `bun:test` as the primary test runner
+- Bun-first CI lanes
+- the in-process Repomix fork boundary
+
+The active modernization target is boundary cleanup, not framework replacement.
+That means reducing shared process state at the edges of the system, with a
+specific emphasis on command I/O injection, explicit workspace context, and
+test isolation from mutable globals.
+
 ## System Boundary
 
 `cx` does not shell out to Repomix. It uses a narrow adapter boundary and only relies on public exports it actually needs.

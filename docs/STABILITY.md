@@ -6,6 +6,14 @@ cx-cli tools are classified into four stability tiers, each with distinct guaran
 
 ## Tier Definitions
 
+## Current Reliability Focus
+
+The current stability push is intentionally scoped to global-state reduction,
+not broad toolchain replacement. `cx` continues to standardize on `yargs`,
+`bun:test`, Bun-first CI execution, and the Repomix fork while reliability work
+targets command I/O boundaries, workspace context injection, and clearer test
+separation between pure behavior and integration seams.
+
 ### STABLE
 
 **Guarantee:** Tools in this tier have a documented, semver-protected API contract. Breaking changes require a major version bump of cx-cli.
