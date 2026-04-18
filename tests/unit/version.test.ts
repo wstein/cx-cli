@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 
 import packageJson from "../../package.json" with { type: "json" };

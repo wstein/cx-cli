@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, it } from "bun:test";
 import { isSubpath, toPosixPath } from "../../src/shared/paths.js";
 import type { VCSState } from "../../src/vcs/provider.js";

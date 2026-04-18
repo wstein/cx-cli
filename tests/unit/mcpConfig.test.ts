@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 import { resolveMcpConfigPath } from "../../src/mcp/config.js";
 import { CxError } from "../../src/shared/errors.js";

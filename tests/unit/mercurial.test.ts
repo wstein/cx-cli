@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 
 import { detectHg, getHgState } from "../../src/vcs/mercurial.js";

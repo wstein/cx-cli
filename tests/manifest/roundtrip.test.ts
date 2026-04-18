@@ -1,3 +1,4 @@
+// test-lane: integration
 /**
  * Property-based round-trip tests for the manifest JSON serialiser.
  *

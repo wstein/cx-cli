@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import { main } from "../../src/cli/main.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";

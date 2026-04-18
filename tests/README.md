@@ -3,6 +3,9 @@
 Use the shared helpers first. They keep the suite deterministic, reduce
 process-global leakage, and make failures easier to read.
 
+Every `*.test.ts` file must start with a lane header on line 1:
+`// test-lane: unit|integration|adversarial|contract`.
+
 ## Workspace Setup
 
 - Use `tests/helpers/workspace/createWorkspace.ts` for temp repositories.

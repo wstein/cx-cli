@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import path from "node:path";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";

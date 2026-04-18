@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";

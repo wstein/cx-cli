@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 import { recommendWorkflow } from "../../src/doctor/workflow.js";
 

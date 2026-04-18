@@ -1,3 +1,4 @@
+// test-lane: integration
 /**
  * Unit tests for the section parsers, focused on packed-content preservation.
  *

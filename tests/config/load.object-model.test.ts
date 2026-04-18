@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import os from "node:os";
 import path from "node:path";

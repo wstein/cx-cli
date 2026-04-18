@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, it } from "bun:test";
 import type { ExtractabilityRecord } from "../../src/extract/resolution.js";
 

@@ -1,3 +1,4 @@
+// test-lane: contract
 import { afterEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";

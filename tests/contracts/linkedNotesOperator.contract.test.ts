@@ -1,3 +1,4 @@
+// test-lane: contract
 /**
  * Operator-surface contract for linked-note enrichment.
  *

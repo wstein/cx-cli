@@ -1,3 +1,4 @@
+// test-lane: unit
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import {
   printWizardComplete,

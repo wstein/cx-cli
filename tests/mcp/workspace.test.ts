@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import path from "node:path";
 import { AuditLogger } from "../../src/mcp/audit.js";

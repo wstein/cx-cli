@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, it } from "bun:test";
 import {
   DEFAULT_BEHAVIOR_VALUES,

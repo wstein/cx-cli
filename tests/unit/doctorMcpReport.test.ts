@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 import type { DoctorMcpReport } from "../../src/doctor/mcp.js";
 import {

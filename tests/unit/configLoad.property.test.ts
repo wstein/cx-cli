@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, test } from "bun:test";
 import fs from "node:fs/promises";
 import os from "node:os";

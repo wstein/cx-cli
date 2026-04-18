@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, it } from "bun:test";
 import type { ManifestFileRow } from "../../src/manifest/types.js";
 import type { VerifySelection } from "../../src/shared/verifyFilters.js";

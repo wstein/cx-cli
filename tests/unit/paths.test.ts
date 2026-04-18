@@ -1,3 +1,4 @@
+// test-lane: unit
 import { describe, expect, test } from "bun:test";
 
 import { isSubpath, toPosixPath } from "../../src/shared/paths.js";

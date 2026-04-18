@@ -1,3 +1,4 @@
+// test-lane: contract
 import { describe, expect, test } from "bun:test";
 import {
   computePlanHash,

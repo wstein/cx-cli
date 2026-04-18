@@ -1,3 +1,4 @@
+// test-lane: integration
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import { loadCxConfig } from "../../src/config/load.js";
