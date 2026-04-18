@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test verify certify check format fix lint release clean notes smoke help
+.PHONY: all build test unit verify certify check format fix lint release clean notes smoke help
 all: build
 
 build: ## Build the project.
@@ -17,8 +17,11 @@ format: ## Format the project source.
 lint: ## Run lint checks and boundary validation.
 	$(BUN) run lint
 
-test: ## Run the default Bun test suite with coverage.
-	$(BUN) test
+test: ## Run the default unit test suite via package.json, with coverage.
+	$(BUN) run test
+
+unit: ## Run the unit-only test suite via package.json.
+	$(BUN) run test:unit
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
@@ -47,7 +50,8 @@ smoke: ## Run repomix version smoke test.
 help: ## Show available targets.
 	@printf "Available targets:\n"
 	@printf "  build     Build the project.\n"
-	@printf "  test      Run the default Bun test suite with coverage.\n"
+	@printf "  test      Run the default unit test suite via package.json, with coverage.\n"
+	@printf "  unit      Run the unit-only test suite via package.json.\n"
 	@printf "  verify    Run lint, typecheck, build, and the full test suite with coverage.\n"
 	@printf "  certify   Run verify plus a reproducibility check (CI-grade local gate).\n"
 	@printf "  check     Run typecheck only using the package.json check script.\n"
