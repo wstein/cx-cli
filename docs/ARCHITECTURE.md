@@ -327,6 +327,13 @@ Each section is rendered as one Repomix-compatible output file in the configured
 - `plain`
 
 `cx` also supplies a section-specific Repomix header through the documented `output.headerText` option so the file itself carries cx-oriented handover context without post-processing the generated output.
+That header is intentionally a presentation-layer prolog rather than part of the core format semantics: it explains what the artifact is, how to interpret logical paths, where edits belong, and which bundle contracts remain authoritative.
+
+This yields more semantic fluency for humans and AI consumers without relaxing the deterministic contract:
+
+- rigid core semantics for markers, directives, manifests, and validation
+- expressive consumer guidance in the generated prolog and bundle index
+- optional narrative cues that never override canonical bundle data
 
 The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file in XML, Markdown, and plain sections. Those spans are the primary lookup path for those text formats. JSON uses direct object lookup instead of span metadata, and JSON-only bundles may omit spans entirely.
 

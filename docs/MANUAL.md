@@ -343,6 +343,8 @@ This writes:
 - `{project}-lock.json`
 - `{project}.sha256` or your configured checksum filename
 
+Each rendered section also starts with a canonical handover prolog. The prolog is guidance, not authority: it explains that the file is a deterministic section snapshot, that logical paths refer back to original repository files, and that edits should be made in the source tree before rebuilding the bundle. Canonical semantics still come from the packed structure itself plus `cx-meta`, `cx-policy`, archive markers, the manifest, and validation rules.
+
 ### 3. Validate and verify
 
 Assuming your config writes to `dist/demo-bundle`:

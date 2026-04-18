@@ -9,6 +9,8 @@ The CX architecture is built upon a triad specifically designed for operational 
 2. Live Agent Protocol: Real-time workspace interaction via the `cx mcp` stdio transport layer, enforcing the same strict boundary rules for active agents.
 3. Durable Knowledge: A machine-queryable knowledge graph maintained via `cx notes`, storing metadata directly in the manifest to avoid expensive file scans.
 
+Bundle artifacts follow a layered interpretation model: rigid semantics in the bundle contract, richer explanatory guidance in the handover prolog and bundle index. That keeps the system deterministic while making the generated outputs easier for humans and AI tools to consume safely.
+
 ## Links
 * [[Operational Bifurcation]]
 * [[Agentic Ecosystem MCP]]
