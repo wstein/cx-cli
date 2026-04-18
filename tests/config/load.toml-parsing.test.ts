@@ -1,13 +1,27 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import { loadCxConfig } from "../../src/config/load.js";
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
-async function writeRawConfig(content: string): Promise<string> {
+let configPath = "";
+let rootDir = "";
+
+beforeAll(async () => {
   const workspace = await createWorkspace({ fixture: "minimal" });
-  await fs.writeFile(workspace.configPath, content, "utf8");
-  return workspace.configPath;
+  configPath = workspace.configPath;
+  rootDir = workspace.rootDir;
+});
+
+afterAll(async () => {
+  if (rootDir.length > 0) {
+    await fs.rm(rootDir, { recursive: true, force: true });
+  }
+});
+
+async function writeRawConfig(content: string): Promise<string> {
+  await fs.writeFile(configPath, content, "utf8");
+  return configPath;
 }
 
 function buildToml(
