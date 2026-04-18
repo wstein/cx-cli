@@ -81,7 +81,10 @@ describe("runCxMcpServer", () => {
       const exit = mock(() => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
-      await runCxMcpServer(project.mcpPath, config, { processExit: exit });
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        installSignalHandlers: false,
+      });
 
       expect(connect).toHaveBeenCalledTimes(1);
       expect(close).not.toHaveBeenCalled();
@@ -110,12 +113,66 @@ describe("runCxMcpServer", () => {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
       const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
-      await runCxMcpServer(project.mcpPath, config, { processExit: exit });
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        installSignalHandlers: false,
+      });
 
       expect(connect).toHaveBeenCalledTimes(1);
       expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("failed to start cx mcp server");
+      expect(firstWrite).toContain("connect failed");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
+  test("exits 1 when connect hangs beyond timeout", async () => {
+    const connect = mock(
+      () =>
+        new Promise<void>(() => {
+          // Intentionally unresolved to simulate a stalled boundary handshake.
+        }),
+    );
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        connectTimeoutMs: 20,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("timed out");
       expect(exit).toHaveBeenCalledWith(1);
     } finally {
       proto.connect = originalConnect;

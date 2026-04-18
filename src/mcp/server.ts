@@ -15,7 +15,12 @@ export interface CxMcpServerOptions {
 
 export interface CxMcpServerDeps {
   processExit?: (code: number) => void;
+  connectTimeoutMs?: number;
+  writeStderr?: (message: string) => void;
+  installSignalHandlers?: boolean;
 }
+
+const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
 
 function buildInstructions(configPath: string): string {
   const toolReference = `
@@ -88,8 +93,18 @@ export async function runCxMcpServer(
   const server = createCxMcpServer({ configPath, config });
   const transport = new StdioServerTransport();
   const processExit = deps.processExit ?? process.exit;
+  const writeStderr =
+    deps.writeStderr ?? ((message) => process.stderr.write(message));
+  const connectTimeoutMs = deps.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
+  const installSignalHandlers = deps.installSignalHandlers ?? true;
+
+  const clearSignalHandlers = (): void => {
+    process.off("SIGINT", handleExit);
+    process.off("SIGTERM", handleExit);
+  };
 
   const handleExit = async (): Promise<void> => {
+    clearSignalHandlers();
     try {
       await server.close();
       processExit(0);
@@ -98,12 +113,30 @@ export async function runCxMcpServer(
     }
   };
 
-  process.on("SIGINT", handleExit);
-  process.on("SIGTERM", handleExit);
+  if (installSignalHandlers) {
+    process.on("SIGINT", handleExit);
+    process.on("SIGTERM", handleExit);
+  }
 
   try {
-    await server.connect(transport);
-  } catch {
+    await Promise.race([
+      server.connect(transport),
+      new Promise<never>((_resolve, reject) => {
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                `MCP server connection timed out after ${connectTimeoutMs}ms.`,
+              ),
+            ),
+          connectTimeoutMs,
+        );
+      }),
+    ]);
+  } catch (error) {
+    clearSignalHandlers();
+    const reason = error instanceof Error ? error.message : String(error);
+    writeStderr(`Error: failed to start cx mcp server: ${reason}\n`);
     processExit(1);
   }
 }
