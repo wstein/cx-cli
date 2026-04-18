@@ -58,7 +58,11 @@ describe("printDoctorSecretsReport", () => {
     const report = makeReport({
       suspiciousCount: 1,
       suspiciousFiles: [
-        { filePath: "secrets/.env", messages: ["contains API key pattern"] },
+        {
+          type: "file",
+          filePath: "secrets/.env",
+          messages: ["contains API key pattern"],
+        },
       ],
     });
     const { stdout } = await captureCli({
@@ -76,8 +80,8 @@ describe("printDoctorSecretsReport", () => {
     const report = makeReport({
       suspiciousCount: 2,
       suspiciousFiles: [
-        { filePath: "a.env", messages: ["msg1"] },
-        { filePath: "b.env", messages: ["msg2"] },
+        { type: "file", filePath: "a.env", messages: ["msg1"] },
+        { type: "file", filePath: "b.env", messages: ["msg2"] },
       ],
     });
     const { stdout } = await captureCli({
@@ -108,7 +112,7 @@ describe("collectDoctorSecretsReport", () => {
           >,
         getMasterList: async () => [] as unknown as string[],
         runScan: async () => [],
-        readFile: async () => "" as unknown as Buffer,
+        readFile: (async () => "") as unknown as typeof import("node:fs/promises").readFile,
       },
     );
     expect(report.suspiciousCount).toBe(0);
