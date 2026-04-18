@@ -36,7 +36,7 @@
     "release": "node scripts/release.js",
     "gen:homebrew": "node scripts/generate-homebrew-formula.js",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
-    "fix": "biome check --write .",
+    "fix": "biome check --write --unsafe .",
     "verify": "bun run lint && bun run check && bun run build && bun test --coverage tests --timeout 20000 && node scripts/coverage-summary.js",
     "copy:init": "node scripts/copy-init-templates.js",
     "notes": "cx notes list && cx notes orphans",
