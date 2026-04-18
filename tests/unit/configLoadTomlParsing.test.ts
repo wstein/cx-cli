@@ -1,27 +1,27 @@
-// test-lane: integration
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import fs from "node:fs/promises";
-import { loadCxConfig } from "../../src/config/load.js";
-import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
+// test-lane: unit
+import { describe, expect, test } from "bun:test";
+import os from "node:os";
+import path from "node:path";
+import type { CxEnvOverrides } from "../../src/config/env.js";
+import { loadCxConfigFromTomlString } from "../../src/config/load.js";
 
-let configPath = "";
-let rootDir = "";
+const VIRTUAL_CONFIG_PATH = path.join(
+  os.tmpdir(),
+  "cx-config-load-toml",
+  "cx.toml",
+);
 
-beforeAll(async () => {
-  const workspace = await createWorkspace({ fixture: "minimal" });
-  configPath = workspace.configPath;
-  rootDir = workspace.rootDir;
-});
-
-afterAll(async () => {
-  if (rootDir.length > 0) {
-    await fs.rm(rootDir, { recursive: true, force: true });
-  }
-});
-
-async function writeRawConfig(content: string): Promise<string> {
-  await fs.writeFile(configPath, content, "utf8");
-  return configPath;
+async function loadRawConfig(
+  content: string,
+  envOverrides: CxEnvOverrides = {},
+  cliOverrides: CxEnvOverrides = {},
+) {
+  return loadCxConfigFromTomlString(
+    VIRTUAL_CONFIG_PATH,
+    content,
+    envOverrides,
+    cliOverrides,
+  );
 }
 
 function buildToml(
@@ -69,7 +69,8 @@ function buildToml(
 
 describe("loadCxConfig TOML parsing", () => {
   test("rejects output extension values without a leading dot", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -83,15 +84,13 @@ style = "xml"
 [sections.src]
 include = ["src/**"]
 exclude = []
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
-      "output.extensions.json must start with '.'.",
-    );
+`),
+    ).rejects.toThrow("output.extensions.json must start with '.'.");
   });
 
   test("rejects project-level display settings", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -105,16 +104,19 @@ time_palette = [255, 254, 253, 252, 251, 250, 249, 248]
 [sections.src]
 include = ["src/**"]
 exclude = []
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
+`),
+    ).rejects.toThrow(
       "display settings are no longer supported in project cx.toml. Use ~/.config/cx/cx.toml instead.",
     );
   });
 
   test("fails when a config path references an undefined environment variable", async () => {
+    const previousValue = process.env.CX_MISSING_OUTPUT_DIR;
     delete process.env.CX_MISSING_OUTPUT_DIR;
-    const configPath = await writeRawConfig(`schema_version = 1
+
+    try {
+      await expect(
+        loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "$CX_MISSING_OUTPUT_DIR/demo-bundle"
@@ -125,24 +127,28 @@ style = "xml"
 [sections.src]
 include = ["src/**"]
 exclude = []
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
-      "output_dir references undefined environment variable CX_MISSING_OUTPUT_DIR.",
-    );
+`),
+      ).rejects.toThrow(
+        "output_dir references undefined environment variable CX_MISSING_OUTPUT_DIR.",
+      );
+    } finally {
+      if (previousValue === undefined) {
+        delete process.env.CX_MISSING_OUTPUT_DIR;
+      } else {
+        process.env.CX_MISSING_OUTPUT_DIR = previousValue;
+      }
+    }
   });
 
   test("rejects an invalid assets.layout value", async () => {
-    const configPath = await writeRawConfig(
-      buildToml({ assetsExtra: `layout = "sideways"` }),
-    );
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
-      "assets.layout must be one of: flat, deep.",
-    );
+    await expect(
+      loadRawConfig(buildToml({ assetsExtra: `layout = "sideways"` })),
+    ).rejects.toThrow("assets.layout must be one of: flat, deep.");
   });
 
   test("rejects a non-integer section priority", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -154,49 +160,42 @@ style = "xml"
 include = ["src/**"]
 exclude = []
 priority = 1.5
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
-      "sections.src.priority must be a positive integer.",
-    );
+`),
+    ).rejects.toThrow("sections.src.priority must be a positive integer.");
   });
 
   test("compiled default is used when no env or file value is set", async () => {
-    const configPath = await writeRawConfig(buildToml());
-    const config = await loadCxConfig(configPath, {});
+    const config = await loadRawConfig(buildToml(), {});
     expect(config.dedup.mode).toBe("fail");
     expect(config.behavior.repomixMissingExtension).toBe("warn");
     expect(config.behavior.configDuplicateEntry).toBe("fail");
   });
 
   test("cx.toml values override compiled defaults", async () => {
-    const configPath = await writeRawConfig(
+    const config = await loadRawConfig(
       buildToml({
         repomixExtra: `missing_extension = "fail"`,
         dedupExtra: `mode = "warn"`,
         configExtra: `duplicate_entry = "first-wins"`,
       }),
+      {},
     );
-    const config = await loadCxConfig(configPath, {});
     expect(config.dedup.mode).toBe("warn");
     expect(config.behavior.repomixMissingExtension).toBe("fail");
     expect(config.behavior.configDuplicateEntry).toBe("first-wins");
   });
 
   test("env overrides win over file values", async () => {
-    const configPath = await writeRawConfig(
+    const config = await loadRawConfig(
       buildToml({ dedupExtra: `mode = "warn"` }),
+      { dedupMode: "first-wins" },
     );
-    const config = await loadCxConfig(configPath, { dedupMode: "first-wins" });
     expect(config.dedup.mode).toBe("first-wins");
   });
 
   test("CLI overrides win over env overrides for assets.layout", async () => {
-    const configPath = await writeRawConfig(
+    const config = await loadRawConfig(
       buildToml({ assetsExtra: `layout = "deep"` }),
-    );
-    const config = await loadCxConfig(
-      configPath,
       { assetsLayout: "flat" },
       { assetsLayout: "deep" },
     );
@@ -205,46 +204,43 @@ priority = 1.5
   });
 
   test("rejects invalid dedup.mode values", async () => {
-    const configPath = await writeRawConfig(
-      buildToml({ dedupExtra: `mode = "silent"` }),
-    );
-    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
-      "dedup.mode must be one of: fail, warn, first-wins.",
-    );
+    await expect(
+      loadRawConfig(buildToml({ dedupExtra: `mode = "silent"` }), {}),
+    ).rejects.toThrow("dedup.mode must be one of: fail, warn, first-wins.");
   });
 
   test("rejects invalid repomix.missing_extension values", async () => {
-    const configPath = await writeRawConfig(
-      buildToml({ repomixExtra: `missing_extension = "ignore"` }),
-    );
-    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
-      "repomix.missing_extension must be one of: fail, warn.",
-    );
+    await expect(
+      loadRawConfig(
+        buildToml({ repomixExtra: `missing_extension = "ignore"` }),
+      ),
+    ).rejects.toThrow("repomix.missing_extension must be one of: fail, warn.");
   });
 
   test("rejects invalid config.duplicate_entry values", async () => {
-    const configPath = await writeRawConfig(
-      buildToml({ configExtra: `duplicate_entry = "skip"` }),
-    );
-    await expect(loadCxConfig(configPath, {})).rejects.toThrow(
+    await expect(
+      loadRawConfig(buildToml({ configExtra: `duplicate_entry = "skip"` }), {}),
+    ).rejects.toThrow(
       "config.duplicate_entry must be one of: fail, warn, first-wins.",
     );
   });
 
   test("deduplicates include patterns when first-wins is selected", async () => {
-    const configPath = await writeRawConfig(
+    const config = await loadRawConfig(
       buildToml({
         sections: `[sections.src]\ninclude = ["src/**", "src/**", "lib/**"]\nexclude = []\n`,
       }),
+      {
+        configDuplicateEntry: "first-wins",
+      },
     );
-    const config = await loadCxConfig(configPath, {
-      configDuplicateEntry: "first-wins",
-    });
     expect(config.sections.src?.include).toEqual(["src/**", "lib/**"]);
   });
 
   test("fails on duplicate patterns in files.exclude", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(
+        `schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -258,17 +254,18 @@ exclude = [".git/**", ".git/**", "node_modules/**"]
 [sections.src]
 include = ["src/**"]
 exclude = []
-`);
-
-    await expect(
-      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+`,
+        { configDuplicateEntry: "fail" },
+      ),
     ).rejects.toThrow(
       'files.exclude contains duplicate pattern(s): ".git/**".',
     );
   });
 
   test("fails on duplicate patterns in assets.exclude", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(
+        `schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -283,17 +280,17 @@ exclude = ["test/**", "test/**"]
 [sections.src]
 include = ["src/**"]
 exclude = []
-`);
-
-    await expect(
-      loadCxConfig(configPath, { configDuplicateEntry: "fail" }),
+`,
+        { configDuplicateEntry: "fail" },
+      ),
     ).rejects.toThrow(
       'assets.exclude contains duplicate pattern(s): "test/**".',
     );
   });
 
   test("rejects a catch_all section that also specifies include patterns", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -309,15 +306,15 @@ exclude = []
 catch_all = true
 include = ["docs/**"]
 exclude = []
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
+`),
+    ).rejects.toThrow(
       "sections.other: catch_all sections must not specify include patterns.",
     );
   });
 
   test("rejects a normal section with an empty include array", async () => {
-    const configPath = await writeRawConfig(`schema_version = 1
+    await expect(
+      loadRawConfig(`schema_version = 1
 project_name = "demo"
 source_root = "."
 output_dir = "dist/demo-bundle"
@@ -328,9 +325,8 @@ style = "xml"
 [sections.src]
 include = []
 exclude = []
-`);
-
-    await expect(loadCxConfig(configPath)).rejects.toThrow(
+`),
+    ).rejects.toThrow(
       "sections.src.include must contain at least one pattern (or set catch_all = true).",
     );
   });

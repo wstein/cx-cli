@@ -527,29 +527,13 @@ export type LoadCxConfigOptions = {
   emitBehaviorLogs?: boolean;
 };
 
-/**
- * Load and validate a project cx.toml file.
- *
- * Precedence chain for Category B behavioral settings (highest first):
- *   cliOverrides > envOverrides > cx.toml value > compiled default
- *
- * @param configPath   - Absolute or relative path to cx.toml.
- * @param envOverrides - Overrides sourced from CX_* env vars.
- *                       Defaults to readEnvOverrides() from the live environment.
- *                       Pass an explicit value in tests to avoid process.env mutation.
- * @param cliOverrides - Overrides sourced from CLI flags (--strict / --lenient).
- *                       Defaults to getCLIOverrides(), set by setCLIOverrides() in
- *                       the yargs middleware before any command handler runs.
- * @param options      - Optional config-load behavior toggles.
- *                       Set emitBehaviorLogs=false for high-volume property tests.
- */
-export async function loadCxConfig(
+function buildCxConfigFromParsedInput(
+  parsed: CxConfigInput,
   configPath: string,
-  envOverrides: CxEnvOverrides = readEnvOverrides(),
-  cliOverrides: CxEnvOverrides = getCLIOverrides(),
-  options: LoadCxConfigOptions = {},
-): Promise<CxConfig> {
-  const parsed = await loadConfigInput(configPath, true);
+  envOverrides: CxEnvOverrides,
+  cliOverrides: CxEnvOverrides,
+  options: LoadCxConfigOptions,
+): CxConfig {
   const configDir = path.dirname(path.resolve(configPath));
   const schemaVersion = parsed.schema_version;
 
@@ -905,4 +889,58 @@ export async function loadCxConfig(
     },
     sections,
   };
+}
+
+/**
+ * Load and validate a project cx.toml file.
+ *
+ * Precedence chain for Category B behavioral settings (highest first):
+ *   cliOverrides > envOverrides > cx.toml value > compiled default
+ *
+ * @param configPath   - Absolute or relative path to cx.toml.
+ * @param envOverrides - Overrides sourced from CX_* env vars.
+ *                       Defaults to readEnvOverrides() from the live environment.
+ *                       Pass an explicit value in tests to avoid process.env mutation.
+ * @param cliOverrides - Overrides sourced from CLI flags (--strict / --lenient).
+ *                       Defaults to getCLIOverrides(), set by setCLIOverrides() in
+ *                       the yargs middleware before any command handler runs.
+ * @param options      - Optional config-load behavior toggles.
+ *                       Set emitBehaviorLogs=false for high-volume property tests.
+ */
+export async function loadCxConfig(
+  configPath: string,
+  envOverrides: CxEnvOverrides = readEnvOverrides(),
+  cliOverrides: CxEnvOverrides = getCLIOverrides(),
+  options: LoadCxConfigOptions = {},
+): Promise<CxConfig> {
+  const parsed = await loadConfigInput(configPath, true);
+  return buildCxConfigFromParsedInput(
+    parsed,
+    configPath,
+    envOverrides,
+    cliOverrides,
+    options,
+  );
+}
+
+export async function loadCxConfigFromTomlString(
+  configPath: string,
+  rawToml: string,
+  envOverrides: CxEnvOverrides = readEnvOverrides(),
+  cliOverrides: CxEnvOverrides = getCLIOverrides(),
+  options: LoadCxConfigOptions = {},
+): Promise<CxConfig> {
+  const parsed = parseToml(rawToml) as CxConfigInput;
+  if (parsed.extends !== undefined) {
+    throw new CxError(
+      "loadCxConfigFromTomlString does not support extends; use loadCxConfig for inherited configs.",
+    );
+  }
+  return buildCxConfigFromParsedInput(
+    parsed,
+    configPath,
+    envOverrides,
+    cliOverrides,
+    options,
+  );
 }

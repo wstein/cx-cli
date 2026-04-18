@@ -1,38 +1,22 @@
-// test-lane: integration
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import fs from "node:fs/promises";
+// test-lane: unit
+import { describe, expect, test } from "bun:test";
 import os from "node:os";
 import path from "node:path";
-
-import { loadCxConfig } from "../../src/config/load.js";
+import { loadCxConfigFromTomlString } from "../../src/config/load.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { toToml } from "../helpers/config/toToml.js";
-import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
-let configPath = "";
-let rootDir = "";
-
-beforeAll(async () => {
-  const workspace = await createWorkspace({
-    fixture: "minimal",
-    config: buildConfig(),
-  });
-  configPath = workspace.configPath;
-  rootDir = workspace.rootDir;
-});
-
-afterAll(async () => {
-  if (rootDir.length > 0) {
-    await fs.rm(rootDir, { recursive: true, force: true });
-  }
-});
+const VIRTUAL_CONFIG_PATH = path.join(
+  os.tmpdir(),
+  "cx-config-load-object-model",
+  "cx.toml",
+);
 
 async function loadConfig(
   overrides: Partial<ReturnType<typeof buildConfig>> = {},
 ) {
   const config = buildConfig(overrides);
-  await fs.writeFile(configPath, toToml(config), "utf8");
-  return loadCxConfig(configPath);
+  return loadCxConfigFromTomlString(VIRTUAL_CONFIG_PATH, toToml(config));
 }
 
 describe("loadCxConfig object model", () => {

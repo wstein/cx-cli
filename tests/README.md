@@ -53,8 +53,8 @@ Every `*.test.ts` file must start with a lane header on line 1:
 
 | Path | Primary lane | Notes |
 | --- | --- | --- |
-| `tests/unit` | Unit | Pure logic and helper seams; prefer in-memory fixtures. |
-| `tests/config` | Unit/Integration | Parser and precedence logic; use property matrices for override conflicts. |
+| `tests/unit` | Unit | Pure logic and helper seams; prefer in-memory fixtures, including parser/preference checks via `loadCxConfigFromTomlString()`. |
+| `tests/config` | Integration | Config inheritance and schema flows that intentionally exercise on-disk config boundaries. |
 | `tests/mcp` | Integration + Adversarial | MCP tool wiring and boundary fault behavior (startup/runtime timeouts, malformed payloads, interrupted responses). |
 | `tests/notes` | Unit/Integration | Keep parser/validation in-memory; keep CLI and note-graph workflows realistic. |
 | `tests/planning` | Unit | Plan/provenance logic with deterministic fixtures. |
