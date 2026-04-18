@@ -165,6 +165,7 @@ describe("Notes Command Subcommands", () => {
             subcommand: "new",
             title: "Update Test",
             body: "Original body",
+            json: true,
           }),
         parseJson: true,
       });
@@ -454,9 +455,9 @@ describe("Notes Command Subcommands", () => {
           runNotesCommand({
             subcommand: "new",
             title: "Isolated",
+            json: true,
           }),
         parseJson: true,
-        captureConsoleLog: true,
       });
 
       const noteId = (created.parsedJson as Record<string, unknown>)
@@ -557,9 +558,9 @@ describe("Notes Command Subcommands", () => {
           runNotesCommand({
             subcommand: "new",
             title: "No Code Links",
+            json: true,
           }),
         parseJson: true,
-        captureConsoleLog: true,
       });
 
       const noteId = (created.parsedJson as Record<string, unknown>)
@@ -609,9 +610,9 @@ describe("Notes Command Subcommands", () => {
           runNotesCommand({
             subcommand: "new",
             title: "Links Test",
+            json: true,
           }),
         parseJson: true,
-        captureConsoleLog: true,
       });
 
       const noteId = (created.parsedJson as Record<string, unknown>)
