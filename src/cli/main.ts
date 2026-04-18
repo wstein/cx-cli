@@ -791,7 +791,7 @@ export async function main(
         "Start the live MCP server using cx-mcp.toml when available, otherwise cx.toml.",
       ),
     async () => {
-      exitCode = await runMcpCommand();
+      exitCode = await runMcpCommand({ cwd: io.cwd });
     },
   );
 

@@ -273,7 +273,7 @@ export async function runListCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const bundleDir = path.resolve(args.bundleDir);
+  const bundleDir = path.resolve(io.cwd, args.bundleDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const userConfig = await loadCxUserConfig();
   const rows = selectManifestRows(manifest.files, {

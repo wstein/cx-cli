@@ -132,8 +132,8 @@ export async function runExtractCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const bundleDir = path.resolve(args.bundleDir);
-  const destinationDir = path.resolve(args.destinationDir);
+  const bundleDir = path.resolve(io.cwd, args.bundleDir);
+  const destinationDir = path.resolve(io.cwd, args.destinationDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const rows = selectManifestRows(manifest.files, {
     sections: args.sections,

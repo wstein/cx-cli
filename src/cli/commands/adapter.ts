@@ -164,7 +164,7 @@ async function runAdapterInspect(
   ioArg: Partial<CommandIo>,
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const configPath = path.resolve(args.config ?? "cx.toml");
+  const configPath = path.resolve(io.cwd, args.config ?? "cx.toml");
   const config = await loadCxConfig(configPath);
   const plan = await buildBundlePlan(config);
 

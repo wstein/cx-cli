@@ -142,9 +142,10 @@ async function runDoctorFixOverlaps(
   args: DoctorArgs,
   io: Partial<CommandIo>,
 ): Promise<number> {
-  const configPath = path.resolve(args.config ?? "cx.toml");
+  const resolvedIo = resolveCommandIo(io);
+  const configPath = path.resolve(resolvedIo.cwd, args.config ?? "cx.toml");
 
-  if (args.interactive && !io.stdin?.isTTY) {
+  if (args.interactive && !resolvedIo.stdin?.isTTY) {
     throw new CxError(
       "cx doctor fix-overlaps --interactive requires an interactive terminal (stdin is not a TTY).\n" +
         "Remove --interactive to apply the recommended ownership automatically, or run this command from a terminal.",

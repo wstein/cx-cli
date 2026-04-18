@@ -120,6 +120,7 @@ export async function runInitCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
+  const projectRoot = io.cwd;
   if (args.templateList) {
     const templates = getSupportedTemplates();
     writeStdout(
@@ -153,7 +154,7 @@ export async function runInitCommand(
   };
 
   const output = await renderInitTemplate(
-    process.cwd(),
+    projectRoot,
     "cx.toml",
     templateVariables,
     args.template,
@@ -178,7 +179,7 @@ export async function runInitCommand(
   }
 
   const configResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     "cx.toml",
     "cx.toml",
     templateVariables,
@@ -186,7 +187,7 @@ export async function runInitCommand(
     args.template,
   );
   const editorconfigResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     ".editorconfig",
     ".editorconfig",
     templateVariables,
@@ -194,7 +195,7 @@ export async function runInitCommand(
     args.template,
   );
   const makefileResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     "Makefile",
     "Makefile",
     templateVariables,
@@ -202,7 +203,7 @@ export async function runInitCommand(
     args.template,
   );
   const mcpResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     "cx-mcp.toml",
     "cx-mcp.toml",
     templateVariables,
@@ -210,7 +211,7 @@ export async function runInitCommand(
     args.template,
   );
   const mcpJsonResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     ".mcp.json",
     ".mcp.json",
     templateVariables,
@@ -218,7 +219,7 @@ export async function runInitCommand(
     args.template,
   );
   const vscodeMcpResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     ".vscode/mcp.json",
     ".vscode/mcp.json",
     templateVariables,
@@ -226,7 +227,7 @@ export async function runInitCommand(
     args.template,
   );
   const claudeSettingsResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     ".claude/settings.json",
     ".claude/settings.json",
     templateVariables,
@@ -234,14 +235,14 @@ export async function runInitCommand(
     args.template,
   );
   const codexSettingsResult = await renderProjectTemplate(
-    process.cwd(),
+    projectRoot,
     ".codex/settings.json",
     ".codex/settings.json",
     templateVariables,
     args.force,
     args.template,
   );
-  const notesScaffold = await scaffoldNotesModule(process.cwd(), {
+  const notesScaffold = await scaffoldNotesModule(projectRoot, {
     force: args.force,
   });
 

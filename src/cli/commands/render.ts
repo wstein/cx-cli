@@ -37,7 +37,7 @@ export async function runRenderCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const configPath = path.resolve(args.config);
+  const configPath = path.resolve(io.cwd, args.config);
   const config = await loadCxConfig(configPath);
   const plan = await buildBundlePlan(config);
 
@@ -139,6 +139,7 @@ export async function runRenderCommand(
       writeStdout(result.content, io);
     } else if (args.outputDir) {
       const outputPath = path.resolve(
+        io.cwd,
         args.outputDir,
         `${config.projectName}-repomix-${sectionName}${config.output.extensions[style]}`,
       );

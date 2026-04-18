@@ -79,15 +79,15 @@ export async function runVerifyCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const bundleDir = path.resolve(args.bundleDir);
+  const bundleDir = path.resolve(io.cwd, args.bundleDir);
   const againstDir = args.againstDir
-    ? path.resolve(args.againstDir)
+    ? path.resolve(io.cwd, args.againstDir)
     : undefined;
   const selection = {
     sections: args.sections,
     files: args.files,
   };
-  const configPath = args.config ?? "cx.toml";
+  const configPath = path.resolve(io.cwd, args.config ?? "cx.toml");
   const againstConfig = againstDir ? await loadCxConfig(configPath) : undefined;
 
   // Initialize these outside the try block so they're accessible in error handler

@@ -25,7 +25,7 @@ export async function runValidateCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const bundleDir = path.resolve(args.bundleDir);
+  const bundleDir = path.resolve(io.cwd, args.bundleDir);
   const { manifestName } = await validateBundle(bundleDir);
 
   // Validate notes in the source directory
