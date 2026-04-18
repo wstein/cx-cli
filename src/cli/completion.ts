@@ -414,10 +414,12 @@ function generateFishCompletion(): string {
 
   let globalOptions = "";
   for (const opt of GLOBAL_OPTIONS) {
-    const desc = opt.description.replace(/"/g, '\\"');
+    const rawDesc = opt.description.replace(/"/g, '\\"');
     const name = opt.name;
     const short = opt.short ? ` -s ${opt.short}` : "";
-    globalOptions += `complete -c cx -n "not __fish_seen_subcommand_from ${commandList}"${short} -l ${name} -d "${desc}"\n`;
+    const longForm = `--${name}`;
+    const longDesc = `${longForm}${opt.short ? ` (-${opt.short})` : ""} ${rawDesc}`;
+    globalOptions += `complete -c cx -n "not __fish_seen_subcommand_from ${commandList}"${short} -l ${name} -d "${longDesc}"\n`;
   }
 
   let commandOptions = "";

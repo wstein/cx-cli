@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import { parse as parseToml } from "smol-toml";
 import {
   DEFAULT_BEHAVIOR_VALUES,
   DEFAULT_CONFIG_VALUES,
@@ -7,7 +9,6 @@ import {
   getCLIOverrides,
   readEnvOverrides,
 } from "../../config/env.js";
-import { loadCxConfig } from "../../config/load.js";
 import type {
   CxConfigDuplicateEntryMode,
   CxDedupMode,
@@ -38,6 +39,70 @@ interface EffectiveSettings {
   config: {
     duplicateEntry: ResolvedSetting<CxConfigDuplicateEntryMode>;
   };
+}
+
+const VALID_DEDUP_MODES = new Set<CxDedupMode>(["fail", "warn", "first-wins"]);
+const VALID_REPOMIX_MISSING = new Set<CxRepomixMissingExtensionMode>([
+  "fail",
+  "warn",
+]);
+const VALID_CONFIG_DUPLICATE = new Set<CxConfigDuplicateEntryMode>([
+  "fail",
+  "warn",
+  "first-wins",
+]);
+
+function expectEnum<T extends string>(
+  value: unknown,
+  label: string,
+  validValues: Set<T>,
+): T {
+  if (typeof value !== "string" || !validValues.has(value as T)) {
+    throw new CxError(
+      `${label} must be one of: ${[...validValues].join(", ")}.`,
+    );
+  }
+
+  return value as T;
+}
+
+async function getConfigFileBehaviorValues(configPath: string): Promise<{
+  dedupMode?: CxDedupMode;
+  repomixMissingExtension?: CxRepomixMissingExtensionMode;
+  configDuplicateEntry?: CxConfigDuplicateEntryMode;
+}> {
+  const raw = await fs.readFile(configPath, "utf8");
+  const parsed = parseToml(raw) as Record<string, unknown>;
+  const result: {
+    dedupMode?: CxDedupMode;
+    repomixMissingExtension?: CxRepomixMissingExtensionMode;
+    configDuplicateEntry?: CxConfigDuplicateEntryMode;
+  } = {};
+
+  const dedup = parsed?.dedup as Record<string, unknown> | undefined;
+  if (dedup?.mode !== undefined) {
+    result.dedupMode = expectEnum(dedup.mode, "dedup.mode", VALID_DEDUP_MODES);
+  }
+
+  const repomix = parsed?.repomix as Record<string, unknown> | undefined;
+  if (repomix?.missing_extension !== undefined) {
+    result.repomixMissingExtension = expectEnum(
+      repomix.missing_extension,
+      "repomix.missing_extension",
+      VALID_REPOMIX_MISSING,
+    );
+  }
+
+  const configSection = parsed?.config as Record<string, unknown> | undefined;
+  if (configSection?.duplicate_entry !== undefined) {
+    result.configDuplicateEntry = expectEnum(
+      configSection.duplicate_entry,
+      "config.duplicate_entry",
+      VALID_CONFIG_DUPLICATE,
+    );
+  }
+
+  return result;
 }
 
 /**
@@ -121,11 +186,10 @@ export async function runConfigCommand(options: {
 
   if (configExists) {
     try {
-      // Load the config with no overrides at all to isolate the raw file values.
-      const loaded = await loadCxConfig(options.config, {}, {});
-      dedupModeFromFile = loaded.dedup.mode;
-      repomixMissingExtensionFromFile = loaded.behavior.repomixMissingExtension;
-      configDuplicateEntryFromFile = loaded.behavior.configDuplicateEntry;
+      const values = await getConfigFileBehaviorValues(options.config);
+      dedupModeFromFile = values.dedupMode;
+      repomixMissingExtensionFromFile = values.repomixMissingExtension;
+      configDuplicateEntryFromFile = values.configDuplicateEntry;
     } catch (error: unknown) {
       if (options.json) {
         process.stdout.write(
