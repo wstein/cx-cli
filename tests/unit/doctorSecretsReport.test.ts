@@ -4,7 +4,7 @@ import {
   collectDoctorSecretsReport,
   printDoctorSecretsReport,
 } from "../../src/doctor/secrets.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 function makeReport(
   overrides: Partial<DoctorSecretsReport> = {},
@@ -21,37 +21,26 @@ function makeReport(
 
 describe("printDoctorSecretsReport", () => {
   test("json=true outputs valid JSON", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorSecretsReport(makeReport(), true);
-        return 0;
-      },
-    });
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const capture = createBufferedCommandIo();
+    printDoctorSecretsReport(makeReport(), true, capture.io);
+    const parsed = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(parsed.suspiciousCount).toBe(0);
   });
 
   test("zero suspicious files prints clean message", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorSecretsReport(makeReport(), false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("No suspicious files detected");
+    const capture = createBufferedCommandIo();
+    printDoctorSecretsReport(makeReport(), false, capture.io);
+    expect(capture.stdout()).toContain("No suspicious files detected");
   });
 
   test("zero suspicious + security disabled prints extra warning", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorSecretsReport(
-          makeReport({ securityCheckEnabled: false }),
-          false,
-        );
-        return 0;
-      },
-    });
-    expect(stdout).toContain("security_check is disabled");
+    const capture = createBufferedCommandIo();
+    printDoctorSecretsReport(
+      makeReport({ securityCheckEnabled: false }),
+      false,
+      capture.io,
+    );
+    expect(capture.stdout()).toContain("security_check is disabled");
   });
 
   test("suspicious files prints file paths and messages", async () => {
@@ -65,15 +54,11 @@ describe("printDoctorSecretsReport", () => {
         },
       ],
     });
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorSecretsReport(report, false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("secrets/.env");
-    expect(stdout).toContain("contains API key pattern");
-    expect(stdout).toContain("Detected 1 suspicious file");
+    const capture = createBufferedCommandIo();
+    printDoctorSecretsReport(report, false, capture.io);
+    expect(capture.stdout()).toContain("secrets/.env");
+    expect(capture.stdout()).toContain("contains API key pattern");
+    expect(capture.stdout()).toContain("Detected 1 suspicious file");
   });
 
   test("multiple suspicious files uses plural label", async () => {
@@ -84,13 +69,9 @@ describe("printDoctorSecretsReport", () => {
         { type: "file", filePath: "b.env", messages: ["msg2"] },
       ],
     });
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorSecretsReport(report, false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("Detected 2 suspicious files");
+    const capture = createBufferedCommandIo();
+    printDoctorSecretsReport(report, false, capture.io);
+    expect(capture.stdout()).toContain("Detected 2 suspicious files");
   });
 });
 

@@ -9,7 +9,7 @@ import {
   collectDoctorNotesReport,
   printDoctorNotesReport,
 } from "../../src/doctor/notes.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -130,36 +130,32 @@ describe("doctor notes report", () => {
   });
 
   test("human output explains the master-list basis for the warning", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: async () => {
-        printDoctorNotesReport(
+    const capture = createBufferedCommandIo();
+    printDoctorNotesReport(
+      {
+        resolvedConfigPath: "/repo/cx.toml",
+        sourceRoot: "/repo",
+        totalNotes: 1,
+        masterFileCount: 2,
+        driftCount: 1,
+        missingCount: 0,
+        outsideMasterListCount: 1,
+        excludedFromPlanCount: 0,
+        drifts: [
           {
-            resolvedConfigPath: "/repo/cx.toml",
-            sourceRoot: "/repo",
-            totalNotes: 1,
-            masterFileCount: 2,
-            driftCount: 1,
-            missingCount: 0,
-            outsideMasterListCount: 1,
-            excludedFromPlanCount: 0,
-            drifts: [
-              {
-                fromNoteId: "20260418130000",
-                fromTitle: "Architecture",
-                reference: "generated/client.ts",
-                path: "generated/client.ts",
-                status: "outside_master_list",
-              },
-            ],
+            fromNoteId: "20260418130000",
+            fromTitle: "Architecture",
+            reference: "generated/client.ts",
+            path: "generated/client.ts",
+            status: "outside_master_list",
           },
-          false,
-        );
-        return 0;
+        ],
       },
-    });
+      false,
+      capture.io,
+    );
 
-    expect(exitCode).toBe(0);
-    expect(stdout).toContain("planning master list");
-    expect(stdout).toContain("generated/client.ts");
+    expect(capture.stdout()).toContain("planning master list");
+    expect(capture.stdout()).toContain("generated/client.ts");
   });
 });

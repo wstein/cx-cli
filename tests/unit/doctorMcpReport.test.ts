@@ -4,7 +4,7 @@ import {
   collectDoctorMcpReport,
   printDoctorMcpReport,
 } from "../../src/doctor/mcp.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
   return {
@@ -21,65 +21,48 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
 
 describe("printDoctorMcpReport", () => {
   test("json=true outputs valid JSON", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorMcpReport(makeReport(), true);
-        return 0;
-      },
-    });
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(makeReport(), true, capture.io);
+    const parsed = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(parsed.activeProfile).toBe("cx.toml");
   });
 
   test("empty filesInclude prints (empty) placeholder", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorMcpReport(makeReport({ filesInclude: [] }), false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("(empty)");
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(makeReport({ filesInclude: [] }), false, capture.io);
+    expect(capture.stdout()).toContain("(empty)");
   });
 
   test("non-empty filesInclude lists each pattern", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorMcpReport(
-          makeReport({ filesInclude: ["src/**", "docs/**"] }),
-          false,
-        );
-        return 0;
-      },
-    });
-    expect(stdout).toContain("src/**");
-    expect(stdout).toContain("docs/**");
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(
+      makeReport({ filesInclude: ["src/**", "docs/**"] }),
+      false,
+      capture.io,
+    );
+    expect(capture.stdout()).toContain("src/**");
+    expect(capture.stdout()).toContain("docs/**");
   });
 
   test("sectionNames lists each section", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorMcpReport(
-          makeReport({ sectionNames: ["alpha", "beta"] }),
-          false,
-        );
-        return 0;
-      },
-    });
-    expect(stdout).toContain("alpha");
-    expect(stdout).toContain("beta");
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(
+      makeReport({ sectionNames: ["alpha", "beta"] }),
+      false,
+      capture.io,
+    );
+    expect(capture.stdout()).toContain("alpha");
+    expect(capture.stdout()).toContain("beta");
   });
 
   test("resolvedConfigPath appears in output", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorMcpReport(
-          makeReport({ resolvedConfigPath: "/proj/cx-mcp.toml" }),
-          false,
-        );
-        return 0;
-      },
-    });
-    expect(stdout).toContain("/proj/cx-mcp.toml");
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(
+      makeReport({ resolvedConfigPath: "/proj/cx-mcp.toml" }),
+      false,
+      capture.io,
+    );
+    expect(capture.stdout()).toContain("/proj/cx-mcp.toml");
   });
 });
 

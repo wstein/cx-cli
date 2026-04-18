@@ -7,7 +7,7 @@ import {
   collectDoctorOverlapsReport,
   printDoctorOverlapsReport,
 } from "../../src/doctor/overlaps.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 describe("collectDoctorOverlapsReport", () => {
   test("uses injected deps and returns structured report", async () => {
@@ -87,26 +87,22 @@ function makeReport(
 
 describe("printDoctorOverlapsReport", () => {
   test("json=true outputs valid JSON with report fields", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorOverlapsReport(makeReport({ conflictCount: 0 }), true);
-        return 0;
-      },
-    });
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const capture = createBufferedCommandIo();
+    printDoctorOverlapsReport(
+      makeReport({ conflictCount: 0 }),
+      true,
+      capture.io,
+    );
+    const parsed = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(parsed.conflictCount).toBe(0);
     expect(parsed.resolvedConfigPath).toBe("/tmp/cx.toml");
   });
 
   test("zero conflicts text output contains no-overlap message", async () => {
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorOverlapsReport(makeReport(), false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("No section overlaps detected");
-    expect(stdout).toContain("cx.toml");
+    const capture = createBufferedCommandIo();
+    printDoctorOverlapsReport(makeReport(), false, capture.io);
+    expect(capture.stdout()).toContain("No section overlaps detected");
+    expect(capture.stdout()).toContain("cx.toml");
   });
 
   test("single conflict prints singular label, conflict detail, and fix hint", async () => {
@@ -121,18 +117,14 @@ describe("printDoctorOverlapsReport", () => {
         },
       ],
     });
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorOverlapsReport(report, false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("Detected 1 section overlap in");
-    expect(stdout).toContain("src/index.ts");
-    expect(stdout).toContain("matching sections: src, docs");
-    expect(stdout).toContain("owner: src");
-    expect(stdout).toContain("exclude from: docs");
-    expect(stdout).toContain("cx doctor fix-overlaps");
+    const capture = createBufferedCommandIo();
+    printDoctorOverlapsReport(report, false, capture.io);
+    expect(capture.stdout()).toContain("Detected 1 section overlap in");
+    expect(capture.stdout()).toContain("src/index.ts");
+    expect(capture.stdout()).toContain("matching sections: src, docs");
+    expect(capture.stdout()).toContain("owner: src");
+    expect(capture.stdout()).toContain("exclude from: docs");
+    expect(capture.stdout()).toContain("cx doctor fix-overlaps");
   });
 
   test("multiple conflicts uses plural label", async () => {
@@ -153,13 +145,9 @@ describe("printDoctorOverlapsReport", () => {
         },
       ],
     });
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorOverlapsReport(report, false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("Detected 2 section overlaps in");
+    const capture = createBufferedCommandIo();
+    printDoctorOverlapsReport(report, false, capture.io);
+    expect(capture.stdout()).toContain("Detected 2 section overlaps in");
   });
 
   test("conflict with single section omits exclude-from line", async () => {
@@ -174,13 +162,9 @@ describe("printDoctorOverlapsReport", () => {
         },
       ],
     });
-    const { stdout } = await captureCli({
-      run: async () => {
-        printDoctorOverlapsReport(report, false);
-        return 0;
-      },
-    });
-    expect(stdout).toContain("owner: only");
-    expect(stdout).not.toContain("exclude from:");
+    const capture = createBufferedCommandIo();
+    printDoctorOverlapsReport(report, false, capture.io);
+    expect(capture.stdout()).toContain("owner: only");
+    expect(capture.stdout()).not.toContain("exclude from:");
   });
 });

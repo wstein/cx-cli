@@ -23,7 +23,7 @@ function runNotesCommand(args: NotesArgs) {
   );
 }
 
-async function captureCli<T = unknown>(params: {
+async function captureNotesCommand<T = unknown>(params: {
   run: () => Promise<number>;
   parseJson?: boolean;
   captureConsoleLog?: boolean;
@@ -70,7 +70,7 @@ afterEach(async () => {
 describe("Notes Command Subcommands", () => {
   describe("new subcommand", () => {
     test("creates a note with text output", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -87,7 +87,7 @@ describe("Notes Command Subcommands", () => {
     });
 
     test("creates a note with JSON output", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -105,7 +105,7 @@ describe("Notes Command Subcommands", () => {
     });
 
     test("creates a note with tags", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -122,7 +122,7 @@ describe("Notes Command Subcommands", () => {
     });
 
     test("creates a note with tags in text output", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -149,7 +149,7 @@ describe("Notes Command Subcommands", () => {
   describe("read subcommand", () => {
     test("reads an existing note with text output", async () => {
       // Create a note first
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -163,7 +163,7 @@ describe("Notes Command Subcommands", () => {
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "read",
@@ -180,7 +180,7 @@ describe("Notes Command Subcommands", () => {
     });
 
     test("reads a note with JSON output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -195,7 +195,7 @@ describe("Notes Command Subcommands", () => {
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "read",
@@ -226,7 +226,7 @@ This note has aliases and tags.
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "read",
@@ -252,7 +252,7 @@ This note has aliases and tags.
 
   describe("update subcommand", () => {
     test("updates note body with text output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -266,7 +266,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "update",
@@ -282,7 +282,7 @@ This note has aliases and tags.
     });
 
     test("updates note with JSON output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -295,7 +295,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "update",
@@ -320,7 +320,7 @@ This note has aliases and tags.
     });
 
     test("throws when no fields to update", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -344,7 +344,7 @@ This note has aliases and tags.
 
   describe("rename subcommand", () => {
     test("renames note with text output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -357,7 +357,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "rename",
@@ -374,7 +374,7 @@ This note has aliases and tags.
     });
 
     test("renames note with JSON output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -387,7 +387,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "rename",
@@ -404,7 +404,7 @@ This note has aliases and tags.
     });
 
     test("throws when title is missing", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -428,7 +428,7 @@ This note has aliases and tags.
 
   describe("delete subcommand", () => {
     test("deletes note with text output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -441,7 +441,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "delete",
@@ -456,7 +456,7 @@ This note has aliases and tags.
     });
 
     test("deletes note with JSON output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -469,7 +469,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "delete",
@@ -495,7 +495,7 @@ This note has aliases and tags.
 
   describe("list subcommand", () => {
     test("lists notes with text output", async () => {
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -505,7 +505,7 @@ This note has aliases and tags.
         captureConsoleLog: true,
       });
 
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -515,7 +515,7 @@ This note has aliases and tags.
         captureConsoleLog: true,
       });
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "list",
@@ -531,7 +531,7 @@ This note has aliases and tags.
     });
 
     test("lists notes with JSON output", async () => {
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -541,7 +541,7 @@ This note has aliases and tags.
         captureConsoleLog: true,
       });
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "list",
@@ -557,7 +557,7 @@ This note has aliases and tags.
     });
 
     test("handles empty notes directory", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "list",
@@ -573,7 +573,7 @@ This note has aliases and tags.
 
   describe("backlinks subcommand", () => {
     test("shows no backlinks for isolated note", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -586,7 +586,7 @@ This note has aliases and tags.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "backlinks",
@@ -632,7 +632,7 @@ Target content.
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "backlinks",
@@ -650,7 +650,7 @@ Target content.
 
   describe("orphans subcommand", () => {
     test("identifies orphan notes with text output", async () => {
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -660,7 +660,7 @@ Target content.
         captureConsoleLog: true,
       });
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "orphans",
@@ -674,7 +674,7 @@ Target content.
     });
 
     test("outputs JSON format", async () => {
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -684,7 +684,7 @@ Target content.
         captureConsoleLog: true,
       });
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "orphans",
@@ -699,7 +699,7 @@ Target content.
     });
 
     test("handles no orphans", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "orphans",
@@ -715,7 +715,7 @@ Target content.
 
   describe("code-links subcommand", () => {
     test("shows no code references for note", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -728,7 +728,7 @@ Target content.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "code-links",
@@ -771,7 +771,7 @@ Note content.
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "code-links",
@@ -789,7 +789,7 @@ Note content.
 
   describe("links subcommand", () => {
     test("global links with no broken links", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "links",
@@ -803,7 +803,7 @@ Note content.
     });
 
     test("per-note links with JSON output", async () => {
-      const created = await captureCli({
+      const created = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -816,7 +816,7 @@ Note content.
       const noteId = (created.parsedJson as Record<string, unknown>)
         .id as string;
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "links",
@@ -856,7 +856,7 @@ title: Links Target
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "links",
@@ -876,7 +876,7 @@ title: Links Target
 
   describe("check subcommand", () => {
     test("passes check for valid notes", async () => {
-      await captureCli({
+      await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "new",
@@ -886,7 +886,7 @@ title: Links Target
         captureConsoleLog: true,
       });
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "check",
@@ -901,7 +901,7 @@ title: Links Target
     });
 
     test("outputs JSON format", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "check",
@@ -928,7 +928,7 @@ Check [[src/missing.ts]] before touching the pipeline.
 `,
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "check",
@@ -945,7 +945,7 @@ Check [[src/missing.ts]] before touching the pipeline.
 
   describe("coverage subcommand", () => {
     test("shows coverage percentage", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "coverage",
@@ -983,7 +983,7 @@ Terminal note.
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "graph",
@@ -1022,7 +1022,7 @@ Terminal note.
         "utf8",
       );
 
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "graph",
@@ -1039,7 +1039,7 @@ Terminal note.
     });
 
     test("outputs JSON format", async () => {
-      const result = await captureCli({
+      const result = await captureNotesCommand({
         run: () =>
           runNotesCommand({
             subcommand: "coverage",

@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { main } from "../../src/cli/main.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 
@@ -64,19 +64,14 @@ exclude = []
 describe("doctor human snapshot lane", () => {
   test("doctor --all human output snapshot", async () => {
     const project = await createMcpProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
-    try {
-      result = await captureCli({
-        run: () => main(["doctor", "--all", "--config", project.configPath]),
-      });
-    } finally {
-      process.chdir(cwd);
-    }
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo({ cwd: project.root });
+    const exitCode = await main(
+      ["doctor", "--all", "--config", project.configPath],
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
-    const scrubbed = scrubTextSnapshot(result.stdout, {
+    const scrubbed = scrubTextSnapshot(capture.stdout(), {
       rootDir: project.root,
       stripVersions: true,
     });
@@ -91,18 +86,19 @@ describe("doctor human snapshot lane", () => {
   });
 
   test("doctor workflow mixed human output snapshot", async () => {
-    const result = await captureCli({
-      run: () =>
-        main([
-          "doctor",
-          "workflow",
-          "--task",
-          "inspect the plan, bundle a handoff snapshot, and update notes in MCP",
-        ]),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await main(
+      [
+        "doctor",
+        "workflow",
+        "--task",
+        "inspect the plan, bundle a handoff snapshot, and update notes in MCP",
+      ],
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
-    const scrubbed = scrubTextSnapshot(result.stdout);
+    const scrubbed = scrubTextSnapshot(capture.stdout());
     await assertTextSnapshot({
       snapshotPath: path.join(
         process.cwd(),
