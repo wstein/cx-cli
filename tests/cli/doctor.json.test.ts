@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
 import { buildBundlePlan } from "../../src/planning/buildPlan.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 const execFileAsync = promisify(execFile);
@@ -187,12 +187,29 @@ exclude = []
   return { root, configPath };
 }
 
+async function runDoctorCli(params: { argv: string[]; cwd?: string }): Promise<{
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  logs: string;
+}> {
+  const capture = createBufferedCommandIo(
+    params.cwd === undefined ? {} : { cwd: params.cwd },
+  );
+  const exitCode = await main(params.argv, capture.io);
+  return {
+    exitCode,
+    stdout: capture.stdout(),
+    stderr: capture.stderr(),
+    logs: capture.logs(),
+  };
+}
+
 describe("doctor JSON lane", () => {
   test("doctor overlaps reports conflicts as JSON", async () => {
     const project = await createOverlapProject();
-    const result = await captureCli({
-      run: () =>
-        main(["doctor", "overlaps", "--json", "--config", project.configPath]),
+    const result = await runDoctorCli({
+      argv: ["doctor", "overlaps", "--json", "--config", project.configPath],
     });
     expect(result.exitCode).toBe(4);
 
@@ -214,16 +231,15 @@ describe("doctor JSON lane", () => {
   test("doctor fix-overlaps --dry-run leaves cx.toml unchanged", async () => {
     const project = await createOverlapProject();
     const before = await fs.readFile(project.configPath, "utf8");
-    const result = await captureCli({
-      run: () =>
-        main([
-          "doctor",
-          "fix-overlaps",
-          "--dry-run",
-          "--json",
-          "--config",
-          project.configPath,
-        ]),
+    const result = await runDoctorCli({
+      argv: [
+        "doctor",
+        "fix-overlaps",
+        "--dry-run",
+        "--json",
+        "--config",
+        project.configPath,
+      ],
     });
     expect(result.exitCode).toBe(4);
 
@@ -255,17 +271,10 @@ describe("doctor JSON lane", () => {
 
   test("doctor mcp reports inherited profile as JSON", async () => {
     const project = await createMcpProject();
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
-    try {
-      result = await captureCli({
-        run: () =>
-          main(["doctor", "mcp", "--json", "--config", project.configPath]),
-      });
-    } finally {
-      process.chdir(cwd);
-    }
+    const result = await runDoctorCli({
+      argv: ["doctor", "mcp", "--json", "--config", project.configPath],
+      cwd: project.root,
+    });
     expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
@@ -287,17 +296,10 @@ describe("doctor JSON lane", () => {
       includeGenerated: false,
       addGeneratedFile: true,
     });
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
-    try {
-      result = await captureCli({
-        run: () =>
-          main(["doctor", "notes", "--json", "--config", project.configPath]),
-      });
-    } finally {
-      process.chdir(cwd);
-    }
+    const result = await runDoctorCli({
+      argv: ["doctor", "notes", "--json", "--config", project.configPath],
+      cwd: project.root,
+    });
     expect(result.exitCode).toBe(4);
 
     const payload = parseJsonOutput<{
@@ -316,17 +318,10 @@ describe("doctor JSON lane", () => {
       includeGenerated: true,
       addGeneratedFile: true,
     });
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
-    try {
-      result = await captureCli({
-        run: () =>
-          main(["doctor", "notes", "--json", "--config", project.configPath]),
-      });
-    } finally {
-      process.chdir(cwd);
-    }
+    const result = await runDoctorCli({
+      argv: ["doctor", "notes", "--json", "--config", project.configPath],
+      cwd: project.root,
+    });
     expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
@@ -337,17 +332,10 @@ describe("doctor JSON lane", () => {
 
   test("doctor secrets reports suspicious files as JSON", async () => {
     const project = await createMcpProject({ includeSecret: true });
-    const cwd = process.cwd();
-    process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
-    try {
-      result = await captureCli({
-        run: () =>
-          main(["doctor", "secrets", "--json", "--config", project.configPath]),
-      });
-    } finally {
-      process.chdir(cwd);
-    }
+    const result = await runDoctorCli({
+      argv: ["doctor", "secrets", "--json", "--config", project.configPath],
+      cwd: project.root,
+    });
     expect(result.exitCode).toBe(4);
 
     const payload = parseJsonOutput<{
@@ -362,15 +350,14 @@ describe("doctor JSON lane", () => {
   });
 
   test("doctor workflow emits JSON recommendations", async () => {
-    const result = await captureCli({
-      run: () =>
-        main([
-          "doctor",
-          "workflow",
-          "--json",
-          "--task",
-          "update notes during investigation",
-        ]),
+    const result = await runDoctorCli({
+      argv: [
+        "doctor",
+        "workflow",
+        "--json",
+        "--task",
+        "update notes during investigation",
+      ],
     });
     expect(result.exitCode).toBe(0);
 

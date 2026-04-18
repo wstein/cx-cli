@@ -6,15 +6,52 @@ import {
   type NotesArgs,
   runNotesCommand as runNotesCommandBase,
 } from "../../src/cli/commands/notes.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import type { CommandIo } from "../../src/shared/output.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 let testDir: string;
+let activeIo: Partial<CommandIo> | undefined;
 
 function runNotesCommand(args: NotesArgs) {
-  return runNotesCommandBase({
-    ...args,
-    workspaceRoot: testDir,
-  });
+  return runNotesCommandBase(
+    {
+      ...args,
+      workspaceRoot: testDir,
+    },
+    activeIo,
+  );
+}
+
+async function captureCli<T = unknown>(params: {
+  run: () => Promise<number>;
+  parseJson?: boolean;
+  captureConsoleLog?: boolean;
+}): Promise<{
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  logs: string;
+  parsedJson?: T;
+}> {
+  const capture = createBufferedCommandIo({ cwd: testDir });
+  activeIo = capture.io;
+
+  try {
+    const exitCode = await params.run();
+    const stdout = capture.stdout();
+    return {
+      exitCode,
+      stdout,
+      stderr: capture.stderr(),
+      logs: capture.logs(),
+      ...(params.parseJson
+        ? { parsedJson: parseJsonOutput<T>(stdout || "{}") }
+        : {}),
+    };
+  } finally {
+    activeIo = undefined;
+  }
 }
 
 function noteFilePath(fileName: string): string {
