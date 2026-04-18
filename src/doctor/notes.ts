@@ -64,7 +64,7 @@ export async function collectDoctorNotesReport(
     sourceRoot: config.sourceRoot,
     totalNotes: validation.notes.length,
     masterFileCount: masterList.length,
-    driftCount: drifts.length,
+    driftCount: drifts.filter((d) => d.status !== "excluded_from_plan").length,
     missingCount: drifts.filter((drift) => drift.status === "missing").length,
     outsideMasterListCount: drifts.filter(
       (drift) => drift.status === "outside_master_list",

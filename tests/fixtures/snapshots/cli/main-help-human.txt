@@ -9,7 +9,7 @@ Commands:
   cx list <bundleDir>      List bundle contents.
   cx validate <bundleDir>  Validate bundle structure and schema.
   cx verify <bundleDir>    Verify bundle integrity.
-  cx doctor [subcommand]   Diagnose overlaps, MCP inheritance, and secret hygiene.
+  cx doctor [subcommand]   Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.
   cx render                Render planned sections as standard Repomix output.
   cx config <subcommand>   Inspect effective configuration.
   cx adapter <subcommand>  Inspect Repomix adapter capabilities and runtime state.

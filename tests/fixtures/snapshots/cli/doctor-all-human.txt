@@ -1,6 +1,8 @@
 No section overlaps detected in <ROOT>/cx.toml.
 Resolved MCP profile: <ROOT>/cx.toml
 Active profile: cx.toml
+Policy: default
+Mutation enabled: no
 
 files.include:
   - (empty)
@@ -10,4 +12,6 @@ files.exclude:
 
 sections:
   - src
+No note-to-code drift detected against the master list in <ROOT>/cx.toml.
+Checked 0 notes against 2 repository-backed paths.
 No suspicious files detected in <ROOT>/cx.toml.

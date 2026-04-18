@@ -145,6 +145,7 @@ ${options.overlap === true ? '\n[sections.mixed]\ninclude = ["src/**"]\n' : ""}
 
 [mcp]
 policy = "unrestricted"
+enable_mutation = true
 
 [files]
 include = ["README.md"]
