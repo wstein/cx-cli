@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execa } from "execa";
+import { validateTestLaneHeaders } from "./test-lane-policy.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -22,10 +23,22 @@ if (!rawDir) {
 }
 
 const targetDir = path.resolve(ROOT, rawDir);
+const testsRoot = path.join(ROOT, "tests");
 
 if (!fs.existsSync(targetDir)) {
   console.error(`test-lane: directory not found: ${targetDir}`);
   process.exit(1);
+}
+
+if (!path.relative(testsRoot, targetDir).startsWith("..")) {
+  const { mismatches } = validateTestLaneHeaders(ROOT);
+  if (mismatches.length > 0) {
+    console.error("test-lane: lane policy violations detected:");
+    for (const mismatch of mismatches) {
+      console.error(`- ${mismatch}`);
+    }
+    process.exit(1);
+  }
 }
 
 /**
