@@ -56,7 +56,7 @@ const formatCodeBlock = async (startLine, endLine, source) => {
   for (let i = startLine - 1; i < endLine; i++) {
     lines.push(source[i] || "");
   }
-  return `\`\`\`\n${lines.join("\n")}\n\`\`\``;
+  return ["```text", ...lines, "```"];
 };
 
 const shouldInclude = (filePath) => {
@@ -70,7 +70,7 @@ const shouldInclude = (filePath) => {
 
 const main = async () => {
   const lcovPath = "coverage/lcov.info";
-  const outputPath = "coverage/COVERAGE.md";
+  const outputPath = "./COVERAGE.md";
 
   try {
     await fs.access(lcovPath);
@@ -89,9 +89,6 @@ const main = async () => {
     (a, b) => a.hit / a.total - b.hit / b.total,
   );
 
-  let markdown = "# Coverage Report\n\n";
-  markdown += `**Generated:** ${new Date().toISOString()}\n\n`;
-
   const totalHit = Array.from(coverage.values()).reduce(
     (sum, c) => sum + c.hit,
     0,
@@ -102,30 +99,38 @@ const main = async () => {
   );
   const overall = ((totalHit / totalLines) * 100).toFixed(2);
 
-  markdown += `## Summary\n- **Overall:** ${overall}% (${totalHit}/${totalLines} lines)\n`;
-
   const below80 = sorted.filter((c) => c.hit / c.total < 0.8);
+  const output = [];
+  const push = (...lines) => {
+    output.push(...lines);
+  };
+
+  push("# Coverage Report", "");
+  push(`Generated: ${new Date().toISOString()}`, "");
+  push("## Summary", "");
+  push(`- Overall: ${overall}% (${totalHit}/${totalLines} lines)`);
   if (below80.length > 0) {
-    markdown += `- **Below 80%:** ${below80.length} files\n`;
+    push(`- Below 80%: ${below80.length} files`);
   }
-  markdown += "\n";
+  push("");
 
   for (const file of sorted) {
     const pct = ((file.hit / file.total) * 100).toFixed(2);
     if (file.hit === file.total) continue;
 
-    markdown += `## ${file.file}\n**Coverage:** ${pct}% (${file.hit}/${file.total})\n\n`;
+    push(`## ${file.file}`, "");
+    push(`Coverage: ${pct}% (${file.hit}/${file.total})`, "");
 
     const source = await readSourceFile(file.file);
     const ranges = getUncoveredRanges(file.lines);
 
     for (const [start, end] of ranges) {
-      markdown += `**Uncovered lines ${start}–${end}**\n`;
-      markdown += await formatCodeBlock(start, end, source);
-      markdown += "\n\n";
+      push(`### ${file.file} lines ${start}-${end}`, "");
+      push(...(await formatCodeBlock(start, end, source)), "");
     }
   }
 
+  const markdown = `${output.join("\n").replace(/\n+$/, "")}\n`;
   await fs.writeFile(outputPath, markdown);
 
   const belowThreshold = sorted.filter((c) => c.hit / c.total < 0.8);
