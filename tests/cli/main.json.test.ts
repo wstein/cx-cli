@@ -242,23 +242,19 @@ exclude = []
     const stdoutWrite = process.stdout.write;
     let stdout = "";
     process.chdir(root);
-    process.stdout.write = (
-      (
-        chunk: string | Uint8Array,
-        _encodingOrCallback?:
-          | BufferEncoding
-          | ((error?: Error | null) => void),
-        callback?: (error?: Error | null) => void,
-      ) => {
-        const cb =
-          typeof _encodingOrCallback === "function"
-            ? _encodingOrCallback
-            : callback;
+    process.stdout.write = ((
+      chunk: string | Uint8Array,
+      _encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+      callback?: (error?: Error | null) => void,
+    ) => {
+      const cb =
+        typeof _encodingOrCallback === "function"
+          ? _encodingOrCallback
+          : callback;
       stdout += String(chunk);
-        cb?.();
+      cb?.();
       return true;
-      }
-    ) as typeof process.stdout.write;
+    }) as typeof process.stdout.write;
 
     try {
       await expect(
