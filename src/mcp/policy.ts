@@ -1,5 +1,5 @@
 import type { CxConfig } from "../config/types.js";
-import { CxError } from "../shared/errors.js";
+import { CxError, type ErrorRemediation } from "../shared/errors.js";
 import type { McpCapability } from "./capabilities.js";
 import { getCxMcpToolCapability } from "./tools/catalog.js";
 
@@ -158,8 +158,24 @@ export class PolicyError extends CxError {
     message: string,
     exitCode = 15,
   ) {
-    super(message, exitCode);
+    super(message, exitCode, {
+      remediation: buildPolicyRemediation(toolName, capability),
+    });
     this.toolName = toolName;
     this.capability = capability;
   }
+}
+
+function buildPolicyRemediation(
+  toolName: string,
+  capability: McpCapability,
+): ErrorRemediation {
+  return {
+    recommendedCommand: "cx doctor mcp --config cx.toml",
+    docsRef: "docs/MCP_TOOL_INTENT_TAXONOMY.md",
+    nextSteps: [
+      `Confirm that ${toolName} is allowed for ${capability} operations under the active MCP policy.`,
+      "Adjust cx-mcp.toml or cx.toml if this tool should be available in the current session.",
+    ],
+  };
 }

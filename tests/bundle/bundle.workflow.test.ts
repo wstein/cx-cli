@@ -335,7 +335,16 @@ describe("bundle workflow", () => {
 
     const payload = JSON.parse(writes.pop() ?? "{}") as {
       valid?: boolean;
-      error?: { type?: string; message?: string; path?: string };
+      error?: {
+        type?: string;
+        message?: string;
+        path?: string;
+        remediation?: {
+          recommendedCommand?: string;
+          docsRef?: string;
+          nextSteps?: string[];
+        } | null;
+      };
     };
 
     expect(payload.valid).toBe(false);
@@ -343,6 +352,9 @@ describe("bundle workflow", () => {
     expect(payload.error?.path).toBe("demo-manifest.json");
     expect(payload.error?.message).toContain(
       "Checksum file is missing an entry for demo-manifest.json.",
+    );
+    expect(payload.error?.remediation?.recommendedCommand).toBe(
+      "cx validate dist/demo-bundle",
     );
   });
 
@@ -373,7 +385,16 @@ describe("bundle workflow", () => {
 
     const payload = JSON.parse(writes.pop() ?? "{}") as {
       valid?: boolean;
-      error?: { type?: string; message?: string; path?: string };
+      error?: {
+        type?: string;
+        message?: string;
+        path?: string;
+        remediation?: {
+          recommendedCommand?: string;
+          docsRef?: string;
+          nextSteps?: string[];
+        } | null;
+      };
     };
 
     expect(payload.valid).toBe(false);
@@ -381,6 +402,9 @@ describe("bundle workflow", () => {
     expect(payload.error?.path).toBe("README.md");
     expect(payload.error?.message).toContain(
       "Source tree mismatch for README.md",
+    );
+    expect(payload.error?.remediation?.recommendedCommand).toBe(
+      "cx bundle --config cx.toml",
     );
   });
 

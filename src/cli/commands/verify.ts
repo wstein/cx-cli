@@ -9,7 +9,7 @@ import {
   readLock,
 } from "../../manifest/lock.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
-import { CxError } from "../../shared/errors.js";
+import { CxError, getErrorRemediation } from "../../shared/errors.js";
 import {
   printDivider,
   printHeader,
@@ -185,6 +185,9 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
           type?: string;
           message: string;
           path?: string;
+          remediation?:
+            | import("../../shared/errors.js").ErrorRemediation
+            | null;
         };
       } = {
         bundleDir,
@@ -197,6 +200,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         bundleMode: bundleMode,
         error: {
           message: resolvedError.message,
+          remediation: getErrorRemediation(error) ?? null,
         },
       };
 

@@ -300,6 +300,12 @@ cx verify dist/demo-bundle --against . --config cx.toml
 
 `verify` checks checksums and can compare the bundle back to a source tree with `--against`. It also reads the lock file and warns if the behavioral settings currently in effect differ from the settings used when the bundle was built.
 
+When `validate`, `verify`, or `extract` fail with an operational `CxError`, the
+CLI now prints a suggested follow-up command, a documentation reference, and
+concrete next steps. The JSON output carries the same remediation block under
+`error.remediation` so automation can guide operators instead of only reporting
+the failure.
+
 ### 4. List or extract
 
 ```bash

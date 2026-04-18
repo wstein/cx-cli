@@ -10,7 +10,7 @@ import {
   validateEntryHashes,
   validatePlanOrdering,
 } from "../repomix/structured.js";
-import { CxError } from "../shared/errors.js";
+import { CxError, type ErrorRemediation } from "../shared/errors.js";
 import { sha256File } from "../shared/hashing.js";
 import {
   selectManifestRows,
@@ -37,9 +37,52 @@ export class VerifyError extends CxError {
     relativePath?: string,
     exitCode = 10,
   ) {
-    super(message, exitCode);
+    super(message, exitCode, {
+      remediation: buildVerifyRemediation(type, relativePath),
+    });
     this.type = type;
     this.relativePath = relativePath;
+  }
+}
+
+function buildVerifyRemediation(
+  type: VerifyFailureType,
+  relativePath?: string,
+): ErrorRemediation {
+  switch (type) {
+    case "source_tree_drift":
+      return {
+        recommendedCommand: "cx bundle --config cx.toml",
+        docsRef: "docs/MANUAL.md",
+        nextSteps: [
+          relativePath
+            ? `Review whether ${relativePath} changed intentionally after the bundle was created.`
+            : "Review the affected source path to determine whether the drift is intentional.",
+          "Rebuild the bundle or restore the expected source content before rerunning verification.",
+        ],
+      };
+    case "checksum_mismatch":
+    case "checksum_omission":
+    case "unexpected_checksum_reference":
+      return {
+        recommendedCommand: "cx validate dist/demo-bundle",
+        docsRef: "docs/MANUAL.md",
+        nextSteps: [
+          "Inspect the bundle directory for missing or modified artifacts.",
+          "Regenerate the bundle if the current artifact set is no longer trustworthy.",
+        ],
+      };
+    case "structured_contract_mismatch":
+    case "ordering_violation":
+    case "render_plan_drift":
+      return {
+        recommendedCommand: "cx inspect --config cx.toml --token-breakdown",
+        docsRef: "docs/ARCHITECTURE.md",
+        nextSteps: [
+          "Confirm that the current render plan and section ordering are deterministic.",
+          "Rebuild the bundle after correcting render-path or section-definition drift.",
+        ],
+      };
   }
 }
 
@@ -214,6 +257,16 @@ export async function verifyBundle(
       throw new CxError(
         "A loaded cx config is required to verify normalized content against a source tree.",
         2,
+        {
+          remediation: {
+            recommendedCommand:
+              "cx verify dist/demo-bundle --against . --config cx.toml",
+            docsRef: "docs/MANUAL.md",
+            nextSteps: [
+              "Provide the same cx.toml that was used when the bundle was built.",
+            ],
+          },
+        },
       );
     }
     await verifyBundleAgainstSourceTree(

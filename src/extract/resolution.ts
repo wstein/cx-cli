@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type { CxManifest, ManifestFileRow } from "../manifest/types.js";
-import { CxError } from "../shared/errors.js";
+import { CxError, type ErrorRemediation } from "../shared/errors.js";
 import { sha256Text } from "../shared/hashing.js";
 import { readSpanContent, splitOutputLines } from "./lineSpans.js";
 
@@ -43,9 +43,29 @@ export class ExtractResolutionError extends CxError {
       files.length === 1 && first
         ? first.message
         : `${files.length} selected files could not be reconstructed deterministically from the bundle output.`;
-    super(detail, 8);
+    super(detail, 8, {
+      remediation: buildExtractResolutionRemediation(files),
+    });
     this.files = files;
   }
+}
+
+function buildExtractResolutionRemediation(
+  files: ExtractabilityRecord[],
+): ErrorRemediation {
+  const firstPath = files[0]?.path;
+  return {
+    recommendedCommand: firstPath
+      ? `cx extract dist/demo-bundle --file ${firstPath} --allow-degraded`
+      : "cx extract dist/demo-bundle --allow-degraded",
+    docsRef: "docs/EXTRACTION_SAFETY.md",
+    nextSteps: [
+      firstPath
+        ? `Inspect the degraded reconstruction for ${firstPath} before accepting approximate recovery.`
+        : "Inspect the degraded reconstruction before accepting approximate recovery.",
+      "Rebuild the bundle if deterministic extraction is still required.",
+    ],
+  };
 }
 
 function parseJsonSectionSource(source: string) {

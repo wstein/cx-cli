@@ -258,6 +258,11 @@ describe("bundle extract", () => {
       valid?: boolean;
       error?: {
         type?: string;
+        remediation?: {
+          recommendedCommand?: string;
+          docsRef?: string;
+          nextSteps?: string[];
+        } | null;
         files?: Array<{
           path?: string;
           reason?: string;
@@ -269,6 +274,9 @@ describe("bundle extract", () => {
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("extractability_mismatch");
+    expect(payload.error?.remediation?.recommendedCommand).toContain(
+      "--allow-degraded",
+    );
     expect(payload.error?.files?.[0]?.path).toBe("src/index.ts");
     expect(payload.error?.files?.[0]?.reason).toBe("manifest_hash_mismatch");
     expect(payload.error?.files?.[0]?.expectedSha256).toBeDefined();

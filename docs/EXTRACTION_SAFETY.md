@@ -76,6 +76,11 @@ Practical checks:
 
 If the mismatch is intentional and approximate recovery is acceptable, use `--allow-degraded`. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.
 
+Operational extract failures now surface the same guidance in both human and
+JSON output: a suggested command, a docs reference, and next steps under
+`error.remediation`. Treat that payload as the machine-readable recovery path
+for dashboards and CI summaries.
+
 ## What "Degraded" Usually Means
 
 A degraded file usually means the stored section output and the parsed recovery path no longer agree on the normalized packed content.

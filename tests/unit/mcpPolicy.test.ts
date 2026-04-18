@@ -183,6 +183,9 @@ describe("MCP Policy System", () => {
       expect(error.toolName).toBe("notes_new");
       expect(error.capability).toBe("mutate");
       expect(error.message).toContain("Access denied");
+      expect(error.remediation?.recommendedCommand).toBe(
+        "cx doctor mcp --config cx.toml",
+      );
     });
 
     it("has correct exit code", () => {

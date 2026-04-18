@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { asError, CxError } from "../../src/shared/errors.js";
+import {
+  asError,
+  CxError,
+  formatErrorRemediation,
+} from "../../src/shared/errors.js";
 
 describe("shared error handling", () => {
   test("CxError sets message and default exit code", () => {
@@ -19,6 +23,25 @@ describe("shared error handling", () => {
     const cause = new Error("Inner error");
     const err = new CxError("Outer error", 1, { cause });
     expect(err.cause).toBe(cause);
+  });
+
+  test("CxError preserves remediation metadata", () => {
+    const err = new CxError("Needs guidance", 2, {
+      remediation: {
+        recommendedCommand: "cx inspect --config cx.toml",
+        docsRef: "docs/MANUAL.md",
+        nextSteps: ["Review the current plan before rebuilding."],
+      },
+    });
+
+    expect(err.remediation?.recommendedCommand).toBe(
+      "cx inspect --config cx.toml",
+    );
+    expect(formatErrorRemediation(err.remediation)).toEqual([
+      "Suggested command: cx inspect --config cx.toml",
+      "Docs: docs/MANUAL.md",
+      "Next step: Review the current plan before rebuilding.",
+    ]);
   });
 
   test("asError returns Error instances unchanged", () => {

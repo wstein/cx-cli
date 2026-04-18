@@ -8,7 +8,11 @@ import {
   resolveExtractability,
 } from "../../extract/resolution.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
-import { CxError } from "../../shared/errors.js";
+import {
+  CxError,
+  formatErrorRemediation,
+  getErrorRemediation,
+} from "../../shared/errors.js";
 import {
   selectManifestAssets,
   selectManifestSections,
@@ -97,6 +101,19 @@ function writeExtractionErrorTable(files: ExtractabilityRecord[]): void {
   process.stderr.write("\n");
 }
 
+function writeRemediationBlock(error: unknown): void {
+  const lines = formatErrorRemediation(getErrorRemediation(error));
+  if (lines.length === 0) {
+    return;
+  }
+
+  process.stderr.write("REMEDIATION\n");
+  for (const line of lines) {
+    process.stderr.write(`${line}\n`);
+  }
+  process.stderr.write("\n");
+}
+
 export async function runExtractCommand(args: ExtractArgs): Promise<number> {
   const bundleDir = path.resolve(args.bundleDir);
   const destinationDir = path.resolve(args.destinationDir);
@@ -162,6 +179,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
         error: {
           type: extractabilityType,
           message: resolved.message,
+          remediation: getErrorRemediation(error) ?? null,
           files: extractabilityFiles.map((file: ExtractabilityRecord) => ({
             path: file.path,
             section: file.section,
@@ -178,6 +196,7 @@ export async function runExtractCommand(args: ExtractArgs): Promise<number> {
 
     if (isExtractResolutionError(error)) {
       writeExtractionErrorTable(error.files);
+      writeRemediationBlock(error);
       return error.exitCode;
     }
     throw error;

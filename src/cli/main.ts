@@ -5,7 +5,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { setCLIOverrides } from "../config/env.js";
 import { setAdapterPath } from "../repomix/capabilities.js";
-import { asError, CxError } from "../shared/errors.js";
+import { asError, CxError, formatErrorRemediation } from "../shared/errors.js";
 import { CX_VERSION } from "../shared/version.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runBundleCommand } from "./commands/bundle.js";
@@ -736,6 +736,11 @@ if (import.meta.main) {
     .catch((error: unknown) => {
       const resolved = asError(error);
       process.stderr.write(`${resolved.message}\n`);
+      if (resolved instanceof CxError) {
+        for (const line of formatErrorRemediation(resolved.remediation)) {
+          process.stderr.write(`${line}\n`);
+        }
+      }
       process.exitCode = resolved instanceof CxError ? resolved.exitCode : 1;
     });
 }
