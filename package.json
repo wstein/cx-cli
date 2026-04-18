@@ -40,6 +40,7 @@
     "fix": "biome check --write .",
     "verify": "bun run lint && bun run check && bun run build && bun test --coverage --coverage-dir coverage tests --timeout 20000",
     "copy:init": "bun run scripts/copy-init-templates.ts",
+    "notes:list": "cx notes list && cx notes orphans",
     "smoke:repomix-version": "bun run scripts/repomix-version-smoke.ts",
     "integrity": "bun run scripts/release-integrity.ts",
     "verify-release": "bun run scripts/verify-release.ts"

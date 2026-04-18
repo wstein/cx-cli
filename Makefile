@@ -17,10 +17,10 @@ format: ## Format the project source.
 lint: ## Run lint checks and boundary validation.
 	$(BUN) run lint
 
-test: ## Run unit tests with coverage.
-	$(BUN) run coverage
+test: ## Run unit tests.
+	$(BUN) run test:unit
 
-coverage: ## Run tests with coverage.
+coverage: ## Run all tests with coverage.
 	$(BUN) run coverage
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
@@ -36,8 +36,7 @@ clean: ## Remove generated output files.
 	$(BUN) run clean
 
 notes: ## List available notes in the repository.
-	cx notes list
-	cx notes orphans
+	$(BUN) run notes:list
 
 smoke: ## Run repomix version smoke test.
 	$(BUN) run smoke:repomix-version
