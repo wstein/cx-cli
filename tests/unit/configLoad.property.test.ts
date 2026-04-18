@@ -209,6 +209,7 @@ describe("loadCxConfig property matrix", () => {
               configPath,
               envOverrides,
               cliOverrides,
+              { emitBehaviorLogs: false },
             );
 
             const expectedDedup = expectedValue({

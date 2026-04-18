@@ -448,6 +448,15 @@ function resolveConfigPath(
 }
 
 type BehaviorSource = CxBehaviorSources[keyof CxBehaviorSources];
+type BehaviorLogLevel = "info" | "warn";
+type BehaviorLogFn =
+  | ((level: BehaviorLogLevel, message: string) => void)
+  | undefined;
+
+function emitBehaviorLog(level: BehaviorLogLevel, message: string): void {
+  const prefix = level === "info" ? "Info" : "Warning";
+  process.stderr.write(`${prefix}: ${message}\n`);
+}
 
 /**
  * Resolve a single Category B setting by applying the precedence chain:
@@ -470,46 +479,53 @@ function resolveCategory<T>(params: {
   envValue: T | undefined;
   fileValue: T | undefined;
   defaultValue: T;
+  strictEnvActive: boolean;
+  log: BehaviorLogFn;
 }): { value: T; source: BehaviorSource } {
-  const { label, cliValue, envValue, fileValue, defaultValue } = params;
+  const {
+    label,
+    cliValue,
+    envValue,
+    fileValue,
+    defaultValue,
+    strictEnvActive,
+    log,
+  } = params;
 
   if (cliValue !== undefined) {
-    process.stderr.write(
-      `Info: ${label}="${String(cliValue)}" (from cli flag)\n`,
-    );
+    log?.("info", `${label}="${String(cliValue)}" (from cli flag)`);
     if (fileValue !== undefined && fileValue !== cliValue) {
-      process.stderr.write(
-        `Warning: ${label} in cx.toml ("${String(fileValue)}") is overridden by cli flag to "${String(cliValue)}"\n`,
+      log?.(
+        "warn",
+        `${label} in cx.toml ("${String(fileValue)}") is overridden by cli flag to "${String(cliValue)}"`,
       );
     }
     return { value: cliValue, source: "cli flag" };
   }
 
   if (envValue !== undefined) {
-    const source: BehaviorSource =
-      process.env.CX_STRICT === "true" || process.env.CX_STRICT === "1"
-        ? "CX_STRICT"
-        : "env var";
-    process.stderr.write(
-      `Info: ${label}="${String(envValue)}" (from ${source})\n`,
-    );
+    const source: BehaviorSource = strictEnvActive ? "CX_STRICT" : "env var";
+    log?.("info", `${label}="${String(envValue)}" (from ${source})`);
     if (fileValue !== undefined && fileValue !== envValue) {
-      process.stderr.write(
-        `Warning: ${label} in cx.toml ("${String(fileValue)}") is overridden by ${source} to "${String(envValue)}"\n`,
+      log?.(
+        "warn",
+        `${label} in cx.toml ("${String(fileValue)}") is overridden by ${source} to "${String(envValue)}"`,
       );
     }
     return { value: envValue, source };
   }
 
   if (fileValue !== undefined) {
-    process.stderr.write(
-      `Info: ${label}="${String(fileValue)}" (from cx.toml)\n`,
-    );
+    log?.("info", `${label}="${String(fileValue)}" (from cx.toml)`);
     return { value: fileValue, source: "cx.toml" };
   }
 
   return { value: defaultValue, source: "compiled default" };
 }
+
+export type LoadCxConfigOptions = {
+  emitBehaviorLogs?: boolean;
+};
 
 /**
  * Load and validate a project cx.toml file.
@@ -524,11 +540,14 @@ function resolveCategory<T>(params: {
  * @param cliOverrides - Overrides sourced from CLI flags (--strict / --lenient).
  *                       Defaults to getCLIOverrides(), set by setCLIOverrides() in
  *                       the yargs middleware before any command handler runs.
+ * @param options      - Optional config-load behavior toggles.
+ *                       Set emitBehaviorLogs=false for high-volume property tests.
  */
 export async function loadCxConfig(
   configPath: string,
   envOverrides: CxEnvOverrides = readEnvOverrides(),
   cliOverrides: CxEnvOverrides = getCLIOverrides(),
+  options: LoadCxConfigOptions = {},
 ): Promise<CxConfig> {
   const parsed = await loadConfigInput(configPath, true);
   const configDir = path.dirname(path.resolve(configPath));
@@ -580,6 +599,10 @@ export async function loadCxConfig(
   }
 
   // --- Category B: resolve behavioral settings with full precedence chain ---
+  const strictEnvActive =
+    process.env.CX_STRICT === "true" || process.env.CX_STRICT === "1";
+  const behaviorLog: BehaviorLogFn =
+    options.emitBehaviorLogs === false ? undefined : emitBehaviorLog;
 
   const dedupModeFromFile =
     dedup.mode !== undefined
@@ -597,6 +620,8 @@ export async function loadCxConfig(
     envValue: envOverrides.dedupMode,
     fileValue: dedupModeFromFile,
     defaultValue: DEFAULT_CONFIG_VALUES.dedup.mode,
+    strictEnvActive,
+    log: behaviorLog,
   });
 
   const repomixMissingExtensionFromFile =
@@ -615,6 +640,8 @@ export async function loadCxConfig(
     envValue: envOverrides.repomixMissingExtension,
     fileValue: repomixMissingExtensionFromFile,
     defaultValue: DEFAULT_BEHAVIOR_VALUES.repomixMissingExtension,
+    strictEnvActive,
+    log: behaviorLog,
   });
 
   const configDuplicateEntryFromFile =
@@ -633,6 +660,8 @@ export async function loadCxConfig(
     envValue: envOverrides.configDuplicateEntry,
     fileValue: configDuplicateEntryFromFile,
     defaultValue: DEFAULT_BEHAVIOR_VALUES.configDuplicateEntry,
+    strictEnvActive,
+    log: behaviorLog,
   });
 
   const assetsLayoutFromFile =
@@ -651,6 +680,8 @@ export async function loadCxConfig(
     envValue: envOverrides.assetsLayout,
     fileValue: assetsLayoutFromFile,
     defaultValue: DEFAULT_CONFIG_VALUES.assets.layout,
+    strictEnvActive,
+    log: behaviorLog,
   });
 
   const behavior: CxBehaviorConfig = {

@@ -49,6 +49,8 @@ process-global leakage, and make failures easier to read.
 
 - Use `fast-check` for combinatorial override behavior where input vectors
   multiply quickly (CLI flags, env vars, and cx.toml values).
+- For high-volume config property lanes, call `loadCxConfig(..., { emitBehaviorLogs: false })`
+  to keep CI output focused on assertion failures instead of precedence trace noise.
 - Assert precedence and invariants as properties, not only as hand-picked
   examples.
 - Keep generated inputs semantically valid so shrinking produces minimal,
