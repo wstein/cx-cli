@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -21,6 +22,7 @@ const BASE_ARGS = {
 async function initializeTypescriptTemplate(
   rootDir: string,
   projectName = "typescript-test",
+  capture = createBufferedCommandIo({ cwd: rootDir }),
 ) {
   await fs.writeFile(
     path.join(rootDir, "package.json"),
@@ -29,7 +31,6 @@ async function initializeTypescriptTemplate(
   );
   await fs.writeFile(path.join(rootDir, "tsconfig.json"), "{}\n", "utf8");
 
-  const capture = createBufferedCommandIo({ cwd: rootDir });
   const exitCode = await runInitCommand(
     {
       ...BASE_ARGS,
@@ -40,6 +41,7 @@ async function initializeTypescriptTemplate(
     capture.io,
   );
   expect(exitCode).toBe(0);
+  return capture;
 }
 
 beforeEach(async () => {
@@ -194,19 +196,25 @@ describe("runInitCommand", () => {
 
     const makefile = await fs.readFile(path.join(testDir, "Makefile"), "utf8");
     expect(makefile).toContain(
-      "check: ## Run typecheck/check if the script exists.",
+      "check: ## Run typecheck/check when configured in package.json; otherwise skip.",
     );
-    expect(makefile).toContain("lint: ## Run lint if the script exists.");
+    expect(makefile).toContain(
+      "lint: ## Run lint when configured in package.json; otherwise skip.",
+    );
     expect(makefile).toContain(
       "verify: ## Run the standard local quality gate.",
     );
     expect(makefile).toContain(
-      "Available targets:\\n  install build test check lint verify clean notes",
+      "certify: ## Run certify when configured in package.json; otherwise fall back to verify.",
+    );
+    expect(makefile).toContain(
+      "Available targets:\\n  install build test check lint verify certify clean notes",
     );
   });
 
   test("typescript init also generates a build-artifact MCP overlay", async () => {
-    await initializeTypescriptTemplate(testDir);
+    const capture = await initializeTypescriptTemplate(testDir);
+    expect(capture.logs()).toContain("Created cx-mcp-build.toml");
 
     const buildOverlay = await fs.readFile(
       path.join(testDir, "cx-mcp-build.toml"),
@@ -219,5 +227,96 @@ describe("runInitCommand", () => {
     expect(buildOverlay).toContain(
       'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
     );
+  });
+
+  test("typescript Makefile verify skips missing lint/check scripts with clear messages", async () => {
+    await fs.writeFile(
+      path.join(testDir, "package.json"),
+      JSON.stringify(
+        {
+          name: "typescript-test",
+          private: true,
+          scripts: {
+            build: `node -e "process.stdout.write('build ok\\\\n')"`,
+            test: `node -e "process.stdout.write('test ok\\\\n')"`,
+          },
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    await fs.writeFile(path.join(testDir, "tsconfig.json"), "{}\n", "utf8");
+
+    const capture = createBufferedCommandIo({ cwd: testDir });
+    const exitCode = await runInitCommand(
+      {
+        ...BASE_ARGS,
+        force: true,
+        name: "typescript-test",
+        template: "typescript",
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
+
+    const result = spawnSync("make", ["verify"], {
+      cwd: testDir,
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "Skipping lint: no lint script defined in package.json",
+    );
+    expect(result.stdout).toContain(
+      "Skipping check: no typecheck or check script defined in package.json",
+    );
+    expect(result.stdout).toContain("test ok");
+    expect(result.stdout).toContain("build ok");
+  });
+
+  test("typescript Makefile certify falls back to verify when no certify script exists", async () => {
+    await fs.writeFile(
+      path.join(testDir, "package.json"),
+      JSON.stringify(
+        {
+          name: "typescript-test",
+          private: true,
+          scripts: {
+            build: `node -e "process.stdout.write('build ok\\\\n')"`,
+            test: `node -e "process.stdout.write('test ok\\\\n')"`,
+          },
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    await fs.writeFile(path.join(testDir, "tsconfig.json"), "{}\n", "utf8");
+
+    const capture = createBufferedCommandIo({ cwd: testDir });
+    const exitCode = await runInitCommand(
+      {
+        ...BASE_ARGS,
+        force: true,
+        name: "typescript-test",
+        template: "typescript",
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
+
+    const result = spawnSync("make", ["certify"], {
+      cwd: testDir,
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "No certify script defined in package.json; falling back to make verify",
+    );
+    expect(result.stdout).toContain("test ok");
+    expect(result.stdout).toContain("build ok");
   });
 });

@@ -29,8 +29,8 @@ Local init support
 - These generated files use `cwd = "${workspaceFolder}"` so the agent starts from the repository root and resolves `cx-mcp.toml` or `cx.toml` correctly.
 
 TypeScript note:
-- The generated TypeScript `cx-mcp.toml` is source-oriented by default. It exposes source files and key workspace metadata rather than compiled output only.
-- `cx init --template typescript` also generates `cx-mcp-build.toml` for build-artifact inspection without replacing the default authoring overlay.
+- The generated TypeScript `cx-mcp.toml` is the source-oriented authoring overlay by default. It exposes source files and key workspace metadata rather than compiled output only.
+- `cx init --template typescript` also generates `cx-mcp-build.toml` as a separate build-artifact inspection overlay without replacing the default authoring overlay.
 - If your repository uses a non-standard source or build layout, adjust the authoring and build overlays independently rather than collapsing them into one profile.
 
 Key behavior to remember

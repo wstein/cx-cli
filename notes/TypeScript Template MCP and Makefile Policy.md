@@ -28,8 +28,12 @@ commands should not implicitly mutate dependency state.
 - MCP overlay defaults to source-oriented visibility for TypeScript
   repositories.
 - Package manager selection is lockfile-first.
-- `install`, `build`, `test`, `check`, `lint`, and `verify` are the normalized
-  TypeScript template targets.
+- `install`, `build`, `test`, `check`, `lint`, `verify`, and `certify` are the
+  normalized TypeScript template targets.
+- `lint` and `check` skip with a clear message when the corresponding package
+  scripts are not defined.
+- `certify` falls back to `verify` unless the workspace defines a stricter
+  package-manager `certify` script.
 - The default authoring overlay remains source-oriented, and compiled-output
   inspection is exposed through the separate generated `cx-mcp-build.toml`
   overlay.

@@ -28,9 +28,13 @@ The TypeScript `Makefile` normalizes these targets:
 - `make check`
 - `make lint`
 - `make verify`
+- `make certify`
 
 `install` is intentionally separate from `build`. Build commands should not
-implicitly mutate dependency state.
+implicitly mutate dependency state. `make lint` and `make check` skip with an
+explicit message when the corresponding package scripts are not present.
+`make certify` runs the package-manager `certify` script when one exists and
+otherwise falls back to `make verify`.
 
 ## MCP Overlays
 
@@ -44,7 +48,8 @@ implicitly mutate dependency state.
 
 Use the source-oriented overlay for live editing and code understanding. Use the
 build overlay when you want to inspect emitted artifacts without broadening the
-default authoring surface.
+default authoring surface. Edit the authoring and build overlays independently
+when your repository uses nonstandard source or output layouts.
 
 ## When To Customize
 
