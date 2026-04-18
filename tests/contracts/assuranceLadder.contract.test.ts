@@ -40,4 +40,15 @@ describe("assurance ladder contract", () => {
     expect(typeof scripts.integrity).toBe("string");
     expect(typeof scripts["verify-release"]).toBe("string");
   });
+
+  test("verify and test scripts delegate to the deterministic test lane", async () => {
+    const scripts = await readPackageScripts();
+
+    expect(scripts.verify).toContain("bun run test:all");
+    expect(scripts.test).toBe("bun run test:all");
+
+    // neither operator-facing script may use the old directory-style invocation
+    expect(scripts.verify).not.toMatch(/bun test\s+--coverage\s+tests/);
+    expect(scripts.test).not.toMatch(/bun test\s+--coverage\s+tests/);
+  });
 });
