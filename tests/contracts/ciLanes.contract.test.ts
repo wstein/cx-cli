@@ -22,18 +22,22 @@ describe("CI lanes contract", () => {
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
   });
 
-  test("package scripts use deterministic file-list discovery", async () => {
+  test("package scripts use deterministic file-list discovery via test-lane.js", async () => {
     const pkgRaw = await readText("package.json");
     const pkg = JSON.parse(pkgRaw) as {
       scripts?: Record<string, string>;
     };
 
     const scripts = pkg.scripts ?? {};
-    expect(scripts["test:all"]).toContain("find ./tests -type f -name '*.test.ts'");
+    expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
     expect(scripts["test:contracts"]).toContain(
-      "find ./tests/contracts -type f -name '*.test.ts'",
+      "node scripts/test-lane.js ./tests/contracts",
     );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
+
+    // shell find must not survive in any test-discovery script
+    expect(scripts["test:all"]).not.toContain("find ./tests");
+    expect(scripts["test:contracts"]).not.toContain("find ./tests");
   });
 });
