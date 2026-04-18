@@ -37,6 +37,7 @@ interface RowMeta {
   mtime: string;
   mtimeRelative: string;
   status: "intact" | "copied" | "degraded" | "blocked";
+  provenance: string[];
   extractability: {
     status: "intact" | "copied" | "degraded" | "blocked";
     reason: string;
@@ -44,6 +45,14 @@ interface RowMeta {
     expectedSha256?: string;
     actualSha256?: string;
   };
+}
+
+function formatProvenanceSuffix(provenance: string[]): string {
+  if (provenance.length === 0) {
+    return "";
+  }
+
+  return kleur.gray(` [${provenance.join(", ")}]`);
 }
 
 function getTokensForRow(row: ManifestFileRow): number {
@@ -238,6 +247,7 @@ function renderGroupedList(
       const tokensRaw = `${formatNumber(row.tokens)} tok`.padStart(tokensWidth);
       const mtimeRaw = row.mtimeRelative.padEnd(mtimeWidth);
       const statusRaw = row.status.padEnd(statusWidth);
+      const provenanceSuffix = formatProvenanceSuffix(row.provenance);
       lines.push(
         [
           "  ",
@@ -249,7 +259,7 @@ function renderGroupedList(
           "  ",
           colorExtractability(row.status, statusRaw),
           "  ",
-          pathCell,
+          `${pathCell}${provenanceSuffix}`,
         ].join(""),
       );
     }
@@ -302,6 +312,7 @@ export async function runListCommand(
       mtime,
       mtimeRelative: formatRelativeTime(mtime),
       status: record?.status ?? "blocked",
+      provenance: file.provenance ?? [],
       extractability: extractabilityObj,
     };
   });

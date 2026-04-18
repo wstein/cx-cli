@@ -200,6 +200,7 @@ export const ListCommandJsonSchema = z.object({
       mtime: z.string(),
       mtimeRelative: z.string(),
       status: z.enum(["intact", "copied", "degraded", "blocked"]),
+      provenance: z.array(ProvenanceSchema).optional(),
       extractability: z.object({
         status: z.enum(["intact", "copied", "degraded", "blocked"]),
         reason: z.string(),

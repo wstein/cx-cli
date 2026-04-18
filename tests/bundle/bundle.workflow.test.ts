@@ -258,6 +258,30 @@ describe("bundle workflow", () => {
     expect(bundleIndex).toContain("manifest_note_inclusion:");
   });
 
+  test("surfaces provenance suffixes in human list output", async () => {
+    const project = await createProject({ includeLinkedNotes: true });
+    const capture = createBufferedCommandIo();
+
+    expect(
+      await runBundleCommand({ config: project.configPath }, capture.io),
+    ).toBe(0);
+
+    const listCapture = createBufferedCommandIo();
+    expect(
+      await runListCommand(
+        { bundleDir: project.bundleDir, json: false },
+        listCapture.io,
+      ),
+    ).toBe(0);
+
+    const output = listCapture.stdout();
+    expect(output).toMatch(/README\.md\s+\[section_match\]/);
+    expect(output).toMatch(
+      /notes\/linked-note\.md\s+\[linked_note_enrichment, manifest_note_inclusion\]/,
+    );
+    expect(output).toMatch(/logo\.png\s+\[asset_rule_match\]/);
+  });
+
   test("emits structured JSON for bundle and verify automation", async () => {
     const project = await createProject();
     const bundleCapture = createBufferedCommandIo();
