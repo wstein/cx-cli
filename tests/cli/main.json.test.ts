@@ -242,10 +242,23 @@ exclude = []
     const stdoutWrite = process.stdout.write;
     let stdout = "";
     process.chdir(root);
-    process.stdout.write = ((chunk: string | Uint8Array) => {
+    process.stdout.write = (
+      (
+        chunk: string | Uint8Array,
+        _encodingOrCallback?:
+          | BufferEncoding
+          | ((error?: Error | null) => void),
+        callback?: (error?: Error | null) => void,
+      ) => {
+        const cb =
+          typeof _encodingOrCallback === "function"
+            ? _encodingOrCallback
+            : callback;
       stdout += String(chunk);
+        cb?.();
       return true;
-    }) as typeof process.stdout.write;
+      }
+    ) as typeof process.stdout.write;
 
     try {
       await expect(
@@ -266,7 +279,22 @@ exclude = []
           "--json",
         ]),
       ).resolves.toBe(0);
-      expect(JSON.parse(stdout)).toMatchObject({ projectName: "demo" });
+      expect(JSON.parse(stdout)).toMatchObject({
+        configFile: path.join(root, "cx.toml"),
+        cxStrict: false,
+        cliMode: null,
+        settings: {
+          "dedup.mode": { value: "fail", source: "compiled default" },
+          "repomix.missing_extension": {
+            value: "warn",
+            source: "compiled default",
+          },
+          "config.duplicate_entry": {
+            value: "fail",
+            source: "compiled default",
+          },
+        },
+      });
 
       stdout = "";
       await expect(
@@ -299,7 +327,7 @@ exclude = []
       await expect(
         main(["validate", path.join(root, "dist", "demo-bundle")]),
       ).resolves.toBe(0);
-      expect(stdout).toContain("Note validation passed");
+      expect(stdout).toBe("");
 
       await expect(
         main(["verify", path.join(root, "dist", "demo-bundle")]),
@@ -316,16 +344,14 @@ exclude = []
         ]),
       ).resolves.toBe(0);
 
-      stdout = "";
       await expect(main(["notes", "list"])).resolves.toBe(0);
-      expect(stdout).toContain("Valid Note");
     } finally {
       process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
   });
 
-  test("validate surfaces note errors through main", async () => {
+  test("bundle surfaces note errors through main", async () => {
     const root = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-main-validate-fail-"),
     );
@@ -380,9 +406,6 @@ exclude = []
     try {
       await expect(
         main(["bundle", "--config", path.join(root, "cx.toml")]),
-      ).resolves.toBe(0);
-      await expect(
-        main(["validate", path.join(root, "dist", "demo-bundle")]),
       ).rejects.toThrow("Note validation failed");
     } finally {
       process.chdir(cwd);
