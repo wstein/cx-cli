@@ -49,4 +49,11 @@ describe("CI lanes contract", () => {
     expect(workflow).not.toContain("sha256sum");
     expect(workflow).not.toContain("build1.sha256");
   });
+
+  test("CI workflow exposes an explicit release-assurance job", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain("release-assurance:");
+    expect(workflow).toContain("run: bun run smoke:release-integrity");
+  });
 });
