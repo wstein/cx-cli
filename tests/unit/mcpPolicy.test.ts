@@ -7,9 +7,9 @@ import {
   PolicyError,
   resolvePolicy,
   STRICT_POLICY,
-  TOOL_CAPABILITIES,
   UNRESTRICTED_POLICY,
 } from "../../src/mcp/policy.js";
+import { CX_MCP_TOOL_CAPABILITIES } from "../../src/mcp/tools/catalog.js";
 
 describe("MCP Policy System", () => {
   describe("isCapabilityAllowed", () => {
@@ -96,7 +96,7 @@ describe("MCP Policy System", () => {
     it("classifies all read tools correctly", () => {
       const readTools = ["list", "grep", "read"];
       for (const tool of readTools) {
-        expect(TOOL_CAPABILITIES[tool]).toBe("read");
+        expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("read");
       }
     });
 
@@ -111,14 +111,14 @@ describe("MCP Policy System", () => {
         "notes_list",
       ];
       for (const tool of observeTools) {
-        expect(TOOL_CAPABILITIES[tool]).toBe("observe");
+        expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("observe");
       }
     });
 
     it("classifies all plan tools correctly", () => {
       const planTools = ["inspect", "bundle"];
       for (const tool of planTools) {
-        expect(TOOL_CAPABILITIES[tool]).toBe("plan");
+        expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("plan");
       }
     });
 
@@ -130,7 +130,7 @@ describe("MCP Policy System", () => {
         "notes_rename",
       ];
       for (const tool of mutateTools) {
-        expect(TOOL_CAPABILITIES[tool]).toBe("mutate");
+        expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("mutate");
       }
     });
   });

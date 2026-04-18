@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { ensureDir } from "../shared/fs.js";
-import type { AuditEvent, McpCapability } from "./policy.js";
+import type { McpCapability } from "./capabilities.js";
+import type { AuditEvent } from "./policy.js";
 
 /**
  * Audit logger for MCP policy enforcement events.
@@ -134,7 +135,8 @@ export class AuditLogger {
       } else {
         summary.deniedCount += 1;
       }
-      summary.byCapability[event.capability] += 1;
+      const count = summary.byCapability[event.capability];
+      summary.byCapability[event.capability] = (count ?? 0) + 1;
     }
 
     return summary;

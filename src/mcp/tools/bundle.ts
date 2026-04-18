@@ -4,14 +4,29 @@ import { collectInspectReport } from "../../inspect/report.js";
 import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
+import type { CxMcpToolDefinition } from "./catalog.js";
 import { jsonToolResult } from "./utils.js";
+
+const INSPECT_TOOL = {
+  name: "inspect",
+  capability: "plan",
+} as const satisfies CxMcpToolDefinition;
+const BUNDLE_TOOL = {
+  name: "bundle",
+  capability: "plan",
+} as const satisfies CxMcpToolDefinition;
+
+export const BUNDLE_TOOL_DEFINITIONS = [
+  INSPECT_TOOL,
+  BUNDLE_TOOL,
+] as const satisfies readonly CxMcpToolDefinition[];
 
 export function registerBundleTools(
   server: McpServer,
   workspace: CxMcpWorkspace,
 ): void {
   const inspectHandler = withPolicyEnforcement(
-    "inspect",
+    INSPECT_TOOL.name,
     async (args: Record<string, unknown>) => {
       const report = await collectInspectReport({
         config: workspace.config,
@@ -30,7 +45,7 @@ export function registerBundleTools(
   );
 
   server.registerTool(
-    "inspect",
+    INSPECT_TOOL.name,
     {
       title: "Inspect live bundle plan",
       description: `${tierLabel("inspect")} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
@@ -42,7 +57,7 @@ export function registerBundleTools(
   );
 
   const bundleHandler = withPolicyEnforcement(
-    "bundle",
+    BUNDLE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const report = await collectInspectReport({
         config: workspace.config,
@@ -69,7 +84,7 @@ export function registerBundleTools(
   );
 
   server.registerTool(
-    "bundle",
+    BUNDLE_TOOL.name,
     {
       title: "Preview bundle snapshot",
       description: `${tierLabel("bundle")} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,

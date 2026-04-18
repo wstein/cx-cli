@@ -153,6 +153,7 @@ cli/commands/                    ← presentation layer (thin shells)
 | `doctor/workflow.ts` | Workflow mode recommendation |
 | `inspect/report.ts` | Bundle plan inspection report |
 | `mcp/config.ts` | MCP config path resolution |
+| `mcp/tools/catalog.ts` | Shared MCP tool catalog and capability metadata |
 | `mcp/tools/workspace.ts` | Workspace navigation tools |
 | `mcp/tools/bundle.ts` | Bundle preview and inspect tools |
 | `mcp/tools/doctor.ts` | Doctor diagnostic tools |

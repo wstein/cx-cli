@@ -6,37 +6,16 @@ import {
   checkToolAccess,
   DEFAULT_POLICY,
   STRICT_POLICY,
-  TOOL_CAPABILITIES,
 } from "../../src/mcp/policy.js";
+import {
+  CX_MCP_TOOL_CAPABILITIES,
+  CX_MCP_TOOL_NAMES,
+} from "../../src/mcp/tools/catalog.js";
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../..",
 );
-
-const REGISTERED_TOOL_NAMES = [
-  "list",
-  "grep",
-  "read",
-  "replace_repomix_span",
-  "inspect",
-  "bundle",
-  "doctor_mcp",
-  "doctor_overlaps",
-  "doctor_secrets",
-  "doctor_workflow",
-  "notes_new",
-  "notes_read",
-  "notes_update",
-  "notes_delete",
-  "notes_rename",
-  "notes_search",
-  "notes_list",
-  "notes_backlinks",
-  "notes_orphans",
-  "notes_code_links",
-  "notes_links",
-] as const;
 
 async function readText(relativePath: string): Promise<string> {
   return fs.readFile(path.join(ROOT, relativePath), "utf8");
@@ -54,8 +33,8 @@ function sectionBody(document: string, heading: string): string {
 
 describe("MCP policy contract", () => {
   test("every registered MCP tool has a capability classification", () => {
-    const missing = REGISTERED_TOOL_NAMES.filter(
-      (toolName) => TOOL_CAPABILITIES[toolName] === undefined,
+    const missing = CX_MCP_TOOL_NAMES.filter(
+      (toolName) => CX_MCP_TOOL_CAPABILITIES[toolName] === undefined,
     );
     expect(missing).toEqual([]);
   });
@@ -73,8 +52,8 @@ describe("MCP policy contract", () => {
   });
 
   test("bundle and inspect are classified as plan", () => {
-    expect(TOOL_CAPABILITIES.bundle).toBe("plan");
-    expect(TOOL_CAPABILITIES.inspect).toBe("plan");
+    expect(CX_MCP_TOOL_CAPABILITIES.bundle).toBe("plan");
+    expect(CX_MCP_TOOL_CAPABILITIES.inspect).toBe("plan");
   });
 
   test("taxonomy docs classify bundle as plan", async () => {

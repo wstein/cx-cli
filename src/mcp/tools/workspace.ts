@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-
 import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
@@ -10,14 +9,39 @@ import {
   readWorkspaceFile,
   replaceWorkspaceSpan,
 } from "../workspace.js";
+import type { CxMcpToolDefinition } from "./catalog.js";
 import { jsonToolResult } from "./utils.js";
+
+const LIST_TOOL = {
+  name: "list",
+  capability: "read",
+} as const satisfies CxMcpToolDefinition;
+const GREP_TOOL = {
+  name: "grep",
+  capability: "read",
+} as const satisfies CxMcpToolDefinition;
+const READ_TOOL = {
+  name: "read",
+  capability: "read",
+} as const satisfies CxMcpToolDefinition;
+const REPLACE_REPOMIX_SPAN_TOOL = {
+  name: "replace_repomix_span",
+  capability: "mutate",
+} as const satisfies CxMcpToolDefinition;
+
+export const WORKSPACE_TOOL_DEFINITIONS = [
+  LIST_TOOL,
+  GREP_TOOL,
+  READ_TOOL,
+  REPLACE_REPOMIX_SPAN_TOOL,
+] as const satisfies readonly CxMcpToolDefinition[];
 
 export function registerWorkspaceTools(
   server: McpServer,
   workspace: CxMcpWorkspace,
 ): void {
   const listHandler = withPolicyEnforcement(
-    "list",
+    LIST_TOOL.name,
     async (args: Record<string, unknown>) => {
       const files = await listWorkspaceFiles(
         workspace,
@@ -34,7 +58,7 @@ export function registerWorkspaceTools(
   );
 
   server.registerTool(
-    "list",
+    LIST_TOOL.name,
     {
       title: "List workspace files",
       description: `${tierLabel("list")} List files from the cx workspace file scope using the active cx configuration.`,
@@ -46,7 +70,7 @@ export function registerWorkspaceTools(
   );
 
   const grepHandler = withPolicyEnforcement(
-    "grep",
+    GREP_TOOL.name,
     async (args: Record<string, unknown>) => {
       const query = {
         pattern: args.pattern as string,
@@ -66,7 +90,7 @@ export function registerWorkspaceTools(
   );
 
   server.registerTool(
-    "grep",
+    GREP_TOOL.name,
     {
       title: "Search workspace files",
       description: `${tierLabel("grep")} Search files from the cx workspace file scope with a string or regular expression.`,
@@ -82,7 +106,7 @@ export function registerWorkspaceTools(
   );
 
   const readHandler = withPolicyEnforcement(
-    "read",
+    READ_TOOL.name,
     async (args: Record<string, unknown>) => {
       const query = {
         path: args.path as string,
@@ -102,7 +126,7 @@ export function registerWorkspaceTools(
   );
 
   server.registerTool(
-    "read",
+    READ_TOOL.name,
     {
       title: "Read workspace file",
       description: `${tierLabel("read")} Read a text file from the cx workspace scope with optional line anchors.`,
@@ -116,7 +140,7 @@ export function registerWorkspaceTools(
   );
 
   const replaceHandler = withPolicyEnforcement(
-    "replace_repomix_span",
+    REPLACE_REPOMIX_SPAN_TOOL.name,
     async (args: Record<string, unknown>) => {
       const result = await replaceWorkspaceSpan(workspace, {
         path: args.path as string,
@@ -135,7 +159,7 @@ export function registerWorkspaceTools(
   );
 
   server.registerTool(
-    "replace_repomix_span",
+    REPLACE_REPOMIX_SPAN_TOOL.name,
     {
       title: "Replace workspace span",
       description: `${tierLabel("replace_repomix_span")} Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.`,

@@ -1,49 +1,7 @@
 import type { CxConfig } from "../config/types.js";
 import { CxError } from "../shared/errors.js";
-
-/**
- * MCP tool capability classification.
- *
- * - read: Retrieve workspace content without modification
- * - observe: Analyze workspace state (plans, metadata, diagnostics)
- * - plan: Generate artifacts (inspect, bundle plans)
- * - mutate: Modify workspace state (notes CRUD, file writes)
- */
-export type McpCapability = "read" | "observe" | "plan" | "mutate";
-
-/**
- * Tool capability mapping: which MCP tools require which capabilities.
- */
-export const TOOL_CAPABILITIES: Record<string, McpCapability> = {
-  // Workspace (read)
-  list: "read",
-  grep: "read",
-  read: "read",
-  replace_repomix_span: "mutate",
-
-  // Bundle (plan)
-  inspect: "plan",
-  bundle: "plan",
-
-  // Doctor (observe)
-  doctor_mcp: "observe",
-  doctor_overlaps: "observe",
-  doctor_secrets: "observe",
-  doctor_workflow: "observe",
-
-  // Notes (mutate)
-  notes_new: "mutate",
-  notes_read: "observe", // Reading is observe, not mutate
-  notes_update: "mutate",
-  notes_delete: "mutate",
-  notes_rename: "mutate",
-  notes_search: "observe",
-  notes_list: "observe",
-  notes_backlinks: "observe",
-  notes_orphans: "observe",
-  notes_code_links: "observe",
-  notes_links: "observe",
-};
+import type { McpCapability } from "./capabilities.js";
+import { getCxMcpToolCapability } from "./tools/catalog.js";
 
 /**
  * File scope configuration for a policy.
@@ -151,7 +109,7 @@ export function checkToolAccess(
   toolName: string,
   policy: McpPolicy,
 ): ToolAccessDecision {
-  const capability = TOOL_CAPABILITIES[toolName];
+  const capability = getCxMcpToolCapability(toolName);
 
   if (!capability) {
     return {

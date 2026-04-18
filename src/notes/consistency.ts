@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import { CX_MCP_TOOL_NAMES } from "../mcp/tools/catalog.js";
 import { buildNoteGraph } from "./graph.js";
 import { validateNotes } from "./validate.js";
 
@@ -61,10 +62,8 @@ export async function checkNoteCoverage(
   undocumentedTools: string[];
   percentage: number;
 }> {
-  const { TOOL_CAPABILITIES } = await import("../mcp/policy.js");
-
   const graph = await buildNoteGraph(notesDir, projectRoot);
-  const toolNames = Object.keys(TOOL_CAPABILITIES);
+  const toolNames = [...CX_MCP_TOOL_NAMES];
 
   const documented = new Set<string>();
   for (const link of graph.links) {

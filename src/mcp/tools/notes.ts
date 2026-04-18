@@ -22,7 +22,67 @@ import { relativePosix } from "../../shared/fs.js";
 import { withPolicyEnforcement } from "../enforce.js";
 import { tierLabel } from "../tiers.js";
 import type { CxMcpWorkspace } from "../workspace.js";
+import type { CxMcpToolDefinition } from "./catalog.js";
 import { jsonToolResult } from "./utils.js";
+
+const NOTES_NEW_TOOL = {
+  name: "notes_new",
+  capability: "mutate",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_READ_TOOL = {
+  name: "notes_read",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_UPDATE_TOOL = {
+  name: "notes_update",
+  capability: "mutate",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_RENAME_TOOL = {
+  name: "notes_rename",
+  capability: "mutate",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_DELETE_TOOL = {
+  name: "notes_delete",
+  capability: "mutate",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_SEARCH_TOOL = {
+  name: "notes_search",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_LIST_TOOL = {
+  name: "notes_list",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_BACKLINKS_TOOL = {
+  name: "notes_backlinks",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_ORPHANS_TOOL = {
+  name: "notes_orphans",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_CODE_LINKS_TOOL = {
+  name: "notes_code_links",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_LINKS_TOOL = {
+  name: "notes_links",
+  capability: "observe",
+} as const satisfies CxMcpToolDefinition;
+
+export const NOTES_TOOL_DEFINITIONS = [
+  NOTES_NEW_TOOL,
+  NOTES_READ_TOOL,
+  NOTES_UPDATE_TOOL,
+  NOTES_RENAME_TOOL,
+  NOTES_DELETE_TOOL,
+  NOTES_SEARCH_TOOL,
+  NOTES_LIST_TOOL,
+  NOTES_BACKLINKS_TOOL,
+  NOTES_ORPHANS_TOOL,
+  NOTES_CODE_LINKS_TOOL,
+  NOTES_LINKS_TOOL,
+] as const satisfies readonly CxMcpToolDefinition[];
 
 export function registerNotesTools(
   server: McpServer,
@@ -31,7 +91,7 @@ export function registerNotesTools(
   const notesDir = path.join(workspace.sourceRoot, "notes");
 
   const notesNewHandler = withPolicyEnforcement(
-    "notes_new",
+    NOTES_NEW_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await createNewNote(args.title as string, {
         notesDir,
@@ -52,7 +112,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_new",
+    NOTES_NEW_TOOL.name,
     {
       title: "Create note",
       description: `${tierLabel("notes_new")} Create a new note in the workspace notes directory with optional tags and body text.`,
@@ -66,7 +126,7 @@ export function registerNotesTools(
   );
 
   const notesReadHandler = withPolicyEnforcement(
-    "notes_read",
+    NOTES_READ_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await readNote(args.id as string, {
         notesDir,
@@ -83,7 +143,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_read",
+    NOTES_READ_TOOL.name,
     {
       title: "Read note",
       description: `${tierLabel("notes_read")} Read a note from the workspace notes directory with parsed metadata and body content.`,
@@ -95,7 +155,7 @@ export function registerNotesTools(
   );
 
   const notesUpdateHandler = withPolicyEnforcement(
-    "notes_update",
+    NOTES_UPDATE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await updateNote(args.id as string, {
         notesDir,
@@ -117,7 +177,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_update",
+    NOTES_UPDATE_TOOL.name,
     {
       title: "Update note",
       description: `${tierLabel("notes_update")} Update an existing note in the workspace notes directory while preserving its file path.`,
@@ -132,7 +192,7 @@ export function registerNotesTools(
   );
 
   const notesRenameHandler = withPolicyEnforcement(
-    "notes_rename",
+    NOTES_RENAME_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await renameNote(args.id as string, args.title as string, {
         notesDir,
@@ -155,7 +215,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_rename",
+    NOTES_RENAME_TOOL.name,
     {
       title: "Rename note",
       description: `${tierLabel("notes_rename")} Rename an existing note in the workspace notes directory and update its title in place.`,
@@ -168,7 +228,7 @@ export function registerNotesTools(
   );
 
   const notesDeleteHandler = withPolicyEnforcement(
-    "notes_delete",
+    NOTES_DELETE_TOOL.name,
     async (args: Record<string, unknown>) => {
       const note = await deleteNote(args.id as string, {
         notesDir,
@@ -186,7 +246,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_delete",
+    NOTES_DELETE_TOOL.name,
     {
       title: "Delete note",
       description: `${tierLabel("notes_delete")} Delete an existing note from the workspace notes directory.`,
@@ -198,7 +258,7 @@ export function registerNotesTools(
   );
 
   const notesSearchHandler = withPolicyEnforcement(
-    "notes_search",
+    NOTES_SEARCH_TOOL.name,
     async (args: Record<string, unknown>) => {
       const result = await searchNotes(args.query as string, {
         notesDir,
@@ -223,7 +283,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_search",
+    NOTES_SEARCH_TOOL.name,
     {
       title: "Search notes",
       description: `${tierLabel("notes_search")} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
@@ -239,7 +299,7 @@ export function registerNotesTools(
   );
 
   const notesListHandler = withPolicyEnforcement(
-    "notes_list",
+    NOTES_LIST_TOOL.name,
     async () => {
       const result = await validateNotes("notes", workspace.sourceRoot);
       const notes = result.notes.map((note) => ({
@@ -261,7 +321,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_list",
+    NOTES_LIST_TOOL.name,
     {
       title: "List notes",
       description: `${tierLabel("notes_list")} List notes in the workspace notes directory with summaries and tags.`,
@@ -271,7 +331,7 @@ export function registerNotesTools(
   );
 
   const notesBacklinksHandler = withPolicyEnforcement(
-    "notes_backlinks",
+    NOTES_BACKLINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const note = graph.notes.get(args.id as string);
@@ -293,7 +353,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_backlinks",
+    NOTES_BACKLINKS_TOOL.name,
     {
       title: "List note backlinks",
       description: `${tierLabel("notes_backlinks")} List notes that link to a specific note from the workspace notes graph.`,
@@ -305,7 +365,7 @@ export function registerNotesTools(
   );
 
   const notesOrphansHandler = withPolicyEnforcement(
-    "notes_orphans",
+    NOTES_ORPHANS_TOOL.name,
     async () => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const orphans = graph.orphans.map((id) => {
@@ -327,7 +387,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_orphans",
+    NOTES_ORPHANS_TOOL.name,
     {
       title: "List orphan notes",
       description: `${tierLabel("notes_orphans")} List notes with no incoming or outgoing links in the workspace notes graph.`,
@@ -337,7 +397,7 @@ export function registerNotesTools(
   );
 
   const notesCodeLinksHandler = withPolicyEnforcement(
-    "notes_code_links",
+    NOTES_CODE_LINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
       const note = graph.notes.get(args.id as string);
@@ -359,7 +419,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_code_links",
+    NOTES_CODE_LINKS_TOOL.name,
     {
       title: "List code references",
       description: `${tierLabel("notes_code_links")} List source files that reference a note through wikilinks in code comments or text.`,
@@ -371,7 +431,7 @@ export function registerNotesTools(
   );
 
   const notesLinksHandler = withPolicyEnforcement(
-    "notes_links",
+    NOTES_LINKS_TOOL.name,
     async (args: Record<string, unknown>) => {
       const graph = await buildNoteGraph("notes", workspace.sourceRoot);
 
@@ -407,7 +467,7 @@ export function registerNotesTools(
   );
 
   server.registerTool(
-    "notes_links",
+    NOTES_LINKS_TOOL.name,
     {
       title: "Audit note links",
       description: `${tierLabel("notes_links")} Audit unresolved note and code references, or inspect one note's outgoing links.`,
