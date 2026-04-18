@@ -5,7 +5,6 @@ import path from "node:path";
 
 import { runAdapterCommand } from "../../src/cli/commands/adapter.js";
 import { runRenderCommand } from "../../src/cli/commands/render.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
@@ -70,22 +69,23 @@ describe("render command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () =>
-          runRenderCommand({
-            config: project.configPath,
-            sections: ["src"],
-            stdout: true,
-          }),
-      });
+      exitCode = await runRenderCommand(
+        {
+          config: project.configPath,
+          sections: ["src"],
+          stdout: true,
+        },
+        capture.io,
+      );
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("cx section handover");
     expect(output).toContain("<file");
     expect(output).toContain("index.ts");
@@ -118,23 +118,24 @@ describe("render command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () =>
-          runRenderCommand({
-            config: project.configPath,
-            sections: ["src"],
-            style: "markdown",
-            stdout: true,
-          }),
-      });
+      exitCode = await runRenderCommand(
+        {
+          config: project.configPath,
+          sections: ["src"],
+          style: "markdown",
+          stdout: true,
+        },
+        capture.io,
+      );
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("index.ts");
     expect(output).not.toContain("<file");
   });
@@ -143,20 +144,21 @@ describe("render command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () =>
-          runRenderCommand({
-            config: project.configPath,
-            allSections: true,
-            json: true,
-          }),
-      });
+      exitCode = await runRenderCommand(
+        {
+          config: project.configPath,
+          allSections: true,
+          json: true,
+        },
+        capture.io,
+      );
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
     const payload = parseJsonOutput<{
       projectName?: string;
@@ -166,7 +168,7 @@ describe("render command", () => {
         fileCount: number;
         tokenCount: number;
       }>;
-    }>(result.stdout);
+    }>(capture.stdout());
 
     expect(payload.projectName).toBe("demo");
     expect(payload.selection?.sections?.sort()).toEqual(["docs", "src"]);
@@ -211,22 +213,23 @@ describe("render command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () =>
-          runRenderCommand({
-            config: project.configPath,
-            files: ["src/index.ts"],
-            stdout: true,
-          }),
-      });
+      exitCode = await runRenderCommand(
+        {
+          config: project.configPath,
+          files: ["src/index.ts"],
+          stdout: true,
+        },
+        capture.io,
+      );
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("index.ts");
   });
 });

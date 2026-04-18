@@ -4,30 +4,23 @@ import os from "node:os";
 import path from "node:path";
 import { main } from "../../src/cli/main.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 describe("main JSON lane", () => {
   test("supports init JSON output", async () => {
-    const result = await captureCli({
-      run: () =>
-        main([
-          "init",
-          "--stdout",
-          "--json",
-          "--name",
-          "demo",
-          "--style",
-          "json",
-        ]),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await main(
+      ["init", "--stdout", "--json", "--name", "demo", "--style", "json"],
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       projectName?: string;
       style?: string;
       config?: string;
-    }>(result.stdout);
+    }>(capture.stdout());
     expect(payload.projectName).toBe("demo");
     expect(payload.style).toBe("json");
     expect(payload.config).toContain('project_name = "demo"');
@@ -70,15 +63,14 @@ exclude = []
     process.chdir(root);
     await expect(main(["bundle"])).resolves.toBe(0);
 
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () => main(["validate", "dist/demo-bundle", "--json"]),
-      });
+      exitCode = await main(["validate", "dist/demo-bundle", "--json"], capture.io);
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
@@ -90,7 +82,7 @@ exclude = []
         sectionCount?: number;
         fileCount?: number;
       };
-    }>(result.stdout);
+    }>(capture.stdout());
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
     expect(payload.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
@@ -145,29 +137,30 @@ exclude = []
     process.chdir(root);
     await expect(main(["bundle"])).resolves.toBe(0);
 
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
+    let exitCode: number;
     try {
-      result = await captureCli({
-        run: () =>
-          main([
-            "list",
-            "dist/demo-bundle",
-            "--json",
-            "--section",
-            "src",
-            "--file",
-            "src/index.ts",
-          ]),
-      });
+      exitCode = await main(
+        [
+          "list",
+          "dist/demo-bundle",
+          "--json",
+          "--section",
+          "src",
+          "--file",
+          "src/index.ts",
+        ],
+        capture.io,
+      );
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
+    expect(exitCode!).toBe(0);
 
     const payload = parseJsonOutput<{
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
-    }>(result.stdout);
+    }>(capture.stdout());
     expect(payload.summary?.fileCount).toBe(1);
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.selection?.sections).toEqual(["src"]);
@@ -231,24 +224,30 @@ exclude = []
         main(["bundle", "--config", path.join(root, "cx.toml")]),
       ).resolves.toBe(0);
 
-      const completionRun = await captureCli({
-        run: () => main(["completion", "--shell", "bash"]),
-      });
-      expect(completionRun.exitCode).toBe(0);
-      expect(completionRun.stdout).toContain("###-begin-cx-completions-###");
+      const completionCapture = createBufferedCommandIo();
+      const completionExitCode = await main(
+        ["completion", "--shell", "bash"],
+        completionCapture.io,
+      );
+      expect(completionExitCode).toBe(0);
+      expect(completionCapture.stdout()).toContain(
+        "###-begin-cx-completions-###",
+      );
 
-      const configRun = await captureCli({
-        run: () =>
-          main([
+      const configCapture = createBufferedCommandIo();
+      expect(
+        await main(
+          [
             "config",
             "show-effective",
             "--config",
             path.join(root, "cx.toml"),
             "--json",
-          ]),
-      });
-      expect(configRun.exitCode).toBe(0);
-      expect(parseJsonOutput(configRun.stdout)).toMatchObject({
+          ],
+          configCapture.io,
+        ),
+      ).toBe(0);
+      expect(parseJsonOutput(configCapture.stdout())).toMatchObject({
         configFile: path.join(root, "cx.toml"),
         cxStrict: false,
         cliMode: null,
@@ -265,40 +264,47 @@ exclude = []
         },
       });
 
-      const adapterRun = await captureCli({
-        run: () =>
-          main([
+      const adapterCapture = createBufferedCommandIo();
+      expect(
+        await main(
+          [
             "adapter",
             "capabilities",
             "--config",
             path.join(root, "cx.toml"),
             "--json",
-          ]),
-      });
-      expect(adapterRun.exitCode).toBe(0);
-      expect(parseJsonOutput(adapterRun.stdout)).toMatchObject({
+          ],
+          adapterCapture.io,
+        ),
+      ).toBe(0);
+      expect(parseJsonOutput(adapterCapture.stdout())).toMatchObject({
         cx: { version: expect.any(String) },
       });
 
-      const renderRun = await captureCli({
-        run: () =>
-          main([
+      const renderCapture = createBufferedCommandIo();
+      expect(
+        await main(
+          [
             "render",
             "--config",
             path.join(root, "cx.toml"),
             "--section",
             "src",
             "--stdout",
-          ]),
-      });
-      expect(renderRun.exitCode).toBe(0);
-      expect(renderRun.stdout).toContain("index.ts");
+          ],
+          renderCapture.io,
+        ),
+      ).toBe(0);
+      expect(renderCapture.stdout()).toContain("index.ts");
 
-      const validateRun = await captureCli({
-        run: () => main(["validate", path.join(root, "dist", "demo-bundle")]),
-      });
-      expect(validateRun.exitCode).toBe(0);
-      expect(validateRun.stdout).toBe("");
+      const validateCapture = createBufferedCommandIo();
+      expect(
+        await main(
+          ["validate", path.join(root, "dist", "demo-bundle")],
+          validateCapture.io,
+        ),
+      ).toBe(0);
+      expect(validateCapture.stdout()).toBe("");
 
       await expect(
         main(["verify", path.join(root, "dist", "demo-bundle")]),

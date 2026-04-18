@@ -3,7 +3,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { runInitCommand } from "../../src/cli/commands/init.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 let testDir: string;
 let origCwd: string;
@@ -30,62 +31,58 @@ afterEach(async () => {
 
 describe("runInitCommand", () => {
   test("returns 0 and creates files on first run", async () => {
-    const { exitCode } = await captureCli({
-      run: () => runInitCommand(BASE_ARGS),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(BASE_ARGS, capture.io);
     expect(exitCode).toBe(0);
     const cx = await fs.readFile(path.join(testDir, "cx.toml"), "utf8");
     expect(cx).toContain("testproject");
   });
 
   test("second run without --force prints skip messages", async () => {
-    // First run creates files
-    await captureCli({ run: () => runInitCommand(BASE_ARGS) });
+    await runInitCommand(BASE_ARGS, createBufferedCommandIo().io);
 
-    // Second run: files already exist, unchanged → "Skipped existing" for each
-    // printInfo/printSuccess use console.log, so captureConsoleLog is required
-    const { logs } = await captureCli({
-      run: () => runInitCommand(BASE_ARGS),
-      captureConsoleLog: true,
-    });
-    expect(logs).toContain("Skipped existing cx.toml");
+    const capture = createBufferedCommandIo();
+    await runInitCommand(BASE_ARGS, capture.io);
+    expect(capture.logs()).toContain("Skipped existing cx.toml");
   });
 
   test("json=true outputs structured JSON without writing stdout text", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () => runInitCommand({ ...BASE_ARGS, json: true }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand({ ...BASE_ARGS, json: true }, capture.io);
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(capture.stdout());
     expect(parsed.projectName).toBe("testproject");
     expect(parsed.style).toBe("xml");
     expect(parsed.path).toBe("cx.toml");
   });
 
   test("templateList=true prints available templates and returns 0", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () => runInitCommand({ ...BASE_ARGS, templateList: true }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(
+      { ...BASE_ARGS, templateList: true },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
-    expect(stdout.length).toBeGreaterThan(0);
+    expect(capture.stdout().length).toBeGreaterThan(0);
   });
 
   test("invalid project name throws CxError", async () => {
     await expect(
-      captureCli({
-        run: () => runInitCommand({ ...BASE_ARGS, name: "../../etc/passwd" }),
-      }),
+      runInitCommand(
+        { ...BASE_ARGS, name: "../../etc/passwd" },
+        createBufferedCommandIo().io,
+      ),
     ).rejects.toThrow();
   });
 
   test("stdout=true + json=true outputs JSON to stdout without writing files", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () => runInitCommand({ ...BASE_ARGS, stdout: true, json: true }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(
+      { ...BASE_ARGS, stdout: true, json: true },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
-    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    const parsed = parseJsonOutput<Record<string, unknown>>(capture.stdout());
     expect(parsed.projectName).toBe("testproject");
     expect(parsed.config).toBeDefined();
     expect(parsed.path).toBeNull();
@@ -99,20 +96,20 @@ describe("runInitCommand", () => {
   });
 
   test("stdout=true without json outputs raw config text", async () => {
-    const { stdout, exitCode } = await captureCli({
-      run: () => runInitCommand({ ...BASE_ARGS, stdout: true }),
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(
+      { ...BASE_ARGS, stdout: true },
+      capture.io,
+    );
     expect(exitCode).toBe(0);
-    expect(stdout).toContain("testproject");
-    expect(stdout).toContain("schema_version");
+    expect(capture.stdout()).toContain("testproject");
+    expect(capture.stdout()).toContain("schema_version");
   });
 
   test("force=true on second run prints 'Updated' messages", async () => {
-    await captureCli({ run: () => runInitCommand(BASE_ARGS) });
-    const { logs } = await captureCli({
-      run: () => runInitCommand({ ...BASE_ARGS, force: true }),
-      captureConsoleLog: true,
-    });
-    expect(logs).toContain("Updated cx.toml");
+    await runInitCommand(BASE_ARGS, createBufferedCommandIo().io);
+    const capture = createBufferedCommandIo();
+    await runInitCommand({ ...BASE_ARGS, force: true }, capture.io);
+    expect(capture.logs()).toContain("Updated cx.toml");
   });
 });

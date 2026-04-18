@@ -11,7 +11,6 @@ import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { runVerifyCommand } from "../../src/cli/commands/verify.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { sha256File } from "../../src/shared/hashing.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { createProject, tamperSectionOutput } from "./helpers.js";
@@ -34,14 +33,17 @@ describe("bundle workflow", () => {
     expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
     expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
 
-    const listRun = await captureCli({
-      run: () => runListCommand({ bundleDir: project.bundleDir, json: false }),
-    });
-    expect(listRun.exitCode).toBe(0);
-    expect(listRun.stdout).toContain("README.md");
-    expect(listRun.stdout).toContain("docs");
-    expect(listRun.stdout).toContain("status");
-    expect(listRun.stdout).not.toContain("kind\tsection\tstored_in");
+    const listCapture = createBufferedCommandIo();
+    expect(
+      await runListCommand(
+        { bundleDir: project.bundleDir, json: false },
+        listCapture.io,
+      ),
+    ).toBe(0);
+    expect(listCapture.stdout()).toContain("README.md");
+    expect(listCapture.stdout()).toContain("docs");
+    expect(listCapture.stdout()).toContain("status");
+    expect(listCapture.stdout()).not.toContain("kind\tsection\tstored_in");
 
     const bundleIndexPath = path.join(
       project.bundleDir,
@@ -81,10 +83,13 @@ describe("bundle workflow", () => {
       }>;
     }>(inspectCapture.stdout());
 
-    const listRun = await captureCli({
-      run: () => runListCommand({ bundleDir: project.bundleDir, json: true }),
-    });
-    expect(listRun.exitCode).toBe(0);
+    const listCapture = createBufferedCommandIo();
+    expect(
+      await runListCommand(
+        { bundleDir: project.bundleDir, json: true },
+        listCapture.io,
+      ),
+    ).toBe(0);
     const listPayload = parseJsonOutput<{
       summary?: { fileCount?: number; textFileCount?: number };
       repomix?: { spanCapability?: string };
@@ -95,7 +100,7 @@ describe("bundle workflow", () => {
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
-    }>(listRun.stdout);
+    }>(listCapture.stdout());
 
     expect(inspectPayload.summary?.sectionCount).toBe(2);
     expect(inspectPayload.summary?.assetCount).toBe(1);
@@ -255,10 +260,13 @@ describe("bundle workflow", () => {
 
   test("emits structured JSON for bundle and verify automation", async () => {
     const project = await createProject();
-    const bundleRun = await captureCli({
-      run: () => runBundleCommand({ config: project.configPath, json: true }),
-    });
-    expect(bundleRun.exitCode).toBe(0);
+    const bundleCapture = createBufferedCommandIo();
+    expect(
+      await runBundleCommand(
+        { config: project.configPath, json: true },
+        bundleCapture.io,
+      ),
+    ).toBe(0);
     const bundlePayload = parseJsonOutput<{
       checksumFile?: string;
       repomix?: {
@@ -266,7 +274,7 @@ describe("bundle workflow", () => {
         compatibilityStrategy?: string;
         packageVersion?: string;
       };
-    }>(bundleRun.stdout);
+    }>(bundleCapture.stdout());
 
     const verifyCapture = createBufferedCommandIo();
     const verifyExitCode = await runVerifyCommand(
@@ -398,11 +406,13 @@ describe("bundle workflow", () => {
     const project = await createProject();
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const validateRun = await captureCli({
-      run: () =>
-        runValidateCommand({ bundleDir: project.bundleDir, json: true }),
-    });
-    expect(validateRun.exitCode).toBe(0);
+    const validateCapture = createBufferedCommandIo();
+    expect(
+      await runValidateCommand(
+        { bundleDir: project.bundleDir, json: true },
+        validateCapture.io,
+      ),
+    ).toBe(0);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
@@ -414,7 +424,7 @@ describe("bundle workflow", () => {
         sectionCount?: number;
         fileCount?: number;
       };
-    }>(validateRun.stdout);
+    }>(validateCapture.stdout());
 
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");

@@ -18,7 +18,10 @@ function createBufferedWriter(chunks: string[]) {
   };
 }
 
-export function createBufferedCommandIo(): {
+export function createBufferedCommandIo(options: {
+  env?: NodeJS.ProcessEnv;
+  isTTY?: boolean;
+} = {}): {
   io: Partial<CommandIo>;
   stdout: () => string;
   stderr: () => string;
@@ -35,9 +38,9 @@ export function createBufferedCommandIo(): {
       log: (...args: unknown[]) => {
         logChunks.push(args.map((value) => String(value)).join(" "));
       },
-      env: process.env,
+      env: options.env ?? process.env,
       stdin: {
-        isTTY: false,
+        isTTY: options.isTTY ?? false,
       },
     },
     stdout: () => stdoutChunks.join(""),

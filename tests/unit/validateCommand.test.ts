@@ -5,17 +5,18 @@ import path from "node:path";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runValidateCommand } from "../../src/cli/commands/validate.js";
 import { createProject } from "../bundle/helpers.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 async function createBundleFixture(noteContents: string[]): Promise<{
   root: string;
   bundleDir: string;
 }> {
   const project = await createProject();
-  const bundleRun = await captureCli({
-    run: () => runBundleCommand({ config: project.configPath }),
-  });
-  expect(bundleRun.exitCode).toBe(0);
+  const bundleCapture = createBufferedCommandIo();
+  expect(
+    await runBundleCommand({ config: project.configPath }, bundleCapture.io),
+  ).toBe(0);
 
   const bundleDir = path.join(project.root, "bundle");
   await fs.rm(bundleDir, { recursive: true, force: true });
@@ -65,13 +66,11 @@ Body.
 `,
     ]);
 
-    const result = await captureCli({
-      run: () => runValidateCommand({ bundleDir }),
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runValidateCommand({ bundleDir }, capture.io);
 
-    expect(result.exitCode).toBe(0);
-    expect(result.logs).toContain("Note validation passed");
+    expect(exitCode).toBe(0);
+    expect(capture.logs()).toContain("Note validation passed");
   });
 
   test("reports duplicate note IDs from source notes", async () => {
@@ -94,21 +93,17 @@ Body.
 `,
     ]);
 
-    const result = await captureCli({
-      run: async () => {
-        try {
-          await runValidateCommand({ bundleDir });
-          return 0;
-        } catch {
-          return 10;
-        }
-      },
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    let exitCode = 0;
+    try {
+      await runValidateCommand({ bundleDir }, capture.io);
+    } catch {
+      exitCode = 10;
+    }
 
-    expect(result.exitCode).toBe(10);
-    expect(result.logs).toContain("Duplicate note IDs detected");
-    expect(result.logs).toContain("20260418120001");
+    expect(exitCode).toBe(10);
+    expect(capture.logs()).toContain("Duplicate note IDs detected");
+    expect(capture.logs()).toContain("20260418120001");
   });
 
   test("writes JSON output when requested", async () => {
@@ -123,34 +118,34 @@ Body.
 `,
     ]);
 
-    const result = await captureCli<{
+    const capture = createBufferedCommandIo();
+    const exitCode = await runValidateCommand(
+      { bundleDir, json: true },
+      capture.io,
+    );
+    const parsedJson = parseJsonOutput<{
       bundleDir: string;
       notes: { count: number; valid: boolean };
       valid: boolean;
-    }>({
-      run: () => runValidateCommand({ bundleDir, json: true }),
-      parseJson: true,
-    });
+    }>(capture.stdout());
 
-    expect(result.exitCode).toBe(0);
-    expect(result.parsedJson?.valid).toBe(true);
-    expect(result.parsedJson?.notes).toEqual({
+    expect(exitCode).toBe(0);
+    expect(parsedJson.valid).toBe(true);
+    expect(parsedJson.notes).toEqual({
       count: 2,
       valid: true,
     });
-    expect(result.parsedJson?.bundleDir).toBe(bundleDir);
+    expect(parsedJson.bundleDir).toBe(bundleDir);
   });
 
   test("returns 0 without printing a note summary when no notes exist", async () => {
     const { root, bundleDir } = await createBundleFixture([]);
     await fs.rm(path.join(root, "notes"), { recursive: true, force: true });
 
-    const result = await captureCli({
-      run: () => runValidateCommand({ bundleDir }),
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runValidateCommand({ bundleDir }, capture.io);
 
-    expect(result.exitCode).toBe(0);
-    expect(result.logs).toBe("");
+    expect(exitCode).toBe(0);
+    expect(capture.logs()).toBe("");
   });
 });

@@ -5,7 +5,7 @@ import path from "node:path";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runListCommand } from "../../src/cli/commands/list.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import {
   createProject,
@@ -19,7 +19,18 @@ describe("bundle extract", () => {
     const restoreDir = path.join(project.root, "restored-filtered");
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const listRun = await captureCli<{
+    const listCapture = createBufferedCommandIo();
+    const listExitCode = await runListCommand(
+      {
+        bundleDir: project.bundleDir,
+        files: ["src/index.ts"],
+        json: true,
+        sections: ["src"],
+      },
+      listCapture.io,
+    );
+    expect(listExitCode).toBe(0);
+    const listPayload = parseJsonOutput<{
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
       files?: Array<{
@@ -28,48 +39,29 @@ describe("bundle extract", () => {
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
-    }>({
-      run: () =>
-        runListCommand({
-          bundleDir: project.bundleDir,
-          files: ["src/index.ts"],
-          json: true,
-          sections: ["src"],
-        }),
-      parseJson: true,
-    });
-    expect(listRun.exitCode).toBe(0);
-    const listPayload = listRun.parsedJson;
-    expect(listPayload).toBeDefined();
-    if (!listPayload) {
-      throw new Error("Expected list JSON payload");
-    }
+    }>(listCapture.stdout());
 
-    const extractRun = await captureCli<{
+    const extractCapture = createBufferedCommandIo();
+    const extractExitCode = await runExtractCommand(
+      {
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: ["src"],
+        files: undefined,
+        assetsOnly: false,
+        overwrite: false,
+        verify: true,
+        json: true,
+      },
+      extractCapture.io,
+    );
+    expect(extractExitCode).toBe(0);
+    const extractPayload = parseJsonOutput<{
       summary?: { fileCount?: number; textFileCount?: number };
       extractedSections?: string[];
       extractedFiles?: string[];
       selection?: { sections?: string[] };
-    }>({
-      run: () =>
-        runExtractCommand({
-          bundleDir: project.bundleDir,
-          destinationDir: restoreDir,
-          sections: ["src"],
-          files: undefined,
-          assetsOnly: false,
-          overwrite: false,
-          verify: true,
-          json: true,
-        }),
-      parseJson: true,
-    });
-    expect(extractRun.exitCode).toBe(0);
-    const extractPayload = extractRun.parsedJson;
-    expect(extractPayload).toBeDefined();
-    if (!extractPayload) {
-      throw new Error("Expected extract JSON payload");
-    }
+    }>(extractCapture.stdout());
 
     expect(listPayload.summary?.fileCount).toBe(1);
     expect(listPayload.summary?.sectionCount).toBe(1);
@@ -242,7 +234,22 @@ describe("bundle extract", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    const extractRun = await captureCli<{
+    const extractCapture = createBufferedCommandIo();
+    const extractExitCode = await runExtractCommand(
+      {
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+        json: true,
+      },
+      extractCapture.io,
+    );
+    expect(extractExitCode).toBe(8);
+    const payload = parseJsonOutput<{
       valid?: boolean;
       error?: {
         type?: string;
@@ -258,26 +265,7 @@ describe("bundle extract", () => {
           actualSha256?: string;
         }>;
       };
-    }>({
-      run: () =>
-        runExtractCommand({
-          bundleDir: project.bundleDir,
-          destinationDir: restoreDir,
-          sections: undefined,
-          files: ["src/index.ts"],
-          assetsOnly: false,
-          overwrite: false,
-          verify: false,
-          json: true,
-        }),
-      parseJson: true,
-    });
-    expect(extractRun.exitCode).toBe(8);
-    const payload = extractRun.parsedJson;
-    expect(payload).toBeDefined();
-    if (!payload) {
-      throw new Error("Expected extract failure JSON payload");
-    }
+    }>(extractCapture.stdout());
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("extractability_mismatch");
@@ -301,21 +289,22 @@ describe("bundle extract", () => {
       "export const special = true;\n",
       "export const special = false;\n",
     );
-    const extractRun = await captureCli({
-      run: () =>
-        runExtractCommand({
-          bundleDir: project.bundleDir,
-          destinationDir: restoreDir,
-          sections: undefined,
-          files: ["src/special cases/checksum + edge.ts"],
-          assetsOnly: false,
-          overwrite: false,
-          verify: false,
-        }),
-    });
-    expect(extractRun.exitCode).toBe(8);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runExtractCommand(
+      {
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/special cases/checksum + edge.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(8);
 
-    const output = extractRun.stderr;
+    const output = capture.stderr();
     expect(output).toContain("src/special cases/checksum + edge.ts");
     expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
   });
@@ -330,15 +319,16 @@ describe("bundle extract", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    const listRun = await captureCli({
-      run: () =>
-        runListCommand({
-          bundleDir: project.bundleDir,
-          files: ["src/index.ts"],
-          json: true,
-        }),
-    });
-    expect(listRun.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runListCommand(
+      {
+        bundleDir: project.bundleDir,
+        files: ["src/index.ts"],
+        json: true,
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
     const payload = parseJsonOutput<{
       files?: Array<{
         path?: string;
@@ -350,7 +340,7 @@ describe("bundle extract", () => {
           actualSha256?: string;
         };
       }>;
-    }>(listRun.stdout);
+    }>(capture.stdout());
 
     expect(payload.files?.[0]?.path).toBe("src/index.ts");
     expect(payload.files?.[0]?.status).toBe("degraded");
