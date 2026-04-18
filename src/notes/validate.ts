@@ -37,6 +37,11 @@ export interface ValidateNotesResult {
   duplicateIds: Array<{ id: string; files: string[] }>;
 }
 
+export interface NoteDocument {
+  filePath: string;
+  content: string;
+}
+
 function normalizeStringArray(
   value: unknown,
   filePath: string,
@@ -73,12 +78,13 @@ function normalizeStringArray(
   return { value: normalized };
 }
 
-async function extractNoteMetadata(filePath: string): Promise<{
+function parseNoteDocument(document: NoteDocument): {
   metadata: NoteMetadata | null;
   error: NoteValidationError | null;
-}> {
+} {
+  const { filePath, content } = document;
+
   try {
-    const content = await fs.readFile(filePath, "utf-8");
     const { frontmatter, body } = parseMarkdownFrontmatter(content);
 
     const id = String(frontmatter.id ?? "").trim();
@@ -178,35 +184,15 @@ async function extractNoteMetadata(filePath: string): Promise<{
   }
 }
 
-export async function validateNotes(
-  notesDir: string,
-  projectRoot: string,
-): Promise<ValidateNotesResult> {
-  const notesDirAbsolute = path.resolve(projectRoot, notesDir);
-
-  const exists = await pathExists(notesDirAbsolute);
-  if (!exists) {
-    return {
-      valid: true,
-      notes: [],
-      errors: [],
-      duplicateIds: [],
-    };
-  }
-
-  const markdownFiles = (await listFilesRecursive(notesDirAbsolute))
-    .filter((file) => file.endsWith(".md"))
-    .filter((file) => {
-      const baseName = path.basename(file);
-      return baseName !== "README.md" && baseName !== "Atomic Note Template.md";
-    });
-
+export function validateNoteDocuments(
+  documents: NoteDocument[],
+): ValidateNotesResult {
   const notes: NoteMetadata[] = [];
   const errors: NoteValidationError[] = [];
   const idMap = new Map<string, string[]>();
 
-  for (const file of markdownFiles) {
-    const { metadata, error } = await extractNoteMetadata(file);
+  for (const document of documents) {
+    const { metadata, error } = parseNoteDocument(document);
 
     if (error) {
       errors.push(error);
@@ -232,5 +218,54 @@ export async function validateNotes(
     notes,
     errors,
     duplicateIds,
+  };
+}
+
+export async function validateNotes(
+  notesDir: string,
+  projectRoot: string,
+): Promise<ValidateNotesResult> {
+  const notesDirAbsolute = path.resolve(projectRoot, notesDir);
+
+  const exists = await pathExists(notesDirAbsolute);
+  if (!exists) {
+    return {
+      valid: true,
+      notes: [],
+      errors: [],
+      duplicateIds: [],
+    };
+  }
+
+  const markdownFiles = (await listFilesRecursive(notesDirAbsolute))
+    .filter((file) => file.endsWith(".md"))
+    .filter((file) => {
+      const baseName = path.basename(file);
+      return baseName !== "README.md" && baseName !== "Atomic Note Template.md";
+    });
+
+  const documents: NoteDocument[] = [];
+  const readErrors: NoteValidationError[] = [];
+
+  for (const file of markdownFiles) {
+    try {
+      const content = await fs.readFile(file, "utf-8");
+      documents.push({ filePath: file, content });
+    } catch (err) {
+      readErrors.push({
+        filePath: file,
+        error: `Failed to read or parse note: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  }
+
+  const parsed = validateNoteDocuments(documents);
+  const errors = [...readErrors, ...parsed.errors];
+
+  return {
+    valid: errors.length === 0 && parsed.duplicateIds.length === 0,
+    notes: parsed.notes,
+    errors,
+    duplicateIds: parsed.duplicateIds,
   };
 }
