@@ -266,7 +266,7 @@ export async function main(
           style: args.style,
           template: args.template,
           templateList: args["template-list"],
-        });
+        }, io);
       },
     )
     .command(
@@ -434,7 +434,7 @@ export async function main(
         exitCode = await runValidateCommand({
           bundleDir: args.bundleDir,
           json: args.json,
-        });
+        }, io);
       },
     )
     .command(
@@ -582,7 +582,7 @@ export async function main(
           stdout: args.stdout,
           outputDir: args["output-dir"],
           json: args.json,
-        });
+        }, io);
       },
     )
     .command(

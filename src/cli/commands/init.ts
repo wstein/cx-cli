@@ -1,7 +1,12 @@
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { CxError } from "../../shared/errors.js";
-import { writeValidatedJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeStdout,
+  writeValidatedJson,
+} from "../../shared/output.js";
 import {
   printWizardComplete,
   printWizardHeader,
@@ -34,13 +39,14 @@ export interface InitArgs {
 
 async function resolveInteractiveValues(
   args: InitArgs,
+  io: Partial<CommandIo> = {},
 ): Promise<{ name: string | undefined; style: InitArgs["style"] }> {
   if (!args.interactive) {
     return { name: args.name, style: args.style };
   }
 
-  printWizardHeader("Initialize new cx project");
-  printWizardStep(1, 3, "Project name");
+  printWizardHeader("Initialize new cx project", io);
+  printWizardStep(1, 3, "Project name", io);
 
   const name =
     args.name ??
@@ -48,9 +54,9 @@ async function resolveInteractiveValues(
       default: "myproject",
       description:
         "  Alphanumeric, dots, hyphens, underscores. Must start with letter or number.",
-    }));
+    }, io));
 
-  printWizardStep(2, 3, "Output style");
+  printWizardStep(2, 3, "Output style", io);
 
   const style =
     args.style ??
@@ -59,9 +65,9 @@ async function resolveInteractiveValues(
       { name: "JSON (structured data)", value: "json" },
       { name: "Markdown (human-readable)", value: "markdown" },
       { name: "Plain text (simple)", value: "plain" },
-    ]));
+    ], {}, io));
 
-  printWizardStep(3, 3, "Confirmation");
+  printWizardStep(3, 3, "Confirmation", io);
 
   const confirmed = await wizardConfirm(
     `Create cx.toml with project "${name}" and style "${style}"?`,
@@ -70,13 +76,14 @@ async function resolveInteractiveValues(
       description:
         "  This will create a configuration file in the current directory.",
     },
+    io,
   );
 
   if (!confirmed) {
     throw new CxError("Init cancelled by user.", 1);
   }
 
-  printWizardComplete("Configuration setup");
+  printWizardComplete("Configuration setup", io);
 
   return { name, style };
 }
@@ -99,21 +106,26 @@ async function renderProjectTemplate(
   );
 }
 
-export async function runInitCommand(args: InitArgs): Promise<number> {
+export async function runInitCommand(
+  args: InitArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   if (args.templateList) {
     const templates = getSupportedTemplates();
-    process.stdout.write(
+    writeStdout(
       `${templates
         .map(
           (template: { name: string; description: string }) =>
             `${template.name}: ${template.description}`,
         )
         .join("\n")}\n`,
+      io,
     );
     return 0;
   }
 
-  const resolved = await resolveInteractiveValues(args);
+  const resolved = await resolveInteractiveValues(args, io);
   const projectName = resolved.name ?? "myproject";
 
   // Validate the project name
@@ -145,9 +157,9 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
         projectName: resolved.name ?? "myproject",
         style: resolved.style ?? "xml",
         path: null,
-      });
+      }, io);
     } else {
-      process.stdout.write(output);
+      writeStdout(output, io);
     }
     return 0;
   }
@@ -223,73 +235,84 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   if (!(args.json ?? false)) {
     const { printSuccess, printInfo } = await import("../../shared/format.js");
     if (configResult.created) {
-      printSuccess("Created cx.toml");
+      printSuccess("Created cx.toml", io);
     } else if (configResult.updated) {
-      printInfo("Updated cx.toml");
+      printInfo("Updated cx.toml", io);
     } else {
-      printInfo("Skipped existing cx.toml (use --force to overwrite)");
+      printInfo("Skipped existing cx.toml (use --force to overwrite)", io);
     }
     if (editorconfigResult.created) {
-      printInfo("Created .editorconfig");
+      printInfo("Created .editorconfig", io);
     } else if (editorconfigResult.updated) {
-      printInfo("Updated .editorconfig");
+      printInfo("Updated .editorconfig", io);
     } else {
-      printInfo("Skipped existing .editorconfig (use --force to overwrite)");
+      printInfo(
+        "Skipped existing .editorconfig (use --force to overwrite)",
+        io,
+      );
     }
     if (makefileResult.created) {
-      printInfo("Created Makefile");
+      printInfo("Created Makefile", io);
     } else if (makefileResult.updated) {
-      printInfo("Updated Makefile");
+      printInfo("Updated Makefile", io);
     } else {
-      printInfo("Skipped existing Makefile (use --force to overwrite)");
+      printInfo("Skipped existing Makefile (use --force to overwrite)", io);
     }
     if (mcpResult.created) {
-      printInfo("Created cx-mcp.toml");
+      printInfo("Created cx-mcp.toml", io);
     } else if (mcpResult.updated) {
-      printInfo("Updated cx-mcp.toml");
+      printInfo("Updated cx-mcp.toml", io);
     } else {
-      printInfo("Skipped existing cx-mcp.toml (use --force to overwrite)");
+      printInfo("Skipped existing cx-mcp.toml (use --force to overwrite)", io);
     }
     if (mcpJsonResult.created) {
-      printInfo("Created .mcp.json");
+      printInfo("Created .mcp.json", io);
     } else if (mcpJsonResult.updated) {
-      printInfo("Updated .mcp.json");
+      printInfo("Updated .mcp.json", io);
     } else {
-      printInfo("Skipped existing .mcp.json (use --force to overwrite)");
+      printInfo("Skipped existing .mcp.json (use --force to overwrite)", io);
     }
     if (vscodeMcpResult.created) {
-      printInfo("Created .vscode/mcp.json");
+      printInfo("Created .vscode/mcp.json", io);
     } else if (vscodeMcpResult.updated) {
-      printInfo("Updated .vscode/mcp.json");
+      printInfo("Updated .vscode/mcp.json", io);
     } else {
-      printInfo("Skipped existing .vscode/mcp.json (use --force to overwrite)");
+      printInfo(
+        "Skipped existing .vscode/mcp.json (use --force to overwrite)",
+        io,
+      );
     }
     if (claudeSettingsResult.created) {
-      printInfo("Created .claude/settings.json");
+      printInfo("Created .claude/settings.json", io);
     } else if (claudeSettingsResult.updated) {
-      printInfo("Updated .claude/settings.json");
+      printInfo("Updated .claude/settings.json", io);
     } else {
       printInfo(
         "Skipped existing .claude/settings.json (use --force to overwrite)",
+        io,
       );
     }
     if (codexSettingsResult.created) {
-      printInfo("Created .codex/settings.json");
+      printInfo("Created .codex/settings.json", io);
     } else if (codexSettingsResult.updated) {
-      printInfo("Updated .codex/settings.json");
+      printInfo("Updated .codex/settings.json", io);
     } else {
       printInfo(
         "Skipped existing .codex/settings.json (use --force to overwrite)",
+        io,
       );
     }
-    printInfo(`Project name: ${resolved.name ?? "myproject"}`);
-    printInfo(`Output style: ${resolved.style ?? "xml"}`);
-    printInfo(`Notes directory: ${notesScaffold.notesDir}`);
+    printInfo(`Project name: ${resolved.name ?? "myproject"}`, io);
+    printInfo(`Output style: ${resolved.style ?? "xml"}`, io);
+    printInfo(`Notes directory: ${notesScaffold.notesDir}`, io);
     if (notesScaffold.createdPaths.length > 0) {
-      printInfo(`Notes scaffolded: ${notesScaffold.createdPaths.join(", ")}`);
+      printInfo(
+        `Notes scaffolded: ${notesScaffold.createdPaths.join(", ")}`,
+        io,
+      );
     }
     if (notesScaffold.updatedPaths.length > 0) {
-      printInfo(`Notes refreshed: ${notesScaffold.updatedPaths.join(", ")}`);
+      printInfo(`Notes refreshed: ${notesScaffold.updatedPaths.join(", ")}`, io);
     }
   }
 
@@ -305,7 +328,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
       makefileUpdated: makefileResult.updated,
       mcpCreated: mcpResult.created,
       mcpUpdated: mcpResult.updated,
-    });
+    }, io);
   }
   return 0;
 }

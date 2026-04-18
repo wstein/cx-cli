@@ -13,7 +13,12 @@ import {
   printSuccess,
   printTable,
 } from "../../shared/format.js";
-import { writeValidatedJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeStdout,
+  writeValidatedJson,
+} from "../../shared/output.js";
 import { RenderCommandJsonSchema } from "../jsonContracts.js";
 
 export interface RenderArgs {
@@ -27,7 +32,11 @@ export interface RenderArgs {
   json?: boolean | undefined;
 }
 
-export async function runRenderCommand(args: RenderArgs): Promise<number> {
+export async function runRenderCommand(
+  args: RenderArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const configPath = path.resolve(args.config);
   const config = await loadCxConfig(configPath);
   const plan = await buildBundlePlan(config);
@@ -127,7 +136,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
     });
 
     if (args.stdout && outputs.length === 1) {
-      process.stdout.write(result.content);
+      writeStdout(result.content, io);
     } else if (args.outputDir) {
       const outputPath = path.resolve(
         args.outputDir,
@@ -140,25 +149,26 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
 
   // Print colored summary if not in stdout mode and not JSON
   if (!(args.stdout && outputs.length === 1) && !(args.json ?? false)) {
-    printHeader("Render Complete");
+    printHeader("Render Complete", io);
     for (const output of outputs) {
       printTable([
         [`📄 ${output.section}`, ""],
         ["  Files", output.fileCount],
         ["  Size", formatBytes(output.sizeBytes)],
         ["  Tokens", formatNumber(output.tokenCount)],
-      ]);
+      ], io);
     }
     if (outputs.length > 0) {
-      printDivider();
+      printDivider(io);
       const totalSize = outputs.reduce((sum, o) => sum + o.sizeBytes, 0);
       const totalTokens = outputs.reduce((sum, o) => sum + o.tokenCount, 0);
       printTable([
         ["Total size", formatBytes(totalSize)],
         ["Total tokens", formatNumber(totalTokens)],
-      ]);
+      ], io);
       printSuccess(
         `Rendered ${outputs.length} section${outputs.length === 1 ? "" : "s"}`,
+        io,
       );
     }
   }
@@ -172,7 +182,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
         files: requestedFiles,
       },
       outputs,
-    });
+    }, io);
   }
 
   return 0;

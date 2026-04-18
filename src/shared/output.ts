@@ -34,6 +34,13 @@ export function writeStderr(text: string, io: Partial<CommandIo> = {}): void {
   resolveCommandIo(io).stderr.write(text);
 }
 
+export function writeLog(
+  ...params: [text: string, io?: Partial<CommandIo>]
+): void {
+  const [text, io = {}] = params;
+  resolveCommandIo(io).log(text);
+}
+
 export function writeJson(value: unknown, io: Partial<CommandIo> = {}): void {
   writeStdout(`${JSON.stringify(value, null, 2)}\n`, io);
 }

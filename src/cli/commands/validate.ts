@@ -8,7 +8,11 @@ import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import { printError, printInfo, printWarning } from "../../shared/format.js";
 import { summarizeManifest } from "../../shared/manifestSummary.js";
-import { writeValidatedJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeValidatedJson,
+} from "../../shared/output.js";
 import { ValidateCommandJsonSchema } from "../jsonContracts.js";
 
 export interface ValidateArgs {
@@ -16,7 +20,11 @@ export interface ValidateArgs {
   json?: boolean | undefined;
 }
 
-export async function runValidateCommand(args: ValidateArgs): Promise<number> {
+export async function runValidateCommand(
+  args: ValidateArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const bundleDir = path.resolve(args.bundleDir);
   const { manifestName } = await validateBundle(bundleDir);
 
@@ -24,18 +32,18 @@ export async function runValidateCommand(args: ValidateArgs): Promise<number> {
   const sourceRoot = path.dirname(bundleDir);
   const notesResult = await validateNotes("notes", sourceRoot);
 
-  if (!notesResult.valid) {
+    if (!notesResult.valid) {
     if (notesResult.errors.length > 0) {
-      printWarning("Note validation errors:");
+      printWarning("Note validation errors:", io);
       for (const error of notesResult.errors) {
-        printError(`  ${error.filePath}: ${error.error}`);
+        printError(`  ${error.filePath}: ${error.error}`, io);
       }
     }
 
     if (notesResult.duplicateIds.length > 0) {
-      printWarning("Duplicate note IDs detected:");
+      printWarning("Duplicate note IDs detected:", io);
       for (const { id, files } of notesResult.duplicateIds) {
-        printError(`  ID ${id}: ${files.join(", ")}`);
+        printError(`  ID ${id}: ${files.join(", ")}`, io);
       }
     }
 
@@ -57,10 +65,11 @@ export async function runValidateCommand(args: ValidateArgs): Promise<number> {
         count: notesResult.notes.length,
         valid: notesResult.valid,
       },
-    });
+    }, io);
   } else if (notesResult.notes.length > 0) {
     printInfo(
       `Note validation passed: ${notesResult.notes.length} notes found`,
+      io,
     );
   }
 
