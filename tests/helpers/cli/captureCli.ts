@@ -1,3 +1,5 @@
+import { parseJsonOutput } from "./parseJsonOutput.js";
+
 export interface CapturedCliResult<T = unknown> {
   exitCode: number;
   stdout: string;
@@ -18,12 +20,26 @@ export async function captureCli<T = unknown>(params: {
   const originalStderrWrite = process.stderr.write;
   const originalConsoleLog = console.log;
 
-  process.stdout.write = ((chunk: string | Uint8Array) => {
+  process.stdout.write = ((
+    chunk: string | Uint8Array,
+    encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+    callback?: (error?: Error | null) => void,
+  ) => {
     stdoutChunks.push(String(chunk));
+    const resolvedCallback =
+      typeof encodingOrCallback === "function" ? encodingOrCallback : callback;
+    resolvedCallback?.();
     return true;
   }) as typeof process.stdout.write;
-  process.stderr.write = ((chunk: string | Uint8Array) => {
+  process.stderr.write = ((
+    chunk: string | Uint8Array,
+    encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+    callback?: (error?: Error | null) => void,
+  ) => {
     stderrChunks.push(String(chunk));
+    const resolvedCallback =
+      typeof encodingOrCallback === "function" ? encodingOrCallback : callback;
+    resolvedCallback?.();
     return true;
   }) as typeof process.stderr.write;
 
@@ -42,7 +58,7 @@ export async function captureCli<T = unknown>(params: {
       stderr: stderrChunks.join(""),
       logs: logChunks.join("\n"),
       ...(params.parseJson
-        ? { parsedJson: JSON.parse(stdout || "{}") as T }
+        ? { parsedJson: parseJsonOutput<T>(stdout || "{}") }
         : {}),
     };
   } finally {

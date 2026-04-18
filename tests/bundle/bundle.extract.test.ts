@@ -5,6 +5,8 @@ import path from "node:path";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runListCommand } from "../../src/cli/commands/list.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import {
   createProject,
   expectExtractedFilesToMatchManifest,
@@ -15,23 +17,9 @@ describe("bundle extract", () => {
   test("emits filtered JSON for list and extract automation", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-filtered");
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(
-      await runListCommand({
-        bundleDir: project.bundleDir,
-        files: ["src/index.ts"],
-        json: true,
-        sections: ["src"],
-      }),
-    ).toBe(0);
-    const listPayload = JSON.parse(writes.pop() ?? "{}") as {
+    const listRun = await captureCli<{
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
       files?: Array<{
@@ -40,28 +28,40 @@ describe("bundle extract", () => {
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
-    };
+    }>({
+      run: () =>
+        runListCommand({
+          bundleDir: project.bundleDir,
+          files: ["src/index.ts"],
+          json: true,
+          sections: ["src"],
+        }),
+      parseJson: true,
+    });
+    expect(listRun.exitCode).toBe(0);
+    const listPayload = listRun.parsedJson;
 
-    expect(
-      await runExtractCommand({
-        bundleDir: project.bundleDir,
-        destinationDir: restoreDir,
-        sections: ["src"],
-        files: undefined,
-        assetsOnly: false,
-        overwrite: false,
-        verify: true,
-        json: true,
-      }),
-    ).toBe(0);
-    process.stdout.write = stdoutWrite;
-
-    const extractPayload = JSON.parse(writes.pop() ?? "{}") as {
+    const extractRun = await captureCli<{
       summary?: { fileCount?: number; textFileCount?: number };
       extractedSections?: string[];
       extractedFiles?: string[];
       selection?: { sections?: string[] };
-    };
+    }>({
+      run: () =>
+        runExtractCommand({
+          bundleDir: project.bundleDir,
+          destinationDir: restoreDir,
+          sections: ["src"],
+          files: undefined,
+          assetsOnly: false,
+          overwrite: false,
+          verify: true,
+          json: true,
+        }),
+      parseJson: true,
+    });
+    expect(extractRun.exitCode).toBe(0);
+    const extractPayload = extractRun.parsedJson;
 
     expect(listPayload.summary?.fileCount).toBe(1);
     expect(listPayload.summary?.sectionCount).toBe(1);
@@ -226,12 +226,6 @@ describe("bundle extract", () => {
   test("emits structured JSON failure payload for extract mismatches", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy-json");
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
@@ -240,21 +234,7 @@ describe("bundle extract", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    expect(
-      await runExtractCommand({
-        bundleDir: project.bundleDir,
-        destinationDir: restoreDir,
-        sections: undefined,
-        files: ["src/index.ts"],
-        assetsOnly: false,
-        overwrite: false,
-        verify: false,
-        json: true,
-      }),
-    ).toBe(8);
-
-    process.stdout.write = stdoutWrite;
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const extractRun = await captureCli<{
       valid?: boolean;
       error?: {
         type?: string;
@@ -270,7 +250,22 @@ describe("bundle extract", () => {
           actualSha256?: string;
         }>;
       };
-    };
+    }>({
+      run: () =>
+        runExtractCommand({
+          bundleDir: project.bundleDir,
+          destinationDir: restoreDir,
+          sections: undefined,
+          files: ["src/index.ts"],
+          assetsOnly: false,
+          overwrite: false,
+          verify: false,
+          json: true,
+        }),
+      parseJson: true,
+    });
+    expect(extractRun.exitCode).toBe(8);
+    const payload = extractRun.parsedJson;
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("extractability_mismatch");
@@ -286,12 +281,6 @@ describe("bundle extract", () => {
   test("surfaces checksum prefixes for long special paths", async () => {
     const project = await createProject({ includeSpecialChecksumFile: true });
     const restoreDir = path.join(project.root, "restored-special");
-    const writes: string[] = [];
-    const stderrWrite = process.stderr.write;
-    process.stderr.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stderr.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
@@ -300,9 +289,9 @@ describe("bundle extract", () => {
       "export const special = true;\n",
       "export const special = false;\n",
     );
-    try {
-      expect(
-        await runExtractCommand({
+    const extractRun = await captureCli({
+      run: () =>
+        runExtractCommand({
           bundleDir: project.bundleDir,
           destinationDir: restoreDir,
           sections: undefined,
@@ -311,24 +300,16 @@ describe("bundle extract", () => {
           overwrite: false,
           verify: false,
         }),
-      ).toBe(8);
-    } finally {
-      process.stderr.write = stderrWrite;
-    }
+    });
+    expect(extractRun.exitCode).toBe(8);
 
-    const output = writes.join("");
+    const output = extractRun.stderr;
     expect(output).toContain("src/special cases/checksum + edge.ts");
     expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
   });
 
   test("surfaces blocked extractability in list JSON before extraction", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
@@ -337,16 +318,16 @@ describe("bundle extract", () => {
       'export const demo = "================";\n',
       'export const demo = "tampered";\n',
     );
-    expect(
-      await runListCommand({
-        bundleDir: project.bundleDir,
-        files: ["src/index.ts"],
-        json: true,
-      }),
-    ).toBe(0);
-
-    process.stdout.write = stdoutWrite;
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const listRun = await captureCli({
+      run: () =>
+        runListCommand({
+          bundleDir: project.bundleDir,
+          files: ["src/index.ts"],
+          json: true,
+        }),
+    });
+    expect(listRun.exitCode).toBe(0);
+    const payload = parseJsonOutput<{
       files?: Array<{
         path?: string;
         status?: string;
@@ -357,7 +338,7 @@ describe("bundle extract", () => {
           actualSha256?: string;
         };
       }>;
-    };
+    }>(listRun.stdout);
 
     expect(payload.files?.[0]?.path).toBe("src/index.ts");
     expect(payload.files?.[0]?.status).toBe("degraded");

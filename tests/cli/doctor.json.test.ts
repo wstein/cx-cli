@@ -8,6 +8,8 @@ import { promisify } from "node:util";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
 import { buildBundlePlan } from "../../src/planning/buildPlan.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -185,41 +187,23 @@ exclude = []
   return { root, configPath };
 }
 
-function captureStdout(): { restore: () => void; output: () => string } {
-  const write = process.stdout.write;
-  let output = "";
-  process.stdout.write = ((chunk: string | Uint8Array) => {
-    output += String(chunk);
-    return true;
-  }) as typeof process.stdout.write;
-  return {
-    restore: () => {
-      process.stdout.write = write;
-    },
-    output: () => output,
-  };
-}
-
 describe("doctor JSON lane", () => {
   test("doctor overlaps reports conflicts as JSON", async () => {
     const project = await createOverlapProject();
-    const capture = captureStdout();
-    try {
-      await expect(
+    const result = await captureCli({
+      run: () =>
         main(["doctor", "overlaps", "--json", "--config", project.configPath]),
-      ).resolves.toBe(4);
-    } finally {
-      capture.restore();
-    }
+    });
+    expect(result.exitCode).toBe(4);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       conflictCount?: number;
       conflicts?: Array<{
         path: string;
         sections: string[];
         recommendedOwner: string;
       }>;
-    };
+    }>(result.stdout);
 
     expect(payload.conflictCount).toBe(1);
     expect(payload.conflicts?.[0]?.path).toBe("src/index.ts");
@@ -230,10 +214,8 @@ describe("doctor JSON lane", () => {
   test("doctor fix-overlaps --dry-run leaves cx.toml unchanged", async () => {
     const project = await createOverlapProject();
     const before = await fs.readFile(project.configPath, "utf8");
-    const capture = captureStdout();
-
-    try {
-      await expect(
+    const result = await captureCli({
+      run: () =>
         main([
           "doctor",
           "fix-overlaps",
@@ -242,18 +224,16 @@ describe("doctor JSON lane", () => {
           "--config",
           project.configPath,
         ]),
-      ).resolves.toBe(4);
-    } finally {
-      capture.restore();
-    }
+    });
+    expect(result.exitCode).toBe(4);
 
     const after = await fs.readFile(project.configPath, "utf8");
     expect(after).toBe(before);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       changed?: boolean;
       excludesBySection?: Record<string, string[]>;
-    };
+    }>(result.stdout);
     expect(payload.changed).toBe(false);
     expect(payload.excludesBySection).toEqual({ mixed: ["src/index.ts"] });
   });
@@ -277,23 +257,24 @@ describe("doctor JSON lane", () => {
     const project = await createMcpProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["doctor", "mcp", "--json", "--config", project.configPath]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () =>
+          main(["doctor", "mcp", "--json", "--config", project.configPath]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       resolvedConfigPath?: string;
       activeProfile?: string;
       filesInclude?: string[];
       filesExclude?: string[];
       sectionNames?: string[];
-    };
+    }>(result.stdout);
     expect(payload.resolvedConfigPath).toBe(project.mcpPath);
     expect(payload.activeProfile).toBe("cx-mcp.toml");
     expect(payload.filesInclude).toEqual(["src/generated/**", "dist/**"]);
@@ -308,21 +289,22 @@ describe("doctor JSON lane", () => {
     });
     const cwd = process.cwd();
     process.chdir(project.root);
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["doctor", "notes", "--json", "--config", project.configPath]),
-      ).resolves.toBe(4);
+      result = await captureCli({
+        run: () =>
+          main(["doctor", "notes", "--json", "--config", project.configPath]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(4);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       driftCount?: number;
       outsideMasterListCount?: number;
       drifts?: Array<{ path: string; status: string }>;
-    };
+    }>(result.stdout);
     expect(payload.driftCount).toBe(1);
     expect(payload.outsideMasterListCount).toBe(1);
     expect(payload.drifts?.[0]?.path).toBe("generated/client.ts");
@@ -336,19 +318,20 @@ describe("doctor JSON lane", () => {
     });
     const cwd = process.cwd();
     process.chdir(project.root);
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["doctor", "notes", "--json", "--config", project.configPath]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () =>
+          main(["doctor", "notes", "--json", "--config", project.configPath]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       driftCount?: number;
-    };
+    }>(result.stdout);
     expect(payload.driftCount).toBe(0);
   });
 
@@ -356,20 +339,21 @@ describe("doctor JSON lane", () => {
     const project = await createMcpProject({ includeSecret: true });
     const cwd = process.cwd();
     process.chdir(project.root);
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["doctor", "secrets", "--json", "--config", project.configPath]),
-      ).resolves.toBe(4);
+      result = await captureCli({
+        run: () =>
+          main(["doctor", "secrets", "--json", "--config", project.configPath]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(4);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       suspiciousCount?: number;
       suspiciousFiles?: Array<{ filePath: string; messages: string[] }>;
-    };
+    }>(result.stdout);
     expect(payload.suspiciousCount).toBe(1);
     expect(payload.suspiciousFiles?.[0]?.filePath).toBe("secrets.txt");
     expect(payload.suspiciousFiles?.[0]?.messages?.[0]).toContain(
@@ -378,9 +362,8 @@ describe("doctor JSON lane", () => {
   });
 
   test("doctor workflow emits JSON recommendations", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(
+    const result = await captureCli({
+      run: () =>
         main([
           "doctor",
           "workflow",
@@ -388,17 +371,15 @@ describe("doctor JSON lane", () => {
           "--task",
           "update notes during investigation",
         ]),
-      ).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
+    });
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       mode?: string;
       sequence?: string[];
       reason?: string;
       signals?: string[];
-    };
+    }>(result.stdout);
     expect(payload.mode).toBe("mcp");
     expect(payload.reason).toContain("live MCP workspace");
     expect(payload.signals).toContain("mcp");

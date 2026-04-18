@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { captureCli } from "../helpers/cli/captureCli.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -65,26 +66,6 @@ include = ["src/**"]
   return { root, configPath };
 }
 
-function captureStdout(): { restore: () => void; output: () => string } {
-  const write = process.stdout.write;
-  const log = console.log;
-  let output = "";
-  process.stdout.write = ((chunk: string | Uint8Array) => {
-    output += String(chunk);
-    return true;
-  }) as typeof process.stdout.write;
-  console.log = ((...args: unknown[]) => {
-    output += `${args.map((value) => String(value)).join(" ")}\n`;
-  }) as typeof console.log;
-  return {
-    restore: () => {
-      process.stdout.write = write;
-      console.log = log;
-    },
-    output: () => output,
-  };
-}
-
 function installInquirerMock(owner: string): {
   selectMock: ReturnType<typeof mock>;
 } {
@@ -114,33 +95,37 @@ describe("runDoctorCommand coverage helpers", () => {
     });
     process.chdir(project.root);
 
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
       const { main } = await import("../../src/cli/main.js");
-      await expect(
-        main([
-          "doctor",
-          "fix-overlaps",
-          "--interactive",
-          "--config",
-          project.configPath,
-        ]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () =>
+          main([
+            "doctor",
+            "fix-overlaps",
+            "--interactive",
+            "--config",
+            project.configPath,
+          ]),
+        captureConsoleLog: true,
+      });
     } finally {
-      capture.restore();
       Object.defineProperty(process.stdin, "isTTY", {
         configurable: true,
         value: originalIsTTY,
       });
       process.chdir(originalCwd);
     }
+    expect(result.exitCode).toBe(0);
 
     const updatedConfig = await fs.readFile(project.configPath, "utf8");
     expect(updatedConfig).toContain(
       '[sections.src]\ninclude = ["src/**"]\nexclude = ["src/index.ts"]',
     );
-    expect(capture.output()).toContain("Overlap Resolution");
-    expect(capture.output()).toContain("Overlap resolution complete");
+    expect(`${result.logs}\n${result.stdout}`).toContain("Overlap Resolution");
+    expect(`${result.logs}\n${result.stdout}`).toContain(
+      "Overlap resolution complete",
+    );
     expect(selectMock).toHaveBeenCalledTimes(1);
     expect(String(selectMock.mock.calls[0]?.[0]?.message)).toContain(
       "Which section should own src/index.ts?",

@@ -4,27 +4,13 @@ import os from "node:os";
 import path from "node:path";
 import { main } from "../../src/cli/main.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
-
-function captureStdout(): { restore: () => void; output: () => string } {
-  const write = process.stdout.write;
-  let output = "";
-  process.stdout.write = ((chunk: string | Uint8Array) => {
-    output += String(chunk);
-    return true;
-  }) as typeof process.stdout.write;
-  return {
-    restore: () => {
-      process.stdout.write = write;
-    },
-    output: () => output,
-  };
-}
+import { captureCli } from "../helpers/cli/captureCli.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 describe("main JSON lane", () => {
   test("supports init JSON output", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(
+    const result = await captureCli({
+      run: () =>
         main([
           "init",
           "--stdout",
@@ -34,16 +20,14 @@ describe("main JSON lane", () => {
           "--style",
           "json",
         ]),
-      ).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
+    });
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       projectName?: string;
       style?: string;
       config?: string;
-    };
+    }>(result.stdout);
     expect(payload.projectName).toBe("demo");
     expect(payload.style).toBe("json");
     expect(payload.config).toContain('project_name = "demo"');
@@ -86,17 +70,17 @@ exclude = []
     process.chdir(root);
     await expect(main(["bundle"])).resolves.toBe(0);
 
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["validate", "dist/demo-bundle", "--json"]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () => main(["validate", "dist/demo-bundle", "--json"]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       valid?: boolean;
       checksumFile?: string;
       schemaVersion?: number;
@@ -106,7 +90,7 @@ exclude = []
         sectionCount?: number;
         fileCount?: number;
       };
-    };
+    }>(result.stdout);
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");
     expect(payload.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
@@ -161,28 +145,29 @@ exclude = []
     process.chdir(root);
     await expect(main(["bundle"])).resolves.toBe(0);
 
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main([
-          "list",
-          "dist/demo-bundle",
-          "--json",
-          "--section",
-          "src",
-          "--file",
-          "src/index.ts",
-        ]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () =>
+          main([
+            "list",
+            "dist/demo-bundle",
+            "--json",
+            "--section",
+            "src",
+            "--file",
+            "src/index.ts",
+          ]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const payload = JSON.parse(capture.output()) as {
+    const payload = parseJsonOutput<{
       summary?: { fileCount?: number; sectionCount?: number };
       selection?: { sections?: string[]; files?: string[] };
-    };
+    }>(result.stdout);
     expect(payload.summary?.fileCount).toBe(1);
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.selection?.sections).toEqual(["src"]);
@@ -239,43 +224,31 @@ exclude = []
     );
 
     const cwd = process.cwd();
-    const stdoutWrite = process.stdout.write;
-    let stdout = "";
     process.chdir(root);
-    process.stdout.write = ((
-      chunk: string | Uint8Array,
-      _encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
-      callback?: (error?: Error | null) => void,
-    ) => {
-      const cb =
-        typeof _encodingOrCallback === "function"
-          ? _encodingOrCallback
-          : callback;
-      stdout += String(chunk);
-      cb?.();
-      return true;
-    }) as typeof process.stdout.write;
 
     try {
       await expect(
         main(["bundle", "--config", path.join(root, "cx.toml")]),
       ).resolves.toBe(0);
 
-      stdout = "";
-      await expect(main(["completion", "--shell", "bash"])).resolves.toBe(0);
-      expect(stdout).toContain("###-begin-cx-completions-###");
+      const completionRun = await captureCli({
+        run: () => main(["completion", "--shell", "bash"]),
+      });
+      expect(completionRun.exitCode).toBe(0);
+      expect(completionRun.stdout).toContain("###-begin-cx-completions-###");
 
-      stdout = "";
-      await expect(
-        main([
-          "config",
-          "show-effective",
-          "--config",
-          path.join(root, "cx.toml"),
-          "--json",
-        ]),
-      ).resolves.toBe(0);
-      expect(JSON.parse(stdout)).toMatchObject({
+      const configRun = await captureCli({
+        run: () =>
+          main([
+            "config",
+            "show-effective",
+            "--config",
+            path.join(root, "cx.toml"),
+            "--json",
+          ]),
+      });
+      expect(configRun.exitCode).toBe(0);
+      expect(parseJsonOutput(configRun.stdout)).toMatchObject({
         configFile: path.join(root, "cx.toml"),
         cxStrict: false,
         cliMode: null,
@@ -292,38 +265,40 @@ exclude = []
         },
       });
 
-      stdout = "";
-      await expect(
-        main([
-          "adapter",
-          "capabilities",
-          "--config",
-          path.join(root, "cx.toml"),
-          "--json",
-        ]),
-      ).resolves.toBe(0);
-      expect(JSON.parse(stdout)).toMatchObject({
+      const adapterRun = await captureCli({
+        run: () =>
+          main([
+            "adapter",
+            "capabilities",
+            "--config",
+            path.join(root, "cx.toml"),
+            "--json",
+          ]),
+      });
+      expect(adapterRun.exitCode).toBe(0);
+      expect(parseJsonOutput(adapterRun.stdout)).toMatchObject({
         cx: { version: expect.any(String) },
       });
 
-      stdout = "";
-      await expect(
-        main([
-          "render",
-          "--config",
-          path.join(root, "cx.toml"),
-          "--section",
-          "src",
-          "--stdout",
-        ]),
-      ).resolves.toBe(0);
-      expect(stdout).toContain("index.ts");
+      const renderRun = await captureCli({
+        run: () =>
+          main([
+            "render",
+            "--config",
+            path.join(root, "cx.toml"),
+            "--section",
+            "src",
+            "--stdout",
+          ]),
+      });
+      expect(renderRun.exitCode).toBe(0);
+      expect(renderRun.stdout).toContain("index.ts");
 
-      stdout = "";
-      await expect(
-        main(["validate", path.join(root, "dist", "demo-bundle")]),
-      ).resolves.toBe(0);
-      expect(stdout).toBe("");
+      const validateRun = await captureCli({
+        run: () => main(["validate", path.join(root, "dist", "demo-bundle")]),
+      });
+      expect(validateRun.exitCode).toBe(0);
+      expect(validateRun.stdout).toBe("");
 
       await expect(
         main(["verify", path.join(root, "dist", "demo-bundle")]),
@@ -342,7 +317,6 @@ exclude = []
 
       await expect(main(["notes", "list"])).resolves.toBe(0);
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
   });

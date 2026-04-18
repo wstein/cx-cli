@@ -12,6 +12,7 @@ import { runVerifyCommand } from "../../src/cli/commands/verify.js";
 import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { sha256File } from "../../src/shared/hashing.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { createProject, tamperSectionOutput } from "./helpers.js";
 
 describe("bundle workflow", () => {
@@ -59,18 +60,13 @@ describe("bundle workflow", () => {
 
   test("emits structured JSON for list and inspect automation", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(
-      await runInspectCommand({ config: project.configPath, json: true }),
-    ).toBe(0);
-    const inspectPayload = JSON.parse(writes.pop() ?? "{}") as {
+    const inspectRun = await captureCli({
+      run: () => runInspectCommand({ config: project.configPath, json: true }),
+    });
+    expect(inspectRun.exitCode).toBe(0);
+    const inspectPayload = parseJsonOutput<{
       summary?: { sectionCount?: number; assetCount?: number };
       bundleComparison?: { available?: boolean };
       sections?: Array<{
@@ -79,13 +75,13 @@ describe("bundle workflow", () => {
           extractability?: { status?: string } | null;
         }>;
       }>;
-    };
+    }>(inspectRun.stdout);
 
-    expect(
-      await runListCommand({ bundleDir: project.bundleDir, json: true }),
-    ).toBe(0);
-    process.stdout.write = stdoutWrite;
-    const listPayload = JSON.parse(writes.pop() ?? "{}") as {
+    const listRun = await captureCli({
+      run: () => runListCommand({ bundleDir: project.bundleDir, json: true }),
+    });
+    expect(listRun.exitCode).toBe(0);
+    const listPayload = parseJsonOutput<{
       summary?: { fileCount?: number; textFileCount?: number };
       repomix?: { spanCapability?: string };
       sections?: Array<{ name: string }>;
@@ -95,7 +91,7 @@ describe("bundle workflow", () => {
         mtime?: string;
         extractability?: { status?: string; reason?: string };
       }>;
-    };
+    }>(listRun.stdout);
 
     expect(inspectPayload.summary?.sectionCount).toBe(2);
     expect(inspectPayload.summary?.assetCount).toBe(1);
@@ -128,29 +124,19 @@ describe("bundle workflow", () => {
 
   test("includes checksum prefixes in inspect JSON for degraded files", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
+    );
+    const inspectRun = await captureCli({
+      run: () => runInspectCommand({ config: project.configPath, json: true }),
+    });
+    expect(inspectRun.exitCode).toBe(0);
 
-    try {
-      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-      await tamperSectionOutput(
-        project.bundleDir,
-        "src",
-        'export const demo = "================";\n',
-        'export const demo = "tampered";\n',
-      );
-      expect(
-        await runInspectCommand({ config: project.configPath, json: true }),
-      ).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
-
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const payload = parseJsonOutput<{
       sections?: Array<{
         files?: Array<{
           relativePath?: string;
@@ -162,7 +148,7 @@ describe("bundle workflow", () => {
           } | null;
         }>;
       }>;
-    };
+    }>(inspectRun.stdout);
 
     const degradedFile = payload.sections
       ?.flatMap((section) => section.files ?? [])
@@ -176,20 +162,13 @@ describe("bundle workflow", () => {
 
   test("renders human inspect output with bundle status vocabulary", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(
-      await runInspectCommand({ config: project.configPath, json: false }),
-    ).toBe(0);
-
-    process.stdout.write = stdoutWrite;
-    const output = writes.join("");
+    const inspectRun = await captureCli({
+      run: () => runInspectCommand({ config: project.configPath, json: false }),
+    });
+    expect(inspectRun.exitCode).toBe(0);
+    const output = inspectRun.stdout;
     expect(output).toContain("bundle_status: available");
     expect(output).toContain("workflow: static snapshot planning");
     expect(output).toContain("mcp: use cx mcp for live workspace exploration");
@@ -199,55 +178,34 @@ describe("bundle workflow", () => {
 
   test("shows checksum prefixes in degraded inspect output", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-      await tamperSectionOutput(
-        project.bundleDir,
-        "src",
-        'export const demo = "================";\n',
-        'export const demo = "tampered";\n',
-      );
-      expect(
-        await runInspectCommand({ config: project.configPath, json: false }),
-      ).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
-
-    const output = writes.join("");
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await tamperSectionOutput(
+      project.bundleDir,
+      "src",
+      'export const demo = "================";\n',
+      'export const demo = "tampered";\n',
+    );
+    const inspectRun = await captureCli({
+      run: () => runInspectCommand({ config: project.configPath, json: false }),
+    });
+    expect(inspectRun.exitCode).toBe(0);
+    const output = inspectRun.stdout;
     expect(output).toContain("manifest_hash_mismatch");
     expect(output).toMatch(/expected [a-f0-9]{8}… got [a-f0-9]{8}…/);
   });
 
   test("renders token breakdown histogram when requested", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      expect(
-        await runInspectCommand({
+    const inspectRun = await captureCli({
+      run: () =>
+        runInspectCommand({
           config: project.configPath,
           json: false,
           tokenBreakdown: true,
         }),
-      ).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
-
-    const output = writes.join("");
+    });
+    expect(inspectRun.exitCode).toBe(0);
+    const output = inspectRun.stdout;
     expect(output).toContain("Token breakdown");
     expect(output).toContain("SECTION  TOKENS   SHARE   GRAPH");
     expect(output).toContain("docs");
@@ -257,41 +215,36 @@ describe("bundle workflow", () => {
 
   test("emits structured JSON for bundle and verify automation", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
-    expect(
-      await runBundleCommand({ config: project.configPath, json: true }),
-    ).toBe(0);
-    const bundlePayload = JSON.parse(writes.pop() ?? "{}") as {
+    const bundleRun = await captureCli({
+      run: () => runBundleCommand({ config: project.configPath, json: true }),
+    });
+    expect(bundleRun.exitCode).toBe(0);
+    const bundlePayload = parseJsonOutput<{
       checksumFile?: string;
       repomix?: {
         adapterContract?: string;
         compatibilityStrategy?: string;
         packageVersion?: string;
       };
-    };
+    }>(bundleRun.stdout);
 
-    expect(
-      await runVerifyCommand({
-        bundleDir: project.bundleDir,
-        againstDir: project.root,
-        files: ["src/index.ts"],
-        json: true,
-        sections: undefined,
-      }),
-    ).toBe(0);
-    process.stdout.write = stdoutWrite;
+    const verifyRun = await captureCli({
+      run: () =>
+        runVerifyCommand({
+          bundleDir: project.bundleDir,
+          againstDir: project.root,
+          files: ["src/index.ts"],
+          json: true,
+          sections: undefined,
+        }),
+    });
+    expect(verifyRun.exitCode).toBe(0);
 
-    const verifyPayload = JSON.parse(writes.pop() ?? "{}") as {
+    const verifyPayload = parseJsonOutput<{
       valid?: boolean;
       files?: string[];
       repomix?: { spanCapabilityReason?: string };
-    };
+    }>(verifyRun.stdout);
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
@@ -310,12 +263,6 @@ describe("bundle workflow", () => {
 
   test("emits structured JSON failure payload for checksum omission", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     const checksumPath = path.join(project.bundleDir, "demo.sha256");
@@ -328,12 +275,12 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    expect(
-      await runVerifyCommand({ bundleDir: project.bundleDir, json: true }),
-    ).toBe(10);
-    process.stdout.write = stdoutWrite;
+    const verifyRun = await captureCli({
+      run: () => runVerifyCommand({ bundleDir: project.bundleDir, json: true }),
+    });
+    expect(verifyRun.exitCode).toBe(10);
 
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const payload = parseJsonOutput<{
       valid?: boolean;
       error?: {
         type?: string;
@@ -345,7 +292,7 @@ describe("bundle workflow", () => {
           nextSteps?: string[];
         } | null;
       };
-    };
+    }>(verifyRun.stdout);
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("checksum_omission");
@@ -360,12 +307,6 @@ describe("bundle workflow", () => {
 
   test("emits structured JSON failure payload for source-tree drift", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
     await fs.writeFile(
@@ -374,16 +315,17 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    expect(
-      await runVerifyCommand({
-        bundleDir: project.bundleDir,
-        againstDir: project.root,
-        json: true,
-      }),
-    ).toBe(10);
-    process.stdout.write = stdoutWrite;
+    const verifyRun = await captureCli({
+      run: () =>
+        runVerifyCommand({
+          bundleDir: project.bundleDir,
+          againstDir: project.root,
+          json: true,
+        }),
+    });
+    expect(verifyRun.exitCode).toBe(10);
 
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const payload = parseJsonOutput<{
       valid?: boolean;
       error?: {
         type?: string;
@@ -395,7 +337,7 @@ describe("bundle workflow", () => {
           nextSteps?: string[];
         } | null;
       };
-    };
+    }>(verifyRun.stdout);
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("source_tree_drift");
@@ -410,20 +352,15 @@ describe("bundle workflow", () => {
 
   test("emits detailed JSON for validate automation", async () => {
     const project = await createProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
 
     expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    expect(
-      await runValidateCommand({ bundleDir: project.bundleDir, json: true }),
-    ).toBe(0);
-    process.stdout.write = stdoutWrite;
+    const validateRun = await captureCli({
+      run: () =>
+        runValidateCommand({ bundleDir: project.bundleDir, json: true }),
+    });
+    expect(validateRun.exitCode).toBe(0);
 
-    const payload = JSON.parse(writes.pop() ?? "{}") as {
+    const payload = parseJsonOutput<{
       valid?: boolean;
       checksumFile?: string;
       schemaVersion?: number;
@@ -433,7 +370,7 @@ describe("bundle workflow", () => {
         sectionCount?: number;
         fileCount?: number;
       };
-    };
+    }>(validateRun.stdout);
 
     expect(payload.valid).toBe(true);
     expect(payload.checksumFile).toBe("demo.sha256");

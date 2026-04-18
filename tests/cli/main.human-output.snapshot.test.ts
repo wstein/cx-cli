@@ -2,33 +2,17 @@ import { describe, expect, test } from "bun:test";
 import path from "node:path";
 import packageJson from "../../package.json" with { type: "json" };
 import { main } from "../../src/cli/main.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 
-function captureStdout(): { restore: () => void; output: () => string } {
-  const write = process.stdout.write;
-  let output = "";
-  process.stdout.write = ((chunk: string | Uint8Array) => {
-    output += String(chunk);
-    return true;
-  }) as typeof process.stdout.write;
-  return {
-    restore: () => {
-      process.stdout.write = write;
-    },
-    output: () => output,
-  };
-}
-
 describe("main human snapshot lane", () => {
   test("top-level help snapshot", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(main([])).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
-    const scrubbed = scrubTextSnapshot(capture.output(), {
+    const result = await captureCli({
+      run: () => main([]),
+    });
+    expect(result.exitCode).toBe(0);
+    const scrubbed = scrubTextSnapshot(result.stdout, {
       stripVersions: true,
     });
     await assertTextSnapshot({
@@ -41,13 +25,11 @@ describe("main human snapshot lane", () => {
   });
 
   test("init stdout snapshot", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(main(["init", "--stdout"])).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
-    const scrubbed = scrubTextSnapshot(capture.output());
+    const result = await captureCli({
+      run: () => main(["init", "--stdout"]),
+    });
+    expect(result.exitCode).toBe(0);
+    const scrubbed = scrubTextSnapshot(result.stdout);
     await assertTextSnapshot({
       snapshotPath: path.join(
         process.cwd(),
@@ -58,12 +40,10 @@ describe("main human snapshot lane", () => {
   });
 
   test("prints CLI version", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(main(["--version"])).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
-    expect(capture.output().trim()).toBe(packageJson.version);
+    const result = await captureCli({
+      run: () => main(["--version"]),
+    });
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.trim()).toBe(packageJson.version);
   });
 });

@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { main } from "../../src/cli/main.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 
@@ -60,37 +61,22 @@ exclude = []
   return { root, configPath };
 }
 
-function captureStdout(): { restore: () => void; output: () => string } {
-  const write = process.stdout.write;
-  let output = "";
-  process.stdout.write = ((chunk: string | Uint8Array) => {
-    output += String(chunk);
-    return true;
-  }) as typeof process.stdout.write;
-  return {
-    restore: () => {
-      process.stdout.write = write;
-    },
-    output: () => output,
-  };
-}
-
 describe("doctor human snapshot lane", () => {
   test("doctor --all human output snapshot", async () => {
     const project = await createMcpProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    const capture = captureStdout();
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      await expect(
-        main(["doctor", "--all", "--config", project.configPath]),
-      ).resolves.toBe(0);
+      result = await captureCli({
+        run: () => main(["doctor", "--all", "--config", project.configPath]),
+      });
     } finally {
-      capture.restore();
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const scrubbed = scrubTextSnapshot(capture.output(), {
+    const scrubbed = scrubTextSnapshot(result.stdout, {
       rootDir: project.root,
       stripVersions: true,
     });
@@ -105,21 +91,18 @@ describe("doctor human snapshot lane", () => {
   });
 
   test("doctor workflow mixed human output snapshot", async () => {
-    const capture = captureStdout();
-    try {
-      await expect(
+    const result = await captureCli({
+      run: () =>
         main([
           "doctor",
           "workflow",
           "--task",
           "inspect the plan, bundle a handoff snapshot, and update notes in MCP",
         ]),
-      ).resolves.toBe(0);
-    } finally {
-      capture.restore();
-    }
+    });
+    expect(result.exitCode).toBe(0);
 
-    const scrubbed = scrubTextSnapshot(capture.output());
+    const scrubbed = scrubTextSnapshot(result.stdout);
     await assertTextSnapshot({
       snapshotPath: path.join(
         process.cwd(),

@@ -5,6 +5,8 @@ import path from "node:path";
 
 import { runAdapterCommand } from "../../src/cli/commands/adapter.js";
 import { runRenderCommand } from "../../src/cli/commands/render.js";
+import { captureCli } from "../helpers/cli/captureCli.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 async function createRenderTestProject(): Promise<{
   root: string;
@@ -65,29 +67,24 @@ exclude = []
 describe("render command", () => {
   test("renders a single section to stdout", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runRenderCommand({
-          config: project.configPath,
-          sections: ["src"],
-          stdout: true,
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runRenderCommand({
+            config: project.configPath,
+            sections: ["src"],
+            stdout: true,
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("cx section handover");
     expect(output).toContain("<file");
     expect(output).toContain("index.ts");
@@ -118,60 +115,49 @@ describe("render command", () => {
 
   test("renders with style override", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runRenderCommand({
-          config: project.configPath,
-          sections: ["src"],
-          style: "markdown",
-          stdout: true,
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runRenderCommand({
+            config: project.configPath,
+            sections: ["src"],
+            style: "markdown",
+            stdout: true,
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("index.ts");
     expect(output).not.toContain("<file");
   });
 
   test("emits JSON metadata for multiple sections", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runRenderCommand({
-          config: project.configPath,
-          allSections: true,
-          json: true,
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runRenderCommand({
+            config: project.configPath,
+            allSections: true,
+            json: true,
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
-    const payload = JSON.parse(output) as {
+    const payload = parseJsonOutput<{
       projectName?: string;
       selection?: { sections?: string[] };
       outputs?: Array<{
@@ -179,7 +165,7 @@ describe("render command", () => {
         fileCount: number;
         tokenCount: number;
       }>;
-    };
+    }>(result.stdout);
 
     expect(payload.projectName).toBe("demo");
     expect(payload.selection?.sections?.sort()).toEqual(["docs", "src"]);
@@ -222,82 +208,58 @@ describe("render command", () => {
 
   test("renders by specific file selection", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runRenderCommand({
-          config: project.configPath,
-          files: ["src/index.ts"],
-          stdout: true,
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runRenderCommand({
+            config: project.configPath,
+            files: ["src/index.ts"],
+            stdout: true,
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("index.ts");
   });
 });
 
 describe("adapter command", () => {
   test("adapter capabilities shows runtime info", async () => {
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      expect(
-        await runAdapterCommand({
+    const result = await captureCli({
+      run: () =>
+        runAdapterCommand({
           subcommand: "capabilities",
         }),
-      ).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
+    });
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("cx version");
     expect(output).toContain("Repomix version");
     expect(output).toContain("xml");
   });
 
   test("adapter capabilities emits JSON", async () => {
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
-    try {
-      expect(
-        await runAdapterCommand({
+    const result = await captureCli({
+      run: () =>
+        runAdapterCommand({
           subcommand: "capabilities",
           json: true,
         }),
-      ).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
+    });
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
-    const payload = JSON.parse(output) as {
+    const payload = parseJsonOutput<{
       cx?: { version?: string };
       capabilities?: { styles?: string[] };
-    };
+    }>(result.stdout);
 
     expect(payload.cx?.version).toBeDefined();
     expect(payload.capabilities?.styles).toContain("xml");
@@ -321,112 +283,85 @@ describe("adapter command", () => {
 
   test("adapter inspect shows section details", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runAdapterCommand({
-          config: project.configPath,
-          subcommand: "inspect",
-          sections: ["src"],
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runAdapterCommand({
+            config: project.configPath,
+            subcommand: "inspect",
+            sections: ["src"],
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("Section: src");
     expect(output).toContain("index.ts");
   });
 
   test("adapter inspect emits JSON with files", async () => {
     const project = await createRenderTestProject();
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
-
     const cwd = process.cwd();
     process.chdir(project.root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
     try {
-      expect(
-        await runAdapterCommand({
-          config: project.configPath,
-          subcommand: "inspect",
-          sections: ["src"],
-          json: true,
-        }),
-      ).toBe(0);
+      result = await captureCli({
+        run: () =>
+          runAdapterCommand({
+            config: project.configPath,
+            subcommand: "inspect",
+            sections: ["src"],
+            json: true,
+          }),
+      });
     } finally {
-      process.stdout.write = stdoutWrite;
       process.chdir(cwd);
     }
+    expect(result.exitCode).toBe(0);
 
-    const output = writes.join("");
-    const payload = JSON.parse(output) as {
+    const payload = parseJsonOutput<{
       sections?: Array<{ name: string; files?: string[] }>;
-    };
+    }>(result.stdout);
 
     expect(payload.sections?.[0]?.name).toBe("src");
     expect(payload.sections?.[0]?.files).toContain("src/index.ts");
   });
 
   test("adapter doctor runs checks", async () => {
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
+    const result = await captureCli({
+      run: () =>
+        runAdapterCommand({
+          subcommand: "doctor",
+        }),
+    });
+    expect(result.exitCode).toBe(0);
 
-    try {
-      const result = await runAdapterCommand({
-        subcommand: "doctor",
-      });
-      expect(result).toBe(0);
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
-
-    const output = writes.join("");
+    const output = result.stdout;
     expect(output).toContain("available");
     expect(output).toContain("Adapter contract");
     expect(output).toContain("All checks passed");
   });
 
   test("adapter doctor emits JSON results", async () => {
-    const writes: string[] = [];
-    const stdoutWrite = process.stdout.write;
-    process.stdout.write = ((chunk: string | Uint8Array) => {
-      writes.push(String(chunk));
-      return true;
-    }) as typeof process.stdout.write;
+    const result = await captureCli({
+      run: () =>
+        runAdapterCommand({
+          subcommand: "doctor",
+          json: true,
+        }),
+    });
+    expect(result.exitCode).toBe(0);
 
-    try {
-      await runAdapterCommand({
-        subcommand: "doctor",
-        json: true,
-      });
-    } finally {
-      process.stdout.write = stdoutWrite;
-    }
-
-    const output = writes.join("");
-    const payload = JSON.parse(output) as {
+    const payload = parseJsonOutput<{
       passed?: boolean;
       checks?: Array<{ name: string; passed: boolean }>;
-    };
+    }>(result.stdout);
 
     expect(payload.passed).toBe(true);
     expect(payload.checks?.length).toBeGreaterThan(0);
