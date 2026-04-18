@@ -1,0 +1,462 @@
+import { z } from "zod";
+
+const ProvenanceSchema = z.enum([
+  "section_match",
+  "catch_all_section_match",
+  "asset_rule_match",
+  "linked_note_enrichment",
+  "manifest_note_inclusion",
+]);
+
+const RepomixCapabilitiesSchema = z.object({
+  packageName: z.string(),
+  packageVersion: z.string(),
+  capabilities: z.object({
+    hasMergeConfigs: z.boolean(),
+    hasPack: z.boolean(),
+    supportsPackStructured: z.boolean(),
+    supportsRenderWithMap: z.boolean(),
+  }),
+  contractValid: z.boolean(),
+  contractErrors: z.array(z.string()),
+  adapterContract: z.string(),
+  compatibilityStrategy: z.string(),
+  spanCapability: z.enum(["supported", "unsupported", "partial"]),
+  spanCapabilityReason: z.string(),
+});
+
+const ManifestSummarySchema = z.object({
+  manifestName: z.string(),
+  projectName: z.string(),
+  sectionCount: z.number().int().nonnegative(),
+  assetCount: z.number().int().nonnegative(),
+  fileCount: z.number().int().nonnegative(),
+  textFileCount: z.number().int().nonnegative(),
+  assetFileCount: z.number().int().nonnegative(),
+});
+
+const ExtractabilitySchema = z.object({
+  status: z.string(),
+  reason: z.string(),
+  message: z.string(),
+  expectedSha256: z.string().optional(),
+  actualSha256: z.string().optional(),
+});
+
+const InspectFileSchema = z.object({
+  relativePath: z.string(),
+  absolutePath: z.string(),
+  sizeBytes: z.number().nonnegative(),
+  mediaType: z.string().optional(),
+  provenance: z.array(ProvenanceSchema),
+  extractability: ExtractabilitySchema.nullable(),
+});
+
+const InspectAssetSchema = z.object({
+  relativePath: z.string(),
+  absolutePath: z.string(),
+  storedPath: z.string(),
+  sizeBytes: z.number().nonnegative(),
+  provenance: z.array(ProvenanceSchema),
+  extractability: ExtractabilitySchema.nullable(),
+});
+
+export const InspectReportJsonSchema = z.object({
+  summary: z.object({
+    projectName: z.string(),
+    sourceRoot: z.string(),
+    bundleDir: z.string(),
+    sectionCount: z.number().int().nonnegative(),
+    assetCount: z.number().int().nonnegative(),
+    unmatchedCount: z.number().int().nonnegative(),
+    textFileCount: z.number().int().nonnegative(),
+  }),
+  repomix: RepomixCapabilitiesSchema,
+  bundleComparison: z.union([
+    z.object({
+      available: z.literal(true),
+      bundleDir: z.string(),
+      manifestName: z.string(),
+    }),
+    z.object({
+      available: z.literal(false),
+      bundleDir: z.string(),
+      reason: z.string(),
+    }),
+  ]),
+  tokenBreakdown: z
+    .object({
+      totalTokenCount: z.number().int().nonnegative(),
+      sections: z.array(
+        z.object({
+          name: z.string(),
+          fileCount: z.number().int().nonnegative(),
+          tokenCount: z.number().int().nonnegative(),
+          share: z.number().nonnegative(),
+          bar: z.string(),
+        }),
+      ),
+    })
+    .optional(),
+  sections: z.array(
+    z.object({
+      name: z.string(),
+      style: z.string(),
+      outputFile: z.string(),
+      files: z.array(InspectFileSchema),
+    }),
+  ),
+  assets: z.array(InspectAssetSchema),
+  unmatchedFiles: z.array(z.string()),
+  warnings: z.array(z.string()),
+});
+
+export const BundleCommandJsonSchema = z.object({
+  projectName: z.string(),
+  bundleDir: z.string(),
+  manifestName: z.string(),
+  checksumFile: z.string(),
+  bundleIndexFile: z.string(),
+  sections: z.array(
+    z.object({
+      name: z.string(),
+      style: z.string(),
+      outputFile: z.string(),
+      outputSha256: z.string(),
+      fileCount: z.number().int().nonnegative(),
+      sizeBytes: z.number().nonnegative(),
+      tokenCount: z.number().int().nonnegative(),
+      outputTokenCount: z.number().int().nonnegative(),
+    }),
+  ),
+  sectionCount: z.number().int().nonnegative(),
+  assetCount: z.number().int().nonnegative(),
+  unmatchedCount: z.number().int().nonnegative(),
+  dirtyState: z.enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"]),
+  dirtyStateNote: z.string(),
+  statistics: z.object({
+    totalSectionBytes: z.number().nonnegative(),
+    totalAssetBytes: z.number().nonnegative(),
+    totalBytes: z.number().nonnegative(),
+    totalPackedTokens: z.number().int().nonnegative(),
+    totalOutputTokens: z.number().int().nonnegative(),
+  }),
+  warnings: z.array(z.string()),
+  repomix: RepomixCapabilitiesSchema,
+});
+
+export const ListCommandJsonSchema = z.object({
+  summary: ManifestSummarySchema,
+  repomix: RepomixCapabilitiesSchema,
+  settings: z.record(z.string(), z.unknown()),
+  display: z.record(z.string(), z.unknown()),
+  selection: z.object({
+    sections: z.array(z.string()),
+    files: z.array(z.string()),
+  }),
+  sections: z.array(
+    z.object({
+      name: z.string(),
+      outputFile: z.string(),
+      outputSha256: z.string(),
+      style: z.string(),
+      fileCount: z.number().int().nonnegative(),
+      tokenCount: z.number().int().nonnegative(),
+      files: z.array(
+        z.object({
+          path: z.string(),
+          kind: z.string(),
+          section: z.string(),
+          storedIn: z.string(),
+          sha256: z.string(),
+          sizeBytes: z.number().nonnegative(),
+          tokenCount: z.number().int().nonnegative(),
+          mtime: z.string(),
+          mediaType: z.string(),
+          outputStartLine: z.number().int().nullable(),
+          outputEndLine: z.number().int().nullable(),
+          provenance: z.array(ProvenanceSchema).optional(),
+        }),
+      ),
+    }),
+  ),
+  assets: z.array(
+    z.object({
+      sourcePath: z.string(),
+      storedPath: z.string(),
+      sha256: z.string(),
+      sizeBytes: z.number().nonnegative(),
+      mtime: z.string(),
+      mediaType: z.string(),
+      provenance: z.array(ProvenanceSchema).optional(),
+    }),
+  ),
+  files: z.array(
+    z.object({
+      path: z.string(),
+      section: z.string(),
+      bytes: z.number().nonnegative(),
+      tokens: z.number().int().nonnegative(),
+      mtime: z.string(),
+      mtimeRelative: z.string(),
+      status: z.enum(["intact", "copied", "degraded", "blocked"]),
+      extractability: z.object({
+        status: z.enum(["intact", "copied", "degraded", "blocked"]),
+        reason: z.string(),
+        message: z.string(),
+        expectedSha256: z.string().optional(),
+        actualSha256: z.string().optional(),
+      }),
+    }),
+  ),
+});
+
+const LockDriftEntrySchema = z.object({
+  setting: z.string(),
+  locked: z.string(),
+  lockedSource: z.string(),
+  current: z.string(),
+  currentSource: z.string(),
+});
+
+export const VerifyCommandJsonSchema = z.union([
+  z.object({
+    bundleDir: z.string(),
+    againstDir: z.string().nullable(),
+    sections: z.array(z.string()),
+    files: z.array(z.string()),
+    repomix: RepomixCapabilitiesSchema,
+    valid: z.literal(true),
+    dirtyState: z
+      .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
+      .nullable(),
+    bundleMode: z.enum(["local", "ci"]).nullable(),
+    warnings: z.array(z.string()),
+    lockDrift: z.array(LockDriftEntrySchema).nullable(),
+  }),
+  z.object({
+    bundleDir: z.string(),
+    againstDir: z.string().nullable(),
+    sections: z.array(z.string()),
+    files: z.array(z.string()),
+    repomix: RepomixCapabilitiesSchema,
+    valid: z.literal(false),
+    dirtyState: z
+      .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
+      .nullable(),
+    bundleMode: z.enum(["local", "ci"]).nullable(),
+    error: z.object({
+      type: z.string().optional(),
+      message: z.string(),
+      path: z.string().optional(),
+      remediation: z
+        .object({
+          recommendedCommand: z.string().optional(),
+          docsRef: z.string().optional(),
+          nextSteps: z.array(z.string()).optional(),
+        })
+        .nullable(),
+    }),
+  }),
+]);
+
+export const ConfigCommandJsonSchema = z.object({
+  configFile: z.string().nullable(),
+  cxStrict: z.boolean(),
+  cliMode: z.enum(["--strict", "--lenient"]).nullable(),
+  settings: z.object({
+    "dedup.mode": z.object({
+      value: z.string(),
+      source: z.string(),
+    }),
+    "repomix.missing_extension": z.object({
+      value: z.string(),
+      source: z.string(),
+    }),
+    "config.duplicate_entry": z.object({
+      value: z.string(),
+      source: z.string(),
+    }),
+  }),
+});
+
+export const ConfigCommandErrorJsonSchema = z.object({
+  error: z.string(),
+});
+
+export const AdapterCapabilitiesJsonSchema = z.object({
+  cx: z.object({
+    version: z.string(),
+  }),
+  repomix: z.object({
+    packageName: z.string(),
+    packageVersion: z.string(),
+    adapterContract: z.string(),
+    compatibilityStrategy: z.string(),
+    contractValid: z.boolean(),
+  }),
+  detectedCapabilities: z.object({
+    hasMergeConfigs: z.boolean(),
+    hasPack: z.boolean(),
+    supportsPackStructured: z.boolean(),
+    supportsRenderWithMap: z.boolean(),
+  }),
+  capabilities: z.object({
+    styles: z.array(z.string()),
+    spanCapability: z.enum(["supported", "unsupported", "partial"]),
+    spanCapabilityReason: z.string(),
+    exactFileSelection: z.boolean(),
+    sectionPlanning: z.boolean(),
+  }),
+});
+
+export const AdapterInspectJsonSchema = z.object({
+  projectName: z.string(),
+  sourceRoot: z.string(),
+  sections: z.array(
+    z.object({
+      name: z.string(),
+      style: z.string(),
+      fileCount: z.number().int().nonnegative(),
+      files: z.array(z.string()),
+    }),
+  ),
+  repomixOptions: z.object({
+    showLineNumbers: z.boolean(),
+    includeEmptyDirectories: z.boolean(),
+    securityCheck: z.boolean(),
+    tokenEncoding: z.string(),
+  }),
+});
+
+export const AdapterDoctorJsonSchema = z.object({
+  passed: z.boolean(),
+  checks: z.array(
+    z.object({
+      name: z.string(),
+      passed: z.boolean(),
+      message: z.string(),
+    }),
+  ),
+});
+
+export const ValidateCommandJsonSchema = z.object({
+  bundleDir: z.string(),
+  summary: ManifestSummarySchema,
+  checksumFile: z.string(),
+  sourceRoot: z.string(),
+  bundleVersion: z.number().int().nonnegative(),
+  schemaVersion: z.number().int().nonnegative(),
+  repomix: RepomixCapabilitiesSchema,
+  valid: z.literal(true),
+  notes: z.object({
+    count: z.number().int().nonnegative(),
+    valid: z.boolean(),
+  }),
+});
+
+const ExtractBaseJsonSchema = z.object({
+  bundleDir: z.string(),
+  destinationDir: z.string(),
+  selection: z.object({
+    sections: z.array(z.string()),
+    files: z.array(z.string()),
+  }),
+  assetsOnly: z.boolean(),
+  allowDegraded: z.boolean(),
+  summary: ManifestSummarySchema,
+  verify: z.boolean(),
+});
+
+export const ExtractCommandJsonSchema = z.union([
+  ExtractBaseJsonSchema.extend({
+    extractedSections: z.array(z.string()),
+    extractedAssets: z.array(z.string()),
+    extractedFiles: z.array(z.string()),
+    valid: z.literal(true),
+  }),
+  ExtractBaseJsonSchema.extend({
+    repomix: RepomixCapabilitiesSchema,
+    extractedSections: z.array(z.string()),
+    extractedAssets: z.array(z.string()),
+    extractedFiles: z.array(z.string()),
+    valid: z.literal(false),
+    error: z.object({
+      type: z.string(),
+      message: z.string(),
+      remediation: z
+        .object({
+          recommendedCommand: z.string().optional(),
+          docsRef: z.string().optional(),
+          nextSteps: z.array(z.string()).optional(),
+        })
+        .nullable(),
+      files: z.array(
+        z.object({
+          path: z.string(),
+          section: z.string(),
+          status: z.string(),
+          reason: z.string(),
+          expectedSha256: z.string().optional(),
+          actualSha256: z.string().optional(),
+          message: z.string(),
+        }),
+      ),
+    }),
+  }),
+]);
+
+export const RenderCommandJsonSchema = z.object({
+  projectName: z.string(),
+  sourceRoot: z.string(),
+  selection: z.object({
+    sections: z.array(z.string()),
+    files: z.array(z.string()),
+  }),
+  outputs: z.array(
+    z.object({
+      section: z.string(),
+      fileCount: z.number().int().nonnegative(),
+      sizeBytes: z.number().nonnegative(),
+      tokenCount: z.number().int().nonnegative(),
+      outputFile: z.string().nullable().optional(),
+    }),
+  ),
+});
+
+export const InitStdoutJsonSchema = z.object({
+  config: z.string(),
+  projectName: z.string(),
+  style: z.string(),
+  path: z.null(),
+});
+
+export const InitCommandJsonSchema = z.object({
+  projectName: z.string(),
+  style: z.string(),
+  path: z.string(),
+  notesDir: z.string(),
+  notesCreated: z.array(z.string()),
+  notesUpdated: z.array(z.string()),
+  makefileCreated: z.boolean(),
+  makefileUpdated: z.boolean(),
+  mcpCreated: z.boolean(),
+  mcpUpdated: z.boolean(),
+});
+
+export const DoctorWorkflowJsonSchema = z.object({
+  task: z.string(),
+  mode: z.string(),
+  sequence: z.array(z.string()),
+  reason: z.string(),
+  signals: z.array(z.string()),
+});
+
+export const DoctorFixOverlapsJsonSchema = z.object({
+  configPath: z.string(),
+  changed: z.boolean(),
+  conflictCount: z.number().int().nonnegative(),
+  excludesBySection: z.record(z.string(), z.array(z.string())),
+  dryRun: z.boolean().optional(),
+  ownership: z.record(z.string(), z.string()).optional(),
+});

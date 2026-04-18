@@ -1,7 +1,6 @@
 import path from "node:path";
 
 import kleur from "kleur";
-
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import type { CxListDisplayConfig } from "../../config/types.js";
 import { loadCxUserConfig } from "../../config/user.js";
@@ -17,10 +16,11 @@ import {
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStdout,
+  writeValidatedJson,
 } from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
+import { ListCommandJsonSchema } from "../jsonContracts.js";
 
 export interface ListArgs {
   bundleDir: string;
@@ -307,7 +307,8 @@ export async function runListCommand(
   });
 
   if (args.json) {
-    writeJson(
+    writeValidatedJson(
+      ListCommandJsonSchema,
       {
         summary: summarizeManifest(manifestName, manifest, rows),
         repomix: await getRepomixCapabilities(),

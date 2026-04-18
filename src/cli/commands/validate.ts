@@ -1,5 +1,4 @@
 import path from "node:path";
-
 import {
   loadManifestFromBundle,
   validateBundle,
@@ -9,7 +8,8 @@ import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import { printError, printInfo, printWarning } from "../../shared/format.js";
 import { summarizeManifest } from "../../shared/manifestSummary.js";
-import { writeJson } from "../../shared/output.js";
+import { writeValidatedJson } from "../../shared/output.js";
+import { ValidateCommandJsonSchema } from "../jsonContracts.js";
 
 export interface ValidateArgs {
   bundleDir: string;
@@ -44,7 +44,7 @@ export async function runValidateCommand(args: ValidateArgs): Promise<number> {
 
   if (args.json ?? false) {
     const { manifest } = await loadManifestFromBundle(bundleDir);
-    writeJson({
+    writeValidatedJson(ValidateCommandJsonSchema, {
       bundleDir,
       summary: summarizeManifest(manifestName, manifest),
       checksumFile: manifest.checksumFile,

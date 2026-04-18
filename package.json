@@ -43,7 +43,7 @@
     "test": "bun run test:all",
     "release": "node scripts/release.js",
     "gen:homebrew": "node scripts/generate-homebrew-formula.js",
-    "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json && tsc -p tsconfig.test.json",
     "fix": "biome check --write --unsafe .",
     "verify": "bun run lint && bun run check && bun run build && bun run test:all && node scripts/coverage-summary.js",
     "certify": "bun run verify && bun run ci:test:contracts && bun run ci:smoke:repomix-version && bun run ci:smoke:bundle-transition && bun run ci:assurance:release-integrity && bun run ci:assurance:reproducibility",

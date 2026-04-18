@@ -20,10 +20,11 @@ import { pathExists } from "../../shared/fs.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStderr,
+  writeValidatedJson,
 } from "../../shared/output.js";
 import type { DirtyState } from "../../vcs/provider.js";
+import { VerifyCommandJsonSchema } from "../jsonContracts.js";
 
 export interface VerifyArgs {
   bundleDir: string;
@@ -163,7 +164,8 @@ export async function runVerifyCommand(
     }
 
     if (args.json ?? false) {
-      writeJson(
+      writeValidatedJson(
+        VerifyCommandJsonSchema,
         {
           bundleDir,
           againstDir: againstDir ?? null,
@@ -223,7 +225,7 @@ export async function runVerifyCommand(
         }
       }
 
-      writeJson(payload, io);
+      writeValidatedJson(VerifyCommandJsonSchema, payload, io);
       return error instanceof CxError ? error.exitCode : 1;
     }
 

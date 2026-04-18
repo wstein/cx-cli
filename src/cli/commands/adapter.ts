@@ -1,5 +1,4 @@
 import path from "node:path";
-
 import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
@@ -12,9 +11,14 @@ import { CxError } from "../../shared/errors.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStdout,
+  writeValidatedJson,
 } from "../../shared/output.js";
+import {
+  AdapterCapabilitiesJsonSchema,
+  AdapterDoctorJsonSchema,
+  AdapterInspectJsonSchema,
+} from "../jsonContracts.js";
 
 export interface AdapterArgs {
   config?: string | undefined;
@@ -85,7 +89,7 @@ async function runAdapterCapabilities(
   };
 
   if (args.json ?? false) {
-    writeJson(payload, io);
+    writeValidatedJson(AdapterCapabilitiesJsonSchema, payload, io);
   } else {
     writeStdout(`cx version:                ${payload.cx.version}\n`, io);
     writeStdout(
@@ -198,7 +202,7 @@ async function runAdapterInspect(
   };
 
   if (args.json ?? false) {
-    writeJson(payload, io);
+    writeValidatedJson(AdapterInspectJsonSchema, payload, io);
   } else {
     for (const section of payload.sections) {
       writeStdout(`\nSection: ${section.name}\n`, io);
@@ -309,7 +313,7 @@ async function runAdapterDoctor(
   };
 
   if (_args.json ?? false) {
-    writeJson(payload, io);
+    writeValidatedJson(AdapterDoctorJsonSchema, payload, io);
   } else {
     for (const check of checks) {
       const mark = check.passed ? "✓" : "✗";

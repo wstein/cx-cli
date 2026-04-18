@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import {
   collectDoctorMcpReport,
   printDoctorMcpReport,
@@ -23,8 +22,8 @@ import { CxError } from "../../shared/errors.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStdout,
+  writeValidatedJson,
 } from "../../shared/output.js";
 import {
   printWizardComplete,
@@ -32,6 +31,10 @@ import {
   printWizardTip,
   wizardSelect,
 } from "../../shared/wizard.js";
+import {
+  DoctorFixOverlapsJsonSchema,
+  DoctorWorkflowJsonSchema,
+} from "../jsonContracts.js";
 
 export interface DoctorArgs {
   config?: string | undefined;
@@ -156,7 +159,8 @@ async function runDoctorFixOverlaps(
 
   if (conflicts.length === 0) {
     if (args.json ?? false) {
-      writeJson(
+      writeValidatedJson(
+        DoctorFixOverlapsJsonSchema,
         {
           configPath: report.resolvedConfigPath,
           changed: false,
@@ -181,7 +185,8 @@ async function runDoctorFixOverlaps(
   const fixPlan = buildFixPlan(conflicts, ownership);
 
   if (args.json ?? false) {
-    writeJson(
+    writeValidatedJson(
+      DoctorFixOverlapsJsonSchema,
       {
         configPath: report.resolvedConfigPath,
         changed: !(args.dryRun ?? false),
@@ -287,7 +292,8 @@ async function runDoctorWorkflow(
   const recommendation = recommendWorkflow(task);
 
   if (args.json ?? false) {
-    writeJson(
+    writeValidatedJson(
+      DoctorWorkflowJsonSchema,
       {
         task,
         ...recommendation,

@@ -19,10 +19,14 @@ import { pathExists } from "../../shared/fs.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStderr,
   writeStdout,
+  writeValidatedJson,
 } from "../../shared/output.js";
+import {
+  ConfigCommandErrorJsonSchema,
+  ConfigCommandJsonSchema,
+} from "../jsonContracts.js";
 
 type SettingSource =
   | "compiled default"
@@ -203,7 +207,11 @@ export async function runConfigCommand(
       configDuplicateEntryFromFile = values.configDuplicateEntry;
     } catch (error: unknown) {
       if (options.json) {
-        writeJson({ error: asError(error).message }, io);
+        writeValidatedJson(
+          ConfigCommandErrorJsonSchema,
+          { error: asError(error).message },
+          io,
+        );
       } else {
         writeStderr(`Error: ${asError(error).message}\n`, io);
       }
@@ -280,7 +288,8 @@ export async function runConfigCommand(
   }
 
   if (options.json) {
-    writeJson(
+    writeValidatedJson(
+      ConfigCommandJsonSchema,
       {
         configFile: configExists ? options.config : null,
         cxStrict: envStrict,

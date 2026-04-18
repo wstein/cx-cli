@@ -1,7 +1,7 @@
 import { assertSafeProjectName } from "../../config/projectName.js";
 import { scaffoldNotesModule } from "../../notes/scaffold.js";
 import { CxError } from "../../shared/errors.js";
-import { writeJson } from "../../shared/output.js";
+import { writeValidatedJson } from "../../shared/output.js";
 import {
   printWizardComplete,
   printWizardHeader,
@@ -16,6 +16,10 @@ import {
   renderInitTemplateFile,
   type TemplateVariables,
 } from "../../templates/index.js";
+import {
+  InitCommandJsonSchema,
+  InitStdoutJsonSchema,
+} from "../jsonContracts.js";
 
 export interface InitArgs {
   force: boolean;
@@ -136,7 +140,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
 
   if (args.stdout) {
     if (args.json ?? false) {
-      writeJson({
+      writeValidatedJson(InitStdoutJsonSchema, {
         config: output,
         projectName: resolved.name ?? "myproject",
         style: resolved.style ?? "xml",
@@ -290,7 +294,7 @@ export async function runInitCommand(args: InitArgs): Promise<number> {
   }
 
   if (args.json ?? false) {
-    writeJson({
+    writeValidatedJson(InitCommandJsonSchema, {
       projectName: resolved.name ?? "myproject",
       style: resolved.style ?? "xml",
       path: "cx.toml",

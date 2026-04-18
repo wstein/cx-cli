@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -48,12 +47,13 @@ import { sha256File } from "../../shared/hashing.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStderr,
+  writeValidatedJson,
 } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
 import { CX_VERSION } from "../../shared/version.js";
 import type { DirtyState } from "../../vcs/provider.js";
+import { BundleCommandJsonSchema } from "../jsonContracts.js";
 
 export interface BundleArgs {
   config: string;
@@ -606,7 +606,8 @@ export async function runBundleCommand(
             : effectiveDirtyState === "forced_dirty"
               ? "Bundle produced with uncommitted tracked changes (--force override)."
               : "Bundle produced with uncommitted tracked changes (--ci override).";
-      writeJson(
+      writeValidatedJson(
+        BundleCommandJsonSchema,
         {
           projectName: plan.projectName,
           bundleDir: plan.bundleDir,

@@ -10,9 +10,10 @@ import { formatNumber } from "../../shared/format.js";
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStdout,
+  writeValidatedJson,
 } from "../../shared/output.js";
+import { InspectReportJsonSchema } from "../jsonContracts.js";
 
 export type { InspectReport } from "../../inspect/report.js";
 export { collectInspectReport } from "../../inspect/report.js";
@@ -72,7 +73,7 @@ export async function runInspectCommand(
   });
 
   if (args.json) {
-    writeJson(report, io);
+    writeValidatedJson(InspectReportJsonSchema, report, io);
     return 0;
   }
 

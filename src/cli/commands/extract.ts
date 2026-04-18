@@ -1,5 +1,4 @@
 import path from "node:path";
-
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { extractBundle } from "../../extract/extract.js";
 import {
@@ -21,10 +20,11 @@ import {
 import {
   type CommandIo,
   resolveCommandIo,
-  writeJson,
   writeStderr,
+  writeValidatedJson,
 } from "../../shared/output.js";
 import { selectManifestRows } from "../../shared/verifyFilters.js";
+import { ExtractCommandJsonSchema } from "../jsonContracts.js";
 
 export interface ExtractArgs {
   bundleDir: string;
@@ -177,7 +177,8 @@ export async function runExtractCommand(
         extractabilityFiles.length > 0
           ? "extractability_mismatch"
           : "extract_failed";
-      writeJson(
+      writeValidatedJson(
+        ExtractCommandJsonSchema,
         {
           bundleDir,
           destinationDir,
@@ -222,7 +223,8 @@ export async function runExtractCommand(
     throw error;
   }
   if (args.json ?? false) {
-    writeJson(
+    writeValidatedJson(
+      ExtractCommandJsonSchema,
       {
         bundleDir,
         destinationDir,

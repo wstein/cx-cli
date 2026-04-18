@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import { loadCxConfig } from "../../config/load.js";
 import type { CxStyle } from "../../config/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
@@ -14,7 +13,8 @@ import {
   printSuccess,
   printTable,
 } from "../../shared/format.js";
-import { writeJson } from "../../shared/output.js";
+import { writeValidatedJson } from "../../shared/output.js";
+import { RenderCommandJsonSchema } from "../jsonContracts.js";
 
 export interface RenderArgs {
   config: string;
@@ -164,7 +164,7 @@ export async function runRenderCommand(args: RenderArgs): Promise<number> {
   }
 
   if (args.json ?? false) {
-    writeJson({
+    writeValidatedJson(RenderCommandJsonSchema, {
       projectName: config.projectName,
       sourceRoot: config.sourceRoot,
       selection: {

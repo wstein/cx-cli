@@ -1,3 +1,5 @@
+import type { ZodType } from "zod";
+
 export interface CommandWriteStream {
   write(
     chunk: string | Uint8Array,
@@ -34,4 +36,12 @@ export function writeStderr(text: string, io: Partial<CommandIo> = {}): void {
 
 export function writeJson(value: unknown, io: Partial<CommandIo> = {}): void {
   writeStdout(`${JSON.stringify(value, null, 2)}\n`, io);
+}
+
+export function writeValidatedJson<T>(
+  schema: ZodType<T>,
+  value: unknown,
+  io: Partial<CommandIo> = {},
+): void {
+  writeJson(schema.parse(value), io);
 }
