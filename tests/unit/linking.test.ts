@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import {
+  extractHeadings,
   extractWikilinkReferences,
   normalizeWikilinkReference,
   resolveWikilinkReference,
@@ -144,6 +145,45 @@ describe("notes linking", () => {
       const content = "[[First]][[Second]][[Third]]";
       const result = extractWikilinkReferences(content);
       expect(result).toHaveLength(3);
+    });
+
+    it("extracts anchor from [[Note#Section]] wikilink", () => {
+      const result = extractWikilinkReferences("See [[My Note#Implementation]].");
+      expect(result[0]?.target).toBe("My Note");
+      expect(result[0]?.anchor).toBe("Implementation");
+    });
+
+    it("leaves anchor undefined for plain wikilink without #", () => {
+      const result = extractWikilinkReferences("See [[My Note]].");
+      expect(result[0]?.target).toBe("My Note");
+      expect(result[0]?.anchor).toBeUndefined();
+    });
+
+    it("strips display text before extracting anchor [[Note#Section|label]]", () => {
+      const result = extractWikilinkReferences("See [[My Note#Section|click here]].");
+      expect(result[0]?.target).toBe("My Note");
+      expect(result[0]?.anchor).toBe("Section");
+    });
+  });
+
+  describe("extractHeadings", () => {
+    it("returns all heading texts normalized to lowercase", () => {
+      const content = "## My Section\n\nBody.\n\n### Sub Section\n\nMore.";
+      expect(extractHeadings(content)).toEqual(["my section", "sub section"]);
+    });
+
+    it("handles all heading levels", () => {
+      const content = "# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6";
+      expect(extractHeadings(content)).toEqual(["h1", "h2", "h3", "h4", "h5", "h6"]);
+    });
+
+    it("returns empty array when no headings", () => {
+      expect(extractHeadings("Just plain text.")).toEqual([]);
+    });
+
+    it("ignores inline # that are not at line start", () => {
+      const content = "Some text #tag and more text\n## Real Heading";
+      expect(extractHeadings(content)).toEqual(["real heading"]);
     });
   });
 

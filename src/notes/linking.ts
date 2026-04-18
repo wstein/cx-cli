@@ -3,6 +3,7 @@ import type { NoteMetadata } from "./validate.js";
 export interface WikilinkReference {
   raw: string;
   target: string;
+  anchor?: string;
 }
 
 const WIKILINK_REGEX = /\[\[([^\]]+)\]\]/g;
@@ -24,10 +25,18 @@ export function extractWikilinkReferences(
       continue;
     }
 
-    references.push({
-      raw,
-      target: normalizeWikilinkReference(raw),
-    });
+    const displayText = raw.split("|", 1)[0] ?? raw;
+    const hashIndex = displayText.indexOf("#");
+    const target =
+      hashIndex >= 0
+        ? displayText.slice(0, hashIndex).trim()
+        : displayText.trim();
+    const anchor =
+      hashIndex >= 0 ? displayText.slice(hashIndex + 1).trim() : undefined;
+
+    references.push(
+      anchor !== undefined ? { raw, target, anchor } : { raw, target },
+    );
   }
 
   return references;

@@ -213,6 +213,53 @@ describe("buildNoteGraph with code analysis", () => {
     expect(broken.some((b) => b.source === "code")).toBe(true);
   });
 
+  test("reports anchor-not-found when #section heading is missing in target note", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260201120000", "Source", "See [[20260201130000#Missing Section]].");
+    await writeNote(notesDir, "20260201130000", "Target", "## Present Section\n\nContent here.");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const broken = getBrokenLinks(graph);
+
+    expect(broken.length).toBe(1);
+    expect(broken[0]?.reason).toBe("anchor-not-found");
+    expect(broken[0]?.reference).toBe("20260201130000#Missing Section");
+  });
+
+  test("does not report broken link when #section heading exists in target note", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260202120000", "Source", "See [[20260202130000#Present Section]].");
+    await writeNote(notesDir, "20260202130000", "Target", "## Present Section\n\nContent here.");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const broken = getBrokenLinks(graph);
+
+    expect(broken.length).toBe(0);
+  });
+
+  test("anchor matching is case-insensitive", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260203120000", "Source", "See [[20260203130000#present section]].");
+    await writeNote(notesDir, "20260203130000", "Target", "## Present Section\n\nContent here.");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const broken = getBrokenLinks(graph);
+
+    expect(broken.length).toBe(0);
+  });
+
+  test("still counts note link in outgoing links when anchor is valid", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(notesDir, "20260204120000", "Source", "See [[20260204130000#My Section]].");
+    await writeNote(notesDir, "20260204130000", "Target", "## My Section\n\nContent here.");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const outgoing = getOutgoingLinks(graph, "20260204120000");
+
+    expect(outgoing.length).toBe(1);
+    expect(outgoing[0]?.toNoteId).toBe("20260204130000");
+  });
+
   test("handles binary/unreadable files silently", async () => {
     const notesDir = path.join(testDir, "notes");
     const srcDir = path.join(testDir, "src");

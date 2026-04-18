@@ -355,12 +355,16 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
           }
         }
 
-        printInfo("  Unresolved:");
+        printInfo("  Broken links:");
         if (broken.length === 0) {
-          printInfo("    (no unresolved links)");
+          printInfo("    (no broken links)");
         } else {
           for (const issue of broken) {
-            printInfo(`    ${issue.reference} (${issue.source})`);
+            const label =
+              issue.reason === "anchor-not-found"
+                ? "anchor not found"
+                : "unresolved";
+            printInfo(`    ${issue.reference} (${issue.source}: ${label})`);
           }
         }
       }
@@ -378,12 +382,16 @@ export async function runNotesCommand(args: NotesArgs): Promise<number> {
       });
     } else {
       if (broken.length === 0) {
-        printInfo("No unresolved links found in notes/");
+        printInfo("No broken links found in notes/");
       } else {
-        printInfo("Unresolved links:\n");
+        printInfo("Broken links:\n");
         for (const issue of broken) {
+          const label =
+            issue.reason === "anchor-not-found"
+              ? "anchor not found"
+              : "unresolved";
           printInfo(
-            `  [${issue.fromNoteId}] ${issue.fromTitle} -> ${issue.reference}`,
+            `  [${issue.fromNoteId}] ${issue.fromTitle} -> ${issue.reference} (${label})`,
           );
         }
       }

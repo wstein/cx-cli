@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { listFilesRecursive, pathExists } from "../shared/fs.js";
 import {
+  extractHeadings,
   extractWikilinkReferences,
   resolveWikilinkReference,
 } from "./linking.js";
@@ -21,7 +22,7 @@ export interface NoteLinkIssue {
   fromPath: string;
   reference: string;
   source: "note" | "code";
-  reason: "unresolved";
+  reason: "unresolved" | "anchor-not-found";
 }
 
 export interface NoteGraph {
@@ -46,6 +47,28 @@ async function extractLinksFromNote(
       const resolvedId = resolveWikilinkReference(link.target, notesMap);
       if (resolvedId) {
         resolvedLinks.push(resolvedId);
+        if (link.anchor !== undefined && link.anchor.length > 0) {
+          const targetNote = notesMap.get(resolvedId);
+          if (targetNote) {
+            try {
+              const targetContent = await fs.readFile(
+                targetNote.filePath,
+                "utf-8",
+              );
+              const headings = extractHeadings(targetContent);
+              if (!headings.includes(link.anchor.toLowerCase())) {
+                brokenLinks.push({
+                  fromNoteId: note.id,
+                  fromTitle: note.title,
+                  fromPath: note.filePath,
+                  reference: link.raw,
+                  source: "note",
+                  reason: "anchor-not-found",
+                });
+              }
+            } catch {}
+          }
+        }
       } else {
         brokenLinks.push({
           fromNoteId: note.id,
