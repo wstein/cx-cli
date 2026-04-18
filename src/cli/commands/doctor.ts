@@ -6,6 +6,10 @@ import {
   printDoctorMcpReport,
 } from "../../doctor/mcp.js";
 import {
+  collectDoctorNotesReport,
+  printDoctorNotesReport,
+} from "../../doctor/notes.js";
+import {
   collectDoctorOverlapsReport,
   printDoctorOverlapsReport,
 } from "../../doctor/overlaps.js";
@@ -26,7 +30,13 @@ import {
 
 export interface DoctorArgs {
   config?: string | undefined;
-  subcommand?: "overlaps" | "fix-overlaps" | "mcp" | "secrets" | "workflow";
+  subcommand?:
+    | "overlaps"
+    | "fix-overlaps"
+    | "mcp"
+    | "notes"
+    | "secrets"
+    | "workflow";
   all?: boolean | undefined;
   json?: boolean | undefined;
   dryRun?: boolean | undefined;
@@ -71,6 +81,8 @@ export async function runDoctorCommand(args: DoctorArgs): Promise<number> {
       return runDoctorFixOverlaps(args);
     case "mcp":
       return runDoctorMcp(args);
+    case "notes":
+      return runDoctorNotes(args);
     case "secrets":
       return runDoctorSecrets(args);
     case "workflow":
@@ -89,6 +101,11 @@ async function runDoctorAll(args: DoctorArgs): Promise<number> {
   const mcpExitCode = await runDoctorMcp(args);
   if (mcpExitCode !== 0) {
     return mcpExitCode;
+  }
+
+  const notesExitCode = await runDoctorNotes(args);
+  if (notesExitCode !== 0) {
+    return notesExitCode;
   }
 
   return await runDoctorSecrets(args);
@@ -203,6 +220,15 @@ async function runDoctorMcp(args: DoctorArgs): Promise<number> {
   });
   printDoctorMcpReport(report, args.json ?? false);
   return 0;
+}
+
+async function runDoctorNotes(args: DoctorArgs): Promise<number> {
+  const report = await collectDoctorNotesReport({
+    config: args.config,
+    json: args.json,
+  });
+  printDoctorNotesReport(report, args.json ?? false);
+  return report.driftCount === 0 ? 0 : 4;
 }
 
 async function runDoctorSecrets(args: DoctorArgs): Promise<number> {

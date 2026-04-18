@@ -439,7 +439,7 @@ export async function main(argv: string[]): Promise<number> {
     )
     .command(
       "doctor [subcommand]",
-      "Diagnose overlaps, MCP inheritance, and secret hygiene.",
+      "Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.",
       (command) =>
         command
           .example(
@@ -455,12 +455,16 @@ export async function main(argv: string[]): Promise<number> {
             "Show the effective MCP profile and inherited file scopes.",
           )
           .example(
+            "$0 doctor notes --config cx.toml",
+            "Audit note-to-code references against the planning master list.",
+          )
+          .example(
             "$0 doctor secrets --config cx.toml",
             "Scan the master list for suspicious secrets.",
           )
           .example(
             "$0 doctor --all --config cx.toml",
-            "Run overlaps, MCP inheritance, and secret diagnostics in order.",
+            "Run overlaps, MCP inheritance, note drift, and secret diagnostics in order.",
           )
           .example(
             "$0 doctor workflow --task 'review and update linked notes'",
@@ -468,7 +472,14 @@ export async function main(argv: string[]): Promise<number> {
           )
           .positional("subcommand", {
             type: "string",
-            choices: ["overlaps", "fix-overlaps", "mcp", "secrets", "workflow"],
+            choices: [
+              "overlaps",
+              "fix-overlaps",
+              "mcp",
+              "notes",
+              "secrets",
+              "workflow",
+            ],
             demandOption: false,
           })
           .option("config", { type: "string", default: "cx.toml" })
@@ -476,7 +487,7 @@ export async function main(argv: string[]): Promise<number> {
             type: "boolean",
             default: false,
             description:
-              "Run overlaps, MCP inheritance, and secret diagnostics in sequence.",
+              "Run overlaps, MCP inheritance, note drift, and secret diagnostics in sequence.",
           })
           .option("dry-run", { type: "boolean", default: false })
           .option("interactive", { type: "boolean", default: false })
@@ -500,6 +511,7 @@ export async function main(argv: string[]): Promise<number> {
                   | "overlaps"
                   | "fix-overlaps"
                   | "mcp"
+                  | "notes"
                   | "secrets"
                   | "workflow",
               }

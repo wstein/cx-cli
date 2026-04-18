@@ -126,6 +126,65 @@ exclude = ["tests/**"]
   return { root, configPath, mcpPath };
 }
 
+async function createNotesProject(
+  options: { includeGenerated?: boolean; addGeneratedFile?: boolean } = {},
+): Promise<{ root: string; configPath: string }> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-doctor-notes-"));
+  await fs.mkdir(path.join(root, "notes"), { recursive: true });
+  await fs.mkdir(path.join(root, "src"), { recursive: true });
+  await fs.mkdir(path.join(root, "generated"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "src", "index.ts"),
+    "export const value = 1;\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "notes", "architecture.md"),
+    `---
+id: 20260418141500
+title: Architecture
+---
+
+Tracked: [[src/index.ts]]
+Generated: [[generated/client.ts]]
+`,
+    "utf8",
+  );
+
+  const configPath = path.join(root, "cx.toml");
+  await fs.writeFile(
+    configPath,
+    `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[files]
+include = ${options.includeGenerated === true ? '["generated/**"]' : "[]"}
+exclude = ["dist/**"]
+follow_symlinks = false
+unmatched = "ignore"
+
+[sections.src]
+include = ["src/**"]
+exclude = []
+`,
+    "utf8",
+  );
+
+  await initGitRepo(root);
+
+  if (options.addGeneratedFile === true) {
+    await fs.writeFile(
+      path.join(root, "generated", "client.ts"),
+      "export const generated = true;\n",
+      "utf8",
+    );
+  }
+
+  return { root, configPath };
+}
+
 function captureStdout(): { restore: () => void; output: () => string } {
   const write = process.stdout.write;
   let output = "";
@@ -240,6 +299,57 @@ describe("doctor JSON lane", () => {
     expect(payload.filesInclude).toEqual(["src/generated/**", "dist/**"]);
     expect(payload.filesExclude).toEqual(["node_modules/**", "tests/**"]);
     expect(payload.sectionNames).toEqual(["src"]);
+  });
+
+  test("doctor notes reports note-to-code drift against the master list", async () => {
+    const project = await createNotesProject({
+      includeGenerated: false,
+      addGeneratedFile: true,
+    });
+    const cwd = process.cwd();
+    process.chdir(project.root);
+    const capture = captureStdout();
+    try {
+      await expect(
+        main(["doctor", "notes", "--json", "--config", project.configPath]),
+      ).resolves.toBe(4);
+    } finally {
+      capture.restore();
+      process.chdir(cwd);
+    }
+
+    const payload = JSON.parse(capture.output()) as {
+      driftCount?: number;
+      outsideMasterListCount?: number;
+      drifts?: Array<{ path: string; status: string }>;
+    };
+    expect(payload.driftCount).toBe(1);
+    expect(payload.outsideMasterListCount).toBe(1);
+    expect(payload.drifts?.[0]?.path).toBe("generated/client.ts");
+    expect(payload.drifts?.[0]?.status).toBe("outside_master_list");
+  });
+
+  test("doctor notes accepts files explicitly included into the master list", async () => {
+    const project = await createNotesProject({
+      includeGenerated: true,
+      addGeneratedFile: true,
+    });
+    const cwd = process.cwd();
+    process.chdir(project.root);
+    const capture = captureStdout();
+    try {
+      await expect(
+        main(["doctor", "notes", "--json", "--config", project.configPath]),
+      ).resolves.toBe(0);
+    } finally {
+      capture.restore();
+      process.chdir(cwd);
+    }
+
+    const payload = JSON.parse(capture.output()) as {
+      driftCount?: number;
+    };
+    expect(payload.driftCount).toBe(0);
   });
 
   test("doctor secrets reports suspicious files as JSON", async () => {

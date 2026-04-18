@@ -40,15 +40,22 @@ function looksLikeRepositoryPath(reference: string): boolean {
   );
 }
 
-async function collectNoteCodePathWarnings(
+export async function collectNoteCodePathWarnings(
   notes: Awaited<ReturnType<typeof validateNotes>>["notes"],
   projectRoot: string,
+  repositoryPaths?: Iterable<string>,
 ): Promise<NoteCodePathWarning[]> {
   const notesMap = new Map(notes.map((note) => [note.id, note]));
-  const vcsState = await getVCSState(projectRoot);
-  const trackedPaths = new Set(
-    vcsState.trackedFiles.map((filePath) => filePath.replaceAll("\\", "/")),
-  );
+  const knownRepositoryPaths =
+    repositoryPaths === undefined
+      ? new Set(
+          (await getVCSState(projectRoot)).trackedFiles.map((filePath) =>
+            filePath.replaceAll("\\", "/"),
+          ),
+        )
+      : new Set(
+          [...repositoryPaths].map((filePath) => filePath.replaceAll("\\", "/")),
+        );
   const warnings = new Map<string, NoteCodePathWarning>();
 
   for (const note of notes) {
@@ -70,7 +77,7 @@ async function collectNoteCodePathWarnings(
         continue;
       }
 
-      const status = trackedPaths.has(normalizedPath)
+      const status = knownRepositoryPaths.has(normalizedPath)
         ? null
         : (await pathExists(path.join(projectRoot, normalizedPath)))
           ? "outside_master_list"

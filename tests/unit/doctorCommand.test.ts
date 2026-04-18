@@ -189,6 +189,69 @@ describe("runDoctorCommand — mcp subcommand", () => {
   });
 });
 
+describe("runDoctorCommand — notes subcommand", () => {
+  test("exits 0 when note references stay inside the master list", async () => {
+    await fs.mkdir(path.join(testDir, "notes"), { recursive: true });
+    await fs.mkdir(path.join(testDir, "src"), { recursive: true });
+    await fs.writeFile(
+      path.join(testDir, "src", "index.ts"),
+      "export const value = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(testDir, "notes", "architecture.md"),
+      `---
+id: 20260418133000
+title: Architecture
+---
+
+See [[src/index.ts]] before refactoring.
+`,
+      "utf8",
+    );
+
+    const { exitCode } = await captureCli({
+      run: () => runDoctorCommand({ subcommand: "notes", config: configPath }),
+    });
+    expect(exitCode).toBe(0);
+  });
+
+  test("json=true outputs structured drift counts", async () => {
+    await fs.mkdir(path.join(testDir, "notes"), { recursive: true });
+    await fs.mkdir(path.join(testDir, "src"), { recursive: true });
+    await fs.writeFile(
+      path.join(testDir, "src", "index.ts"),
+      "export const value = 1;\n",
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(testDir, "notes", "architecture.md"),
+      `---
+id: 20260418133001
+title: Architecture
+---
+
+See [[src/missing.ts]] before refactoring.
+`,
+      "utf8",
+    );
+
+    const { stdout, exitCode } = await captureCli({
+      run: () =>
+        runDoctorCommand({
+          subcommand: "notes",
+          config: configPath,
+          json: true,
+        }),
+      parseJson: true,
+    });
+    expect(exitCode).toBe(4);
+    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    expect(parsed.driftCount).toBe(1);
+    expect(parsed.missingCount).toBe(1);
+  });
+});
+
 describe("runDoctorCommand — secrets subcommand", () => {
   test("exits 0 when no suspicious files", async () => {
     const { exitCode } = await captureCli({

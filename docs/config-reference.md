@@ -642,5 +642,6 @@ Use the doctor commands to diagnose and resolve conflicts without weakening that
 - `cx doctor fix-overlaps --dry-run` prints the exact `exclude` updates without modifying `cx.toml`.
 - `cx doctor fix-overlaps` writes the recommended `sections.<name>.exclude` entries to `cx.toml`.
 - `cx doctor fix-overlaps --interactive` lets you choose the owning section for each conflicted file.
+- `cx doctor notes` audits note-to-code references against the final master list after `files.include` and `files.exclude` have been applied.
 
 For details on how `cx` validates and verifies bundles, see `src/bundle/verify.ts` and `src/bundle/validate.ts`.

@@ -170,6 +170,7 @@ They share the same repository boundary rules, but they answer different questio
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
 | `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
+| `cx doctor notes` | You want to audit note-to-code references against the VCS-backed planning master list |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
 | `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP, including mixed-task paths |
 | `cx completion` | You want shell-native command and flag completion |
@@ -205,10 +206,11 @@ Use the doctor subcommands when you want to inspect the agent boundary directly:
 
 ```bash
 cx doctor mcp --config cx.toml
+cx doctor notes --config cx.toml
 cx doctor secrets --config cx.toml
 ```
 
-`cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor secrets` scans the master list for suspicious credentials using the same security rules the planning workflow relies on.
+`cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor notes` audits note wikilinks that look like repository paths against the planning master list after `files.include` and `files.exclude` are applied. `cx doctor secrets` scans that same master list for suspicious credentials using the same security rules the planning workflow relies on.
 
 When overlap analysis is the issue, the output names the conflicting file, the matching sections, the recommended owner, and the sections that should exclude the file. For example:
 
