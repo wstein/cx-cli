@@ -106,4 +106,43 @@ Body.
     expect(result.logs).toContain("Duplicate note IDs detected");
     expect(result.logs).toContain("20260418120001");
   });
+
+  test("writes JSON output when requested", async () => {
+    const { bundleDir } = await createBundleFixture([
+      `---
+id: 20260418120002
+title: Json Note
+tags: []
+---
+
+Body.
+`,
+    ]);
+
+    const result = await captureCli({
+      run: () => runValidateCommand({ bundleDir, json: true }),
+      parseJson: true,
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.parsedJson?.valid).toBe(true);
+    expect(result.parsedJson?.notes).toEqual({
+      count: 2,
+      valid: true,
+    });
+    expect(result.parsedJson?.bundleDir).toBe(bundleDir);
+  });
+
+  test("returns 0 without printing a note summary when no notes exist", async () => {
+    const { root, bundleDir } = await createBundleFixture([]);
+    await fs.rm(path.join(root, "notes"), { recursive: true, force: true });
+
+    const result = await captureCli({
+      run: () => runValidateCommand({ bundleDir }),
+      captureConsoleLog: true,
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.logs).toBe("");
+  });
 });

@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { loadCxConfig } from "../../src/config/load.js";
 
 const execFileAsync = promisify(execFile);
@@ -24,7 +25,6 @@ async function initGitRepo(root: string): Promise<void> {
 }
 
 async function createWorkspace(): Promise<{
-  root: string;
   mcpPath: string;
 }> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-server-"));
@@ -75,47 +75,37 @@ policy = "unrestricted"
 
   await initGitRepo(root);
 
-  return { root, mcpPath };
+  return { mcpPath };
 }
 
 describe("runCxMcpServer", () => {
   test("connects and exits cleanly on success", async () => {
     const connect = mock(async () => {});
     const close = mock(async () => {});
-    const registeredTools: Record<string, { handler: unknown }> = {};
-    const registerTool = mock(
-      (name: string, _schema: unknown, handler: unknown) => {
-        registeredTools[name] = { handler };
-      },
-    );
-    const serverFactory = mock(() => ({
-      connect,
-      close,
-      registerTool,
-      _registeredTools: registeredTools,
-      server: { _instructions: "ok" },
-    }));
-    const transportFactory = mock(() => ({}));
-    mock.module("@modelcontextprotocol/sdk/server/mcp.js", () => ({
-      McpServer: serverFactory,
-    }));
-    mock.module("@modelcontextprotocol/sdk/server/stdio.js", () => ({
-      StdioServerTransport: transportFactory,
-    }));
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
 
-    const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
-    const exit = mock(() => {});
-    const { runCxMcpServer } = await import("../../src/mcp/server.js");
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
-    await runCxMcpServer(project.mcpPath, config, { processExit: exit });
+      await runCxMcpServer(project.mcpPath, config, { processExit: exit });
 
-    expect(serverFactory).toHaveBeenCalledTimes(1);
-    expect(transportFactory).toHaveBeenCalledTimes(1);
-    expect(registerTool).toHaveBeenCalled();
-    expect(connect).toHaveBeenCalledTimes(1);
-    expect(close).not.toHaveBeenCalled();
-    expect(exit).not.toHaveBeenCalled();
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(exit).not.toHaveBeenCalled();
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
   });
 
   test("exits 1 when connect fails", async () => {
@@ -123,39 +113,29 @@ describe("runCxMcpServer", () => {
       throw new Error("connect failed");
     });
     const close = mock(async () => {});
-    const registeredTools: Record<string, { handler: unknown }> = {};
-    const registerTool = mock(
-      (name: string, _schema: unknown, handler: unknown) => {
-        registeredTools[name] = { handler };
-      },
-    );
-    const serverFactory = mock(() => ({
-      connect,
-      close,
-      registerTool,
-      _registeredTools: registeredTools,
-      server: { _instructions: "ok" },
-    }));
-    const transportFactory = mock(() => ({}));
-    mock.module("@modelcontextprotocol/sdk/server/mcp.js", () => ({
-      McpServer: serverFactory,
-    }));
-    mock.module("@modelcontextprotocol/sdk/server/stdio.js", () => ({
-      StdioServerTransport: transportFactory,
-    }));
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
 
-    const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
-    const exit = mock(() => {});
-    const { runCxMcpServer } = await import("../../src/mcp/server.js");
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
-    await runCxMcpServer(project.mcpPath, config, { processExit: exit });
+      await runCxMcpServer(project.mcpPath, config, { processExit: exit });
 
-    expect(serverFactory).toHaveBeenCalledTimes(1);
-    expect(transportFactory).toHaveBeenCalledTimes(1);
-    expect(registerTool).toHaveBeenCalled();
-    expect(connect).toHaveBeenCalledTimes(1);
-    expect(close).not.toHaveBeenCalled();
-    expect(exit).toHaveBeenCalledWith(1);
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
   });
 });
