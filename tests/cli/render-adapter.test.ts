@@ -70,7 +70,7 @@ describe("render command", () => {
     const cwd = process.cwd();
     process.chdir(project.root);
     const capture = createBufferedCommandIo();
-    let exitCode: number;
+    let exitCode: number | undefined;
     try {
       exitCode = await runRenderCommand(
         {
@@ -119,7 +119,7 @@ describe("render command", () => {
     const cwd = process.cwd();
     process.chdir(project.root);
     const capture = createBufferedCommandIo();
-    let exitCode: number;
+    let exitCode: number | undefined;
     try {
       exitCode = await runRenderCommand(
         {
@@ -145,7 +145,7 @@ describe("render command", () => {
     const cwd = process.cwd();
     process.chdir(project.root);
     const capture = createBufferedCommandIo();
-    let exitCode: number;
+    let exitCode: number | undefined;
     try {
       exitCode = await runRenderCommand(
         {
@@ -214,7 +214,7 @@ describe("render command", () => {
     const cwd = process.cwd();
     process.chdir(project.root);
     const capture = createBufferedCommandIo();
-    let exitCode: number;
+    let exitCode: number | undefined;
     try {
       exitCode = await runRenderCommand(
         {

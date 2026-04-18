@@ -10,7 +10,7 @@ import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 function scrubListSnapshot(output: string): string {
   return scrubTextSnapshot(
     output
-      .replace(/\u001B\[[0-9;]*m/g, "")
+      .replace(/\\u001B\[[0-9;]*m/g, "")
       .replace(/\bjust now\b/g, "<RELATIVE_TIME>")
       .replace(/\b\d+m ago\b/g, "<RELATIVE_TIME>")
       .replace(/\b\d+h ago\b/g, "<RELATIVE_TIME>")
