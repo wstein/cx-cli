@@ -17,11 +17,11 @@ export function registerCxMcpTool<TSchema, TResult>(
   server.registerTool(
     tool.name,
     metadata as Parameters<McpServer["registerTool"]>[1],
-    (withPolicyEnforcement(
+    withPolicyEnforcement(
       tool,
       handler,
       workspace.policy,
       workspace.auditLogger,
-    ) as Parameters<McpServer["registerTool"]>[2]),
+    ) as Parameters<McpServer["registerTool"]>[2],
   );
 }

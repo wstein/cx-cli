@@ -157,6 +157,17 @@ export interface CxMcpConfig {
    * Default: true
    */
   auditLogging?: boolean;
+
+  /**
+   * Explicitly enable mutate-capability MCP tools.
+   *
+   * Even when `policy` is `"unrestricted"`, mutate tools remain hidden
+   * unless this flag is set to `true`. This prevents accidental exposure
+   * of write operations when policy is relaxed for other reasons.
+   *
+   * Default: false
+   */
+  enableMutation?: boolean;
 }
 
 export interface CxBehaviorConfig {

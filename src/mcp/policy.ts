@@ -2,8 +2,8 @@ import type { CxConfig } from "../config/types.js";
 import { CxError, type ErrorRemediation } from "../shared/errors.js";
 import type { McpCapability } from "./capabilities.js";
 import {
-  getCxMcpToolDefinition,
   type CxMcpToolDefinition,
+  getCxMcpToolDefinition,
 } from "./tools/catalog.js";
 
 /**
@@ -143,13 +143,24 @@ export function checkToolAccess(
 
 /**
  * Resolve policy from config or use default.
+ *
+ * Even with policy="unrestricted", mutate-capability tools remain denied
+ * unless mcp.enable_mutation is explicitly set to true. This prevents
+ * accidental exposure of write operations.
  */
 export function resolvePolicy(config?: CxConfig): McpPolicy {
   switch (config?.mcp.policy) {
     case "strict":
       return STRICT_POLICY;
     case "unrestricted":
-      return UNRESTRICTED_POLICY;
+      if (config.mcp.enableMutation === true) {
+        return UNRESTRICTED_POLICY;
+      }
+      return {
+        allow: ["read", "observe", "plan"],
+        deny: ["mutate"],
+        name: "unrestricted-mutation-locked",
+      };
     default:
       return DEFAULT_POLICY;
   }

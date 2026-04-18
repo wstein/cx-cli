@@ -13,6 +13,8 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
     filesInclude: [],
     filesExclude: [],
     sectionNames: [],
+    policy: "default",
+    mutationEnabled: false,
     ...overrides,
   };
 }
@@ -91,6 +93,7 @@ describe("collectDoctorMcpReport", () => {
           ({
             files: { include: ["src/**"], exclude: ["node_modules/**"] },
             sections: { main: {}, docs: {} },
+            mcp: { policy: "default", enableMutation: false },
           }) as unknown as Awaited<
             ReturnType<typeof import("../../src/config/load.js").loadCxConfig>
           >,
@@ -100,5 +103,7 @@ describe("collectDoctorMcpReport", () => {
     expect(report.filesInclude).toEqual(["src/**"]);
     expect(report.filesExclude).toEqual(["node_modules/**"]);
     expect(report.sectionNames).toEqual(["docs", "main"]);
+    expect(report.policy).toBe("default");
+    expect(report.mutationEnabled).toBe(false);
   });
 });

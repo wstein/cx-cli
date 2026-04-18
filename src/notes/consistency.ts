@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import type { CxSectionConfig } from "../config/types.js";
 import { CX_MCP_TOOL_NAMES } from "../mcp/tools/catalog.js";
+import { getMatchingSections } from "../planning/overlaps.js";
 import { pathExists } from "../shared/fs.js";
 import { getVCSState } from "../vcs/provider.js";
 import { buildNoteGraph } from "./graph.js";
@@ -17,7 +19,7 @@ export interface NoteCodePathWarning {
   fromTitle: string;
   reference: string;
   path: string;
-  status: "missing" | "outside_master_list";
+  status: "missing" | "outside_master_list" | "excluded_from_plan";
 }
 
 export interface ConsistencyReport {
@@ -44,6 +46,7 @@ export async function collectNoteCodePathWarnings(
   notes: Awaited<ReturnType<typeof validateNotes>>["notes"],
   projectRoot: string,
   repositoryPaths?: Iterable<string>,
+  sectionEntries?: Map<string, CxSectionConfig>,
 ): Promise<NoteCodePathWarning[]> {
   const notesMap = new Map(notes.map((note) => [note.id, note]));
   const knownRepositoryPaths =
@@ -54,7 +57,9 @@ export async function collectNoteCodePathWarnings(
           ),
         )
       : new Set(
-          [...repositoryPaths].map((filePath) => filePath.replaceAll("\\", "/")),
+          [...repositoryPaths].map((filePath) =>
+            filePath.replaceAll("\\", "/"),
+          ),
         );
   const warnings = new Map<string, NoteCodePathWarning>();
 
@@ -78,7 +83,10 @@ export async function collectNoteCodePathWarnings(
       }
 
       const status = knownRepositoryPaths.has(normalizedPath)
-        ? null
+        ? sectionEntries !== undefined &&
+          getMatchingSections(normalizedPath, sectionEntries).length === 0
+          ? ("excluded_from_plan" as const)
+          : null
         : (await pathExists(path.join(projectRoot, normalizedPath)))
           ? "outside_master_list"
           : "missing";

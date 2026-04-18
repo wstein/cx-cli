@@ -1,12 +1,13 @@
 import path from "node:path";
 
 import { loadCxConfig } from "../config/load.js";
-import { buildMasterList } from "../planning/masterList.js";
 import {
   collectNoteCodePathWarnings,
   type NoteCodePathWarning,
 } from "../notes/consistency.js";
 import { validateNotes } from "../notes/validate.js";
+import { buildMasterList } from "../planning/masterList.js";
+import { getSectionEntries } from "../planning/overlaps.js";
 import { writeJson } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 
@@ -23,6 +24,7 @@ export interface DoctorNotesReport {
   driftCount: number;
   missingCount: number;
   outsideMasterListCount: number;
+  excludedFromPlanCount: number;
   drifts: NoteCodePathWarning[];
 }
 
@@ -49,10 +51,12 @@ export async function collectDoctorNotesReport(
   const vcsState = await getState(config.sourceRoot);
   const masterList = await getMasterList(config, vcsState);
   const validation = await validate("notes", config.sourceRoot);
+  const sectionEntries = getSectionEntries(config);
   const drifts = await collectWarnings(
     validation.notes,
     config.sourceRoot,
     masterList,
+    sectionEntries,
   );
 
   return {
@@ -64,6 +68,9 @@ export async function collectDoctorNotesReport(
     missingCount: drifts.filter((drift) => drift.status === "missing").length,
     outsideMasterListCount: drifts.filter(
       (drift) => drift.status === "outside_master_list",
+    ).length,
+    excludedFromPlanCount: drifts.filter(
+      (drift) => drift.status === "excluded_from_plan",
     ).length,
     drifts,
   };
@@ -98,7 +105,9 @@ export function printDoctorNotesReport(
     const detail =
       drift.status === "missing"
         ? "missing from the repository"
-        : "present on disk but outside the master list";
+        : drift.status === "outside_master_list"
+          ? "present on disk but outside the master list"
+          : "tracked by VCS but not claimed by any bundle section";
     process.stdout.write(
       `[${drift.fromNoteId}] ${drift.fromTitle} -> ${drift.path} (${detail})\n`,
     );

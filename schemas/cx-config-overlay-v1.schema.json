@@ -50,6 +50,9 @@
     "config": {
       "$ref": "./cx-config-v1.schema.json#/properties/config"
     },
+    "mcp": {
+      "$ref": "./cx-config-v1.schema.json#/properties/mcp"
+    },
     "sections": {
       "$ref": "./cx-config-v1.schema.json#/properties/sections"
     }

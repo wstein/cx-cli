@@ -15,6 +15,8 @@ export interface DoctorMcpReport {
   filesInclude: string[];
   filesExclude: string[];
   sectionNames: string[];
+  policy: "default" | "strict" | "unrestricted";
+  mutationEnabled: boolean;
 }
 
 export interface DoctorMcpDeps {
@@ -42,6 +44,8 @@ export async function collectDoctorMcpReport(
     sectionNames: Object.keys(config.sections).sort((left, right) =>
       left.localeCompare(right, "en"),
     ),
+    policy: config.mcp.policy ?? "default",
+    mutationEnabled: config.mcp.enableMutation ?? false,
   };
 }
 
@@ -56,6 +60,10 @@ export function printDoctorMcpReport(
 
   process.stdout.write(`Resolved MCP profile: ${report.resolvedConfigPath}\n`);
   process.stdout.write(`Active profile: ${report.activeProfile}\n`);
+  process.stdout.write(`Policy: ${report.policy}\n`);
+  process.stdout.write(
+    `Mutation enabled: ${report.mutationEnabled ? "yes" : "no"}\n`,
+  );
   process.stdout.write(`\nfiles.include:\n`);
   if (report.filesInclude.length === 0) {
     process.stdout.write(`  - (empty)\n`);

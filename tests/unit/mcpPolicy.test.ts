@@ -228,10 +228,20 @@ describe("MCP Policy System", () => {
       );
     });
 
-    it("returns unrestricted policy when configured", () => {
-      expect(resolvePolicy({ mcp: { policy: "unrestricted" } } as never)).toBe(
-        UNRESTRICTED_POLICY,
-      );
+    it("returns unrestricted-mutation-locked policy when unrestricted without enableMutation", () => {
+      const policy = resolvePolicy({
+        mcp: { policy: "unrestricted" },
+      } as never);
+      expect(policy.name).toBe("unrestricted-mutation-locked");
+      expect(policy.allow).not.toContain("mutate");
+    });
+
+    it("returns full unrestricted policy when unrestricted with enableMutation=true", () => {
+      expect(
+        resolvePolicy({
+          mcp: { policy: "unrestricted", enableMutation: true },
+        } as never),
+      ).toBe(UNRESTRICTED_POLICY);
     });
 
     it("falls back to default policy for unknown values", () => {

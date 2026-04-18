@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { enforceToolAccess, withPolicyEnforcement } from "../../src/mcp/enforce.js";
+import {
+  enforceToolAccess,
+  withPolicyEnforcement,
+} from "../../src/mcp/enforce.js";
 import { DEFAULT_POLICY, STRICT_POLICY } from "../../src/mcp/policy.js";
 import type { CxMcpToolDefinition } from "../../src/mcp/tools/catalog.js";
 
@@ -16,21 +19,13 @@ const NOTES_NEW_TOOL: CxMcpToolDefinition = {
 describe("MCP enforcement", () => {
   it("enforces access from the passed tool definition", async () => {
     await expect(
-      enforceToolAccess(
-        BUNDLE_TOOL,
-        async () => "ok",
-        DEFAULT_POLICY,
-      ),
+      enforceToolAccess(BUNDLE_TOOL, async () => "ok", DEFAULT_POLICY),
     ).resolves.toBe("ok");
   });
 
   it("denies access from the passed tool definition", async () => {
     await expect(
-      enforceToolAccess(
-        NOTES_NEW_TOOL,
-        async () => "nope",
-        DEFAULT_POLICY,
-      ),
+      enforceToolAccess(NOTES_NEW_TOOL, async () => "nope", DEFAULT_POLICY),
     ).rejects.toThrow("Access denied");
   });
 

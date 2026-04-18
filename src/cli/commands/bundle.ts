@@ -243,6 +243,10 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     process.stderr.write(
       `Warning: bundling with uncommitted changes in ${plan.modifiedFiles.length} file(s). The manifest will record dirty state as '${recordedState}'.\n`,
     );
+  } else if (plan.dirtyState === "safe_dirty") {
+    process.stderr.write(
+      "Note: working tree has untracked files. These are outside the VCS master list and do not affect bundle integrity (safe_dirty). Use files.include to explicitly pull untracked files into the plan.\n",
+    );
   }
 
   // Resolve the effective dirty state written to the manifest. An unsafe_dirty
@@ -548,6 +552,14 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
     }
 
     if (args.json ?? false) {
+      const dirtyStateNote =
+        effectiveDirtyState === "clean"
+          ? "Working tree is clean."
+          : effectiveDirtyState === "safe_dirty"
+            ? "Untracked files present but outside VCS master list — bundle integrity is unaffected."
+            : effectiveDirtyState === "forced_dirty"
+              ? "Bundle produced with uncommitted tracked changes (--force override)."
+              : "Bundle produced with uncommitted tracked changes (--ci override).";
       writeJson({
         projectName: plan.projectName,
         bundleDir: plan.bundleDir,
@@ -558,6 +570,8 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
         sectionCount: plan.sections.length,
         assetCount: plan.assets.length,
         unmatchedCount: plan.unmatchedFiles.length,
+        dirtyState: effectiveDirtyState,
+        dirtyStateNote,
         statistics: {
           totalSectionBytes,
           totalAssetBytes,

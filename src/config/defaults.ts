@@ -153,6 +153,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   mcp: {
     policy: "default",
     auditLogging: true,
+    enableMutation: false,
   },
 };
 

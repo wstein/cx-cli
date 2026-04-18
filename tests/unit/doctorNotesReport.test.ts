@@ -28,10 +28,7 @@ async function initGitRepo(root: string): Promise<void> {
 }
 
 async function createProject(
-  options: {
-    includeGenerated?: boolean;
-    addGeneratedFile?: boolean;
-  } = {},
+  options: { includeGenerated?: boolean; addGeneratedFile?: boolean } = {},
 ): Promise<{ root: string; configPath: string }> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-doctor-notes-"));
   await fs.mkdir(path.join(root, "notes"), { recursive: true });
@@ -101,7 +98,12 @@ describe("doctor notes report", () => {
       const report = await collectDoctorNotesReport({
         config: project.configPath,
       });
-      expect(report.driftCount).toBe(0);
+      // generated/client.ts is in the master list, so it is NOT missing or
+      // outside the master list. However, no section claims it, so it is
+      // flagged as an advisory "excluded_from_plan" warning.
+      expect(report.missingCount).toBe(0);
+      expect(report.outsideMasterListCount).toBe(0);
+      expect(report.excludedFromPlanCount).toBe(1);
       expect(report.masterFileCount).toBeGreaterThanOrEqual(3);
     } finally {
       await fs.rm(project.root, { recursive: true, force: true });

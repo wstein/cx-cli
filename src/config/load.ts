@@ -866,6 +866,11 @@ export async function loadCxConfig(
         "mcp.audit_logging",
         DEFAULT_CONFIG_VALUES.mcp.auditLogging as boolean,
       ),
+      enableMutation: expectBoolean(
+        mcp.enable_mutation,
+        "mcp.enable_mutation",
+        DEFAULT_CONFIG_VALUES.mcp.enableMutation as boolean,
+      ),
     },
     sections,
   };

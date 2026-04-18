@@ -234,6 +234,27 @@
         }
       }
     },
+    "mcp": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["default", "strict", "unrestricted"],
+          "default": "default",
+          "description": "MCP tool access control policy. 'default' denies mutate, 'strict' allows only read/observe, 'unrestricted' allows all (requires enable_mutation = true for write operations)."
+        },
+        "audit_logging": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable audit logging to .cx/audit.log."
+        },
+        "enable_mutation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Explicitly enable mutate-capability MCP tools. Even with policy = 'unrestricted', mutate tools are hidden unless this flag is true."
+        }
+      }
+    },
     "sections": {
       "type": "object",
       "minProperties": 1,
