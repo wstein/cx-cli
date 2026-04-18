@@ -141,6 +141,7 @@ describe("doctor notes report", () => {
             driftCount: 1,
             missingCount: 0,
             outsideMasterListCount: 1,
+            excludedFromPlanCount: 0,
             drifts: [
               {
                 fromNoteId: "20260418130000",
