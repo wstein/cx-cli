@@ -33,6 +33,46 @@ export function extractWikilinkReferences(
   return references;
 }
 
+const HEADING_REGEX = /^#{1,6}\s+(.+)$/gm;
+
+/**
+ * Extract all heading texts from Markdown content, normalized to lowercase
+ * for case-insensitive anchor matching (mirrors how most Markdown renderers
+ * slugify headings for anchor links).
+ */
+export function extractHeadings(content: string): string[] {
+  const headings: string[] = [];
+  for (const match of content.matchAll(HEADING_REGEX)) {
+    const text = (match[1] ?? "").trim();
+    if (text.length > 0) {
+      headings.push(text.toLowerCase());
+    }
+  }
+  return headings;
+}
+
+const CODE_PATH_REGEX =
+  /^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*\.[A-Za-z0-9._-]+$/u;
+
+export function looksLikeCodePath(reference: string): boolean {
+  return CODE_PATH_REGEX.test(reference);
+}
+
+/**
+ * Extract repository-path-style wikilink targets from note content.
+ * Returns deduplicated, normalized paths (e.g. "src/auth/index.ts").
+ */
+export function extractCodePathReferences(content: string): string[] {
+  const seen = new Set<string>();
+  for (const ref of extractWikilinkReferences(content)) {
+    const normalized = ref.target.replace(/^\.\/+/u, "");
+    if (looksLikeCodePath(normalized)) {
+      seen.add(normalized);
+    }
+  }
+  return [...seen].sort();
+}
+
 export function resolveWikilinkReference(
   reference: string,
   notesMap: Map<string, NoteMetadata>,

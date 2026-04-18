@@ -285,6 +285,7 @@ export function registerNotesTools(
         fileName: note.fileName,
         tags: note.tags ?? [],
         summary: note.summary,
+        codeLinks: note.codeLinks,
       }));
 
       return jsonToolResult({

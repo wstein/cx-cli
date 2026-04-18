@@ -64,6 +64,7 @@ export interface NoteRecord {
   aliases: string[];
   tags: string[];
   summary: string;
+  codeLinks: string[];
   lastModified: string;
 }
 

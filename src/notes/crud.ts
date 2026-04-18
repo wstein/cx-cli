@@ -158,6 +158,7 @@ export interface ReadNoteResult {
   aliases: string[];
   tags: string[];
   summary: string;
+  codeLinks: string[];
   frontmatter: Record<string, unknown>;
   body: string;
   content: string;
@@ -171,6 +172,7 @@ export interface SearchNoteResult {
   aliases: string[];
   tags: string[];
   summary: string;
+  codeLinks: string[];
   matchedFields: string[];
   snippet: string;
 }
@@ -396,6 +398,7 @@ export async function readNote(
     aliases: note.aliases ?? [],
     tags: note.tags ?? [],
     summary: note.summary,
+    codeLinks: note.codeLinks,
     frontmatter: parsed.frontmatter,
     body: parsed.body,
     content,
@@ -484,6 +487,7 @@ export async function searchNotes(
       aliases: note.aliases ?? [],
       tags: note.tags ?? [],
       summary: note.summary,
+      codeLinks: note.codeLinks,
       matchedFields: [...matchedFields],
       snippet,
     });

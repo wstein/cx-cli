@@ -316,7 +316,7 @@
     "NoteRecord": {
       "description": "Repository note metadata captured for AI-first workflows.",
       "type": "object",
-      "required": ["id", "title", "fileName", "aliases", "tags", "summary"],
+      "required": ["id", "title", "fileName", "aliases", "tags", "summary", "codeLinks"],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -352,6 +352,17 @@
           "description": "Short summary extracted from the note body.",
           "type": "string",
           "minLength": 1
+        },
+        "codeLinks": {
+          "description": "Repository-path-style wikilink targets found in the note body (e.g. src/auth/index.ts).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lastModified": {
+          "description": "ISO 8601 timestamp of when the note record was last written.",
+          "type": "string"
         }
       }
     }

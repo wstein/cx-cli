@@ -159,6 +159,7 @@ describe("notes linking", () => {
       filePath: "",
       fileName: "",
       summary: "",
+      codeLinks: [],
     });
 
     it("resolves reference by exact ID match", () => {

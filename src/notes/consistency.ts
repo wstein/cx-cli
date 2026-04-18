@@ -9,6 +9,7 @@ import { getVCSState } from "../vcs/provider.js";
 import { buildNoteGraph } from "./graph.js";
 import {
   extractWikilinkReferences,
+  looksLikeCodePath,
   normalizeWikilinkReference,
   resolveWikilinkReference,
 } from "./linking.js";
@@ -37,9 +38,7 @@ export interface ConsistencyReport {
 }
 
 function looksLikeRepositoryPath(reference: string): boolean {
-  return /^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*\.[A-Za-z0-9._-]+$/u.test(
-    reference,
-  );
+  return looksLikeCodePath(reference);
 }
 
 export async function collectNoteCodePathWarnings(

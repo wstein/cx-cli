@@ -402,6 +402,7 @@ export async function runBundleCommand(args: BundleArgs): Promise<number> {
             aliases: note.aliases ?? [],
             tags: note.tags ?? [],
             summary: note.summary,
+            codeLinks: note.codeLinks,
             lastModified: new Date().toISOString(),
           }))
         : undefined;

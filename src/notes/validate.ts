@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { listFilesRecursive, pathExists } from "../shared/fs.js";
+import { extractCodePathReferences } from "./linking.js";
 import {
   extractNoteSummary,
   parseMarkdownFrontmatter,
@@ -21,6 +22,7 @@ export interface NoteMetadata extends NoteFrontmatter {
   fileName: string;
   title: string;
   summary: string;
+  codeLinks: string[];
 }
 
 export interface NoteValidationError {
@@ -159,6 +161,7 @@ async function extractNoteMetadata(filePath: string): Promise<{
         tags: tags.value,
         title,
         summary: extractNoteSummary(body),
+        codeLinks: extractCodePathReferences(body),
         filePath,
         fileName: path.basename(filePath),
       },
