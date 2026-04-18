@@ -29,9 +29,11 @@ describe("CI lanes contract", () => {
     };
 
     const scripts = pkg.scripts ?? {};
-    expect(scripts["ci:test:all"]).toContain("find ./tests -type f -name '*.test.ts'");
-    expect(scripts["ci:test:contracts"]).toContain(
+    expect(scripts["test:all"]).toContain("find ./tests -type f -name '*.test.ts'");
+    expect(scripts["test:contracts"]).toContain(
       "find ./tests/contracts -type f -name '*.test.ts'",
     );
+    expect(scripts["ci:test:all"]).toBe("bun run test:all");
+    expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
   });
 });
