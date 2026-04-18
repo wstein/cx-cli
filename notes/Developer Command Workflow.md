@@ -9,11 +9,11 @@ pre-merge gate with coverage, and `make release VERSION=x.y.z` is the repository
 into the release script. Keeping those roles separate keeps the common command
 quick while making the release path explicit and repeatable.
 
-- The `Makefile` is a delegate: it provides 1:1 shell shim wrappers around `package.json` scripts.
+- The `Makefile` delegates to `package.json` scripts using 1:1 shell shim wrappers.
 
 ## Testing and coverage conventions
 
-- `package.json` does not define an explicit `coverage` task.
+- `package.json` does not define an explicit `coverage` task; coverage is collected by the test commands.
 - The default test task runs the unit test suite.
 - Tests always collect coverage information.
 - `verify` runs the full integration and unit test suite.

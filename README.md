@@ -173,6 +173,13 @@ When `--template` is omitted, `cx init` autodetects the workspace environment fr
 
 The generated notes directory is intentionally part of the repository contract. Keep architectural intent, implementation decisions, and durable project memory close to the code that depends on them.
 
+### Development workflow
+
+- `make test` or `bun run test` runs the default unit test suite and collects coverage.
+- `make verify` or `bun run verify` runs lint, typecheck, build, and the full test suite with coverage.
+- The `Makefile` delegates to `package.json` scripts using 1:1 shell shim wrappers.
+- `package.json` does not expose an explicit `coverage` script; coverage is collected by test executions.
+
 ### Editor autocomplete and linting
 
 The generated `cx.toml` includes a schema directive for [Taplo](https://taplo.tamasfe.dev/) (the TOML extension in VS Code). This enables real-time autocomplete, validation, and linting:

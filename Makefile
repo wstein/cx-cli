@@ -17,7 +17,7 @@ format: ## Format the project source.
 lint: ## Run lint checks and boundary validation.
 	$(BUN) run lint
 
-test: ## Run unit tests with coverage.
+test: ## Run the default unit test suite via package.json, with coverage.
 	$(BUN) run test
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
