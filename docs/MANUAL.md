@@ -616,6 +616,61 @@ cx completion --shell=fish > ~/.config/fish/completions/cx.fish
 
 Restart your shell after installing or updating completion scripts.
 
+## Workflow: Linked-Note Injection
+
+When `manifest.include_linked_notes = true` is set in `cx.toml`, `cx bundle`
+automatically injects notes that are referenced by at least one wikilink into
+the bundle plan after the VCS-driven file selection phase.
+
+```toml
+[manifest]
+include_linked_notes = true
+```
+
+### Injection Rules
+
+- Only notes with **at least one incoming wikilink** are injected. Orphan notes
+  (no links in or out) are never added automatically.
+- Notes already claimed by a section glob are **not duplicated**. The injection
+  step skips any note whose relative path is already present in the plan.
+- The injected notes land in the **`docs` section** if one exists; otherwise
+  they go into the first section in config order.
+- Within the target section, files are re-sorted lexicographically after
+  injection so the plan output is deterministic regardless of graph traversal
+  order.
+
+### Why Not Every Note?
+
+Note injection is link-driven by design. An orphan note is structurally
+disconnected from your codebase — no file, comment, or other note points to it.
+Including orphans automatically would pollute bundle context with unrelated
+notes. If you want an orphan included, either add a wikilink to it from a source
+file or a related note, or list it explicitly in a section glob.
+
+### Detecting What Was Injected
+
+Run `cx inspect --config cx.toml` before bundling to confirm which notes the
+enrichment step would add:
+
+```bash
+cx inspect --config cx.toml --token-breakdown
+```
+
+Look for entries under the `docs` section (or your first section) that originate
+from `notes/`. These were injected by the linked-note enrichment step.
+
+### Graph Commands That Complement Injection
+
+| Command | What it tells you |
+|---|---|
+| `cx notes orphans` | Notes with no links in or out — not injected unless explicitly added |
+| `cx notes backlinks --id <id>` | Which notes or source files link to a given note |
+| `cx notes links` | Global broken-link audit across the full note graph |
+| `cx notes graph --id <id> --depth 2` | All notes reachable from a seed within N hops |
+
+Use `cx notes orphans` after adding new notes to discover what is still
+disconnected before the next bundle run.
+
 ## Recommended Reading Order
 
 1. README
