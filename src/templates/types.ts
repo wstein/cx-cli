@@ -14,6 +14,7 @@ export type EnvironmentKind =
   | "elixir"
   | "julia"
   | "crystal"
+  | "zig"
   | "base";
 
 export interface TemplateVariables {
@@ -24,6 +25,36 @@ export interface TemplateVariables {
 export interface TemplateMetadata {
   name: EnvironmentKind;
   description: string;
+}
+
+export type TemplateCapabilityLevel = "basic" | "enhanced" | "advanced";
+
+export type TemplateLocalTarget =
+  | "build"
+  | "test"
+  | "check"
+  | "verify"
+  | "certify";
+
+export interface TemplateFileDescriptor {
+  destinationPath: string;
+  templateName: string;
+  description: string;
+}
+
+export interface TemplateCapabilities {
+  level: TemplateCapabilityLevel;
+  localTargets: Record<TemplateLocalTarget, boolean>;
+  authoringOverlay: boolean;
+  separateMcpOverlays: boolean;
+}
+
+export interface TemplateDescriptor extends TemplateMetadata {
+  docsPath: string;
+  detectionMarkers: readonly string[];
+  requiredGeneratedFiles: readonly TemplateFileDescriptor[];
+  optionalGeneratedFiles: readonly TemplateFileDescriptor[];
+  capabilities: TemplateCapabilities;
 }
 
 export interface GeneratedFile {

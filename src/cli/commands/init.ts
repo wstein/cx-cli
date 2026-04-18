@@ -16,10 +16,14 @@ import {
   wizardSelect,
 } from "../../shared/wizard.js";
 import {
-  detectEnvironment,
+  type EnvironmentKind,
+  type GeneratedFile,
+  getSupportedTemplateDescriptors,
   getSupportedTemplates,
+  getTemplateDescriptorByName,
   renderInitTemplate,
   renderInitTemplateFile,
+  type TemplateDescriptor,
   type TemplateVariables,
 } from "../../templates/index.js";
 import {
@@ -116,15 +120,41 @@ async function renderProjectTemplate(
   );
 }
 
-async function shouldGenerateTypeScriptBuildOverlay(
+async function resolveInitTemplateDescriptor(
   projectRoot: string,
   requestedEnvironment?: string,
-): Promise<boolean> {
+): Promise<TemplateDescriptor> {
   if (requestedEnvironment !== undefined) {
-    return requestedEnvironment === "typescript";
+    return getTemplateDescriptorByName(requestedEnvironment as EnvironmentKind);
   }
 
-  return (await detectEnvironment(projectRoot)) === "typescript";
+  const descriptors = getSupportedTemplateDescriptors();
+  const { detectEnvironment } = await import("../../templates/detect.js");
+  const environment = await detectEnvironment(projectRoot);
+  return (
+    descriptors.find((descriptor) => descriptor.name === environment) ??
+    getTemplateDescriptorByName("base")
+  );
+}
+
+function mapGeneratedFilesByPath(
+  files: readonly GeneratedFile[],
+): Map<string, GeneratedFile> {
+  return new Map(files.map((file) => [file.path, file]));
+}
+
+function getRequiredGeneratedFile(
+  generatedByPath: Map<string, GeneratedFile>,
+  destinationPath: string,
+): GeneratedFile {
+  const file = generatedByPath.get(destinationPath);
+  if (!file) {
+    throw new CxError(
+      `Init template contract violation: missing generated file record for ${destinationPath}.`,
+      1,
+    );
+  }
+  return file;
 }
 
 export async function runInitCommand(
@@ -164,14 +194,16 @@ export async function runInitCommand(
     projectName,
     style: resolved.style ?? "xml",
   };
-  const generateTypeScriptBuildOverlay =
-    await shouldGenerateTypeScriptBuildOverlay(projectRoot, args.template);
+  const templateDescriptor = await resolveInitTemplateDescriptor(
+    projectRoot,
+    args.template,
+  );
 
   const output = await renderInitTemplate(
     projectRoot,
     "cx.toml",
     templateVariables,
-    args.template,
+    templateDescriptor.name,
   );
 
   if (args.stdout) {
@@ -192,84 +224,47 @@ export async function runInitCommand(
     return 0;
   }
 
-  const configResult = await renderProjectTemplate(
-    projectRoot,
-    "cx.toml",
-    "cx.toml",
-    templateVariables,
-    args.force,
-    args.template,
-  );
-  const editorconfigResult = await renderProjectTemplate(
-    projectRoot,
-    ".editorconfig",
-    ".editorconfig",
-    templateVariables,
-    args.force,
-    args.template,
-  );
-  const makefileResult = await renderProjectTemplate(
-    projectRoot,
-    "Makefile",
-    "Makefile",
-    templateVariables,
-    args.force,
-    args.template,
-  );
-  const mcpResult = await renderProjectTemplate(
-    projectRoot,
-    "cx-mcp.toml",
-    "cx-mcp.toml",
-    templateVariables,
-    args.force,
-    args.template,
-  );
-  const buildMcpResult = generateTypeScriptBuildOverlay
-    ? await renderProjectTemplate(
+  const generatedFiles = await Promise.all(
+    [
+      ...templateDescriptor.requiredGeneratedFiles,
+      ...templateDescriptor.optionalGeneratedFiles,
+    ].map((file) =>
+      renderProjectTemplate(
         projectRoot,
-        "cx-mcp-build.toml",
-        "cx-mcp-build.toml",
+        file.templateName,
+        file.destinationPath,
         templateVariables,
         args.force,
-        args.template,
-      )
-    : {
-        path: "cx-mcp-build.toml",
-        content: "",
-        created: false,
-        updated: false,
-      };
-  const mcpJsonResult = await renderProjectTemplate(
-    projectRoot,
-    ".mcp.json",
-    ".mcp.json",
-    templateVariables,
-    args.force,
-    args.template,
+        templateDescriptor.name,
+      ),
+    ),
   );
-  const vscodeMcpResult = await renderProjectTemplate(
-    projectRoot,
+  const generatedByPath = mapGeneratedFilesByPath(generatedFiles);
+  const configResult = getRequiredGeneratedFile(generatedByPath, "cx.toml");
+  const editorconfigResult = getRequiredGeneratedFile(
+    generatedByPath,
+    ".editorconfig",
+  );
+  const makefileResult = getRequiredGeneratedFile(generatedByPath, "Makefile");
+  const mcpResult = getRequiredGeneratedFile(generatedByPath, "cx-mcp.toml");
+  const buildMcpResult = generatedByPath.get("cx-mcp-build.toml") ?? {
+    path: "cx-mcp-build.toml",
+    content: "",
+    created: false,
+    updated: false,
+  };
+  const mcpJsonResult = getRequiredGeneratedFile(generatedByPath, ".mcp.json");
+  const vscodeMcpResult = getRequiredGeneratedFile(
+    generatedByPath,
     ".vscode/mcp.json",
-    ".vscode/mcp.json",
-    templateVariables,
-    args.force,
-    args.template,
   );
-  const claudeSettingsResult = await renderProjectTemplate(
-    projectRoot,
+  const claudeSettingsResult = getRequiredGeneratedFile(
+    generatedByPath,
     ".claude/settings.json",
-    ".claude/settings.json",
-    templateVariables,
-    args.force,
-    args.template,
   );
-  const codexSettingsResult = await renderProjectTemplate(
-    projectRoot,
+  const codexSettingsResult = getRequiredGeneratedFile(
+    generatedByPath,
     ".codex/settings.json",
-    ".codex/settings.json",
-    templateVariables,
-    args.force,
-    args.template,
   );
   const notesScaffold = await scaffoldNotesModule(projectRoot, {
     force: args.force,
@@ -312,7 +307,11 @@ export async function runInitCommand(
       printInfo("Created cx-mcp-build.toml", io);
     } else if (buildMcpResult.updated) {
       printInfo("Updated cx-mcp-build.toml", io);
-    } else if (generateTypeScriptBuildOverlay) {
+    } else if (
+      templateDescriptor.optionalGeneratedFiles.some(
+        (file) => file.destinationPath === "cx-mcp-build.toml",
+      )
+    ) {
       printInfo(
         "Skipped existing cx-mcp-build.toml (use --force to overwrite)",
         io,

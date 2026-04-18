@@ -1,0 +1,28 @@
+<!-- Source: TEMPLATE_RUST.md | Status: CANONICAL | Stability: STABLE -->
+
+# Rust Template
+
+The Rust `cx init` template is designed for Cargo workspaces with a richer
+local verification gate than the basic templates.
+
+## Generated Targets
+
+- `make build` → `cargo build --release`
+- `make test` → `cargo test`
+- `make check` → `cargo check`
+- `make verify` → `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo build --release`
+- `make certify` → `verify`
+
+## MCP Overlay
+
+The generated `cx-mcp.toml` exposes:
+
+- `src/**`
+- `tests/**`
+- `benches/**`
+- `Cargo.toml`
+- `Cargo.lock`
+- `README.md`
+
+It excludes `target/**` so build artifacts do not leak into the default
+authoring view.

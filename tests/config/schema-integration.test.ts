@@ -199,7 +199,7 @@ exclude = []
       expectedSnippets: [
         "install: ## Install dependencies using the detected package manager.\n\t@if [ -f bun.lockb ] || [ -f bun.lock ]; then \\\n\t\t$(BUN) install; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) install; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) install; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) install; \\\n\telse \\\n\t\t$(NPM) install; \\\n\tfi",
         "build: ## Build the project using the detected package manager.\n\t@if [ -f bun.lockb ] || [ -f bun.lock ]; then \\\n\t\t$(BUN) run build; \\\n\telif [ -f pnpm-lock.yaml ]; then \\\n\t\t$(PNPM) run build; \\\n\telif [ -f yarn.lock ]; then \\\n\t\t$(YARN) run build; \\\n\telif [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then \\\n\t\t$(NPM) run build; \\\n\telse \\\n\t\t$(NPM) run build; \\\n\tfi",
-        'help: ## Show available targets.\n\t@printf "Available targets:\\n  install build test check lint verify clean notes\\n"',
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  install build test check lint verify certify clean notes\\n"',
       ],
       unexpectedSnippets: [
         "if command -v $(BUN) >/dev/null 2>&1; then",
@@ -235,7 +235,7 @@ exclude = []
       markers: [["Cargo.toml", '[package]\nname = "example"\n']] as const,
       expectedSnippets: [
         "build: ## Build the Rust project in release mode.\n\t$(CARGO) build --release",
-        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test check clean notes\\n"',
+        'help: ## Show available targets.\n\t@printf "Available targets:\\n  build test check verify certify clean notes\\n"',
       ],
       unexpectedSnippets: [
         '@printf "Available targets:\n  build test check clean notes\n"',
@@ -443,6 +443,9 @@ exclude = []
     );
     expect(output).toContain(
       "python: Python workspaces using pyproject.toml or requirements.txt.",
+    );
+    expect(output).toContain(
+      "zig: Zig workspaces using build.zig or build.zig.zon.",
     );
   });
 

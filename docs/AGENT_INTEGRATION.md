@@ -33,6 +33,10 @@ TypeScript note:
 - `cx init --template typescript` also generates `cx-mcp-build.toml` as a separate build-artifact inspection overlay without replacing the default authoring overlay.
 - If your repository uses a non-standard source or build layout, adjust the authoring and build overlays independently rather than collapsing them into one profile.
 
+Template contract note:
+- `cx init` now uses a descriptor-backed template contract across supported languages. The current matrix and per-template capability levels live in `docs/INIT_TEMPLATE_CONTRACT.md`.
+- Enhanced templates such as Elixir, Crystal, Go, Rust, and Zig keep their default MCP overlays source-first rather than exposing build caches by default.
+
 Key behavior to remember
 - The server is started by running `cx mcp` in the repository root.
 - Transport: stdio (stdin/stdout)

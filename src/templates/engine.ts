@@ -11,7 +11,11 @@ import { fileURLToPath } from "node:url";
 
 import Handlebars from "handlebars";
 import { ensureDir, pathExists, relativePosix } from "../shared/fs.js";
-import { detectEnvironment, isEnvironmentSupported } from "./detect.js";
+import {
+  detectEnvironment,
+  getTemplateDescriptorByName,
+  isEnvironmentSupported,
+} from "./detect.js";
 import type {
   EnvironmentKind,
   GeneratedFile,
@@ -63,7 +67,7 @@ async function resolveEnvironment(
   if (requestedEnvironment) {
     if (!isEnvironmentSupported(requestedEnvironment)) {
       throw new Error(
-        `Unknown template environment: ${requestedEnvironment}. Supported templates are: rust, go, typescript, elixir, julia, crystal, base.`,
+        `Unknown template environment: ${requestedEnvironment}. Supported templates are: rust, go, typescript, python, java, elixir, julia, crystal, zig, base.`,
       );
     }
     return requestedEnvironment;
@@ -81,6 +85,7 @@ export async function renderInitTemplate(
     projectRoot,
     requestedEnvironment,
   );
+  getTemplateDescriptorByName(environment);
   return compileTemplate(environment, templateName, variables);
 }
 

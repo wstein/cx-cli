@@ -1,0 +1,16 @@
+#:schema https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json
+extends = "./cx.toml"
+
+[files]
+include = [
+  "src/**",
+  "tests/**",
+  "benches/**",
+  "Cargo.toml",
+  "Cargo.lock",
+  "README.md"
+]
+exclude = [
+  "target/**",
+  ".git/**"
+]

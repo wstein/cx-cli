@@ -1,0 +1,51 @@
+<!-- Source: INIT_TEMPLATE_CONTRACT.md | Status: CANONICAL | Stability: STABLE -->
+
+# Init Template Contract
+
+`cx init` always generates the shared workspace bootstrap files plus a
+language-aware `Makefile`. Some templates also specialize the default
+authoring-oriented `cx-mcp.toml` overlay, and TypeScript currently adds a
+second build-artifact overlay.
+
+The universal generated files are:
+
+- `cx.toml`
+- `.editorconfig`
+- `Makefile`
+- `cx-mcp.toml`
+- `.mcp.json`
+- `.vscode/mcp.json`
+- `.claude/settings.json`
+- `.codex/settings.json`
+- `notes/` scaffolding
+
+## Capability Levels
+
+- `basic`: workspace-aware `Makefile` plus the shared MCP overlay contract.
+- `enhanced`: specialized authoring overlay and richer local quality targets.
+- `advanced`: enhanced template plus separate MCP overlays for authoring and
+  build-artifact inspection.
+
+## Template Matrix
+
+| Template | Level | Detection markers | Optional generated files | Targets | Separate MCP overlays |
+| --- | --- | --- | --- | --- | --- |
+| `base` | basic | none | none | `build` | no |
+| `rust` | enhanced | `Cargo.toml` | none | `build`, `test`, `check`, `verify`, `certify` | no |
+| `go` | enhanced | `go.mod` | none | `build`, `test`, `check`, `verify`, `certify` | no |
+| `typescript` | advanced | `package.json` | `cx-mcp-build.toml` | `build`, `test`, `check`, `verify`, `certify` | yes |
+| `python` | basic | `pyproject.toml`, `requirements.txt` | none | `build`, `test` | no |
+| `java` | basic | `pom.xml`, `build.gradle`, `build.gradle.kts` | none | `build`, `test` | no |
+| `elixir` | enhanced | `mix.exs` | none | `build`, `test`, `check`, `verify`, `certify` | no |
+| `julia` | basic | `Project.toml` | none | `build`, `test` | no |
+| `crystal` | enhanced | `shard.yml`, `shard.lock` | none | `build`, `test`, `verify`, `certify` | no |
+| `zig` | enhanced | `build.zig`, `build.zig.zon` | none | `build`, `test`, `verify`, `certify` | no |
+
+## Overlay Intent
+
+- Authoring overlay: live source exploration and editing in MCP sessions.
+- Build overlay: compiled or emitted artifacts that should stay separate from
+  the default authoring surface.
+
+If a repository uses nonstandard source or output layouts, edit the overlays
+independently instead of broadening the default authoring view.

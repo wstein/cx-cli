@@ -1,0 +1,40 @@
+# Makefile for Zig workspaces.
+#
+# Provides a normalized interface for Zig build commands and native workspace
+# tasks.
+#
+# Usage:
+#   make          # build the Zig project
+#   make build    # zig build
+#   make test     # zig build test
+#   make verify   # test + build
+#   make certify  # verify
+#   make clean    # remove generated output
+#   make notes    # show the notes directory path
+#
+ZIG ?= zig
+CLEAN_DIR ?= dist
+
+.PHONY: all build test verify certify clean notes help
+all: build
+
+build: ## Build the Zig project.
+	$(ZIG) build
+
+test: ## Run Zig tests.
+	$(ZIG) build test
+
+verify: ## Run the standard Zig quality gate.
+	@$(MAKE) test && $(MAKE) build
+
+certify: ## Run the local Zig release gate.
+	@$(MAKE) verify
+
+clean: ## Remove generated output files.
+	rm -rf "$(CLEAN_DIR)" zig-cache zig-out .zig-cache
+
+notes: ## Print the notes directory path.
+	@printf "Notes directory: notes\n"
+
+help: ## Show available targets.
+	@printf "Available targets:\n  build test verify certify clean notes\n"

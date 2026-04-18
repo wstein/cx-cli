@@ -94,6 +94,9 @@ describe("runInitCommand", () => {
     );
     expect(exitCode).toBe(0);
     expect(capture.stdout().length).toBeGreaterThan(0);
+    expect(capture.stdout()).toContain(
+      "zig: Zig workspaces using build.zig or build.zig.zon.",
+    );
   });
 
   test("invalid project name throws CxError", async () => {
