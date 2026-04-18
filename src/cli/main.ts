@@ -1,6 +1,6 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve as resolvePath } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { setCLIOverrides } from "../config/env.js";
@@ -62,6 +62,17 @@ function normalizeArrayArg(value: unknown): string[] | undefined {
     return value.map((entry) => String(entry));
   }
   return [String(value)];
+}
+
+function resolveCliPath(
+  value: string | undefined,
+  cwd: string,
+): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return resolvePath(cwd, value);
 }
 
 function writeStdoutSafe(
@@ -292,7 +303,7 @@ export async function main(
           }),
       async (args) => {
         exitCode = await runInspectCommand({
-          config: args.config,
+          config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
           json: args.json,
           tokenBreakdown: args["token-breakdown"],
           layout: args.layout,
@@ -348,7 +359,7 @@ export async function main(
       async (args) => {
         exitCode = await runBundleCommand(
           {
-            config: args.config,
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             json: args.json,
             layout: args.layout,
             update: args.update,
@@ -380,8 +391,8 @@ export async function main(
       async (args) => {
         exitCode = await runExtractCommand(
           {
-            bundleDir: args.bundleDir,
-            destinationDir: args.to,
+            bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
+            destinationDir: resolveCliPath(args.to, io.cwd) ?? args.to,
             sections: normalizeArrayArg(args.section),
             files: normalizeArrayArg(args.file),
             assetsOnly: args["assets-only"],
@@ -410,7 +421,7 @@ export async function main(
       async (args) => {
         exitCode = await runListCommand(
           {
-            bundleDir: args.bundleDir,
+            bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
             files: normalizeArrayArg(args.file),
             json: args.json,
             sections: normalizeArrayArg(args.section),
@@ -432,7 +443,7 @@ export async function main(
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runValidateCommand({
-          bundleDir: args.bundleDir,
+          bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
           json: args.json,
         }, io);
       },
@@ -459,12 +470,12 @@ export async function main(
       async (args) => {
         exitCode = await runVerifyCommand(
           {
-            bundleDir: args.bundleDir,
-            againstDir: args.against,
+            bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
+            againstDir: resolveCliPath(args.against, io.cwd),
             files: normalizeArrayArg(args.file),
             json: args.json,
             sections: normalizeArrayArg(args.section),
-            config: args.config,
+            config: resolveCliPath(args.config, io.cwd),
           },
           io,
         );
@@ -574,7 +585,7 @@ export async function main(
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runRenderCommand({
-          config: args.config,
+          config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
           sections: normalizeArrayArg(args.section),
           files: normalizeArrayArg(args.file),
           allSections: args["all-sections"],
@@ -608,7 +619,7 @@ export async function main(
       async (args) => {
         exitCode = await runConfigCommand(
           {
-            config: args.config,
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             json: args.json,
           },
           io,
@@ -635,7 +646,7 @@ export async function main(
       async (args) => {
         exitCode = await runAdapterCommand(
           {
-            config: args.config,
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             subcommand: args.subcommand as
               | "capabilities"
               | "inspect"
@@ -755,6 +766,7 @@ export async function main(
             id: args.id as string | undefined,
             depth: args.depth as number | undefined,
             json: args.json,
+            workspaceRoot: io.cwd,
           },
           io,
         );

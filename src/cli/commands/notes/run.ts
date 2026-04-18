@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   checkNoteCoverage,
   checkNotesConsistency,
@@ -39,12 +40,15 @@ export interface NotesArgs {
   id?: string | undefined;
   depth?: number | undefined;
   json?: boolean | undefined;
+  workspaceRoot?: string | undefined;
 }
 export async function runNotesCommand(
   args: NotesArgs,
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
+  const workspaceRoot = args.workspaceRoot ?? io.cwd;
+  const notesDir = path.join(workspaceRoot, "notes");
   const printInfo = (message: string) => basePrintInfo(message, io);
   const printSuccess = (message: string) => basePrintSuccess(message, io);
   const printWarning = (message: string) => basePrintWarning(message, io);
@@ -59,6 +63,7 @@ export async function runNotesCommand(
     const { id, filePath } = await createNewNote(args.title, {
       body: args.body,
       tags: args.tags ?? undefined,
+      notesDir,
     });
 
     if (args.json ?? false) {
@@ -86,7 +91,7 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes read'", 2);
     }
 
-    const note = await readNote(args.id);
+    const note = await readNote(args.id, { notesDir });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -130,6 +135,7 @@ export async function runNotesCommand(
       body: args.body,
       tags: args.tags,
       title: args.title,
+      notesDir,
     });
 
     if (args.json ?? false) {
@@ -160,7 +166,7 @@ export async function runNotesCommand(
       throw new CxError("--title is required for 'cx notes rename'", 2);
     }
 
-    const note = await renameNote(args.id, args.title);
+    const note = await renameNote(args.id, args.title, { notesDir });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -189,7 +195,7 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes delete'", 2);
     }
 
-    const note = await deleteNote(args.id);
+    const note = await deleteNote(args.id, { notesDir });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -208,7 +214,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "list") {
-    const notes = await listNotes("notes");
+    const notes = await listNotes(notesDir);
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -239,7 +245,7 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes backlinks'", 2);
     }
 
-    const graph = await buildNoteGraph("notes", process.cwd());
+    const graph = await buildNoteGraph(notesDir, workspaceRoot);
     const note = graph.notes.get(args.id);
 
     if (!note) {
@@ -271,7 +277,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "orphans") {
-    const graph = await buildNoteGraph("notes", process.cwd());
+    const graph = await buildNoteGraph(notesDir, workspaceRoot);
     const orphans = graph.orphans.map((id) => {
       const note = graph.notes.get(id);
       return {
@@ -306,7 +312,7 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes code-links'", 2);
     }
 
-    const graph = await buildNoteGraph("notes", process.cwd());
+    const graph = await buildNoteGraph(notesDir, workspaceRoot);
     const note = graph.notes.get(args.id);
 
     if (!note) {
@@ -338,7 +344,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "links") {
-    const graph = await buildNoteGraph("notes", process.cwd());
+    const graph = await buildNoteGraph(notesDir, workspaceRoot);
 
     if (args.id) {
       const note = graph.notes.get(args.id);
@@ -416,7 +422,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "check") {
-    const report = await checkNotesConsistency("notes", process.cwd());
+    const report = await checkNotesConsistency(notesDir, workspaceRoot);
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -480,7 +486,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "coverage") {
-    const coverage = await checkNoteCoverage("notes", process.cwd());
+    const coverage = await checkNoteCoverage(notesDir, workspaceRoot);
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -513,7 +519,7 @@ export async function runNotesCommand(
 
     const depth =
       typeof args.depth === "number" && args.depth > 0 ? args.depth : 2;
-    const graph = await buildNoteGraph("notes", process.cwd(), false);
+    const graph = await buildNoteGraph(notesDir, workspaceRoot, false);
     const note = graph.notes.get(args.id);
 
     if (!note) {

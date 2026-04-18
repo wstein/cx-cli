@@ -14,6 +14,7 @@ export interface CommandIo {
   log: (...args: unknown[]) => void;
   env: NodeJS.ProcessEnv;
   stdin: Pick<NodeJS.ReadStream, "isTTY">;
+  cwd: string;
 }
 
 export function resolveCommandIo(io: Partial<CommandIo> = {}): CommandIo {
@@ -23,6 +24,7 @@ export function resolveCommandIo(io: Partial<CommandIo> = {}): CommandIo {
     log: io.log ?? console.log,
     env: io.env ?? process.env,
     stdin: io.stdin ?? process.stdin,
+    cwd: io.cwd ?? process.cwd(),
   };
 }
 
