@@ -32,7 +32,7 @@
     "check-boundaries": "bun run scripts/check-boundaries.ts",
     "test:unit": "bun test tests/unit --timeout 20000",
     "test:integration": "bun test tests/cli tests/bundle --timeout 20000",
-    "test": "bun test tests/unit",
+    "test": "bun test tests/unit && bun run scripts/coverage-summary.ts",
     "release": "bun run scripts/release.ts",
     "gen:homebrew": "bun run scripts/generate-homebrew-formula.ts",
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
