@@ -1,0 +1,14 @@
+[test]
+coverage = true
+coverageReporter = ["text", "lcov"]
+coverageDir = "coverage"
+coverageSkipTestFiles = true
+randomize = true
+rerunEach = 2
+timeout = 20000
+
+[test.coverageThreshold]
+line = { per_file = 0.80, summary = 0.95 }
+function = { per_file = 0.80, summary = 0.95 }
+statement = { per_file = 0.80, summary = 0.95 }
+branch = { per_file = 0.80, summary = 0.95 }
