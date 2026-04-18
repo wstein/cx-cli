@@ -42,6 +42,19 @@ Use the repository-local `make` targets for day-to-day development:
 
 `make certify` runs everything `make verify` does, then performs a clean double-build reproducibility check: the `dist/` tree is hashed, wiped, rebuilt, and hashed again. The two hash sets must match exactly. This mirrors the CI `reproducibility` job so the release gate is exercisable locally without pushing.
 
+## Assurance Ladder
+
+Use these commands as a progressive assurance model:
+
+| Command | What it covers | When to run |
+| --- | --- | --- |
+| `bun run verify` | lint, typecheck, build, full test suite with coverage, coverage summary | normal pre-merge gate |
+| `bun run certify` | `verify` + contract lane + Repomix compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
+| `bun run integrity` | release integrity metadata generation from the packed npm tarball | release artifact staging |
+| `bun run verify-release` | release integrity metadata verification against packed tarball | release verification and audit |
+
+`make verify` and `make certify` are thin wrappers around `bun run verify` and `bun run certify`.
+
 ### CX Commands
 
 Use `cx` commands for repository planning, bundle generation, verification, and live MCP work.
@@ -81,7 +94,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite with coverage.
-- `make certify` runs everything `verify` does plus a reproducibility check — the CI-grade local gate to use before tagging.
+- `make certify` runs everything `verify` does plus contract tests, smoke lanes, release integrity smoke, and reproducibility checks — the CI-grade local gate to use before tagging.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 
 The `make` targets are wrappers around the corresponding Bun scripts. Use them
@@ -228,6 +241,29 @@ src/index.ts
 ```
 
 Use `inspect` before `bundle` whenever you are changing section boundaries, asset rules, or exclusion patterns.
+
+### Linked-Note Enrichment (Operator View)
+
+When `manifest.includeLinkedNotes = true`, `cx` runs linked-note enrichment after the VCS planning phase and before rendering.
+
+- This is inclusion-changing behavior: linked note files can be added to the selected section file list.
+- Injection is targeted: linked notes are appended to `docs` when that section exists, otherwise to the first configured section.
+- Injection is constrained: notes already claimed by sections or assets are not duplicated.
+- Injection is deterministic: injected files are sorted lexicographically within the target section.
+
+You can inspect the effect before bundling:
+
+```bash
+cx inspect --config cx.toml --json
+```
+
+Then verify graph reachability from a seed note:
+
+```bash
+cx notes graph --id <note-id> --depth 2
+```
+
+For graph traversal, `--depth` is the maximum wikilink hop count from the seed note. `--depth 1` returns direct links only, while higher values include transitive reachable notes up to that bound.
 
 If you are checking whether a section is becoming too large, run:
 

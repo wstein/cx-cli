@@ -139,6 +139,26 @@ This implementation now includes:
 - cross-file anchor validation: `[[Note Title#Section Heading]]` wikilinks are checked against actual headings in the target note, reported as `anchor-not-found` broken links
 - graph reachability queries via `cx notes graph --id <id> --depth <n>` and the `notes_graph` MCP tool, returning all notes reachable within N wikilink hops from a seed note
 
+## Linked-Note Enrichment Semantics
+
+Linked-note enrichment is a post-planning orchestration step controlled by `manifest.includeLinkedNotes`.
+
+- It is inclusion-changing, not advisory: qualifying linked notes are injected into the bundle plan.
+- It does not alter the core VCS planning model: enrichment runs after file classification.
+- The target section is `docs` when present, otherwise the first configured section.
+- Notes already claimed by sections or assets are not reinjected.
+- The target section is re-sorted after injection to preserve deterministic ordering.
+
+Operator inspection path:
+
+1. Run `cx inspect --json` to see the planned section file lists before rendering.
+2. Run `cx notes graph --id <seed> --depth <n>` to inspect graph reachability from the seed note.
+
+Depth semantics for graph inspection:
+
+- `depth = 1` includes direct wikilink neighbors.
+- `depth = N` includes notes reachable within at most `N` wikilink hops.
+
 The key downstream effect is that automation can inspect the note layer through
 manifest metadata first, then open individual notes only when deeper context is
 required.

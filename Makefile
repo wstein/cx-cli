@@ -26,7 +26,7 @@ unit: ## Run the unit-only test suite via package.json.
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
 
-certify: ## Run verify plus a reproducibility check (CI-grade local gate).
+certify: ## Run verify plus contracts, smoke lanes, release integrity smoke, and reproducibility.
 	$(BUN) run certify
 
 check: ## Run typecheck only using the package.json check script.
@@ -53,7 +53,7 @@ help: ## Show available targets.
 	@printf "  test      Run the default unit test suite via package.json, with coverage.\n"
 	@printf "  unit      Run the unit-only test suite via package.json.\n"
 	@printf "  verify    Run lint, typecheck, build, and the full test suite with coverage.\n"
-	@printf "  certify   Run verify plus a reproducibility check (CI-grade local gate).\n"
+	@printf "  certify   Run verify plus contracts, smoke lanes, release integrity smoke, and reproducibility.\n"
 	@printf "  check     Run typecheck only using the package.json check script.\n"
 	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
 	@printf "  clean     Remove generated output files.\n"
