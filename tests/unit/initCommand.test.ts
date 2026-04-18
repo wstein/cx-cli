@@ -6,6 +6,7 @@ import path from "node:path";
 import { runInitCommand } from "../../src/cli/commands/init.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
+import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 
 let testDir: string;
 let origCwd: string;
@@ -227,6 +228,36 @@ describe("runInitCommand", () => {
     expect(buildOverlay).toContain(
       'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
     );
+  });
+
+  test("typescript init generated artifacts match the higher-level snapshot", async () => {
+    await initializeTypescriptTemplate(testDir);
+
+    const [makefile, authoringOverlay, buildOverlay] = await Promise.all([
+      fs.readFile(path.join(testDir, "Makefile"), "utf8"),
+      fs.readFile(path.join(testDir, "cx-mcp.toml"), "utf8"),
+      fs.readFile(path.join(testDir, "cx-mcp-build.toml"), "utf8"),
+    ]);
+
+    const artifactBundle = [
+      "=== Makefile ===",
+      makefile.trimEnd(),
+      "",
+      "=== cx-mcp.toml ===",
+      authoringOverlay.trimEnd(),
+      "",
+      "=== cx-mcp-build.toml ===",
+      buildOverlay.trimEnd(),
+      "",
+    ].join("\n");
+
+    await assertTextSnapshot({
+      snapshotPath: path.join(
+        origCwd,
+        "tests/fixtures/snapshots/init/typescript-generated-artifacts.txt",
+      ),
+      actual: artifactBundle,
+    });
   });
 
   test("typescript Makefile verify skips missing lint/check scripts with clear messages", async () => {
