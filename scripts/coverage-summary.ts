@@ -1,0 +1,138 @@
+import fs from "node:fs/promises";
+
+interface FileCoverage {
+  file: string;
+  lines: Map<number, number>;
+  total: number;
+  hit: number;
+}
+
+const readLcovFile = async (
+  filePath: string,
+): Promise<Map<string, FileCoverage>> => {
+  const content = await fs.readFile(filePath, "utf-8");
+  const coverage = new Map<string, FileCoverage>();
+  let current: FileCoverage | null = null;
+
+  for (const line of content.split("\n")) {
+    if (line.startsWith("SF:")) {
+      const file = line.slice(3);
+      current = { file, lines: new Map(), total: 0, hit: 0 };
+      coverage.set(file, current);
+    } else if (line.startsWith("DA:") && current) {
+      const parts = line.slice(3).split(",");
+      const lineNum = Number(parts[0]);
+      const count = Number(parts[1]);
+      current.lines.set(lineNum, count);
+      current.total++;
+      if (count > 0) current.hit++;
+    }
+  }
+
+  return coverage;
+};
+
+const readSourceFile = async (filePath: string): Promise<string[]> => {
+  try {
+    const content = await fs.readFile(filePath, "utf-8");
+    return content.split("\n");
+  } catch {
+    return [];
+  }
+};
+
+const getUncoveredRanges = (
+  lines: Map<number, number>,
+): Array<[number, number]> => {
+  const uncovered: Array<[number, number]> = [];
+  let start = -1;
+
+  const sorted = Array.from(lines.entries()).sort(([a], [b]) => a - b);
+
+  for (const [lineNum, count] of sorted) {
+    if (count === 0) {
+      if (start === -1) start = lineNum;
+    } else if (start !== -1) {
+      uncovered.push([start, lineNum - 1]);
+      start = -1;
+    }
+  }
+
+  if (start !== -1) uncovered.push([start, Math.max(...lines.keys())]);
+  return uncovered;
+};
+
+const formatCodeBlock = async (
+  startLine: number,
+  endLine: number,
+  source: string[],
+): Promise<string> => {
+  const lines: string[] = [];
+  for (let i = startLine - 1; i < endLine; i++) {
+    lines.push(source[i] || "");
+  }
+
+  return `\`\`\`\n${lines.join("\n")}\n\`\`\``;
+};
+
+const main = async () => {
+  const lcovPath = "coverage/lcov.info";
+  const outputPath = "coverage/COVERAGE.md";
+
+  const coverage = await readLcovFile(lcovPath);
+  const sorted = Array.from(coverage.values()).sort(
+    (a, b) => a.hit / a.total - b.hit / b.total,
+  );
+
+  let markdown = "# Coverage Report\n\n";
+  markdown += `**Generated:** ${new Date().toISOString()}\n\n`;
+
+  const totalHit = Array.from(coverage.values()).reduce(
+    (sum, c) => sum + c.hit,
+    0,
+  );
+  const totalLines = Array.from(coverage.values()).reduce(
+    (sum, c) => sum + c.total,
+    0,
+  );
+  const overall = ((totalHit / totalLines) * 100).toFixed(2);
+
+  markdown += `## Summary\n- **Overall:** ${overall}% (${totalHit}/${totalLines} lines)\n`;
+
+  const below80 = sorted.filter((c) => c.hit / c.total < 0.8);
+  if (below80.length > 0) {
+    markdown += `- **Below 80%:** ${below80.length} files\n`;
+  }
+  markdown += "\n";
+
+  for (const file of sorted) {
+    const pct = ((file.hit / file.total) * 100).toFixed(2);
+    if (file.hit === file.total) continue;
+
+    markdown += `## ${file.file}\n**Coverage:** ${pct}% (${file.hit}/${file.total})\n\n`;
+
+    const source = await readSourceFile(file.file);
+    const ranges = getUncoveredRanges(file.lines);
+
+    for (const [start, end] of ranges) {
+      markdown += `**Uncovered lines ${start}–${end}**\n`;
+      markdown += await formatCodeBlock(start, end, source);
+      markdown += "\n\n";
+    }
+  }
+
+  await fs.writeFile(outputPath, markdown);
+
+  const belowThreshold = sorted.filter((c) => c.hit / c.total < 0.8);
+  console.log(`\n📊 Coverage: ${overall}% (${totalHit}/${totalLines})`);
+  if (belowThreshold.length > 0) {
+    console.log(`⚠️  ${belowThreshold.length} files below 80%:`);
+    belowThreshold.forEach((f) => {
+      const pct = ((f.hit / f.total) * 100).toFixed(1);
+      console.log(`   - ${f.file}: ${pct}%`);
+    });
+  }
+  console.log(`📄 Details: ${outputPath}`);
+};
+
+main().catch(console.error);
