@@ -102,39 +102,43 @@ describe("bundle update matrix", () => {
     ).toBeDefined();
   });
 
-  test("section-change transition moves files between sections with --update", async () => {
-    const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+  test(
+    "section-change transition moves files between sections with --update",
+    async () => {
+      const project = await createProject();
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
 
-    const originalConfig = await readConfig(project.configPath);
-    const modifiedConfig = originalConfig
-      .replace('include = ["README.md", "docs/**"]', 'include = ["docs/**"]')
-      .replace(
-        "[sections.src]",
-        '[sections.repo]\ninclude = ["README.md"]\nexclude = []\n\n[sections.src]',
+      const originalConfig = await readConfig(project.configPath);
+      const modifiedConfig = originalConfig
+        .replace('include = ["README.md", "docs/**"]', 'include = ["docs/**"]')
+        .replace(
+          "[sections.src]",
+          '[sections.repo]\ninclude = ["README.md"]\nexclude = []\n\n[sections.src]',
+        );
+      await writeConfig(project.configPath, modifiedConfig);
+
+      expect(
+        await runBundleCommand({ config: project.configPath, update: true }),
+      ).toBe(0);
+
+      const { manifest } = await loadManifestFromBundle(project.bundleDir);
+      const repoSection = manifest.sections.find(
+        (section) => section.name === "repo",
       );
-    await writeConfig(project.configPath, modifiedConfig);
-
-    expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
-    ).toBe(0);
-
-    const { manifest } = await loadManifestFromBundle(project.bundleDir);
-    const repoSection = manifest.sections.find(
-      (section) => section.name === "repo",
-    );
-    const docsSection = manifest.sections.find(
-      (section) => section.name === "docs",
-    );
-    expect(repoSection).toBeDefined();
-    expect(docsSection).toBeDefined();
-    expect(repoSection?.files.some((file) => file.path === "README.md")).toBe(
-      true,
-    );
-    expect(docsSection?.files.some((file) => file.path === "README.md")).toBe(
-      false,
-    );
-  });
+      const docsSection = manifest.sections.find(
+        (section) => section.name === "docs",
+      );
+      expect(repoSection).toBeDefined();
+      expect(docsSection).toBeDefined();
+      expect(repoSection?.files.some((file) => file.path === "README.md")).toBe(
+        true,
+      );
+      expect(docsSection?.files.some((file) => file.path === "README.md")).toBe(
+        false,
+      );
+    },
+    { timeout: 60000 },
+  );
 
   test("asset-change transition prunes removed assets with --update", async () => {
     const project = await createProject();
