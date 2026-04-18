@@ -46,7 +46,8 @@ Every `*.test.ts` file must start with a lane header on line 1:
 - Isolate true filesystem/module-resolution coverage in clearly named
   integration tests.
 - Keep startup and transport anomaly handling in explicit boundary tests (for
-  example, stalled startup, delayed failures, and malformed protocol payloads).
+  example, stalled startup, delayed failures, malformed startup payloads,
+  malformed tool-result payloads, and interrupted runtime responses).
 
 ### Lane Matrix
 
@@ -54,7 +55,7 @@ Every `*.test.ts` file must start with a lane header on line 1:
 | --- | --- | --- |
 | `tests/unit` | Unit | Pure logic and helper seams; prefer in-memory fixtures. |
 | `tests/config` | Unit/Integration | Parser and precedence logic; use property matrices for override conflicts. |
-| `tests/mcp` | Integration + Adversarial | MCP tool wiring and boundary fault behavior (timeouts, malformed startup payloads). |
+| `tests/mcp` | Integration + Adversarial | MCP tool wiring and boundary fault behavior (startup/runtime timeouts, malformed payloads, interrupted responses). |
 | `tests/notes` | Unit/Integration | Keep parser/validation in-memory; keep CLI and note-graph workflows realistic. |
 | `tests/planning` | Unit | Plan/provenance logic with deterministic fixtures. |
 | `tests/manifest` | Unit/Integration | Schema/render round-trips plus manifest file compatibility checks. |

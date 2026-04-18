@@ -13,6 +13,7 @@ export const ALLOWED_LANES = new Set([
 
 export const ADVERSARIAL_OVERRIDES = new Set([
   "tests/mcp/server.run.test.ts",
+  "tests/mcp/toolRuntime.adversarial.test.ts",
   "tests/repomix/adapter.fallback.test.ts",
 ]);
 
