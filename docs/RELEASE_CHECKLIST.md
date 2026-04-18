@@ -4,7 +4,7 @@
 
 Use this short checklist when cutting a release.
 
-- Run `make verify` before tagging so lint, typecheck, build, and the full test suite with coverage are green.
+- Run `make certify` before tagging. This runs lint, typecheck, build, the full test suite with coverage, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag gate.
 - If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.
 - If the Pages branch does not exist yet, let the publish workflow create `gh-pages` on the next run.
 - GitHub Pages must be configured in repository settings to serve from the `gh-pages` branch.

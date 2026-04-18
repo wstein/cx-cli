@@ -37,7 +37,10 @@ Use the repository-local `make` targets for day-to-day development:
 | --- | --- |
 | `make test` | You want unit coverage while iterating |
 | `make verify` | You want the full local gate with coverage before merging |
+| `make certify` | You want CI-grade confidence before tagging a release |
 | `make release VERSION=x.y.z` | You are cutting a tagged release |
+
+`make certify` runs everything `make verify` does, then performs a clean double-build reproducibility check: the `dist/` tree is hashed, wiped, rebuilt, and hashed again. The two hash sets must match exactly. This mirrors the CI `reproducibility` job so the release gate is exercisable locally without pushing.
 
 ### CX Commands
 
@@ -78,6 +81,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite with coverage.
+- `make certify` runs everything `verify` does plus a reproducibility check — the CI-grade local gate to use before tagging.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 
 The `make` targets are wrappers around the corresponding Bun scripts. Use them
