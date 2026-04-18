@@ -27,7 +27,7 @@ describe("docs assurance contract", () => {
     const checklist = await readText("docs/RELEASE_CHECKLIST.md");
 
     expect(checklist).toContain("pre-tag CI-equivalent gate");
-    expect(checklist).toContain("Repomix compatibility smoke");
+    expect(checklist).toContain("Repomix fork compatibility smoke");
     expect(checklist).toContain("bundle transition matrix smoke");
     expect(checklist).toContain("release integrity smoke");
   });
