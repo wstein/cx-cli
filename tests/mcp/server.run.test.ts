@@ -179,4 +179,91 @@ describe("runCxMcpServer", () => {
       proto.close = originalClose;
     }
   });
+
+  test("exits 1 when delayed connect failure arrives before timeout", async () => {
+    const connect = mock(
+      () =>
+        new Promise<void>((_resolve, reject) => {
+          setTimeout(() => reject(new Error("delayed startup failure")), 25);
+        }),
+    );
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        connectTimeoutMs: 200,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("delayed startup failure");
+      expect(firstWrite).not.toContain("timed out");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
+  test("exits 1 with structured reason when connect rejects a non-Error payload", async () => {
+    const connect = mock(async () => {
+      throw { stage: "handshake", detail: "malformed startup payload" };
+    });
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("failed to start cx mcp server");
+      expect(firstWrite).toContain('"stage":"handshake"');
+      expect(firstWrite).toContain('"detail":"malformed startup payload"');
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
 });

@@ -22,6 +22,58 @@ export interface CxMcpServerDeps {
 
 const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
 
+function formatStartupErrorReason(error: unknown): string {
+  if (error instanceof Error && typeof error.message === "string") {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (typeof error === "object" && error !== null) {
+    const maybeMessage = (
+      error as {
+        message?: unknown;
+      }
+    ).message;
+    if (typeof maybeMessage === "string" && maybeMessage.length > 0) {
+      return maybeMessage;
+    }
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+
+async function connectWithTimeout(
+  connectPromise: Promise<unknown>,
+  connectTimeoutMs: number,
+): Promise<void> {
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      connectPromise,
+      new Promise<never>((_resolve, reject) => {
+        timeoutHandle = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `MCP server connection timed out after ${connectTimeoutMs}ms.`,
+              ),
+            ),
+          connectTimeoutMs,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutHandle !== undefined) {
+      clearTimeout(timeoutHandle);
+    }
+  }
+}
+
 function buildInstructions(configPath: string): string {
   const toolReference = `
 Tool reference:
@@ -119,23 +171,10 @@ export async function runCxMcpServer(
   }
 
   try {
-    await Promise.race([
-      server.connect(transport),
-      new Promise<never>((_resolve, reject) => {
-        setTimeout(
-          () =>
-            reject(
-              new Error(
-                `MCP server connection timed out after ${connectTimeoutMs}ms.`,
-              ),
-            ),
-          connectTimeoutMs,
-        );
-      }),
-    ]);
+    await connectWithTimeout(server.connect(transport), connectTimeoutMs);
   } catch (error) {
     clearSignalHandlers();
-    const reason = error instanceof Error ? error.message : String(error);
+    const reason = formatStartupErrorReason(error);
     writeStderr(`Error: failed to start cx mcp server: ${reason}\n`);
     processExit(1);
   }
