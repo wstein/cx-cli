@@ -48,8 +48,8 @@ Use these commands as a progressive assurance model:
 
 | Command | What it covers | When to run |
 | --- | --- | --- |
-| `bun run verify` | lint, typecheck, build, full test suite with coverage, coverage summary | normal pre-merge gate |
-| `bun run certify` | `verify` + contract lane + Repomix compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
+| `bun run verify` | lint, typecheck, build, full test suite with coverage, coverage summary, minimum overall coverage gate | normal pre-merge gate |
+| `bun run certify` | `verify` + contract lane + Repomix fork compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
 | `bun run integrity` | release integrity metadata generation from the packed npm tarball | release artifact staging |
 | `bun run verify-release` | release integrity metadata verification against packed tarball | release verification and audit |
 
@@ -93,7 +93,7 @@ For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code,
 Repository-local `make` shortcuts keep the developer loop compact:
 
 - `make test` runs the unit suite with coverage.
-- `make verify` runs lint, typecheck, build, and the full test suite with coverage.
+- `make verify` runs lint, typecheck, build, and the full test suite with coverage, then enforces the minimum overall coverage gate.
 - `make certify` runs everything `verify` does plus contract tests, smoke lanes, release integrity smoke, and reproducibility checks — the CI-grade local gate to use before tagging.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 

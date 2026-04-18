@@ -56,4 +56,16 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("run: bun run smoke:release-integrity");
   });
+
+  test("repomix matrix installs known-good fork versions", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain(
+      `@wsmy/repomix-cx-fork@\${{ matrix.repomix-version }}`,
+    );
+    expect(workflow).toContain(
+      'repomix-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
+    );
+    expect(workflow).not.toContain("bun add --exact repomix@");
+  });
 });
