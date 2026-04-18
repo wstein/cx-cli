@@ -165,7 +165,7 @@ jobs:
 
       - name: Generate Homebrew formula
         run: |
-          bun run scripts/generate-homebrew-formula.ts "${{ needs.tarball.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
+          bun run scripts/generate-homebrew-formula.js "${{ needs.tarball.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
 
       - name: Update tap formula
         run: |

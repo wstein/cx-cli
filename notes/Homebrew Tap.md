@@ -11,7 +11,7 @@ Release sequencing, token setup, and tap-push automation live in [Homebrew Tap A
 
 ## Links
 
-- `scripts/generate-homebrew-formula.ts`
+- `scripts/generate-homebrew-formula.js`
 - `notes/Homebrew Tap Automation.md`
 - `README.md`
 - `package.json`
