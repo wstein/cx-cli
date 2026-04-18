@@ -17,7 +17,12 @@ import {
   printTable,
 } from "../../shared/format.js";
 import { pathExists } from "../../shared/fs.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStderr,
+} from "../../shared/output.js";
 import type { DirtyState } from "../../vcs/provider.js";
 
 export interface VerifyArgs {
@@ -68,7 +73,11 @@ async function buildCurrentSnapshot(
   }
 }
 
-export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
+export async function runVerifyCommand(
+  args: VerifyArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const bundleDir = path.resolve(args.bundleDir);
   const againstDir = args.againstDir
     ? path.resolve(args.againstDir)
@@ -105,12 +114,12 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         "Bundle was created in a CI pipeline with uncommitted changes (ci_dirty). " +
         "Artifact content may not reflect the committed source tree.";
       lockWarnings.push(msg);
-      process.stderr.write(`Warning: ${msg}\n`);
+      writeStderr(`Warning: ${msg}\n`, io);
     } else if (manifestDirtyState === "forced_dirty") {
       const msg =
         "Bundle was created with --force while tracked files had uncommitted changes (forced_dirty).";
       lockWarnings.push(msg);
-      process.stderr.write(`Warning: ${msg}\n`);
+      writeStderr(`Warning: ${msg}\n`, io);
     }
 
     // Lock drift check: compare behavioral settings used at bundle time with
@@ -131,7 +140,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
               `Behavioral setting drift: ${m.setting} was "${m.locked}" ` +
               `(${m.lockedSource}) at bundle time, now "${m.current}" (${m.currentSource}).`;
             lockWarnings.push(msg);
-            process.stderr.write(`Warning: ${msg}\n`);
+            writeStderr(`Warning: ${msg}\n`, io);
           }
           lockMismatches.push(...mismatches);
         }
@@ -140,32 +149,35 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
 
     // Emit bundleMode as info for audit visibility
     if (bundleMode !== null) {
-      process.stderr.write(`Info: bundleMode=${bundleMode}\n`);
+      writeStderr(`Info: bundleMode=${bundleMode}\n`, io);
     }
 
     if (!(args.json ?? false)) {
-      printHeader("Verification Complete");
-      printTable([["Bundle", bundleDir]]);
+      printHeader("Verification Complete", io);
+      printTable([["Bundle", bundleDir]], io);
       if (againstDir) {
-        printTable([["Against", againstDir]]);
+        printTable([["Against", againstDir]], io);
       }
-      printDivider();
-      printSuccess("Bundle is valid");
+      printDivider(io);
+      printSuccess("Bundle is valid", io);
     }
 
     if (args.json ?? false) {
-      writeJson({
-        bundleDir,
-        againstDir: againstDir ?? null,
-        sections: args.sections ?? [],
-        files: args.files ?? [],
-        repomix: await getRepomixCapabilities(),
-        valid: true,
-        dirtyState: manifestDirtyState,
-        bundleMode: bundleMode,
-        warnings: lockWarnings,
-        lockDrift: lockMismatches.length > 0 ? lockMismatches : null,
-      });
+      writeJson(
+        {
+          bundleDir,
+          againstDir: againstDir ?? null,
+          sections: args.sections ?? [],
+          files: args.files ?? [],
+          repomix: await getRepomixCapabilities(),
+          valid: true,
+          dirtyState: manifestDirtyState,
+          bundleMode: bundleMode,
+          warnings: lockWarnings,
+          lockDrift: lockMismatches.length > 0 ? lockMismatches : null,
+        },
+        io,
+      );
     }
     return 0;
   } catch (error) {
@@ -211,7 +223,7 @@ export async function runVerifyCommand(args: VerifyArgs): Promise<number> {
         }
       }
 
-      writeJson(payload);
+      writeJson(payload, io);
       return error instanceof CxError ? error.exitCode : 1;
     }
 

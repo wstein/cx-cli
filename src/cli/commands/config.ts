@@ -16,6 +16,13 @@ import type {
 } from "../../config/types.js";
 import { asError, CxError } from "../../shared/errors.js";
 import { pathExists } from "../../shared/fs.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStderr,
+  writeStdout,
+} from "../../shared/output.js";
 
 type SettingSource =
   | "compiled default"
@@ -109,8 +116,8 @@ async function getConfigFileBehaviorValues(configPath: string): Promise<{
  * Determine whether the env overrides came from CX_STRICT (convenience
  * shorthand) rather than individual CX_* vars.
  */
-function isEnvStrict(): boolean {
-  const raw = process.env.CX_STRICT;
+function isEnvStrict(env: NodeJS.ProcessEnv): boolean {
+  const raw = env.CX_STRICT;
   return raw === "true" || raw === "1";
 }
 
@@ -168,14 +175,18 @@ function cliMode(
   return null;
 }
 
-export async function runConfigCommand(options: {
-  config: string;
-  json: boolean;
-}): Promise<number> {
+export async function runConfigCommand(
+  options: {
+    config: string;
+    json: boolean;
+  },
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const configExists = await pathExists(options.config);
   const cliOverrides = getCLIOverrides();
-  const envOverrides = readEnvOverrides();
-  const envStrict = isEnvStrict();
+  const envOverrides = readEnvOverrides(io.env);
+  const envStrict = isEnvStrict(io.env);
   const activeCLIMode = cliMode(cliOverrides);
 
   let dedupModeFromFile: CxDedupMode | undefined;
@@ -192,11 +203,9 @@ export async function runConfigCommand(options: {
       configDuplicateEntryFromFile = values.configDuplicateEntry;
     } catch (error: unknown) {
       if (options.json) {
-        process.stdout.write(
-          `${JSON.stringify({ error: asError(error).message }, null, 2)}\n`,
-        );
+        writeJson({ error: asError(error).message }, io);
       } else {
-        process.stderr.write(`Error: ${asError(error).message}\n`);
+        writeStderr(`Error: ${asError(error).message}\n`, io);
       }
       return error instanceof CxError ? error.exitCode : 1;
     }
@@ -263,40 +272,38 @@ export async function runConfigCommand(options: {
       fileValue !== undefined &&
       fileValue !== setting.value
     ) {
-      process.stderr.write(
+      writeStderr(
         `Warning: ${key} in cx.toml ("${fileValue}") is overridden by ${setting.source} to "${setting.value}"\n`,
+        io,
       );
     }
   }
 
   if (options.json) {
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          configFile: configExists ? options.config : null,
-          cxStrict: envStrict,
-          cliMode: activeCLIMode,
-          settings: {
-            "dedup.mode": effective.dedup.mode,
-            "repomix.missing_extension": effective.repomix.missingExtension,
-            "config.duplicate_entry": effective.config.duplicateEntry,
-          },
+    writeJson(
+      {
+        configFile: configExists ? options.config : null,
+        cxStrict: envStrict,
+        cliMode: activeCLIMode,
+        settings: {
+          "dedup.mode": effective.dedup.mode,
+          "repomix.missing_extension": effective.repomix.missingExtension,
+          "config.duplicate_entry": effective.config.duplicateEntry,
         },
-        null,
-        2,
-      )}\n`,
+      },
+      io,
     );
     return 0;
   }
 
   const configLabel = configExists ? options.config : "(not found)";
-  process.stdout.write(`Effective behavioral settings\n`);
-  process.stdout.write(`Config file : ${configLabel}\n`);
-  process.stdout.write(`CX_STRICT   : ${envStrict ? "true" : "false"}\n`);
+  writeStdout(`Effective behavioral settings\n`, io);
+  writeStdout(`Config file : ${configLabel}\n`, io);
+  writeStdout(`CX_STRICT   : ${envStrict ? "true" : "false"}\n`, io);
   if (activeCLIMode !== null) {
-    process.stdout.write(`CLI mode    : ${activeCLIMode}\n`);
+    writeStdout(`CLI mode    : ${activeCLIMode}\n`, io);
   }
-  process.stdout.write(`\n`);
+  writeStdout(`\n`, io);
 
   const rows: Array<[string, string, string]> = [
     ["dedup.mode", effective.dedup.mode.value, effective.dedup.mode.source],
@@ -315,22 +322,23 @@ export async function runConfigCommand(options: {
   const col0 = Math.max(...rows.map(([k]) => k.length));
   const col1 = Math.max(...rows.map(([, v]) => v.length));
 
-  process.stdout.write(
+  writeStdout(
     `${"Setting".padEnd(col0)}  ${"Value".padEnd(col1)}  Source\n`,
+    io,
   );
-  process.stdout.write(
+  writeStdout(
     `${"-".repeat(col0)}  ${"-".repeat(col1)}  ${"-".repeat(16)}\n`,
+    io,
   );
   for (const [key, value, source] of rows) {
-    process.stdout.write(
-      `${key.padEnd(col0)}  ${value.padEnd(col1)}  ${source}\n`,
-    );
+    writeStdout(`${key.padEnd(col0)}  ${value.padEnd(col1)}  ${source}\n`, io);
   }
 
-  process.stdout.write(`\n`);
-  process.stdout.write(
+  writeStdout(`\n`, io);
+  writeStdout(
     `Category A invariants (section overlap when dedup.mode=fail, asset\n` +
       `collision, missing core adapter contract) are never configurable.\n`,
+    io,
   );
 
   return 0;

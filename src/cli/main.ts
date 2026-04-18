@@ -457,14 +457,17 @@ export async function main(
             description: "Path to cx.toml for lock drift comparison.",
           }),
       async (args) => {
-        exitCode = await runVerifyCommand({
-          bundleDir: args.bundleDir,
-          againstDir: args.against,
-          files: normalizeArrayArg(args.file),
-          json: args.json,
-          sections: normalizeArrayArg(args.section),
-          config: args.config,
-        });
+        exitCode = await runVerifyCommand(
+          {
+            bundleDir: args.bundleDir,
+            againstDir: args.against,
+            files: normalizeArrayArg(args.file),
+            json: args.json,
+            sections: normalizeArrayArg(args.section),
+            config: args.config,
+          },
+          io,
+        );
       },
     )
     .command(
@@ -603,10 +606,13 @@ export async function main(
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runConfigCommand({
-          config: args.config,
-          json: args.json,
-        });
+        exitCode = await runConfigCommand(
+          {
+            config: args.config,
+            json: args.json,
+          },
+          io,
+        );
       },
     )
     .command(
@@ -627,12 +633,18 @@ export async function main(
           .option("section", { type: "array", string: true })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
-        exitCode = await runAdapterCommand({
-          config: args.config,
-          subcommand: args.subcommand as "capabilities" | "inspect" | "doctor",
-          sections: normalizeArrayArg(args.section),
-          json: args.json,
-        });
+        exitCode = await runAdapterCommand(
+          {
+            config: args.config,
+            subcommand: args.subcommand as
+              | "capabilities"
+              | "inspect"
+              | "doctor",
+            sections: normalizeArrayArg(args.section),
+            json: args.json,
+          },
+          io,
+        );
       },
     )
     .command(

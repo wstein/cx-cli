@@ -268,23 +268,24 @@ describe("bundle workflow", () => {
       };
     }>(bundleRun.stdout);
 
-    const verifyRun = await captureCli({
-      run: () =>
-        runVerifyCommand({
-          bundleDir: project.bundleDir,
-          againstDir: project.root,
-          files: ["src/index.ts"],
-          json: true,
-          sections: undefined,
-        }),
-    });
-    expect(verifyRun.exitCode).toBe(0);
+    const verifyCapture = createBufferedCommandIo();
+    const verifyExitCode = await runVerifyCommand(
+      {
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        files: ["src/index.ts"],
+        json: true,
+        sections: undefined,
+      },
+      verifyCapture.io,
+    );
+    expect(verifyExitCode).toBe(0);
 
     const verifyPayload = parseJsonOutput<{
       valid?: boolean;
       files?: string[];
       repomix?: { spanCapabilityReason?: string };
-    }>(verifyRun.stdout);
+    }>(verifyCapture.stdout());
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(bundlePayload.repomix?.adapterContract).toBe("repomix-pack-v1");
@@ -315,10 +316,12 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    const verifyRun = await captureCli({
-      run: () => runVerifyCommand({ bundleDir: project.bundleDir, json: true }),
-    });
-    expect(verifyRun.exitCode).toBe(10);
+    const verifyCapture = createBufferedCommandIo();
+    const verifyExitCode = await runVerifyCommand(
+      { bundleDir: project.bundleDir, json: true },
+      verifyCapture.io,
+    );
+    expect(verifyExitCode).toBe(10);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
@@ -332,7 +335,7 @@ describe("bundle workflow", () => {
           nextSteps?: string[];
         } | null;
       };
-    }>(verifyRun.stdout);
+    }>(verifyCapture.stdout());
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("checksum_omission");
@@ -355,15 +358,16 @@ describe("bundle workflow", () => {
       "utf8",
     );
 
-    const verifyRun = await captureCli({
-      run: () =>
-        runVerifyCommand({
-          bundleDir: project.bundleDir,
-          againstDir: project.root,
-          json: true,
-        }),
-    });
-    expect(verifyRun.exitCode).toBe(10);
+    const verifyCapture = createBufferedCommandIo();
+    const verifyExitCode = await runVerifyCommand(
+      {
+        bundleDir: project.bundleDir,
+        againstDir: project.root,
+        json: true,
+      },
+      verifyCapture.io,
+    );
+    expect(verifyExitCode).toBe(10);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
@@ -377,7 +381,7 @@ describe("bundle workflow", () => {
           nextSteps?: string[];
         } | null;
       };
-    }>(verifyRun.stdout);
+    }>(verifyCapture.stdout());
 
     expect(payload.valid).toBe(false);
     expect(payload.error?.type).toBe("source_tree_drift");

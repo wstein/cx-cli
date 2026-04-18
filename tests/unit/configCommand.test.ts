@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { runConfigCommand } from "../../src/cli/commands/config.js";
-import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 let testDir: string;
 const originalEnv = { ...process.env };
@@ -24,40 +24,39 @@ afterEach(async () => {
 describe("Config Command", () => {
   test("no config file + JSON output", async () => {
     const configPath = path.join(testDir, "cx.toml");
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
 
-    expect(result.exitCode).toBe(0);
-    expect(result.parsedJson).toBeDefined();
-    const json = result.parsedJson as Record<string, unknown>;
+    expect(exitCode).toBe(0);
+    const json = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(json.configFile).toBeNull();
     expect(json.settings).toBeDefined();
   });
 
   test("no config file + text output", async () => {
     const configPath = path.join(testDir, "cx.toml");
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: false,
-        }),
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: false,
+      },
+      capture.io,
+    );
 
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("Effective behavioral settings");
-    expect(result.stdout).toContain("(not found)");
-    expect(result.stdout).toContain("dedup.mode");
-    expect(result.stdout).toContain("Setting");
-    expect(result.stdout).toContain("Value");
-    expect(result.stdout).toContain("Source");
+    expect(exitCode).toBe(0);
+    expect(capture.stdout()).toContain("Effective behavioral settings");
+    expect(capture.stdout()).toContain("(not found)");
+    expect(capture.stdout()).toContain("dedup.mode");
+    expect(capture.stdout()).toContain("Setting");
+    expect(capture.stdout()).toContain("Value");
+    expect(capture.stdout()).toContain("Source");
   });
 
   test("config file with explicit dedup.mode + JSON", async () => {
@@ -80,17 +79,17 @@ exclude = []
 `,
     );
 
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
 
-    expect(result.exitCode).toBe(0);
-    const json = result.parsedJson as Record<string, unknown>;
+    expect(exitCode).toBe(0);
+    const json = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(json.configFile).toBe(configPath);
     const settings = json.settings as Record<string, Record<string, unknown>>;
     expect(settings["dedup.mode"]?.source).toBe("cx.toml");
@@ -101,17 +100,18 @@ exclude = []
     const configPath = path.join(testDir, "cx.toml");
     process.env.CX_STRICT = "true";
 
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const env = { ...process.env, CX_STRICT: "true" };
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: true,
+      },
+      { ...capture.io, env },
+    );
 
-    expect(result.exitCode).toBe(0);
-    const json = result.parsedJson as Record<string, unknown>;
+    expect(exitCode).toBe(0);
+    const json = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(json.cxStrict).toBe(true);
   });
 
@@ -137,36 +137,37 @@ exclude = []
 
     process.env.CX_DEDUP_MODE = "fail";
 
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: false,
-        }),
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    const env = { ...process.env, CX_DEDUP_MODE: "fail" };
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: false,
+      },
+      { ...capture.io, env },
+    );
 
-    expect(result.exitCode).toBe(0);
-    expect(result.stderr).toContain("Warning");
-    expect(result.stderr).toContain("dedup.mode");
-    expect(result.stderr).toContain("overridden");
+    expect(exitCode).toBe(0);
+    expect(capture.stderr()).toContain("Warning");
+    expect(capture.stderr()).toContain("dedup.mode");
+    expect(capture.stderr()).toContain("overridden");
   });
 
   test("malformed cx.toml + JSON error", async () => {
     const configPath = path.join(testDir, "cx.toml");
     await fs.writeFile(configPath, "invalid toml content [[[");
 
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: true,
-        }),
-      parseJson: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: true,
+      },
+      capture.io,
+    );
 
-    expect(result.exitCode).toBe(1);
-    const json = result.parsedJson as Record<string, unknown>;
+    expect(exitCode).toBe(1);
+    const json = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(json.error).toBeDefined();
   });
 
@@ -174,16 +175,16 @@ exclude = []
     const configPath = path.join(testDir, "cx.toml");
     await fs.writeFile(configPath, "invalid toml [[[");
 
-    const result = await captureCli({
-      run: () =>
-        runConfigCommand({
-          config: configPath,
-          json: false,
-        }),
-      captureConsoleLog: true,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runConfigCommand(
+      {
+        config: configPath,
+        json: false,
+      },
+      capture.io,
+    );
 
-    expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("Error");
+    expect(exitCode).toBe(1);
+    expect(capture.stderr()).toContain("Error");
   });
 });

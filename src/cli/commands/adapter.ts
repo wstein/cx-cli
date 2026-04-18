@@ -9,7 +9,12 @@ import {
 } from "../../repomix/capabilities.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
-import { writeJson } from "../../shared/output.js";
+import {
+  type CommandIo,
+  resolveCommandIo,
+  writeJson,
+  writeStdout,
+} from "../../shared/output.js";
 
 export interface AdapterArgs {
   config?: string | undefined;
@@ -18,20 +23,27 @@ export interface AdapterArgs {
   json?: boolean | undefined;
 }
 
-export async function runAdapterCommand(args: AdapterArgs): Promise<number> {
+export async function runAdapterCommand(
+  args: AdapterArgs,
+  ioArg: Partial<CommandIo> = {},
+): Promise<number> {
   switch (args.subcommand) {
     case "capabilities":
-      return runAdapterCapabilities(args);
+      return runAdapterCapabilities(args, ioArg);
     case "inspect":
-      return runAdapterInspect(args);
+      return runAdapterInspect(args, ioArg);
     case "doctor":
-      return runAdapterDoctor(args);
+      return runAdapterDoctor(args, ioArg);
     default:
       throw new CxError(`Unknown adapter subcommand: ${args.subcommand}`, 2);
   }
 }
 
-async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
+async function runAdapterCapabilities(
+  args: AdapterArgs,
+  ioArg: Partial<CommandIo>,
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const capabilities = await getRepomixCapabilities();
   const runtimeInfo = await getAdapterRuntimeInfo();
   const detectedCapabilities = await detectRepomixCapabilities();
@@ -73,63 +85,81 @@ async function runAdapterCapabilities(args: AdapterArgs): Promise<number> {
   };
 
   if (args.json ?? false) {
-    writeJson(payload);
+    writeJson(payload, io);
   } else {
-    process.stdout.write(`cx version:                ${payload.cx.version}\n`);
-    process.stdout.write(
+    writeStdout(`cx version:                ${payload.cx.version}\n`, io);
+    writeStdout(
       `Repomix package:           ${payload.repomix.packageName}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `Repomix version:           ${payload.repomix.packageVersion}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `adapter contract:          ${payload.repomix.adapterContract}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `compatibility strategy:    ${payload.repomix.compatibilityStrategy}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `contract valid:            ${payload.repomix.contractValid ? "YES" : "NO"}\n`,
+      io,
     );
-    process.stdout.write(`\nDetected capabilities:\n`);
-    process.stdout.write(
+    writeStdout(`\nDetected capabilities:\n`, io);
+    writeStdout(
       `  mergeConfigs:            ${detectedCapabilities.hasMergeConfigs ? "YES" : "NO"}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `  pack:                    ${detectedCapabilities.hasPack ? "YES" : "NO"}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `  packStructured:          ${detectedCapabilities.supportsPackStructured ? "YES" : "NO"}\n`,
+      io,
     );
-    process.stdout.write(`\nCapabilities:\n`);
-    process.stdout.write(
+    writeStdout(`\nCapabilities:\n`, io);
+    writeStdout(
       `  output styles:           ${payload.capabilities.styles.join(", ")}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `  span capture:            ${payload.capabilities.spanCapability}\n`,
+      io,
     );
     if (payload.capabilities.spanCapabilityReason) {
-      process.stdout.write(
+      writeStdout(
         `  reason:                  ${payload.capabilities.spanCapabilityReason}\n`,
+        io,
       );
       if (payload.capabilities.spanCapability !== "supported") {
-        process.stdout.write(
+        writeStdout(
           "  note:                    Render-only output may omit span metadata; text bundles require exact spans.\n",
+          io,
         );
       }
     }
-    process.stdout.write(
+    writeStdout(
       `  exact file selection:    ${payload.capabilities.exactFileSelection ? "supported" : "not supported"}\n`,
+      io,
     );
-    process.stdout.write(
+    writeStdout(
       `  section planning:        ${payload.capabilities.sectionPlanning ? "enabled" : "disabled"}\n`,
+      io,
     );
   }
 
   return 0;
 }
 
-async function runAdapterInspect(args: AdapterArgs): Promise<number> {
+async function runAdapterInspect(
+  args: AdapterArgs,
+  ioArg: Partial<CommandIo>,
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const configPath = path.resolve(args.config ?? "cx.toml");
   const config = await loadCxConfig(configPath);
   const plan = await buildBundlePlan(config);
@@ -168,27 +198,31 @@ async function runAdapterInspect(args: AdapterArgs): Promise<number> {
   };
 
   if (args.json ?? false) {
-    writeJson(payload);
+    writeJson(payload, io);
   } else {
     for (const section of payload.sections) {
-      process.stdout.write(`\nSection: ${section.name}\n`);
-      process.stdout.write(`  style:  ${section.style}\n`);
-      process.stdout.write(`  files:  ${section.fileCount}\n`);
-      process.stdout.write(`  list:\n`);
+      writeStdout(`\nSection: ${section.name}\n`, io);
+      writeStdout(`  style:  ${section.style}\n`, io);
+      writeStdout(`  files:  ${section.fileCount}\n`, io);
+      writeStdout(`  list:\n`, io);
       for (const file of section.files) {
-        process.stdout.write(`    - ${file}\n`);
+        writeStdout(`    - ${file}\n`, io);
       }
     }
-    process.stdout.write(`\nRepomix options:\n`);
+    writeStdout(`\nRepomix options:\n`, io);
     for (const [key, value] of Object.entries(payload.repomixOptions)) {
-      process.stdout.write(`  ${key}: ${value}\n`);
+      writeStdout(`  ${key}: ${value}\n`, io);
     }
   }
 
   return 0;
 }
 
-async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
+async function runAdapterDoctor(
+  _args: AdapterArgs,
+  ioArg: Partial<CommandIo>,
+): Promise<number> {
+  const io = resolveCommandIo(ioArg);
   const checks: Array<{
     name: string;
     passed: boolean;
@@ -275,14 +309,15 @@ async function runAdapterDoctor(_args: AdapterArgs): Promise<number> {
   };
 
   if (_args.json ?? false) {
-    writeJson(payload);
+    writeJson(payload, io);
   } else {
     for (const check of checks) {
       const mark = check.passed ? "✓" : "✗";
-      process.stdout.write(`${mark} ${check.name}: ${check.message}\n`);
+      writeStdout(`${mark} ${check.name}: ${check.message}\n`, io);
     }
-    process.stdout.write(
+    writeStdout(
       `\nResult: ${payload.passed ? "All checks passed" : "Some checks failed"}\n`,
+      io,
     );
   }
 

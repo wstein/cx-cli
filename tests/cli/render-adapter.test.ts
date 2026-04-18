@@ -6,6 +6,7 @@ import path from "node:path";
 import { runAdapterCommand } from "../../src/cli/commands/adapter.js";
 import { runRenderCommand } from "../../src/cli/commands/render.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 async function createRenderTestProject(): Promise<{
@@ -232,34 +233,36 @@ describe("render command", () => {
 
 describe("adapter command", () => {
   test("adapter capabilities shows runtime info", async () => {
-    const result = await captureCli({
-      run: () =>
-        runAdapterCommand({
-          subcommand: "capabilities",
-        }),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runAdapterCommand(
+      {
+        subcommand: "capabilities",
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("cx version");
     expect(output).toContain("Repomix version");
     expect(output).toContain("xml");
   });
 
   test("adapter capabilities emits JSON", async () => {
-    const result = await captureCli({
-      run: () =>
-        runAdapterCommand({
-          subcommand: "capabilities",
-          json: true,
-        }),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runAdapterCommand(
+      {
+        subcommand: "capabilities",
+        json: true,
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       cx?: { version?: string };
       capabilities?: { styles?: string[] };
-    }>(result.stdout);
+    }>(capture.stdout());
 
     expect(payload.cx?.version).toBeDefined();
     expect(payload.capabilities?.styles).toContain("xml");
@@ -285,22 +288,23 @@ describe("adapter command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
     try {
-      result = await captureCli({
-        run: () =>
-          runAdapterCommand({
+      expect(
+        await runAdapterCommand(
+          {
             config: project.configPath,
             subcommand: "inspect",
             sections: ["src"],
-          }),
-      });
+          },
+          capture.io,
+        ),
+      ).toBe(0);
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("Section: src");
     expect(output).toContain("index.ts");
   });
@@ -309,59 +313,62 @@ describe("adapter command", () => {
     const project = await createRenderTestProject();
     const cwd = process.cwd();
     process.chdir(project.root);
-    let result: Awaited<ReturnType<typeof captureCli>>;
+    const capture = createBufferedCommandIo();
     try {
-      result = await captureCli({
-        run: () =>
-          runAdapterCommand({
+      expect(
+        await runAdapterCommand(
+          {
             config: project.configPath,
             subcommand: "inspect",
             sections: ["src"],
             json: true,
-          }),
-      });
+          },
+          capture.io,
+        ),
+      ).toBe(0);
     } finally {
       process.chdir(cwd);
     }
-    expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       sections?: Array<{ name: string; files?: string[] }>;
-    }>(result.stdout);
+    }>(capture.stdout());
 
     expect(payload.sections?.[0]?.name).toBe("src");
     expect(payload.sections?.[0]?.files).toContain("src/index.ts");
   });
 
   test("adapter doctor runs checks", async () => {
-    const result = await captureCli({
-      run: () =>
-        runAdapterCommand({
-          subcommand: "doctor",
-        }),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runAdapterCommand(
+      {
+        subcommand: "doctor",
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
-    const output = result.stdout;
+    const output = capture.stdout();
     expect(output).toContain("available");
     expect(output).toContain("Adapter contract");
     expect(output).toContain("All checks passed");
   });
 
   test("adapter doctor emits JSON results", async () => {
-    const result = await captureCli({
-      run: () =>
-        runAdapterCommand({
-          subcommand: "doctor",
-          json: true,
-        }),
-    });
-    expect(result.exitCode).toBe(0);
+    const capture = createBufferedCommandIo();
+    const exitCode = await runAdapterCommand(
+      {
+        subcommand: "doctor",
+        json: true,
+      },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
       passed?: boolean;
       checks?: Array<{ name: string; passed: boolean }>;
-    }>(result.stdout);
+    }>(capture.stdout());
 
     expect(payload.passed).toBe(true);
     expect(payload.checks?.length).toBeGreaterThan(0);
