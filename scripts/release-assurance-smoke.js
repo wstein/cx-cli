@@ -3,19 +3,33 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execa } from "execa";
 
-async function run(command, args, envOverrides = {}) {
-  await execa(command, args, {
+export async function runCommand(
+  command,
+  args,
+  envOverrides = {},
+  options = {},
+) {
+  const execaImpl = options.execaImpl ?? execa;
+  const baseEnv = options.baseEnv ?? process.env;
+  await execaImpl(command, args, {
     stdio: "inherit",
-    env: { ...process.env, ...envOverrides },
+    env: { ...baseEnv, ...envOverrides },
   });
 }
 
-async function runJson(command, args, envOverrides = {}) {
-  const { stdout } = await execa(command, args, {
+export async function runJsonCommand(
+  command,
+  args,
+  envOverrides = {},
+  options = {},
+) {
+  const execaImpl = options.execaImpl ?? execa;
+  const baseEnv = options.baseEnv ?? process.env;
+  const { stdout } = await execaImpl(command, args, {
     stdin: "ignore",
     stdout: "pipe",
     stderr: "inherit",
-    env: { ...process.env, ...envOverrides },
+    env: { ...baseEnv, ...envOverrides },
   });
   return stdout;
 }
@@ -39,35 +53,44 @@ export function createNpmPackEnv(
   };
 }
 
-export async function runReleaseAssuranceSmoke(cwd = process.cwd()) {
+export async function runReleaseAssuranceSmoke(cwd = process.cwd(), options = {}) {
+  const fsImpl = options.fsImpl ?? fs;
+  const baseEnv = options.baseEnv ?? process.env;
+  const runImpl = options.runImpl ?? runCommand;
+  const runJsonImpl = options.runJsonImpl ?? runJsonCommand;
+  const parseJson = options.parseJson ?? JSON.parse;
+  const log = options.log ?? console.log;
+  const execPath = options.execPath ?? process.execPath;
+
   const { tarballDir, releaseIntegrityPath, npmCacheDir } =
     createReleaseAssurancePaths(cwd);
 
-  await fs.rm(tarballDir, { recursive: true, force: true });
-  await fs.mkdir(tarballDir, { recursive: true });
-  await fs.mkdir(npmCacheDir, { recursive: true });
+  await fsImpl.rm(tarballDir, { recursive: true, force: true });
+  await fsImpl.mkdir(tarballDir, { recursive: true });
+  await fsImpl.mkdir(npmCacheDir, { recursive: true });
 
-  const packOutput = await runJson("npm", [
-    "pack",
-    "--json",
-    "--pack-destination",
-    "tarball-artifacts",
-  ], createNpmPackEnv(tarballDir));
-  const packResult = JSON.parse(packOutput);
-  const tarballName = packResult[0]?.filename;
-  if (typeof tarballName !== "string" || tarballName.length === 0) {
-    throw new Error("npm pack did not return a tarball filename");
+  try {
+    const packOutput = await runJsonImpl(
+      "npm",
+      ["pack", "--json", "--pack-destination", "tarball-artifacts"],
+      createNpmPackEnv(tarballDir, baseEnv),
+      { baseEnv },
+    );
+    const packResult = parseJson(packOutput);
+    const tarballName = packResult[0]?.filename;
+    if (typeof tarballName !== "string" || tarballName.length === 0) {
+      throw new Error("npm pack did not return a tarball filename");
+    }
+    log(`✓ Packed release tarball: ${tarballName}`);
+
+    await runImpl(execPath, ["scripts/release-integrity.js"], {}, { baseEnv });
+    await runImpl(execPath, ["scripts/verify-release.js"], {}, { baseEnv });
+  } finally {
+    // Keep local certify runs clean by removing transient release-smoke artifacts.
+    await fsImpl.rm(tarballDir, { recursive: true, force: true });
+    await fsImpl.rm(releaseIntegrityPath, { force: true });
   }
-  console.log(`✓ Packed release tarball: ${tarballName}`);
-
-  await run(process.execPath, ["scripts/release-integrity.js"]);
-  await run(process.execPath, ["scripts/verify-release.js"]);
-
-  // Keep local certify runs clean by removing transient release-smoke artifacts.
-  await fs.rm(tarballDir, { recursive: true, force: true });
-  await fs.rm(releaseIntegrityPath, { force: true });
-
-  console.log("✓ Release integrity smoke completed");
+  log("✓ Release integrity smoke completed");
 }
 
 const executedAsScript =
