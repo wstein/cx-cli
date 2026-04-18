@@ -367,6 +367,34 @@ describe("getReachableNotes", () => {
     expect(reachable[0]?.depth).toBe(1);
   });
 
+  test("depth 2 includes a strictly larger reachable set than depth 1", async () => {
+    const notesDir = path.join(testDir, "notes");
+    await writeNote(
+      notesDir,
+      "20260302100001",
+      "Root",
+      "See [[20260302100002]].",
+    );
+    await writeNote(
+      notesDir,
+      "20260302100002",
+      "Hop1",
+      "See [[20260302100003]].",
+    );
+    await writeNote(notesDir, "20260302100003", "Hop2");
+
+    const graph = await buildNoteGraph("notes", testDir, false);
+    const depth1 = getReachableNotes(graph, "20260302100001", 1);
+    const depth2 = getReachableNotes(graph, "20260302100001", 2);
+
+    expect(depth1.map((item) => item.noteId)).toEqual(["20260302100002"]);
+    expect(depth2.map((item) => item.noteId)).toEqual([
+      "20260302100002",
+      "20260302100003",
+    ]);
+    expect(depth2.length).toBeGreaterThan(depth1.length);
+  });
+
   test("excludes the seed note from results", async () => {
     const notesDir = path.join(testDir, "notes");
     await writeNote(
