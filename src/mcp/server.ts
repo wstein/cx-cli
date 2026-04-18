@@ -18,6 +18,7 @@ export interface CxMcpServerDeps {
   connectTimeoutMs?: number;
   writeStderr?: (message: string) => void;
   installSignalHandlers?: boolean;
+  postConnectCheck?: () => Promise<void>;
 }
 
 const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
@@ -149,6 +150,7 @@ export async function runCxMcpServer(
     deps.writeStderr ?? ((message) => process.stderr.write(message));
   const connectTimeoutMs = deps.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
   const installSignalHandlers = deps.installSignalHandlers ?? true;
+  const postConnectCheck = deps.postConnectCheck;
 
   const clearSignalHandlers = (): void => {
     process.off("SIGINT", handleExit);
@@ -172,6 +174,9 @@ export async function runCxMcpServer(
 
   try {
     await connectWithTimeout(server.connect(transport), connectTimeoutMs);
+    if (postConnectCheck !== undefined) {
+      await postConnectCheck();
+    }
   } catch (error) {
     clearSignalHandlers();
     const reason = formatStartupErrorReason(error);

@@ -267,4 +267,93 @@ describe("runCxMcpServer", () => {
       proto.close = originalClose;
     }
   });
+
+  test("exits 1 when post-connect readiness check fails after connect resolves", async () => {
+    const connect = mock(async () => {});
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const postConnectCheck = mock(async () => {
+        throw new Error(
+          "startup state incomplete: capabilities snapshot missing",
+        );
+      });
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        postConnectCheck,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(postConnectCheck).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("failed to start cx mcp server");
+      expect(firstWrite).toContain("startup state incomplete");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
+  test("formats non-Error post-connect failures with primitive reasons", async () => {
+    const connect = mock(async () => {});
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const postConnectCheck = mock(async () => {
+        throw "degraded startup payload";
+      });
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        postConnectCheck,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(postConnectCheck).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("degraded startup payload");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
 });
