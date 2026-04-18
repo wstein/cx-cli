@@ -6,6 +6,7 @@ import type { CxListDisplayConfig } from "../../config/types.js";
 import { loadCxUserConfig } from "../../config/user.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import type { ManifestFileRow } from "../../manifest/types.js";
+import { sortInclusionProvenance } from "../../planning/provenance.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { formatBytes, formatNumber } from "../../shared/format.js";
 import {

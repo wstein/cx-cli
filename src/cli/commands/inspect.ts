@@ -6,6 +6,8 @@ import {
   type InspectExtractability,
   type InspectReport,
 } from "../../inspect/report.js";
+import { sortInclusionProvenance } from "../../planning/provenance.js";
+import type { InclusionProvenance } from "../../planning/types.js";
 import { formatNumber } from "../../shared/format.js";
 import {
   type CommandIo,
