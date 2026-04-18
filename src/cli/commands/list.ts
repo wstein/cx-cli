@@ -52,7 +52,16 @@ function formatProvenanceSuffix(provenance: string[]): string {
     return "";
   }
 
-  return kleur.gray(` [${provenance.join(", ")}]`);
+  const sorted = sortInclusionProvenance(
+    provenance as unknown as Array<
+      | "section_match"
+      | "catch_all_section_match"
+      | "asset_rule_match"
+      | "linked_note_enrichment"
+      | "manifest_note_inclusion"
+    >,
+  );
+  return kleur.gray(` [${sorted.join(", ")}]`);
 }
 
 function getTokensForRow(row: ManifestFileRow): number {

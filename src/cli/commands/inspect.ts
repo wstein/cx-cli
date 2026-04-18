@@ -107,7 +107,11 @@ export async function runInspectCommand(
       ...section.files.map((file) => {
         const record = extractabilityByPath.get(file.relativePath);
         const provenanceSuffix =
-          file.provenance.length > 0 ? ` [${file.provenance.join(", ")}]` : "";
+          file.provenance.length > 0
+            ? ` [${sortInclusionProvenance(
+                file.provenance as Array<InclusionProvenance>,
+              ).join(", ")}]`
+            : "";
         const suffix =
           record && record.status !== "intact"
             ? ` (${record.reason}; expected ${formatChecksumPrefix(record.expectedSha256)} got ${formatChecksumPrefix(record.actualSha256)})`
@@ -125,7 +129,9 @@ export async function runInspectCommand(
             const status = (record?.status ?? "planned").padEnd(8);
             const provenanceSuffix =
               asset.provenance.length > 0
-                ? ` [${asset.provenance.join(", ")}]`
+                ? ` [${sortInclusionProvenance(
+                    asset.provenance as Array<InclusionProvenance>,
+                  ).join(", ")}]`
                 : "";
             return `  ${status} ${asset.relativePath} -> ${asset.storedPath}${provenanceSuffix}`;
           }),

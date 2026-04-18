@@ -13,6 +13,16 @@ export interface InclusionProvenanceSummary {
   count: number;
 }
 
+export function sortInclusionProvenance(
+  provenance: InclusionProvenance[],
+): InclusionProvenance[] {
+  return [...provenance].sort(
+    (left, right) =>
+      INCLUSION_PROVENANCE_ORDER.indexOf(left) -
+      INCLUSION_PROVENANCE_ORDER.indexOf(right),
+  );
+}
+
 export function summarizeInclusionProvenance(
   entries: Array<{ provenance: InclusionProvenance[] }>,
 ): InclusionProvenanceSummary[] {
