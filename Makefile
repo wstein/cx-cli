@@ -5,7 +5,7 @@
 #
 BUN ?= bun
 
-.PHONY: all build test verify format fix lint release clean notes smoke help
+.PHONY: all build test verify check format fix lint release clean notes smoke help
 all: build
 
 build: ## Build the project.
@@ -22,6 +22,8 @@ test: ## Run the default unit test suite via package.json, with coverage.
 
 verify: ## Run lint, typecheck, build, and the full test suite with coverage.
 	$(BUN) run verify
+
+check: verify ## Alias for verify.
 
 fix: ## Correct fixable formatting and lint issues.
 	$(BUN) run fix
@@ -43,6 +45,7 @@ help: ## Show available targets.
 	@printf "  build     Build the project.\n"
 	@printf "  test      Run unit tests with coverage.\n"
 	@printf "  verify    Run lint, typecheck, build, and the full test suite with coverage.\n"
+	@printf "  check     Alias for verify.\n"
 	@printf "  release   Release a new version (VERSION=x.y.z required).\n"
 	@printf "  clean     Remove generated output files.\n"
 	@printf "  notes     List available notes in the repository.\n"
