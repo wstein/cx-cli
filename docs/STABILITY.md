@@ -22,6 +22,9 @@ the low-latency feedback path.
 Fast-lane runtime is also monitored with warning-first regression policy:
 `bun run ci:test:fast:monitored` records timing drift and fails only on
 sustained significant regressions.
+The workflow graph is gated behind `test-fast`: downstream CI lanes do not
+start if the fast gate is red, and CI artifacts are uploaded only after the
+full lane set passes.
 
 ### STABLE
 

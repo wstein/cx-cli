@@ -89,6 +89,7 @@ The governance path is operational, not aspirational:
 3. `bun run ci:notes:governance` makes the cognition-layer gate visible as its own CI lane.
 4. `bun run ci:test:contracts` keeps the canonical docs and workflow references aligned with the implemented governance model.
 5. `bun run ci:report:observability` emits CI-readable markdown and JSON summaries so note quality gates and fast-lane drift stay visible over time.
+6. CI uploads those reports only after the full lane set passes, so operators do not confuse partial diagnostics with a green repository gate.
 
 If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.
 

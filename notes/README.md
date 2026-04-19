@@ -141,6 +141,7 @@ The notes layer is governed like code, not like scratch text.
 - `cx notes check` surfaces governance failures, broken links, and graph drift.
 - `bun run ci:notes:governance` keeps the cognition-layer gate visible as its own CI lane.
 - `bun run ci:test:contracts` keeps the canonical documentation for the cognition layer aligned with the implementation.
+- CI uploads observability and policy artifacts only after the full gate passes, so partial lanes do not look like a successful repository state.
 
 Why this protects you: AI-generated notes are only useful when the graph preserves knowledge quality and signal-to-noise. CI should stop low-quality durable memory before it becomes trusted context.
 

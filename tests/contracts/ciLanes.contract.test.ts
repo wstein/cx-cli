@@ -20,7 +20,6 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
     expect(workflow).toContain("run: bun run ci:test:fast:monitored");
-    expect(workflow).toContain("run: bun run ci:report:observability");
     expect(workflow).toContain(
       'cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"',
     );
@@ -39,6 +38,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(".ci/verify-against-policy-report.json");
     expect(workflow).toContain(".ci/observability-summary.json");
     expect(workflow).toContain(".ci/observability-summary.md");
+    expect(workflow).toContain("ci-artifacts:");
+    expect(workflow).toContain("          name: ci-observability");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
     expect(workflow).not.toContain("bun test tests/unit --timeout");
@@ -101,6 +102,7 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("release-assurance:");
+    expect(workflow).toContain("ci-artifacts:");
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
   });
 
@@ -116,12 +118,41 @@ describe("CI lanes contract", () => {
     expect(workflow).not.toContain("bun add --exact repomix@");
   });
 
-  test("bun matrix validates minimum and latest runtime lanes", async () => {
+  test("downstream CI lanes are gated behind test-fast", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("test-contracts:");
+    expect(workflow).toContain("notes-governance:");
+    expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-matrix:");
-    expect(workflow).toContain("    needs:");
+    expect(workflow).toContain(
+      "  test-contracts:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  notes-governance:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  repomix-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  bun-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+    );
     expect(workflow).toContain("      - test-fast");
+    expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
+    expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
+  });
+
+  test("CI artifacts are only uploaded after the full gate passes", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain("ci-artifacts:");
+    expect(workflow).toContain("      - release-assurance");
+    expect(workflow).toContain("Generate verify-against policy report");
+    expect(workflow).toContain("Generate observability dashboard");
+    expect(workflow).toContain("Upload verify-against policy report");
+    expect(workflow).toContain("Upload observability dashboard");
+    expect(workflow).not.toContain("fast-lane-observability");
+    expect(workflow).not.toContain("contracts-observability");
     expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });
