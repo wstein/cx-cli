@@ -15,10 +15,12 @@ async function readText(relativePath: string): Promise<string> {
 
 describe("docs assurance contract", () => {
   test("operating modes hub is the main conceptual entrypoint", async () => {
+    const rootReadme = await readText("README.md");
     const docsIndex = await readText("docs/README.md");
     const operatingModes = await readText("docs/OPERATING_MODES.md");
     const manual = await readText("docs/MANUAL.md");
 
+    expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
     expect(operatingModes).toContain(
       "Need fast interactive AI help on live code? Use `cx mcp`.",

@@ -59,6 +59,8 @@ It also scaffolds repository notes and exposes graph-oriented note commands so t
 - [notes/README.md](notes/README.md) for the permanent repository knowledge layer
 - [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
 
+Notes governance lane: run `bun run ci:notes:governance` to make the cognition-layer gate visible outside the docs set.
+
 ## Why CX Exists
 
 `cx` exists to provide tooling and standards for AI-driven projects into one unified tool. While it began with a deterministic context bundler, it has evolved into a suite that standardizes how LLMs ingest project context, knowledge, and tools.
