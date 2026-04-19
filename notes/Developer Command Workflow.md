@@ -11,6 +11,15 @@ quick while making the release path explicit and repeatable.
 
 - The `Makefile` delegates to `package.json` scripts using 1:1 shell shim wrappers.
 
+## Release candidate protocol
+
+- Releases are prepared on `develop`.
+- Bumping `package.json` to the target version starts the release candidate.
+- `make verify` is the normal fix-forward loop while the candidate is still moving.
+- `make certify` is the pre-tag proof gate for the exact candidate commit.
+- The `vX.Y.Z` tag is the finalization action. It should be created only after the `develop` candidate commit is green.
+- After publish succeeds, `main` should fast-forward to the released commit so the branch reflects the shipped history exactly.
+
 ## Testing and coverage conventions
 
 - `package.json` does not define an explicit `coverage` task; coverage is collected by the test commands.
@@ -29,6 +38,9 @@ quick while making the release path explicit and repeatable.
 - `docs/MANUAL.md`
 - `docs/RELEASE_CHECKLIST.md`
 - [[CLI Command Lifecycle]]
+- [[Release Candidate on Develop]]
+- [[Tag Finalization and Main Promotion]]
+- [[Two-Phase Release Protocol]]
 - [[GitHub Actions Triggers]]
 - [[MCP Import Graph Diagnostics]]
 - [[MCP Vitest UI Cockpit]]

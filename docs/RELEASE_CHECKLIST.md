@@ -4,6 +4,14 @@
 
 Use this short checklist when cutting a release.
 
+- Two-phase release protocol:
+  1. Prepare the release candidate on `develop`.
+  2. Finalize the release with a `vX.Y.Z` tag from the exact green candidate commit.
+- Bumping `package.json` on `develop` starts the release candidate. Use `chore(release): start vX.Y.Z` for that commit and treat later commits on the candidate path as release-fix follow-ups only.
+- Keep fixing forward on `develop` until the required CI lanes are green. Do not tag early and do not publish from an ordinary `develop` success alone.
+- Create and push the release tag from the exact certified `develop` commit. The release workflow is the finalization step; the version bump is not.
+- The release workflow must verify that the tag matches `package.json`, that the tagged commit already passed the required CI gates, and that the published artifacts come from that same certified commit.
+- Promote `main` only after successful publishing, and do it with a fast-forward update to the released commit. Do not rebase `main` onto the release tag.
 - Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, Repomix fork compatibility smoke, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
 - The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
 - The Pages publish now assembles one site tree with `/schemas/` and `/coverage/`; successful `main` CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.
@@ -18,6 +26,7 @@ Use this short checklist when cutting a release.
 - Use `make release VERSION=x.y.z` to hand off the tagged release to the release script.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow only proceeds from `workflow_run` when CI concluded with `success`; failed CI runs cannot publish npm/Homebrew artifacts.
+- The release workflow only finalizes from a successful CI run for the tagged `develop` candidate commit; tag presence without certified CI is not enough.
 - The release workflow in `.github/workflows/release.yml` requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
 - Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.
@@ -28,4 +37,9 @@ Use this short checklist when cutting a release.
   2. Publish the packed tarball to npm.
   3. Generate `Formula/cx-cli.rb` from the same tarball.
   4. Commit the formula into `wstein/homebrew-tap`.
+- Final release promotion order:
+  1. `develop` prepares the candidate.
+  2. The `vX.Y.Z` tag finalizes the certified candidate.
+  3. The release workflow verifies integrity and publishes from that tagged commit.
+  4. `main` fast-forwards to mirror the shipped commit.
 - Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from the single release workflow, and remember that the tap repo owns formula validation on push.

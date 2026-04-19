@@ -18,11 +18,20 @@ check `github.event.workflow_run.conclusion == success` before allowing publish
 automation to continue from a CI-triggered run, and the Pages path also checks
 `github.event.workflow_run.head_branch == main`.
 
+Release triggering now follows a two-phase rule: `develop` carries the versioned
+release candidate and absorbs fix-forward release commits, while the `vX.Y.Z`
+tag is the finalization signal for the exact certified candidate commit. After
+that publish succeeds, `main` should fast-forward to the released commit so the
+branch mirrors the shipped state instead of replaying it through a rebase.
+
 ## Links
 
 - `.github/workflows/ci.yml`
 - `.github/workflows/release.yml`
 - `.github/workflows/publish-schemas.yml`
+- [[Two-Phase Release Protocol]]
+- [[Release Candidate on Develop]]
+- [[Tag Finalization and Main Promotion]]
 - [[Unified Pages Site Assembly]]
 - [[Developer Command Workflow]]
 - [[Homebrew Tap Automation]]

@@ -114,6 +114,25 @@ describe("docs assurance contract", () => {
     expect(checklist).toContain("release integrity smoke");
   });
 
+  test("release docs lock the two-phase candidate and finalization model", async () => {
+    const checklist = await readText("docs/RELEASE_CHECKLIST.md");
+    const developerWorkflow = await readText(
+      "notes/Developer Command Workflow.md",
+    );
+    const ghaTriggers = await readText("notes/GitHub Actions Triggers.md");
+
+    expect(checklist).toContain("Prepare the release candidate on `develop`");
+    expect(checklist).toContain("Finaliz");
+    expect(checklist).toContain("fast-forward update to the released commit");
+    expect(developerWorkflow).toContain("Releases are prepared on `develop`.");
+    expect(developerWorkflow).toContain(
+      "The `vX.Y.Z` tag is the finalization action.",
+    );
+    expect(ghaTriggers).toContain("two-phase rule");
+    expect(ghaTriggers).toContain("`develop` carries the versioned");
+    expect(ghaTriggers).toContain("`main` should fast-forward");
+  });
+
   test("notes module spec documents linked-note enrichment semantics", async () => {
     const notesSpec = await readText("docs/NOTES_MODULE_SPEC.md");
 
