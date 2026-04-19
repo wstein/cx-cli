@@ -213,15 +213,19 @@ describe("bundle extract", () => {
       'export const demo = "tampered";\n',
     );
 
-    const exitCode = await runExtractCommand({
-      bundleDir: project.bundleDir,
-      destinationDir: restoreDir,
-      sections: undefined,
-      files: ["src/index.ts"],
-      assetsOnly: false,
-      overwrite: false,
-      verify: false,
-    });
+    const capture = createBufferedCommandIo();
+    const exitCode = await runExtractCommand(
+      {
+        bundleDir: project.bundleDir,
+        destinationDir: restoreDir,
+        sections: undefined,
+        files: ["src/index.ts"],
+        assetsOnly: false,
+        overwrite: false,
+        verify: false,
+      },
+      capture.io,
+    );
     expect(exitCode).toBe(8);
   });
 

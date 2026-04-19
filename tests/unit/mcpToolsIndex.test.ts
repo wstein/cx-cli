@@ -33,6 +33,12 @@ function createCaptureServer() {
   return { server, tools };
 }
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 describe("registerCxMcpTools", () => {
   let rootDir: string | undefined;
 
@@ -60,7 +66,7 @@ describe("registerCxMcpTools", () => {
     });
     rootDir = workspace.rootDir;
 
-    const config = await loadCxConfig(workspace.configPath);
+    const config = await loadQuietCxConfig(workspace.configPath);
     const { server, tools } = createCaptureServer();
 
     registerCxMcpTools(

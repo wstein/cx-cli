@@ -7,6 +7,12 @@ import {
 } from "../helpers/config/buildConfig.js";
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 export async function createRenderFixture(
   options: {
     config?: BuildConfigOptions;
@@ -46,7 +52,7 @@ export async function createRenderFixture(
   return {
     rootDir: workspace.rootDir,
     configPath: workspace.configPath,
-    config: await loadCxConfig(workspace.configPath),
+    config: await loadQuietCxConfig(workspace.configPath),
     outputPath: path.join(workspace.rootDir, "render.out"),
   };
 }

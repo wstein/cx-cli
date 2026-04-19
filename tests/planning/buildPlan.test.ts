@@ -207,7 +207,9 @@ describe("buildBundlePlan", () => {
       },
     };
 
-    const plan = await buildBundlePlan(config);
+    const plan = await buildBundlePlan(config, {
+      emitWarning: () => {},
+    });
     const overflow = plan.sections.find(
       (section) => section.name === "overflow",
     );
@@ -309,7 +311,9 @@ describe("buildBundlePlan", () => {
     config.dedup.mode = "warn";
     config.sections.mixed = { include: ["src/**"], exclude: [] };
 
-    const plan = await buildBundlePlan(config);
+    const plan = await buildBundlePlan(config, {
+      emitWarning: () => {},
+    });
 
     expect(plan.warnings.length).toBeGreaterThan(0);
     expect(plan.warnings[0]).toContain(

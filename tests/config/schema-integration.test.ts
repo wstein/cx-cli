@@ -11,6 +11,12 @@ import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 /**
  * End-to-end integration tests for JSON Schema support.
  * Validates that:
@@ -109,7 +115,7 @@ exclude = []
 
     await fs.writeFile(configPath, configContent, "utf8");
 
-    const config = await loadCxConfig(configPath);
+    const config = await loadQuietCxConfig(configPath);
     expect(config.projectName).toBe("integration-test");
     expect(config.schemaVersion).toBe(1);
     // sourceRoot is resolved to absolute path by loadCxConfig
@@ -480,7 +486,7 @@ exclude = []
       await main(["init", "--name", "fullflow-test", "--force"]);
 
       const configPath = path.join(tempDir, "cx.toml");
-      const config = await loadCxConfig(configPath);
+      const config = await loadQuietCxConfig(configPath);
 
       expect(config.projectName).toBe("fullflow-test");
       expect(config.schemaVersion).toBe(1);
@@ -516,7 +522,7 @@ priority = 5
 
     await fs.writeFile(configPath, configWithDirective, "utf8");
 
-    const config = await loadCxConfig(configPath);
+    const config = await loadQuietCxConfig(configPath);
     expect(config.sections.code?.include).toEqual(["src/**", "lib/**"]);
     expect(config.sections.code?.exclude).toEqual(["**/*.test.ts"]);
     expect(config.sections.code?.priority).toBe(10);

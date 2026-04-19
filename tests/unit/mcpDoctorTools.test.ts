@@ -55,6 +55,12 @@ function getTool(
   return tool;
 }
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 describe("registerDoctorTools", () => {
   test("registers all doctor MCP tools and executes their handlers", async () => {
     const workspace = await createWorkspace({
@@ -86,7 +92,7 @@ describe("registerDoctorTools", () => {
         cwd: workspace.rootDir,
       });
 
-      const config = await loadCxConfig(workspace.configPath);
+      const config = await loadQuietCxConfig(workspace.configPath);
       const { server, tools } = createCaptureServer();
       registerDoctorTools(
         server,
