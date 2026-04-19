@@ -8,6 +8,7 @@ import {
   runCommand,
   runJsonCommand,
   runReleaseAssuranceSmoke,
+  runReleaseAssuranceSmokeEntry,
 } from "../../scripts/release-assurance-smoke.js";
 
 describe("release assurance smoke script helpers", () => {
@@ -239,5 +240,49 @@ describe("release assurance smoke script helpers", () => {
       { target: tarballDir, options: { recursive: true, force: true } },
       { target: releaseIntegrityPath, options: { force: true } },
     ]);
+  });
+
+  test("runReleaseAssuranceSmokeEntry logs failures and exits 1", async () => {
+    const errorMessages: string[] = [];
+    const exitCodes: number[] = [];
+
+    await runReleaseAssuranceSmokeEntry({
+      runSmoke: async () => {
+        throw new Error("smoke exploded");
+      },
+      logError: (message) => {
+        errorMessages.push(message);
+      },
+      exit: (code) => {
+        exitCodes.push(code);
+      },
+    });
+
+    expect(errorMessages).toEqual([
+      "✗ Release integrity smoke failed: smoke exploded",
+    ]);
+    expect(exitCodes).toEqual([1]);
+  });
+
+  test("runReleaseAssuranceSmokeEntry does not exit on success", async () => {
+    const runCalls: string[] = [];
+    const errorMessages: string[] = [];
+    const exitCodes: number[] = [];
+
+    await runReleaseAssuranceSmokeEntry({
+      runSmoke: async () => {
+        runCalls.push("run");
+      },
+      logError: (message) => {
+        errorMessages.push(message);
+      },
+      exit: (code) => {
+        exitCodes.push(code);
+      },
+    });
+
+    expect(runCalls).toEqual(["run"]);
+    expect(errorMessages).toEqual([]);
+    expect(exitCodes).toEqual([]);
   });
 });

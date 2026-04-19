@@ -93,14 +93,24 @@ export async function runReleaseAssuranceSmoke(cwd = process.cwd(), options = {}
   log("✓ Release integrity smoke completed");
 }
 
+export async function runReleaseAssuranceSmokeEntry(options = {}) {
+  const runSmoke = options.runSmoke ?? runReleaseAssuranceSmoke;
+  const logError = options.logError ?? console.error;
+  const exit = options.exit ?? process.exit;
+
+  try {
+    await runSmoke();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logError(`✗ Release integrity smoke failed: ${message}`);
+    exit(1);
+  }
+}
+
 const executedAsScript =
   process.argv[1] !== undefined &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (executedAsScript) {
-  runReleaseAssuranceSmoke().catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`✗ Release integrity smoke failed: ${message}`);
-    process.exit(1);
-  });
+  runReleaseAssuranceSmokeEntry();
 }
