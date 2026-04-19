@@ -14,18 +14,22 @@ import { jsonToolResult } from "./utils.js";
 const DOCTOR_MCP_TOOL = {
   name: "doctor_mcp",
   capability: "observe",
+  stability: "BETA",
 } as const satisfies CxMcpToolDefinition;
 const DOCTOR_WORKFLOW_TOOL = {
   name: "doctor_workflow",
   capability: "observe",
+  stability: "BETA",
 } as const satisfies CxMcpToolDefinition;
 const DOCTOR_OVERLAPS_TOOL = {
   name: "doctor_overlaps",
   capability: "observe",
+  stability: "BETA",
 } as const satisfies CxMcpToolDefinition;
 const DOCTOR_SECRETS_TOOL = {
   name: "doctor_secrets",
   capability: "observe",
+  stability: "BETA",
 } as const satisfies CxMcpToolDefinition;
 
 export const DOCTOR_TOOL_DEFINITIONS = [
@@ -45,7 +49,7 @@ export function registerDoctorTools(
     DOCTOR_MCP_TOOL,
     {
       title: "Diagnose MCP profile",
-      description: `${tierLabel("doctor_mcp")} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
+      description: `${tierLabel(DOCTOR_MCP_TOOL.stability)} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
       inputSchema: z.object({}),
     },
     async () => {
@@ -66,7 +70,7 @@ export function registerDoctorTools(
     DOCTOR_WORKFLOW_TOOL,
     {
       title: "Recommend workflow",
-      description: `${tierLabel("doctor_workflow")} Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.`,
+      description: `${tierLabel(DOCTOR_WORKFLOW_TOOL.stability)} Recommend whether a task should use inspect, bundle preview, or MCP, including mixed-task sequences.`,
       inputSchema: z.object({
         task: z.string().min(1),
       }),
@@ -88,7 +92,7 @@ export function registerDoctorTools(
     DOCTOR_OVERLAPS_TOOL,
     {
       title: "Diagnose section overlaps",
-      description: `${tierLabel("doctor_overlaps")} Inspect live workspace section ownership and duplicate file assignments.`,
+      description: `${tierLabel(DOCTOR_OVERLAPS_TOOL.stability)} Inspect live workspace section ownership and duplicate file assignments.`,
       inputSchema: z.object({}),
     },
     async () => {
@@ -109,7 +113,7 @@ export function registerDoctorTools(
     DOCTOR_SECRETS_TOOL,
     {
       title: "Diagnose secret hygiene",
-      description: `${tierLabel("doctor_secrets")} Scan the live workspace file scope for suspicious secrets before a patch is written.`,
+      description: `${tierLabel(DOCTOR_SECRETS_TOOL.stability)} Scan the live workspace file scope for suspicious secrets before a patch is written.`,
       inputSchema: z.object({}),
     },
     async () => {

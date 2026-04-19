@@ -11,6 +11,7 @@ import {
 import {
   CX_MCP_TOOL_CAPABILITIES,
   CX_MCP_TOOL_NAMES,
+  CX_MCP_TOOL_STABILITY,
 } from "../../src/mcp/tools/catalog.js";
 
 const ROOT = path.resolve(
@@ -40,6 +41,13 @@ describe("MCP policy contract", () => {
     expect(missing).toEqual([]);
   });
 
+  test("every registered MCP tool has an explicit stability tier", () => {
+    const missing = CX_MCP_TOOL_NAMES.filter(
+      (toolName) => CX_MCP_TOOL_STABILITY[toolName] === undefined,
+    );
+    expect(missing).toEqual([]);
+  });
+
   test("default policy allows plan and denies mutate", () => {
     expect(checkToolAccess("bundle", DEFAULT_POLICY).allowed).toBe(true);
     expect(checkToolAccess("inspect", DEFAULT_POLICY).allowed).toBe(true);
@@ -55,6 +63,13 @@ describe("MCP policy contract", () => {
   test("bundle and inspect are classified as plan", () => {
     expect(CX_MCP_TOOL_CAPABILITIES.bundle).toBe("plan");
     expect(CX_MCP_TOOL_CAPABILITIES.inspect).toBe("plan");
+  });
+
+  test("stable MCP contract includes notes_graph and keeps doctor tools beta", () => {
+    expect(CX_MCP_TOOL_STABILITY.bundle).toBe("STABLE");
+    expect(CX_MCP_TOOL_STABILITY.notes_graph).toBe("STABLE");
+    expect(CX_MCP_TOOL_STABILITY.doctor_mcp).toBe("BETA");
+    expect(CX_MCP_TOOL_STABILITY.replace_repomix_span).toBe("BETA");
   });
 
   test("taxonomy docs classify bundle as plan", async () => {

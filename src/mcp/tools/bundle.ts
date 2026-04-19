@@ -10,10 +10,12 @@ import { jsonToolResult } from "./utils.js";
 const INSPECT_TOOL = {
   name: "inspect",
   capability: "plan",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const BUNDLE_TOOL = {
   name: "bundle",
   capability: "plan",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 
 export const BUNDLE_TOOL_DEFINITIONS = [
@@ -31,7 +33,7 @@ export function registerBundleTools(
     INSPECT_TOOL,
     {
       title: "Inspect live bundle plan",
-      description: `${tierLabel("inspect")} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
+      description: `${tierLabel(INSPECT_TOOL.stability)} Inspect the bundle plan derived from the live workspace files without reading bundle artifacts.`,
       inputSchema: z.object({
         tokenBreakdown: z.boolean().optional(),
       }),
@@ -57,7 +59,7 @@ export function registerBundleTools(
     BUNDLE_TOOL,
     {
       title: "Preview bundle snapshot",
-      description: `${tierLabel("bundle")} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,
+      description: `${tierLabel(BUNDLE_TOOL.stability)} Preview the current bundle snapshot from live workspace files. This tool does not read bundle artifacts for reasoning.`,
       inputSchema: z.object({
         tokenBreakdown: z.boolean().optional(),
       }),

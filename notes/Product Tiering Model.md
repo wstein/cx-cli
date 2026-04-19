@@ -6,7 +6,7 @@ tags: [architecture, mcp, stability]
 
 # Product Tiering Model
 
-cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EXPERIMENTAL**, and **INTERNAL**. This model lets operators understand which tools have locked APIs and which may evolve.
+cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EXPERIMENTAL**, and **INTERNAL**. This model lets operators understand which tools have locked APIs and which may evolve, and it now applies explicitly to the MCP surface instead of treating `cx mcp` as one undifferentiated experiment.
 
 ## Tier Guarantees
 
@@ -17,11 +17,12 @@ cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EX
 
 ## Current Distribution
 
-- **STABLE** (17 tools): Core workspace (list, grep, read), planning (inspect, bundle), and notes lifecycle/discovery
+- **STABLE** (18 tools): Core workspace (list, grep, read), planning (inspect, bundle), and notes lifecycle/discovery including reachable-graph inspection
 - **BETA** (5 tools): Diagnostic tools (doctor_*) and experimental workspace writes (replace_repomix_span)
 
 ## Links
 
 - [docs/STABILITY.md](../docs/STABILITY.md) — Full tier definitions, versioning policy, matrix
+- [[MCP Stable Contract Boundary]] — which MCP tools are now explicitly non-experimental
 - [[MCP Tool Intent Taxonomy]] — Tool capability model (read, observe, plan, mutate)
 - [[Agent Operating Model]] — When each tool is used (MCP interactive vs bundle CI/CD)

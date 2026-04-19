@@ -15,18 +15,22 @@ import { jsonToolResult } from "./utils.js";
 const LIST_TOOL = {
   name: "list",
   capability: "read",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const GREP_TOOL = {
   name: "grep",
   capability: "read",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const READ_TOOL = {
   name: "read",
   capability: "read",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const REPLACE_REPOMIX_SPAN_TOOL = {
   name: "replace_repomix_span",
   capability: "mutate",
+  stability: "BETA",
 } as const satisfies CxMcpToolDefinition;
 
 export const WORKSPACE_TOOL_DEFINITIONS = [
@@ -46,7 +50,7 @@ export function registerWorkspaceTools(
     LIST_TOOL,
     {
       title: "List workspace files",
-      description: `${tierLabel("list")} List files from the cx workspace file scope using the active cx configuration.`,
+      description: `${tierLabel(LIST_TOOL.stability)} List files from the cx workspace file scope using the active cx configuration.`,
       inputSchema: z.object({
         prefix: z.string().optional(),
       }),
@@ -70,7 +74,7 @@ export function registerWorkspaceTools(
     GREP_TOOL,
     {
       title: "Search workspace files",
-      description: `${tierLabel("grep")} Search files from the cx workspace file scope with a string or regular expression.`,
+      description: `${tierLabel(GREP_TOOL.stability)} Search files from the cx workspace file scope with a string or regular expression.`,
       inputSchema: z.object({
         pattern: z.string().min(1),
         regex: z.boolean().optional(),
@@ -101,7 +105,7 @@ export function registerWorkspaceTools(
     READ_TOOL,
     {
       title: "Read workspace file",
-      description: `${tierLabel("read")} Read a text file from the cx workspace scope with optional line anchors.`,
+      description: `${tierLabel(READ_TOOL.stability)} Read a text file from the cx workspace scope with optional line anchors.`,
       inputSchema: z.object({
         path: z.string().min(1),
         startLine: z.number().int().positive().optional(),
@@ -130,7 +134,7 @@ export function registerWorkspaceTools(
     REPLACE_REPOMIX_SPAN_TOOL,
     {
       title: "Replace workspace span",
-      description: `${tierLabel("replace_repomix_span")} Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.`,
+      description: `${tierLabel(REPLACE_REPOMIX_SPAN_TOOL.stability)} Replace an exact line span in a live workspace file. This acts on the workspace filesystem, not bundle artifacts.`,
       inputSchema: z.object({
         path: z.string().min(1),
         startLine: z.number().int().positive(),

@@ -29,50 +29,62 @@ import { jsonToolResult } from "./utils.js";
 const NOTES_NEW_TOOL = {
   name: "notes_new",
   capability: "mutate",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_READ_TOOL = {
   name: "notes_read",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_UPDATE_TOOL = {
   name: "notes_update",
   capability: "mutate",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_RENAME_TOOL = {
   name: "notes_rename",
   capability: "mutate",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_DELETE_TOOL = {
   name: "notes_delete",
   capability: "mutate",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_SEARCH_TOOL = {
   name: "notes_search",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_LIST_TOOL = {
   name: "notes_list",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_BACKLINKS_TOOL = {
   name: "notes_backlinks",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_ORPHANS_TOOL = {
   name: "notes_orphans",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_CODE_LINKS_TOOL = {
   name: "notes_code_links",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_LINKS_TOOL = {
   name: "notes_links",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 const NOTES_GRAPH_TOOL = {
   name: "notes_graph",
   capability: "observe",
+  stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
 
 export const NOTES_TOOL_DEFINITIONS = [
@@ -102,7 +114,7 @@ export function registerNotesTools(
     NOTES_NEW_TOOL,
     {
       title: "Create note",
-      description: `${tierLabel("notes_new")} Create a new note in the workspace notes directory with optional tags and body text.`,
+      description: `${tierLabel(NOTES_NEW_TOOL.stability)} Create a new note in the workspace notes directory with optional tags and body text.`,
       inputSchema: z.object({
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
@@ -132,7 +144,7 @@ export function registerNotesTools(
     NOTES_READ_TOOL,
     {
       title: "Read note",
-      description: `${tierLabel("notes_read")} Read a note from the workspace notes directory with parsed metadata and body content.`,
+      description: `${tierLabel(NOTES_READ_TOOL.stability)} Read a note from the workspace notes directory with parsed metadata and body content.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -156,7 +168,7 @@ export function registerNotesTools(
     NOTES_UPDATE_TOOL,
     {
       title: "Update note",
-      description: `${tierLabel("notes_update")} Update an existing note in the workspace notes directory while preserving its file path.`,
+      description: `${tierLabel(NOTES_UPDATE_TOOL.stability)} Update an existing note in the workspace notes directory while preserving its file path.`,
       inputSchema: z.object({
         id: z.string().min(1),
         title: z.string().min(1).optional(),
@@ -188,7 +200,7 @@ export function registerNotesTools(
     NOTES_RENAME_TOOL,
     {
       title: "Rename note",
-      description: `${tierLabel("notes_rename")} Rename an existing note in the workspace notes directory and update its title in place.`,
+      description: `${tierLabel(NOTES_RENAME_TOOL.stability)} Rename an existing note in the workspace notes directory and update its title in place.`,
       inputSchema: z.object({
         id: z.string().min(1),
         title: z.string().min(1),
@@ -219,7 +231,7 @@ export function registerNotesTools(
     NOTES_DELETE_TOOL,
     {
       title: "Delete note",
-      description: `${tierLabel("notes_delete")} Delete an existing note from the workspace notes directory.`,
+      description: `${tierLabel(NOTES_DELETE_TOOL.stability)} Delete an existing note from the workspace notes directory.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -244,7 +256,7 @@ export function registerNotesTools(
     NOTES_SEARCH_TOOL,
     {
       title: "Search notes",
-      description: `${tierLabel("notes_search")} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
+      description: `${tierLabel(NOTES_SEARCH_TOOL.stability)} Search the workspace notes directory by title, aliases, tags, summary, or body text.`,
       inputSchema: z.object({
         query: z.string().min(1),
         regex: z.boolean().optional(),
@@ -280,7 +292,7 @@ export function registerNotesTools(
     NOTES_LIST_TOOL,
     {
       title: "List notes",
-      description: `${tierLabel("notes_list")} List notes in the workspace notes directory with summaries and tags.`,
+      description: `${tierLabel(NOTES_LIST_TOOL.stability)} List notes in the workspace notes directory with summaries and tags.`,
       inputSchema: z.object({}),
     },
     async () => {
@@ -308,7 +320,7 @@ export function registerNotesTools(
     NOTES_BACKLINKS_TOOL,
     {
       title: "List note backlinks",
-      description: `${tierLabel("notes_backlinks")} List notes that link to a specific note from the workspace notes graph.`,
+      description: `${tierLabel(NOTES_BACKLINKS_TOOL.stability)} List notes that link to a specific note from the workspace notes graph.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -337,7 +349,7 @@ export function registerNotesTools(
     NOTES_ORPHANS_TOOL,
     {
       title: "List orphan notes",
-      description: `${tierLabel("notes_orphans")} List notes with no incoming or outgoing links in the workspace notes graph.`,
+      description: `${tierLabel(NOTES_ORPHANS_TOOL.stability)} List notes with no incoming or outgoing links in the workspace notes graph.`,
       inputSchema: z.object({}),
     },
     async () => {
@@ -364,7 +376,7 @@ export function registerNotesTools(
     NOTES_CODE_LINKS_TOOL,
     {
       title: "List code references",
-      description: `${tierLabel("notes_code_links")} List source files that reference a note through wikilinks in code comments or text.`,
+      description: `${tierLabel(NOTES_CODE_LINKS_TOOL.stability)} List source files that reference a note through wikilinks in code comments or text.`,
       inputSchema: z.object({
         id: z.string().min(1),
       }),
@@ -393,7 +405,7 @@ export function registerNotesTools(
     NOTES_LINKS_TOOL,
     {
       title: "Audit note links",
-      description: `${tierLabel("notes_links")} Audit unresolved note and code references, or inspect one note's outgoing links.`,
+      description: `${tierLabel(NOTES_LINKS_TOOL.stability)} Audit unresolved note and code references, or inspect one note's outgoing links.`,
       inputSchema: z.object({
         id: z.string().min(1).optional(),
       }),
@@ -436,7 +448,7 @@ export function registerNotesTools(
     NOTES_GRAPH_TOOL,
     {
       title: "Note graph reachability",
-      description: `${tierLabel("notes_graph")} Return all notes reachable from a given note within a configurable hop depth following outgoing wikilinks.`,
+      description: `${tierLabel(NOTES_GRAPH_TOOL.stability)} Return all notes reachable from a given note within a configurable hop depth following outgoing wikilinks.`,
       inputSchema: z.object({
         id: z.string().min(1),
         depth: z.number().int().positive().max(10).optional(),

@@ -84,6 +84,10 @@ describe("docs assurance contract", () => {
     expect(agentIntegration).toContain(
       "This document is an integration guide.",
     );
+    expect(agentIntegration).toContain("stable MCP contract");
+    expect(agentIntegration).toContain(
+      "no longer a blanket experimental surface",
+    );
   });
 
   test("manual defines an assurance ladder", async () => {

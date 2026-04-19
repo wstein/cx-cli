@@ -2,12 +2,13 @@
 
 # Agent Integration Guide — CX MCP
 
-⚠️ **Experimental Feature** — The MCP (Model Context Protocol) surface is
-experimental and subject to change. The MCP SDK specification itself continues to
-evolve (not yet stable at 1.0). Integrations using `cx mcp` should expect breaking
-changes in minor version releases until the feature is marked stable (planned for
-cx 1.0 when Anthropic's MCP SDK reaches 1.0). For production bundles and
-verification, use `cx bundle` which follows semantic versioning strictly.
+`cx mcp` is no longer a blanket experimental surface.
+
+- The stable MCP contract is the semver-protected subset in [STABILITY.md](STABILITY.md): core workspace reads (`list`, `grep`, `read`), bundle planning (`inspect`, `bundle`), and the stable notes graph and note lifecycle/read tools.
+- Beta MCP tools still exist and remain intentionally flexible: diagnostic `doctor_*` tools and live workspace span replacement can evolve in minor releases.
+- The upstream MCP ecosystem is still moving, so operators should pin versions when they depend on beta tools or client-specific transport behavior.
+
+For production bundles and verification, use `cx bundle` for artifact proof and `cx mcp` for live workspace exploration within the documented stability tiers.
 
 ---
 
@@ -27,7 +28,7 @@ Overview
 
 Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
 
-By default, MCP sessions are not mutation sessions. Note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.
+By default, MCP sessions are not mutation sessions. Stable read and plan tools are available under the active policy, but note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.
 
 ## Progressive Onboarding For Operators
 

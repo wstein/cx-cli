@@ -34,7 +34,7 @@ full lane set passes.
 
 **Deprecation:** Deprecated features will be signaled 2+ releases in advance with clear migration guidance.
 
-**Examples:** `list`, `grep`, `read`, `inspect`, `bundle`, `notes_new`, `notes_read`, `notes_update`, `notes_delete`, `notes_rename`, `notes_search`, `notes_list`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`
+**Examples:** `list`, `grep`, `read`, `inspect`, `bundle`, `notes_new`, `notes_read`, `notes_update`, `notes_delete`, `notes_rename`, `notes_search`, `notes_list`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`, `notes_graph`
 
 **Use in:** Production CI/CD pipelines, long-lived scripts, documented integrations.
 
@@ -112,3 +112,4 @@ If a tool transitions from BETA to STABLE or is deprecated, the release notes wi
 | notes_orphans | STABLE | Notes | v0.1.0 |
 | notes_code_links | STABLE | Notes | v0.1.0 |
 | notes_links | STABLE | Notes | v0.1.0 |
+| notes_graph | STABLE | Notes | v0.1.0 |

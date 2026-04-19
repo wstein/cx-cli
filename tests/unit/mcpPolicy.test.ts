@@ -12,6 +12,7 @@ import {
 } from "../../src/mcp/policy.js";
 import {
   CX_MCP_TOOL_CAPABILITIES,
+  CX_MCP_TOOL_STABILITY,
   getCxMcpToolDefinition,
 } from "../../src/mcp/tools/catalog.js";
 
@@ -130,6 +131,7 @@ describe("MCP Policy System", () => {
         "notes_read",
         "notes_search",
         "notes_list",
+        "notes_graph",
       ];
       for (const tool of observeTools) {
         expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("observe");
@@ -153,6 +155,30 @@ describe("MCP Policy System", () => {
       for (const tool of mutateTools) {
         expect(CX_MCP_TOOL_CAPABILITIES[tool]).toBe("mutate");
       }
+    });
+  });
+
+  describe("Tool Stability Classification", () => {
+    it("marks the stable MCP contract explicitly", () => {
+      const stableTools = [
+        "list",
+        "grep",
+        "read",
+        "inspect",
+        "bundle",
+        "notes_read",
+        "notes_search",
+        "notes_graph",
+      ];
+      for (const tool of stableTools) {
+        expect(CX_MCP_TOOL_STABILITY[tool]).toBe("STABLE");
+      }
+    });
+
+    it("keeps mutating workspace and doctor helpers outside the stable contract", () => {
+      expect(CX_MCP_TOOL_STABILITY.replace_repomix_span).toBe("BETA");
+      expect(CX_MCP_TOOL_STABILITY.doctor_mcp).toBe("BETA");
+      expect(CX_MCP_TOOL_STABILITY.doctor_workflow).toBe("BETA");
     });
   });
 
