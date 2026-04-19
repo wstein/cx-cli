@@ -1,42 +1,40 @@
 ---
 id: 20260420110800
 title: Kernel vs Extension Boundary
-tags: ["architecture", "boundary"]
+tags: ["architecture", "boundary", "plugins"]
+status: design
 ---
-
-The system enforces a strict boundary between kernel and extensions.
+The system enforces a strict separation between kernel and extensions.
 
 ## Kernel owns
 
-- rendering
-- spans
-- structured plans
+- rendering (xml, markdown, json, plain)
+- span mapping
+- structured plan
 - hashing
 - manifest
 - extraction safety
 
 ## Extensions may
 
+- scan
 - analyze
 - report
-- augment metadata
 - provide alternate views
 
 ## Extensions may NOT
 
-- change file ordering
+- alter file ordering
 - modify spans
-- alter hash inputs
+- change hashing inputs
 - redefine proof semantics
 
 ## Why
 
 Proof must remain stable and auditable.
 
-Extensions must not compromise determinism.
-
 ## Links
 
 - [[Render Kernel Constitution]]
+- [[Plugin System Model]]
 - [[System Trust Contract]]
-- `docs/SYSTEM_CONTRACTS.md`
