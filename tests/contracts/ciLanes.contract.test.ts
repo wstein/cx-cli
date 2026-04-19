@@ -31,6 +31,11 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("Save fast-lane timing state");
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
     expect(workflow).toContain("run: bun run ci:test:all");
+    expect(workflow).toContain("coverage-vitest:");
+    expect(workflow).toContain("run: bun run ci:test:coverage");
+    expect(workflow).toContain(
+      'cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"',
+    );
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).toContain("run: bun run ci:notes:governance");
     expect(workflow).toContain("run: bun run ci:report:verify-against");
@@ -38,8 +43,13 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(".ci/verify-against-policy-report.json");
     expect(workflow).toContain(".ci/observability-summary.json");
     expect(workflow).toContain(".ci/observability-summary.md");
+    expect(workflow).toContain("coverage/vitest");
+    expect(workflow).toContain(".ci/coverage-summary.md");
     expect(workflow).toContain("ci-artifacts:");
+    expect(workflow).toContain("Generate Vitest coverage reports");
+    expect(workflow).toContain("Upload HTML coverage report");
     expect(workflow).toContain("          name: ci-observability");
+    expect(workflow).toContain("          name: coverage-html");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
     expect(workflow).not.toContain("bun test tests/unit --timeout");
@@ -62,6 +72,12 @@ describe("CI lanes contract", () => {
     expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
     expect(scripts["test:contracts"]).toContain(
       "node scripts/test-lane.js ./tests/contracts",
+    );
+    expect(scripts["test:vitest"]).toBe("vitest run");
+    expect(scripts["coverage:vitest"]).toBe("vitest run --coverage");
+    expect(scripts["coverage:report"]).toBe("node scripts/coverage-report.js");
+    expect(scripts["ci:test:coverage"]).toBe(
+      "vitest run --coverage && node scripts/coverage-report.js",
     );
     expect(scripts["ci:test:fast"]).toBe("bun run test:unit");
     expect(scripts["ci:test:fast:monitored"]).toBe(
@@ -101,6 +117,7 @@ describe("CI lanes contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("notes-governance:");
+    expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
@@ -125,6 +142,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-matrix:");
+    expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
       "  test-contracts:\n    runs-on: ubuntu-latest\n    needs:",
     );
@@ -133,6 +151,9 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain(
       "  repomix-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  bun-matrix:\n    runs-on: ubuntu-latest\n    needs:",
@@ -149,8 +170,10 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - release-assurance");
     expect(workflow).toContain("Generate verify-against policy report");
     expect(workflow).toContain("Generate observability dashboard");
+    expect(workflow).toContain("Generate Vitest coverage reports");
     expect(workflow).toContain("Upload verify-against policy report");
     expect(workflow).toContain("Upload observability dashboard");
+    expect(workflow).toContain("Upload HTML coverage report");
     expect(workflow).not.toContain("fast-lane-observability");
     expect(workflow).not.toContain("contracts-observability");
     expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
@@ -164,6 +187,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - test-fast");
     expect(workflow).toContain("      - test-contracts");
     expect(workflow).toContain("      - notes-governance");
+    expect(workflow).toContain("      - coverage-vitest");
     expect(workflow).toContain("      - repomix-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-matrix");
