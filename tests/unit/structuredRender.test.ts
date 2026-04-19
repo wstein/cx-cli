@@ -1,14 +1,16 @@
 // test-lane: unit
 import { describe, expect, it } from "vitest";
+import { validatePlanOrdering } from "../../src/render/ordering.js";
 import {
   computePlanHash,
-  extractStructuredPlan,
   planToMaps,
-  type StructuredRenderEntry,
-  type StructuredRenderPlan,
   validateEntryHashes,
-  validatePlanOrdering,
-} from "../../src/repomix/structured.js";
+} from "../../src/render/planHash.js";
+import type {
+  StructuredRenderEntry,
+  StructuredRenderPlan,
+} from "../../src/render/types.js";
+import { extractStructuredPlan } from "../../src/repomix/structured.js";
 import { sha256Text } from "../../src/shared/hashing.js";
 
 describe("render constitution invariants", () => {

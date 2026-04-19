@@ -5,14 +5,15 @@ import path from "node:path";
 import type { CxConfig, CxStyle } from "../config/types.js";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
-import { renderSectionWithRepomix } from "../repomix/render.js";
+import { defaultRenderEngine, type RenderSectionFn } from "../render/engine.js";
+import { validatePlanOrdering } from "../render/ordering.js";
 import {
-  type StructuredRenderPlan,
+  computeAggregatePlanHash,
   validateEntryHashes,
-  validatePlanOrdering,
-} from "../repomix/structured.js";
+} from "../render/planHash.js";
+import type { StructuredRenderPlan } from "../render/types.js";
 import { CxError, type ErrorRemediation } from "../shared/errors.js";
-import { sha256File, sha256NormalizedText } from "../shared/hashing.js";
+import { sha256File } from "../shared/hashing.js";
 import {
   selectManifestRows,
   type VerifySelection,
@@ -66,7 +67,7 @@ export interface BundleVerifyDeps {
   readFile?: ReadUtf8;
   parseChecksumFile?: typeof parseChecksumFile;
   sha256File?: typeof sha256File;
-  renderSectionWithRepomix?: typeof renderSectionWithRepomix;
+  renderSection?: RenderSectionFn;
   validatePlanOrdering?: typeof validatePlanOrdering;
   validateEntryHashes?: typeof validateEntryHashes;
   mkdtemp?: Mkdtemp;
@@ -145,7 +146,8 @@ async function verifyBundleAgainstSourceTree(
 ): Promise<void> {
   const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
   const renderSection =
-    deps.renderSectionWithRepomix ?? renderSectionWithRepomix;
+    deps.renderSection ??
+    defaultRenderEngine.renderSection.bind(defaultRenderEngine);
   const validateOrdering = deps.validatePlanOrdering ?? validatePlanOrdering;
   const validateHashes = deps.validateEntryHashes ?? validateEntryHashes;
   const mkdtemp = deps.mkdtemp ?? ((prefix) => fs.mkdtemp(prefix));
@@ -266,13 +268,7 @@ async function verifyBundleAgainstSourceTree(
         "Source tree verification could not produce render plan hashes for all sections.",
       );
     }
-    const aggregatePlanHash = sha256NormalizedText(
-      JSON.stringify(
-        Array.from(sectionPlanHashes.entries()).sort(([left], [right]) =>
-          left.localeCompare(right),
-        ),
-      ),
-    );
+    const aggregatePlanHash = computeAggregatePlanHash(sectionPlanHashes);
     if (aggregatePlanHash !== manifest.renderPlanHash) {
       throw new VerifyError(
         "render_plan_drift",
@@ -325,7 +321,7 @@ async function getOrRenderVerifySection(params: {
   cacheKey: string;
   resolvedConfig: CxConfig;
   explicitFiles: string[];
-  renderSection: typeof renderSectionWithRepomix;
+  renderSection: RenderSectionFn;
   mkdtemp: Mkdtemp;
   rm: RemovePath;
   sectionName: string;

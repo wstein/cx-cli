@@ -232,7 +232,7 @@ describe("notes linking", () => {
       aliases?: string[],
     ): NoteMetadata => ({
       id,
-      status: "current",
+      target: "current",
       title,
       aliases: aliases ?? [],
       filePath: "",

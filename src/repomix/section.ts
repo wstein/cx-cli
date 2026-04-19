@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 import type { CxConfig, CxStyle } from "../config/types.js";
+import { defaultRenderEngine } from "../render/engine.js";
 
 export interface RenderSectionParams {
   config: CxConfig;
@@ -22,12 +23,11 @@ export interface RenderSectionResult {
 export async function renderSection(
   params: RenderSectionParams,
 ): Promise<RenderSectionResult> {
-  const { renderSectionWithRepomix } = await import("./render.js");
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-render-"));
   const outputPath = path.join(tmpDir, "output");
 
   try {
-    const result = await renderSectionWithRepomix({
+    const result = await defaultRenderEngine.renderSection({
       config: params.config,
       style: params.style,
       sourceRoot: params.sourceRoot,

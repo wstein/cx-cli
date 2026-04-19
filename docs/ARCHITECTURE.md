@@ -61,7 +61,9 @@ not about swapping frameworks for their own sake.
 
 Core responsibility split:
 
-- Repomix adapter (`src/repomix/`): render section outputs
+- Render kernel (`src/render/`): proof-path interfaces, ordering, spans, and
+  plan hashing
+- Repomix adapter (`src/repomix/`): current backing renderer during migration
 - `cx` planner: decide which files belong where
 - `cx` manifest layer: describe the bundle in stable JSON
 - `cx` verification layer: confirm artifacts and source-tree alignment
@@ -107,8 +109,12 @@ interface StructuredRenderPlan {
 
 ### Files
 
-- `src/repomix/structured.ts`: Core types and utilities
-- `src/repomix/render.ts`: Updated to extract and return structured plans
+- `src/render/types.ts`: kernel-owned proof-path types
+- `src/render/engine.ts`: render engine interface plus current adapter-backed implementation
+- `src/render/ordering.ts`: deterministic ordering invariant checks
+- `src/render/planHash.ts`: section and aggregate render-plan hashing
+- `src/render/spans.ts`: style-aware output span helpers
+- `src/repomix/render.ts`: current adapter-backed renderer implementing the kernel interface
 - `src/manifest/types.ts`: Added `renderPlanHash` field
 - `src/manifest/build.ts`: Computes aggregate plan hash from sections
 - `src/bundle/verify.ts`: Validates plan integrity during verification

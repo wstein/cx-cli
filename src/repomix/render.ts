@@ -3,7 +3,15 @@ import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 
-import type { CxConfig, CxStyle } from "../config/types.js";
+import {
+  countLogicalLines,
+  countNewlines,
+  findContentStartOffset,
+} from "../render/spans.js";
+import type {
+  RenderSectionInput,
+  RenderSectionResult,
+} from "../render/types.js";
 import { CxError } from "../shared/errors.js";
 import { type CommandIo, writeStderr } from "../shared/output.js";
 import { countTokensForFiles } from "../shared/tokens.js";
@@ -18,101 +26,7 @@ import {
   computePlanHash,
   extractStructuredPlan,
   planToMaps,
-  type StructuredRenderPlan,
 } from "./structured.js";
-
-export interface RenderSectionResult {
-  outputText: string;
-  outputTokenCount: number;
-  fileTokenCounts: Map<string, number>;
-  fileContentHashes: Map<string, string>;
-  fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
-  structuredPlan?: StructuredRenderPlan;
-  planHash?: string;
-  warnings: string[];
-}
-
-function countNewlines(content: string): number {
-  let count = 0;
-  for (const character of content) {
-    if (character === "\n") {
-      count += 1;
-    }
-  }
-  return count;
-}
-
-function countLogicalLines(content: string): number {
-  if (content === "") {
-    return 0;
-  }
-
-  const lines = content.split("\n");
-  return content.endsWith("\n") ? lines.length - 1 : lines.length;
-}
-
-function findContentStartOffset(params: {
-  style: CxStyle;
-  block: string;
-  filePath: string;
-}): number {
-  const { style, block, filePath } = params;
-
-  if (style === "xml") {
-    const tag = `<file path="${filePath}">`;
-    const tagStart = block.indexOf(tag);
-    if (tagStart === -1) {
-      throw new CxError(
-        `Unable to locate XML file wrapper while computing output spans for ${filePath}`,
-        5,
-      );
-    }
-
-    let contentStart = tagStart + tag.length;
-    if (block[contentStart] === "\n") {
-      contentStart += 1;
-    }
-
-    return contentStart;
-  }
-
-  if (style === "markdown") {
-    const heading = `## File: ${filePath}\n`;
-    const headingStart = block.indexOf(heading);
-    if (headingStart === -1) {
-      throw new CxError(
-        `Unable to locate Markdown file wrapper while computing output spans for ${filePath}`,
-        5,
-      );
-    }
-
-    const fenceLineEnd = block.indexOf("\n", headingStart + heading.length);
-    if (fenceLineEnd === -1) {
-      throw new CxError(
-        `Unable to locate Markdown fence while computing output spans for ${filePath}`,
-        5,
-      );
-    }
-
-    return fenceLineEnd + 1;
-  }
-
-  if (style === "plain") {
-    const marker = `================\nFile: ${filePath}\n================\n`;
-    const markerStart = block.indexOf(marker);
-    if (markerStart === -1) {
-      throw new CxError(
-        `Unable to locate plain-text file wrapper while computing output spans for ${filePath}`,
-        5,
-      );
-    }
-
-    return markerStart + marker.length;
-  }
-
-  // JSON output stores each file in a single object-property line.
-  return 0;
-}
 
 /** Load the configured Repomix adapter module at runtime. */
 async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
@@ -169,18 +83,9 @@ async function assertCompatibleRepomixAdapter(): Promise<void> {
   }
 }
 
-export async function renderSectionWithRepomix(params: {
-  config: CxConfig;
-  style: CxStyle;
-  sourceRoot: string;
-  outputPath: string;
-  sectionName: string;
-  explicitFiles: string[];
-  bundleIndexFile?: string;
-  requireStructured?: boolean;
-  requireOutputSpans?: boolean;
-  io?: Partial<CommandIo>;
-}): Promise<RenderSectionResult> {
+export async function renderSectionWithRepomix(
+  params: RenderSectionInput,
+): Promise<RenderSectionResult> {
   await assertCompatibleRepomixAdapter();
 
   if (params.explicitFiles.length === 0) {

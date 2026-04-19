@@ -180,7 +180,7 @@ describe("verifyBundle failure classes", () => {
         targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
       mkdtemp: async () => path.join(sourceDir, ".tmp-render"),
       rm: async () => undefined,
-      renderSectionWithRepomix: async () => {
+      renderSection: async () => {
         renderCallCount += 1;
         return {
           outputText: "",
@@ -240,7 +240,7 @@ describe("verifyBundle failure classes", () => {
         targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
       mkdtemp: async () => path.join(sourceDir, ".tmp-render"),
       rm: async () => undefined,
-      renderSectionWithRepomix: async () => {
+      renderSection: async () => {
         renderCallCount += 1;
         const currentContent = await fs.readFile(sourceFile, "utf8");
         const currentHash =
@@ -389,7 +389,7 @@ describe("verifyBundle failure classes", () => {
         mkdtemp: async () => "/tmp/cx-verify-ordering",
         rm: async () => undefined,
         stat: async () => ({ mtimeMs: 1, size: 17 }),
-        renderSectionWithRepomix: async () => ({
+        renderSection: async () => ({
           outputText: "",
           outputTokenCount: 0,
           fileTokenCounts: new Map(),
@@ -434,7 +434,7 @@ describe("verifyBundle failure classes", () => {
         mkdtemp: async () => "/tmp/cx-verify-hashes",
         rm: async () => undefined,
         stat: async () => ({ mtimeMs: 1, size: 17 }),
-        renderSectionWithRepomix: async () => ({
+        renderSection: async () => ({
           outputText: "",
           outputTokenCount: 0,
           fileTokenCounts: new Map(),
@@ -486,7 +486,7 @@ describe("verifyBundle failure classes", () => {
         mkdtemp: async () => "/tmp/cx-verify-plan-hash",
         rm: async () => undefined,
         stat: async () => ({ mtimeMs: 1, size: 17 }),
-        renderSectionWithRepomix: async () => ({
+        renderSection: async () => ({
           outputText: "",
           outputTokenCount: 0,
           fileTokenCounts: new Map(),
@@ -537,7 +537,7 @@ describe("verifyBundle failure classes", () => {
           mkdtemp: async () => "/tmp/cx-verify-selective-file",
           rm: async () => undefined,
           stat: async () => ({ mtimeMs: 1, size: 17 }),
-          renderSectionWithRepomix: async () => ({
+          renderSection: async () => ({
             outputText: "",
             outputTokenCount: 0,
             fileTokenCounts: new Map(),
@@ -587,7 +587,7 @@ describe("verifyBundle failure classes", () => {
           mkdtemp: async () => "/tmp/cx-verify-selective-section",
           rm: async () => undefined,
           stat: async () => ({ mtimeMs: 1, size: 17 }),
-          renderSectionWithRepomix: async () => ({
+          renderSection: async () => ({
             outputText: "",
             outputTokenCount: 0,
             fileTokenCounts: new Map(),
@@ -637,7 +637,7 @@ describe("verifyBundle failure classes", () => {
           mkdtemp: async () => "/tmp/cx-verify-selective-file-section",
           rm: async () => undefined,
           stat: async () => ({ mtimeMs: 1, size: 17 }),
-          renderSectionWithRepomix: async () => ({
+          renderSection: async () => ({
             outputText: "",
             outputTokenCount: 0,
             fileTokenCounts: new Map(),

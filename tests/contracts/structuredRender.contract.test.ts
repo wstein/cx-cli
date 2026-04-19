@@ -1,12 +1,12 @@
 // test-lane: contract
 import { describe, expect, test } from "vitest";
+import { validatePlanOrdering } from "../../src/render/ordering.js";
 import {
   computePlanHash,
   planToMaps,
-  type StructuredRenderPlan,
   validateEntryHashes,
-  validatePlanOrdering,
-} from "../../src/repomix/structured.js";
+} from "../../src/render/planHash.js";
+import type { StructuredRenderPlan } from "../../src/render/types.js";
 import { sha256Text } from "../../src/shared/hashing.js";
 
 function makePlan(styleTag: string): StructuredRenderPlan {

@@ -6,6 +6,10 @@ It is a contract document, not a design sketch.
 
 The contract is derived from the currently implemented proof path in:
 
+- [`src/render/engine.ts`](../src/render/engine.ts)
+- [`src/render/ordering.ts`](../src/render/ordering.ts)
+- [`src/render/planHash.ts`](../src/render/planHash.ts)
+- [`src/render/spans.ts`](../src/render/spans.ts)
 - [`src/repomix/render.ts`](../src/repomix/render.ts)
 - [`src/repomix/structured.ts`](../src/repomix/structured.ts)
 - [`src/bundle/verify.ts`](../src/bundle/verify.ts)
@@ -93,7 +97,7 @@ The render contract requires deterministic ordering at three levels:
 This behavior is currently enforced through:
 
 - [`extractStructuredPlan`](../src/repomix/structured.ts)
-- [`validatePlanOrdering`](../src/repomix/structured.ts)
+- [`validatePlanOrdering`](../src/render/ordering.ts)
 - [`src/bundle/verify.ts`](../src/bundle/verify.ts)
 
 The native kernel must preserve the same stable per-entry ordering and the same
@@ -138,7 +142,7 @@ Current contract:
 
 Evidence:
 
-- [`findContentStartOffset`](../src/repomix/render.ts)
+- [`findContentStartOffset`](../src/render/spans.ts)
 - [`tests/bundle/bundle.render-spans.contract.test.ts`](../tests/bundle/bundle.render-spans.contract.test.ts)
 
 ## 5. Aggregate Plan Hash Contract
@@ -157,7 +161,8 @@ Current behavior:
 
 Evidence:
 
-- [`computePlanHash`](../src/repomix/structured.ts)
+- [`computePlanHash`](../src/render/planHash.ts)
+- [`computeAggregatePlanHash`](../src/render/planHash.ts)
 - [`src/bundle/verify.ts`](../src/bundle/verify.ts)
 
 ## Acceptance Checklist

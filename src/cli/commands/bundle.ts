@@ -22,11 +22,9 @@ import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
+import { defaultRenderEngine } from "../../render/engine.js";
 import { buildBundleIndexText } from "../../repomix/handover.js";
-import {
-  getRepomixCapabilities,
-  renderSectionWithRepomix,
-} from "../../repomix/render.js";
+import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import {
   formatBytes,
@@ -337,7 +335,7 @@ export async function runBundleCommand(
     const renderedSections: RenderedSectionArtifacts[] = await Promise.all(
       plan.sections.map(async (section) => {
         const outputPath = path.join(activeBundleDir, section.outputFile);
-        const renderResult = await renderSectionWithRepomix({
+        const renderResult = await defaultRenderEngine.renderSection({
           config,
           style: section.style,
           sourceRoot: plan.sourceRoot,

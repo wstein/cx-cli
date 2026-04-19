@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
+import { computeAggregatePlanHash } from "../render/planHash.js";
 import { sha256NormalizedText } from "../shared/hashing.js";
 import type { DirtyState } from "../vcs/provider.js";
 import { MANIFEST_SCHEMA_VERSION } from "./json.js";
@@ -115,14 +116,9 @@ export async function buildManifest(params: {
   }));
 
   // Compute aggregate render plan hash from all section hashes
-  let aggregatePlanHash: string | undefined;
-  if (params.sectionPlanHashes && params.sectionPlanHashes.size > 0) {
-    const planHashesArray = Array.from(params.sectionPlanHashes.entries()).sort(
-      ([keyA], [keyB]) => keyA.localeCompare(keyB),
-    );
-    const planHashContent = JSON.stringify(planHashesArray);
-    aggregatePlanHash = sha256NormalizedText(planHashContent);
-  }
+  const aggregatePlanHash = params.sectionPlanHashes
+    ? computeAggregatePlanHash(params.sectionPlanHashes)
+    : undefined;
 
   const manifest: CxManifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
