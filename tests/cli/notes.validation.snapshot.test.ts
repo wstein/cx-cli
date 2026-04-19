@@ -33,6 +33,7 @@ describe("notes validation human snapshot lane", () => {
 id: 20260419170000
 aliases: []
 tags: []
+status: current
 ---
 
 ## Links

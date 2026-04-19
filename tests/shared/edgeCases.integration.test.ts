@@ -43,6 +43,7 @@ describe("integration edge cases", () => {
 id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
+status: current
 ---
 `,
       "utf8",
@@ -54,6 +55,7 @@ tags: []
 id: 20260419120000
 aliases: []
 tags: []
+status: current
 ---
 
 # Regular Note

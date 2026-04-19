@@ -4,6 +4,8 @@ import { z } from "zod";
 import {
   createNewNote,
   deleteNote,
+  describeNoteStatus,
+  listNotes,
   readNote,
   renameNote,
   searchNotes,
@@ -17,7 +19,7 @@ import {
   getOutgoingLinks,
   getReachableNotes,
 } from "../../notes/graph.js";
-import { validateNotes } from "../../notes/validate.js";
+import { NOTE_STATUS_VALUES, validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
 import { tierLabel } from "../tiers.js";
@@ -119,6 +121,7 @@ export function registerNotesTools(
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
+        status: z.enum(NOTE_STATUS_VALUES).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -126,6 +129,10 @@ export function registerNotesTools(
         notesDir,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
+        status:
+          typeof args.status === "string"
+            ? (args.status as (typeof NOTE_STATUS_VALUES)[number])
+            : undefined,
       });
 
       return jsonToolResult({
@@ -134,6 +141,13 @@ export function registerNotesTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: (args.tags as string[] | undefined) ?? [],
+        status: typeof args.status === "string" ? args.status : "design",
+        availability:
+          typeof args.status === "string"
+            ? describeNoteStatus(
+                args.status as (typeof NOTE_STATUS_VALUES)[number],
+              )
+            : describeNoteStatus("design"),
       });
     },
   );
@@ -158,6 +172,7 @@ export function registerNotesTools(
         command: "notes read",
         ...note,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        availability: describeNoteStatus(note.status),
       });
     },
   );
@@ -174,6 +189,7 @@ export function registerNotesTools(
         title: z.string().min(1).optional(),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
+        status: z.enum(NOTE_STATUS_VALUES).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -182,6 +198,10 @@ export function registerNotesTools(
         title: args.title as string | undefined,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
+        status:
+          typeof args.status === "string"
+            ? (args.status as (typeof NOTE_STATUS_VALUES)[number])
+            : undefined,
       });
 
       return jsonToolResult({
@@ -190,6 +210,8 @@ export function registerNotesTools(
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
+        status: note.status,
+        availability: describeNoteStatus(note.status),
       });
     },
   );
@@ -221,6 +243,8 @@ export function registerNotesTools(
         ),
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
+        status: note.status,
+        availability: describeNoteStatus(note.status),
       });
     },
   );
@@ -246,6 +270,8 @@ export function registerNotesTools(
         id: note.id,
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
+        status: note.status,
+        availability: describeNoteStatus(note.status),
       });
     },
   );
@@ -281,6 +307,7 @@ export function registerNotesTools(
         notes: result.notes.map((note) => ({
           ...note,
           filePath: relativePosix(workspace.sourceRoot, note.filePath),
+          availability: describeNoteStatus(note.status),
         })),
       });
     },
@@ -296,15 +323,27 @@ export function registerNotesTools(
       inputSchema: z.object({}),
     },
     async () => {
-      const result = await validateNotes("notes", workspace.sourceRoot);
-      const notes = result.notes.map((note) => ({
-        id: note.id,
-        title: note.title,
-        fileName: note.fileName,
-        tags: note.tags ?? [],
-        summary: note.summary,
-        codeLinks: note.codeLinks,
-      }));
+      const validated = await validateNotes("notes", workspace.sourceRoot);
+      const indexedNotes = new Map(
+        validated.notes.map((note) => [note.id, note]),
+      );
+      const notes = (
+        await listNotes("notes", {
+          workspaceRoot: workspace.sourceRoot,
+        })
+      ).map((note) => {
+        const indexed = indexedNotes.get(note.id);
+        return {
+          id: note.id,
+          status: note.status,
+          availability: describeNoteStatus(note.status),
+          title: note.title,
+          fileName: note.fileName,
+          tags: note.tags ?? [],
+          summary: indexed?.summary ?? "",
+          codeLinks: indexed?.codeLinks ?? [],
+        };
+      });
 
       return jsonToolResult({
         command: "notes list",

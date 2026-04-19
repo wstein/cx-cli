@@ -29,6 +29,7 @@ const writeNote = async (
 id: ${id}
 aliases: []
 tags: []
+status: current
 ---
 
 # ${title}

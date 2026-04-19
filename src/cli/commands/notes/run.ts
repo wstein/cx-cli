@@ -528,6 +528,17 @@ export async function runNotesCommand(
         }
       }
 
+      if (report.currentFeatureWarnings.length > 0) {
+        printWarning(
+          `  Current-note feature warnings: ${report.currentFeatureWarnings.length}`,
+        );
+        for (const warning of report.currentFeatureWarnings) {
+          printInfo(
+            `    [${warning.noteId}] ${warning.noteTitle} -> ${warning.reference} (${warning.reason})`,
+          );
+        }
+      }
+
       if (report.valid) {
         printSuccess("  ✓ All checks passed");
       } else {

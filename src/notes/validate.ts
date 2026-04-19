@@ -14,9 +14,20 @@ import {
 
 export interface NoteFrontmatter {
   id: string;
+  status: NoteStatus;
   aliases?: string[];
   tags?: string[];
   title?: string;
+}
+
+export const NOTE_STATUS_VALUES = ["current", "design", "roadmap"] as const;
+export type NoteStatus = (typeof NOTE_STATUS_VALUES)[number];
+
+export function isNoteStatus(value: unknown): value is NoteStatus {
+  return (
+    typeof value === "string" &&
+    (NOTE_STATUS_VALUES as readonly string[]).includes(value)
+  );
 }
 
 export interface NoteMetadata extends NoteFrontmatter {
@@ -123,6 +134,29 @@ function parseNoteDocument(
         error: {
           filePath,
           error: `Invalid note ID format: "${id}". Expected YYYYMMDDHHMMSS or YYYYMMDDHHMMSS-XXX for same-second collisions (e.g., 20250113143015 or 20250113143015-001)`,
+        },
+      };
+    }
+
+    const status = frontmatter.status;
+    if (status === undefined) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error:
+            "Missing required frontmatter field: status (current | design | roadmap)",
+        },
+      };
+    }
+
+    if (!isNoteStatus(status)) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error:
+            "Invalid frontmatter field: status must be one of current, design, or roadmap",
         },
       };
     }
@@ -258,6 +292,7 @@ function parseNoteDocument(
     return {
       metadata: {
         id,
+        status,
         aliases: aliases.value,
         tags: tags.value,
         title,

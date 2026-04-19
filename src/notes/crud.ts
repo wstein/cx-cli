@@ -3,7 +3,30 @@ import path from "node:path";
 import { CxError } from "../shared/errors.js";
 import { ensureDir, pathExists } from "../shared/fs.js";
 import { parseMarkdownFrontmatter } from "./parser.js";
+import type { NoteStatus } from "./validate.js";
 import { validateNoteDocuments, validateNotes } from "./validate.js";
+
+function noteStatusPriority(status: NoteStatus): number {
+  switch (status) {
+    case "current":
+      return 0;
+    case "design":
+      return 1;
+    case "roadmap":
+      return 2;
+  }
+}
+
+export function describeNoteStatus(status: NoteStatus): string {
+  switch (status) {
+    case "current":
+      return "implemented and safe to rely on";
+    case "design":
+      return "planned for 0.4.0 and not yet implemented";
+    case "roadmap":
+      return "future idea and not guaranteed";
+  }
+}
 
 /**
  * Generate a note ID in YYYYMMDDHHMMSS format from the current time.
@@ -41,6 +64,7 @@ function renderNewNote(
   title: string,
   tags: string[] = [],
   body?: string | undefined,
+  status: NoteStatus = "design",
 ): string {
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const noteBody =
@@ -66,6 +90,7 @@ function renderNewNote(
 id: ${id}
 aliases: []
 tags: [${tagsList}]
+status: ${status}
 ---
 
 ${renderedBody}## Links
@@ -75,6 +100,7 @@ ${renderedBody}## Links
 
 function renderUpdatedNote(params: {
   id: string;
+  status: NoteStatus;
   aliases: string[];
   tags: string[];
   title?: string | undefined;
@@ -99,6 +125,7 @@ function renderUpdatedNote(params: {
 id: ${params.id}${frontmatterTitle}
 aliases: [${params.aliases.join(", ")}]
 tags: [${tagsList}]
+status: ${params.status}
 ---
 
 ${bodySection}${renderedLinks}`;
@@ -180,6 +207,7 @@ function matchesTags(
 
 export interface ReadNoteResult {
   id: string;
+  status: NoteStatus;
   title: string;
   filePath: string;
   fileName: string;
@@ -194,6 +222,7 @@ export interface ReadNoteResult {
 
 export interface SearchNoteResult {
   id: string;
+  status: NoteStatus;
   title: string;
   filePath: string;
   fileName: string;
@@ -210,6 +239,7 @@ export interface WriteNoteResult {
   filePath: string;
   title: string;
   tags: string[];
+  status: NoteStatus;
 }
 
 interface NoteWorkspaceOptions {
@@ -262,6 +292,7 @@ export async function createNewNote(
   options?: {
     body?: string | undefined;
     tags?: string[] | undefined;
+    status?: NoteStatus | undefined;
     notesDir?: string | undefined;
     workspaceRoot?: string | undefined;
   },
@@ -282,7 +313,13 @@ export async function createNewNote(
     filePath = path.join(notesPath, fileName);
   }
 
-  const content = renderNewNote(id, title, options?.tags, options?.body);
+  const content = renderNewNote(
+    id,
+    title,
+    options?.tags,
+    options?.body,
+    options?.status ?? "design",
+  );
   assertRenderedNoteValid(filePath, content);
   await fs.writeFile(filePath, content, "utf-8");
 
@@ -294,6 +331,7 @@ export async function updateNote(
   options?: {
     body?: string | undefined;
     tags?: string[] | undefined;
+    status?: NoteStatus | undefined;
     title?: string | undefined;
     notesDir?: string | undefined;
     workspaceRoot?: string | undefined;
@@ -327,6 +365,7 @@ export async function updateNote(
   const { bodySection, linksSection } = splitBodyAndLinks(body);
   const rendered = renderUpdatedNote({
     id: note.id,
+    status: options?.status ?? note.status,
     aliases,
     tags: options?.tags ?? existingTags,
     title:
@@ -346,6 +385,7 @@ export async function updateNote(
     filePath,
     title: options?.title ?? note.title,
     tags: options?.tags ?? existingTags,
+    status: options?.status ?? note.status,
   };
 }
 
@@ -384,6 +424,7 @@ export async function renameNote(
   const { bodySection, linksSection } = splitBodyAndLinks(parsed.body);
   const rendered = renderUpdatedNote({
     id: note.id,
+    status: note.status,
     aliases,
     tags,
     title,
@@ -413,6 +454,7 @@ export async function renameNote(
     previousFilePath: currentPath,
     title,
     tags,
+    status: note.status,
   };
 }
 
@@ -422,7 +464,12 @@ export async function deleteNote(
     notesDir?: string | undefined;
     workspaceRoot?: string | undefined;
   },
-): Promise<{ id: string; filePath: string; title: string }> {
+): Promise<{
+  id: string;
+  filePath: string;
+  title: string;
+  status: NoteStatus;
+}> {
   const notesDir = options?.notesDir ?? "notes";
   const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
   const result = await validateNotes(notesDir, workspaceRoot);
@@ -438,6 +485,7 @@ export async function deleteNote(
     id: note.id,
     filePath: note.filePath,
     title: note.title,
+    status: note.status,
   };
 }
 
@@ -462,6 +510,7 @@ export async function readNote(
 
   return {
     id: note.id,
+    status: note.status,
     title: note.title,
     filePath: note.filePath,
     fileName: note.fileName,
@@ -504,8 +553,10 @@ export async function searchNotes(
       : 20;
   const results: SearchNoteResult[] = [];
 
-  const sortedNotes = [...result.notes].sort((left, right) =>
-    left.title.localeCompare(right.title, "en"),
+  const sortedNotes = [...result.notes].sort(
+    (left, right) =>
+      noteStatusPriority(left.status) - noteStatusPriority(right.status) ||
+      left.title.localeCompare(right.title, "en"),
   );
 
   for (const note of sortedNotes) {
@@ -553,6 +604,7 @@ export async function searchNotes(
 
     results.push({
       id: note.id,
+      status: note.status,
       title: note.title,
       filePath: note.filePath,
       fileName: note.fileName,
@@ -585,6 +637,7 @@ export async function listNotes(
 ): Promise<
   Array<{
     id: string;
+    status: NoteStatus;
     title: string;
     fileName: string;
     tags: string[];
@@ -593,10 +646,17 @@ export async function listNotes(
   const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
   const result = await validateNotes(notesDir, workspaceRoot);
 
-  return result.notes.map((note) => ({
-    id: note.id,
-    title: note.title,
-    fileName: note.fileName,
-    tags: note.tags ?? [],
-  }));
+  return [...result.notes]
+    .sort(
+      (left, right) =>
+        noteStatusPriority(left.status) - noteStatusPriority(right.status) ||
+        left.title.localeCompare(right.title, "en"),
+    )
+    .map((note) => ({
+      id: note.id,
+      status: note.status,
+      title: note.title,
+      fileName: note.fileName,
+      tags: note.tags ?? [],
+    }));
 }

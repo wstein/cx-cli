@@ -197,6 +197,7 @@ describe("note validation utilities", () => {
       // This test verifies the type structure is valid
       type NoteMetadataCheck = {
         id: string;
+        status: "current" | "design" | "roadmap";
         aliases: string[];
         tags: string[];
         title: string;
@@ -207,6 +208,7 @@ describe("note validation utilities", () => {
 
       const testMetadata: NoteMetadataCheck = {
         id: "20250113143015",
+        status: "current",
         aliases: ["alias1"],
         tags: ["tag1"],
         title: "My Note",

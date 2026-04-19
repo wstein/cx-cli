@@ -48,6 +48,13 @@ export interface ConsistencyReport {
     source: "note" | "code";
   }>;
   codePathWarnings: NoteCodePathWarning[];
+  currentFeatureWarnings: Array<{
+    noteId: string;
+    noteTitle: string;
+    reference: string;
+    source: "note" | "code";
+    reason: string;
+  }>;
   orphans: Array<{ id: string; title: string }>;
   cognition: {
     averageScore: number;
@@ -289,11 +296,38 @@ export async function checkNotesConsistency(
     validation.duplicateIds.length === 0 &&
     brokenLinksFormatted.length === 0;
 
+  const currentNotes = new Map(
+    validation.notes
+      .filter((note) => note.status === "current")
+      .map((note) => [note.id, note]),
+  );
+  const currentFeatureWarnings = [
+    ...brokenLinksFormatted
+      .filter((issue) => currentNotes.has(issue.fromNoteId))
+      .map((issue) => ({
+        noteId: issue.fromNoteId,
+        noteTitle: issue.fromTitle,
+        reference: issue.reference,
+        source: issue.source,
+        reason: "current note references a missing note or anchor",
+      })),
+    ...codePathWarnings
+      .filter((warning) => currentNotes.has(warning.fromNoteId))
+      .map((warning) => ({
+        noteId: warning.fromNoteId,
+        noteTitle: warning.fromTitle,
+        reference: warning.path,
+        source: "code" as const,
+        reason: `current note references a ${warning.status.replaceAll("_", " ")}`,
+      })),
+  ];
+
   return {
     duplicateIds: validation.duplicateIds,
     validationErrors: validation.errors,
     brokenLinks: brokenLinksFormatted,
     codePathWarnings,
+    currentFeatureWarnings,
     orphans: orphanDetails,
     cognition: {
       averageScore,

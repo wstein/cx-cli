@@ -232,6 +232,7 @@ describe("notes linking", () => {
       aliases?: string[],
     ): NoteMetadata => ({
       id,
+      status: "current",
       title,
       aliases: aliases ?? [],
       filePath: "",

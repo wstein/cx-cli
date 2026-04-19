@@ -81,14 +81,21 @@ The filename is the canonical title; the id is machine authoritative.
 
 Every note must contain:
 
-- YAML frontmatter with `id`, `aliases`, and `tags`
+- YAML frontmatter with `id`, `aliases`, `tags`, and `status`
 - one atomic body with a non-empty opening summary paragraph
 - one links section with explicit connections
 
+Status values:
+
+- `current`: implemented in code, tested, and safe to rely on
+- `design`: intended work that is not yet implemented and must not be treated as truth
+- `roadmap`: future idea that is not scheduled or guaranteed
+
 ## Governance And CI
 
-- `validateNotes(...)` enforces the summary requirement, minimum summary substance, template replacement, and note size limits.
+- `validateNotes(...)` enforces the summary requirement, minimum summary substance, template replacement, note size limits, and required frontmatter status.
 - `cx notes check` surfaces governance failures, broken links, and graph drift.
+- `cx notes check` also warns when a `current` note references missing note or code targets, so implemented truth does not silently drift into ambiguity.
 - `bun run ci:notes:governance` keeps the cognition-layer gate visible as its own CI lane.
 - `bun run ci:test:contracts` keeps the canonical documentation aligned with the implementation.
 

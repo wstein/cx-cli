@@ -446,7 +446,12 @@ describe("cx MCP server", () => {
     const listResult = await tools.notes_list.handler({}, {} as never);
     const listPayload = JSON.parse(firstContentText(listResult)) as {
       count: number;
-      notes: Array<{ title: string; summary: string }>;
+      notes: Array<{
+        title: string;
+        summary: string;
+        status: string;
+        availability: string;
+      }>;
     };
 
     expect(listPayload.count).toBeGreaterThan(0);
@@ -456,6 +461,14 @@ describe("cx MCP server", () => {
     expect(
       listPayload.notes.some((note) =>
         note.summary.includes("important observation"),
+      ),
+    ).toBe(true);
+    expect(
+      listPayload.notes.some(
+        (note) =>
+          note.title === "Agent Insight" &&
+          note.status === "design" &&
+          note.availability.includes("not yet implemented"),
       ),
     ).toBe(true);
   });
@@ -492,6 +505,8 @@ describe("cx MCP server", () => {
       body: string;
       tags: string[];
       filePath: string;
+      status: string;
+      availability: string;
     };
 
     expect(payload.id).toBe(createPayload.id);
@@ -499,6 +514,8 @@ describe("cx MCP server", () => {
     expect(payload.body).toContain("A note body for direct MCP reads.");
     expect(payload.tags).toEqual(["read"]);
     expect(payload.filePath).toBe(createPayload.filePath);
+    expect(payload.status).toBe("design");
+    expect(payload.availability).toContain("not yet implemented");
   });
 
   test("notes_search finds notes by body text and tags", async () => {
@@ -535,6 +552,69 @@ describe("cx MCP server", () => {
     expect(payload.notes[0]?.title).toBe("Search Candidate");
     expect(payload.notes[0]?.matchedFields).toContain("body");
     expect(payload.notes[0]?.snippet).toContain("workflow");
+  });
+
+  test("notes_search prioritizes current notes and marks design notes as planned", async () => {
+    const project = await createWorkspace();
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+    const notesDir = path.join(project.root, "notes");
+    await fs.mkdir(notesDir, { recursive: true });
+
+    await fs.writeFile(
+      path.join(notesDir, "Current Workflow.md"),
+      `---
+id: 20260420130000
+title: Current Workflow
+aliases: []
+tags: ["workflow"]
+status: current
+---
+
+This workflow is implemented and safe to rely on for operators today.
+
+## Links
+
+- [[Developer Command Workflow]]
+`,
+      "utf8",
+    );
+
+    await tools.notes_new.handler(
+      {
+        title: "Future Workflow",
+        body: "This workflow is planned but not implemented yet for operators.",
+        tags: ["workflow"],
+      },
+      {} as never,
+    );
+
+    const result = await tools.notes_search.handler(
+      {
+        query: "workflow",
+        tags: ["workflow"],
+      },
+      {} as never,
+    );
+    const payload = JSON.parse(firstContentText(result)) as {
+      notes: Array<{ title: string; status: string; availability: string }>;
+    };
+
+    expect(payload.notes[0]?.title).toBe("Current Workflow");
+    expect(payload.notes[0]?.status).toBe("current");
+    expect(payload.notes[0]?.availability).toContain("safe to rely on");
+    expect(
+      payload.notes.some(
+        (note) =>
+          note.title === "Future Workflow" &&
+          note.status === "design" &&
+          note.availability.includes("not yet implemented"),
+      ),
+    ).toBe(true);
   });
 
   test("notes_update revises an existing note in place", async () => {
@@ -810,6 +890,7 @@ describe("cx MCP server", () => {
 id: ${createPayload.id}
 aliases: []
 tags: []
+status: current
 ---
 
 # Link Audit
