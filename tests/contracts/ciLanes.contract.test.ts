@@ -15,6 +15,18 @@ async function readText(relativePath: string): Promise<string> {
 }
 
 describe("CI lanes contract", () => {
+  test("main CI workflow runs on branch pushes and pull requests, not release tags", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain("on:");
+    expect(workflow).toContain("  push:");
+    expect(workflow).toContain("    branches:");
+    expect(workflow).toContain('      - "**"');
+    expect(workflow).toContain("  pull_request:");
+    expect(workflow).not.toContain("    tags:");
+    expect(workflow).not.toContain('      - "v*"');
+  });
+
   test("workflow test lanes invoke script-backed Bun commands", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 

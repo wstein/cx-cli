@@ -4,14 +4,14 @@ aliases: ["gha triggers", "ci branch triggers", "workflow triggers"]
 tags: ["ci", "github-actions", "workflow"]
 ---
 
-The CI workflow runs on every branch push, every `v*` tag push, and on pull
-requests, and its verify job includes coverage. The release and Pages publish
-workflows do not share the same gate: Pages publishes the unified `/schemas/`
-and `/coverage/` site from successful `main` runs, while release publishing now
-starts from a `vX.Y.Z` tag and then proves that the tagged commit already
-passed the normal `develop` CI path before it will ship anything. That keeps
-normal branch feedback fast without mixing routine Pages refreshes with release
-publishing.
+The CI workflow runs on every branch push and on pull requests, but not on
+`v*` tag pushes. Tag finalization belongs to the release workflow instead of
+the main CI pipeline. Pages publishes the unified `/schemas/` and `/coverage/`
+site from successful `main` runs, while release publishing starts from a
+`vX.Y.Z` tag and then proves that the tagged commit already passed the normal
+`develop` CI path before it will ship anything. That keeps normal branch
+feedback fast without re-running the full CI pipeline during release
+finalization.
 
 The CI runtime policy declares `BUN_MIN_VERSION=1.3.11` and validates both the
 minimum lane and `latest` in the Bun matrix. The Pages publish gate checks
