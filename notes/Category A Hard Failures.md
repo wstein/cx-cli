@@ -12,5 +12,5 @@ The stop itself is the feature. Each hard failure protects a specific invariant:
 - degraded extraction protects packed-content identity and coordinate trust
 
 ## Links
-* [[Category B: Configurable Behaviors]]
 * [[Section Ownership and Overlaps]]
+* src/config/types.ts - Category B behavioral settings remain configurable, but Category A invariants do not.

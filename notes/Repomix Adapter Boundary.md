@@ -12,5 +12,5 @@ around it so adapter behavior stays explicit while shared process state keeps
 shrinking elsewhere in the stack.
 
 ## Links
-* [[Deterministic Context Bundling]]
+* [[Structured Render Contract]]
 * [[Parallel Rendering Invariants]]

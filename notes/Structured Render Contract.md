@@ -91,6 +91,6 @@ interface StructuredRenderPlan {
 
 ## References
 
-- [[ARCHITECTURE.md]]
+- [[docs/ARCHITECTURE.md]]
 - [[src/repomix/structured.ts]]
 - [[src/bundle/verify.ts]]
