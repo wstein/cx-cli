@@ -56,6 +56,11 @@ they needed to be.
   rationale tag: `// verify-against-integration: <reason>`.
 - The audit ledger at `tests/VERIFY_AGAINST_AUDIT.md` explains why each
   `--against` case remains full integration instead of injected verification.
+- Each audit row must reference a concrete injected unit seam counterpart to
+  keep the integration lane anchored to deterministic unit failure coverage.
+- CI now emits a machine-readable audit report at
+  `.ci/verify-against-policy-report.json` via
+  `bun run ci:report:verify-against` for PR bots and automation tooling.
 - Contract enforcement in
   `tests/contracts/verifyAgainstIntegration.contract.test.ts` prevents drift
   between test code and the audit ledger.

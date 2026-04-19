@@ -56,6 +56,11 @@ Every `*.test.ts` file must start with a lane header on line 1:
   `// verify-against-integration: <reason>`.
 - Keep an up-to-date audit table in `tests/VERIFY_AGAINST_AUDIT.md` so each
   `--against` integration test has explicit scope and rationale.
+- Every audit row must include an explicit injected seam counterpart reference
+  (unit test file + case) so integration coverage and injected verification stay
+  paired.
+- CI emits a machine-readable audit report for PR automation with
+  `bun run ci:report:verify-against` (`.ci/verify-against-policy-report.json`).
 - Contract coverage enforces both requirements via
   `tests/contracts/verifyAgainstIntegration.contract.test.ts`.
 

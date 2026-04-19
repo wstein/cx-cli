@@ -29,6 +29,9 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
+    expect(workflow).toContain("run: bun run ci:report:verify-against");
+    expect(workflow).toContain("Upload verify-against policy report");
+    expect(workflow).toContain(".ci/verify-against-policy-report.json");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
     expect(workflow).not.toContain("bun test tests/unit --timeout");
@@ -58,6 +61,9 @@ describe("CI lanes contract", () => {
     );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
+    );
+    expect(scripts["ci:report:verify-against"]).toBe(
+      "node scripts/verify-against-policy.js --format json --output .ci/verify-against-policy-report.json",
     );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");

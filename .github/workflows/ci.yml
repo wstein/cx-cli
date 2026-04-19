@@ -68,6 +68,16 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate verify-against policy report
+        run: bun run ci:report:verify-against
+
+      - name: Upload verify-against policy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-against-policy-report
+          path: .ci/verify-against-policy-report.json
+
       - name: Run contract tests
         run: bun run ci:test:contracts
 
