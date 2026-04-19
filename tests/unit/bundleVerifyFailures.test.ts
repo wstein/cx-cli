@@ -446,4 +446,53 @@ describe("verifyBundle failure classes", () => {
       ),
     ).resolves.toBeUndefined();
   });
+
+  test("skips aggregate render_plan_drift check when file and section filters are both set", async () => {
+    const manifest = createManifest({
+      renderPlanHash: HASH_A,
+    });
+
+    await expect(
+      verifyBundle(
+        "/bundle",
+        "/source-tree",
+        { sections: ["src"], files: ["src/index.ts"] },
+        BASE_CONFIG,
+        {
+          validateBundle: async () => ({ manifestName: "demo-manifest.json" }),
+          loadManifestFromBundle: async () => ({
+            manifest,
+            manifestName: "demo-manifest.json",
+          }),
+          readFile: async () => "unused",
+          parseChecksumFile: () => passingChecksumRows(),
+          sha256File: async (targetPath) =>
+            targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
+          mkdtemp: async () => "/tmp/cx-verify-selective-file-section",
+          rm: async () => undefined,
+          renderSectionWithRepomix: async () => ({
+            outputText: "",
+            outputTokenCount: 0,
+            fileTokenCounts: new Map(),
+            fileContentHashes: new Map([["src/index.ts", HASH_C]]),
+            structuredPlan: {
+              entries: [
+                {
+                  path: "src/index.ts",
+                  content: "export const x = 1;\n",
+                  sha256: HASH_C,
+                  tokenCount: 8,
+                },
+              ],
+              ordering: ["src/index.ts"],
+            },
+            // Deliberately mismatched; selective verify must not fail on aggregate drift.
+            planHash: HASH_B,
+            warnings: [],
+          }),
+          validateEntryHashes: () => new Map(),
+        },
+      ),
+    ).resolves.toBeUndefined();
+  });
 });
