@@ -12,6 +12,7 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
 - [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff
 - [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - how a trusted local developer enables note mutation and reviews the result
+- [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md) - end-to-end agent note mutation and review loop with MCP plus `cx notes check`
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - system boundary and core decisions
 - [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
 - [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules

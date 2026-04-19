@@ -29,6 +29,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
+    expect(workflow).toContain("run: bun run ci:notes:governance");
     expect(workflow).toContain("run: bun run ci:report:verify-against");
     expect(workflow).toContain("Upload verify-against policy report");
     expect(workflow).toContain(".ci/verify-against-policy-report.json");
@@ -67,6 +68,9 @@ describe("CI lanes contract", () => {
     );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
+    expect(scripts["ci:notes:governance"]).toBe(
+      "node scripts/notes-governance.js",
+    );
 
     // shell find must not survive in any test-discovery script
     expect(scripts["test:unit"]).not.toContain("find ./tests");
@@ -86,6 +90,7 @@ describe("CI lanes contract", () => {
   test("CI workflow exposes an explicit release-assurance job", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
   });
@@ -115,6 +120,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("      - test-fast");
     expect(workflow).toContain("      - test-contracts");
+    expect(workflow).toContain("      - notes-governance");
     expect(workflow).toContain("      - repomix-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-matrix");

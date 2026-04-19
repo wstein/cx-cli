@@ -56,12 +56,16 @@ describe("release assurance contract", () => {
     expect(scripts["ci:assurance:reproducibility"]).toBe(
       "node scripts/reproducibility-check.js",
     );
+    expect(scripts["ci:notes:governance"]).toBe(
+      "node scripts/notes-governance.js",
+    );
   });
 
   test("certify delegates through ci assurance entry points", async () => {
     const pkg = await readPackageJson();
     const certify = pkg.scripts?.certify ?? "";
 
+    expect(certify).toContain("bun run ci:notes:governance");
     expect(certify).toContain("bun run ci:test:contracts");
     expect(certify).toContain("bun run ci:smoke:repomix-version");
     expect(certify).toContain("bun run ci:smoke:bundle-transition");
@@ -73,6 +77,7 @@ describe("release assurance contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("bun run ci:smoke:repomix-version");
+    expect(workflow).toContain("bun run ci:notes:governance");
     expect(workflow).toContain(
       'bun run ci:smoke:bundle-transition -- --transition "$' +
         "{{ matrix.transition }}" +

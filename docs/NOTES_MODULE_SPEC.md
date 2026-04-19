@@ -86,7 +86,8 @@ The governance path is operational, not aspirational:
 
 1. `validateNotes(...)` enforces summary and size rules during bundling, validation, note CRUD, MCP note access, and graph checks.
 2. `cx notes check` surfaces governance failures directly for local review and CI logs.
-3. `bun run ci:test:contracts` keeps the canonical docs and workflow references aligned with the implemented governance model.
+3. `bun run ci:notes:governance` makes the cognition-layer gate visible as its own CI lane.
+4. `bun run ci:test:contracts` keeps the canonical docs and workflow references aligned with the implemented governance model.
 
 If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.
 

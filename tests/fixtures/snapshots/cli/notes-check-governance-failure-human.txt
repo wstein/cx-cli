@@ -1,0 +1,5 @@
+ℹ Notes consistency check:
+
+ℹ   Total notes: 0
+⚠   Validation errors: 1
+ℹ     <ROOT>/notes/Invalid Note.md: Missing required summary paragraph. The first body paragraph must stand on its own before the links section. Why this protects you: Manifest note summaries are the fast path agents use to find durable knowledge without reparsing the entire graph.
