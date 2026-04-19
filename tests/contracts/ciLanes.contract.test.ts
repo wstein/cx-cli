@@ -43,8 +43,6 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("Restore fast-lane timing state");
     expect(workflow).toContain("Save fast-lane timing state");
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
-    expect(workflow).toContain("test-full:");
-    expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:compat");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
@@ -85,9 +83,6 @@ describe("CI lanes contract", () => {
     expect(scripts.test).toBe("bun run test:unit");
     expect(scripts["test:unit"]).toBe("vitest run tests/unit");
     expect(scripts["test:integration"]).toBeUndefined();
-    expect(scripts["test:bun:regression"]).toBe(
-      "node scripts/bun-runtime-regression.js --timeout 60000",
-    );
     expect(scripts["test:all"]).toBe("bun run test:vitest");
     expect(scripts["test:all:full"]).toBe("bun run ci:test:coverage");
     expect(scripts["test:contracts"]).toBe("vitest run tests/contracts");
@@ -119,7 +114,6 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:report:observability"]).toBe(
       "node scripts/ci-observability-report.js",
     );
-    expect(scripts["ci:test:all"]).toBe("bun run test:bun:regression");
     expect(scripts["ci:test:compat"]).toBe(
       "node scripts/bun-runtime-compat-smoke.js",
     );
@@ -133,8 +127,9 @@ describe("CI lanes contract", () => {
     expect(scripts["test:vitest:bundle"]).not.toContain("bun:test");
     expect(scripts["test:vitest:notes"]).not.toContain("bun:test");
     expect(scripts["test:vitest:planning"]).not.toContain("bun:test");
-    expect(scripts["test:bun:regression"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
+    expect(Object.keys(scripts)).not.toContain("test:bun:regression");
+    expect(Object.keys(scripts)).not.toContain("ci:test:all");
     expect(Object.keys(scripts)).not.toContain("test:integration");
   });
 
@@ -150,7 +145,6 @@ describe("CI lanes contract", () => {
   test("CI workflow exposes an explicit release-assurance job", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain("test-full:");
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
@@ -173,15 +167,11 @@ describe("CI lanes contract", () => {
   test("downstream CI lanes are gated behind test-fast", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain("test-full:");
     expect(workflow).toContain("test-contracts:");
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-matrix:");
     expect(workflow).toContain("coverage-vitest:");
-    expect(workflow).toContain(
-      "  test-full:\n    runs-on: ubuntu-latest\n    needs:",
-    );
     expect(workflow).toContain(
       "  test-contracts:\n    runs-on: ubuntu-latest\n    needs:",
     );
@@ -224,7 +214,6 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("      - test-fast");
-    expect(workflow).toContain("      - test-full");
     expect(workflow).toContain("      - test-contracts");
     expect(workflow).toContain("      - notes-governance");
     expect(workflow).toContain("      - coverage-vitest");

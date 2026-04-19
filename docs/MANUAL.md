@@ -54,7 +54,6 @@ Use these commands as a progressive assurance model:
 | --- | --- | --- |
 | `bun run verify` | lint, typecheck, build, Vitest coverage lane, Bun compatibility smoke | normal pre-merge gate |
 | `bun run ci:test:coverage` | Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output over the full shared suite | CI coverage reporting |
-| `bun run test:bun:regression` | focused Bun runtime regression lane over bundle, CLI, MCP, and Repomix suites | CI-shaped Bun runtime proof without a full repository rerun |
 | `bun run test:all` | full shared repository suite through native Vitest | broad local execution proof |
 | `bun run test:vitest:bundle` | focused bundle workflow, extraction, render-adapter, and JSON CLI lane | bundle-heavy local iteration |
 | `bun run test:vitest:notes` | focused notes graph, note commands, linked-note planning, and operator contract lane | notes-heavy local iteration |
@@ -116,7 +115,6 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `make verify` runs lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.
 - `bun run ci:test:coverage` runs the authoritative Vitest V8 coverage lane across the shared repository suite, then writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
 - Treat that Vitest lane as the authoritative release-assurance reporting surface. The Bun lanes still prove execution compatibility and remain part of the runtime matrix.
-- `bun run test:bun:regression` mirrors the focused Bun runtime lane used in CI for bundle, CLI, MCP, and Repomix coverage.
 - `bun run test:contracts` runs the contract suite through native Vitest.
 - `bun run test:all` runs the full shared suite through native Vitest without collecting coverage.
 - `bun run test:all:full` is the explicit Vitest coverage lane for local release-assurance checks.

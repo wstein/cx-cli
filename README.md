@@ -183,7 +183,6 @@ The generated notes directory is intentionally part of the repository contract. 
 - `make test` or `bun run test` runs the fast Vitest unit suite.
 - `make verify` or `bun run verify` runs lint, typecheck, build, the Vitest coverage lane, and the Bun compatibility smoke.
 - `bun run ci:test:coverage` measures the full shared suite through Vitest and publishes the repository coverage artifacts.
-- `bun run test:bun:regression` runs the focused Bun runtime regression lane over `tests/bundle`, `tests/cli`, `tests/mcp`, and `tests/repomix`.
 - `bun run test:contracts` runs the contract suite through Vitest.
 - `bun run test:all` runs the full shared suite through Vitest without collecting coverage.
 - `bun run test:all:full` runs the authoritative Vitest coverage lane.
@@ -487,9 +486,9 @@ make release VERSION=x.y.z
 
 `make test` runs the fast unit suite. `make verify` is the normal local gate:
 lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.
-`bun run test:bun:regression` mirrors the focused Bun runtime regression lane
-used in CI, while `bun run test:all` and `bun run test:all:full` stay on the
-native Vitest suite and coverage lanes. `make release`
+`bun run test:all` and `bun run test:all:full` stay on the native Vitest suite
+and coverage lanes, while Bun remains in CI only for explicit compatibility
+smoke. `make release`
 now acts as a two-phase wizard: the first call with a new semantic version starts the
 release candidate on `develop`, and the second call with that same version creates and pushes
 the tag after CI is green.

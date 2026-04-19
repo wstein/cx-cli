@@ -31,9 +31,9 @@ quick while making the release path explicit and repeatable.
 - The focused MCP debugging lane is `bun run test:vitest:mcp`; it keeps MCP-heavy server, CLI, audit, and policy tests separate from the broad repository coverage run.
 - `bun run test:vitest:mcp:ui` opens the same MCP lane in Vitest UI so operators can rerun failures interactively and inspect coverage or import-graph cost inside the MCP stack.
 - The default test task runs the fast Vitest unit suite.
-- `bun run test:bun:regression` runs the Bun-only runtime regression lane that
-  CI uses for real Bun runtime proof over bundle, CLI, MCP, and Repomix
-  surfaces without rerunning the whole repository.
+- `bun run ci:test:compat` is the Bun-specific CI proof lane. It keeps Bun in
+  the matrix as an explicit runtime compatibility smoke without rerunning the
+  shared repository suite.
 - `bun run test:contracts`, `bun run test:all`, and `bun run test:all:full`
   are native Vitest lanes for the contract suite, the full shared suite, and
   the authoritative coverage pass. `test:all` stays coverage-free so the
