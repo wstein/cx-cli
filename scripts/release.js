@@ -11,21 +11,45 @@ export function isSemver(version) {
   return SEMVER.test(version);
 }
 
+export function normalizeVersionInput(version) {
+  if (typeof version !== "string") {
+    return "";
+  }
+
+  return version.trim().replace(/^v/i, "");
+}
+
+export function isDevelopmentVersion(version) {
+  return /-dev(?:[.+-].*)?$/i.test(normalizeVersionInput(version));
+}
+
 export function suggestReleaseVersion(currentVersion) {
-  return isSemver(currentVersion)
-    ? currentVersion.replace(/(\d+)$/, (match) => String(Number(match) + 1))
-    : currentVersion;
+  const normalizedVersion = normalizeVersionInput(currentVersion);
+  if (!isSemver(normalizedVersion)) {
+    return normalizedVersion;
+  }
+
+  if (isDevelopmentVersion(normalizedVersion)) {
+    return normalizedVersion.replace(/-dev(?:[.+-].*)?$/i, "");
+  }
+
+  return normalizedVersion.replace(/(\d+)$/, (match) =>
+    String(Number(match) + 1),
+  );
 }
 
 export function inferExplicitReleaseAction({
   currentVersion,
   requestedVersion,
 }) {
-  if (!requestedVersion) {
+  const normalizedRequestedVersion = normalizeVersionInput(requestedVersion);
+  if (!normalizedRequestedVersion) {
     return null;
   }
 
-  return requestedVersion === currentVersion ? "finalize" : "start";
+  return normalizedRequestedVersion === normalizeVersionInput(currentVersion)
+    ? "finalize"
+    : "start";
 }
 
 function readJson(path) {
@@ -149,7 +173,7 @@ async function chooseReleaseAction(state, requestedVersion, log) {
     },
   ];
 
-  if (!state.currentVersionTagExists) {
+  if (!state.currentVersionTagExists && !isDevelopmentVersion(state.currentVersion)) {
     choices.push({
       name: `Finalize current candidate as v${state.currentVersion}`,
       value: "finalize",
@@ -164,7 +188,7 @@ async function chooseReleaseAction(state, requestedVersion, log) {
 
 async function chooseVersion(state, requestedVersion, log) {
   if (requestedVersion) {
-    return requestedVersion;
+    return normalizeVersionInput(requestedVersion);
   }
 
   printStep(3, 4, "Choose candidate version", log);
@@ -175,29 +199,37 @@ async function chooseVersion(state, requestedVersion, log) {
 }
 
 function assertVersionAvailable(cwd, state, version, action) {
-  if (!isSemver(version)) {
+  const normalizedVersion = normalizeVersionInput(version);
+
+  if (!isSemver(normalizedVersion)) {
     throw new Error(`Invalid version: ${version}`);
   }
 
-  if (action === "start" && version === state.currentVersion) {
+  if (action === "finalize" && isDevelopmentVersion(normalizedVersion)) {
     throw new Error(
-      `Version ${version} is already set in package.json. Rerun the wizard with the same version to finalize the tag, or choose a new version to start a fresh candidate.`,
+      `Version ${normalizedVersion} is a development baseline. Start a release candidate with ${normalizedVersion.replace(/-dev(?:[.+-].*)?$/i, "")} before finalizing a tag.`,
+    );
+  }
+
+  if (action === "start" && normalizedVersion === state.currentVersion) {
+    throw new Error(
+      `Version ${normalizedVersion} is already set in package.json. Rerun the wizard with the same version to finalize the tag, or choose a new version to start a fresh candidate.`,
     );
   }
 
   if (
     action === "start" &&
-    git(cwd, ["tag", "--list", `v${version}`], { capture: true }) ===
-      `v${version}`
+    git(cwd, ["tag", "--list", `v${normalizedVersion}`], { capture: true }) ===
+      `v${normalizedVersion}`
   ) {
     throw new Error(
-      `Tag v${version} already exists. Start a new candidate with a different version.`,
+      `Tag v${normalizedVersion} already exists. Start a new candidate with a different version.`,
     );
   }
 
   if (action === "finalize" && state.currentVersionTagExists) {
     throw new Error(
-      `Tag v${version} already exists. The current candidate has already been finalized.`,
+      `Tag v${normalizedVersion} already exists. The current candidate has already been finalized.`,
     );
   }
 }
@@ -225,11 +257,12 @@ async function confirmPlan({ action, version, log }) {
 }
 
 function runReleaseAction({ cwd, action, version, log }) {
-  const tagName = `v${version}`;
+  const normalizedVersion = normalizeVersionInput(version);
+  const tagName = `v${normalizedVersion}`;
   const versionFiles = getVersionFiles(cwd);
 
   if (action === "start") {
-    updateReleaseVersionFiles(cwd, version);
+    updateReleaseVersionFiles(cwd, normalizedVersion);
     git(cwd, ["add", ...versionFiles]);
     git(cwd, ["commit", "-m", `chore(release): start ${tagName}`]);
     git(cwd, ["push", "origin", "develop"]);
@@ -237,7 +270,7 @@ function runReleaseAction({ cwd, action, version, log }) {
     log(
       kleur.gray(
         `Next: let CI go green on develop, then rerun ${kleur.bold(
-          `make release VERSION=${version}`,
+          `make release VERSION=${tagName}`,
         )} to create and push the tag.`,
       ),
     );
@@ -274,7 +307,9 @@ export async function runReleaseWizard(options = {}) {
     ),
   );
   printTip(
-    state.currentVersionTagExists
+    isDevelopmentVersion(state.currentVersion)
+      ? `Current version v${state.currentVersion} is the develop baseline, so start a release candidate like v${state.suggestedVersion} before finalizing a tag.`
+      : state.currentVersionTagExists
       ? `Tag v${state.currentVersion} already exists, so the current version can only start a newer candidate.`
       : `Current version v${state.currentVersion} is untagged, so it can be finalized if CI already certified the commit.`,
     log,

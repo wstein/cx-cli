@@ -24,7 +24,7 @@ Use this short checklist when cutting a release.
 - If a new schema version is added, refresh the public `$id` values in the JSON Schema files and keep the docs pointing at the GitHub Pages host.
 - Mirror the same schema files into the GitHub Release assets for the tagged release.
 - Tagged releases also publish the npm tarball, `release-integrity.json`, and the generated `cx-cli.rb` formula into GitHub release assets so the public release payload matches the documented integrity story.
-- Use `make release VERSION=x.y.z` as the local release wizard. The first call with a new version starts the candidate on `develop`; the second call with that same version finalizes the tag from the certified commit.
+- Use `make release VERSION=vX.Y.Z` as the local release wizard. The first call with a new version starts the candidate on `develop`; the second call with that same tagged version finalizes the release from the certified commit.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow runs on `vX.Y.Z` tag pushes, plus a manual re-finalization path for an existing tag when needed.
 - The release workflow only finalizes when the tagged commit already has a successful `develop` CI run; tag presence without certified CI is not enough.

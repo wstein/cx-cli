@@ -35,7 +35,7 @@ check: ## Run typecheck only using the package.json check script.
 fix: ## Correct fixable formatting and lint issues.
 	$(BUN) run fix
 
-release: ## Run the two-phase release wizard (VERSION=x.y.z optional).
+release: ## Run the two-phase release wizard (VERSION=vX.Y.Z optional).
 	$(BUN) run release
 
 clean: ## Remove generated output files.
@@ -55,7 +55,7 @@ help: ## Show available targets.
 	@printf "  verify    Run lint, typecheck, build, Vitest coverage, and Bun compatibility smoke.\n"
 	@printf "  certify   Run verify plus contracts, smoke lanes, release integrity smoke, and reproducibility.\n"
 	@printf "  check     Run typecheck only using the package.json check script.\n"
-	@printf "  release   Run the two-phase release wizard (VERSION=x.y.z optional).\n"
+	@printf "  release   Run the two-phase release wizard (VERSION=vX.Y.Z optional).\n"
 	@printf "  clean     Remove generated output files.\n"
 	@printf "  notes     List available notes in the repository.\n"
 	@printf "  smoke     Run repomix version smoke test.\n"

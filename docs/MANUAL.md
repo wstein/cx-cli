@@ -53,7 +53,7 @@ Use the repository-local `make` targets for day-to-day development:
 | `make test` | You want the fast unit loop while iterating |
 | `make verify` | You want the normal local gate before merging |
 | `make certify` | You want CI-grade confidence before tagging a release |
-| `make release VERSION=x.y.z` | You are stepping through the two-phase release wizard |
+| `make release VERSION=vX.Y.Z` | You are stepping through the two-phase release wizard |
 
 `make certify` runs everything `make verify` does, then performs a clean double-build reproducibility check: the `dist/` tree is hashed, wiped, rebuilt, and hashed again. The two hash sets must match exactly. This mirrors the CI `reproducibility` job so the release gate is exercisable locally without pushing.
 
@@ -139,7 +139,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `bun run test:vitest:mcp:ui` opens the same MCP-focused lane in Vitest UI so operators can rerun failures, inspect coverage, and review the import graph for slow MCP startup or registration paths.
 - `bun run test:vitest:mcp:adversarial` keeps startup failures, malformed runtime responses, and other hostile-boundary MCP cases isolated in a smaller cockpit.
 - `make certify` runs everything `verify` does plus contract tests, smoke lanes, release integrity smoke, and reproducibility checks — the CI-grade local gate to use before tagging.
-- `make release VERSION=x.y.z` is a wizard: first call starts the release candidate on `develop`, second call with the same version finalizes the tag after CI is green.
+- `make release VERSION=vX.Y.Z` is a wizard: first call starts the release candidate on `develop`, second call with that same tagged version finalizes the release after CI is green.
 
 The `make` targets are wrappers around the corresponding Bun scripts. Use them
 for local ergonomics; use `cx` when you are working with bundle planning,

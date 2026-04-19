@@ -26,7 +26,7 @@ describe("release readiness docs contract", () => {
     const docsIndex = await readText("docs/README.md");
     const packageVersion = await readPackageVersion();
 
-    expect(packageVersion).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(packageVersion).toMatch(/^0\.4\.0(?:-dev)?$/);
 
     expect(changelog).toContain("## [0.4.0] - 2026-04-19");
     expect(changelog).toContain("Track B generates hypotheses.");

@@ -50,4 +50,32 @@ describe("generate-homebrew-formula.js", () => {
     expect(formula).not.toContain("Language::Node");
     expect(formula).not.toContain("std_npm_install_args");
   });
+
+  test("accepts a v-prefixed version argument", async () => {
+    const tempRoot = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-homebrew-formula-versioned-"),
+    );
+    const outputPath = path.join(tempRoot, "cx-cli.rb");
+
+    const result = spawnSync(
+      "node",
+      [
+        path.join(ROOT, "scripts", "generate-homebrew-formula.js"),
+        "v0.4.0-dev",
+        "--output",
+        outputPath,
+      ],
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+      },
+    );
+
+    expect(result.status).toBe(0);
+
+    const formula = await fs.readFile(outputPath, "utf8");
+    expect(formula).toContain(
+      'url "https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-0.4.0-dev.tgz"',
+    );
+  });
 });

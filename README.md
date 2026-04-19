@@ -473,14 +473,14 @@ The repository-local `make` commands are intentionally small and explicit:
 | --- | --- |
 | `make test` | You want the fast unit loop while iterating |
 | `make verify` | You want the normal local gate before merging |
-| `make release VERSION=x.y.z` | You are stepping through the two-phase release wizard |
+| `make release VERSION=vX.Y.Z` | You are stepping through the two-phase release wizard |
 
 ```bash
 bun install
 make test
 make verify
-make release VERSION=x.y.z
-make release VERSION=x.y.z
+make release VERSION=v0.4.0
+make release VERSION=v0.4.0
 ```
 
 `make test` runs the fast unit suite. `make verify` is the normal local gate:
@@ -498,6 +498,6 @@ If you prefer the underlying Bun commands directly:
 bun run ci:test:coverage
 bun run test
 bun run verify
-VERSION=x.y.z bun run release
-VERSION=x.y.z bun run release
+VERSION=v0.4.0 bun run release
+VERSION=v0.4.0 bun run release
 ```

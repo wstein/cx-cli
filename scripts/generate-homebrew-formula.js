@@ -14,6 +14,14 @@ const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
 const packageVersion = packageJson.version;
 
+function normalizeVersionInput(version) {
+  if (typeof version !== "string") {
+    return "";
+  }
+
+  return version.trim().replace(/^v/i, "");
+}
+
 const args = process.argv.slice(2);
 let outputPath = "formula/cx-cli.rb";
 let requestedVersion = packageVersion;
@@ -34,7 +42,7 @@ for (let index = 0; index < args.length; index += 1) {
   } else if (arg.startsWith("--tarball=")) {
     tarballPath = arg.slice("--tarball=".length);
   } else if (!arg.startsWith("-") && !versionProvided) {
-    requestedVersion = arg;
+    requestedVersion = normalizeVersionInput(arg);
     versionProvided = true;
   }
 }
