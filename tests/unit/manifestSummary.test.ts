@@ -34,6 +34,12 @@ describe("shared manifest summary utilities", () => {
     vcsProvider: "none",
     dirtyState: "clean",
     modifiedFiles: [],
+    trustModel: {
+      sourceTree: "trusted",
+      notes: "conditional",
+      agentOutput: "untrusted_until_verified",
+      bundle: "trusted",
+    },
     sections: [
       {
         name: "src",

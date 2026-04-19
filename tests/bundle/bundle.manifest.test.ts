@@ -44,6 +44,9 @@ It should become the manifest summary.
     expect(manifest.notes?.[0]?.summary).toBe(
       "This note explains the first useful idea. It should become the manifest summary.",
     );
+    expect(manifest.notes?.[0]?.trustLevel).toBe("conditional");
+    expect(manifest.notes?.[0]?.cognitionScore).toBeGreaterThan(0);
+    expect(manifest.trustModel.notes).toBe("conditional");
   });
 
   test("pulls linked notes into the bundle when enabled", async () => {
@@ -113,6 +116,12 @@ It should become the manifest summary.
       vcsProvider: "none",
       dirtyState: "clean",
       modifiedFiles: [],
+      trustModel: {
+        sourceTree: "trusted",
+        notes: "conditional",
+        agentOutput: "untrusted_until_verified",
+        bundle: "trusted",
+      },
       sections: [
         {
           name: "docs",

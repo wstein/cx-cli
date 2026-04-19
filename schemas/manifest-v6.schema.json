@@ -20,6 +20,7 @@
     "vcsProvider",
     "dirtyState",
     "modifiedFiles",
+    "trustModel",
     "sections",
     "assets"
   ],
@@ -101,6 +102,9 @@
         "minLength": 1
       }
     },
+    "trustModel": {
+      "$ref": "#/$defs/ManifestTrustModel"
+    },
     "sections": {
       "description": "Ordered list of text-file sections in the bundle.",
       "type": "array",
@@ -157,6 +161,26 @@
         "includeLinkedNotes": {
           "description": "Whether linked notes were included in the bundle plan.",
           "type": "boolean"
+        }
+      }
+    },
+    "ManifestTrustModel": {
+      "description": "Explicit trust labels for the bundle proof surface and its upstream reasoning inputs.",
+      "type": "object",
+      "required": ["sourceTree", "notes", "agentOutput", "bundle"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceTree": {
+          "const": "trusted"
+        },
+        "notes": {
+          "const": "conditional"
+        },
+        "agentOutput": {
+          "const": "untrusted_until_verified"
+        },
+        "bundle": {
+          "const": "trusted"
         }
       }
     },
@@ -344,7 +368,19 @@
     "NoteRecord": {
       "description": "Repository note metadata captured for AI-first workflows.",
       "type": "object",
-      "required": ["id", "title", "fileName", "aliases", "tags", "summary", "codeLinks"],
+      "required": [
+        "id",
+        "title",
+        "fileName",
+        "aliases",
+        "tags",
+        "summary",
+        "codeLinks",
+        "cognitionScore",
+        "cognitionLabel",
+        "trustLevel",
+        "lastModified"
+      ],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -387,6 +423,19 @@
           "items": {
             "type": "string"
           }
+        },
+        "cognitionScore": {
+          "description": "Diagnostic cognition score computed from summary quality, structure, and evidence links.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "cognitionLabel": {
+          "description": "Quality label derived from the cognition score.",
+          "enum": ["high_signal", "review", "low_signal"]
+        },
+        "trustLevel": {
+          "description": "Trust label for note-derived reasoning.",
+          "const": "conditional"
         },
         "lastModified": {
           "description": "ISO 8601 timestamp of when the note record was last written.",

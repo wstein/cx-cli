@@ -438,6 +438,9 @@ export async function runBundleCommand(
             tags: note.tags ?? [],
             summary: note.summary,
             codeLinks: note.codeLinks,
+            cognitionScore: note.cognition.score,
+            cognitionLabel: note.cognition.label,
+            trustLevel: note.cognition.trustLevel,
             lastModified: new Date().toISOString(),
           }))
         : undefined;

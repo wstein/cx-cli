@@ -9,6 +9,7 @@ import type {
   CxManifest,
   CxSection,
   ManifestFileRow,
+  ManifestTrustModel,
   NoteRecord,
   SectionHashMaps,
   SectionOutputRecord,
@@ -147,6 +148,12 @@ export async function buildManifest(params: {
     vcsProvider: params.plan.vcsKind,
     dirtyState: params.dirtyState,
     modifiedFiles: params.modifiedFiles,
+    trustModel: {
+      sourceTree: "trusted",
+      notes: "conditional",
+      agentOutput: "untrusted_until_verified",
+      bundle: "trusted",
+    } satisfies ManifestTrustModel,
     sections,
     assets: params.plan.assets.map((asset) => ({
       sourcePath: asset.relativePath,

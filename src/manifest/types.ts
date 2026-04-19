@@ -1,4 +1,5 @@
 import type { CxStyle } from "../config/types.js";
+import type { NoteCognitionLabel, NoteTrustLevel } from "../notes/cognition.js";
 import type { InclusionProvenance } from "../planning/types.js";
 import type { DirtyState, VCSKind } from "../vcs/provider.js";
 
@@ -68,7 +69,17 @@ export interface NoteRecord {
   tags: string[];
   summary: string;
   codeLinks: string[];
+  cognitionScore: number;
+  cognitionLabel: NoteCognitionLabel;
+  trustLevel: NoteTrustLevel;
   lastModified: string;
+}
+
+export interface ManifestTrustModel {
+  sourceTree: "trusted";
+  notes: NoteTrustLevel;
+  agentOutput: "untrusted_until_verified";
+  bundle: "trusted";
 }
 
 /** A section as stored in the manifest, including its file list. */
@@ -123,6 +134,7 @@ export interface CxManifest {
    * "ci_dirty".
    */
   modifiedFiles: string[];
+  trustModel: ManifestTrustModel;
   sections: CxSection[];
   assets: AssetRecord[];
   /** Flat list of all file rows (text + asset), reconstructed after parsing. */

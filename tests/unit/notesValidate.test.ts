@@ -31,7 +31,7 @@ tags: ["tag-a"]
 
 # Valid Note
 
-This note is valid.
+This note is valid for cognition routing now.
 `,
       ),
     ]);
@@ -98,7 +98,7 @@ tags: []
 
 # Extracted From Heading
 
-Body text.
+Body text now contains enough routing words.
 `,
       ),
     ]);
@@ -120,7 +120,7 @@ title: "From Frontmatter"
 
 # This H1 is ignored
 
-Body.
+Body text now contains enough routing words.
 `,
       ),
     ]);
@@ -245,6 +245,99 @@ tags: []
     expect(result.errors[0]?.error).toContain("Why this protects you:");
   });
 
+  test("rejects summary paragraphs that are too short to route from", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "short-summary.md",
+        `---
+id: 20260413123034
+aliases: []
+tags: []
+---
+
+Too short.
+
+## Links
+
+- [[Other Note]]
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain("Summary paragraph is too short");
+  });
+
+  test("rejects untouched template boilerplate", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "template-body.md",
+        `---
+id: 20260413123035
+aliases: []
+tags: []
+---
+
+This note explains a real repository concern with enough words to pass routing.
+
+## What
+
+State the durable fact, mechanism, decision, or failure mode.
+
+## Why
+
+Explain the invariant, constraint, or tradeoff this note protects.
+
+## How
+
+Describe how an operator, reviewer, or later agent should apply it.
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain(
+      "Untouched template guidance detected",
+    );
+  });
+
+  test("records cognition signals for valid notes", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "cognition.md",
+        `---
+id: 20260413123036
+aliases: []
+tags: []
+---
+
+This note preserves durable guidance for the manifest trust path in this repository.
+
+## What
+
+Track the trust contract for note-derived reasoning.
+
+## Why
+
+It helps later automation distinguish proof from memory.
+
+## How
+
+Carry the note metadata into manifests and review it in CI.
+
+## Links
+
+- [[Repository Cognition Layer]]
+- [[System Trust Contract]]
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(true);
+    expect(result.notes[0]?.cognition.score).toBeGreaterThanOrEqual(60);
+    expect(result.notes[0]?.cognition.trustLevel).toBe("conditional");
+  });
+
   test("rejects notes that exceed the body character limit", () => {
     const result = validateNoteDocuments([
       doc(
@@ -255,7 +348,10 @@ aliases: []
 tags: []
 ---
 
-${"A".repeat(NOTE_VALIDATION_LIMITS.maxBodyCharacters + 1)}
+${Array.from(
+  { length: NOTE_VALIDATION_LIMITS.maxBodyCharacters / 5 + 10 },
+  () => "word",
+).join(" ")}
 `,
       ),
     ]);
@@ -301,7 +397,7 @@ aliases: []
 tags: []
 ---
 
-Plain body only.
+Plain body only now contains enough routing words.
 `,
       ),
     ]);

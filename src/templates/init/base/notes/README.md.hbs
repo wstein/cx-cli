@@ -43,6 +43,7 @@ Do not paste raw code or external text. A note is useful only when it explains t
 ### Start With The Summary Contract
 
 The first body paragraph is required. It becomes the manifest-side summary that later agents use to route into the right note without reparsing the whole graph.
+Keep that summary substantive: at least one real sentence with at least 6 words. One-line placeholders are rejected.
 
 ### Use The How / What / Why Model
 
@@ -86,7 +87,7 @@ Every note must contain:
 
 ## Governance And CI
 
-- `validateNotes(...)` enforces the summary requirement and note size limits.
+- `validateNotes(...)` enforces the summary requirement, minimum summary substance, template replacement, and note size limits.
 - `cx notes check` surfaces governance failures, broken links, and graph drift.
 - `bun run ci:notes:governance` keeps the cognition-layer gate visible as its own CI lane.
 - `bun run ci:test:contracts` keeps the canonical documentation aligned with the implementation.

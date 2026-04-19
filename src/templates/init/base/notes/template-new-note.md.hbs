@@ -3,7 +3,7 @@ id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---
-Summarize the note in one or two sentences so agents can route to it quickly from the manifest.
+Replace this line with a real summary of at least 6 words so agents can route to the note quickly from the manifest.
 
 ## What
 

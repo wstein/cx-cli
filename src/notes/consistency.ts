@@ -6,6 +6,7 @@ import { CX_MCP_TOOL_NAMES } from "../mcp/tools/catalog.js";
 import { getMatchingSections } from "../planning/overlaps.js";
 import { pathExists } from "../shared/fs.js";
 import { getVCSState } from "../vcs/provider.js";
+import type { NoteCognitionLabel, NoteTrustLevel } from "./cognition.js";
 import { buildNoteGraph } from "./graph.js";
 import {
   extractWikilinkReferences,
@@ -34,6 +35,25 @@ export interface ConsistencyReport {
   }>;
   codePathWarnings: NoteCodePathWarning[];
   orphans: Array<{ id: string; title: string }>;
+  cognition: {
+    averageScore: number;
+    highSignalCount: number;
+    reviewCount: number;
+    lowSignalCount: number;
+  };
+  lowSignalNotes: Array<{
+    id: string;
+    title: string;
+    score: number;
+    label: NoteCognitionLabel;
+    trustLevel: NoteTrustLevel;
+  }>;
+  trustModel: {
+    sourceTree: "trusted";
+    notes: NoteTrustLevel;
+    agentOutput: "untrusted_until_verified";
+    bundle: "trusted";
+  };
   totalNotes: number;
   valid: boolean;
 }
@@ -142,6 +162,35 @@ export async function checkNotesConsistency(
       source: issue.source,
     }));
 
+  const averageScore =
+    validation.notes.length === 0
+      ? 0
+      : Math.round(
+          validation.notes.reduce(
+            (sum, note) => sum + note.cognition.score,
+            0,
+          ) / validation.notes.length,
+        );
+  const highSignalCount = validation.notes.filter(
+    (note) => note.cognition.label === "high_signal",
+  ).length;
+  const reviewCount = validation.notes.filter(
+    (note) => note.cognition.label === "review",
+  ).length;
+  const lowSignalNotes = validation.notes
+    .filter((note) => note.cognition.label === "low_signal")
+    .map((note) => ({
+      id: note.id,
+      title: note.title,
+      score: note.cognition.score,
+      label: note.cognition.label,
+      trustLevel: note.cognition.trustLevel,
+    }))
+    .sort(
+      (left, right) =>
+        left.score - right.score || left.id.localeCompare(right.id),
+    );
+
   const valid =
     validation.errors.length === 0 &&
     validation.duplicateIds.length === 0 &&
@@ -153,6 +202,19 @@ export async function checkNotesConsistency(
     brokenLinks: brokenLinksFormatted,
     codePathWarnings,
     orphans: orphanDetails,
+    cognition: {
+      averageScore,
+      highSignalCount,
+      reviewCount,
+      lowSignalCount: lowSignalNotes.length,
+    },
+    lowSignalNotes,
+    trustModel: {
+      sourceTree: "trusted",
+      notes: "conditional",
+      agentOutput: "untrusted_until_verified",
+      bundle: "trusted",
+    },
     totalNotes: validation.notes.length,
     valid,
   };

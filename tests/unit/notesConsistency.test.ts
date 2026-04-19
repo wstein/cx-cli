@@ -29,6 +29,8 @@ describe("Notes Consistency Check", () => {
         expect(report.brokenLinks).toHaveLength(0);
         expect(report.codePathWarnings).toHaveLength(0);
         expect(report.orphans).toHaveLength(0);
+        expect(report.cognition.averageScore).toBe(0);
+        expect(report.trustModel.notes).toBe("conditional");
       } finally {
         await fs.rm(tempDir, { recursive: true });
       }
@@ -47,7 +49,7 @@ id: ${noteId}
 title: First Note
 ---
 
-First note content`,
+First note content with enough routing words for validation.`,
       );
 
       await fs.writeFile(
@@ -57,7 +59,7 @@ id: ${noteId}
 title: Second Note
 ---
 
-Second note content`,
+Second note content with enough routing words for validation.`,
       );
 
       try {
@@ -85,7 +87,7 @@ id: 20250113143000
 title: Orphan Note
 ---
 
-This note has no links`,
+This note has no links but still has enough routing words.`,
       );
 
       await fs.writeFile(
@@ -95,7 +97,7 @@ id: 20250113143001
 title: Isolated Note
 ---
 
-This note also has no links`,
+This note also has no links but still has enough routing words.`,
       );
 
       try {
@@ -121,7 +123,7 @@ id: 20250113143000
 title: Broken Links
 ---
 
-Link to [[nonexistent-note]]`,
+Link to [[nonexistent-note]] with enough routing words to validate.`,
       );
 
       try {
@@ -149,7 +151,7 @@ id: 20250113143000
 title: First Note
 ---
 
-This is a well-formed note`,
+This is a well-formed note with enough routing words.`,
       );
 
       try {
@@ -158,6 +160,8 @@ This is a well-formed note`,
         expect(report.duplicateIds).toHaveLength(0);
         expect(report.brokenLinks).toHaveLength(0);
         expect(report.codePathWarnings).toHaveLength(0);
+        expect(report.cognition.averageScore).toBeGreaterThan(0);
+        expect(report.trustModel.bundle).toBe("trusted");
       } finally {
         await fs.rm(tempDir, { recursive: true });
       }

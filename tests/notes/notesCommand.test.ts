@@ -155,7 +155,7 @@ describe("Notes Command Subcommands", () => {
           runNotesCommand({
             subcommand: "new",
             title: "Read Test",
-            body: "This is the note body.",
+            body: "This is the note body with enough routing words.",
             json: true,
           }),
         parseJson: true,
@@ -177,7 +177,9 @@ describe("Notes Command Subcommands", () => {
       expect(result.exitCode).toBe(0);
       expect(result.logs).toContain("Read note:");
       expect(result.logs).toContain("Title: Read Test");
-      expect(result.logs).toContain("This is the note body.");
+      expect(result.logs).toContain(
+        "This is the note body with enough routing words.",
+      );
     });
 
     test("reads a note with JSON output", async () => {
@@ -186,7 +188,7 @@ describe("Notes Command Subcommands", () => {
           runNotesCommand({
             subcommand: "new",
             title: "JSON Read",
-            body: "JSON body",
+            body: "JSON body with enough routing words.",
             tags: ["json"],
             json: true,
           }),
@@ -258,7 +260,7 @@ This note has aliases and tags.
           runNotesCommand({
             subcommand: "new",
             title: "Update Test",
-            body: "Original body",
+            body: "Original body with enough routing words.",
             json: true,
           }),
         parseJson: true,
@@ -272,7 +274,7 @@ This note has aliases and tags.
           runNotesCommand({
             subcommand: "update",
             id: noteId,
-            body: "Updated body",
+            body: "Updated body with enough routing words.",
           }),
         parseJson: false,
         captureConsoleLog: true,
@@ -617,7 +619,7 @@ id: 20250113143016
 title: Source Note
 ---
 
-See [[Target Note]].
+See [[Target Note]] while keeping enough routing words for validation.
 `,
         "utf8",
       );
@@ -628,7 +630,7 @@ id: 20250113143017
 title: Target Note
 ---
 
-Target content.
+Target content with enough routing words for validation.
 `,
         "utf8",
       );
@@ -760,7 +762,7 @@ id: 20250113143018
 title: Code Link Note
 ---
 
-Note content.
+Note content with enough routing words for validation.
 `,
         "utf8",
       );
@@ -904,6 +906,8 @@ This target note exists and should appear as an outgoing link.
 
       expect(result.exitCode).toBe(0);
       expect(result.logs).toContain("consistency check");
+      expect(result.logs).toContain("Cognition score");
+      expect(result.logs).toContain("Trust model");
       expect(result.logs).toContain("✓");
     });
 
@@ -921,6 +925,8 @@ This target note exists and should appear as an outgoing link.
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.command).toBe("notes check");
       expect(json.valid).toBeDefined();
+      expect(json.cognition).toBeDefined();
+      expect(json.trustModel).toBeDefined();
     });
 
     test("surfaces note governance validation failures", async () => {
@@ -960,7 +966,7 @@ id: 20250113143004
 title: Code Path Warning
 ---
 
-Check [[src/missing.ts]] before touching the pipeline.
+Check [[src/missing.ts]] before touching the pipeline with enough routing words.
 `,
       );
 
@@ -1003,7 +1009,7 @@ id: 20250113143021
 title: Graph Root
 ---
 
-See [[Graph Hop]].
+See [[Graph Hop]] with enough routing words for validation.
 `,
         "utf8",
       );
@@ -1014,7 +1020,7 @@ id: 20250113143022
 title: Graph Hop
 ---
 
-Terminal note.
+Terminal note with enough routing words for validation.
 `,
         "utf8",
       );
@@ -1042,7 +1048,7 @@ id: 20250113143023
 title: Graph Root JSON
 ---
 
-See [[Graph Hop JSON]].
+See [[Graph Hop JSON]] with enough routing words for validation.
 `,
         "utf8",
       );
@@ -1053,7 +1059,7 @@ id: 20250113143024
 title: Graph Hop JSON
 ---
 
-Terminal note.
+Terminal note with enough routing words for validation.
 `,
         "utf8",
       );

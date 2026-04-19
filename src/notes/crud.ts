@@ -38,6 +38,7 @@ async function generateNoteId(): Promise<string> {
  */
 function renderNewNote(
   id: string,
+  title: string,
   tags: string[] = [],
   body?: string | undefined,
 ): string {
@@ -45,19 +46,19 @@ function renderNewNote(
   const noteBody =
     body === undefined
       ? [
-          "Summarize the note in one or two sentences so agents can route to it quickly from the manifest.",
+          `This note captures durable context about ${title} for later review and routing.`,
           "",
           "## What",
           "",
-          "State the durable fact, mechanism, decision, or failure mode.",
+          `Describe the durable fact, mechanism, decision, or failure mode for ${title}.`,
           "",
           "## Why",
           "",
-          "Explain the invariant, constraint, or tradeoff this note protects.",
+          `Explain why ${title} matters in this repository and which invariant it protects.`,
           "",
           "## How",
           "",
-          "Describe how an operator, reviewer, or later agent should apply it.",
+          `Describe how an operator, reviewer, or later agent should apply ${title}.`,
         ].join("\n")
       : body.trimEnd();
   const renderedBody = noteBody.length > 0 ? `${noteBody}\n` : "";
@@ -281,7 +282,7 @@ export async function createNewNote(
     filePath = path.join(notesPath, fileName);
   }
 
-  const content = renderNewNote(id, options?.tags, options?.body);
+  const content = renderNewNote(id, title, options?.tags, options?.body);
   assertRenderedNoteValid(filePath, content);
   await fs.writeFile(filePath, content, "utf-8");
 

@@ -27,11 +27,18 @@ function createTestManifest(): CxManifest {
       includeEmptyDirectories: false,
       securityCheck: true,
       normalizationPolicy: "repomix-default-v1",
+      includeLinkedNotes: false,
     },
     totalTokenCount: 5000,
     vcsProvider: "git",
     dirtyState: "clean",
     modifiedFiles: [],
+    trustModel: {
+      sourceTree: "trusted",
+      notes: "conditional",
+      agentOutput: "untrusted_until_verified",
+      bundle: "trusted",
+    },
     sections: [
       {
         name: "src",

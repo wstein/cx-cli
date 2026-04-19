@@ -10,6 +10,7 @@ import type {
   CxSection,
   ManifestFileRow,
   ManifestSettings,
+  ManifestTrustModel,
   SectionOutputRecord,
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
@@ -48,6 +49,7 @@ interface ManifestDto {
   vcsProvider: string;
   dirtyState: string;
   modifiedFiles: string[];
+  trustModel: ManifestTrustModel;
   sections: SectionDto[];
   assets: AssetRecord[];
   notes: Array<{
@@ -58,6 +60,9 @@ interface ManifestDto {
     tags: string[];
     summary: string;
     codeLinks: string[];
+    cognitionScore: number;
+    cognitionLabel: "high_signal" | "review" | "low_signal";
+    trustLevel: "conditional";
     lastModified: string;
   }>;
 }
@@ -211,6 +216,9 @@ function parseNoteDto(
   tags: string[];
   summary: string;
   codeLinks: string[];
+  cognitionScore: number;
+  cognitionLabel: "high_signal" | "review" | "low_signal";
+  trustLevel: "conditional";
   lastModified: string;
 } {
   const obj = requireObject(raw, `note[${index}]`);
@@ -234,6 +242,18 @@ function parseNoteDto(
             (value, linkIndex) =>
               requireString(value, `note[${index}].codeLinks[${linkIndex}]`),
           ),
+    cognitionScore: requireNumber(
+      obj.cognitionScore,
+      `note[${index}].cognitionScore`,
+    ),
+    cognitionLabel: requireString(
+      obj.cognitionLabel,
+      `note[${index}].cognitionLabel`,
+    ) as "high_signal" | "review" | "low_signal",
+    trustLevel: requireString(
+      obj.trustLevel,
+      `note[${index}].trustLevel`,
+    ) as "conditional",
     lastModified: requireString(
       obj.lastModified,
       `note[${index}].lastModified`,
@@ -256,6 +276,7 @@ function parseManifestDto(raw: unknown): {
   }
 
   const settingsRaw = requireObject(obj.settings, "settings");
+  const trustModelRaw = requireObject(obj.trustModel, "trustModel");
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
   const notesRaw =
@@ -310,6 +331,10 @@ function parseManifestDto(raw: unknown): {
               settingsRaw.normalizationPolicy,
               "settings.normalizationPolicy",
             ) as typeof NORMALIZATION_POLICY),
+      includeLinkedNotes: requireBool(
+        settingsRaw.includeLinkedNotes,
+        "settings.includeLinkedNotes",
+      ),
     },
     totalTokenCount: requireNumber(obj.totalTokenCount, "totalTokenCount"),
     vcsProvider: requireString(obj.vcsProvider, "vcsProvider") as VCSKind,
@@ -321,6 +346,24 @@ function parseManifestDto(raw: unknown): {
       obj.modifiedFiles ?? [],
       "modifiedFiles",
     ) as string[],
+    trustModel: {
+      sourceTree: requireString(
+        trustModelRaw.sourceTree,
+        "trustModel.sourceTree",
+      ) as "trusted",
+      notes: requireString(
+        trustModelRaw.notes,
+        "trustModel.notes",
+      ) as "conditional",
+      agentOutput: requireString(
+        trustModelRaw.agentOutput,
+        "trustModel.agentOutput",
+      ) as "untrusted_until_verified",
+      bundle: requireString(
+        trustModelRaw.bundle,
+        "trustModel.bundle",
+      ) as "trusted",
+    },
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
     notes: notesRaw.map((note, index) => parseNoteDto(note, index)),
@@ -354,6 +397,7 @@ export function renderManifestJson(
     vcsProvider: manifest.vcsProvider,
     dirtyState: manifest.dirtyState,
     modifiedFiles: manifest.modifiedFiles,
+    trustModel: manifest.trustModel,
     sections: manifest.sections.map((section) => ({
       name: section.name,
       style: section.style,
@@ -455,6 +499,7 @@ export function parseManifestJson(source: string): CxManifest {
     vcsProvider: dto.vcsProvider as CxManifest["vcsProvider"],
     dirtyState: dto.dirtyState as CxManifest["dirtyState"],
     modifiedFiles: dto.modifiedFiles,
+    trustModel: dto.trustModel,
     sections,
     assets: dto.assets,
     ...(dto.notes.length > 0 ? { notes: dto.notes } : {}),

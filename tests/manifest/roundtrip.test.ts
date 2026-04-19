@@ -112,6 +112,7 @@ const settingsArb = fc.record({
   includeEmptyDirectories: fc.boolean(),
   securityCheck: fc.boolean(),
   normalizationPolicy: fc.constant("repomix-default-v1" as const),
+  includeLinkedNotes: fc.boolean(),
 });
 
 const assetArb: fc.Arbitrary<AssetRecord> = fc.record({
@@ -133,6 +134,9 @@ const noteArb: fc.Arbitrary<NoteRecord> = fc.record({
   tags: fc.array(nonEmptyString, { maxLength: 4 }),
   summary: nonEmptyString,
   codeLinks: fc.array(nonEmptyString, { maxLength: 4 }),
+  cognitionScore: fc.integer({ min: 0, max: 100 }),
+  cognitionLabel: fc.constantFrom("high_signal", "review", "low_signal"),
+  trustLevel: fc.constant("conditional" as const),
   lastModified: isoTimestamp,
 });
 
@@ -225,6 +229,12 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       vcsProvider: fields.vcsProvider,
       dirtyState: fields.dirtyState,
       modifiedFiles: fields.modifiedFiles,
+      trustModel: {
+        sourceTree: "trusted",
+        notes: "conditional",
+        agentOutput: "untrusted_until_verified",
+        bundle: "trusted",
+      },
     };
 
     if (fields.bundleIndexFile !== undefined) {

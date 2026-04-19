@@ -443,6 +443,12 @@ export async function runNotesCommand(
     } else {
       printInfo("Notes consistency check:\n");
       printInfo(`  Total notes: ${report.totalNotes}`);
+      printInfo(
+        `  Cognition score: avg ${report.cognition.averageScore} (high-signal ${report.cognition.highSignalCount}, review ${report.cognition.reviewCount}, low-signal ${report.cognition.lowSignalCount})`,
+      );
+      printInfo(
+        `  Trust model: source=${report.trustModel.sourceTree}, notes=${report.trustModel.notes}, agent=${report.trustModel.agentOutput}, bundle=${report.trustModel.bundle}`,
+      );
 
       if (report.validationErrors.length > 0) {
         printWarning(`  Validation errors: ${report.validationErrors.length}`);
@@ -474,6 +480,15 @@ export async function runNotesCommand(
         printWarning(`  Orphan notes: ${report.orphans.length}`);
         for (const orphan of report.orphans) {
           printInfo(`    [${orphan.id}] ${orphan.title}`);
+        }
+      }
+
+      if (report.lowSignalNotes.length > 0) {
+        printWarning(`  Low-signal notes: ${report.lowSignalNotes.length}`);
+        for (const note of report.lowSignalNotes) {
+          printInfo(
+            `    [${note.id}] ${note.title} (score ${note.score}, trust ${note.trustLevel})`,
+          );
         }
       }
 

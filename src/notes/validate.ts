@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { listFilesRecursive, pathExists } from "../shared/fs.js";
+import type { NoteCognitionAssessment } from "./cognition.js";
+import { assessNoteCognition, hasNonTrivialSummary } from "./cognition.js";
 import { extractCodePathReferences } from "./linking.js";
 import {
   extractNoteSummary,
@@ -23,6 +25,7 @@ export interface NoteMetadata extends NoteFrontmatter {
   title: string;
   summary: string;
   codeLinks: string[];
+  cognition: NoteCognitionAssessment;
 }
 
 export interface NoteValidationError {
@@ -183,6 +186,35 @@ function parseNoteDocument(document: NoteDocument): {
       };
     }
 
+    if (!hasNonTrivialSummary(summary)) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: noteValidationMessage(
+            "Summary paragraph is too short. Use at least 6 words in the opening paragraph.",
+            "Manifest summaries are the first routing surface for later humans and agents, so one-line placeholders are not durable knowledge.",
+          ),
+        },
+      };
+    }
+
+    const codeLinks = extractCodePathReferences(body);
+    const cognition = assessNoteCognition(body, summary, codeLinks);
+
+    if (cognition.templateBoilerplateDetected) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: noteValidationMessage(
+            "Untouched template guidance detected in note body. Replace the starter prompts with repository-specific content before saving.",
+            "Template prose is scaffolding, not knowledge. Rejecting it keeps the cognition layer from filling with generic text that looks structured but says nothing durable.",
+          ),
+        },
+      };
+    }
+
     const normalizedBody = body.trim();
     const bodyCharacterCount = normalizedBody.length;
     if (bodyCharacterCount > NOTE_VALIDATION_LIMITS.maxBodyCharacters) {
@@ -220,7 +252,8 @@ function parseNoteDocument(document: NoteDocument): {
         tags: tags.value,
         title,
         summary,
-        codeLinks: extractCodePathReferences(body),
+        codeLinks,
+        cognition,
         filePath,
         fileName: path.basename(filePath),
       },

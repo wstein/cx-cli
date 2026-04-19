@@ -1,5 +1,6 @@
 // test-lane: unit
 import { describe, expect, it } from "bun:test";
+import type { NoteCognitionAssessment } from "../../src/notes/cognition.js";
 import {
   extractHeadings,
   extractWikilinkReferences,
@@ -7,6 +8,23 @@ import {
   resolveWikilinkReference,
 } from "../../src/notes/linking.js";
 import type { NoteMetadata } from "../../src/notes/validate.js";
+
+const DEFAULT_COGNITION: NoteCognitionAssessment = {
+  summaryWordCount: 8,
+  noteLinkCount: 1,
+  codeLinkCount: 0,
+  localLinkCount: 0,
+  evidenceLinkCount: 1,
+  structureSignals: {
+    what: false,
+    why: false,
+    how: false,
+  },
+  templateBoilerplateDetected: false,
+  score: 70,
+  label: "review",
+  trustLevel: "conditional",
+};
 
 describe("notes linking", () => {
   describe("normalizeWikilinkReference", () => {
@@ -212,6 +230,7 @@ describe("notes linking", () => {
       fileName: "",
       summary: "",
       codeLinks: [],
+      cognition: DEFAULT_COGNITION,
     });
 
     it("resolves reference by exact ID match", () => {
