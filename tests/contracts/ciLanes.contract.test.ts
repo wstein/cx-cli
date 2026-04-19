@@ -42,7 +42,9 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("Restore fast-lane timing state");
     expect(workflow).toContain("Save fast-lane timing state");
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
+    expect(workflow).toContain("test-full:");
     expect(workflow).toContain("run: bun run ci:test:all");
+    expect(workflow).toContain("run: bun run ci:test:compat");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
@@ -83,6 +85,9 @@ describe("CI lanes contract", () => {
       "node scripts/test-lane.js ./tests/unit",
     );
     expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
+    expect(scripts["test:all:full"]).toContain(
+      "node scripts/test-lane.js ./tests --bun-config bunfig.full.toml",
+    );
     expect(scripts["test:contracts"]).toContain(
       "node scripts/test-lane.js ./tests/contracts",
     );
@@ -106,6 +111,9 @@ describe("CI lanes contract", () => {
       "node scripts/ci-observability-report.js",
     );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
+    expect(scripts["ci:test:compat"]).toBe(
+      "node scripts/bun-runtime-compat-smoke.js",
+    );
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
     expect(scripts["ci:notes:governance"]).toBe(
       "node scripts/notes-governance.js",
@@ -129,6 +137,7 @@ describe("CI lanes contract", () => {
   test("CI workflow exposes an explicit release-assurance job", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("test-full:");
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
@@ -151,11 +160,15 @@ describe("CI lanes contract", () => {
   test("downstream CI lanes are gated behind test-fast", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("test-full:");
     expect(workflow).toContain("test-contracts:");
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-matrix:");
     expect(workflow).toContain("coverage-vitest:");
+    expect(workflow).toContain(
+      "  test-full:\n    runs-on: ubuntu-latest\n    needs:",
+    );
     expect(workflow).toContain(
       "  test-contracts:\n    runs-on: ubuntu-latest\n    needs:",
     );
@@ -198,6 +211,7 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("      - test-fast");
+    expect(workflow).toContain("      - test-full");
     expect(workflow).toContain("      - test-contracts");
     expect(workflow).toContain("      - notes-governance");
     expect(workflow).toContain("      - coverage-vitest");

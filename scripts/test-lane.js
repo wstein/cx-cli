@@ -1,7 +1,7 @@
 /**
  * Deterministic cross-platform test lane runner.
  *
- * Usage: node scripts/test-lane.js <dir> [bun-test-args...]
+ * Usage: node scripts/test-lane.js <dir> [--bun-config <path>] [bun-test-args...]
  *
  * Enumerates all *.test.ts files under <dir> in sorted order and forwards them
  * to `bun test`, ensuring the same file list on every OS regardless of shell
@@ -15,11 +15,29 @@ import { validateTestLaneHeaders } from "./test-lane-policy.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const [, , rawDir, ...extraArgs] = process.argv;
+const [, , rawDir, ...rawArgs] = process.argv;
 
 if (!rawDir) {
   console.error("test-lane: missing required argument <dir>");
   process.exit(1);
+}
+
+let bunConfig;
+const extraArgs = [];
+
+for (let index = 0; index < rawArgs.length; index += 1) {
+  const arg = rawArgs[index];
+  if (arg === "--bun-config") {
+    bunConfig = rawArgs[index + 1];
+    if (!bunConfig) {
+      console.error("test-lane: missing value for --bun-config");
+      process.exit(1);
+    }
+    index += 1;
+    continue;
+  }
+
+  extraArgs.push(arg);
 }
 
 const targetDir = path.resolve(ROOT, rawDir);
@@ -68,7 +86,13 @@ if (files.length === 0) {
 }
 
 try {
-  await execa("bun", ["test", ...files, ...extraArgs], {
+  const bunArgs = [];
+  if (bunConfig) {
+    bunArgs.push("--config", path.resolve(ROOT, bunConfig));
+  }
+  bunArgs.push("test", ...files, ...extraArgs);
+
+  await execa("bun", bunArgs, {
     stdio: "inherit",
     cwd: ROOT,
     env: process.env,

@@ -1,12 +1,8 @@
 [test]
-coverage = true
-coverageReporter = ["text", "lcov"]
-coverageDir = "coverage"
 coverageSkipTestFiles = true
-randomize = true
-rerunEach = 2
 timeout = 20000
-# Default Bun test discovery should run the full repository test suite.
+# Keep the default Bun config lean; explicit full-proof lanes opt into
+# coverage, reruns, and randomization through bunfig.full.toml.
 
 [test.coverageThreshold]
 line = { per_file = 0.80, summary = 0.95 }

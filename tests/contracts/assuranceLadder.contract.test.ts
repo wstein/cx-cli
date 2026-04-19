@@ -47,7 +47,7 @@ describe("assurance ladder contract", () => {
   test("verify and test scripts delegate to the deterministic test lane", async () => {
     const scripts = await readPackageScripts();
 
-    expect(scripts.verify).toContain("bun run test:all");
+    expect(scripts.verify).toContain("bun run test:all:full");
     expect(scripts.test).toBe("bun run test:all");
 
     // neither operator-facing script may use the old directory-style invocation
