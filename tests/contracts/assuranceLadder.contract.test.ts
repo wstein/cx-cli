@@ -23,6 +23,7 @@ describe("assurance ladder contract", () => {
     const certify = scripts.certify ?? "";
 
     expect(certify).toContain("bun run verify");
+    expect(certify).toContain("bun run ci:test:coverage");
     expect(certify).toContain("bun run ci:test:contracts");
     expect(certify).toContain("bun run ci:smoke:repomix-version");
     expect(certify).toContain("bun run ci:smoke:bundle-transition");
@@ -34,6 +35,7 @@ describe("assurance ladder contract", () => {
     const scripts = await readPackageScripts();
 
     expect(typeof scripts.verify).toBe("string");
+    expect(typeof scripts["ci:test:coverage"]).toBe("string");
     expect(typeof scripts["test:contracts"]).toBe("string");
     expect(typeof scripts["smoke:repomix-version"]).toBe("string");
     expect(typeof scripts["smoke:bundle-transition"]).toBe("string");

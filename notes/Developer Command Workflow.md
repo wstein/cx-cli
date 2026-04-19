@@ -14,6 +14,7 @@ quick while making the release path explicit and repeatable.
 ## Testing and coverage conventions
 
 - `package.json` does not define an explicit `coverage` task; coverage is collected by the test commands.
+- The dedicated Vitest coverage lane is `bun run ci:test:coverage`; it produces `coverage/vitest/coverage-summary.json`, HTML output, LCOV, and `.ci/coverage-summary.md`.
 - The default test task runs the unit test suite.
 - Tests always collect coverage information.
 - `verify` runs the full integration and unit test suite.
