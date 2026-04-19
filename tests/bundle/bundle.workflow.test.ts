@@ -309,6 +309,7 @@ describe("bundle workflow", () => {
     expect(output).toMatch(/logo\.png\s+\[asset_rule_match\]/);
   });
 
+  // verify-against-integration: Exercises CLI JSON contract plus real --against selection wiring through config loading and source-tree normalization.
   test("emits structured JSON for bundle and verify automation", async () => {
     const project = await createProject();
     const bundleCapture = createBufferedCommandIo();
@@ -407,6 +408,7 @@ describe("bundle workflow", () => {
     );
   });
 
+  // verify-against-integration: Requires a real on-disk source drift mutation and verifies operator-facing JSON remediation payloads from the command boundary.
   test("emits structured JSON failure payload for source-tree drift", async () => {
     const project = await createProject();
 
@@ -484,6 +486,7 @@ describe("bundle workflow", () => {
     expect(payload.summary?.fileCount).toBe(4);
   });
 
+  // verify-against-integration: Keeps one end-to-end smoke path for real bundle artifacts, Repomix rendering, and source-tree verification.
   test("verifies a bundle against the original source tree", async () => {
     const { project } = await bundledProject();
     expect(
@@ -574,6 +577,7 @@ exclude = []
     );
   });
 
+  // verify-against-integration: Confirms human-mode command failures surface real source-tree drift when filesystem content changes post-bundle.
   test("fails verify --against when the source tree drifts", async () => {
     const project = await createProject();
 
@@ -595,6 +599,7 @@ exclude = []
     ).rejects.toThrow("Source tree mismatch");
   });
 
+  // verify-against-integration: Validates real CLI file-filter semantics against the workspace boundary where one path drifts and another remains valid.
   test("supports selective verify --against by file", async () => {
     const project = await createProject();
 
@@ -628,6 +633,7 @@ exclude = []
     ).rejects.toThrow("Source tree mismatch");
   });
 
+  // verify-against-integration: Validates real section-filter semantics across bundle metadata, source-tree mutation, and command-level selection behavior.
   test("supports selective verify --against by section", async () => {
     const project = await createProject();
 

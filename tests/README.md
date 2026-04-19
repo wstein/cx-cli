@@ -49,6 +49,16 @@ Every `*.test.ts` file must start with a lane header on line 1:
   example, stalled startup, delayed failures, malformed startup payloads,
   malformed tool-result payloads, and interrupted runtime responses).
 
+## `verify --against` Audit Rule
+
+- Every test that calls `runVerifyCommand(... againstDir: ...)` must include an
+  inline rationale comment immediately above the test:
+  `// verify-against-integration: <reason>`.
+- Keep an up-to-date audit table in `tests/VERIFY_AGAINST_AUDIT.md` so each
+  `--against` integration test has explicit scope and rationale.
+- Contract coverage enforces both requirements via
+  `tests/contracts/verifyAgainstIntegration.contract.test.ts`.
+
 ### Lane Matrix
 
 | Path | Primary lane | Notes |

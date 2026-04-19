@@ -50,9 +50,20 @@ they needed to be.
   lane intent is visible during review.
 - If a lane is intentionally skipped, the PR should explain why.
 
+## Verify --against boundary audit
+
+- Every `runVerifyCommand(... againstDir: ...)` test now requires an inline
+  rationale tag: `// verify-against-integration: <reason>`.
+- The audit ledger at `tests/VERIFY_AGAINST_AUDIT.md` explains why each
+  `--against` case remains full integration instead of injected verification.
+- Contract enforcement in
+  `tests/contracts/verifyAgainstIntegration.contract.test.ts` prevents drift
+  between test code and the audit ledger.
+
 ## Links
 
 - [[tests/README.md]]
+- [[tests/VERIFY_AGAINST_AUDIT.md]]
 - [[.github/pull_request_template.md]]
 - [[src/notes/validate.ts]]
 - [[tests/unit/configLoad.property.test.ts]]
