@@ -16,12 +16,14 @@ export interface CxMcpServerOptions {
 export interface CxMcpServerDeps {
   processExit?: (code: number) => void;
   connectTimeoutMs?: number;
+  postConnectTimeoutMs?: number;
   writeStderr?: (message: string) => void;
   installSignalHandlers?: boolean;
   postConnectCheck?: () => Promise<void>;
 }
 
 const DEFAULT_CONNECT_TIMEOUT_MS = 15_000;
+const DEFAULT_POST_CONNECT_TIMEOUT_MS = 15_000;
 
 function formatStartupErrorReason(error: unknown): string {
   if (error instanceof Error && typeof error.message === "string") {
@@ -65,6 +67,33 @@ async function connectWithTimeout(
               ),
             ),
           connectTimeoutMs,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutHandle !== undefined) {
+      clearTimeout(timeoutHandle);
+    }
+  }
+}
+
+async function postConnectCheckWithTimeout(
+  postConnectCheckPromise: Promise<void>,
+  postConnectTimeoutMs: number,
+): Promise<void> {
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      postConnectCheckPromise,
+      new Promise<never>((_resolve, reject) => {
+        timeoutHandle = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `MCP post-connect readiness check timed out after ${postConnectTimeoutMs}ms.`,
+              ),
+            ),
+          postConnectTimeoutMs,
         );
       }),
     ]);
@@ -149,6 +178,8 @@ export async function runCxMcpServer(
   const writeStderr =
     deps.writeStderr ?? ((message) => process.stderr.write(message));
   const connectTimeoutMs = deps.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
+  const postConnectTimeoutMs =
+    deps.postConnectTimeoutMs ?? DEFAULT_POST_CONNECT_TIMEOUT_MS;
   const installSignalHandlers = deps.installSignalHandlers ?? true;
   const postConnectCheck = deps.postConnectCheck;
 
@@ -175,7 +206,10 @@ export async function runCxMcpServer(
   try {
     await connectWithTimeout(server.connect(transport), connectTimeoutMs);
     if (postConnectCheck !== undefined) {
-      await postConnectCheck();
+      await postConnectCheckWithTimeout(
+        postConnectCheck(),
+        postConnectTimeoutMs,
+      );
     }
   } catch (error) {
     clearSignalHandlers();

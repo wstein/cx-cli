@@ -314,6 +314,109 @@ describe("runCxMcpServer", () => {
     }
   });
 
+  test("exits 1 when post-connect readiness check hangs beyond timeout", async () => {
+    const connect = mock(async () => {});
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const postConnectCheck = mock(
+        () =>
+          new Promise<void>(() => {
+            // Intentionally unresolved to simulate fragmented runtime startup.
+          }),
+      );
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        postConnectCheck,
+        postConnectTimeoutMs: 20,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(postConnectCheck).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("post-connect readiness check timed out");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
+  test("exits 1 when delayed fragmented runtime payload fails post-connect checks", async () => {
+    const connect = mock(async () => {});
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const postConnectCheck = mock(
+        () =>
+          new Promise<void>((_resolve, reject) => {
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    "fragmented tool-result payload: runtime frame ended mid-content",
+                  ),
+                ),
+              25,
+            );
+          }),
+      );
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        postConnectCheck,
+        postConnectTimeoutMs: 200,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(postConnectCheck).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain("fragmented tool-result payload");
+      expect(firstWrite).not.toContain("timed out");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
   test("formats non-Error post-connect failures with primitive reasons", async () => {
     const connect = mock(async () => {});
     const close = mock(async () => {});
@@ -350,6 +453,56 @@ describe("runCxMcpServer", () => {
       const firstWrite = stderr.mock.calls[0]?.[0];
       expect(typeof firstWrite).toBe("string");
       expect(firstWrite).toContain("degraded startup payload");
+      expect(exit).toHaveBeenCalledWith(1);
+    } finally {
+      proto.connect = originalConnect;
+      proto.close = originalClose;
+    }
+  });
+
+  test("serializes structured fragmented runtime payload failures", async () => {
+    const connect = mock(async () => {});
+    const close = mock(async () => {});
+    const proto = McpServer.prototype as unknown as {
+      connect: typeof connect;
+      close: typeof close;
+    };
+    const originalConnect = proto.connect;
+    const originalClose = proto.close;
+    proto.connect = connect;
+    proto.close = close;
+
+    try {
+      const project = await createWorkspace();
+      const config = await loadCxConfig(project.mcpPath);
+      const exit = mock(() => {});
+      const stderr = mock((_message: string) => {});
+      const postConnectCheck = mock(async () => {
+        throw {
+          stage: "runtime",
+          detail: "fragmented tool-result payload",
+          boundary: "stdio",
+          fragmentsReceived: 2,
+        };
+      });
+      const { runCxMcpServer } = await import("../../src/mcp/server.js");
+
+      await runCxMcpServer(project.mcpPath, config, {
+        processExit: exit,
+        writeStderr: stderr,
+        postConnectCheck,
+        installSignalHandlers: false,
+      });
+
+      expect(connect).toHaveBeenCalledTimes(1);
+      expect(postConnectCheck).toHaveBeenCalledTimes(1);
+      expect(close).not.toHaveBeenCalled();
+      expect(stderr).toHaveBeenCalledTimes(1);
+      const firstWrite = stderr.mock.calls[0]?.[0];
+      expect(typeof firstWrite).toBe("string");
+      expect(firstWrite).toContain('"stage":"runtime"');
+      expect(firstWrite).toContain('"detail":"fragmented tool-result payload"');
+      expect(firstWrite).toContain('"boundary":"stdio"');
       expect(exit).toHaveBeenCalledWith(1);
     } finally {
       proto.connect = originalConnect;
