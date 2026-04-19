@@ -1,4 +1,5 @@
 import path from "node:path";
+import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import {
@@ -11,6 +12,7 @@ import { CxError } from "../../shared/errors.js";
 import {
   type CommandIo,
   resolveCommandIo,
+  writeStderr,
   writeStdout,
   writeValidatedJson,
 } from "../../shared/output.js";
@@ -165,8 +167,15 @@ async function runAdapterInspect(
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
   const configPath = path.resolve(io.cwd, args.config ?? "cx.toml");
-  const config = await loadCxConfig(configPath);
-  const plan = await buildBundlePlan(config);
+  const config = await loadCxConfig(
+    configPath,
+    readEnvOverrides(io.env),
+    getCLIOverrides(),
+    { emitBehaviorLogs: io.emitBehaviorLogs },
+  );
+  const plan = await buildBundlePlan(config, {
+    emitWarning: (message) => writeStderr(`Warning: ${message}\n`, io),
+  });
 
   const requestedSections = args.sections ?? [];
   if (requestedSections.length === 0) {

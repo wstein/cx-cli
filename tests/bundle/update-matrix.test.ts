@@ -5,8 +5,7 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
-import { createProject } from "./helpers.js";
+import { createProject, runQuietBundleCommand } from "./helpers.js";
 
 async function createUpdateMatrixProject(): Promise<{
   root: string;
@@ -38,7 +37,7 @@ describe("bundle update matrix", () => {
     timeout: 120000,
   }, async () => {
     const project = await createUpdateMatrixProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     const originalXml = path.join(
       project.bundleDir,
       "demo-repomix-src.xml.txt",
@@ -52,7 +51,7 @@ describe("bundle update matrix", () => {
     await writeConfig(project.configPath, config);
 
     expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
+      await runQuietBundleCommand({ config: project.configPath, update: true }),
     ).toBe(0);
     await expect(fs.stat(originalXml)).rejects.toThrow();
     expect(
@@ -64,7 +63,7 @@ describe("bundle update matrix", () => {
     timeout: 120000,
   }, async () => {
     const project = await createUpdateMatrixProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const originalConfig = await readConfig(project.configPath);
     const modifiedConfig = originalConfig
@@ -76,7 +75,7 @@ describe("bundle update matrix", () => {
     await writeConfig(project.configPath, modifiedConfig);
 
     expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
+      await runQuietBundleCommand({ config: project.configPath, update: true }),
     ).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
@@ -100,7 +99,7 @@ describe("bundle update matrix", () => {
     timeout: 120000,
   }, async () => {
     const project = await createUpdateMatrixProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     const assetPath = path.join(project.bundleDir, "demo-assets", "logo.png");
     expect(await fs.stat(assetPath)).toBeDefined();
 
@@ -111,7 +110,7 @@ describe("bundle update matrix", () => {
     await writeConfig(project.configPath, config);
 
     expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
+      await runQuietBundleCommand({ config: project.configPath, update: true }),
     ).toBe(0);
     await expect(fs.stat(assetPath)).rejects.toThrow();
   });

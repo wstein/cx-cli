@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxStyle } from "../../config/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
@@ -16,6 +17,7 @@ import {
 import {
   type CommandIo,
   resolveCommandIo,
+  writeStderr,
   writeStdout,
   writeValidatedJson,
 } from "../../shared/output.js";
@@ -38,8 +40,15 @@ export async function runRenderCommand(
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
   const configPath = path.resolve(io.cwd, args.config);
-  const config = await loadCxConfig(configPath);
-  const plan = await buildBundlePlan(config);
+  const config = await loadCxConfig(
+    configPath,
+    readEnvOverrides(io.env),
+    getCLIOverrides(),
+    { emitBehaviorLogs: io.emitBehaviorLogs },
+  );
+  const plan = await buildBundlePlan(config, {
+    emitWarning: (message) => writeStderr(`Warning: ${message}\n`, io),
+  });
 
   // Validate selection
   const requestedSections = args.sections ?? [];

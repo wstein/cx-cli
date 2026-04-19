@@ -57,6 +57,7 @@ export function createBufferedCommandIo(
       stdin: {
         isTTY: options.isTTY ?? false,
       },
+      emitBehaviorLogs: false,
       ...(options.cwd !== undefined ? { cwd: options.cwd } : {}),
     },
     stdout: () => stdoutChunks.join(""),

@@ -5,9 +5,8 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { readLock } from "../../src/manifest/lock.js";
-import { createProject } from "./helpers.js";
+import { createProject, runQuietBundleCommand } from "./helpers.js";
 
 async function createAndInitProject(): Promise<{
   root: string;
@@ -43,7 +42,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     const { root: _root, configPath } = await createAndInitProject();
 
     // No modifications to tracked files — state is clean
-    const exitCode = await runBundleCommand({
+    const exitCode = await runQuietBundleCommand({
       config: configPath,
     });
 
@@ -61,7 +60,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     );
 
     // Bundle without --ci or --force should succeed (safe_dirty is safe)
-    const exitCode = await runBundleCommand({
+    const exitCode = await runQuietBundleCommand({
       config: configPath,
     });
 
@@ -80,7 +79,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
 
     // Attempt to bundle without --ci or --force should fail with exit code 7
     try {
-      await runBundleCommand({
+      await runQuietBundleCommand({
         config: configPath,
       });
       // Should not reach here
@@ -104,7 +103,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     );
 
     // Bundle with --ci should succeed
-    const exitCode = await runBundleCommand({
+    const exitCode = await runQuietBundleCommand({
       config: configPath,
       ci: true,
     });
@@ -132,7 +131,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     );
 
     // Bundle with --force should succeed
-    const exitCode = await runBundleCommand({
+    const exitCode = await runQuietBundleCommand({
       config: configPath,
       force: true,
     });

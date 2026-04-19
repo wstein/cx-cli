@@ -4,7 +4,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import { runListCommand } from "../../src/cli/commands/list.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
@@ -12,6 +11,7 @@ import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import {
   createProject,
   expectExtractedFilesToMatchManifest,
+  runQuietBundleCommand,
   tamperSectionOutput,
 } from "./helpers.js";
 
@@ -20,7 +20,7 @@ describe("bundle extract", () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-filtered");
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     const listCapture = createBufferedCommandIo();
     const listExitCode = await runListCommand(
       {
@@ -90,7 +90,7 @@ describe("bundle extract", () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored");
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,
@@ -121,7 +121,7 @@ describe("bundle extract", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,
@@ -152,7 +152,7 @@ describe("bundle extract", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,
@@ -183,7 +183,7 @@ describe("bundle extract", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,
@@ -205,7 +205,7 @@ describe("bundle extract", () => {
   test("blocks degraded extraction unless explicitly allowed", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy");
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -229,7 +229,7 @@ describe("bundle extract", () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-lossy-json");
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -284,7 +284,7 @@ describe("bundle extract", () => {
     const project = await createProject({ includeSpecialChecksumFile: true });
     const restoreDir = path.join(project.root, "restored-special");
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -314,7 +314,7 @@ describe("bundle extract", () => {
   test("surfaces blocked extractability in list JSON before extraction", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -357,7 +357,7 @@ describe("bundle extract", () => {
   test("extracts degraded files with explicit opt-in", async () => {
     const project = await createProject();
     const restoreDir = path.join(project.root, "restored-degraded");
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",

@@ -26,6 +26,10 @@ import type {
   PlannedSourceFile,
 } from "./types.js";
 
+export interface BuildBundlePlanOptions {
+  emitWarning?: (message: string) => void;
+}
+
 function getRequiredSection(
   sections: Record<string, CxSectionConfig>,
   sectionName: string,
@@ -109,8 +113,16 @@ function resolveFlat(
   return result;
 }
 
-export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
+export async function buildBundlePlan(
+  config: CxConfig,
+  options: BuildBundlePlanOptions = {},
+): Promise<BundlePlan> {
   const planningWarnings: string[] = [];
+  const emitWarning =
+    options.emitWarning ??
+    ((message: string) => {
+      process.stderr.write(`Warning: ${message}\n`);
+    });
 
   // Phase 1: Base Generation — establish the VCS-driven master file list.
   //
@@ -132,7 +144,7 @@ export async function buildBundlePlan(config: CxConfig): Promise<BundlePlan> {
     for (const conflict of conflicts) {
       const message = formatOverlapConflictMessage(conflict);
       planningWarnings.push(message);
-      process.stderr.write(`Warning: ${message}\n`);
+      emitWarning(message);
     }
   }
 

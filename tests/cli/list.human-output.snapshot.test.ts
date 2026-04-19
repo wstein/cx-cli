@@ -2,9 +2,8 @@
 
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { main } from "../../src/cli/main.js";
-import { createProject } from "../bundle/helpers.js";
+import { createProject, runQuietBundleCommand } from "../bundle/helpers.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
@@ -35,7 +34,7 @@ function scrubListSnapshot(output: string): string {
 describe("list human snapshot lane", () => {
   test("cx list surfaces provenance suffixes", async () => {
     const project = await createProject({ includeLinkedNotes: true });
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const capture = createBufferedCommandIo({ cwd: project.root });
     const exitCode = await main(["list", "dist/demo-bundle"], capture.io);

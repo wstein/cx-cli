@@ -5,14 +5,13 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import {
   MANIFEST_SCHEMA_VERSION,
   parseManifestJson,
   renderManifestJson,
 } from "../../src/manifest/json.js";
 import type { CxManifest } from "../../src/manifest/types.js";
-import { createProject } from "./helpers.js";
+import { createProject, runQuietBundleCommand } from "./helpers.js";
 
 describe("bundle manifest", () => {
   test("records note summaries in the manifest", async () => {
@@ -38,7 +37,7 @@ It should become the manifest summary.
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     expect(manifest.notes).toHaveLength(1);
@@ -54,7 +53,7 @@ It should become the manifest summary.
   test("pulls linked notes into the bundle when enabled", async () => {
     const project = await createProject({ includeLinkedNotes: true });
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const docsSection = manifest.sections.find(
@@ -85,7 +84,7 @@ It should become the manifest summary.
   test("records asset provenance in manifest outputs", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     expect(manifest.assets[0]?.provenance).toEqual(["asset_rule_match"]);
@@ -239,7 +238,7 @@ It should become the manifest summary.
 
   test("manifest file is valid JSON with correct schemaVersion and object-list structure", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const entries = await fs.readdir(project.bundleDir);
     const manifestName = entries.find((entry) =>

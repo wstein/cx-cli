@@ -1,6 +1,7 @@
 import path from "node:path";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
+import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import {
   type CurrentBehaviorSnapshot,
@@ -42,11 +43,17 @@ export interface VerifyArgs {
  */
 async function buildCurrentSnapshot(
   configPath: string,
+  emitBehaviorLogs = true,
 ): Promise<CurrentBehaviorSnapshot | null> {
   if (!(await pathExists(configPath))) return null;
 
   try {
-    const config = await loadCxConfig(configPath);
+    const config = await loadCxConfig(
+      configPath,
+      readEnvOverrides(),
+      getCLIOverrides(),
+      { emitBehaviorLogs },
+    );
     return {
       dedupMode: {
         value: config.dedup.mode,
@@ -88,7 +95,14 @@ export async function runVerifyCommand(
     files: args.files,
   };
   const configPath = path.resolve(io.cwd, args.config ?? "cx.toml");
-  const againstConfig = againstDir ? await loadCxConfig(configPath) : undefined;
+  const againstConfig = againstDir
+    ? await loadCxConfig(
+        configPath,
+        readEnvOverrides(io.env),
+        getCLIOverrides(),
+        { emitBehaviorLogs: io.emitBehaviorLogs },
+      )
+    : undefined;
 
   // Initialize these outside the try block so they're accessible in error handler
   let projectName: string | null = null;
@@ -133,7 +147,10 @@ export async function runVerifyCommand(
       if (lock !== null) {
         bundleMode = lock.bundleMode ?? null;
 
-        const current = await buildCurrentSnapshot(configPath);
+        const current = await buildCurrentSnapshot(
+          configPath,
+          io.emitBehaviorLogs,
+        );
         if (current !== null) {
           const mismatches = diffLockSettings(lock, current);
           for (const m of mismatches) {

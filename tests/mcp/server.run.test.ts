@@ -18,6 +18,12 @@ afterEach(() => {
   vi.resetModules();
 });
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["init", "-q"], { cwd: root });
   await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
@@ -82,7 +88,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
@@ -116,7 +122,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
@@ -160,7 +166,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
@@ -204,7 +210,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
@@ -246,7 +252,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
@@ -286,7 +292,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const postConnectCheck = vi.fn(async () => {
@@ -332,7 +338,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const postConnectCheck = vi.fn(
@@ -379,7 +385,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const postConnectCheck = vi.fn(
@@ -435,7 +441,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const postConnectCheck = vi.fn(async () => {
@@ -478,7 +484,7 @@ describe("runCxMcpServer", () => {
 
     try {
       const project = await createWorkspace();
-      const config = await loadCxConfig(project.mcpPath);
+      const config = await loadQuietCxConfig(project.mcpPath);
       const exit = vi.fn(() => {});
       const stderr = vi.fn((_message: string) => {});
       const postConnectCheck = vi.fn(async () => {

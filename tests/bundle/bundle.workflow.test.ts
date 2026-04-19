@@ -15,7 +15,13 @@ import { MANIFEST_SCHEMA_VERSION } from "../../src/manifest/json.js";
 import { sha256File } from "../../src/shared/hashing.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
-import { createProject, tamperSectionOutput } from "./helpers.js";
+import {
+  createProject,
+  runQuietBundleCommand,
+  runQuietValidateCommand,
+  runQuietVerifyCommand,
+  tamperSectionOutput,
+} from "./helpers.js";
 
 type ProjectFixture = Awaited<ReturnType<typeof createProject>>;
 
@@ -59,7 +65,7 @@ describe("bundle workflow", () => {
 
   async function createDriftedBundledProjectFixture(): Promise<ProjectFixture> {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await fs.writeFile(
       path.join(project.root, "README.md"),
       "# Drifted\n",
@@ -80,8 +86,12 @@ describe("bundle workflow", () => {
     expect(summary).toContain("Output tokens");
     expect(summary).toContain("Immutable snapshot");
     expect(summary).toContain("Use MCP");
-    expect(await runValidateCommand({ bundleDir: project.bundleDir })).toBe(0);
-    expect(await runVerifyCommand({ bundleDir: project.bundleDir })).toBe(0);
+    expect(
+      await runQuietValidateCommand({ bundleDir: project.bundleDir }),
+    ).toBe(0);
+    expect(await runQuietVerifyCommand({ bundleDir: project.bundleDir })).toBe(
+      0,
+    );
 
     const listCapture = createBufferedCommandIo();
     expect(
@@ -191,7 +201,7 @@ describe("bundle workflow", () => {
 
   test("includes checksum prefixes in inspect JSON for degraded files", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -250,7 +260,7 @@ describe("bundle workflow", () => {
 
   test("shows checksum prefixes in degraded inspect output", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await tamperSectionOutput(
       project.bundleDir,
       "src",
@@ -383,7 +393,7 @@ describe("bundle workflow", () => {
   test("emits structured JSON failure payload for checksum omission", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     const checksumPath = path.join(project.bundleDir, "demo.sha256");
     await fs.writeFile(
       checksumPath,
@@ -501,7 +511,7 @@ describe("bundle workflow", () => {
   test("verifies a bundle against the original source tree", async () => {
     const { project } = await bundledProject();
     expect(
-      await runVerifyCommand({
+      await runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: undefined,
@@ -513,7 +523,7 @@ describe("bundle workflow", () => {
 
   test("--update prunes orphaned outputs after config changes", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const preservedSectionPath = path.join(
       project.bundleDir,
@@ -537,7 +547,7 @@ describe("bundle workflow", () => {
     );
 
     expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
+      await runQuietBundleCommand({ config: project.configPath, update: true }),
     ).toBe(0);
 
     await expect(fs.stat(orphanedAssetPath)).rejects.toThrow();
@@ -581,7 +591,7 @@ exclude = []
     );
 
     await expect(
-      runBundleCommand({ config: configPath, update: true }),
+      runQuietBundleCommand({ config: configPath, update: true }),
     ).rejects.toThrow("Refusing --update prune");
     expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
       "# keep\n",
@@ -593,7 +603,7 @@ exclude = []
     const project = await driftedBundledProject();
 
     await expect(
-      runVerifyCommand({
+      runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: undefined,
@@ -608,7 +618,7 @@ exclude = []
     const project = await driftedBundledProject();
 
     expect(
-      await runVerifyCommand({
+      await runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: ["src/index.ts"],
@@ -618,7 +628,7 @@ exclude = []
     ).toBe(0);
 
     await expect(
-      runVerifyCommand({
+      runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: ["README.md"],
@@ -633,7 +643,7 @@ exclude = []
     const project = await driftedBundledProject();
 
     expect(
-      await runVerifyCommand({
+      await runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: undefined,
@@ -643,7 +653,7 @@ exclude = []
     ).toBe(0);
 
     await expect(
-      runVerifyCommand({
+      runQuietVerifyCommand({
         bundleDir: project.bundleDir,
         againstDir: project.root,
         files: undefined,
@@ -657,7 +667,7 @@ exclude = []
     const project = await createProject();
     const checksumPath = path.join(project.bundleDir, "demo.sha256");
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await fs.writeFile(
       checksumPath,
       (await fs.readFile(checksumPath, "utf8"))
@@ -668,7 +678,7 @@ exclude = []
     );
 
     await expect(
-      runVerifyCommand({ bundleDir: project.bundleDir, json: false }),
+      runQuietVerifyCommand({ bundleDir: project.bundleDir, json: false }),
     ).rejects.toThrow(
       "Checksum file is missing an entry for demo-manifest.json.",
     );
@@ -677,7 +687,7 @@ exclude = []
   test("rejects bundles with multiple manifest files", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     await fs.copyFile(
       path.join(project.bundleDir, "demo-manifest.json"),
       path.join(project.bundleDir, "demo-copy-manifest.json"),

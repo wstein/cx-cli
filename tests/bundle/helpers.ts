@@ -5,7 +5,20 @@ import { promisify } from "node:util";
 import { expect } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
+import {
+  type BundleArgs,
+  runBundleCommand,
+} from "../../src/cli/commands/bundle.js";
+import {
+  runValidateCommand,
+  type ValidateArgs,
+} from "../../src/cli/commands/validate.js";
+import {
+  runVerifyCommand,
+  type VerifyArgs,
+} from "../../src/cli/commands/verify.js";
 import { sha256File } from "../../src/shared/hashing.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import {
   type BuildConfigOptions,
   buildConfig,
@@ -197,4 +210,21 @@ export async function tamperSectionOutput(
 
 export async function readLogicalLineCount(filePath: string): Promise<number> {
   return countLogicalLines(await fs.readFile(filePath, "utf8"));
+}
+
+export async function runQuietBundleCommand(args: BundleArgs): Promise<number> {
+  const capture = createBufferedCommandIo();
+  return runBundleCommand(args, capture.io);
+}
+
+export async function runQuietValidateCommand(
+  args: ValidateArgs,
+): Promise<number> {
+  const capture = createBufferedCommandIo();
+  return runValidateCommand(args, capture.io);
+}
+
+export async function runQuietVerifyCommand(args: VerifyArgs): Promise<number> {
+  const capture = createBufferedCommandIo();
+  return runVerifyCommand(args, capture.io);
 }

@@ -5,19 +5,19 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runExtractCommand } from "../../src/cli/commands/extract.js";
 import {
   createProject,
   findExpectedContentStartLine,
   readLogicalLineCount,
+  runQuietBundleCommand,
 } from "./helpers.js";
 
 describe("bundle legacy render markup", () => {
   test("emits absolute output spans from renderWithMap for all files", async () => {
     const project = await createProject();
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const docsSection = manifest.sections.find(
@@ -102,7 +102,7 @@ describe("bundle legacy render markup", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const textRows = manifest.files.filter((row) => row.kind === "text");
@@ -173,7 +173,7 @@ describe("bundle legacy render markup", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const textRows = manifest.files.filter((row) => row.kind === "text");
@@ -196,7 +196,7 @@ describe("bundle legacy render markup", () => {
     );
 
     await expect(
-      runBundleCommand({ config: project.configPath }),
+      runQuietBundleCommand({ config: project.configPath }),
     ).rejects.toThrow("require manifest.include_output_spans = true");
   });
 
@@ -211,7 +211,7 @@ describe("bundle legacy render markup", () => {
       "utf8",
     );
 
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     expect(
       await runExtractCommand({
         bundleDir: project.bundleDir,

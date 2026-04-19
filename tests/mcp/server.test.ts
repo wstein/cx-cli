@@ -73,6 +73,12 @@ function getTool<T extends string>(
   return tool;
 }
 
+async function loadQuietCxConfig(configPath: string) {
+  return loadCxConfig(configPath, undefined, undefined, {
+    emitBehaviorLogs: false,
+  });
+}
+
 async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["init", "-q"], { cwd: root });
   await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
@@ -153,7 +159,7 @@ async function createWorkspace(
 describe("cx MCP server", () => {
   test("registers workspace file tools and note tools", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -195,7 +201,7 @@ describe("cx MCP server", () => {
 
   test("doctor_mcp returns the resolved MCP profile and scope", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -232,7 +238,7 @@ describe("cx MCP server", () => {
 
   test("doctor_overlaps diagnoses live workspace section overlaps", async () => {
     const project = await createWorkspace({ overlap: true });
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -255,7 +261,7 @@ describe("cx MCP server", () => {
 
   test("doctor_secrets scans the live workspace file scope", async () => {
     const project = await createWorkspace({ includeSecret: true });
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -278,7 +284,7 @@ describe("cx MCP server", () => {
 
   test("list returns workspace files from the active cx scope", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -298,7 +304,7 @@ describe("cx MCP server", () => {
 
   test("grep searches workspace files by content", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -336,7 +342,7 @@ describe("cx MCP server", () => {
 
   test("replace_repomix_span replaces an exact live workspace span", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -376,7 +382,7 @@ describe("cx MCP server", () => {
 
   test("read returns anchored workspace content", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -406,7 +412,7 @@ describe("cx MCP server", () => {
 
   test("notes_new creates a workspace note and notes_list returns it", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -456,7 +462,7 @@ describe("cx MCP server", () => {
 
   test("notes_read returns the parsed note body and metadata", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -497,7 +503,7 @@ describe("cx MCP server", () => {
 
   test("notes_search finds notes by body text and tags", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -533,7 +539,7 @@ describe("cx MCP server", () => {
 
   test("notes_update revises an existing note in place", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -579,7 +585,7 @@ describe("cx MCP server", () => {
 
   test("notes_rename updates the note title and filename", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -626,7 +632,7 @@ describe("cx MCP server", () => {
 
   test("notes_delete removes an existing note", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -666,7 +672,7 @@ describe("cx MCP server", () => {
 
   test("inspect and bundle preview report live workspace planning data", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -704,7 +710,7 @@ describe("cx MCP server", () => {
 
   test("doctor workflow recommends an ordered path for mixed tasks", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -730,7 +736,7 @@ describe("cx MCP server", () => {
 
   test("notes_graph returns reachable notes from a seed note", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,
@@ -778,7 +784,7 @@ describe("cx MCP server", () => {
 
   test("notes_links reports unresolved links for a created note", async () => {
     const project = await createWorkspace();
-    const config = await loadCxConfig(project.mcpPath);
+    const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
       configPath: project.mcpPath,
       config,

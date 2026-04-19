@@ -9,8 +9,7 @@ import {
   loadManifestFromBundle,
   validateBundle,
 } from "../../src/bundle/validate.js";
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
-import { createProject } from "./helpers.js";
+import { createProject, runQuietBundleCommand } from "./helpers.js";
 
 describe("bundle validation", () => {
   test("rejects bundles missing a manifest file", async () => {
@@ -38,7 +37,7 @@ describe("bundle validation", () => {
 
   test("rejects unsupported bundle versions", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
     const manifest = await loadManifestFromBundle(project.bundleDir);
 
     await expect(
@@ -55,7 +54,7 @@ describe("bundle validation", () => {
 
   test("rejects missing section outputs", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     await fs.rm(path.join(project.bundleDir, "demo-repomix-src.xml.txt"));
 
@@ -66,7 +65,7 @@ describe("bundle validation", () => {
 
   test("rejects missing bundle index files", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     expect(manifest.bundleIndexFile).toBeDefined();
@@ -83,7 +82,7 @@ describe("bundle validation", () => {
 
   test("rejects missing assets", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     const assetPath = manifest.assets[0]?.storedPath;
@@ -101,7 +100,7 @@ describe("bundle validation", () => {
 
   test("rejects missing checksum files", async () => {
     const project = await createProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     await fs.rm(path.join(project.bundleDir, manifest.checksumFile));

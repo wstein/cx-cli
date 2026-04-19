@@ -198,12 +198,21 @@ export async function runBundleCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const config = await loadCxConfig(args.config, readEnvOverrides(io.env), {
-    ...getCLIOverrides(),
-    ...(args.layout !== undefined && { assetsLayout: args.layout }),
-  });
+  const config = await loadCxConfig(
+    args.config,
+    readEnvOverrides(io.env),
+    {
+      ...getCLIOverrides(),
+      ...(args.layout !== undefined && { assetsLayout: args.layout }),
+    },
+    {
+      emitBehaviorLogs: io.emitBehaviorLogs,
+    },
+  );
   const plan = await enrichPlanWithLinkedNotes(
-    await buildBundlePlan(config),
+    await buildBundlePlan(config, {
+      emitWarning: (message) => writeStderr(`Warning: ${message}\n`, io),
+    }),
     config,
   );
 

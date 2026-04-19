@@ -66,6 +66,7 @@ export async function runInspectCommand(
       ...getCLIOverrides(),
       ...(args.layout !== undefined && { assetsLayout: args.layout }),
     },
+    { emitBehaviorLogs: io.emitBehaviorLogs },
   );
   const report = await collectInspectReport({
     config,
