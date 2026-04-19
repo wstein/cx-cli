@@ -2,27 +2,19 @@ import path from "node:path";
 
 import { loadCxConfig } from "../config/load.js";
 import { type AuditSummary, collectAuditSummary } from "../mcp/audit.js";
-import type { McpCapability } from "../mcp/capabilities.js";
 import { resolveMcpConfigPath } from "../mcp/config.js";
-import type { StabilityTier } from "../mcp/tiers.js";
-import { CX_MCP_TOOL_DEFINITIONS } from "../mcp/tools/catalog.js";
+import {
+  CX_MCP_TOOL_CATALOG_VERSION,
+  type CxMcpToolCatalogEntry,
+  type CxMcpToolCatalogSummary,
+  getCxMcpToolCatalog,
+  summarizeCxMcpToolCatalog,
+} from "../mcp/tools/catalog.js";
 import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 
 export interface DoctorMcpArgs {
   config?: string | undefined;
   json?: boolean | undefined;
-}
-
-export interface DoctorMcpToolCatalogEntry {
-  name: string;
-  capability: McpCapability;
-  stability: StabilityTier;
-}
-
-export interface DoctorMcpToolCatalogSummary {
-  totalTools: number;
-  byCapability: Record<McpCapability, number>;
-  byStability: Record<StabilityTier, number>;
 }
 
 export interface DoctorMcpReport {
@@ -34,53 +26,15 @@ export interface DoctorMcpReport {
   policy: "default" | "strict" | "unrestricted";
   mutationEnabled: boolean;
   auditSummary: AuditSummary;
-  toolCatalogVersion: 1;
-  toolCatalog: DoctorMcpToolCatalogEntry[];
-  toolCatalogSummary: DoctorMcpToolCatalogSummary;
+  toolCatalogVersion: typeof CX_MCP_TOOL_CATALOG_VERSION;
+  toolCatalog: CxMcpToolCatalogEntry[];
+  toolCatalogSummary: CxMcpToolCatalogSummary;
 }
 
 export interface DoctorMcpDeps {
   loadConfig?: typeof loadCxConfig;
   resolveProfilePath?: typeof resolveMcpConfigPath;
   readAuditSummary?: typeof collectAuditSummary;
-}
-
-function buildDoctorMcpToolCatalog(): DoctorMcpToolCatalogEntry[] {
-  return [...CX_MCP_TOOL_DEFINITIONS]
-    .map((tool) => ({
-      name: tool.name,
-      capability: tool.capability,
-      stability: tool.stability,
-    }))
-    .sort((left, right) => left.name.localeCompare(right.name, "en"));
-}
-
-function summarizeDoctorMcpToolCatalog(
-  toolCatalog: DoctorMcpToolCatalogEntry[],
-): DoctorMcpToolCatalogSummary {
-  const byCapability: Record<McpCapability, number> = {
-    read: 0,
-    observe: 0,
-    plan: 0,
-    mutate: 0,
-  };
-  const byStability: Record<StabilityTier, number> = {
-    STABLE: 0,
-    BETA: 0,
-    EXPERIMENTAL: 0,
-    INTERNAL: 0,
-  };
-
-  for (const tool of toolCatalog) {
-    byCapability[tool.capability] += 1;
-    byStability[tool.stability] += 1;
-  }
-
-  return {
-    totalTools: toolCatalog.length,
-    byCapability,
-    byStability,
-  };
 }
 
 export async function collectDoctorMcpReport(
@@ -96,7 +50,7 @@ export async function collectDoctorMcpReport(
   );
   const config = await loadConfig(resolvedConfigPath);
   const auditSummary = await readAuditSummary(config.sourceRoot);
-  const toolCatalog = buildDoctorMcpToolCatalog();
+  const toolCatalog = getCxMcpToolCatalog();
 
   return {
     resolvedConfigPath,
@@ -109,9 +63,9 @@ export async function collectDoctorMcpReport(
     policy: config.mcp.policy ?? "default",
     mutationEnabled: config.mcp.enableMutation ?? false,
     auditSummary,
-    toolCatalogVersion: 1,
+    toolCatalogVersion: CX_MCP_TOOL_CATALOG_VERSION,
     toolCatalog,
-    toolCatalogSummary: summarizeDoctorMcpToolCatalog(toolCatalog),
+    toolCatalogSummary: summarizeCxMcpToolCatalog(toolCatalog),
   };
 }
 

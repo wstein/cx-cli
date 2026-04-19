@@ -11,6 +11,20 @@ export interface CxMcpToolDefinition {
   readonly stability: StabilityTier;
 }
 
+export interface CxMcpToolCatalogEntry {
+  name: string;
+  capability: McpCapability;
+  stability: StabilityTier;
+}
+
+export interface CxMcpToolCatalogSummary {
+  totalTools: number;
+  byCapability: Record<McpCapability, number>;
+  byStability: Record<StabilityTier, number>;
+}
+
+export const CX_MCP_TOOL_CATALOG_VERSION = 1;
+
 export const CX_MCP_TOOL_DEFINITIONS: readonly CxMcpToolDefinition[] = [
   ...WORKSPACE_TOOL_DEFINITIONS,
   ...BUNDLE_TOOL_DEFINITIONS,
@@ -56,4 +70,42 @@ export function getCxMcpToolDefinition(
   toolName: string,
 ): CxMcpToolDefinition | undefined {
   return CX_MCP_TOOL_DEFINITION_MAP[toolName];
+}
+
+export function getCxMcpToolCatalog(): CxMcpToolCatalogEntry[] {
+  return [...CX_MCP_TOOL_DEFINITIONS]
+    .map((tool) => ({
+      name: tool.name,
+      capability: tool.capability,
+      stability: tool.stability,
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name, "en"));
+}
+
+export function summarizeCxMcpToolCatalog(
+  toolCatalog: readonly CxMcpToolCatalogEntry[],
+): CxMcpToolCatalogSummary {
+  const byCapability: Record<McpCapability, number> = {
+    read: 0,
+    observe: 0,
+    plan: 0,
+    mutate: 0,
+  };
+  const byStability: Record<StabilityTier, number> = {
+    STABLE: 0,
+    BETA: 0,
+    EXPERIMENTAL: 0,
+    INTERNAL: 0,
+  };
+
+  for (const tool of toolCatalog) {
+    byCapability[tool.capability] += 1;
+    byStability[tool.stability] += 1;
+  }
+
+  return {
+    totalTools: toolCatalog.length,
+    byCapability,
+    byStability,
+  };
 }

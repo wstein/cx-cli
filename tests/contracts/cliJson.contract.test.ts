@@ -161,6 +161,34 @@ See [[20260418120000]].
     expect(Array.isArray(payload.signals)).toBe(true);
   });
 
+  test("mcp catalog --json returns the machine-readable tool catalog", async () => {
+    const result = await captureCli({
+      run: () => main(["mcp", "catalog", "--json"]),
+    });
+    expect(result.exitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      command?: string;
+      toolCatalogVersion?: number;
+      toolCatalog?: Array<{
+        name: string;
+        capability: string;
+        stability: string;
+      }>;
+      toolCatalogSummary?: {
+        totalTools?: number;
+      };
+    }>(result.stdout);
+    expect(payload.command).toBe("mcp catalog");
+    expect(payload.toolCatalogVersion).toBe(1);
+    expect(payload.toolCatalogSummary?.totalTools).toBeGreaterThan(0);
+    expect(payload.toolCatalog).toContainEqual({
+      name: "bundle",
+      capability: "plan",
+      stability: "STABLE",
+    });
+  });
+
   test("list --json returns selection metadata", async () => {
     const project = await createProject();
     const cwd = process.cwd();

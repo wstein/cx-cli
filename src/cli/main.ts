@@ -22,7 +22,7 @@ import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
 import { runInspectCommand } from "./commands/inspect.js";
 import { runListCommand } from "./commands/list.js";
-import { runMcpCommand } from "./commands/mcp.js";
+import { runMcpCatalogCommand, runMcpCommand } from "./commands/mcp.js";
 import { runNotesCommand } from "./commands/notes.js";
 import { runRenderCommand } from "./commands/render.js";
 import { runValidateCommand } from "./commands/validate.js";
@@ -822,14 +822,30 @@ export async function main(
     );
 
   cli.command(
-    "mcp",
-    "[EXPERIMENTAL] Start the CX MCP server for live workspace exploration and note maintenance.",
+    "mcp [subcommand]",
+    "[EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.",
     (command) =>
-      command.example(
-        "$0 mcp",
-        "Start the live MCP server using cx-mcp.toml when available, otherwise cx.toml.",
-      ),
-    async () => {
+      command
+        .example(
+          "$0 mcp",
+          "Start the live MCP server using cx-mcp.toml when available, otherwise cx.toml.",
+        )
+        .example(
+          "$0 mcp catalog --json",
+          "Print the machine-readable MCP tool catalog for automation.",
+        )
+        .positional("subcommand", {
+          type: "string",
+          choices: ["catalog"],
+          demandOption: false,
+        })
+        .option("json", { type: "boolean", default: false }),
+    async (args) => {
+      if (args.subcommand === "catalog") {
+        exitCode = await runMcpCatalogCommand({ json: args.json }, io);
+        return;
+      }
+
       exitCode = await runMcpCommand({ cwd: io.cwd });
     },
   );

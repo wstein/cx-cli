@@ -4,11 +4,54 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {
+  collectMcpCatalogReport,
   resolveMcpConfigPath,
+  runMcpCatalogCommand,
   runMcpCommand,
 } from "../../src/cli/commands/mcp.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
+import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 describe("mcp registration lane", () => {
+  test("collects a machine-readable MCP tool catalog", () => {
+    const report = collectMcpCatalogReport();
+
+    expect(report.command).toBe("mcp catalog");
+    expect(report.toolCatalogVersion).toBe(1);
+    expect(report.toolCatalogSummary.totalTools).toBe(
+      report.toolCatalog.length,
+    );
+    expect(report.toolCatalog.find((tool) => tool.name === "bundle")).toEqual({
+      name: "bundle",
+      capability: "plan",
+      stability: "STABLE",
+    });
+  });
+
+  test("prints the MCP tool catalog as JSON", async () => {
+    const capture = createBufferedCommandIo();
+    await expect(
+      runMcpCatalogCommand({ json: true }, capture.io),
+    ).resolves.toBe(0);
+
+    const payload = parseJsonOutput<{
+      command?: string;
+      toolCatalogVersion?: number;
+      toolCatalog?: Array<{
+        name: string;
+        capability: string;
+        stability: string;
+      }>;
+    }>(capture.stdout());
+    expect(payload.command).toBe("mcp catalog");
+    expect(payload.toolCatalogVersion).toBe(1);
+    expect(payload.toolCatalog).toContainEqual({
+      name: "doctor_mcp",
+      capability: "observe",
+      stability: "BETA",
+    });
+  });
+
   test("prefers cx-mcp.toml over cx.toml", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-mcp-"));
     const basePath = path.join(root, "cx.toml");
