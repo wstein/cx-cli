@@ -15,3 +15,6 @@ Release sequencing, token setup, and tap-push automation live in [Homebrew Tap A
 - `notes/Homebrew Tap Automation.md`
 - `README.md`
 - `package.json`
+- [[Homebrew Tap Automation]]
+- [[npm Package Tarball]]
+- [[cx-cli GitHub Repository]]

@@ -14,3 +14,6 @@ It defines package metadata, the single release workflow, Homebrew integration, 
 - `.github/workflows/release.yml`
 - `scripts/generate-homebrew-formula.js`
 - `README.md`
+- [[Homebrew Tap]]
+- [[npm Package Page]]
+- [[Repomix CX Fork]]

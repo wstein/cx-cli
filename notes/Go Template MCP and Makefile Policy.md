@@ -12,3 +12,9 @@ The Go init template is an enhanced template.
   `go.mod`, `go.sum`, and `README.md`.
 - It uses `go vet ./...` as the default `check` target.
 - Its local targets are `build`, `test`, `check`, `verify`, and `certify`.
+
+## Links
+
+- [[MCP Tool Intent Taxonomy]]
+- [[Developer Command Workflow]]
+- [[Zig Template MCP and Makefile Policy]]

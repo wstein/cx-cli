@@ -95,3 +95,6 @@ The source repo owns packaging and formula generation. The release workflow shou
 - `.github/workflows/release.yml`
 - `docs/RELEASE_CHECKLIST.md`
 - `notes/Homebrew Tap.md`
+- [[Homebrew Tap]]
+- [[npm Package Tarball]]
+- [[npm Package Page]]

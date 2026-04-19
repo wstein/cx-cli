@@ -25,3 +25,6 @@ quick while making the release path explicit and repeatable.
 - `README.md`
 - `docs/MANUAL.md`
 - `docs/RELEASE_CHECKLIST.md`
+- [[CLI Command Lifecycle]]
+- [[GitHub Actions Triggers]]
+- [[Test Strategy Hardening]]

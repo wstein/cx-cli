@@ -14,3 +14,6 @@ The release workflow computes the Homebrew SHA-256 from a local `npm pack` tarba
 - `scripts/generate-homebrew-formula.js`
 - `notes/Homebrew Tap Automation.md`
 - `package.json`
+- [[Homebrew Tap Automation]]
+- [[Homebrew Tap]]
+- [[npm Package Page]]

@@ -13,3 +13,6 @@ The release workflow publishes the packed tarball to this package before generat
 
 - `package.json`
 - `notes/Homebrew Tap Automation.md`
+- [[npm Package Tarball]]
+- [[Homebrew Tap Automation]]
+- [[cx-cli GitHub Repository]]

@@ -13,3 +13,9 @@ language-specific environment.
 - The default MCP overlay is source-first and excludes Zig cache and output
   directories.
 - Its local targets are `build`, `test`, `verify`, and `certify`.
+
+## Links
+
+- [[MCP Tool Intent Taxonomy]]
+- [[Developer Command Workflow]]
+- [[Rust Template MCP and Makefile Policy]]

@@ -63,3 +63,6 @@ Making conflicts visible ensures config inheritance is:
 
 - [mergeConfigs function](../src/config/merge.ts)
 - [ARCHITECTURE.md - Config Safety section](../docs/ARCHITECTURE.md)
+- [[Config Inheritance and Overlays]]
+- [[Environment Variable Resolution]]
+- [[Section Ownership and Overlaps]]

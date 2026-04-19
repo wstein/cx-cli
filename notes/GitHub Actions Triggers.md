@@ -21,3 +21,6 @@ automation to continue from a CI-triggered run.
 - `.github/workflows/ci.yml`
 - `.github/workflows/release.yml`
 - `.github/workflows/publish-schemas.yml`
+- [[Developer Command Workflow]]
+- [[Homebrew Tap Automation]]
+- [[Test Strategy Hardening]]

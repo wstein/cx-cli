@@ -13,3 +13,6 @@ The published `@wsmy/cx-cli` package depends on the forked adapter for determini
 
 - `package.json`
 - `README.md`
+- [[Repomix Adapter Boundary]]
+- [[Structured Render Contract]]
+- [[cx-cli GitHub Repository]]

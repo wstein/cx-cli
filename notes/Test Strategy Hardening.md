@@ -73,3 +73,6 @@ they needed to be.
 - [[src/notes/validate.ts]]
 - [[tests/unit/configLoad.property.test.ts]]
 - [[tests/mcp/server.run.test.ts]]
+- [[Developer Command Workflow]]
+- [[GitHub Actions Triggers]]
+- [[Config Merge Model]]
