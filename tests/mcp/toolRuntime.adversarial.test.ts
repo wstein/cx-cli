@@ -1,7 +1,8 @@
 // test-lane: adversarial
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { DEFAULT_POLICY } from "../../src/mcp/policy.js";
+import type { AuditLogger } from "../../src/mcp/audit.js";
+import { DEFAULT_POLICY, UNRESTRICTED_POLICY } from "../../src/mcp/policy.js";
 import { registerCxMcpTool } from "../../src/mcp/tools/register.js";
 import type { CxMcpWorkspace } from "../../src/mcp/workspace.js";
 
@@ -12,11 +13,20 @@ const TEST_TOOL = {
   capability: "read",
 } as const;
 
-function createWorkspace(): CxMcpWorkspace {
+const TEST_MUTATION_TOOL = {
+  name: "replace_repomix_span",
+  capability: "mutate",
+} as const;
+
+function createWorkspace(options?: {
+  policy?: CxMcpWorkspace["policy"];
+  auditLogger?: AuditLogger;
+}): CxMcpWorkspace {
   return {
     config: {} as never,
     sourceRoot: ".",
-    policy: DEFAULT_POLICY,
+    policy: options?.policy ?? DEFAULT_POLICY,
+    ...(options?.auditLogger ? { auditLogger: options.auditLogger } : {}),
     resolveMasterList: async () => [],
   };
 }
@@ -162,5 +172,112 @@ describe("registerCxMcpTool runtime hardening", () => {
     await expect(capture.getHandler()({})).rejects.toThrow(
       "interrupted stream payload",
     );
+  });
+
+  test("short-circuits malformed args when policy denies mutate capability", async () => {
+    const capture = createCaptureServer();
+    const handler = mock(async () => ({
+      content: [{ type: "text", text: "should never run" }],
+    }));
+
+    registerCxMcpTool(
+      capture.server,
+      createWorkspace({
+        policy: DEFAULT_POLICY,
+      }),
+      TEST_MUTATION_TOOL,
+      {
+        title: "Replace source span",
+        description: "Mutate source content",
+        inputSchema: {},
+      },
+      handler,
+    );
+
+    await expect(
+      capture.getHandler()({
+        path: 17,
+        startLine: "invalid",
+      }),
+    ).rejects.toThrow("Access denied");
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  test("records allowed audit entries even when runtime fails mid-execution", async () => {
+    const capture = createCaptureServer();
+    const logToolAccess = mock(async () => {});
+    const auditLogger = { logToolAccess } as unknown as AuditLogger;
+
+    registerCxMcpTool(
+      capture.server,
+      createWorkspace({
+        policy: UNRESTRICTED_POLICY,
+        auditLogger,
+      }),
+      TEST_MUTATION_TOOL,
+      {
+        title: "Replace source span",
+        description: "Mutate source content",
+        inputSchema: {},
+      },
+      async () => {
+        throw new Error("tool handler interrupted after partial output");
+      },
+    );
+
+    await expect(
+      capture.getHandler()({
+        path: "src/index.ts",
+        startLine: 1,
+        endLine: 1,
+        replacement: "export const value = 2;",
+      }),
+    ).rejects.toThrow("tool handler interrupted after partial output");
+
+    expect(logToolAccess).toHaveBeenCalledTimes(1);
+    expect(logToolAccess.mock.calls[0]?.[0]).toBe("replace_repomix_span");
+    expect(logToolAccess.mock.calls[0]?.[1]).toBe("mutate");
+    expect(logToolAccess.mock.calls[0]?.[2]).toBe(true);
+    expect(typeof logToolAccess.mock.calls[0]?.[3]).toBe("string");
+  });
+
+  test("times out interrupted mutation tools with single audit decision logging", async () => {
+    const capture = createCaptureServer();
+    const logToolAccess = mock(async () => {});
+    const auditLogger = { logToolAccess } as unknown as AuditLogger;
+
+    registerCxMcpTool(
+      capture.server,
+      createWorkspace({
+        policy: UNRESTRICTED_POLICY,
+        auditLogger,
+      }),
+      TEST_MUTATION_TOOL,
+      {
+        title: "Replace source span",
+        description: "Mutate source content",
+        inputSchema: {},
+      },
+      () =>
+        new Promise<never>(() => {
+          // Intentionally unresolved to simulate an interrupted runtime.
+        }),
+      {
+        toolTimeoutMs: 20,
+      },
+    );
+
+    await expect(
+      capture.getHandler()({
+        path: "src/index.ts",
+        startLine: 1,
+        endLine: 1,
+        replacement: "export const value = 3;",
+      }),
+    ).rejects.toThrow('MCP tool "replace_repomix_span" timed out after 20ms');
+
+    expect(logToolAccess).toHaveBeenCalledTimes(1);
+    expect(logToolAccess.mock.calls[0]?.[0]).toBe("replace_repomix_span");
+    expect(logToolAccess.mock.calls[0]?.[2]).toBe(true);
   });
 });
