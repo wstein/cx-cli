@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { runAdapterCommand } from "../../src/cli/commands/adapter.js";
 import { runRenderCommand } from "../../src/cli/commands/render.js";
+import { CX_DISPLAY_VERSION, CX_VERSION } from "../../src/shared/version.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
@@ -222,6 +223,7 @@ describe("adapter command", () => {
 
     const output = capture.stdout();
     expect(output).toContain("cx version");
+    expect(output).toContain(CX_DISPLAY_VERSION);
     expect(output).toContain("Repomix version");
     expect(output).toContain("xml");
   });
@@ -242,7 +244,7 @@ describe("adapter command", () => {
       capabilities?: { styles?: string[] };
     }>(capture.stdout());
 
-    expect(payload.cx?.version).toBeDefined();
+    expect(payload.cx?.version).toBe(CX_VERSION);
     expect(payload.capabilities?.styles).toContain("xml");
   });
 

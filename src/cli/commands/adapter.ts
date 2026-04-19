@@ -16,6 +16,7 @@ import {
   writeStdout,
   writeValidatedJson,
 } from "../../shared/output.js";
+import { CX_DISPLAY_VERSION, CX_VERSION } from "../../shared/version.js";
 import {
   AdapterCapabilitiesJsonSchema,
   AdapterDoctorJsonSchema,
@@ -71,7 +72,7 @@ async function runAdapterCapabilities(
 
   const payload = {
     cx: {
-      version: "0.1.0",
+      version: CX_VERSION,
     },
     repomix: {
       packageName: runtimeInfo.packageName,
@@ -93,7 +94,7 @@ async function runAdapterCapabilities(
   if (args.json ?? false) {
     writeValidatedJson(AdapterCapabilitiesJsonSchema, payload, io);
   } else {
-    writeStdout(`cx version:                ${payload.cx.version}\n`, io);
+    writeStdout(`cx version:                ${CX_DISPLAY_VERSION}\n`, io);
     writeStdout(
       `Repomix package:           ${payload.repomix.packageName}\n`,
       io,
