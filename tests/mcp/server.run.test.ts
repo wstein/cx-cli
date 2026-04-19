@@ -1,9 +1,9 @@
 // test-lane: adversarial
-import { afterEach, describe, expect, mock, test } from "bun:test";
+
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { loadCxConfig } from "../../src/config/load.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { createWorkspace as createTestWorkspace } from "../helpers/workspace/createWorkspace.js";
@@ -11,7 +11,11 @@ import { createWorkspace as createTestWorkspace } from "../helpers/workspace/cre
 const execFileAsync = promisify(execFile);
 
 afterEach(() => {
-  mock.restore();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.resetModules();
 });
 
 async function initGitRepo(root: string): Promise<void> {
@@ -65,8 +69,8 @@ async function createWorkspace(): Promise<{
 
 describe("runCxMcpServer", () => {
   test("connects and exits cleanly on success", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -79,7 +83,7 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
+      const exit = vi.fn(() => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
       await runCxMcpServer(project.mcpPath, config, {
@@ -97,10 +101,10 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when connect fails", async () => {
-    const connect = mock(async () => {
+    const connect = vi.fn(async () => {
       throw new Error("connect failed");
     });
-    const close = mock(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -113,8 +117,8 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
       await runCxMcpServer(project.mcpPath, config, {
@@ -138,13 +142,13 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when connect hangs beyond timeout", async () => {
-    const connect = mock(
+    const connect = vi.fn(
       () =>
         new Promise<void>(() => {
           // Intentionally unresolved to simulate a stalled boundary handshake.
         }),
     );
-    const close = mock(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -157,8 +161,8 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
       await runCxMcpServer(project.mcpPath, config, {
@@ -182,13 +186,13 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when delayed connect failure arrives before timeout", async () => {
-    const connect = mock(
+    const connect = vi.fn(
       () =>
         new Promise<void>((_resolve, reject) => {
           setTimeout(() => reject(new Error("delayed startup failure")), 25);
         }),
     );
-    const close = mock(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -201,8 +205,8 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
       await runCxMcpServer(project.mcpPath, config, {
@@ -227,10 +231,10 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 with structured reason when connect rejects a non-Error payload", async () => {
-    const connect = mock(async () => {
+    const connect = vi.fn(async () => {
       throw { stage: "handshake", detail: "malformed startup payload" };
     });
-    const close = mock(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -243,8 +247,8 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
 
       await runCxMcpServer(project.mcpPath, config, {
@@ -269,8 +273,8 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when post-connect readiness check fails after connect resolves", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -283,9 +287,9 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
-      const postConnectCheck = mock(async () => {
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
+      const postConnectCheck = vi.fn(async () => {
         throw new Error(
           "startup state incomplete: capabilities snapshot missing",
         );
@@ -315,8 +319,8 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when post-connect readiness check hangs beyond timeout", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -329,9 +333,9 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
-      const postConnectCheck = mock(
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
+      const postConnectCheck = vi.fn(
         () =>
           new Promise<void>(() => {
             // Intentionally unresolved to simulate fragmented runtime startup.
@@ -362,8 +366,8 @@ describe("runCxMcpServer", () => {
   });
 
   test("exits 1 when delayed fragmented runtime payload fails post-connect checks", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -376,9 +380,9 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
-      const postConnectCheck = mock(
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
+      const postConnectCheck = vi.fn(
         () =>
           new Promise<void>((_resolve, reject) => {
             setTimeout(
@@ -418,8 +422,8 @@ describe("runCxMcpServer", () => {
   });
 
   test("formats non-Error post-connect failures with primitive reasons", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -432,9 +436,9 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
-      const postConnectCheck = mock(async () => {
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
+      const postConnectCheck = vi.fn(async () => {
         throw "degraded startup payload";
       });
       const { runCxMcpServer } = await import("../../src/mcp/server.js");
@@ -461,8 +465,8 @@ describe("runCxMcpServer", () => {
   });
 
   test("serializes structured fragmented runtime payload failures", async () => {
-    const connect = mock(async () => {});
-    const close = mock(async () => {});
+    const connect = vi.fn(async () => {});
+    const close = vi.fn(async () => {});
     const proto = McpServer.prototype as unknown as {
       connect: typeof connect;
       close: typeof close;
@@ -475,9 +479,9 @@ describe("runCxMcpServer", () => {
     try {
       const project = await createWorkspace();
       const config = await loadCxConfig(project.mcpPath);
-      const exit = mock(() => {});
-      const stderr = mock((_message: string) => {});
-      const postConnectCheck = mock(async () => {
+      const exit = vi.fn(() => {});
+      const stderr = vi.fn((_message: string) => {});
+      const postConnectCheck = vi.fn(async () => {
         throw {
           stage: "runtime",
           detail: "fragmented tool-result payload",

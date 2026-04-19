@@ -1,8 +1,9 @@
 // test-lane: unit
-import { afterEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, describe, expect, test } from "vitest";
 
 import {
   type CurrentBehaviorSnapshot,
@@ -68,7 +69,7 @@ describe("manifest lock helpers", () => {
     await writeLock(tmpDir, "demo-project", lock);
 
     const filePath = path.join(tmpDir, lockFileName("demo-project"));
-    expect(filePath).toEndWith("demo-project-lock.json");
+    expect(filePath.endsWith("demo-project-lock.json")).toBe(true);
     expect(JSON.parse(await fs.readFile(filePath, "utf8"))).toEqual(lock);
     await expect(readLock(tmpDir, "demo-project")).resolves.toEqual(lock);
   });

@@ -1,6 +1,7 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { main } from "../../src/cli/main.js";
 import { createProject } from "../bundle/helpers.js";

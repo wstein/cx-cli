@@ -1,5 +1,5 @@
 // test-lane: contract
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   MANIFEST_SCHEMA_VERSION,
   parseManifestJson,

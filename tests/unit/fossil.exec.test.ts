@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 describe("Fossil exec wrapper", () => {
   test("detectFossil and getFossilState shell out with the expected options", async () => {

@@ -1,8 +1,9 @@
 // test-lane: integration
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { DEFAULT_BEHAVIOR_VALUES } from "../../src/config/defaults.js";
 import type { CxConfig } from "../../src/config/types.js";
 import { enrichPlanWithLinkedNotes } from "../../src/notes/planner.js";

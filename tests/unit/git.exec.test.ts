@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 describe("Git exec wrapper", () => {
   test("detectGit and getGitState use the expected git options", async () => {

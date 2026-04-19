@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { mergeConfigs, validateMergeConfig } from "../../src/config/merge.js";
 
 describe("Config Merge Safety", () => {

@@ -1,6 +1,7 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { loadCxConfig } from "../../src/config/load.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { buildOverlayConfig } from "../helpers/config/buildOverlayConfig.js";

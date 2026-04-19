@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { CxConfig } from "../../src/config/types.js";
 import {
   analyzeSectionOverlaps,

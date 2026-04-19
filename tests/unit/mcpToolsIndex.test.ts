@@ -1,7 +1,8 @@
 // test-lane: unit
-import { afterEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { loadCxConfig } from "../../src/config/load.js";
 import { DEFAULT_POLICY } from "../../src/mcp/policy.js";

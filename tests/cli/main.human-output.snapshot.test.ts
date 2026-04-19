@@ -1,6 +1,7 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import packageJson from "../../package.json" with { type: "json" };
 import { main } from "../../src/cli/main.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";

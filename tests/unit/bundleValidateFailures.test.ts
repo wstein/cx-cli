@@ -1,6 +1,7 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { validateBundle } from "../../src/bundle/validate.js";
 import type { CxManifest } from "../../src/manifest/types.js";
 

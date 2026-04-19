@@ -1,8 +1,9 @@
 // test-lane: unit
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { runDoctorCommand } from "../../src/cli/commands/doctor.js";
 import { CxError } from "../../src/shared/errors.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";

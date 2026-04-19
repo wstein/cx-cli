@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { runAuditCommand } from "../../src/cli/commands/audit.js";
 import { CxError } from "../../src/shared/errors.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";

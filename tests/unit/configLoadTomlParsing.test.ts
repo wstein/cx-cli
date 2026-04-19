@@ -1,7 +1,8 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import type { CxEnvOverrides } from "../../src/config/env.js";
 import { loadCxConfigFromTomlString } from "../../src/config/load.js";
 

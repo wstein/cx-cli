@@ -1,6 +1,7 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 
 import { enforceToolAccess } from "../../src/mcp/enforce.js";
 import { DEFAULT_POLICY } from "../../src/mcp/policy.js";

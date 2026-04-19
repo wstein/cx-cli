@@ -1,7 +1,8 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, it } from "vitest";
 import { AuditLogger } from "../../src/mcp/audit.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 

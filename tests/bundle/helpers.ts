@@ -1,8 +1,8 @@
-import { expect } from "bun:test";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+import { expect } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { sha256File } from "../../src/shared/hashing.js";

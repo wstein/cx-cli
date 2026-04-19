@@ -1,10 +1,11 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { describe, expect, test } from "vitest";
 import { main } from "../../src/cli/main.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";

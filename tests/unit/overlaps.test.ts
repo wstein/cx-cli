@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { CxConfig, CxSectionConfig } from "../../src/config/types.js";
 import {
   compileMatchers,

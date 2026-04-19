@@ -1,6 +1,10 @@
 // test-lane: adversarial
-import { afterEach, describe, expect, mock, test } from "bun:test";
+
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import {
@@ -12,90 +16,45 @@ import {
   renderSectionWithRepomix,
 } from "../../src/repomix/render.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
-import { createRenderFixture } from "./helpers.js";
+import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
+const mockAdapterDirs: string[] = [];
 
-function installMockAdapter(
-  specifier: string,
-  exports: Record<string, unknown>,
-): void {
-  mock.module(specifier, () => exports);
-  mock.module(`${specifier}/package.json`, () => ({
-    default: {
-      name: specifier,
-      version: "0.0.0-test",
-    },
-  }));
-  setAdapterPath(specifier);
+async function installMockAdapter(options: {
+  withPackStructured: boolean;
+  withRenderWithMap: boolean;
+  withPack: boolean;
+}): Promise<void> {
+  const adapterDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), "cx-repomix-adapter-"),
+  );
+  mockAdapterDirs.push(adapterDir);
+  await writeMockRepomixAdapter(adapterDir, options);
+  setAdapterPath(pathToFileURL(path.join(adapterDir, "index.js")).href);
 }
 
-afterEach(() => {
-  mock.restore();
+afterEach(async () => {
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.resetModules();
   setAdapterPath(DEFAULT_ADAPTER_PATH);
+  await Promise.all(
+    mockAdapterDirs
+      .splice(0)
+      .map((dir) => fs.rm(dir, { recursive: true, force: true })),
+  );
 });
 
 describe("Repomix adapter fallback behavior", () => {
   test("captures output spans for markdown and plain styles when renderWithMap is available", async () => {
     const fixture = await createRenderFixture();
-    installMockAdapter("repomix-test/with-map", {
-      mergeConfigs(
-        rootDir: string,
-        _fileConfig: unknown,
-        cliConfig: Record<string, unknown>,
-      ) {
-        return {
-          cwd: rootDir,
-          ...cliConfig,
-          output: { ...(cliConfig.output as Record<string, unknown>) },
-          tokenCount: {
-            ...((cliConfig.tokenCount as Record<string, unknown>) ?? {}),
-          },
-        };
-      },
-      async packStructured(
-        _rootDirs: string[],
-        config: { output: { style: string } },
-      ) {
-        const output =
-          config.output.style === "markdown"
-            ? "## File: src/index.ts\n```text\nalpha\nbeta\n```\n"
-            : config.output.style === "plain"
-              ? "================\nFile: src/index.ts\n================\nalpha\nbeta\n"
-              : '<file path="src/index.ts">\nalpha\nbeta\n</file>\n';
-
-        return {
-          entries: [
-            {
-              path: "src/index.ts",
-              content: "alpha\nbeta\n",
-              metadata: { tokenCount: 7 },
-            },
-          ],
-          render: async (style: string) =>
-            style === "markdown"
-              ? "## File: src/index.ts\n```text\nalpha\nbeta\n```\n"
-              : style === "plain"
-                ? "================\nFile: src/index.ts\n================\nalpha\nbeta\n"
-                : '<file path="src/index.ts">\nalpha\nbeta\n</file>\n',
-          renderWithMap: async (style: string) => ({
-            output:
-              style === "markdown"
-                ? "## File: src/index.ts\n```text\nalpha\nbeta\n```\n"
-                : style === "plain"
-                  ? "================\nFile: src/index.ts\n================\nalpha\nbeta\n"
-                  : '<file path="src/index.ts">\nalpha\nbeta\n</file>\n',
-            files: [
-              {
-                path: "src/index.ts",
-                startOffset: 0,
-                endOffset: output.length,
-                startLine: 1,
-              },
-            ],
-          }),
-        };
-      },
+    await installMockAdapter({
+      withPackStructured: true,
+      withRenderWithMap: true,
+      withPack: false,
     });
 
     const markdownResult = await renderSectionWithRepomix({
@@ -129,34 +88,10 @@ describe("Repomix adapter fallback behavior", () => {
 
   test("warns when output spans are unavailable and fails when they are required", async () => {
     const fixture = await createRenderFixture();
-    installMockAdapter("repomix-test/no-map", {
-      mergeConfigs(
-        rootDir: string,
-        _fileConfig: unknown,
-        cliConfig: Record<string, unknown>,
-      ) {
-        return {
-          cwd: rootDir,
-          ...cliConfig,
-          output: { ...(cliConfig.output as Record<string, unknown>) },
-          tokenCount: {
-            ...((cliConfig.tokenCount as Record<string, unknown>) ?? {}),
-          },
-        };
-      },
-      async packStructured() {
-        return {
-          entries: [
-            {
-              path: "src/index.ts",
-              content: "alpha\nbeta\n",
-              metadata: { tokenCount: 7 },
-            },
-          ],
-          render: async () =>
-            "## File: src/index.ts\n```text\nalpha\nbeta\n```\n",
-        };
-      },
+    await installMockAdapter({
+      withPackStructured: true,
+      withRenderWithMap: false,
+      withPack: false,
     });
 
     const capture = createBufferedCommandIo();
@@ -191,21 +126,10 @@ describe("Repomix adapter fallback behavior", () => {
 
   test("throws when neither packStructured nor pack is available", async () => {
     const fixture = await createRenderFixture();
-    installMockAdapter("repomix-test/no-pack", {
-      mergeConfigs(
-        rootDir: string,
-        _fileConfig: unknown,
-        cliConfig: Record<string, unknown>,
-      ) {
-        return {
-          cwd: rootDir,
-          ...cliConfig,
-          output: { ...(cliConfig.output as Record<string, unknown>) },
-          tokenCount: {
-            ...((cliConfig.tokenCount as Record<string, unknown>) ?? {}),
-          },
-        };
-      },
+    await installMockAdapter({
+      withPackStructured: false,
+      withRenderWithMap: false,
+      withPack: false,
     });
 
     await expect(
@@ -224,43 +148,10 @@ describe("Repomix adapter fallback behavior", () => {
 
   test("bundling requires structured rendering for normalized content hashes", async () => {
     const fixture = await createRenderFixture();
-    installMockAdapter("repomix-test/pack-only-bundle", {
-      mergeConfigs(
-        rootDir: string,
-        _fileConfig: unknown,
-        cliConfig: Record<string, unknown>,
-      ) {
-        return {
-          cwd: rootDir,
-          ...cliConfig,
-          output: { ...(cliConfig.output as Record<string, unknown>) },
-          tokenCount: {
-            ...((cliConfig.tokenCount as Record<string, unknown>) ?? {}),
-          },
-        };
-      },
-      async pack(
-        rootDirs: string[],
-        config: { output: { filePath: string } },
-        _progress: unknown,
-        _options: unknown,
-        explicitFiles: string[],
-      ) {
-        const fs = await import("node:fs/promises");
-        const lines: string[] = [];
-        for (const filePath of explicitFiles) {
-          const content = await fs.readFile(filePath, "utf8");
-          const relativePath = path
-            .relative(rootDirs[0] as string, filePath)
-            .replaceAll("\\\\", "/");
-          lines.push(`<file path="${relativePath}">\n${content}</file>`);
-        }
-        await fs.writeFile(
-          config.output.filePath,
-          `<files>\n${lines.join("\n")}\n</files>\n`,
-          "utf8",
-        );
-      },
+    await installMockAdapter({
+      withPackStructured: false,
+      withRenderWithMap: false,
+      withPack: true,
     });
 
     const capture = createBufferedCommandIo();
@@ -294,43 +185,10 @@ describe("Repomix adapter fallback behavior", () => {
         },
       },
     });
-    installMockAdapter("repomix-test/pack-only-render", {
-      mergeConfigs(
-        rootDir: string,
-        _fileConfig: unknown,
-        cliConfig: Record<string, unknown>,
-      ) {
-        return {
-          cwd: rootDir,
-          ...cliConfig,
-          output: { ...(cliConfig.output as Record<string, unknown>) },
-          tokenCount: {
-            ...((cliConfig.tokenCount as Record<string, unknown>) ?? {}),
-          },
-        };
-      },
-      async pack(
-        rootDirs: string[],
-        config: { output: { filePath: string } },
-        _progress: unknown,
-        _options: unknown,
-        explicitFiles: string[],
-      ) {
-        const fs = await import("node:fs/promises");
-        const lines: string[] = [];
-        for (const filePath of explicitFiles) {
-          const content = await fs.readFile(filePath, "utf8");
-          const relativePath = path
-            .relative(rootDirs[0] as string, filePath)
-            .replaceAll("\\\\", "/");
-          lines.push(`<file path="${relativePath}">\n${content}</file>`);
-        }
-        await fs.writeFile(
-          config.output.filePath,
-          `<files>\n${lines.join("\n")}\n</files>\n`,
-          "utf8",
-        );
-      },
+    await installMockAdapter({
+      withPackStructured: false,
+      withRenderWithMap: false,
+      withPack: true,
     });
 
     const result = await renderSectionWithRepomix({

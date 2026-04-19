@@ -1,8 +1,9 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { assemblePagesSite } from "../../scripts/assemble-pages-site.js";
 
 async function makeFixtureRoot(): Promise<string> {

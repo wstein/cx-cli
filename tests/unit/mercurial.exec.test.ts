@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 describe("Mercurial exec wrapper", () => {
   test("detectHg and getHgState use the expected hg options", async () => {

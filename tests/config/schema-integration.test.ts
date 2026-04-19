@@ -1,11 +1,12 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import { exec } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { parse as parseToml } from "smol-toml";
+import { describe, expect, test } from "vitest";
 import { main } from "../../src/cli/main.js";
 import { loadCxConfig } from "../../src/config/load.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
@@ -450,27 +451,25 @@ exclude = []
     );
   });
 
-  test(
-    "init templates are included in dist after build",
-    async () => {
-      const root = process.cwd();
-      const distPath = path.join(root, "dist", "src", "templates", "init");
-      await fs.rm(path.join(root, "dist"), { recursive: true, force: true });
+  test("init templates are included in dist after build", {
+    timeout: 10000,
+  }, async () => {
+    const root = process.cwd();
+    const distPath = path.join(root, "dist", "src", "templates", "init");
+    await fs.rm(path.join(root, "dist"), { recursive: true, force: true });
 
-      const execAsync = promisify(exec);
-      const { stdout } = await execAsync("bun run build", { cwd: root });
-      expect(stdout).toContain("Copied init templates from");
+    const execAsync = promisify(exec);
+    const { stdout } = await execAsync("bun run build", { cwd: root });
+    expect(stdout).toContain("Copied init templates from");
 
-      const makefileExists = await fs
-        .access(path.join(distPath, "base", "Makefile.hbs"))
-        .then(
-          () => true,
-          () => false,
-        );
-      expect(makefileExists).toBe(true);
-    },
-    { timeout: 10000 },
-  );
+    const makefileExists = await fs
+      .access(path.join(distPath, "base", "Makefile.hbs"))
+      .then(
+        () => true,
+        () => false,
+      );
+    expect(makefileExists).toBe(true);
+  });
 
   test("generated cx.toml is accepted by load.ts", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-full-flow-"));

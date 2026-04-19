@@ -1,8 +1,9 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 
 import { runAdapterCommand } from "../../src/cli/commands/adapter.js";
 import { runRenderCommand } from "../../src/cli/commands/render.js";

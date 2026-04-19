@@ -10,8 +10,8 @@
  * version numbers and asserting CxError is thrown before any field is read.
  */
 
-import { describe, expect, test } from "bun:test";
 import * as fc from "fast-check";
+import { describe, expect, test } from "vitest";
 
 import {
   MANIFEST_SCHEMA_VERSION,

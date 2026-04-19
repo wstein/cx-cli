@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import {
   checkToolAccess,
   DEFAULT_POLICY,

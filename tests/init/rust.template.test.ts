@@ -1,5 +1,5 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { generateTemplateWorkspace } from "./templateHarness.js";
 
 describe("rust init template", () => {

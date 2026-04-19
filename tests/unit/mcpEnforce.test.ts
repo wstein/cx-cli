@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it, vi } from "vitest";
 
 import type { AuditLogger } from "../../src/mcp/audit.js";
 import {
@@ -31,7 +31,7 @@ describe("enforceToolAccess", () => {
   });
 
   it("logs denied decisions before throwing", async () => {
-    const logToolAccess = mock(async () => {});
+    const logToolAccess = vi.fn(async () => {});
     const logger = {
       logToolAccess,
     } as unknown as AuditLogger;

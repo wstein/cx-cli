@@ -1,5 +1,5 @@
 // test-lane: unit
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   printWizardComplete,
   printWizardHeader,
@@ -22,7 +22,12 @@ describe("shared wizard utilities", () => {
   });
 
   afterEach(() => {
-    mock.restore();
+    vi.doUnmock("@inquirer/prompts");
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
   });
 
   test("printWizardHeader renders a title block", () => {
@@ -54,17 +59,17 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardInput forwards defaults and descriptions to the prompt", async () => {
-    const inputMock = mock(
+    const inputMock = vi.fn(
       async (_options: { message: string; default: string }) => "typed answer",
     );
 
-    mock.module("@inquirer/prompts", () => ({
+    vi.doMock("@inquirer/prompts", () => ({
       input: inputMock,
-      select: mock(async (_options: { message: string }) => "unused"),
-      confirm: mock(
+      select: vi.fn(async (_options: { message: string }) => "unused"),
+      confirm: vi.fn(
         async (_options: { message: string; default: boolean }) => true,
       ),
-      checkbox: mock(
+      checkbox: vi.fn(
         async (_options: {
           message: string;
           choices: Array<{ name: string; value: unknown }>;
@@ -94,22 +99,22 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardSelect maps choices before prompting", async () => {
-    const selectMock = mock(
+    const selectMock = vi.fn(
       async (_options: {
         message: string;
         choices: Array<{ name: string; value: string }>;
       }) => "two",
     );
 
-    mock.module("@inquirer/prompts", () => ({
-      input: mock(
+    vi.doMock("@inquirer/prompts", () => ({
+      input: vi.fn(
         async (_options: { message: string; default: string }) => "unused",
       ),
       select: selectMock,
-      confirm: mock(
+      confirm: vi.fn(
         async (_options: { message: string; default: boolean }) => true,
       ),
-      checkbox: mock(
+      checkbox: vi.fn(
         async (_options: {
           message: string;
           choices: Array<{ name: string; value: unknown }>;
@@ -138,17 +143,17 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardConfirm respects default values", async () => {
-    const confirmMock = mock(
+    const confirmMock = vi.fn(
       async (_options: { message: string; default: boolean }) => false,
     );
 
-    mock.module("@inquirer/prompts", () => ({
-      input: mock(
+    vi.doMock("@inquirer/prompts", () => ({
+      input: vi.fn(
         async (_options: { message: string; default: string }) => "unused",
       ),
-      select: mock(async (_options: { message: string }) => "unused"),
+      select: vi.fn(async (_options: { message: string }) => "unused"),
       confirm: confirmMock,
-      checkbox: mock(
+      checkbox: vi.fn(
         async (_options: {
           message: string;
           choices: Array<{ name: string; value: unknown }>;
@@ -176,19 +181,19 @@ describe("shared wizard utilities", () => {
   });
 
   test("wizardCheckbox maps choices and returns selected values", async () => {
-    const checkboxMock = mock(
+    const checkboxMock = vi.fn(
       async (_options: {
         message: string;
         choices: Array<{ name: string; value: string }>;
       }) => ["alpha", "beta"],
     );
 
-    mock.module("@inquirer/prompts", () => ({
-      input: mock(
+    vi.doMock("@inquirer/prompts", () => ({
+      input: vi.fn(
         async (_options: { message: string; default: string }) => "unused",
       ),
-      select: mock(async (_options: { message: string }) => "unused"),
-      confirm: mock(
+      select: vi.fn(async (_options: { message: string }) => "unused"),
+      confirm: vi.fn(
         async (_options: { message: string; default: boolean }) => true,
       ),
       checkbox: checkboxMock,

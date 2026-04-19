@@ -1,8 +1,9 @@
 // test-lane: unit
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import type { CxConfig } from "../../src/config/types.js";
 import { buildMasterList } from "../../src/planning/masterList.js";
 import type { VCSState } from "../../src/vcs/provider.js";

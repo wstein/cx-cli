@@ -1,8 +1,9 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { DEFAULT_BEHAVIOR_VALUES } from "../../src/config/defaults.js";
 import type { CxConfig } from "../../src/config/types.js";
 import { buildBundlePlan } from "../../src/planning/buildPlan.js";

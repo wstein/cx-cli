@@ -1,10 +1,11 @@
 // test-lane: unit
-import { afterEach, describe, expect, mock, test } from "bun:test";
+
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { captureCli } from "../helpers/cli/captureCli.js";
 
 const execFileAsync = promisify(execFile);
@@ -68,21 +69,26 @@ include = ["src/**"]
 }
 
 function installInquirerMock(owner: string): {
-  selectMock: ReturnType<typeof mock>;
+  selectMock: ReturnType<typeof vi.fn>;
 } {
-  const selectMock = mock(async () => owner);
-  mock.module("@inquirer/prompts", () => ({
-    input: mock(async () => "unused"),
+  const selectMock = vi.fn(async () => owner);
+  vi.doMock("@inquirer/prompts", () => ({
+    input: vi.fn(async () => "unused"),
     select: selectMock,
-    confirm: mock(async () => true),
-    checkbox: mock(async () => []),
+    confirm: vi.fn(async () => true),
+    checkbox: vi.fn(async () => []),
   }));
   return { selectMock };
 }
 
 describe("runDoctorCommand coverage helpers", () => {
   afterEach(() => {
-    mock.restore();
+    vi.doUnmock("@inquirer/prompts");
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
   });
 
   test("fix-overlaps interactive path updates the config", async () => {

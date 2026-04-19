@@ -1,7 +1,8 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { runValidateCommand } from "../../src/cli/commands/validate.js";

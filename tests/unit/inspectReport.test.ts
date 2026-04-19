@@ -1,7 +1,8 @@
 // test-lane: unit
-import { afterEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { collectInspectReport } from "../../src/inspect/report.js";

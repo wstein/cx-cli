@@ -1,9 +1,10 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+import { describe, expect, test } from "vitest";
 import { loadCxConfig } from "../../src/config/load.js";
 import { createCxMcpServer } from "../../src/mcp/server.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";

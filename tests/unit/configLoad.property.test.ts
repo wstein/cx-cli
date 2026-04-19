@@ -1,10 +1,10 @@
 // test-lane: unit
-import { describe, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
 import fc from "fast-check";
+import { describe, test } from "vitest";
 
 import { loadCxConfig } from "../../src/config/load.js";
 import type {

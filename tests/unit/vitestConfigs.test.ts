@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { defineCxVitestConfig } from "../../vitest.shared.js";
 
 function getCoverageDirectory(config: unknown): string | undefined {
@@ -14,14 +14,8 @@ function getIncludePatterns(config: unknown): string[] {
   ];
 }
 
-function getBunAlias(config: unknown): string | undefined {
-  const alias = (config as { resolve?: { alias?: Record<string, string> } })
-    .resolve?.alias;
-  return alias?.["bun:test"];
-}
-
 describe("Vitest configuration helpers", () => {
-  test("builds the default coverage lane with Bun test compatibility", () => {
+  test("builds the default coverage lane on the shared native Vitest base", () => {
     const config = defineCxVitestConfig({
       include: [
         "tests/unit/**/*.test.ts",
@@ -33,7 +27,6 @@ describe("Vitest configuration helpers", () => {
       reportsDirectory: "./coverage/vitest",
     });
 
-    expect(getBunAlias(config)).toContain("bun-test-shim.ts");
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest");
     expect(getIncludePatterns(config)).toEqual([
       "tests/unit/**/*.test.ts",
@@ -63,7 +56,6 @@ describe("Vitest configuration helpers", () => {
       },
     );
 
-    expect(getBunAlias(config)).toContain("bun-test-shim.ts");
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest-mcp");
     expect(getIncludePatterns(config)).toEqual([
       "tests/mcp/**/*.test.ts",
@@ -93,7 +85,6 @@ describe("Vitest configuration helpers", () => {
       },
     );
 
-    expect(getBunAlias(config)).toContain("bun-test-shim.ts");
     expect(getCoverageDirectory(config)).toBe(
       "./coverage/vitest-mcp-adversarial",
     );

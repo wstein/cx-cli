@@ -1,9 +1,9 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
-
 import { mergeConfigs, packStructured } from "@wsmy/repomix-cx-fork";
+import { describe, expect, test } from "vitest";
 import {
   getRepomixCapabilities,
   REPOMIX_ADAPTER_CONTRACT,

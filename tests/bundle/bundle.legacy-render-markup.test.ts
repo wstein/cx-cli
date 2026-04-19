@@ -1,7 +1,8 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";

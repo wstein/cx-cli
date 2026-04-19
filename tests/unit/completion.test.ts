@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { renderCompletionScript } from "../../src/cli/completion.js";
 
 describe("Completion Script Generation", () => {

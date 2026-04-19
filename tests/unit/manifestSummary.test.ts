@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 import type { CxManifest, ManifestFileRow } from "../../src/manifest/types.js";
 

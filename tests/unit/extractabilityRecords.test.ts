@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ExtractabilityRecord } from "../../src/extract/resolution.js";
 
 describe("extract resolution utilities", () => {

@@ -1,9 +1,10 @@
 // test-lane: unit
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { runInitCommand } from "../../src/cli/commands/init.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";

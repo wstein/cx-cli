@@ -1,3 +1,8 @@
+import fs from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 /**
  * Repomix adapter capability detection
  * Runtime feature detection instead of semver-based gating
@@ -17,6 +22,7 @@ export interface RepomixCapabilities {
 
 const DEFAULT_ADAPTER = "@wsmy/repomix-cx-fork";
 let _adapterPath: string | undefined;
+const require = createRequire(import.meta.url);
 
 /**
  * Override the Repomix adapter module path.
@@ -29,6 +35,40 @@ export function setAdapterPath(p: string): void {
 /** The effective adapter module path: the override if set, or the default scoped fork. */
 export function getAdapterModulePath(): string {
   return _adapterPath ?? DEFAULT_ADAPTER;
+}
+
+async function findPackageJsonNearAdapter(
+  adapterPath: string,
+): Promise<AdapterRuntimeInfo | undefined> {
+  try {
+    let entryPath: string;
+    if (adapterPath.startsWith("file:")) {
+      entryPath = fileURLToPath(adapterPath);
+    } else if (path.isAbsolute(adapterPath) || adapterPath.startsWith(".")) {
+      entryPath = adapterPath;
+    } else {
+      entryPath = require.resolve(adapterPath);
+    }
+
+    let currentDir = path.dirname(entryPath);
+    while (currentDir !== path.dirname(currentDir)) {
+      const packageJsonPath = path.join(currentDir, "package.json");
+      try {
+        const raw = await fs.readFile(packageJsonPath, "utf8");
+        const parsed = JSON.parse(raw) as { name?: string; version?: string };
+        return {
+          packageName: parsed.name ?? adapterPath,
+          packageVersion: parsed.version ?? "unknown",
+        };
+      } catch {
+        currentDir = path.dirname(currentDir);
+      }
+    }
+  } catch {
+    // Fall through to the caller's fallback.
+  }
+
+  return undefined;
 }
 
 /**
@@ -54,7 +94,10 @@ export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
         packageVersion: pkg.default.version ?? "unknown",
       };
     } catch {
-      // try next
+      const nearbyPackage = await findPackageJsonNearAdapter(p);
+      if (nearbyPackage) {
+        return nearbyPackage;
+      }
     }
   }
 

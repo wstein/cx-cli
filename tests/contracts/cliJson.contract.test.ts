@@ -1,7 +1,8 @@
 // test-lane: contract
-import { afterEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
+import { afterEach, describe, expect, test } from "vitest";
 import { main } from "../../src/cli/main.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";

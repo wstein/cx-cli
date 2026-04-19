@@ -1,9 +1,4 @@
-import { fileURLToPath } from "node:url";
 import { defineConfig, mergeConfig } from "vitest/config";
-
-const bunTestAlias = fileURLToPath(
-  new URL("./tests/helpers/vitest/bun-test-shim.ts", import.meta.url),
-);
 
 const coverageExclude = [
   "dist/**",
@@ -15,11 +10,6 @@ const coverageExclude = [
 ];
 
 const baseConfig = defineConfig({
-  resolve: {
-    alias: {
-      "bun:test": bunTestAlias,
-    },
-  },
   test: {
     environment: "node",
   },

@@ -1,6 +1,7 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 
 import {
   createNpmPackEnv,

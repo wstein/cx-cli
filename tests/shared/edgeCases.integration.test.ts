@@ -1,8 +1,9 @@
 // test-lane: integration
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { validateNotes } from "../../src/notes/validate.js";
 import { sha256File, sha256Text } from "../../src/shared/hashing.js";
 

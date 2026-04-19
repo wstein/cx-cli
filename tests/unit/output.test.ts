@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 import { writeJson } from "../../src/shared/output.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";

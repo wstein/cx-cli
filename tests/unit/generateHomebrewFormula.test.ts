@@ -1,10 +1,11 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
+
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { describe, expect, test } from "vitest";
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

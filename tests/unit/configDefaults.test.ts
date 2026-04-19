@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT_BEHAVIOR_VALUES,
   DEFAULT_CONFIG_TEMPLATE,

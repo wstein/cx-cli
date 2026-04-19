@@ -1,6 +1,7 @@
 // test-lane: adversarial
-import { afterEach, describe, expect, mock, test } from "bun:test";
+
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import type { AuditLogger } from "../../src/mcp/audit.js";
 import { DEFAULT_POLICY, UNRESTRICTED_POLICY } from "../../src/mcp/policy.js";
 import { registerCxMcpTool } from "../../src/mcp/tools/register.js";
@@ -60,7 +61,11 @@ function createCaptureServer(): {
 }
 
 afterEach(() => {
-  mock.restore();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.resetModules();
 });
 
 describe("registerCxMcpTool runtime hardening", () => {
@@ -178,7 +183,7 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("short-circuits malformed args when policy denies mutate capability", async () => {
     const capture = createCaptureServer();
-    const handler = mock(async () => ({
+    const handler = vi.fn(async () => ({
       content: [{ type: "text", text: "should never run" }],
     }));
 
@@ -207,7 +212,7 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("records allowed audit entries even when runtime fails mid-execution", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = mock(
+    const logToolAccess = vi.fn(
       async (
         _tool: string,
         _capability: string,
@@ -252,7 +257,7 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("times out interrupted mutation tools with single audit decision logging", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = mock(
+    const logToolAccess = vi.fn(
       async (
         _tool: string,
         _capability: string,

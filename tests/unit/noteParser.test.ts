@@ -1,5 +1,5 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import {
   extractNoteSummary,
   parseMarkdownFrontmatter,
@@ -215,7 +215,7 @@ describe("notes parser", () => {
     it("handles body starting with empty lines", () => {
       const content = "---\ntitle: Note\n---\n\n\nBody starts here";
       const result = parseMarkdownFrontmatter(content);
-      expect(result.body).toStartWith("\n");
+      expect(result.body.startsWith("\n")).toBe(true);
     });
 
     it("handles tabs in frontmatter values", () => {

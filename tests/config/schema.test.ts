@@ -1,8 +1,9 @@
 // test-lane: integration
-import { describe, expect, test } from "bun:test";
+
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { describe, expect, test } from "vitest";
 
 import type {
   CxAssetsMode,
