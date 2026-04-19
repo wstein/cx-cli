@@ -86,11 +86,11 @@ if (files.length === 0) {
 }
 
 try {
-  const bunArgs = ["test"];
+  const bunArgs = [];
   if (bunConfig) {
-    bunArgs.push("--config", path.resolve(ROOT, bunConfig));
+    bunArgs.push(`--config=${path.resolve(ROOT, bunConfig)}`);
   }
-  bunArgs.push(...files, ...extraArgs);
+  bunArgs.push("test", ...files, ...extraArgs);
 
   await execa("bun", bunArgs, {
     stdio: "inherit",
