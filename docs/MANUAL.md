@@ -115,7 +115,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - Treat that Vitest lane as the authoritative release-assurance reporting surface. The Bun lanes still prove execution compatibility and remain part of the runtime matrix.
 - `bun run test:bun:regression` mirrors the focused Bun runtime lane used in CI for bundle, CLI, MCP, and Repomix coverage.
 - `bun run test:contracts` runs the contract suite through native Vitest.
-- `bun run test:all` runs the full shared suite through native Vitest.
+- `bun run test:all` runs the full shared suite through native Vitest without collecting coverage.
 - `bun run test:all:full` is the explicit Vitest coverage lane for local release-assurance checks.
 - `bun run pages:build` assembles the public Pages `site/` tree with `/schemas/` and `/coverage/`.
 - `bun run pages:smoke` validates that staged `site/` tree before a workflow publishes it.

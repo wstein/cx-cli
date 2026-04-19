@@ -35,7 +35,8 @@ quick while making the release path explicit and repeatable.
   surfaces without rerunning the whole repository.
 - `bun run test:contracts`, `bun run test:all`, and `bun run test:all:full`
   are native Vitest lanes for the contract suite, the full shared suite, and
-  the authoritative coverage pass.
+  the authoritative coverage pass. `test:all` stays coverage-free so the
+  normal local execution loop does not pay the reporting cost.
 - `verify` runs lint, typecheck, build, the Vitest coverage lane, and the Bun
   compatibility smoke instead of routing repository-wide coverage through Bun.
 

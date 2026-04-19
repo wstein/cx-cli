@@ -185,7 +185,7 @@ The generated notes directory is intentionally part of the repository contract. 
 - `bun run ci:test:coverage` measures the full shared suite through Vitest and publishes the repository coverage artifacts.
 - `bun run test:bun:regression` runs the focused Bun runtime regression lane over `tests/bundle`, `tests/cli`, `tests/mcp`, and `tests/repomix`.
 - `bun run test:contracts` runs the contract suite through Vitest.
-- `bun run test:all` runs the full shared suite through Vitest.
+- `bun run test:all` runs the full shared suite through Vitest without collecting coverage.
 - `bun run test:all:full` runs the authoritative Vitest coverage lane.
 - `bun run test:vitest:mcp` runs the focused MCP-heavy Vitest lane for server, policy, audit, and CLI MCP debugging.
 - `bun run test:vitest:mcp:ui` opens the MCP lane in Vitest UI so you can rerun failures interactively and inspect coverage or import cost inside the MCP stack.

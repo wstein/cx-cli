@@ -14,8 +14,13 @@ function getIncludePatterns(config: unknown): string[] {
   ];
 }
 
+function isCoverageEnabled(config: unknown): boolean | undefined {
+  return (config as { test?: { coverage?: { enabled?: boolean } } }).test
+    ?.coverage?.enabled;
+}
+
 describe("Vitest configuration helpers", () => {
-  test("builds the default coverage lane on the shared native Vitest base", () => {
+  test("keeps the default shared Vitest lane coverage-free", () => {
     const config = defineCxVitestConfig({
       include: [
         "tests/unit/**/*.test.ts",
@@ -28,6 +33,7 @@ describe("Vitest configuration helpers", () => {
     });
 
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest");
+    expect(isCoverageEnabled(config)).toBe(false);
     expect(getIncludePatterns(config)).toEqual([
       "tests/unit/**/*.test.ts",
       "tests/contracts/**/*.test.ts",
@@ -57,6 +63,7 @@ describe("Vitest configuration helpers", () => {
     );
 
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest-mcp");
+    expect(isCoverageEnabled(config)).toBe(false);
     expect(getIncludePatterns(config)).toEqual([
       "tests/mcp/**/*.test.ts",
       "tests/cli/mcp*.test.ts",
@@ -95,5 +102,16 @@ describe("Vitest configuration helpers", () => {
     expect((config as { test?: { name?: string } }).test?.name).toBe(
       "mcp-adversarial-cockpit",
     );
+  });
+
+  test("allows explicit coverage opt-in for reporting lanes", () => {
+    const config = defineCxVitestConfig({
+      include: ["tests/**/*.test.ts"],
+      reportsDirectory: "./coverage/vitest",
+      coverageEnabled: true,
+    });
+
+    expect(getCoverageDirectory(config)).toBe("./coverage/vitest");
+    expect(isCoverageEnabled(config)).toBe(true);
   });
 });

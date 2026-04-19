@@ -32,7 +32,7 @@ export function defineCxVitestConfig(
         test: {
           include: options.include,
           coverage: {
-            enabled: options.coverageEnabled ?? true,
+            enabled: options.coverageEnabled ?? false,
             provider: "v8",
             reporter: ["text", "json-summary", "html", "lcov"],
             reportsDirectory: options.reportsDirectory,

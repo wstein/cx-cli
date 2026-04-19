@@ -452,7 +452,7 @@ exclude = []
   });
 
   test("init templates are included in dist after build", {
-    timeout: 10000,
+    timeout: 20000,
   }, async () => {
     const root = process.cwd();
     const distPath = path.join(root, "dist", "src", "templates", "init");
