@@ -6,6 +6,7 @@ Use this short checklist when cutting a release.
 
 - Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, Repomix fork compatibility smoke, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
 - The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
+- The Pages publish now assembles one site tree with `/schemas/` and `/coverage/`; successful `main` CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.
 - If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.
 - If the Pages branch does not exist yet, let the publish workflow create `gh-pages` on the next run.
 - GitHub Pages must be configured in repository settings to serve from the `gh-pages` branch.

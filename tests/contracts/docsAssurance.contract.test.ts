@@ -28,6 +28,7 @@ describe("docs assurance contract", () => {
 
     expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(rootReadme).toContain("Run `cx mcp`");
+    expect(rootReadme).toContain("https://wstein.github.io/cx-cli/coverage/");
     expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
     expect(docsIndex).toContain("[SYSTEM_MAP.md](./SYSTEM_MAP.md)");
     expect(docsIndex).toContain("[SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md)");
@@ -71,6 +72,7 @@ describe("docs assurance contract", () => {
       "Need durable design memory? Use `cx notes`.",
     );
     expect(manual).toContain("See: [OPERATING_MODES.md](OPERATING_MODES.md)");
+    expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
     expect(operatingModes).toContain(
       "See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)",
     );

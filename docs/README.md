@@ -2,7 +2,7 @@
 
 Use this directory as the map for the documentation set.
 
-Schema publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), which keeps the public GitHub Pages host and release mirror aligned with the checked-in `schemas/` files.
+Schema and coverage publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), which keeps the public GitHub Pages host and release mirror aligned with the checked-in `schemas/` files and the successful `main` CI proof path.
 Developer command conventions for `make test`, `make verify`, and `make release` live in the repository notes and the operator manual.
 The MCP surface is tiered rather than blanket-experimental: use [STABILITY.md](./STABILITY.md) for the stable subset and [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) for client-facing setup guidance.
 

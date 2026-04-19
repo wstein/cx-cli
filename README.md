@@ -58,6 +58,7 @@ It also scaffolds repository notes and exposes graph-oriented note commands so t
 - [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the permanent repository knowledge layer
 - [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
+- [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `main` CI
 
 Notes governance lane: run `bun run ci:notes:governance` to make the cognition-layer gate visible outside the docs set.
 
