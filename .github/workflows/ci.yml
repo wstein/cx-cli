@@ -32,8 +32,8 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Run deterministic test lane
-        run: bun run ci:test:all
+      - name: Run fast unit test lane
+        run: bun run ci:test:fast
 
   test-contracts:
     runs-on: ubuntu-latest

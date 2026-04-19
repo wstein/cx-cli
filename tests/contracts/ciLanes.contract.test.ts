@@ -18,10 +18,12 @@ describe("CI lanes contract", () => {
   test("workflow test lanes invoke script-backed Bun commands", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("run: bun run ci:test:fast");
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
+    expect(workflow).not.toContain("bun test tests/unit --timeout");
   });
 
   test("package scripts use deterministic file-list discovery via test-lane.js", async () => {
@@ -31,14 +33,19 @@ describe("CI lanes contract", () => {
     };
 
     const scripts = pkg.scripts ?? {};
+    expect(scripts["test:unit"]).toContain(
+      "node scripts/test-lane.js ./tests/unit",
+    );
     expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
     expect(scripts["test:contracts"]).toContain(
       "node scripts/test-lane.js ./tests/contracts",
     );
+    expect(scripts["ci:test:fast"]).toBe("bun run test:unit");
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
 
     // shell find must not survive in any test-discovery script
+    expect(scripts["test:unit"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
     expect(scripts["test:contracts"]).not.toContain("find ./tests");
   });
