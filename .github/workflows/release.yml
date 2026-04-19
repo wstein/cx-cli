@@ -284,10 +284,17 @@ jobs:
         run: |
           bun run scripts/generate-homebrew-formula.js "${{ needs.tarball.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
 
+      - name: Render GitHub release body
+        env:
+          RELEASE_TAG: ${{ needs.gate.outputs.release_tag }}
+        run: |
+          node -e "const fs=require('fs'); const template=fs.readFileSync('.github/release-body-template.md','utf8'); fs.writeFileSync('tarball-artifacts/release-body.md', template.replaceAll('{{RELEASE_TAG}}', process.env.RELEASE_TAG));"
+
       - name: Publish GitHub release assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.gate.outputs.release_tag }}
+          body_path: tarball-artifacts/release-body.md
           files: |
             tarball-artifacts/*.tgz
             tarball-artifacts/release-integrity.json

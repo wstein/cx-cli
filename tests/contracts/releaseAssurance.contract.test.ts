@@ -98,11 +98,14 @@ describe("release assurance contract", () => {
       "cp dist/release-integrity.json tarball-artifacts/release-integrity.json",
     );
     expect(workflow).toContain("release-assets:");
+    expect(workflow).toContain("Render GitHub release body");
+    expect(workflow).toContain(".github/release-body-template.md");
     expect(workflow).toContain("Publish GitHub release assets");
     expect(workflow).toContain("uses: softprops/action-gh-release@v2");
     expect(workflow).toContain(
       "tag_name: $" + "{{ needs.gate.outputs.release_tag }}",
     );
+    expect(workflow).toContain("body_path: tarball-artifacts/release-body.md");
     expect(workflow).toContain("tarball-artifacts/*.tgz");
     expect(workflow).toContain("tarball-artifacts/release-integrity.json");
     expect(workflow).toContain("tarball-artifacts/cx-cli.rb");
