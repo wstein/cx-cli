@@ -19,11 +19,15 @@ describe("CI lanes contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("run: bun run ci:test:fast");
+    expect(workflow).toContain(
+      "run: bun run lint && bun run format:check && bun run check",
+    );
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
     expect(workflow).not.toContain("bun test tests/unit --timeout");
+    expect(workflow).not.toContain("run: bun run lint && bun run check");
   });
 
   test("package scripts use deterministic file-list discovery via test-lane.js", async () => {
@@ -33,6 +37,9 @@ describe("CI lanes contract", () => {
     };
 
     const scripts = pkg.scripts ?? {};
+    expect(scripts["format:check"]).toBe(
+      "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false .",
+    );
     expect(scripts["test:unit"]).toContain(
       "node scripts/test-lane.js ./tests/unit",
     );

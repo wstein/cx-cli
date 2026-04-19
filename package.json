@@ -28,6 +28,7 @@
     "build": "tsc -p tsconfig.json && node scripts/copy-init-templates.js",
     "clean": "rm -rf dist",
     "format": "biome format --write .",
+    "format:check": "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false .",
     "lint": "biome check . && node scripts/check-boundaries.js",
     "check-boundaries": "node scripts/check-boundaries.js",
     "test:unit": "node scripts/test-lane.js ./tests/unit --coverage --timeout 20000",
