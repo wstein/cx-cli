@@ -175,7 +175,7 @@ jobs:
       - name: Run bundle update transition test
         run: bun run ci:smoke:bundle-transition -- --transition "${{ matrix.transition }}"
 
-  bun-matrix:
+  bun-compat-smoke:
     runs-on: ubuntu-latest
     needs:
       - test-fast
@@ -229,7 +229,7 @@ jobs:
       - coverage-vitest
       - repomix-matrix
       - bundle-update-matrix
-      - bun-matrix
+      - bun-compat-smoke
       - reproducibility
     steps:
       - name: Checkout

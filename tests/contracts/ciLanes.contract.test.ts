@@ -170,7 +170,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("test-contracts:");
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("repomix-matrix:");
-    expect(workflow).toContain("bun-matrix:");
+    expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
       "  test-contracts:\n    runs-on: ubuntu-latest\n    needs:",
@@ -185,7 +185,7 @@ describe("CI lanes contract", () => {
       "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
-      "  bun-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+      "  bun-compat-smoke:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain("      - test-fast");
     expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
@@ -219,7 +219,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - coverage-vitest");
     expect(workflow).toContain("      - repomix-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");
-    expect(workflow).toContain("      - bun-matrix");
+    expect(workflow).toContain("      - bun-compat-smoke");
     expect(workflow).toContain("      - reproducibility");
   });
 
