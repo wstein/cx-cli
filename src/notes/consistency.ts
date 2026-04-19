@@ -6,7 +6,12 @@ import { CX_MCP_TOOL_NAMES } from "../mcp/tools/catalog.js";
 import { getMatchingSections } from "../planning/overlaps.js";
 import { pathExists } from "../shared/fs.js";
 import { getVCSState } from "../vcs/provider.js";
-import type { NoteCognitionLabel, NoteTrustLevel } from "./cognition.js";
+import {
+  applyDriftPressure,
+  type NoteCognitionLabel,
+  type NoteStalenessLabel,
+  type NoteTrustLevel,
+} from "./cognition.js";
 import { buildNoteGraph } from "./graph.js";
 import {
   extractWikilinkReferences,
@@ -14,7 +19,11 @@ import {
   normalizeWikilinkReference,
   resolveWikilinkReference,
 } from "./linking.js";
-import { type NoteValidationError, validateNotes } from "./validate.js";
+import {
+  type NoteValidationError,
+  type NoteValidationOptions,
+  validateNotes,
+} from "./validate.js";
 
 export interface NoteCodePathWarning {
   fromNoteId: string;
@@ -41,12 +50,22 @@ export interface ConsistencyReport {
     reviewCount: number;
     lowSignalCount: number;
   };
+  staleness: {
+    averageAgeDays: number;
+    freshCount: number;
+    agingCount: number;
+    staleCount: number;
+    driftPressuredCount: number;
+  };
   lowSignalNotes: Array<{
     id: string;
     title: string;
     score: number;
     label: NoteCognitionLabel;
     trustLevel: NoteTrustLevel;
+    ageDays: number;
+    stalenessLabel: NoteStalenessLabel;
+    driftWarningCount: number;
   }>;
   trustModel: {
     sourceTree: "trusted";
@@ -130,13 +149,30 @@ export async function collectNoteCodePathWarnings(
 export async function checkNotesConsistency(
   notesDir = "notes",
   projectRoot = process.cwd(),
+  options?: NoteValidationOptions,
 ): Promise<ConsistencyReport> {
-  const validation = await validateNotes(notesDir, projectRoot);
+  const validation = await validateNotes(notesDir, projectRoot, options);
   const graph = await buildNoteGraph(notesDir, projectRoot);
   const codePathWarnings = await collectNoteCodePathWarnings(
     validation.notes,
     projectRoot,
   );
+  const driftWarningsByNoteId = new Map<string, number>();
+
+  for (const warning of codePathWarnings) {
+    driftWarningsByNoteId.set(
+      warning.fromNoteId,
+      (driftWarningsByNoteId.get(warning.fromNoteId) ?? 0) + 1,
+    );
+  }
+
+  const effectiveNotes = validation.notes.map((note) => {
+    const driftWarningCount = driftWarningsByNoteId.get(note.id) ?? 0;
+    return {
+      ...note,
+      cognition: applyDriftPressure(note.cognition, driftWarningCount),
+    };
+  });
 
   const orphanDetails = graph.orphans.map((id) => {
     const note = graph.notes.get(id);
@@ -163,21 +199,40 @@ export async function checkNotesConsistency(
     }));
 
   const averageScore =
-    validation.notes.length === 0
+    effectiveNotes.length === 0
       ? 0
       : Math.round(
-          validation.notes.reduce(
-            (sum, note) => sum + note.cognition.score,
-            0,
-          ) / validation.notes.length,
+          effectiveNotes.reduce((sum, note) => sum + note.cognition.score, 0) /
+            effectiveNotes.length,
         );
-  const highSignalCount = validation.notes.filter(
+  const averageAgeDays =
+    effectiveNotes.length === 0
+      ? 0
+      : Math.round(
+          effectiveNotes.reduce(
+            (sum, note) => sum + note.cognition.ageDays,
+            0,
+          ) / effectiveNotes.length,
+        );
+  const highSignalCount = effectiveNotes.filter(
     (note) => note.cognition.label === "high_signal",
   ).length;
-  const reviewCount = validation.notes.filter(
+  const reviewCount = effectiveNotes.filter(
     (note) => note.cognition.label === "review",
   ).length;
-  const lowSignalNotes = validation.notes
+  const freshCount = effectiveNotes.filter(
+    (note) => note.cognition.stalenessLabel === "fresh",
+  ).length;
+  const agingCount = effectiveNotes.filter(
+    (note) => note.cognition.stalenessLabel === "aging",
+  ).length;
+  const staleCount = effectiveNotes.filter(
+    (note) => note.cognition.stalenessLabel === "stale",
+  ).length;
+  const driftPressuredCount = effectiveNotes.filter(
+    (note) => note.cognition.driftWarningCount > 0,
+  ).length;
+  const lowSignalNotes = effectiveNotes
     .filter((note) => note.cognition.label === "low_signal")
     .map((note) => ({
       id: note.id,
@@ -185,6 +240,9 @@ export async function checkNotesConsistency(
       score: note.cognition.score,
       label: note.cognition.label,
       trustLevel: note.cognition.trustLevel,
+      ageDays: note.cognition.ageDays,
+      stalenessLabel: note.cognition.stalenessLabel,
+      driftWarningCount: note.cognition.driftWarningCount,
     }))
     .sort(
       (left, right) =>
@@ -207,6 +265,13 @@ export async function checkNotesConsistency(
       highSignalCount,
       reviewCount,
       lowSignalCount: lowSignalNotes.length,
+    },
+    staleness: {
+      averageAgeDays,
+      freshCount,
+      agingCount,
+      staleCount,
+      driftPressuredCount,
     },
     lowSignalNotes,
     trustModel: {

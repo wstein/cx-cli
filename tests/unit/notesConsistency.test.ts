@@ -30,6 +30,7 @@ describe("Notes Consistency Check", () => {
         expect(report.codePathWarnings).toHaveLength(0);
         expect(report.orphans).toHaveLength(0);
         expect(report.cognition.averageScore).toBe(0);
+        expect(report.staleness.averageAgeDays).toBe(0);
         expect(report.trustModel.notes).toBe("conditional");
       } finally {
         await fs.rm(tempDir, { recursive: true });
@@ -161,6 +162,7 @@ This is a well-formed note with enough routing words.`,
         expect(report.brokenLinks).toHaveLength(0);
         expect(report.codePathWarnings).toHaveLength(0);
         expect(report.cognition.averageScore).toBeGreaterThan(0);
+        expect(report.staleness.freshCount).toBeGreaterThanOrEqual(0);
         expect(report.trustModel.bundle).toBe("trusted");
       } finally {
         await fs.rm(tempDir, { recursive: true });
@@ -175,7 +177,7 @@ This is a well-formed note with enough routing words.`,
       await fs.writeFile(
         path.join(notesDir, "sparse.md"),
         `---
-id: 20250113143004
+id: 20260413143004
 title: Sparse Note
 ---
 
@@ -192,7 +194,38 @@ It intentionally omits structure and supporting links for now.
         expect(report.lowSignalNotes[0]?.title).toBe("Sparse Note");
         expect(report.lowSignalNotes[0]?.label).toBe("low_signal");
         expect(report.lowSignalNotes[0]?.trustLevel).toBe("conditional");
+        expect(report.lowSignalNotes[0]?.stalenessLabel).toBe("fresh");
         expect(report.cognition.lowSignalCount).toBe(1);
+      } finally {
+        await fs.rm(tempDir, { recursive: true });
+      }
+    });
+
+    it("adds drift pressure to note cognition when code links are stale", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      await fs.mkdir(notesDir, { recursive: true });
+
+      await fs.writeFile(
+        path.join(notesDir, "drifted.md"),
+        `---
+id: 20260413143005
+title: Drifted Note
+---
+
+This note preserves drift guidance for one unstable path.
+
+Track [[src/missing.ts]] before mutation.
+`,
+      );
+
+      try {
+        const report = await checkNotesConsistency("notes", tempDir, {
+          now: new Date("2026-04-19T00:00:00Z"),
+        });
+        expect(report.staleness.driftPressuredCount).toBe(1);
+        expect(report.codePathWarnings).toHaveLength(1);
+        expect(report.lowSignalNotes[0]?.driftWarningCount).toBe(1);
       } finally {
         await fs.rm(tempDir, { recursive: true });
       }

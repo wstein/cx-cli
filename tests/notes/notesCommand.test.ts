@@ -908,6 +908,7 @@ This target note exists and should appear as an outgoing link.
       expect(result.logs).toContain("consistency check");
       expect(result.logs).toContain("Cognition score");
       expect(result.logs).toContain("Trust model");
+      expect(result.logs).toContain("Staleness");
       expect(result.logs).toContain("✓");
     });
 
@@ -926,6 +927,7 @@ This target note exists and should appear as an outgoing link.
       expect(json.command).toBe("notes check");
       expect(json.valid).toBeDefined();
       expect(json.cognition).toBeDefined();
+      expect(json.staleness).toBeDefined();
       expect(json.trustModel).toBeDefined();
     });
 

@@ -65,6 +65,21 @@ export function validateNoteIdFormat(id: string): boolean {
   });
 }
 
+export function parseNoteIdTimestamp(id: string): Date | null {
+  if (!validateNoteIdFormat(id)) {
+    return null;
+  }
+
+  const year = Number.parseInt(id.slice(0, 4), 10);
+  const month = Number.parseInt(id.slice(4, 6), 10);
+  const day = Number.parseInt(id.slice(6, 8), 10);
+  const hour = Number.parseInt(id.slice(8, 10), 10);
+  const minute = Number.parseInt(id.slice(10, 12), 10);
+  const second = Number.parseInt(id.slice(12, 14), 10);
+
+  return new Date(year, month - 1, day, hour, minute, second);
+}
+
 export function parseMarkdownFrontmatter(
   content: string,
 ): ParsedMarkdownFrontmatter {

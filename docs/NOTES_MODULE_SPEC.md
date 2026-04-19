@@ -84,6 +84,20 @@ These are cognition-layer limits, not arbitrary formatting preferences.
 
 Why this protects you: high-signal repository memory depends on short, atomic notes that humans and agents can classify quickly. Once notes become oversized or summary-free, the graph stops acting like a routing layer and starts acting like an unbounded dump of prose.
 
+## Staleness and Drift Pressure
+
+Cognition quality is not only about structure. It is also about whether a note is staying current enough to trust.
+
+`cx notes check` now reports:
+
+- note age derived from the note timestamp id
+- staleness labels (`fresh`, `aging`, `stale`)
+- code-drift pressure when a note points at repository paths that are missing, excluded, or outside the VCS master list
+
+These signals are diagnostic rather than blocking by themselves. They tell operators where durable memory is decaying before that decay becomes an architectural blind spot.
+
+Why this protects you: an old note with drifting code references can still parse cleanly while quietly becoming misleading. Staleness and contradiction checks make that decay visible before agents start treating stale memory as current architecture.
+
 ## CI Check Path
 
 The governance path is operational, not aspirational:

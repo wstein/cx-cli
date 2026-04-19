@@ -335,6 +335,7 @@ Carry the note metadata into manifests and review it in CI.
 
     expect(result.valid).toBe(true);
     expect(result.notes[0]?.cognition.score).toBeGreaterThanOrEqual(60);
+    expect(result.notes[0]?.cognition.stalenessLabel).toBe("fresh");
     expect(result.notes[0]?.cognition.trustLevel).toBe("conditional");
   });
 

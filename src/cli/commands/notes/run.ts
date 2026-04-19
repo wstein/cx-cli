@@ -449,6 +449,9 @@ export async function runNotesCommand(
       printInfo(
         `  Trust model: source=${report.trustModel.sourceTree}, notes=${report.trustModel.notes}, agent=${report.trustModel.agentOutput}, bundle=${report.trustModel.bundle}`,
       );
+      printInfo(
+        `  Staleness: avg-age ${report.staleness.averageAgeDays}d (fresh ${report.staleness.freshCount}, aging ${report.staleness.agingCount}, stale ${report.staleness.staleCount}, drift-pressured ${report.staleness.driftPressuredCount})`,
+      );
 
       if (report.validationErrors.length > 0) {
         printWarning(`  Validation errors: ${report.validationErrors.length}`);
@@ -487,7 +490,7 @@ export async function runNotesCommand(
         printWarning(`  Low-signal notes: ${report.lowSignalNotes.length}`);
         for (const note of report.lowSignalNotes) {
           printInfo(
-            `    [${note.id}] ${note.title} (score ${note.score}, trust ${note.trustLevel})`,
+            `    [${note.id}] ${note.title} (score ${note.score}, ${note.label}, trust ${note.trustLevel}, age ${note.ageDays}d, ${note.stalenessLabel}, drift warnings ${note.driftWarningCount})`,
           );
         }
       }

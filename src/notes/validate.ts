@@ -45,6 +45,10 @@ export interface NoteDocument {
   content: string;
 }
 
+export interface NoteValidationOptions {
+  now?: Date;
+}
+
 export const NOTE_VALIDATION_LIMITS = {
   maxBodyCharacters: 4000,
   maxBodyLines: 100,
@@ -90,7 +94,10 @@ function normalizeStringArray(
   return { value: normalized };
 }
 
-function parseNoteDocument(document: NoteDocument): {
+function parseNoteDocument(
+  document: NoteDocument,
+  options?: NoteValidationOptions,
+): {
   metadata: NoteMetadata | null;
   error: NoteValidationError | null;
 } {
@@ -200,7 +207,10 @@ function parseNoteDocument(document: NoteDocument): {
     }
 
     const codeLinks = extractCodePathReferences(body);
-    const cognition = assessNoteCognition(body, summary, codeLinks);
+    const cognition = assessNoteCognition(body, summary, codeLinks, {
+      noteId: id,
+      now: options?.now,
+    });
 
     if (cognition.templateBoilerplateDetected) {
       return {
@@ -272,13 +282,14 @@ function parseNoteDocument(document: NoteDocument): {
 
 export function validateNoteDocuments(
   documents: NoteDocument[],
+  options?: NoteValidationOptions,
 ): ValidateNotesResult {
   const notes: NoteMetadata[] = [];
   const errors: NoteValidationError[] = [];
   const idMap = new Map<string, string[]>();
 
   for (const document of documents) {
-    const { metadata, error } = parseNoteDocument(document);
+    const { metadata, error } = parseNoteDocument(document, options);
 
     if (error) {
       errors.push(error);
@@ -310,6 +321,7 @@ export function validateNoteDocuments(
 export async function validateNotes(
   notesDir: string,
   projectRoot: string,
+  options?: NoteValidationOptions,
 ): Promise<ValidateNotesResult> {
   const notesDirAbsolute = path.resolve(projectRoot, notesDir);
 
@@ -345,7 +357,7 @@ export async function validateNotes(
     }
   }
 
-  const parsed = validateNoteDocuments(documents);
+  const parsed = validateNoteDocuments(documents, options);
   const errors = [...readErrors, ...parsed.errors];
 
   return {
