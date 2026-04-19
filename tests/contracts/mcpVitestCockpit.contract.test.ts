@@ -24,11 +24,20 @@ describe("MCP Vitest cockpit contract", () => {
     expect(scripts["test:vitest:mcp"]).toBe(
       "vitest run --config vitest.mcp.config.ts",
     );
+    expect(scripts["test:vitest:mcp:adversarial"]).toBe(
+      "vitest run --config vitest.mcp.adversarial.config.ts",
+    );
+    expect(scripts["test:vitest:mcp:adversarial:ui"]).toBe(
+      "vitest --config vitest.mcp.adversarial.config.ts --ui --coverage --open=false",
+    );
     expect(scripts["test:vitest:mcp:ui"]).toBe(
       "vitest --config vitest.mcp.config.ts --ui --coverage --open=false",
     );
     expect(scripts["coverage:vitest:mcp"]).toBe(
       "vitest run --config vitest.mcp.config.ts --coverage",
+    );
+    expect(scripts["coverage:vitest:mcp:adversarial"]).toBe(
+      "vitest run --config vitest.mcp.adversarial.config.ts --coverage",
     );
   });
 
@@ -43,6 +52,18 @@ describe("MCP Vitest cockpit contract", () => {
     expect(config).toContain('"tests/contracts/mcpPolicy.contract.test.ts"');
     expect(config).toContain('reportsDirectory: "./coverage/vitest-mcp"');
     expect(config).toContain('name: "mcp-cockpit"');
+  });
+
+  test("adversarial MCP cockpit config stays isolated to failure-injection suites", async () => {
+    const config = await readText("vitest.mcp.adversarial.config.ts");
+
+    expect(config).toContain("defineCxVitestConfig");
+    expect(config).toContain('"tests/mcp/server.run.test.ts"');
+    expect(config).toContain('"tests/mcp/toolRuntime.adversarial.test.ts"');
+    expect(config).toContain(
+      'reportsDirectory: "./coverage/vitest-mcp-adversarial"',
+    );
+    expect(config).toContain('name: "mcp-adversarial-cockpit"');
   });
 
   test("operator docs make the MCP cockpit discoverable", async () => {

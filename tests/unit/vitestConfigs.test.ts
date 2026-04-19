@@ -27,6 +27,8 @@ describe("Vitest configuration helpers", () => {
         "tests/unit/**/*.test.ts",
         "tests/contracts/**/*.test.ts",
         "tests/config/**/*.test.ts",
+        "tests/mcp/**/*.test.ts",
+        "tests/cli/mcp*.test.ts",
       ],
       reportsDirectory: "./coverage/vitest",
     });
@@ -37,6 +39,8 @@ describe("Vitest configuration helpers", () => {
       "tests/unit/**/*.test.ts",
       "tests/contracts/**/*.test.ts",
       "tests/config/**/*.test.ts",
+      "tests/mcp/**/*.test.ts",
+      "tests/cli/mcp*.test.ts",
     ]);
   });
 
@@ -70,6 +74,35 @@ describe("Vitest configuration helpers", () => {
     ]);
     expect((config as { test?: { name?: string } }).test?.name).toBe(
       "mcp-cockpit",
+    );
+  });
+
+  test("supports a narrower adversarial MCP cockpit on the same shared base", () => {
+    const config = defineCxVitestConfig(
+      {
+        include: [
+          "tests/mcp/server.run.test.ts",
+          "tests/mcp/toolRuntime.adversarial.test.ts",
+        ],
+        reportsDirectory: "./coverage/vitest-mcp-adversarial",
+      },
+      {
+        test: {
+          name: "mcp-adversarial-cockpit",
+        },
+      },
+    );
+
+    expect(getBunAlias(config)).toContain("bun-test-shim.ts");
+    expect(getCoverageDirectory(config)).toBe(
+      "./coverage/vitest-mcp-adversarial",
+    );
+    expect(getIncludePatterns(config)).toEqual([
+      "tests/mcp/server.run.test.ts",
+      "tests/mcp/toolRuntime.adversarial.test.ts",
+    ]);
+    expect((config as { test?: { name?: string } }).test?.name).toBe(
+      "mcp-adversarial-cockpit",
     );
   });
 });

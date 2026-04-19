@@ -5,6 +5,8 @@ export default defineCxVitestConfig({
     "tests/unit/**/*.test.ts",
     "tests/contracts/**/*.test.ts",
     "tests/config/**/*.test.ts",
+    "tests/mcp/**/*.test.ts",
+    "tests/cli/mcp*.test.ts",
   ],
   reportsDirectory: "./coverage/vitest",
 });
