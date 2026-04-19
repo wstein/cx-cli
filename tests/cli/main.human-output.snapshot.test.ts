@@ -2,8 +2,8 @@
 
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import packageJson from "../../package.json" with { type: "json" };
 import { main } from "../../src/cli/main.js";
+import { CX_DISPLAY_VERSION } from "../../src/shared/version.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
 import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
@@ -43,6 +43,6 @@ describe("main human snapshot lane", () => {
     const capture = createBufferedCommandIo();
     const exitCode = await main(["--version"], capture.io);
     expect(exitCode).toBe(0);
-    expect(capture.stdout().trim()).toBe(packageJson.version);
+    expect(capture.stdout().trim()).toBe(CX_DISPLAY_VERSION);
   });
 });

@@ -12,7 +12,7 @@ import {
   writeStderr,
   writeStdout,
 } from "../shared/output.js";
-import { CX_VERSION } from "../shared/version.js";
+import { CX_DISPLAY_VERSION } from "../shared/version.js";
 import { runAdapterCommand } from "./commands/adapter.js";
 import { runAuditCommand } from "./commands/audit.js";
 import { runBundleCommand } from "./commands/bundle.js";
@@ -173,7 +173,7 @@ export async function main(
     .strictOptions()
     .help("help")
     .alias("help", "h")
-    .version(CX_VERSION)
+    .version(CX_DISPLAY_VERSION)
     .alias("version", "v")
     .showHelpOnFail(false)
     .recommendCommands()
@@ -859,7 +859,7 @@ export async function main(
   }
 
   if (argv.length === 1 && (argv[0] === "-v" || argv[0] === "--version")) {
-    writeStdout(`${CX_VERSION}\n`, io);
+    writeStdout(`${CX_DISPLAY_VERSION}\n`, io);
     return 0;
   }
 
