@@ -3,7 +3,10 @@ import { describe, expect, test } from "bun:test";
 import os from "node:os";
 import path from "node:path";
 import { loadCxConfigFromTomlString } from "../../src/config/load.js";
-import { buildConfig } from "../helpers/config/buildConfig.js";
+import {
+  type BuildConfigOptions,
+  buildConfig,
+} from "../helpers/config/buildConfig.js";
 import { toToml } from "../helpers/config/toToml.js";
 
 const VIRTUAL_CONFIG_PATH = path.join(
@@ -12,9 +15,7 @@ const VIRTUAL_CONFIG_PATH = path.join(
   "cx.toml",
 );
 
-async function loadConfig(
-  overrides: Partial<ReturnType<typeof buildConfig>> = {},
-) {
+async function loadConfig(overrides: BuildConfigOptions = {}) {
   const config = buildConfig(overrides);
   return loadCxConfigFromTomlString(VIRTUAL_CONFIG_PATH, toToml(config));
 }

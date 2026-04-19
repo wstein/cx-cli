@@ -1,4 +1,7 @@
-import type { CommandIo } from "../../../src/shared/output.js";
+import type {
+  CommandIo,
+  CommandWriteStream,
+} from "../../../src/shared/output.js";
 
 /**
  * Preferred command-test helper.
@@ -28,7 +31,13 @@ function createBufferedWriter(chunks: string[]) {
 export function createBufferedCommandIo(
   options: { cwd?: string; env?: NodeJS.ProcessEnv; isTTY?: boolean } = {},
 ): {
-  io: Partial<CommandIo>;
+  io: Partial<CommandIo> & {
+    stdout: CommandWriteStream;
+    stderr: CommandWriteStream;
+    log: (...args: unknown[]) => void;
+    env: NodeJS.ProcessEnv;
+    stdin: Pick<NodeJS.ReadStream, "isTTY">;
+  };
   stdout: () => string;
   stderr: () => string;
   logs: () => string;

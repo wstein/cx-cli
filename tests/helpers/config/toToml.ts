@@ -199,7 +199,7 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
   };
 }
 
-export function toToml(config: Record<string, unknown>): string {
+export function toToml(config: Record<string, unknown> | CxConfig): string {
   const document =
     "schemaVersion" in config
       ? normalizeRuntimeConfig(config as unknown as CxConfig)
