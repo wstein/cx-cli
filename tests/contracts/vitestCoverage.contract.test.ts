@@ -22,6 +22,8 @@ describe("Vitest coverage contract", () => {
     expect(config).toContain('"html"');
     expect(config).toContain('"lcov"');
     expect(config).toContain('reportsDirectory: "./coverage/vitest"');
+    expect(config).toContain('"bun:test"');
+    expect(config).toContain("bun-test-shim.ts");
     expect(config).toContain('"tests/unit/**/*.test.ts"');
     expect(config).toContain('"tests/contracts/**/*.test.ts"');
     expect(config).toContain('"tests/config/**/*.test.ts"');

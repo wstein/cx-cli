@@ -9,17 +9,33 @@ import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.
 let testDir: string;
 const originalEnv = { ...process.env };
 
+function restoreEnvVar(
+  name: keyof typeof originalEnv | string,
+  value: string | undefined,
+): void {
+  if (value === undefined) {
+    delete process.env[name];
+    return;
+  }
+  process.env[name] = value;
+}
+
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-config-test-"));
 });
 
 afterEach(async () => {
   await fs.rm(testDir, { recursive: true, force: true });
-  process.env.CX_STRICT = originalEnv.CX_STRICT;
-  process.env.CX_DEDUP_MODE = originalEnv.CX_DEDUP_MODE;
-  process.env.CX_REPOMIX_MISSING_EXTENSION =
-    originalEnv.CX_REPOMIX_MISSING_EXTENSION;
-  process.env.CX_CONFIG_DUPLICATE_ENTRY = originalEnv.CX_CONFIG_DUPLICATE_ENTRY;
+  restoreEnvVar("CX_STRICT", originalEnv.CX_STRICT);
+  restoreEnvVar("CX_DEDUP_MODE", originalEnv.CX_DEDUP_MODE);
+  restoreEnvVar(
+    "CX_REPOMIX_MISSING_EXTENSION",
+    originalEnv.CX_REPOMIX_MISSING_EXTENSION,
+  );
+  restoreEnvVar(
+    "CX_CONFIG_DUPLICATE_ENTRY",
+    originalEnv.CX_CONFIG_DUPLICATE_ENTRY,
+  );
 });
 
 describe("Config Command", () => {
