@@ -101,6 +101,9 @@ describe("registerDoctorTools", () => {
       expect(getTool(tools, "doctor_mcp").metadata.description).toContain(
         "BETA",
       );
+      expect(getTool(tools, "doctor_mcp").metadata.description).toContain(
+        "tool catalog",
+      );
 
       const mcpPayload = JSON.parse(
         firstText(await getTool(tools, "doctor_mcp").handler({})),
@@ -121,6 +124,8 @@ describe("registerDoctorTools", () => {
 
       expect(mcpPayload.command).toBe("doctor mcp");
       expect(typeof mcpPayload.auditSummary).toBe("object");
+      expect(mcpPayload.toolCatalogVersion).toBe(1);
+      expect(Array.isArray(mcpPayload.toolCatalog)).toBe(true);
       expect(overlapsPayload.command).toBe("doctor overlaps");
       expect(secretsPayload.command).toBe("doctor secrets");
       expect(workflowPayload.command).toBe("doctor workflow");

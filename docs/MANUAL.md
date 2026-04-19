@@ -251,6 +251,8 @@ cx audit summary --json
 
 `cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor notes` audits note wikilinks that look like repository paths against the planning master list after `files.include` and `files.exclude` are applied. `cx doctor secrets` scans that same master list for suspicious credentials using the same security rules the planning workflow relies on.
 
+`cx doctor mcp --json` also exposes the machine-readable MCP tool catalog, including each tool's `name`, `capability`, and `stability`, plus catalog summary counts for automation.
+
 When you only need the audit ledger itself, `cx audit summary --json` reports allowed versus denied totals, policy-name counts, capability counts, and recent `traceId` values from `.cx/audit.log` without repeating the rest of the MCP profile.
 
 When overlap analysis is the issue, the output names the conflicting file, the matching sections, the recommended owner, and the sections that should exclude the file. For example:

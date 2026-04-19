@@ -29,6 +29,34 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
       byPolicyName: {},
       recentTraceIds: [],
     },
+    toolCatalogVersion: 1,
+    toolCatalog: [
+      {
+        name: "bundle",
+        capability: "plan",
+        stability: "STABLE",
+      },
+      {
+        name: "doctor_mcp",
+        capability: "observe",
+        stability: "BETA",
+      },
+    ],
+    toolCatalogSummary: {
+      totalTools: 2,
+      byCapability: {
+        read: 0,
+        observe: 1,
+        plan: 1,
+        mutate: 0,
+      },
+      byStability: {
+        STABLE: 1,
+        BETA: 1,
+        EXPERIMENTAL: 0,
+        INTERNAL: 0,
+      },
+    },
     ...overrides,
   };
 }
@@ -39,6 +67,7 @@ describe("printDoctorMcpReport", () => {
     printDoctorMcpReport(makeReport(), true, capture.io);
     const parsed = JSON.parse(capture.stdout()) as Record<string, unknown>;
     expect(parsed.activeProfile).toBe("cx.toml");
+    expect(parsed.toolCatalogVersion).toBe(1);
   });
 
   test("empty filesInclude prints (empty) placeholder", async () => {
@@ -107,6 +136,14 @@ describe("printDoctorMcpReport", () => {
     expect(capture.stdout()).toContain("default-deny-mutate: 2");
     expect(capture.stdout()).toContain("trace-3");
   });
+
+  test("prints tool catalog summary and entries", async () => {
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(makeReport(), false, capture.io);
+    expect(capture.stdout()).toContain("Tool catalog: v1, 2 tools");
+    expect(capture.stdout()).toContain("bundle: plan, STABLE");
+    expect(capture.stdout()).toContain("doctor_mcp: observe, BETA");
+  });
 });
 
 describe("collectDoctorMcpReport", () => {
@@ -149,5 +186,22 @@ describe("collectDoctorMcpReport", () => {
     expect(report.mutationEnabled).toBe(false);
     expect(report.auditSummary.totalEvents).toBe(2);
     expect(report.auditSummary.recentTraceIds).toEqual(["trace-2", "trace-1"]);
+    expect(report.toolCatalogVersion).toBe(1);
+    expect(report.toolCatalog.length).toBeGreaterThan(0);
+    expect(report.toolCatalogSummary.totalTools).toBe(
+      report.toolCatalog.length,
+    );
+    expect(report.toolCatalog.find((tool) => tool.name === "bundle")).toEqual({
+      name: "bundle",
+      capability: "plan",
+      stability: "STABLE",
+    });
+    expect(
+      report.toolCatalog.find((tool) => tool.name === "doctor_mcp"),
+    ).toEqual({
+      name: "doctor_mcp",
+      capability: "observe",
+      stability: "BETA",
+    });
   });
 });

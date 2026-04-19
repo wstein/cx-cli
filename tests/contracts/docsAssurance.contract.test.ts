@@ -83,6 +83,7 @@ describe("docs assurance contract", () => {
     expect(agentModel).toContain(
       "It does not redefine the canonical semantics",
     );
+    expect(agentModel).toContain("toolCatalog");
     expect(agentIntegration).toContain(
       "This document is an integration guide.",
     );
@@ -90,6 +91,7 @@ describe("docs assurance contract", () => {
     expect(agentIntegration).toContain(
       "no longer a blanket experimental surface",
     );
+    expect(manual).toContain("machine-readable MCP tool catalog");
   });
 
   test("manual defines an assurance ladder", async () => {

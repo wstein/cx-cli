@@ -49,7 +49,7 @@ export function registerDoctorTools(
     DOCTOR_MCP_TOOL,
     {
       title: "Diagnose MCP profile",
-      description: `${tierLabel(DOCTOR_MCP_TOOL.stability)} Inspect the resolved MCP profile and inherited file scopes from the live workspace configuration.`,
+      description: `${tierLabel(DOCTOR_MCP_TOOL.stability)} Inspect the resolved MCP profile, inherited file scopes, and machine-readable tool catalog from the live workspace configuration.`,
       inputSchema: z.object({}),
     },
     async () => {

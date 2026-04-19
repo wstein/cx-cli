@@ -2,7 +2,7 @@
 
 # Stability Tiers
 
-cx-cli tools are classified into four stability tiers, each with distinct guarantees and expected usage patterns. The tier of each tool appears in its MCP description with the format `[TIER_NAME]` (e.g., `[STABLE]`).
+cx-cli tools are classified into four stability tiers, each with distinct guarantees and expected usage patterns. The tier of each tool appears in its MCP description with the format `[TIER_NAME]` (e.g., `[STABLE]`). For machine-readable inspection, `cx doctor mcp --json` exposes the registered MCP tool catalog with each tool's `name`, `capability`, and `stability`.
 
 ## Tier Definitions
 

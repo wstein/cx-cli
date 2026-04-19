@@ -207,6 +207,9 @@ describe("runDoctorCommand — mcp subcommand", () => {
     const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(typeof parsed.activeProfile).toBe("string");
     expect(typeof parsed.auditSummary).toBe("object");
+    expect(parsed.toolCatalogVersion).toBe(1);
+    expect(Array.isArray(parsed.toolCatalog)).toBe(true);
+    expect(typeof parsed.toolCatalogSummary).toBe("object");
   });
 });
 

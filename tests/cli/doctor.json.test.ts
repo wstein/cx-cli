@@ -292,12 +292,32 @@ describe("doctor JSON lane", () => {
       filesInclude?: string[];
       filesExclude?: string[];
       sectionNames?: string[];
+      toolCatalogVersion?: number;
+      toolCatalog?: Array<{
+        name: string;
+        capability: string;
+        stability: string;
+      }>;
+      toolCatalogSummary?: {
+        totalTools?: number;
+        byStability?: Record<string, number>;
+      };
     }>(result.stdout);
     expect(payload.resolvedConfigPath).toBe(project.mcpPath);
     expect(payload.activeProfile).toBe("cx-mcp.toml");
     expect(payload.filesInclude).toEqual(["src/generated/**", "dist/**"]);
     expect(payload.filesExclude).toEqual(["node_modules/**", "tests/**"]);
     expect(payload.sectionNames).toEqual(["src"]);
+    expect(payload.toolCatalogVersion).toBe(1);
+    expect(
+      payload.toolCatalog?.find((tool) => tool.name === "doctor_mcp"),
+    ).toEqual({
+      name: "doctor_mcp",
+      capability: "observe",
+      stability: "BETA",
+    });
+    expect(payload.toolCatalogSummary?.totalTools).toBeGreaterThan(0);
+    expect(payload.toolCatalogSummary?.byStability?.STABLE).toBeGreaterThan(0);
   });
 
   test("doctor notes reports note-to-code drift against the master list", async () => {

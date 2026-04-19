@@ -208,6 +208,12 @@ describe("cx MCP server", () => {
       resolvedConfigPath: string;
       filesInclude: string[];
       filesExclude: string[];
+      toolCatalogVersion: number;
+      toolCatalog: Array<{
+        name: string;
+        capability: string;
+        stability: string;
+      }>;
     };
 
     expect(payload.command).toBe("doctor mcp");
@@ -215,6 +221,12 @@ describe("cx MCP server", () => {
     expect(payload.resolvedConfigPath).toBe(project.mcpPath);
     expect(payload.filesInclude).toContain("README.md");
     expect(payload.filesExclude.length).toBeGreaterThanOrEqual(0);
+    expect(payload.toolCatalogVersion).toBe(1);
+    expect(payload.toolCatalog).toContainEqual({
+      name: "doctor_mcp",
+      capability: "observe",
+      stability: "BETA",
+    });
   });
 
   test("doctor_overlaps diagnoses live workspace section overlaps", async () => {

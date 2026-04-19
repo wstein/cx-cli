@@ -2,12 +2,27 @@ import path from "node:path";
 
 import { loadCxConfig } from "../config/load.js";
 import { type AuditSummary, collectAuditSummary } from "../mcp/audit.js";
+import type { McpCapability } from "../mcp/capabilities.js";
 import { resolveMcpConfigPath } from "../mcp/config.js";
+import type { StabilityTier } from "../mcp/tiers.js";
+import { CX_MCP_TOOL_DEFINITIONS } from "../mcp/tools/catalog.js";
 import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 
 export interface DoctorMcpArgs {
   config?: string | undefined;
   json?: boolean | undefined;
+}
+
+export interface DoctorMcpToolCatalogEntry {
+  name: string;
+  capability: McpCapability;
+  stability: StabilityTier;
+}
+
+export interface DoctorMcpToolCatalogSummary {
+  totalTools: number;
+  byCapability: Record<McpCapability, number>;
+  byStability: Record<StabilityTier, number>;
 }
 
 export interface DoctorMcpReport {
@@ -19,12 +34,53 @@ export interface DoctorMcpReport {
   policy: "default" | "strict" | "unrestricted";
   mutationEnabled: boolean;
   auditSummary: AuditSummary;
+  toolCatalogVersion: 1;
+  toolCatalog: DoctorMcpToolCatalogEntry[];
+  toolCatalogSummary: DoctorMcpToolCatalogSummary;
 }
 
 export interface DoctorMcpDeps {
   loadConfig?: typeof loadCxConfig;
   resolveProfilePath?: typeof resolveMcpConfigPath;
   readAuditSummary?: typeof collectAuditSummary;
+}
+
+function buildDoctorMcpToolCatalog(): DoctorMcpToolCatalogEntry[] {
+  return [...CX_MCP_TOOL_DEFINITIONS]
+    .map((tool) => ({
+      name: tool.name,
+      capability: tool.capability,
+      stability: tool.stability,
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name, "en"));
+}
+
+function summarizeDoctorMcpToolCatalog(
+  toolCatalog: DoctorMcpToolCatalogEntry[],
+): DoctorMcpToolCatalogSummary {
+  const byCapability: Record<McpCapability, number> = {
+    read: 0,
+    observe: 0,
+    plan: 0,
+    mutate: 0,
+  };
+  const byStability: Record<StabilityTier, number> = {
+    STABLE: 0,
+    BETA: 0,
+    EXPERIMENTAL: 0,
+    INTERNAL: 0,
+  };
+
+  for (const tool of toolCatalog) {
+    byCapability[tool.capability] += 1;
+    byStability[tool.stability] += 1;
+  }
+
+  return {
+    totalTools: toolCatalog.length,
+    byCapability,
+    byStability,
+  };
 }
 
 export async function collectDoctorMcpReport(
@@ -40,6 +96,7 @@ export async function collectDoctorMcpReport(
   );
   const config = await loadConfig(resolvedConfigPath);
   const auditSummary = await readAuditSummary(config.sourceRoot);
+  const toolCatalog = buildDoctorMcpToolCatalog();
 
   return {
     resolvedConfigPath,
@@ -52,6 +109,9 @@ export async function collectDoctorMcpReport(
     policy: config.mcp.policy ?? "default",
     mutationEnabled: config.mcp.enableMutation ?? false,
     auditSummary,
+    toolCatalogVersion: 1,
+    toolCatalog,
+    toolCatalogSummary: summarizeDoctorMcpToolCatalog(toolCatalog),
   };
 }
 
@@ -74,6 +134,10 @@ export function printDoctorMcpReport(
   );
   writeStdout(
     `Audit events: ${report.auditSummary.totalEvents} (allowed ${report.auditSummary.allowedCount}, denied ${report.auditSummary.deniedCount})\n`,
+    io,
+  );
+  writeStdout(
+    `Tool catalog: v${report.toolCatalogVersion}, ${report.toolCatalogSummary.totalTools} tools (${report.toolCatalogSummary.byStability.STABLE} stable, ${report.toolCatalogSummary.byStability.BETA} beta, ${report.toolCatalogSummary.byStability.EXPERIMENTAL} experimental, ${report.toolCatalogSummary.byStability.INTERNAL} internal)\n`,
     io,
   );
   const policyEntries = Object.entries(report.auditSummary.byPolicyName).sort(
@@ -110,5 +174,12 @@ export function printDoctorMcpReport(
   writeStdout(`\nsections:\n`, io);
   for (const name of report.sectionNames) {
     writeStdout(`  - ${name}\n`, io);
+  }
+  writeStdout(`\ntool catalog:\n`, io);
+  for (const tool of report.toolCatalog) {
+    writeStdout(
+      `  - ${tool.name}: ${tool.capability}, ${tool.stability}\n`,
+      io,
+    );
   }
 }

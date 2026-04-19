@@ -95,8 +95,11 @@ Audit logging is the integration-layer answer to "what did the agent really do?"
 - total allowed versus denied MCP events
 - policy-name counts
 - recent `traceId` values
+- `toolCatalogVersion`, `toolCatalog`, and `toolCatalogSummary` fields that expose the machine-readable MCP stability contract for automation
 
 For operators who only need the audit ledger, `cx audit summary --json` exposes the same trend view without mixing it into the broader MCP profile report.
+
+For operators or external automation that need the current MCP surface, `cx doctor mcp --json` is now also the canonical machine-readable catalog endpoint. It exposes every registered tool with its `name`, `capability`, and `stability`, plus a summary object for quick inspection.
 
 Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.
 
