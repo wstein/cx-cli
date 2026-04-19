@@ -2,7 +2,7 @@
 
 # CX Mental Model
 
-This is the canonical operator model for `cx`.
+This is the canonical semantics and operator model for `cx`.
 
 See: [OPERATING_MODES.md](OPERATING_MODES.md) for the shortest path to choosing the right surface before reading the deeper model.
 

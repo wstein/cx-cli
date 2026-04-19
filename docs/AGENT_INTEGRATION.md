@@ -15,7 +15,10 @@ This document explains how to integrate the `cx mcp` server with common AI agent
 
 See: [OPERATING_MODES.md](OPERATING_MODES.md) for the main conceptual entrypoint.
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical Track A vs Track B split, MCP policy tiers, and artifact lifecycle.
+See: [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md) for the integration-layer policy contract.
 See: [WORKFLOWS/agent-note-review-loop.md](WORKFLOWS/agent-note-review-loop.md) for the end-to-end note mutation review loop from the agent's point of view.
+
+This document is an integration guide. It should describe client setup, tool flow, and agent-facing metadata, not redefine the canonical semantics already owned by [MENTAL_MODEL.md](MENTAL_MODEL.md).
 
 Overview
 --------
@@ -28,16 +31,13 @@ By default, MCP sessions are not mutation sessions. Note writes and other mutate
 
 ## Progressive Onboarding For Operators
 
-The fastest way to teach `cx` is not to start with Track A vs Track B in the abstract. Start by showing useful motion:
+Start with the smallest possible proof of value:
 
 1. Run `cx mcp`.
 2. Let the agent call `doctor_mcp`, `notes_search`, `read`, and `inspect`.
-3. Once the operator has seen the live workflow, explain the model:
-   - **Track B = hypothesis generation**
-   - **Track A = proof generation**
-   - **notes = the durable cognition layer**
+3. Only then send the operator to [OPERATING_MODES.md](OPERATING_MODES.md) and [MENTAL_MODEL.md](MENTAL_MODEL.md) for the deeper model.
 
-This sequence matters. Operators understand the model better after they have seen the agent reason over live code once.
+Why this protects you: operators learn the abstraction after they have seen the system move, which lowers confusion without creating a second semantic source of truth inside the integration guide.
 
 ## Agent Point Of View
 

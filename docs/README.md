@@ -7,6 +7,7 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 
 ## Start Here
 
+- Run `cx mcp` first if you want the shortest onboarding path: see value now, learn the model later.
 - [OPERATING_MODES.md](./OPERATING_MODES.md) - choose between live MCP help, reproducible bundles, and durable notes
 - [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
@@ -20,3 +21,12 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 - [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) - release-time schema, npm/Homebrew handoff, and Pages reminders
 - [config-reference.md](./config-reference.md) - configuration knobs and precedence
 - [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) - instructions and examples for integrating `cx mcp` with IDEs and AI agents
+
+## Hierarchy
+
+- `MENTAL_MODEL.md` owns semantics.
+- `OPERATING_MODES.md` maps those semantics to operator choices.
+- `WORKFLOWS/*` shows execution examples.
+- `AGENT_*` documents the integration layer.
+
+Everything else should reference those layers instead of redefining them.

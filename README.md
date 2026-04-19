@@ -11,9 +11,9 @@
 Mode chooser: [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md)
 
 > Start here:
-> 1. `cx init --name demo`
-> 2. `cx inspect --token-breakdown`
-> 3. `cx bundle --config cx.toml`
+> 1. Run `cx mcp`
+> 2. Watch the agent work on live code
+> 3. Learn the model later in [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md) and [docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)
 
 ## Choose Your Path
 

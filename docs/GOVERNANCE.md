@@ -33,7 +33,9 @@ Every documentation file includes an HTML comment at the top declaring its sourc
 | ARCHITECTURE.md | CANONICAL | STABLE | System architecture and layer design |
 | MANUAL.md | CANONICAL | STABLE | Complete feature reference and CLI usage |
 | STABILITY.md | CANONICAL | STABLE | Tool stability contracts and versioning |
-| AGENT_OPERATING_MODEL.md | CANONICAL | STABLE | Three-workflow model, policy tiers, decision matrix |
+| MENTAL_MODEL.md | CANONICAL | STABLE | Canonical semantics for the CX triad, Track A vs Track B, policy tiers, and artifact lifecycle |
+| OPERATING_MODES.md | CANONICAL | STABLE | Operator-facing mode chooser and onboarding map |
+| AGENT_OPERATING_MODEL.md | CANONICAL | STABLE | Integration-layer policy consequences for agent operators |
 | AGENT_INTEGRATION.md | CANONICAL | STABLE | IDE and client integration guide |
 | MCP_TOOL_INTENT_TAXONOMY.md | CANONICAL | STABLE | Tool categorization and intent |
 | RELEASE_INTEGRITY.md | CANONICAL | STABLE | Release SBOM format and verification |
@@ -58,9 +60,36 @@ Tutorial and explanation docs:
 
 | File | Purpose |
 |------|---------|
+| WORKFLOWS/* | Execution examples that show the model over time without redefining the canonical semantics |
 | Getting Started (if added) | Introduction and quick-start tutorial |
 | Troubleshooting (if added) | Common issues and solutions |
 | FAQ (if added) | Frequently asked questions |
+
+---
+
+## Hard Hierarchy Contract
+
+`cx` intentionally uses a hard documentation hierarchy so semantics have one canonical home.
+
+### Canonical Roles
+
+- `MENTAL_MODEL.md` owns canonical semantics.
+- `OPERATING_MODES.md` maps those semantics to operator choices and progressive onboarding.
+- `WORKFLOWS/*` shows concrete execution examples across time.
+- `AGENT_*` documents the integration layer: policy consequences, tool sequences, client setup, and review loops.
+
+### Non-Negotiable Rule
+
+Everything outside `MENTAL_MODEL.md` must reference canonical semantics instead of redefining them.
+
+That means:
+
+- `OPERATING_MODES.md` should say which mode to choose, not restate the full semantics of the CX triad.
+- `WORKFLOWS/*` should show commands, decisions, and outcomes, not redefine Track A vs Track B.
+- `AGENT_*` docs should explain how agents consume the model through MCP and integration boundaries, not fork the semantics into a second source of truth.
+- General docs such as `README.md`, `MANUAL.md`, and `ARCHITECTURE.md` should point back to the canonical layer with `See: MENTAL_MODEL.md` where deeper semantics would otherwise be repeated.
+
+Why this protects you: once multiple docs compete to define the same concept, semantic drift becomes invisible until operators make the wrong decision from stale text. The hierarchy keeps one semantic source of truth and pushes every other doc toward mapping, execution, or integration.
 
 ---
 
@@ -120,9 +149,12 @@ Changes are welcome. Update the file, no special approval needed.
 When updating or referencing governance decisions:
 
 - **"What's the contract?"** → [STABILITY.md](STABILITY.md)
-- **"How do tools work?"** → [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md)
+- **"What do the concepts mean?"** → [MENTAL_MODEL.md](MENTAL_MODEL.md)
+- **"Which mode should I choose first?"** → [OPERATING_MODES.md](OPERATING_MODES.md)
+- **"How do tools work in an agent integration?"** → [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md)
 - **"What are all the options?"** → [config-reference.md](config-reference.md) (CANONICAL)
-- **"When do I use each workflow?"** → [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md) (decision matrix)
+- **"When do I use each workflow?"** → [OPERATING_MODES.md](OPERATING_MODES.md)
+- **"Where can I see the model play out over time?"** → [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
 - **"Is this doc authoritative?"** → Check the source-of-truth marker at the top
 
 ---

@@ -2,104 +2,68 @@
 
 # Agent Operating Model
 
-See: [OPERATING_MODES.md](OPERATING_MODES.md)
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
+See: [OPERATING_MODES.md](OPERATING_MODES.md)
 
-cx-cli provides three distinct agent-facing surfaces for repository context. This document narrows the canonical mental model down to policy and workflow consequences for agent operators.
+This document covers the integration layer for agent operators.
 
-## Three-Workflow Model
+It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in [MENTAL_MODEL.md](MENTAL_MODEL.md). This document explains what those semantics become when an agent is connected to a repository over MCP.
 
-### 1. Bundle (CI/CD, Immutable)
+## Integration-Layer Responsibilities
 
-**Command:** `cx bundle`
+At the agent layer, the model becomes four practical questions:
 
-**Semantics:** Generate an immutable snapshot of the workspace. Output is written to `dist/` and committed to version control.
+1. Which tools are visible in this session?
+2. Which capabilities are allowed, denied, or mutation-gated?
+3. Which workflow should the operator invoke next?
+4. Which audit trail explains what the agent actually did?
 
-**Guarantees:**
-- Reproducible: exact same source → exact same bundle output
-- Tamper-evident: bundles are read-only after creation
-- Auditable: all bundles are in git history
+That is the scope of this document. Canonical semantics stay upstream in [MENTAL_MODEL.md](MENTAL_MODEL.md).
 
-**Use cases:**
-- Pre-compute context for downstream CI/CD pipelines
-- Offline AI training (agent doesn't need live file access)
-- Compliance & audit trail (immutable records)
-- Performance optimization (no runtime analysis needed)
+## Operator Decision Ladder
 
-**Policy:** Bundles enforce strict security model by design; they're static files with no execution capability.
+Use the integration layer in this order:
 
-### 2. MCP (Interactive, Live)
+1. Start with [OPERATING_MODES.md](OPERATING_MODES.md) to pick the right surface.
+2. Use `cx mcp` when the operator needs live agent help on the current checkout.
+3. Use `cx doctor mcp` to confirm the resolved profile, workspace boundary, and policy state.
+4. Let the agent operate inside the allowed capability set.
+5. Promote work into Track A with `cx bundle` only when the job must become a reproducible artifact.
 
-**Command:** `cx mcp`
+Why this protects you: the operator sees exactly when a live exploratory session stops being hypothesis work and starts becoming a proof path.
 
-**Semantics:** Start an MCP server that exposes live workspace tools. Agent can read files, search, inspect bundle plans, manage notes, and observe diagnostics in real time.
+## Policy Consequences For Agents
 
-**Guarantees:**
-- Live: tools operate on current workspace state
-- Deterministic: same inputs → same outputs (no external randomness)
-- Audited: optionally logs all tool calls to `.cx/audit.log`
+The integration layer turns abstract policy into concrete tool visibility.
 
-**Use cases:**
-- Interactive development (agent writes code, explores incrementally)
-- Dynamic bundling (agent decides what context is needed, refines it)
-- Live analysis and troubleshooting
-- Multi-turn agentic workflows with feedback loops
+### `strict`
 
-**Policy:** MCP is policy-driven; access controlled by `[mcp.policy]` in `cx.toml`. Three preset policies:
-- **strict** (CI/CD): read + observe only (no writes, no planning)
-- **default** (interactive): read + observe + plan (no mutations; agent can't modify notes or code)
-- **unrestricted** (local dev): full mutate capability is available only when `enable_mutation = true`
+- Intended for CI and other untrusted automation
+- Agent can read and observe
+- Agent cannot plan or mutate
 
-### 3. Notes (Durable Knowledge)
+### `default`
 
-**Command:** `cx notes`
+- Intended for interactive operator sessions
+- Agent can read, observe, and plan
+- Agent cannot mutate notes or workspace files
 
-**Semantics:** Maintain a knowledge graph of atomic, interlinked notes in `notes/` directory. Notes are versioned in git and support queries, consistency checks, and coverage analysis.
+### `unrestricted`
 
-**Guarantees:**
-- Persistent: notes survive restarts and are committed to git
-- Structured: mandatory frontmatter with id, title, tags, aliases
-- Queryable: full-text search, graph queries, code references
+- Intended only for trusted local sessions
+- Mutate-capability tools still require `enable_mutation = true`
+- Without that explicit flag, the session is still non-mutating
 
-**Use cases:**
-- Document architectural decisions
-- Track design rationale and context
-- Build institutional knowledge
-- Link code to design (backlinks to source)
-- Audit knowledge coverage and gaps
+## Capability Tiers
 
-**Policy:** `cx notes` on the CLI is a direct local operator command. Over MCP, note reads are observe capability and note writes are mutate capability. In practice that means note mutation is denied in default and strict policy modes, and is only exposed intentionally in trusted local sessions.
+The MCP registration wrapper assigns every tool one capability tier. Policy enforcement, audit logging, and allow-or-deny decisions all use the same declaration.
 
----
+- `read`: `list`, `grep`, `read`
+- `observe`: `doctor_*`, `notes_read`, `notes_search`, `notes_list`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`
+- `plan`: `inspect`, `bundle`
+- `mutate`: `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
 
-## Decision Matrix
-
-| Task | Workflow | Why |
-|------|----------|-----|
-| Pre-compute context for CI/CD | Bundle | Reproducible, auditable, no runtime overhead |
-| Agent writes code interactively | MCP | Live feedback, incremental refinement, policy-controlled |
-| Agent reads and updates notes | Notes | Persistent knowledge, structured, queryable |
-| Agent needs to know *if* bundles can be created | MCP + inspect | `cx inspect` shows bundle plan without writing |
-| Agent needs full workspace analysis for decisions | MCP + grep/read | Live tools with zero lag |
-| Audit what agent tools were called | MCP | Enable `[mcp.auditLogging]` in cx.toml |
-
----
-
-## Policy Tier Mapping
-
-**CI/CD Environment** → `policy: strict`
-- Agent can: read files, grep, inspect bundle plan, observe diagnostics
-- Agent cannot: write code, create/modify notes, mutate workspace
-- Rationale: Untrusted automation; changes must be human-reviewed
-
-**Interactive Development** → `policy: default`
-- Agent can: read, observe, plan (cx inspect, cx notes read)
-- Agent cannot: write code, create/modify notes
-- Rationale: Agent helps explore and plan, but humans make final calls
-
-**Local Development** → `policy: unrestricted`
-- Agent can: everything only when `enable_mutation = true`; otherwise mutate tools remain locked
-- Rationale: Trusted local environment, full autonomy
+See [STABILITY.md](STABILITY.md) for tool stability tiers and [MCP_TOOL_INTENT_TAXONOMY.md](MCP_TOOL_INTENT_TAXONOMY.md) for machine-oriented prompt grouping.
 
 ## Why Mutation Policy Denial Stops You
 
@@ -107,11 +71,9 @@ When an MCP session denies `notes_new`, `notes_update`, `notes_delete`, `notes_r
 
 Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. `cx` requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish "the agent may inspect" from "the agent may edit."
 
----
-
 ## Audit Trail
 
-When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), all tool calls are logged to `.cx/audit.log`:
+When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool calls are recorded in `.cx/audit.log`:
 
 ```json
 {
@@ -119,83 +81,46 @@ When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), all tool 
   "tool": "read",
   "policy_decision": "allowed",
   "capability": "read",
-  "args": {"path": "src/main.ts"},
+  "args": { "path": "src/main.ts" },
   "result_summary": "200 lines"
 }
 ```
 
-Operators can review logs to understand what agents accessed and modified.
+Audit logging is the integration-layer answer to "what did the agent really do?" It is also the bridge into future work on agent traceability.
 
----
+## Integration Examples
 
-## Tool Capability Tiers
-
-All 22 tools are classified by capability. The MCP registration wrapper carries that capability into policy enforcement directly, so the same declaration controls registration, audit logging, and allow/deny decisions:
-
-- **read**: list, grep, read (file access)
-- **observe**: doctor_*, notes_read, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links (inspection)
-- **plan**: inspect, bundle (analysis, no mutations)
-- **mutate**: notes_new, notes_update, notes_delete, notes_rename, replace_repomix_span (writes)
-
-See [STABILITY.md](STABILITY.md) for tool tier assignments (STABLE vs BETA).
-
----
-
-## Example Workflows
-
-### Scenario 1: CI/CD Pre-compute
+### Interactive Local Session
 
 ```bash
-# In GitHub Actions (policy: strict)
-$ cx inspect --json > context-plan.json  # See what will be bundled
-$ cx bundle                              # Generate immutable snapshot
-$ git commit -am "docs: update context bundle"
+cx mcp
+cx doctor mcp --config cx.toml
 ```
 
-Agent cannot see the --json output or run write operations.
+The operator verifies the active policy before handing control to the agent.
 
-### Scenario 2: Interactive Development
+### Trusted Local Note Mutation Session
+
+```toml
+[mcp]
+policy = "unrestricted"
+enable_mutation = true
+```
+
+Then review the result:
 
 ```bash
-# Local (policy: default)
-$ cx mcp &                               # Start MCP server
-$ # Agent now has access to:
-# - read (files)
-# - grep (search)
-# - inspect (bundle planning)
-# - doctor_* (diagnostics)
-# - notes_read/search (knowledge base)
-$ # Agent cannot:
-$ # - Write code (read-only)
-$ # - Create or update notes
-$ # - Use other mutate-capability tools
+cx notes check
+cx notes graph --id <note-id> --depth 2
 ```
 
-### Scenario 3: Safe Note Mutation In A Trusted Local Session
-
-```bash
-# Trusted local machine
-$ cx mcp &
-# Default MCP policy still denies note mutation.
-# Enable it intentionally in cx-mcp.toml or cx.toml:
-#
-# [mcp]
-# policy = "unrestricted"
-# enable_mutation = true
-#
-# Then verify the active profile:
-$ cx doctor mcp --config cx.toml
-$ cx notes links
-$ cx notes graph --id <note-id> --depth 2
-```
-
-The session becomes mutation-authorized only after that explicit operator choice. Review the resulting note graph after the edit instead of treating note mutation as self-validating.
-
----
+See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)
+See: [WORKFLOWS/agent-note-review-loop.md](WORKFLOWS/agent-note-review-loop.md)
 
 ## Links
 
-- [STABILITY.md](STABILITY.md) — Tool stability contracts and versioning
-- [AGENT_INTEGRATION.md](AGENT_INTEGRATION.md) — IDE and client integration guide
-- [MCP_TOOL_INTENT_TAXONOMY.md](MCP_TOOL_INTENT_TAXONOMY.md) — Tool categorization and intent
-- [notes/Agent Operating Model](../notes/Agent%20Operating%20Model.md) — Knowledge graph entry
+- [MENTAL_MODEL.md](MENTAL_MODEL.md) — canonical semantics
+- [OPERATING_MODES.md](OPERATING_MODES.md) — operator mode chooser
+- [AGENT_INTEGRATION.md](AGENT_INTEGRATION.md) — IDE and client setup
+- [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md) — temporal provenance example
+- [notes/Agent Operating Model](../notes/Agent%20Operating%20Model.md) — knowledge graph entry

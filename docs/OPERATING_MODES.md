@@ -6,6 +6,26 @@ This is the main conceptual entrypoint for `cx`.
 
 Start with the fastest proof of value, then learn the deeper model.
 
+The job of this document is mapping, not semantics. For canonical definitions, see [MENTAL_MODEL.md](MENTAL_MODEL.md).
+
+## Ultra-Minimal Onboarding
+
+Run this first:
+
+```bash
+cx mcp
+```
+
+See the agent work on live code.
+
+Learn later:
+
+- why `Track B = hypothesis generation`
+- why `Track A = proof generation`
+- how the notes graph becomes the durable cognition layer
+
+That order matters. Operators usually trust the model faster after they have watched one live MCP session solve a real problem.
+
 ## Start Here
 
 If someone is new to `cx`, do not begin with the full architecture lecture. Begin with the live surface:

@@ -14,18 +14,38 @@ async function readText(relativePath: string): Promise<string> {
 }
 
 describe("docs assurance contract", () => {
-  test("operating modes hub is the main conceptual entrypoint", async () => {
+  test("doc hierarchy keeps semantics, mapping, workflows, and integration separate", async () => {
     const rootReadme = await readText("README.md");
     const docsIndex = await readText("docs/README.md");
+    const governance = await readText("docs/GOVERNANCE.md");
+    const mentalModel = await readText("docs/MENTAL_MODEL.md");
     const operatingModes = await readText("docs/OPERATING_MODES.md");
+    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
+    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const manual = await readText("docs/MANUAL.md");
 
     expect(rootReadme).toContain("bun run ci:notes:governance");
+    expect(rootReadme).toContain("Run `cx mcp`");
     expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
+    expect(docsIndex).toContain("Everything else should reference");
+    expect(governance).toContain("## Hard Hierarchy Contract");
+    expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
+    expect(governance).toContain("`OPERATING_MODES.md` maps those semantics");
+    expect(governance).toContain(
+      "`WORKFLOWS/*` shows concrete execution examples",
+    );
+    expect(governance).toContain("`AGENT_*` documents the integration layer");
+    expect(governance).toContain(
+      "Everything outside `MENTAL_MODEL.md` must reference canonical semantics instead of redefining them.",
+    );
+    expect(mentalModel).toContain("canonical semantics");
     expect(operatingModes).toContain(
       "Need fast interactive AI help on live code? Use `cx mcp`.",
     );
+    expect(operatingModes).toContain("## Ultra-Minimal Onboarding");
     expect(operatingModes).toContain("Run `cx mcp`.");
+    expect(operatingModes).toContain("See the agent work on live code.");
+    expect(operatingModes).toContain("Learn later:");
     expect(operatingModes).toContain("Track B = hypothesis generation");
     expect(operatingModes).toContain("Track A = proof generation");
     expect(operatingModes).toContain(
@@ -40,6 +60,13 @@ describe("docs assurance contract", () => {
     );
     expect(operatingModes).toContain(
       "See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)",
+    );
+    expect(agentModel).toContain("This document covers the integration layer");
+    expect(agentModel).toContain(
+      "It does not redefine the canonical semantics",
+    );
+    expect(agentIntegration).toContain(
+      "This document is an integration guide.",
     );
   });
 
@@ -119,10 +146,13 @@ describe("docs assurance contract", () => {
   test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {
     const mentalModel = await readText("docs/MENTAL_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
 
     expect(mentalModel).toContain("Track B = hypothesis generation");
     expect(mentalModel).toContain("Track A = proof generation");
     expect(mentalModel).toContain("durable cognition layer");
+    expect(agentModel).toContain("## Operator Decision Ladder");
+    expect(agentModel).toContain("## Capability Tiers");
     expect(agentIntegration).toContain("## Agent Point Of View");
     expect(agentIntegration).toContain("doctor_mcp()");
     expect(agentIntegration).toContain('"tokenCount": 287');
