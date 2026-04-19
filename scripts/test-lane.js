@@ -11,7 +11,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execa } from "execa";
-import { validateTestLaneHeaders } from "./test-lane-policy.js";
+import {
+  ALLOWED_LANES,
+  collectTestFiles,
+  parseLaneHeader,
+  validateTestLaneHeaders,
+} from "./test-lane-policy.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -23,6 +28,7 @@ if (!rawDir) {
 }
 
 let bunConfig;
+const selectedLanes = new Set();
 const extraArgs = [];
 
 for (let index = 0; index < rawArgs.length; index += 1) {
@@ -36,19 +42,43 @@ for (let index = 0; index < rawArgs.length; index += 1) {
     index += 1;
     continue;
   }
+  if (arg === "--lane") {
+    const lane = rawArgs[index + 1];
+    if (!lane) {
+      console.error("test-lane: missing value for --lane");
+      process.exit(1);
+    }
+    if (!ALLOWED_LANES.has(lane)) {
+      console.error(
+        `test-lane: invalid lane "${lane}" (expected one of ${[
+          ...ALLOWED_LANES,
+        ].join(", ")})`,
+      );
+      process.exit(1);
+    }
+    selectedLanes.add(lane);
+    index += 1;
+    continue;
+  }
 
   extraArgs.push(arg);
 }
 
 const targetDir = path.resolve(ROOT, rawDir);
 const testsRoot = path.join(ROOT, "tests");
+const targetWithinTests = !path.relative(testsRoot, targetDir).startsWith("..");
 
 if (!fs.existsSync(targetDir)) {
   console.error(`test-lane: directory not found: ${targetDir}`);
   process.exit(1);
 }
 
-if (!path.relative(testsRoot, targetDir).startsWith("..")) {
+if (selectedLanes.size > 0 && !targetWithinTests) {
+  console.error("test-lane: --lane filters are only supported under ./tests");
+  process.exit(1);
+}
+
+if (targetWithinTests) {
   const { mismatches } = validateTestLaneHeaders(ROOT);
   if (mismatches.length > 0) {
     console.error("test-lane: lane policy violations detected:");
@@ -59,29 +89,21 @@ if (!path.relative(testsRoot, targetDir).startsWith("..")) {
   }
 }
 
-/**
- * Recursively enumerates *.test.ts files under `dir` in deterministic order
- * (directories before their siblings, entries sorted lexicographically).
- */
-function collectTestFiles(dir) {
-  const results = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  entries.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...collectTestFiles(full));
-    } else if (entry.isFile() && entry.name.endsWith(".test.ts")) {
-      results.push(full);
-    }
-  }
-  return results;
+let files = collectTestFiles(targetDir);
+
+if (selectedLanes.size > 0) {
+  files = files.filter((file) => {
+    const lane = parseLaneHeader(fs.readFileSync(file, "utf8"));
+    return lane !== undefined && selectedLanes.has(lane);
+  });
 }
 
-const files = collectTestFiles(targetDir);
-
 if (files.length === 0) {
-  console.error(`test-lane: no .test.ts files found under ${targetDir}`);
+  const laneSuffix =
+    selectedLanes.size > 0
+      ? ` for lanes ${[...selectedLanes].sort().join(", ")}`
+      : "";
+  console.error(`test-lane: no .test.ts files found under ${targetDir}${laneSuffix}`);
   process.exit(1);
 }
 

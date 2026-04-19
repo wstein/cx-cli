@@ -76,7 +76,7 @@ const main = async () => {
     await fs.access(lcovPath);
   } catch {
     console.log(
-      "⚠️  No full-suite coverage data found. Run `make verify` first.",
+      "⚠️  No Bun full-suite coverage data found. Run `bun run test:all:full` first.",
     );
     return;
   }

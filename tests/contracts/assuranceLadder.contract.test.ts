@@ -44,11 +44,13 @@ describe("assurance ladder contract", () => {
     expect(typeof scripts["verify-release"]).toBe("string");
   });
 
-  test("verify and test scripts delegate to the deterministic test lane", async () => {
+  test("verify stays on the lighter Vitest-plus-compat gate while test is the fast lane", async () => {
     const scripts = await readPackageScripts();
 
-    expect(scripts.verify).toContain("bun run test:all:full");
-    expect(scripts.test).toBe("bun run test:all");
+    expect(scripts.verify).toContain("bun run ci:test:coverage");
+    expect(scripts.verify).toContain("bun run ci:test:compat");
+    expect(scripts.verify).not.toContain("bun run test:all:full");
+    expect(scripts.test).toBe("bun run test:unit");
 
     // neither operator-facing script may use the old directory-style invocation
     expect(scripts.verify).not.toMatch(/bun test\s+--coverage\s+tests/);

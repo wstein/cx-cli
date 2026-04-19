@@ -101,7 +101,7 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Run lean full regression lane
+      - name: Run focused Bun regression lane
         run: bun run ci:test:all
 
   notes-governance:

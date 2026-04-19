@@ -180,9 +180,11 @@ The generated notes directory is intentionally part of the repository contract. 
 
 ### Development workflow
 
-- `make test` or `bun run test` runs the default unit test suite and collects coverage.
-- `make verify` or `bun run verify` runs lint, typecheck, build, and the full test suite with coverage.
-- `bun run ci:test:coverage` now measures unit, contract, config, MCP, and MCP-facing CLI suites through the Bun-compatibility Vitest lane.
+- `make test` or `bun run test` runs the fast unit test suite.
+- `make verify` or `bun run verify` runs lint, typecheck, build, the Vitest coverage lane, and the Bun compatibility smoke.
+- `bun run ci:test:coverage` measures unit, contract, config, MCP, and MCP-facing CLI suites through the Bun-compatibility Vitest lane.
+- `bun run test:bun:regression` runs the focused Bun integration and adversarial regression lane that CI uses for runtime proof.
+- `bun run test:all` still runs the full Bun suite when you want the broad execution surface locally.
 - `bun run test:vitest:mcp` runs the focused MCP-heavy Vitest lane for server, policy, audit, and CLI MCP debugging.
 - `bun run test:vitest:mcp:ui` opens the MCP lane in Vitest UI so you can rerun failures interactively and inspect coverage or import cost inside the MCP stack.
 - `bun run test:vitest:mcp:adversarial` isolates startup hangs, malformed runtime payloads, and other hostile MCP failure modes in a smaller cockpit.
@@ -466,8 +468,8 @@ The repository-local `make` commands are intentionally small and explicit:
 
 | Command | Use it when |
 | --- | --- |
-| `make test` | You want fast unit coverage while iterating |
-| `make verify` | You want the full local gate with coverage before merging |
+| `make test` | You want the fast unit loop while iterating |
+| `make verify` | You want the normal local gate before merging |
 | `make release VERSION=x.y.z` | You are stepping through the two-phase release wizard |
 
 ```bash
@@ -478,8 +480,11 @@ make release VERSION=x.y.z
 make release VERSION=x.y.z
 ```
 
-`make test` runs the unit suite with coverage output. `make verify` is the full
-local gate: lint, typecheck, build, and the complete test suite with coverage. `make release`
+`make test` runs the fast unit suite. `make verify` is the normal local gate:
+lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.
+`bun run test:bun:regression` mirrors the focused Bun regression lane used in
+CI, and `bun run test:all` remains available when you want the full Bun
+execution surface locally. `make release`
 now acts as a two-phase wizard: the first call with a new semantic version starts the
 release candidate on `develop`, and the second call with that same version creates and pushes
 the tag after CI is green.

@@ -81,9 +81,16 @@ describe("CI lanes contract", () => {
     expect(scripts["format:check"]).toBe(
       "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false .",
     );
+    expect(scripts.test).toBe("bun run test:unit");
     expect(scripts["test:unit"]).toContain(
       "node scripts/test-lane.js ./tests/unit",
     );
+    expect(scripts["test:unit"]).not.toContain("--coverage");
+    expect(scripts["test:bun:regression"]).toContain(
+      "node scripts/test-lane.js ./tests",
+    );
+    expect(scripts["test:bun:regression"]).toContain("--lane integration");
+    expect(scripts["test:bun:regression"]).toContain("--lane adversarial");
     expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
     expect(scripts["test:all:full"]).toContain(
       "node scripts/test-lane.js ./tests --bun-config bunfig.full.toml",
@@ -110,7 +117,7 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:report:observability"]).toBe(
       "node scripts/ci-observability-report.js",
     );
-    expect(scripts["ci:test:all"]).toBe("bun run test:all");
+    expect(scripts["ci:test:all"]).toBe("bun run test:bun:regression");
     expect(scripts["ci:test:compat"]).toBe(
       "node scripts/bun-runtime-compat-smoke.js",
     );
@@ -121,6 +128,7 @@ describe("CI lanes contract", () => {
 
     // shell find must not survive in any test-discovery script
     expect(scripts["test:unit"]).not.toContain("find ./tests");
+    expect(scripts["test:bun:regression"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
     expect(scripts["test:contracts"]).not.toContain("find ./tests");
   });

@@ -39,8 +39,8 @@ Use the repository-local `make` targets for day-to-day development:
 
 | Command | Use it when |
 | --- | --- |
-| `make test` | You want unit coverage while iterating |
-| `make verify` | You want the full local gate with coverage before merging |
+| `make test` | You want the fast unit loop while iterating |
+| `make verify` | You want the normal local gate before merging |
 | `make certify` | You want CI-grade confidence before tagging a release |
 | `make release VERSION=x.y.z` | You are stepping through the two-phase release wizard |
 
@@ -52,8 +52,10 @@ Use these commands as a progressive assurance model:
 
 | Command | What it covers | When to run |
 | --- | --- | --- |
-| `bun run verify` | lint, typecheck, build, full test suite with coverage, coverage summary, minimum overall coverage gate | normal pre-merge gate |
+| `bun run verify` | lint, typecheck, build, Vitest coverage lane, Bun compatibility smoke | normal pre-merge gate |
 | `bun run ci:test:coverage` | Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output over the Bun-style unit and contract suite via the repository shim | CI coverage reporting |
+| `bun run test:bun:regression` | focused Bun integration and adversarial regression lane | CI-shaped Bun runtime proof without a full repository rerun |
+| `bun run test:all` | full Bun repository suite without the coverage-reporting burden | broad local Bun execution proof |
 | `bun run certify` | `verify` + contract lane + Repomix fork compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
 | `bun run integrity` | release integrity metadata generation from the packed npm tarball | release artifact staging |
 | `bun run verify-release` | release integrity metadata verification against packed tarball | release verification and audit |
@@ -107,10 +109,12 @@ For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code,
 
 Repository-local `make` shortcuts keep the developer loop compact:
 
-- `make test` runs the unit suite with coverage.
-- `make verify` runs lint, typecheck, build, and the full test suite with coverage, then enforces the minimum overall coverage gate.
+- `make test` runs the fast unit suite.
+- `make verify` runs lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.
 - `bun run ci:test:coverage` runs the Vitest V8 coverage lane against the Bun-style unit and contract test surface via the repository compatibility shim, then writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
 - Treat that Vitest lane as the authoritative release-assurance reporting surface. The Bun lanes still prove execution compatibility and remain part of the runtime matrix.
+- `bun run test:bun:regression` mirrors the focused Bun integration and adversarial lane used in CI.
+- `bun run test:all` remains available when you want the full Bun suite locally without routing coverage reporting through Bun.
 - `bun run pages:build` assembles the public Pages `site/` tree with `/schemas/` and `/coverage/`.
 - `bun run pages:smoke` validates that staged `site/` tree before a workflow publishes it.
 - The latest public HTML coverage view is published at `https://wstein.github.io/cx-cli/coverage/` from successful `main` CI runs.
