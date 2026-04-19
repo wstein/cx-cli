@@ -93,6 +93,7 @@ Cognition quality is not only about structure. It is also about whether a note i
 - note age derived from the note timestamp id
 - staleness labels (`fresh`, `aging`, `stale`)
 - code-drift pressure when a note points at repository paths that are missing, excluded, or outside the VCS master list
+- contradiction pressure when a note claims code state that conflicts with the repository or with sibling notes
 
 These signals are diagnostic rather than blocking by themselves. They tell operators where durable memory is decaying before that decay becomes an architectural blind spot.
 
@@ -110,6 +111,21 @@ The governance path is operational, not aspirational:
 6. CI uploads those reports only after the full lane set passes, so operators do not confuse partial diagnostics with a green repository gate.
 
 If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.
+
+## Contradiction Pressure
+
+Contradiction scoring is separate from staleness.
+
+- **staleness** asks whether a note is old or drifting
+- **contradiction pressure** asks whether a note makes claims that conflict with current code state or with sibling notes
+
+Examples:
+
+- a note says `[[src/feature.ts]]` is present, but the path is gone
+- a note says `[[src/feature.ts]]` is missing, but the path exists
+- two notes make opposite presence/absence claims about the same repository path
+
+Why this protects you: stale notes are risky, but contradictory notes are worse because they create false confidence. The cognition layer should expose disagreement explicitly instead of letting conflicting memory look equally valid.
 
 ## Init Behavior
 

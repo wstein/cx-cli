@@ -17,7 +17,7 @@ That is why summary requirements and size limits belong in validation and CI. Wi
 
 The next quality step is not just stricter validation. It is better signal measurement. Cognition scoring should help CI distinguish "syntactically valid note" from "note that actually improved repository memory," while trust propagation should keep conditioned notes distinct from proof-grade artifacts.
 
-That also means note quality must decay visibly over time. Age and code-drift pressure matter because an old note with broken path references can still look well structured while no longer describing the repository accurately.
+That also means note quality must decay visibly over time. Age and code-drift pressure matter because an old note with broken path references can still look well structured while no longer describing the repository accurately. Contradiction pressure matters too: if notes disagree with the repository or with each other about whether a code path exists, the cognition layer should show that conflict instead of letting both claims look equally trustworthy.
 
 ## Links
 

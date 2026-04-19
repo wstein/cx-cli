@@ -20,7 +20,10 @@ const writeNote = async (
   title: string,
   body = "",
 ): Promise<void> => {
-  const summary = body || `This is a note about ${title}.`;
+  const summary =
+    body.length === 0
+      ? `This is a note about ${title}.`
+      : `${body} This note keeps enough routing words today.`;
   const content = `---
 id: ${id}
 aliases: []

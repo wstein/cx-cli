@@ -2,6 +2,7 @@
 import { describe, expect, it } from "bun:test";
 
 import {
+  applyContradictionPressure,
   assessNoteCognition,
   hasNonTrivialSummary,
 } from "../../src/notes/cognition.js";
@@ -123,5 +124,26 @@ Long-lived knowledge needs explicit freshness pressure to stay trustworthy.
     expect(assessment.stalenessLabel).toBe("stale");
     expect(assessment.agePenalty).toBe(14);
     expect(assessment.score).toBeLessThan(assessment.baseScore);
+  });
+
+  it("applies contradiction penalties separately from age and drift pressure", () => {
+    const summary =
+      "This note still routes correctly even when contradictions are detected later.";
+    const body = `${summary}
+
+## What
+
+See [[System Trust Contract]] for the governing rule.
+`;
+
+    const assessment = assessNoteCognition(body, summary, undefined, {
+      noteId: "20260413123039",
+      now: new Date("2026-04-19T00:00:00Z"),
+    });
+    const contradicted = applyContradictionPressure(assessment, 2);
+
+    expect(contradicted.contradictionCount).toBe(2);
+    expect(contradicted.contradictionPenalty).toBe(30);
+    expect(contradicted.score).toBeLessThan(assessment.score);
   });
 });

@@ -25,6 +25,8 @@ const DEFAULT_COGNITION: NoteCognitionAssessment = {
   agePenalty: 0,
   driftWarningCount: 0,
   driftPenalty: 0,
+  contradictionCount: 0,
+  contradictionPenalty: 0,
   templateBoilerplateDetected: false,
   baseScore: 70,
   score: 70,

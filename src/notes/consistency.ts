@@ -7,11 +7,16 @@ import { getMatchingSections } from "../planning/overlaps.js";
 import { pathExists } from "../shared/fs.js";
 import { getVCSState } from "../vcs/provider.js";
 import {
+  applyContradictionPressure,
   applyDriftPressure,
   type NoteCognitionLabel,
   type NoteStalenessLabel,
   type NoteTrustLevel,
 } from "./cognition.js";
+import {
+  collectNoteContradictions,
+  type NoteContradictionIssue,
+} from "./contradictions.js";
 import { buildNoteGraph } from "./graph.js";
 import {
   extractWikilinkReferences,
@@ -57,6 +62,12 @@ export interface ConsistencyReport {
     staleCount: number;
     driftPressuredCount: number;
   };
+  contradictions: {
+    count: number;
+    codeStateConflictCount: number;
+    siblingConflictCount: number;
+  };
+  contradictionIssues: NoteContradictionIssue[];
   lowSignalNotes: Array<{
     id: string;
     title: string;
@@ -66,6 +77,7 @@ export interface ConsistencyReport {
     ageDays: number;
     stalenessLabel: NoteStalenessLabel;
     driftWarningCount: number;
+    contradictionCount: number;
   }>;
   trustModel: {
     sourceTree: "trusted";
@@ -157,7 +169,13 @@ export async function checkNotesConsistency(
     validation.notes,
     projectRoot,
   );
+  const contradictionIssues = await collectNoteContradictions(
+    validation.notes,
+    projectRoot,
+    codePathWarnings,
+  );
   const driftWarningsByNoteId = new Map<string, number>();
+  const contradictionsByNoteId = new Map<string, number>();
 
   for (const warning of codePathWarnings) {
     driftWarningsByNoteId.set(
@@ -165,12 +183,22 @@ export async function checkNotesConsistency(
       (driftWarningsByNoteId.get(warning.fromNoteId) ?? 0) + 1,
     );
   }
+  for (const issue of contradictionIssues) {
+    contradictionsByNoteId.set(
+      issue.noteId,
+      (contradictionsByNoteId.get(issue.noteId) ?? 0) + 1,
+    );
+  }
 
   const effectiveNotes = validation.notes.map((note) => {
     const driftWarningCount = driftWarningsByNoteId.get(note.id) ?? 0;
+    const contradictionCount = contradictionsByNoteId.get(note.id) ?? 0;
     return {
       ...note,
-      cognition: applyDriftPressure(note.cognition, driftWarningCount),
+      cognition: applyContradictionPressure(
+        applyDriftPressure(note.cognition, driftWarningCount),
+        contradictionCount,
+      ),
     };
   });
 
@@ -232,6 +260,12 @@ export async function checkNotesConsistency(
   const driftPressuredCount = effectiveNotes.filter(
     (note) => note.cognition.driftWarningCount > 0,
   ).length;
+  const codeStateConflictCount = contradictionIssues.filter(
+    (issue) => issue.kind === "code_state_conflict",
+  ).length;
+  const siblingConflictCount = contradictionIssues.filter(
+    (issue) => issue.kind === "sibling_claim_conflict",
+  ).length;
   const lowSignalNotes = effectiveNotes
     .filter((note) => note.cognition.label === "low_signal")
     .map((note) => ({
@@ -243,6 +277,7 @@ export async function checkNotesConsistency(
       ageDays: note.cognition.ageDays,
       stalenessLabel: note.cognition.stalenessLabel,
       driftWarningCount: note.cognition.driftWarningCount,
+      contradictionCount: note.cognition.contradictionCount,
     }))
     .sort(
       (left, right) =>
@@ -273,6 +308,12 @@ export async function checkNotesConsistency(
       staleCount,
       driftPressuredCount,
     },
+    contradictions: {
+      count: contradictionIssues.length,
+      codeStateConflictCount,
+      siblingConflictCount,
+    },
+    contradictionIssues,
     lowSignalNotes,
     trustModel: {
       sourceTree: "trusted",

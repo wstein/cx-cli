@@ -452,6 +452,9 @@ export async function runNotesCommand(
       printInfo(
         `  Staleness: avg-age ${report.staleness.averageAgeDays}d (fresh ${report.staleness.freshCount}, aging ${report.staleness.agingCount}, stale ${report.staleness.staleCount}, drift-pressured ${report.staleness.driftPressuredCount})`,
       );
+      printInfo(
+        `  Contradictions: ${report.contradictions.count} (code-state ${report.contradictions.codeStateConflictCount}, sibling ${report.contradictions.siblingConflictCount})`,
+      );
 
       if (report.validationErrors.length > 0) {
         printWarning(`  Validation errors: ${report.validationErrors.length}`);
@@ -490,7 +493,22 @@ export async function runNotesCommand(
         printWarning(`  Low-signal notes: ${report.lowSignalNotes.length}`);
         for (const note of report.lowSignalNotes) {
           printInfo(
-            `    [${note.id}] ${note.title} (score ${note.score}, ${note.label}, trust ${note.trustLevel}, age ${note.ageDays}d, ${note.stalenessLabel}, drift warnings ${note.driftWarningCount})`,
+            `    [${note.id}] ${note.title} (score ${note.score}, ${note.label}, trust ${note.trustLevel}, age ${note.ageDays}d, ${note.stalenessLabel}, drift warnings ${note.driftWarningCount}, contradictions ${note.contradictionCount})`,
+          );
+        }
+      }
+
+      if (report.contradictionIssues.length > 0) {
+        printWarning(
+          `  Contradiction issues: ${report.contradictionIssues.length}`,
+        );
+        for (const issue of report.contradictionIssues) {
+          const counterpart =
+            issue.conflictingNoteId === undefined
+              ? ""
+              : ` vs [${issue.conflictingNoteId}] ${issue.conflictingNoteTitle ?? "Unknown"}`;
+          printInfo(
+            `    [${issue.noteId}] ${issue.noteTitle} -> ${issue.subject} (${issue.kind})${counterpart}`,
           );
         }
       }

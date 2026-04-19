@@ -25,6 +25,8 @@ export interface NoteCognitionAssessment {
   agePenalty: number;
   driftWarningCount: number;
   driftPenalty: number;
+  contradictionCount: number;
+  contradictionPenalty: number;
   templateBoilerplateDetected: boolean;
   baseScore: number;
   score: number;
@@ -166,13 +168,38 @@ export function applyDriftPressure(
   const normalizedDriftWarningCount = Math.max(0, driftWarningCount);
   const driftPenalty = Math.min(24, normalizedDriftWarningCount * 12);
   const score = clampScore(
-    assessment.baseScore - assessment.agePenalty - driftPenalty,
+    assessment.baseScore -
+      assessment.agePenalty -
+      driftPenalty -
+      assessment.contradictionPenalty,
   );
 
   return {
     ...assessment,
     driftWarningCount: normalizedDriftWarningCount,
     driftPenalty,
+    score,
+    label: determineScoreLabel(score),
+  };
+}
+
+export function applyContradictionPressure(
+  assessment: NoteCognitionAssessment,
+  contradictionCount: number,
+): NoteCognitionAssessment {
+  const normalizedContradictionCount = Math.max(0, contradictionCount);
+  const contradictionPenalty = Math.min(30, normalizedContradictionCount * 15);
+  const score = clampScore(
+    assessment.baseScore -
+      assessment.agePenalty -
+      assessment.driftPenalty -
+      contradictionPenalty,
+  );
+
+  return {
+    ...assessment,
+    contradictionCount: normalizedContradictionCount,
+    contradictionPenalty,
     score,
     label: determineScoreLabel(score),
   };
@@ -235,6 +262,8 @@ export function assessNoteCognition(
       agePenalty,
       driftWarningCount: 0,
       driftPenalty: 0,
+      contradictionCount: 0,
+      contradictionPenalty: 0,
       templateBoilerplateDetected,
       baseScore,
       score: clampScore(baseScore - agePenalty),

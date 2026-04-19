@@ -34,7 +34,7 @@ title: Bundle Note
 tags: []
 ---
 
-Body.
+This bundle note keeps enough routing words today.
 `,
     "utf8",
   );
@@ -63,7 +63,7 @@ title: Valid Note
 tags: []
 ---
 
-Body.
+This valid note keeps enough routing words today.
 `,
     ]);
 
@@ -82,7 +82,7 @@ title: Duplicate One
 tags: []
 ---
 
-Body.
+This duplicate note keeps enough routing words today.
 `,
       `---
 id: 20260418120001
@@ -90,7 +90,7 @@ title: Duplicate Two
 tags: []
 ---
 
-Body.
+This duplicate note keeps enough routing words today.
 `,
     ]);
 
@@ -115,7 +115,7 @@ title: Json Note
 tags: []
 ---
 
-Body.
+This JSON note keeps enough routing words today.
 `,
     ]);
 

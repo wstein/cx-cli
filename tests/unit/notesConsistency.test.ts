@@ -231,6 +231,58 @@ Track [[src/missing.ts]] before mutation.
       }
     });
 
+    it("adds contradiction pressure when notes disagree with code state and each other", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      const srcDir = path.join(tempDir, "src");
+      await fs.mkdir(notesDir, { recursive: true });
+      await fs.mkdir(srcDir, { recursive: true });
+      await fs.writeFile(
+        path.join(srcDir, "shared.ts"),
+        "export const value = true;\n",
+      );
+
+      await fs.writeFile(
+        path.join(notesDir, "positive.md"),
+        `---
+id: 20260413143006
+title: Positive Claim
+---
+
+This note claims a repository path state with enough routing words today.
+
+The file [[src/shared.ts]] is present and active in the repository.
+`,
+      );
+      await fs.writeFile(
+        path.join(notesDir, "negative.md"),
+        `---
+id: 20260413143007
+title: Negative Claim
+---
+
+This note claims the opposite path state with enough routing words today.
+
+The file [[src/shared.ts]] is missing and no longer exists.
+`,
+      );
+
+      try {
+        const report = await checkNotesConsistency("notes", tempDir, {
+          now: new Date("2026-04-19T00:00:00Z"),
+        });
+        expect(report.valid).toBe(true);
+        expect(report.contradictions.count).toBe(2);
+        expect(report.contradictions.siblingConflictCount).toBe(1);
+        expect(report.contradictions.codeStateConflictCount).toBe(1);
+        expect(
+          report.lowSignalNotes.some((note) => note.contradictionCount > 0),
+        ).toBe(true);
+      } finally {
+        await fs.rm(tempDir, { recursive: true });
+      }
+    });
+
     it("warns when notes reference code paths missing from the repository", async () => {
       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
       const notesDir = path.join(tempDir, "notes");
