@@ -43,6 +43,7 @@ Use the smallest core set first:
 - Agent setup and IDE integration: [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md)
 - Agent operating rules and MCP policy consequences: [AGENT_OPERATING_MODEL.md](./AGENT_OPERATING_MODEL.md)
 - Configuration knobs and precedence: [config-reference.md](./config-reference.md)
+- Render constitution during the native-kernel migration: [RENDER_KERNEL_CONTRACT.md](./RENDER_KERNEL_CONTRACT.md)
 - Release-time checks and Pages publishing: [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
 - Notes system details: [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md)
 - Extraction and recovery rules: [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md)

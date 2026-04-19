@@ -69,6 +69,10 @@ Core responsibility split:
 
 ## Structured Render Contract
 
+The canonical proof-path contract now lives in
+[`RENDER_KERNEL_CONTRACT.md`](./RENDER_KERNEL_CONTRACT.md). This section gives
+architectural context for the current implementation.
+
 `cx` enforces a deterministic structured render contract instead of relying on
 heuristic span parsing.
 
