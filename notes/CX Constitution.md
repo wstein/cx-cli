@@ -33,6 +33,10 @@ Without a constitution, future changes will erode:
 
 The constitution overrides convenience.
 
+## Governance consequence
+
+Hard breaks are acceptable only when contracts are explicit, version boundaries are meaningful, and migration safety is proven. If `cx` rejects deprecation layers, it must reject silent breaks as well.
+
 ## Links
 
 - [[Render Kernel Constitution]]

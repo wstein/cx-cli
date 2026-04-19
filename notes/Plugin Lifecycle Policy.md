@@ -4,26 +4,26 @@ title: Plugin Lifecycle Policy
 tags: ["plugins", "governance", "lifecycle"]
 status: design
 ---
-
-Plugins need a lifecycle, not just an interface, because extension systems drift when addition is easy but promotion, deprecation, and removal have no explicit review path.
+Plugins follow a strict lifecycle so extension systems stay governable even when new capabilities arrive quickly.
 
 ## States
 
-- proposed
 - experimental
 - trusted-extension
 - core
-- deprecated
 - removed
 
-## Rule
+## Promotion requires
 
-Promotion requires:
 - stable interface
 - deterministic behavior
 - tests
-- docs
+- documentation
 - trust review
+
+## Rule
+
+Only core plugins participate in proof path.
 
 ## Why
 

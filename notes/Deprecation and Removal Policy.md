@@ -4,26 +4,26 @@ title: Deprecation and Removal Policy
 tags: ["governance", "deprecation"]
 status: current
 ---
-
-Deprecated paths must have explicit removal intent so temporary compatibility language, adapter fallbacks, and migration scaffolding do not harden into permanent architecture by inertia.
+`cx` does not use deprecation layers while it remains pre-public, because compatibility shims and dual behavior paths weaken contracts faster than they help migration.
 
 ## What
 
-A deprecated feature must declare:
-- why it is deprecated
-- replacement path
-- removal target
-- compatibility expectation
+Breaking changes are introduced directly at version boundaries.
 
 ## Rule
 
-Temporary compatibility must not become permanent architecture.
+- no compatibility shims
+- no dual behavior paths
+- contracts change explicitly
+
+## Constraint
+
+This policy applies while `cx` is pre-public.
 
 ## Why
 
-Deprecation without removal intent creates false stability. The repository then keeps paying complexity costs for paths that no longer represent the desired proof model.
+Deprecation layers create hidden complexity, expand the test surface, and make proof-path ownership ambiguous. If `cx` avoids them, it must instead rely on explicit contracts, version boundaries, and migration-proof tests.
 
 ## Links
 
-- [[Repomix Decommission Strategy]]
 - [[CX Constitution]]

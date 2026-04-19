@@ -4,22 +4,20 @@ title: Extension Config Model
 tags: ["config", "plugins", "schema"]
 status: design
 ---
+Extensions must declare explicit configuration so plugin settings can remain bounded, schema-visible, and incapable of silently mutating kernel behavior.
 
-Extensions require explicit config boundaries so new plugin settings can expand the system without silently changing kernel semantics, trust labels, or proof-path behavior.
-
-## What
+## Required
 
 Each extension must declare:
-- config namespace
-- schema fragment
+- namespace
+- schema
 - defaults
-- proof-path eligibility
+- trust profile
 
 ## Rule
 
-Extension config must not silently alter kernel behavior.
+Extensions must not alter kernel behavior implicitly.
 
 ## Links
 
 - [[Plugin System Model]]
-- [[Internal API Stabilization]]

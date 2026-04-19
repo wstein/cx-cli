@@ -4,24 +4,19 @@ title: Native Render Migration Strategy
 tags: ["migration", "render", "repomix"]
 status: design
 ---
-
-The native render migration is only valid if it preserves proof behavior exactly, because replacing a proof-path dependency is safe only when outputs, spans, and verification meaning stay identical.
+The render engine must transition from Repomix to a native kernel without changing proof behavior, because migration is only safe when the proof path stays identical while ownership moves inward.
 
 ## Phases
 
 1. freeze render contract
 2. implement native kernel
-3. run parity against legacy oracle
+3. validate parity against oracle
 4. switch default
-5. remove dependency
+5. remove external dependency
 
 ## Rule
 
-No migration phase may change:
-- proof-path output
-- spans
-- token accounting
-- manifest semantics
+Proof-path behavior must remain identical during migration.
 
 ## Why
 
@@ -31,3 +26,4 @@ Migration discipline matters more than implementation speed. A renderer swap tha
 
 - [[Repomix Decommission Strategy]]
 - [[Render Kernel Constitution]]
+- [[Parity Oracle Policy]]
