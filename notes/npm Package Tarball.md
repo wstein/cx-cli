@@ -2,8 +2,8 @@
 id: 20260416093011
 aliases: ["npm registry tarball","npm tarball url"]
 tags: ["distribution","npm","homebrew"]
+status: current
 ---
-
 # npm Package Tarball
 
 `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-X.Y.Z.tgz` is the immutable npm tarball URL used by the Homebrew formula.

@@ -2,8 +2,8 @@
 id: 20260415161500
 aliases: ["overlap resolution", "priority", "dedup"]
 tags: [planning, architecture, refinement]
+status: current
 ---
-
 `cx` uses a precise ownership model to distribute files from the master list into named sections. A conflict arises when two or more sections match the same file path.
 
 The `analyzeSectionOverlaps` and `getMatchingSections` functions in `src/planning/overlaps.ts` implement the resolution logic.

@@ -2,8 +2,8 @@
 id: 20260416093021
 aliases: ["npm package page","wsmy cx-cli npm"]
 tags: ["distribution","npm"]
+status: current
 ---
-
 # npm Package Page
 
 `https://www.npmjs.com/package/@wsmy/cx-cli` is the public npm package listing for the CLI.

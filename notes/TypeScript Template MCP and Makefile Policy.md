@@ -2,8 +2,8 @@
 id: 20260418213000
 aliases: []
 tags: [templates, typescript, mcp, makefile]
+status: current
 ---
-
 # TypeScript Template MCP and Makefile Policy
 
 The TypeScript init template is intentionally source-first for MCP and

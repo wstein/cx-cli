@@ -2,8 +2,8 @@
 id: 20260413123300
 aliases: ["update mode", "differential update"]
 tags: [cx, bundle, operations]
+status: current
 ---
-
 # Differential Update Staging
 
 `cx bundle --update` stages a complete bundle in a temporary directory first,

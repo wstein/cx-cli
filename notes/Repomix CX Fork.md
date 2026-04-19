@@ -2,8 +2,8 @@
 id: 20260416093041
 aliases: ["repomix cx fork","@wsmy/repomix-cx-fork"]
 tags: ["dependency","repomix","package"]
+status: current
 ---
-
 # Repomix CX Fork
 
 `https://github.com/wstein/repomix-cx-fork` is the federated Repomix adapter used by this repo.

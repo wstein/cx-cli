@@ -2,8 +2,8 @@
 id: 20260415153500
 aliases: ["note graph audit", "note graph maintenance"]
 tags: [notes, graph, audit]
+status: current
 ---
-
 A note graph audit is the practice of checking note references, backlinks, orphans, and code links after the note corpus changes.
 
 Use `cx notes links`, `cx notes backlinks --id ...`, `cx notes orphans`, `cx notes code-links --id ...`, `cx notes check`, and `cx doctor notes --config cx.toml` to find unresolved links, isolated notes, code references, and note-to-code path drift against the planning master list.

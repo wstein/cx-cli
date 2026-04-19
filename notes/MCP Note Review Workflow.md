@@ -2,8 +2,8 @@
 id: 20260415153000
 aliases: ["mcp note review", "live note review"]
 tags: [mcp, notes, workflow]
+status: current
 ---
-
 When reviewing repository notes, use manifest-first selection and live MCP note tools instead of opening every Markdown file.
 
 Start with `manifest.notes[]` or `notes_search(...)` to identify the most relevant notes, then open only those note ids with `notes_read(...)` when deeper context is required.

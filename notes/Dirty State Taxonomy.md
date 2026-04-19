@@ -2,8 +2,8 @@
 id: 20260413123200
 aliases: ["dirty state", "forced dirty"]
 tags: [cx, safety, vcs]
+status: current
 ---
-
 # Dirty State Taxonomy
 
 The dirty-state taxonomy separates bundle safety from convenience:

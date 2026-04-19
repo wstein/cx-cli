@@ -2,6 +2,7 @@
 id: 20260419164500
 aliases: ["Agent review loop", "Notes mutation review loop"]
 tags: ["mcp", "notes", "workflow", "review"]
+status: current
 ---
 Agent-driven note mutation is a full review loop, not a single write operation: inspect through MCP first, enable mutation intentionally, write durable notes, then run `cx notes check` and graph review before trusting the updated cognition layer.
 

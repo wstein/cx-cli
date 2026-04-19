@@ -2,8 +2,8 @@
 id: 20260416093001
 aliases: ["homebrew tap","wstein homebrew tap"]
 tags: ["distribution","homebrew","release"]
+status: current
 ---
-
 # Homebrew Tap
 
 `wstein/homebrew-tap` hosts the Homebrew formula used to install `@wsmy/cx-cli`.

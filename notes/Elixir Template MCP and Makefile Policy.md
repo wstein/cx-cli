@@ -2,8 +2,8 @@
 id: 20260418234000
 aliases: []
 tags: [templates, elixir, mcp, makefile]
+status: current
 ---
-
 # Elixir Template MCP and Makefile Policy
 
 The Elixir init template is an enhanced template.

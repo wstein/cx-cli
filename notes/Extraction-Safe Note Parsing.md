@@ -2,8 +2,8 @@
 id: 20260413153415
 aliases: ["note-parsing", "ai-routing"]
 tags: ["extraction", "ai-tools"]
+status: current
 ---
-
 # Extraction-Safe Note Parsing
 
 `cx` parses note frontmatter for AI workflows without changing the stored note

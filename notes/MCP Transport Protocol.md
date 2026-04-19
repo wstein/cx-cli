@@ -2,8 +2,8 @@
 id: 20260415160000
 aliases: ["MCP transport", "stdio protocol"]
 tags: [mcp, transport, architecture]
+status: current
 ---
-
 `cx` implements the Model Context Protocol (MCP) over a standard input/output (stdio) transport layer.
 
 The server lifecycle is managed in `src/mcp/server.ts`. It uses the `@modelcontextprotocol/sdk` to create a `McpServer` instance and binds it to `StdioServerTransport`.

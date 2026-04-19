@@ -2,8 +2,8 @@
 id: 20260418234300
 aliases: []
 tags: [templates, rust, mcp, makefile]
+status: current
 ---
-
 # Rust Template MCP and Makefile Policy
 
 The Rust init template is an enhanced template.

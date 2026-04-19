@@ -3,8 +3,8 @@ id: 20260417165000
 title: Config Merge Model
 description: Explicit merge semantics for configuration inheritance, preventing silent overwrites and making conflicts visible
 tags: [config, safety, merge, architecture]
+status: current
 ---
-
 # Config Merge Model
 
 ## Problem Statement

@@ -2,8 +2,8 @@
 id: 20260417143000
 title: Product Tiering Model
 tags: [architecture, mcp, stability]
+status: current
 ---
-
 # Product Tiering Model
 
 cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EXPERIMENTAL**, and **INTERNAL**. This model lets operators understand which tools have locked APIs and which may evolve, and it now applies explicitly to the MCP surface instead of treating `cx mcp` as one undifferentiated experiment.

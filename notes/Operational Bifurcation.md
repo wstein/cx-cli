@@ -2,6 +2,7 @@
 id: 20260415171000
 aliases: ["Pipeline vs Laboratory", "Track A/B"]
 tags: ["architecture", "workflow"]
+status: current
 ---
 `cx` uses a unified deterministic identity model but bifurcates operation into two distinct paths: Track B generates hypotheses against live state, while Track A generates proof that can survive review, CI, and handoff.
 

@@ -2,8 +2,8 @@
 id: 20260415164000
 aliases: ["normalization policy", "deterministic hashes"]
 tags: [artifact, hashing, determinism]
+status: current
 ---
-
 `cx` computes deterministic hashes for bundle files so that identical content produces identical bundle artifacts across platforms.
 
 The hashing strategy is implemented in `src/manifest/checksums.ts` and used by the bundle building and verification pipeline.

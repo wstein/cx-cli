@@ -2,8 +2,8 @@
 id: 20260418234100
 aliases: []
 tags: [templates, crystal, mcp, makefile]
+status: current
 ---
-
 # Crystal Template MCP and Makefile Policy
 
 The Crystal init template is an enhanced template.

@@ -2,8 +2,8 @@
 id: 20260417114500
 aliases: ["homebrew tap automation", "tap workflow", "formula push workflow"]
 tags: ["homebrew", "release", "github-actions"]
+status: current
 ---
-
 # Homebrew Tap Automation
 
 `wstein/homebrew-tap` should stay intentionally small: accept formula commits, validate them on push, and avoid any build or publish logic.

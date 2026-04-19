@@ -2,8 +2,8 @@
 id: 20260415160500
 aliases: ["config overlays", "inheritance"]
 tags: [config, architecture, refinement]
+status: current
 ---
-
 `cx` configuration follows a deterministic loading and inheritance pipeline that enables colocated overlays (like `cx-mcp.toml`) without repeating the entire `cx.toml` baseline.
 
 The `loadConfigInput` function in `src/config/load.ts` implements this logic. A configuration file can specify `extends = "base.toml"`, which triggers an recursive merge.

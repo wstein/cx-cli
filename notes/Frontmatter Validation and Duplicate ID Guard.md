@@ -2,6 +2,7 @@
 id: 20260413153301
 aliases: ["duplicate-id-detection"]
 tags: ["planning", "security", "invariants"]
+status: current
 ---
 # Frontmatter Validation and Duplicate ID Guard
 

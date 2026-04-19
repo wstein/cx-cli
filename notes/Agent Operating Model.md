@@ -2,8 +2,8 @@
 id: 20260417150000
 title: Agent Operating Model
 tags: [architecture, mcp, operations, policy]
+status: current
 ---
-
 # Agent Operating Model
 
 cx-cli provides three complementary workflows: **Bundle** (immutable snapshots), **MCP** (live interactive), and **Notes** (durable knowledge). Each serves a different use case and has distinct policy guarantees.

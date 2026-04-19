@@ -2,8 +2,8 @@
 id: 20260413123100
 aliases: ["master base", "VCS-derived master list"]
 tags: [cx, planning, vcs]
+status: current
 ---
-
 # VCS Master Base
 
 `cx` planning starts from the VCS-derived master base, not a blind filesystem

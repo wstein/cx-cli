@@ -2,8 +2,8 @@
 id: 20260415163000
 aliases: ["cli lifecycle", "command dispatch"]
 tags: [cli, architecture, workflow]
+status: current
 ---
-
 The CLI command lifecycle in `cx` is built on `yargs` and a centralized command dispatch model.
 
 The main entrypoint is `src/cli/main.ts`. It constructs the CLI parser, sets global options, and wires each command to a dedicated handler function.

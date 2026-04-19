@@ -2,8 +2,8 @@
 id: 20260413123000
 aliases: ["AI-first toolbox", "developer-friendly AI-first toolbox"]
 tags: [cx, tooling, ai]
+status: current
 ---
-
 # AI-first Toolbox
 
 `cx` now includes an AI-first toolbox alongside the deterministic packaging

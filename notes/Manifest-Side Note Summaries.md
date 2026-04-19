@@ -2,8 +2,8 @@
 id: 20260413153522
 aliases: ["manifest-summaries"]
 tags: ["manifest", "ai-tools", "optimization"]
+status: current
 ---
-
 # Manifest-Side Note Summaries
 
 `cx` stores high-level note summaries in the manifest JSON. Downstream agents

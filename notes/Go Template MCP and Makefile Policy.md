@@ -2,8 +2,8 @@
 id: 20260418234200
 aliases: []
 tags: [templates, go, mcp, makefile]
+status: current
 ---
-
 # Go Template MCP and Makefile Policy
 
 The Go init template is an enhanced template.

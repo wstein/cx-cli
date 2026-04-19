@@ -2,8 +2,8 @@
 id: 20260417112000
 aliases: ["gha triggers", "ci branch triggers", "workflow triggers"]
 tags: ["ci", "github-actions", "workflow"]
+status: current
 ---
-
 The CI workflow runs on every branch push and on pull requests, but not on
 `v*` tag pushes. Tag finalization belongs to the release workflow instead of
 the main CI pipeline. Pages publishes the unified `/schemas/` and `/coverage/`

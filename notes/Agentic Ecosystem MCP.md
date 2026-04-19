@@ -2,8 +2,8 @@
 id: 20260413123400
 aliases: ["active ecosystem", "MCP ecosystem"]
 tags: [cx, ai, mcp]
+status: current
 ---
-
 # Agentic Ecosystem MCP
 
 The repository participates in agentic workflows as well as bundle rendering.

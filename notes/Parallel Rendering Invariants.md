@@ -2,6 +2,7 @@
 id: 20260413153645
 aliases: ["parallel-rendering", "performance"]
 tags: ["rendering", "determinism", "architecture"]
+status: current
 ---
 # Parallel Rendering Invariants
 

@@ -2,6 +2,7 @@
 id: 20260419112000
 aliases: ["Trusted note mutation", "Note mutation review"]
 tags: ["mcp", "notes", "workflow", "policy"]
+status: current
 ---
 Safe note mutation is a two-part workflow: explicit authority first, graph review second.
 
