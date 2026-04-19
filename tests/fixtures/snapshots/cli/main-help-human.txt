@@ -15,7 +15,7 @@ Commands:
   cx config <subcommand>   Inspect effective configuration.
   cx adapter <subcommand>  Inspect Repomix adapter capabilities and runtime state.
   cx notes [subcommand]    Manage repository notes.
-  cx mcp                   [EXPERIMENTAL] Start the CX MCP server for live workspace exploration and note maintenance.
+  cx mcp [subcommand]      [EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.
 
 Options:
       --adapter-path  Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).  [string]

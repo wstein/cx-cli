@@ -72,7 +72,7 @@ This is still a Track B debugging surface. Promote any fix through the normal Bu
 - Startup hangs or server boot failures:
   Use `bun run test:vitest:mcp:adversarial` or `bun run test:vitest:mcp:adversarial:ui` first. Those lanes stay focused on hostile or degraded startup behavior instead of the whole MCP surface.
 - Policy denials or capability surprises:
-  Use `bun run test:vitest:mcp`, then compare the failing case against `cx doctor mcp --json` so the active policy, tool catalog, and the denial-facing tests are looking at the same boundary.
+  Use `bun run test:vitest:mcp`, then compare the failing case against `cx doctor mcp --json` and `cx mcp catalog --json` so the active policy, tool catalog, and the denial-facing tests are looking at the same boundary.
 - Slow imports or suspicious startup cost:
   Use `bun run test:vitest:mcp:ui` and inspect the import graph around `src/mcp/**` and `src/cli/commands/mcp.ts`. That is usually faster than treating a startup slowdown like a generic runtime failure.
 

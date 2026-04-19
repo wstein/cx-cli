@@ -24,6 +24,7 @@ Use this path for live workspace access and note maintenance.
 1. `cx mcp`
 2. `cx notes new --title "Logic Fix" --body "Documenting the fix."`
 3. `cx doctor mcp`
+4. `cx mcp catalog --json`
 4. `cx doctor workflow --task "refactor index.ts"`
 
 ---
@@ -69,6 +70,7 @@ cx inspect --token-breakdown
 cx bundle --config cx.toml
 cx mcp
 cx doctor mcp --config cx.toml
+cx mcp catalog --json
 cx doctor secrets --config cx.toml
 ```
 
@@ -96,6 +98,8 @@ cx init --template-list
 When `--template` is omitted, `cx init` autodetects the workspace environment from files like `package.json`, `go.mod`, `pyproject.toml`, `pom.xml`, and `Cargo.toml`.
 
 `cx mcp` prefers a colocated `cx-mcp.toml` overlay. If that file is present, it is the default MCP config for the workspace; if it is missing, `cx` falls back to the baseline `cx.toml` configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.
+
+Use `cx mcp catalog --json` when you need only the machine-readable MCP tool contract. It exposes the registered tool set with stable `name`, `capability`, and `stability` fields plus summary counts, without mixing in profile resolution or audit state.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code, Cursor, Claude Desktop), see the [Agent Integration Guide](AGENT_INTEGRATION.md).
 
@@ -206,7 +210,8 @@ They share the same repository boundary rules, but they answer different questio
 | `cx notes` | You want to manage notes or inspect note graph relationships |
 | `cx doctor overlaps` | A plan fails because one file matches multiple sections |
 | `cx doctor fix-overlaps` | You want exact exclude entries generated or applied |
-| `cx doctor mcp` | You want to review the effective MCP profile and inherited scopes |
+| `cx doctor mcp` | You want to review the effective MCP profile, inherited scopes, and recent audit trends |
+| `cx mcp catalog --json` | You want the narrow machine-readable MCP tool catalog for automation |
 | `cx doctor notes` | You want to audit note-to-code references against the VCS-backed planning master list |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
 | `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP, including mixed-task paths |
@@ -251,7 +256,7 @@ cx audit summary --json
 
 `cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor notes` audits note wikilinks that look like repository paths against the planning master list after `files.include` and `files.exclude` are applied. `cx doctor secrets` scans that same master list for suspicious credentials using the same security rules the planning workflow relies on.
 
-`cx doctor mcp --json` also exposes the machine-readable MCP tool catalog, including each tool's `name`, `capability`, and `stability`, plus catalog summary counts for automation.
+`cx mcp catalog --json` is the preferred narrow machine-readable endpoint for MCP tool metadata. `cx doctor mcp --json` also exposes the same catalog fields when you need them alongside profile resolution and audit trends.
 
 When you only need the audit ledger itself, `cx audit summary --json` reports allowed versus denied totals, policy-name counts, capability counts, and recent `traceId` values from `.cx/audit.log` without repeating the rest of the MCP profile.
 

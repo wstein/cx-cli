@@ -99,7 +99,7 @@ Audit logging is the integration-layer answer to "what did the agent really do?"
 
 For operators who only need the audit ledger, `cx audit summary --json` exposes the same trend view without mixing it into the broader MCP profile report.
 
-For operators or external automation that need the current MCP surface, `cx doctor mcp --json` is now also the canonical machine-readable catalog endpoint. It exposes every registered tool with its `name`, `capability`, and `stability`, plus a summary object for quick inspection.
+For operators or external automation that need only the current MCP tool surface, prefer `cx mcp catalog --json`. It exposes the registered tool set with each tool's `name`, `capability`, and `stability`, plus a summary object for quick inspection. `cx doctor mcp --json` still includes the same catalog fields when you also need the resolved profile, policy state, and audit trend view in one report.
 
 Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.
 

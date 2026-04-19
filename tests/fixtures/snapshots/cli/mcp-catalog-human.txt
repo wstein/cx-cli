@@ -1,0 +1,34 @@
+MCP tool catalog: v1, 22 tools
+By capability:
+  - read: 3
+  - observe: 12
+  - plan: 2
+  - mutate: 5
+By stability:
+  - STABLE: 17
+  - BETA: 5
+  - EXPERIMENTAL: 0
+  - INTERNAL: 0
+Tools:
+  - bundle: plan, STABLE
+  - doctor_mcp: observe, BETA
+  - doctor_overlaps: observe, BETA
+  - doctor_secrets: observe, BETA
+  - doctor_workflow: observe, BETA
+  - grep: read, STABLE
+  - inspect: plan, STABLE
+  - list: read, STABLE
+  - notes_backlinks: observe, STABLE
+  - notes_code_links: observe, STABLE
+  - notes_delete: mutate, STABLE
+  - notes_graph: observe, STABLE
+  - notes_links: observe, STABLE
+  - notes_list: observe, STABLE
+  - notes_new: mutate, STABLE
+  - notes_orphans: observe, STABLE
+  - notes_read: observe, STABLE
+  - notes_rename: mutate, STABLE
+  - notes_search: observe, STABLE
+  - notes_update: mutate, STABLE
+  - read: read, STABLE
+  - replace_repomix_span: mutate, BETA
