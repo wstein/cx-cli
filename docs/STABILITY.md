@@ -16,6 +16,9 @@ separation between pure behavior and integration seams.
 CI now declares a minimum supported Bun runtime (`1.3.11`) and continuously
 tests both the minimum and `latest` Bun lanes to detect regressions across the
 supported runtime envelope.
+The fast CI lane is intentionally unit-only and guarded by
+`bun run ci:guard:fast-lane` so integration suites do not silently leak into
+the low-latency feedback path.
 
 ### STABLE
 

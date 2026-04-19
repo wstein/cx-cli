@@ -78,6 +78,13 @@ Every `*.test.ts` file must start with a lane header on line 1:
 - Choose `contract` when the test protects operator-facing promises (docs,
   workflow wiring, schema guarantees, release or CI policy).
 
+## Fast Lane Guardrails
+
+- `ci:test:fast` is the unit-only lane (`tests/unit`) and must stay focused.
+- CI enforces lane composition with `bun run ci:guard:fast-lane`.
+- The fast-lane file budget is controlled by `FAST_LANE_MAX_FILES` (default:
+  `95`). Raise it only when the team intentionally accepts a slower fast lane.
+
 ## Property Matrices
 
 - Use `fast-check` for combinatorial override behavior where input vectors

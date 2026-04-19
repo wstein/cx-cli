@@ -23,6 +23,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(
       "run: bun run lint && bun run format:check && bun run check",
     );
+    expect(workflow).toContain("run: bun run ci:guard:fast-lane");
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).not.toContain("bun test tests --timeout");
@@ -49,6 +50,9 @@ describe("CI lanes contract", () => {
       "node scripts/test-lane.js ./tests/contracts",
     );
     expect(scripts["ci:test:fast"]).toBe("bun run test:unit");
+    expect(scripts["ci:guard:fast-lane"]).toBe(
+      "node scripts/check-fast-lane.js",
+    );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
 

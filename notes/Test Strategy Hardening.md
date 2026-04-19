@@ -41,6 +41,8 @@ they needed to be.
   lane matrix in `tests/README.md`.
 - Every new test should follow the lane decision checklist in
   `tests/README.md` so unit versus integration boundaries stay explicit.
+- CI should run `bun run ci:guard:fast-lane` so the fast lane remains
+  unit-only and does not silently bloat.
 - PRs should include explicit unit/integration/adversarial checklist results so
   lane intent is visible during review.
 - If a lane is intentionally skipped, the PR should explain why.

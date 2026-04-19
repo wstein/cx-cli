@@ -35,6 +35,7 @@
     "test:integration": "bun test --coverage tests/cli tests/bundle --timeout 20000",
     "test:all": "node scripts/test-lane.js ./tests --timeout 60000",
     "test:contracts": "node scripts/test-lane.js ./tests/contracts --timeout 20000",
+    "ci:guard:fast-lane": "node scripts/check-fast-lane.js",
     "ci:test:fast": "bun run test:unit",
     "ci:test:all": "bun run test:all",
     "ci:test:contracts": "bun run test:contracts",
