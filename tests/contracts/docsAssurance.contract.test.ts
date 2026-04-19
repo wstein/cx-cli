@@ -23,6 +23,9 @@ describe("docs assurance contract", () => {
     expect(operatingModes).toContain(
       "Need fast interactive AI help on live code? Use `cx mcp`.",
     );
+    expect(operatingModes).toContain("Run `cx mcp`.");
+    expect(operatingModes).toContain("Track B = hypothesis generation");
+    expect(operatingModes).toContain("Track A = proof generation");
     expect(operatingModes).toContain(
       "Need a reproducible, promotable artifact? Use `cx bundle`.",
     );
@@ -60,6 +63,11 @@ describe("docs assurance contract", () => {
   test("notes module spec documents linked-note enrichment semantics", async () => {
     const notesSpec = await readText("docs/NOTES_MODULE_SPEC.md");
 
+    expect(notesSpec).toContain("## Notes As The Cognition Layer");
+    expect(notesSpec).toContain("## Governance Model: How, What, Why");
+    expect(notesSpec).toContain("4000");
+    expect(notesSpec).toContain("100");
+    expect(notesSpec).toContain("cx notes check");
     expect(notesSpec).toContain("## Linked-Note Enrichment Semantics");
     expect(notesSpec).toContain("inclusion-changing, not advisory");
     expect(notesSpec).toContain("Run `cx inspect --json`");
@@ -98,5 +106,18 @@ describe("docs assurance contract", () => {
     expect(safeNoteMutation).toContain(
       "cx notes graph --id 20260419090000 --depth 2",
     );
+  });
+
+  test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {
+    const mentalModel = await readText("docs/MENTAL_MODEL.md");
+    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+
+    expect(mentalModel).toContain("Track B = hypothesis generation");
+    expect(mentalModel).toContain("Track A = proof generation");
+    expect(mentalModel).toContain("durable cognition layer");
+    expect(agentIntegration).toContain("## Agent Point Of View");
+    expect(agentIntegration).toContain("doctor_mcp()");
+    expect(agentIntegration).toContain('"tokenCount": 287');
+    expect(agentIntegration).toContain('"outputStartLine": 41');
   });
 });

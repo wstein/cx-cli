@@ -11,6 +11,8 @@ implementation contracts.
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
 
+The notes graph is the repository cognition layer. It is where high-signal reasoning becomes durable enough for later humans, agents, bundles, and CI to reuse safely.
+
 Use `cx notes links` to audit unresolved note references after you rename or
 move entries in the note graph.
 
@@ -73,7 +75,23 @@ Do not paste raw code or external text and call it knowledge.
 
 A note is only useful when it explains the idea in your own words and makes the relation to this repository explicit.
 
-### 3. Connect Notes Radially
+### 3. Start With The Summary Contract
+
+The first body paragraph is required. It becomes the manifest-side summary that later agents use to route into the right note without reparsing the whole graph.
+
+Why this protects you: if a note cannot summarize itself in the opening paragraph, it is already too vague for fast machine routing and too noisy for durable repository memory.
+
+### 4. Use The How / What / Why Model
+
+Every note should answer these questions clearly:
+
+- What is the durable fact, decision, mechanism, or failure mode?
+- Why does it matter or which invariant does it protect?
+- How should an operator, reviewer, or later agent apply it?
+
+You do not have to use literal headings every time, but the note should make all three answerable on a quick read.
+
+### 5. Connect Notes Radially
 
 Every note should link outward.
 
@@ -85,7 +103,7 @@ Add links to:
 
 The value of the system comes from the graph, not from isolated pages.
 
-### 4. Keep IDs Stable
+### 6. Keep IDs Stable
 
 Every note uses a time-based frontmatter id in the form `YYYYMMDDHHMMSS`.
 
@@ -101,6 +119,7 @@ Stable ids matter because downstream automation can reference notes without depe
 4. Write one thought in your own words.
 5. Add explicit links to related notes and code paths.
 6. Save the file with a human-readable filename that matches the note title.
+7. Keep the whole note within `4000` body characters and `100` body lines so the graph stays high-signal.
 
 Suggested filename style: `Clear Searchable Title.md`.
 
@@ -111,8 +130,18 @@ For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_
 Every note must contain:
 
 - YAML frontmatter with `id`, `aliases`, and `tags`
-- one atomic body
+- one atomic body with a non-empty opening summary paragraph
 - one links section with explicit connections to notes, code, or both
+
+## Governance And CI
+
+The notes layer is governed like code, not like scratch text.
+
+- `validateNotes(...)` enforces the summary requirement and note size limits.
+- `cx notes check` surfaces governance failures, broken links, and graph drift.
+- `bun run ci:test:contracts` keeps the canonical documentation for the cognition layer aligned with the implementation.
+
+Why this protects you: AI-generated notes are only useful when the graph preserves knowledge quality and signal-to-noise. CI should stop low-quality durable memory before it becomes trusted context.
 
  This repository uses the filename as the canonical note title. Do not add an
  H1 header in the note body because Obsidian already displays the filename as

@@ -444,6 +444,13 @@ export async function runNotesCommand(
       printInfo("Notes consistency check:\n");
       printInfo(`  Total notes: ${report.totalNotes}`);
 
+      if (report.validationErrors.length > 0) {
+        printWarning(`  Validation errors: ${report.validationErrors.length}`);
+        for (const issue of report.validationErrors) {
+          printInfo(`    ${issue.filePath}: ${issue.error}`);
+        }
+      }
+
       if (report.duplicateIds.length > 0) {
         printWarning(`  Duplicate IDs: ${report.duplicateIds.length}`);
         for (const dup of report.duplicateIds) {

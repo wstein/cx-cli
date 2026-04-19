@@ -47,7 +47,17 @@ export async function runValidateCommand(
       }
     }
 
-    throw new CxError("Note validation failed", 10);
+    throw new CxError("Note validation failed", 10, {
+      remediation: {
+        docsRef: "docs/NOTES_MODULE_SPEC.md",
+        whyThisProtectsYou:
+          "The notes graph is the repository cognition layer. Validation stops when durable knowledge loses summary quality, atomicity, or identifier integrity.",
+        nextSteps: [
+          "Fix the reported note validation errors or duplicate IDs.",
+          "Run `cx notes check` so the full governance report is visible before validating again.",
+        ],
+      },
+    });
   }
 
   if (args.json ?? false) {

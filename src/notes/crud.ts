@@ -3,7 +3,7 @@ import path from "node:path";
 import { CxError } from "../shared/errors.js";
 import { ensureDir, pathExists } from "../shared/fs.js";
 import { parseMarkdownFrontmatter } from "./parser.js";
-import { validateNotes } from "./validate.js";
+import { validateNoteDocuments, validateNotes } from "./validate.js";
 
 /**
  * Generate a note ID in YYYYMMDDHHMMSS format from the current time.
@@ -44,7 +44,21 @@ function renderNewNote(
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const noteBody =
     body === undefined
-      ? "Write your note here. Keep it atomic and focused on one idea."
+      ? [
+          "Summarize the note in one or two sentences so agents can route to it quickly from the manifest.",
+          "",
+          "## What",
+          "",
+          "State the durable fact, mechanism, decision, or failure mode.",
+          "",
+          "## Why",
+          "",
+          "Explain the invariant, constraint, or tradeoff this note protects.",
+          "",
+          "## How",
+          "",
+          "Describe how an operator, reviewer, or later agent should apply it.",
+        ].join("\n")
       : body.trimEnd();
   const renderedBody = noteBody.length > 0 ? `${noteBody}\n` : "";
   return `---
@@ -215,6 +229,30 @@ function fileNameFromTitle(title: string): string {
   return cleaned || "untitled";
 }
 
+function assertRenderedNoteValid(filePath: string, content: string): void {
+  const validation = validateNoteDocuments([{ filePath, content }]);
+  if (validation.valid) {
+    return;
+  }
+
+  const issue = validation.errors[0]?.error ?? "Unknown note validation error";
+  throw new CxError(
+    `Refusing to write invalid note content for ${path.basename(filePath)}: ${issue}`,
+    10,
+    {
+      remediation: {
+        docsRef: "docs/NOTES_MODULE_SPEC.md",
+        whyThisProtectsYou:
+          "The notes graph is the repository cognition layer. Rejecting invalid note writes keeps low-signal or malformed memory from becoming durable project context.",
+        nextSteps: [
+          "Revise the note so the opening paragraph forms a stand-alone summary.",
+          "Keep the note atomic and within the documented size limits before writing it again.",
+        ],
+      },
+    },
+  );
+}
+
 /**
  * Create a new note in the notes directory.
  */
@@ -244,6 +282,7 @@ export async function createNewNote(
   }
 
   const content = renderNewNote(id, options?.tags, options?.body);
+  assertRenderedNoteValid(filePath, content);
   await fs.writeFile(filePath, content, "utf-8");
 
   return { id, filePath };
@@ -298,6 +337,7 @@ export async function updateNote(
     linksSection,
   });
 
+  assertRenderedNoteValid(filePath, rendered);
   await fs.writeFile(filePath, rendered, "utf8");
 
   return {
@@ -363,6 +403,7 @@ export async function renameNote(
     }
   }
 
+  assertRenderedNoteValid(finalPath, rendered);
   await fs.writeFile(finalPath, rendered, "utf8");
 
   return {

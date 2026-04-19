@@ -46,6 +46,50 @@ Concrete prompt contrast:
 
 The second workflow is the reason the notes module exists inside `cx` instead of being left as an unstructured Markdown folder.
 
+## Notes As The Cognition Layer
+
+The notes graph is the repository cognition layer.
+
+That means notes are not just documentation. They are the durable reasoning surface that sits between live exploration and proof-grade artifacts:
+
+- Track B uses notes to preserve hypotheses that proved useful.
+- Track A carries note summaries into manifests so the proof path can keep the reasoning attached.
+- CI treats note quality as an integrity concern because low-signal notes degrade both humans and agents.
+
+For AI-generated notes especially, the question is not "did text get produced?" It is "did the graph gain durable, high-signal knowledge?"
+
+## Governance Model: How, What, Why
+
+Every note should answer three questions clearly, even when the author does not use literal section headings:
+
+- **What** is the durable fact, mechanism, or decision?
+- **Why** does it matter or which invariant does it protect?
+- **How** should an operator, reviewer, or later agent apply it?
+
+The opening paragraph is the summary contract. It must stand on its own because `manifest.notes[]` uses that summary as the fast routing path for later automation.
+
+## Governance Rules
+
+The validator and CI now enforce these baseline rules:
+
+- a note must produce a non-empty summary from its first paragraph
+- a note body must stay at or below `4000` characters
+- a note body must stay at or below `100` lines
+
+These are cognition-layer limits, not arbitrary formatting preferences.
+
+Why this protects you: high-signal repository memory depends on short, atomic notes that humans and agents can classify quickly. Once notes become oversized or summary-free, the graph stops acting like a routing layer and starts acting like an unbounded dump of prose.
+
+## CI Check Path
+
+The governance path is operational, not aspirational:
+
+1. `validateNotes(...)` enforces summary and size rules during bundling, validation, note CRUD, MCP note access, and graph checks.
+2. `cx notes check` surfaces governance failures directly for local review and CI logs.
+3. `bun run ci:test:contracts` keeps the canonical docs and workflow references aligned with the implemented governance model.
+
+If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.
+
 ## Init Behavior
 
 When `cx init` writes a project to disk, it must create:
@@ -108,6 +152,8 @@ Rules:
 - `aliases` and `tags` are always present, even when empty
 - the filename is the canonical human title; do not use the numeric id as the visible title
 - the body must contain one discrete thought only
+- the first body paragraph must work as a stand-alone summary
+- the body should explain the note's what, why, and how clearly enough for later reuse
 - the links section must point to other notes, code, or both
 
 ## Bundle Integration

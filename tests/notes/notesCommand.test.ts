@@ -838,8 +838,12 @@ Note content.
         noteFilePath("20250113143019.md"),
         `---
 id: 20250113143019
+aliases: []
+tags: []
 title: Links Source
 ---
+
+This source note links to one valid note and one missing note.
 
 See [[Links Target]] and [[Missing Note]].
 `,
@@ -849,10 +853,12 @@ See [[Links Target]] and [[Missing Note]].
         noteFilePath("20250113143020.md"),
         `---
 id: 20250113143020
+aliases: []
+tags: []
 title: Links Target
 ---
 
-# Some heading
+This target note exists and should appear as an outgoing link.
 `,
         "utf8",
       );
@@ -915,6 +921,35 @@ title: Links Target
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.command).toBe("notes check");
       expect(json.valid).toBeDefined();
+    });
+
+    test("surfaces note governance validation failures", async () => {
+      await fs.writeFile(
+        noteFilePath("20250113143009-invalid.md"),
+        `---
+id: 20250113143009
+aliases: []
+tags: []
+---
+
+## Links
+
+- [[Missing Summary]]
+`,
+      );
+
+      const result = await captureNotesCommand({
+        run: () =>
+          runNotesCommand({
+            subcommand: "check",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(1);
+      expect(result.logs).toContain("Validation errors");
+      expect(result.logs).toContain("Missing required summary paragraph");
     });
 
     test("surfaces code-path drift warnings without failing the check", async () => {

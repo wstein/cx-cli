@@ -25,6 +25,7 @@ describe("Notes Consistency Check", () => {
         expect(report.valid).toBe(true);
         expect(report.totalNotes).toBe(0);
         expect(report.duplicateIds).toHaveLength(0);
+        expect(report.validationErrors).toHaveLength(0);
         expect(report.brokenLinks).toHaveLength(0);
         expect(report.codePathWarnings).toHaveLength(0);
         expect(report.orphans).toHaveLength(0);
@@ -245,6 +246,10 @@ See [[src/generated.ts]] before changing the generator.`,
         const report = await checkNotesConsistency("notes", tempDir);
         expect(report.valid).toBe(false);
         expect(report.totalNotes).toBe(0);
+        expect(report.validationErrors).toHaveLength(1);
+        expect(report.validationErrors[0]?.error).toContain(
+          "Missing required frontmatter field: id",
+        );
       } finally {
         await fs.rm(tempDir, { recursive: true });
       }
@@ -293,7 +298,7 @@ aliases: []
 tags: []
 ---
 
-# notes_list
+This note documents the notes_list tool behavior for coverage analysis.
 `,
       );
 

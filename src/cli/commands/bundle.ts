@@ -222,7 +222,17 @@ export async function runBundleCommand(
         writeStderr(`  ID ${id}: ${files.join(", ")}\n`, io);
       }
     }
-    throw new CxError("Note validation failed", 10);
+    throw new CxError("Note validation failed", 10, {
+      remediation: {
+        docsRef: "docs/NOTES_MODULE_SPEC.md",
+        whyThisProtectsYou:
+          "The notes graph is the repository cognition layer. Refusing low-signal or malformed notes keeps bundles and agent workflows anchored to durable knowledge instead of noisy context.",
+        nextSteps: [
+          "Fix the reported note validation errors or duplicate IDs.",
+          "Run `cx notes check` to review governance failures, graph issues, and note drift before bundling again.",
+        ],
+      },
+    });
   }
 
   const ciMode = args.ci ?? false;

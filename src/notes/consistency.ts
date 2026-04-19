@@ -13,7 +13,7 @@ import {
   normalizeWikilinkReference,
   resolveWikilinkReference,
 } from "./linking.js";
-import { validateNotes } from "./validate.js";
+import { type NoteValidationError, validateNotes } from "./validate.js";
 
 export interface NoteCodePathWarning {
   fromNoteId: string;
@@ -25,6 +25,7 @@ export interface NoteCodePathWarning {
 
 export interface ConsistencyReport {
   duplicateIds: Array<{ id: string; files: string[] }>;
+  validationErrors: NoteValidationError[];
   brokenLinks: Array<{
     fromNoteId: string;
     fromTitle: string;
@@ -148,6 +149,7 @@ export async function checkNotesConsistency(
 
   return {
     duplicateIds: validation.duplicateIds,
+    validationErrors: validation.errors,
     brokenLinks: brokenLinksFormatted,
     codePathWarnings,
     orphans: orphanDetails,

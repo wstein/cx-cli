@@ -42,6 +42,15 @@ export interface NoteDocument {
   content: string;
 }
 
+export const NOTE_VALIDATION_LIMITS = {
+  maxBodyCharacters: 4000,
+  maxBodyLines: 100,
+} as const;
+
+function noteValidationMessage(message: string, protection: string): string {
+  return `${message} Why this protects you: ${protection}`;
+}
+
 function normalizeStringArray(
   value: unknown,
   filePath: string,
@@ -160,13 +169,57 @@ function parseNoteDocument(document: NoteDocument): {
       title = titleFromFileName(filePath);
     }
 
+    const summary = extractNoteSummary(body);
+    if (summary.length === 0) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: noteValidationMessage(
+            "Missing required summary paragraph. The first body paragraph must stand on its own before the links section.",
+            "Manifest note summaries are the fast path agents use to find durable knowledge without reparsing the entire graph.",
+          ),
+        },
+      };
+    }
+
+    const normalizedBody = body.trim();
+    const bodyCharacterCount = normalizedBody.length;
+    if (bodyCharacterCount > NOTE_VALIDATION_LIMITS.maxBodyCharacters) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: noteValidationMessage(
+            `Note body exceeds ${NOTE_VALIDATION_LIMITS.maxBodyCharacters} characters (${bodyCharacterCount}).`,
+            "Atomic notes stay reusable only when the cognition layer remains small enough for humans and agents to classify quickly.",
+          ),
+        },
+      };
+    }
+
+    const bodyLineCount =
+      normalizedBody.length === 0 ? 0 : normalizedBody.split(/\r?\n/).length;
+    if (bodyLineCount > NOTE_VALIDATION_LIMITS.maxBodyLines) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: noteValidationMessage(
+            `Note body exceeds ${NOTE_VALIDATION_LIMITS.maxBodyLines} lines (${bodyLineCount}).`,
+            "Oversized notes blur multiple ideas together and reduce the signal-to-noise ratio of the repository cognition layer.",
+          ),
+        },
+      };
+    }
+
     return {
       metadata: {
         id,
         aliases: aliases.value,
         tags: tags.value,
         title,
-        summary: extractNoteSummary(body),
+        summary,
         codeLinks: extractCodePathReferences(body),
         filePath,
         fileName: path.basename(filePath),

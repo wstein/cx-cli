@@ -75,7 +75,12 @@ describe("Notes Commands", () => {
     const content = await fs.readFile(filePath, "utf-8");
     expect(content).toContain(`id: ${id}`);
     expect(content).not.toContain("title: Test Note");
-    expect(content).toContain("Write your note here.");
+    expect(content).toContain(
+      "Summarize the note in one or two sentences so agents can route to it quickly from the manifest.",
+    );
+    expect(content).toContain("## What");
+    expect(content).toContain("## Why");
+    expect(content).toContain("## How");
     expect(content).toContain("test");
     expect(content).toContain("demo");
   });
@@ -91,7 +96,20 @@ describe("Notes Commands", () => {
     const content = await fs.readFile(filePath, "utf-8");
     expect(content).toContain("This note starts with a concrete summary.");
     expect(content).toContain("## Links");
-    expect(content).not.toContain("Write your note here.");
+    expect(content).not.toContain(
+      "Summarize the note in one or two sentences so agents can route to it quickly from the manifest.",
+    );
+  });
+
+  test("rejects note creation when the body cannot produce a summary", async () => {
+    await expect(
+      createNewNote(
+        "Invalid Note",
+        noteOptions({
+          body: "## Links\n\n- [[Missing Summary]]",
+        }),
+      ),
+    ).rejects.toThrow("Missing required summary paragraph");
   });
 
   test("updates an existing note body and tags", async () => {

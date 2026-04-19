@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 import {
+  NOTE_VALIDATION_LIMITS,
   type NoteDocument,
   validateNoteDocuments,
   validateNotes,
@@ -52,6 +53,8 @@ tags: []
 ---
 
 # Test
+
+This note has a real summary paragraph.
 `,
       ),
     ]);
@@ -73,6 +76,8 @@ tags: []
 ---
 
 # Test
+
+This note has a real summary paragraph.
 `,
       ),
     ]);
@@ -171,6 +176,8 @@ tags: []
 ---
 
 # Note
+
+This note is valid and should still trigger duplicate ID detection.
 `;
     const result = validateNoteDocuments([
       doc("note-a.md", note),
@@ -211,6 +218,76 @@ It should become the manifest summary.
     expect(result.valid).toBe(true);
     expect(result.notes[0]?.summary).toBe(
       "This note explains the first useful idea. It should become the manifest summary.",
+    );
+  });
+
+  test("requires a non-empty summary paragraph", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "missing-summary.md",
+        `---
+id: 20260413123031
+aliases: []
+tags: []
+---
+
+## Links
+
+- [[Other Note]]
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain(
+      "Missing required summary paragraph",
+    );
+    expect(result.errors[0]?.error).toContain("Why this protects you:");
+  });
+
+  test("rejects notes that exceed the body character limit", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "oversized.md",
+        `---
+id: 20260413123032
+aliases: []
+tags: []
+---
+
+${"A".repeat(NOTE_VALIDATION_LIMITS.maxBodyCharacters + 1)}
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain(
+      `exceeds ${NOTE_VALIDATION_LIMITS.maxBodyCharacters} characters`,
+    );
+  });
+
+  test("rejects notes that exceed the body line limit", () => {
+    const oversizedBody = Array.from(
+      { length: NOTE_VALIDATION_LIMITS.maxBodyLines + 1 },
+      (_, index) => `Line ${index + 1}`,
+    ).join("\n");
+    const result = validateNoteDocuments([
+      doc(
+        "too-many-lines.md",
+        `---
+id: 20260413123033
+aliases: []
+tags: []
+---
+
+${oversizedBody}
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]?.error).toContain(
+      `exceeds ${NOTE_VALIDATION_LIMITS.maxBodyLines} lines`,
     );
   });
 

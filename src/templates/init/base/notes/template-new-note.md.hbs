@@ -3,7 +3,19 @@ id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
 ---
-Write one discrete architectural thought in your own words. Keep it atomic: one concept, one mechanism, one decision, one constraint, or one failure mode.
+Summarize the note in one or two sentences so agents can route to it quickly from the manifest.
+
+## What
+
+State the durable fact, mechanism, decision, or failure mode.
+
+## Why
+
+Explain the invariant, constraint, or tradeoff this note protects.
+
+## How
+
+Describe how an operator, reviewer, or later agent should apply it.
 
 ## Links
 
