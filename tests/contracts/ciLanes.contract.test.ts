@@ -84,6 +84,7 @@ describe("CI lanes contract", () => {
     );
     expect(scripts.test).toBe("bun run test:unit");
     expect(scripts["test:unit"]).toBe("vitest run tests/unit");
+    expect(scripts["test:integration"]).toBeUndefined();
     expect(scripts["test:bun:regression"]).toBe(
       "node scripts/bun-runtime-regression.js --timeout 60000",
     );
@@ -122,6 +123,7 @@ describe("CI lanes contract", () => {
     expect(scripts["test:contracts"]).not.toContain("bun:test");
     expect(scripts["test:bun:regression"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
+    expect(Object.keys(scripts)).not.toContain("test:integration");
   });
 
   test("CI reproducibility job delegates to a reproducibility assurance wrapper", async () => {

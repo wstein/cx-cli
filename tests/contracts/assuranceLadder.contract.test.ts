@@ -38,6 +38,7 @@ describe("assurance ladder contract", () => {
     expect(typeof scripts.verify).toBe("string");
     expect(typeof scripts["ci:test:coverage"]).toBe("string");
     expect(typeof scripts["test:contracts"]).toBe("string");
+    expect(scripts["test:integration"]).toBeUndefined();
     expect(typeof scripts["smoke:repomix-version"]).toBe("string");
     expect(typeof scripts["smoke:bundle-transition"]).toBe("string");
     expect(typeof scripts["smoke:release-integrity"]).toBe("string");

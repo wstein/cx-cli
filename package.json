@@ -32,7 +32,6 @@
     "lint": "biome check . && node scripts/check-boundaries.js",
     "check-boundaries": "node scripts/check-boundaries.js",
     "test:unit": "vitest run tests/unit",
-    "test:integration": "bun test tests/cli tests/bundle --timeout 20000",
     "test:bun:regression": "node scripts/bun-runtime-regression.js --timeout 60000",
     "test:all": "bun run test:vitest",
     "test:all:full": "bun run ci:test:coverage",
