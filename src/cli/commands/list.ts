@@ -48,7 +48,10 @@ interface RowMeta {
   };
 }
 
-function formatProvenanceSuffix(provenance: string[]): string {
+function formatProvenanceSuffix(
+  provenance: string[],
+  useColor: boolean,
+): string {
   if (provenance.length === 0) {
     return "";
   }
@@ -62,7 +65,8 @@ function formatProvenanceSuffix(provenance: string[]): string {
       | "manifest_note_inclusion"
     >,
   );
-  return kleur.gray(` [${sorted.join(", ")}]`);
+  const suffix = ` [${sorted.join(", ")}]`;
+  return useColor ? kleur.gray(suffix) : suffix;
 }
 
 function getTokensForRow(row: ManifestFileRow): number {
@@ -100,7 +104,11 @@ function formatRelativeTime(iso: string): string {
 function colorByTemperature(
   value: string,
   band: "cool" | "warm" | "hot",
+  useColor: boolean,
 ): string {
+  if (!useColor) {
+    return value;
+  }
   if (band === "cool") {
     return kleur.green(value);
   }
@@ -114,28 +122,30 @@ function colorBytes(
   bytes: number,
   value: string,
   listDisplay: CxListDisplayConfig,
+  useColor: boolean,
 ): string {
   if (bytes <= listDisplay.bytesWarm) {
-    return colorByTemperature(value, "cool");
+    return colorByTemperature(value, "cool", useColor);
   }
   if (bytes <= listDisplay.bytesHot) {
-    return colorByTemperature(value, "warm");
+    return colorByTemperature(value, "warm", useColor);
   }
-  return colorByTemperature(value, "hot");
+  return colorByTemperature(value, "hot", useColor);
 }
 
 function colorTokens(
   tokens: number,
   value: string,
   listDisplay: CxListDisplayConfig,
+  useColor: boolean,
 ): string {
   if (tokens <= listDisplay.tokensWarm) {
-    return colorByTemperature(value, "cool");
+    return colorByTemperature(value, "cool", useColor);
   }
   if (tokens <= listDisplay.tokensHot) {
-    return colorByTemperature(value, "warm");
+    return colorByTemperature(value, "warm", useColor);
   }
-  return colorByTemperature(value, "hot");
+  return colorByTemperature(value, "hot", useColor);
 }
 
 function ansi256(value: string, code: number): string {
@@ -146,7 +156,11 @@ function colorTime(
   iso: string,
   value: string,
   listDisplay: CxListDisplayConfig,
+  useColor: boolean,
 ): string {
+  if (!useColor) {
+    return value;
+  }
   if (iso === "-") {
     return kleur.gray(value);
   }
@@ -175,7 +189,11 @@ function colorTime(
 function colorExtractability(
   status: RowMeta["extractability"]["status"],
   value: string,
+  useColor: boolean,
 ): string {
+  if (!useColor) {
+    return value;
+  }
   if (status === "intact") {
     return kleur.green(value);
   }
@@ -192,6 +210,7 @@ function renderGroupedList(
   manifestName: string,
   rows: RowMeta[],
   listDisplay: CxListDisplayConfig,
+  useColor: boolean,
 ): string {
   const groups = new Map<string, RowMeta[]>();
   for (const row of rows) {
@@ -231,43 +250,59 @@ function renderGroupedList(
     return left.localeCompare(right, "en");
   });
 
-  const lines = [`manifest: ${kleur.bold().white(manifestName)}`];
+  const lines = [
+    useColor
+      ? `manifest: ${kleur.bold().white(manifestName)}`
+      : `manifest: ${manifestName}`,
+  ];
   for (const sectionName of orderedSections) {
     const sectionRows = groups.get(sectionName) ?? [];
     lines.push("");
-    lines.push(kleur.bold().cyan(sectionName));
+    lines.push(useColor ? kleur.bold().cyan(sectionName) : sectionName);
     lines.push(
       [
         "  ",
-        kleur.gray("bytes".padStart(bytesWidth)),
+        useColor
+          ? kleur.gray("bytes".padStart(bytesWidth))
+          : "bytes".padStart(bytesWidth),
         "  ",
-        kleur.gray("tokens".padStart(tokensWidth)),
+        useColor
+          ? kleur.gray("tokens".padStart(tokensWidth))
+          : "tokens".padStart(tokensWidth),
         "  ",
-        kleur.gray("time".padEnd(mtimeWidth)),
+        useColor
+          ? kleur.gray("time".padEnd(mtimeWidth))
+          : "time".padEnd(mtimeWidth),
         "  ",
-        kleur.gray("status".padEnd(statusWidth)),
+        useColor
+          ? kleur.gray("status".padEnd(statusWidth))
+          : "status".padEnd(statusWidth),
         "  ",
-        kleur.gray("path".padEnd(pathWidth)),
+        useColor
+          ? kleur.gray("path".padEnd(pathWidth))
+          : "path".padEnd(pathWidth),
       ].join(""),
     );
 
     for (const row of sectionRows) {
-      const pathCell = kleur.white(row.path.padEnd(pathWidth));
       const bytesRaw = formatBytes(row.bytes).padStart(bytesWidth);
       const tokensRaw = `${formatNumber(row.tokens)} tok`.padStart(tokensWidth);
       const mtimeRaw = row.mtimeRelative.padEnd(mtimeWidth);
       const statusRaw = row.status.padEnd(statusWidth);
-      const provenanceSuffix = formatProvenanceSuffix(row.provenance);
+      const pathCell = useColor
+        ? kleur.white(row.path.padEnd(pathWidth))
+        : row.path.padEnd(pathWidth);
+      const provenanceSuffix = formatProvenanceSuffix(row.provenance, useColor);
       lines.push(
         [
           "  ",
-          colorBytes(row.bytes, bytesRaw, listDisplay),
+          colorBytes(row.bytes, bytesRaw, listDisplay, useColor),
           "  ",
-          colorTokens(row.tokens, tokensRaw, listDisplay),
+          colorTokens(row.tokens, tokensRaw, listDisplay, useColor),
           "  ",
-          colorTime(row.mtime, mtimeRaw, listDisplay),
+          colorTime(row.mtime, mtimeRaw, listDisplay, useColor),
           "  ",
-          colorExtractability(row.status, statusRaw),
+          colorExtractability(row.status, statusRaw, useColor),
           "  ",
           `${pathCell}${provenanceSuffix}`,
         ].join(""),
@@ -283,6 +318,7 @@ export async function runListCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
+  const useColor = io.stdin.isTTY === true;
   const bundleDir = path.resolve(io.cwd, args.bundleDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const userConfig = await loadCxUserConfig();
@@ -349,7 +385,12 @@ export async function runListCommand(
   }
 
   writeStdout(
-    renderGroupedList(manifestName, rowsWithMeta, userConfig.display.list),
+    renderGroupedList(
+      manifestName,
+      rowsWithMeta,
+      userConfig.display.list,
+      useColor,
+    ),
     io,
   );
   return 0;
