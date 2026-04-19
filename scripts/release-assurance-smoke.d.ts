@@ -39,6 +39,12 @@ export type ReleaseAssuranceSmokeOptions = {
   execPath?: string;
 };
 
+export type ReleaseAssuranceSmokeEntryOptions = {
+  runSmoke?: () => Promise<void>;
+  logError?: (message: string) => void;
+  exit?: (code: number) => void;
+};
+
 export function createReleaseAssurancePaths(cwd?: string): {
   tarballDir: string;
   releaseIntegrityPath: string;
@@ -69,4 +75,8 @@ export function runJsonCommand(
 export function runReleaseAssuranceSmoke(
   cwd?: string,
   options?: ReleaseAssuranceSmokeOptions,
+): Promise<void>;
+
+export function runReleaseAssuranceSmokeEntry(
+  options?: ReleaseAssuranceSmokeEntryOptions,
 ): Promise<void>;

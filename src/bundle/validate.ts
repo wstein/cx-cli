@@ -6,6 +6,8 @@ import { parseManifestJson } from "../manifest/json.js";
 import { CxError } from "../shared/errors.js";
 import { pathExists } from "../shared/fs.js";
 
+type ReadUtf8 = (filePath: string, encoding: BufferEncoding) => Promise<string>;
+
 export async function loadManifestFromBundle(bundleDir: string): Promise<{
   manifest: ReturnType<typeof parseManifestJson>;
   manifestName: string;
@@ -38,7 +40,7 @@ export async function loadManifestFromBundle(bundleDir: string): Promise<{
 export interface BundleValidationDeps {
   loadManifestFromBundle?: typeof loadManifestFromBundle;
   pathExists?: typeof pathExists;
-  readFile?: typeof fs.readFile;
+  readFile?: ReadUtf8;
 }
 
 export async function validateBundle(
@@ -47,7 +49,8 @@ export async function validateBundle(
 ): Promise<{ manifestName: string }> {
   const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
   const pathExistsFn = deps.pathExists ?? pathExists;
-  const readFile = deps.readFile ?? fs.readFile;
+  const readFile =
+    deps.readFile ?? ((filePath, encoding) => fs.readFile(filePath, encoding));
 
   const { manifest, manifestName } = await loadManifest(bundleDir);
   if (manifest.bundleVersion !== 1) {

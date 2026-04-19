@@ -250,10 +250,10 @@ describe("release assurance smoke script helpers", () => {
       runSmoke: async () => {
         throw new Error("smoke exploded");
       },
-      logError: (message) => {
+      logError: (message: string) => {
         errorMessages.push(message);
       },
-      exit: (code) => {
+      exit: (code: number) => {
         exitCodes.push(code);
       },
     });
@@ -273,10 +273,10 @@ describe("release assurance smoke script helpers", () => {
       runSmoke: async () => {
         runCalls.push("run");
       },
-      logError: (message) => {
+      logError: (message: string) => {
         errorMessages.push(message);
       },
-      exit: (code) => {
+      exit: (code: number) => {
         exitCodes.push(code);
       },
     });

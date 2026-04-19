@@ -18,6 +18,15 @@ import {
 } from "../shared/verifyFilters.js";
 import { loadManifestFromBundle, validateBundle } from "./validate.js";
 
+type ReadUtf8 = (filePath: string, encoding: BufferEncoding) => Promise<string>;
+
+type Mkdtemp = (prefix: string) => Promise<string>;
+
+type RemovePath = (
+  targetPath: string,
+  options: { recursive?: boolean; force?: boolean },
+) => Promise<void>;
+
 export type VerifyFailureType =
   | "checksum_omission"
   | "checksum_mismatch"
@@ -48,14 +57,14 @@ export class VerifyError extends CxError {
 export interface BundleVerifyDeps {
   validateBundle?: typeof validateBundle;
   loadManifestFromBundle?: typeof loadManifestFromBundle;
-  readFile?: typeof fs.readFile;
+  readFile?: ReadUtf8;
   parseChecksumFile?: typeof parseChecksumFile;
   sha256File?: typeof sha256File;
   renderSectionWithRepomix?: typeof renderSectionWithRepomix;
   validatePlanOrdering?: typeof validatePlanOrdering;
   validateEntryHashes?: typeof validateEntryHashes;
-  mkdtemp?: typeof fs.mkdtemp;
-  rm?: typeof fs.rm;
+  mkdtemp?: Mkdtemp;
+  rm?: RemovePath;
 }
 
 function buildVerifyRemediation(
@@ -111,8 +120,8 @@ async function verifyBundleAgainstSourceTree(
     deps.renderSectionWithRepomix ?? renderSectionWithRepomix;
   const validateOrdering = deps.validatePlanOrdering ?? validatePlanOrdering;
   const validateHashes = deps.validateEntryHashes ?? validateEntryHashes;
-  const mkdtemp = deps.mkdtemp ?? fs.mkdtemp;
-  const rm = deps.rm ?? fs.rm;
+  const mkdtemp = deps.mkdtemp ?? ((prefix) => fs.mkdtemp(prefix));
+  const rm = deps.rm ?? ((targetPath, options) => fs.rm(targetPath, options));
 
   const { manifest } = await loadManifest(bundleDir);
   const selectedFiles = selectManifestRows(manifest.files, selection);
@@ -244,7 +253,8 @@ export async function verifyBundle(
 ): Promise<void> {
   const validate = deps.validateBundle ?? validateBundle;
   const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
-  const readFile = deps.readFile ?? fs.readFile;
+  const readFile =
+    deps.readFile ?? ((filePath, encoding) => fs.readFile(filePath, encoding));
   const parseChecksums = deps.parseChecksumFile ?? parseChecksumFile;
   const sha256FileImpl = deps.sha256File ?? sha256File;
 
