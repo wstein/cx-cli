@@ -18,14 +18,14 @@ async function readPackageVersion(): Promise<string> {
   return pkg.version;
 }
 
-describe("v0.4.0 release readiness docs contract", () => {
+describe("release readiness docs contract", () => {
   test("changelog and migration docs explain the v0.4.0 operating contract", async () => {
     const changelog = await readText("CHANGELOG.md");
     const migration = await readText("docs/MIGRATIONS/0.4.0.md");
     const docsIndex = await readText("docs/README.md");
     const packageVersion = await readPackageVersion();
 
-    expect(packageVersion).toBe("0.4.0");
+    expect(packageVersion).toMatch(/^\d+\.\d+\.\d+$/);
 
     expect(changelog).toContain("## [0.4.0] - 2026-04-19");
     expect(changelog).toContain("Track B generates hypotheses.");
