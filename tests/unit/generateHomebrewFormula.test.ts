@@ -38,6 +38,12 @@ describe("generate-homebrew-formula.js", () => {
     expect(result.status).toBe(0);
 
     const formula = await fs.readFile(outputPath, "utf8");
+    expect(formula).toContain(
+      'desc "Deterministic context bundler built on top of Repomix"',
+    );
+    expect(formula).not.toContain(
+      'desc "Deterministic context bundler built on top of Repomix."',
+    );
     expect(formula).toContain('depends_on "node"');
     expect(formula).toContain('system "npm",');
     expect(formula).toContain('"--no-fund"');

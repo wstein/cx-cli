@@ -60,6 +60,7 @@ if (!tarballPath && requestedVersion !== packageVersion) {
 const description =
   packageJson.description ??
   "Deterministic context bundler built on top of Repomix.";
+const normalizedDescription = description.replace(/\.\s*$/, "");
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
 const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requestedVersion}.tgz`;
@@ -145,7 +146,7 @@ try {
   const buffer = readFileSync(tarballArtifact.tarballPath);
   const sha256 = createHash("sha256").update(buffer).digest("hex");
 
-  const escapedDescription = description.replace(/"/g, '\\"');
+  const escapedDescription = normalizedDescription.replace(/"/g, '\\"');
   const installLines = [
     `    bin.install_symlink libexec/"bin/${canonicalBinary}" => "${installedBinary}"`,
   ];
