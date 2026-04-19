@@ -103,6 +103,22 @@ Every `*.test.ts` file must start with a lane header on line 1:
 - The fast-lane file budget is controlled by `FAST_LANE_MAX_FILES` (default:
   `95`). Raise it only when the team intentionally accepts a slower fast lane.
 
+## Cost Control
+
+- Treat `bun run ci:test:coverage` as the authoritative repository-wide proof
+  lane. Do not add duplicate full-suite reruns under another runner.
+- Prefer focused Vitest lanes during development when the change is clearly
+  scoped to bundle, notes, planning, or MCP-heavy behavior.
+- Add a new integration or adversarial test only when the filesystem,
+  transport, module-resolution, or process boundary is part of the behavior
+  being protected.
+- When a new heavy test overlaps an existing proof surface, tighten the
+  existing lane first instead of creating a second broad lane.
+- Keep high-volume suites quiet. Use buffered command IO and
+  `emitBehaviorLogs: false` where the behavior log is not itself under test.
+- Re-measure expensive lanes after adding slow tests or fixtures so verify
+  economics do not drift silently.
+
 ## Focused MCP Cockpit
 
 - Use `bun run test:vitest:mcp` for a narrow MCP-heavy lane when debugging MCP startup, policy, audit, or transport behavior.

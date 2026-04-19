@@ -1,6 +1,13 @@
 # Repository Notes Guide
 
-This directory is the **primary source of truth** for the codebase. Every architectural aspect, idea, and mechanism must be recorded here as a note **before** it is documented or implemented. Implementation and documentation must always remain in sync with the repository notes.
+This directory is the durable upstream intent layer for the codebase. It is where repository reasoning becomes reusable memory for later humans, agents, bundles, and CI.
+
+Notes do not override the canonical semantics in
+[docs/MENTAL_MODEL.md](../docs/MENTAL_MODEL.md) and
+[docs/SYSTEM_CONTRACTS.md](../docs/SYSTEM_CONTRACTS.md). Notes are
+**conditional** knowledge: they are durable and reviewable, but they are still
+claims about the system until governance, human review, or later proof paths
+confirm them.
 
 For the formal documentation set, start with [docs/README.md](../docs/README.md).
 The revision consensus for the repository lives in
@@ -28,12 +35,15 @@ than how CI proves the full repository state.
 
 ## Why This Directory Exists
 
-This directory exists as the **upstream intent layer** for all repository work. If a concept exists in the code or docs, it must first exist here.
+This directory exists as the **upstream intent layer** for repository work.
+Use it when the reasoning should become durable, queryable, and linkable. Keep
+implementation and formal documentation aligned with the note graph when that
+reasoning matures into a stable repository contract.
 
 This is not a project-management folder.
 
 - Project trackers are hierarchical and temporary.
-- Repository notes are durable, linkable, and machine-authoritative.
+- Repository notes are durable, linkable, and machine-routable.
 - The goal is **complete knowledge capture**. Every design choice, mechanism, and constraint belongs in the graph.
 
 ## Before and After for Agents

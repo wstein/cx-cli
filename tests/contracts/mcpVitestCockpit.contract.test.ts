@@ -89,6 +89,8 @@ describe("MCP Vitest cockpit contract", () => {
     expect(agentIntegration).toContain("Policy denials");
     expect(agentIntegration).toContain("Slow imports");
     expect(testsGuide).toContain("## Focused MCP Cockpit");
+    expect(testsGuide).toContain("## Cost Control");
+    expect(testsGuide).toContain("bun run ci:test:coverage");
     expect(testsGuide).toContain("bun run test:vitest:mcp");
     expect(testsGuide).toContain("bun run test:vitest:mcp:adversarial");
   });

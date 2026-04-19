@@ -49,6 +49,13 @@ See:
 - [config-reference.md](./config-reference.md) - configuration knobs and precedence
 - [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) - instructions and examples for integrating `cx mcp` with IDEs and AI agents
 
+Trust shorthand for the whole docs set:
+
+- Source tree: trusted
+- Notes: conditional
+- Agent output: untrusted until verified
+- Bundle: trusted
+
 ## Hierarchy
 
 - `MENTAL_MODEL.md` owns semantics.

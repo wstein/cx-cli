@@ -91,6 +91,13 @@ The invariants that protect downstream automation are explicit:
 - `verify` compares the bundle back to a source tree so drift becomes explicit evidence.
 - Dirty-state gating stops tracked-file changes from masquerading as reviewed inputs.
 
+Trust shorthand:
+
+- Source tree: trusted
+- Notes: conditional
+- Agent output: untrusted until verified
+- Bundle: trusted
+
 ## Documentation
 
 - [docs/README.md](docs/README.md) for the formal documentation index

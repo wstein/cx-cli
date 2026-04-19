@@ -30,10 +30,18 @@ describe("docs assurance contract", () => {
     expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(rootReadme).toContain("Run `cx mcp`");
     expect(rootReadme).toContain("https://wstein.github.io/cx-cli/coverage/");
+    expect(rootReadme).toContain("Source tree: trusted");
+    expect(rootReadme).toContain("Notes: conditional");
+    expect(rootReadme).toContain("Agent output: untrusted until verified");
+    expect(rootReadme).toContain("Bundle: trusted");
     expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
     expect(docsIndex).toContain("[SYSTEM_MAP.md](./SYSTEM_MAP.md)");
     expect(docsIndex).toContain("[SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md)");
     expect(docsIndex).toContain("Everything else should reference");
+    expect(docsIndex).toContain("Source tree: trusted");
+    expect(docsIndex).toContain("Notes: conditional");
+    expect(docsIndex).toContain("Agent output: untrusted until verified");
+    expect(docsIndex).toContain("Bundle: trusted");
     expect(governance).toContain("## Hard Hierarchy Contract");
     expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
     expect(governance).toContain("`OPERATING_MODES.md` maps those semantics");
