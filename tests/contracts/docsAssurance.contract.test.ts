@@ -43,6 +43,9 @@ describe("docs assurance contract", () => {
     expect(docsIndex).toContain("Notes: conditional");
     expect(docsIndex).toContain("Agent output: untrusted until verified");
     expect(docsIndex).toContain("Bundle: trusted");
+    expect(docsIndex).toContain("## Workflow Set");
+    expect(docsIndex).toContain("Read the Friday-to-Monday workflow first.");
+    expect(docsIndex).toContain("## Historical Material");
     expect(governance).toContain("## Hard Hierarchy Contract");
     expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
     expect(governance).toContain("`OPERATING_MODES.md` maps those semantics");
@@ -215,6 +218,7 @@ describe("docs assurance contract", () => {
     const mentalModel = await readText("docs/MENTAL_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
+    const architecture = await readText("docs/ARCHITECTURE.md");
 
     expect(mentalModel).toContain("Track B = hypothesis generation");
     expect(mentalModel).toContain("Track A = proof generation");
@@ -226,5 +230,9 @@ describe("docs assurance contract", () => {
     expect(agentIntegration).toContain("doctor_mcp()");
     expect(agentIntegration).toContain('"tokenCount": 287');
     expect(agentIntegration).toContain('"outputStartLine": 41');
+    expect(architecture).toContain("implementation reference for contributors");
+    expect(architecture).toContain(
+      "Vitest as the authoritative shared-suite test runner and coverage lane",
+    );
   });
 });

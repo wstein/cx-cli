@@ -50,6 +50,23 @@ Use the smallest core set first:
 - MCP debugging cockpit: `bun run test:vitest:mcp:ui`, `bun run test:vitest:mcp:adversarial:ui`
 - Compact operator MCP audit view: `cx audit summary`
 
+## Workflow Set
+
+- [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - the primary end-to-end workflow from live investigation to verified handoff
+- [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - the policy boundary for trusted local note mutation
+- [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md) - the agent point of view for that same trusted mutation path
+
+Read the Friday-to-Monday workflow first. The two note-mutation workflow docs
+are narrower special cases, not parallel onboarding paths.
+
+## Historical Material
+
+- [../CHANGELOG.md](../CHANGELOG.md)
+- [MIGRATIONS/0.4.0.md](./MIGRATIONS/0.4.0.md)
+
+Use these when upgrading or reviewing release history. They are not part of the
+core operator front door.
+
 Trust shorthand for the whole docs set:
 
 - Source tree: trusted

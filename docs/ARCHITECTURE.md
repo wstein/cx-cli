@@ -2,6 +2,13 @@
 
 # CX Architecture
 
+This is the implementation reference for contributors who need to understand how
+the codebase enforces the canonical model.
+
+Read this after [MENTAL_MODEL.md](MENTAL_MODEL.md),
+[SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md), and [SYSTEM_MAP.md](SYSTEM_MAP.md),
+not before them.
+
 ## Design Goal
 
 `cx` exists to make context bundling reproducible enough for automation.
@@ -32,21 +39,21 @@ That distinction explains most of the architecture:
 
 This is why `cx` records token accounting in the manifest, writes canonical JSON, and protects emitted artifacts with SHA-256 checksums. Those are not decorative constraints. They are the mechanisms that let a bundle survive time, transport, and automation boundaries.
 
-## Deferred Framework Migration
+## Current Implementation Priorities
 
-The current reliability program deliberately avoids broad framework churn.
+The current reliability program avoids broad framework churn and instead
+prioritizes boundary cleanup and clearer ownership.
 
-For the next cleanup wave, `cx` keeps:
+The active modernization targets are:
 
-- `yargs` as the CLI framework
-- `bun:test` as the primary test runner
-- Bun-first CI lanes
-- the in-process Repomix fork boundary
+- keeping command I/O injectable instead of process-global
+- keeping workspace context explicit instead of ambient
+- keeping Vitest as the authoritative shared-suite test runner and coverage lane
+- keeping Bun limited to explicit runtime compatibility smoke
+- preserving the in-process Repomix fork boundary as a narrow adapter layer
 
-The active modernization target is boundary cleanup, not framework replacement.
-That means reducing shared process state at the edges of the system, with a
-specific emphasis on command I/O injection, explicit workspace context, and
-test isolation from mutable globals.
+That means the main architectural work is still about deterministic boundaries,
+not about swapping frameworks for their own sake.
 
 ## System Boundary
 
