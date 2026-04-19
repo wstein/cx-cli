@@ -21,6 +21,7 @@ async function loadRawConfig(
     content,
     envOverrides,
     cliOverrides,
+    { emitBehaviorLogs: false },
   );
 }
 

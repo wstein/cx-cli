@@ -17,7 +17,13 @@ const VIRTUAL_CONFIG_PATH = path.join(
 
 async function loadConfig(overrides: BuildConfigOptions = {}) {
   const config = buildConfig(overrides);
-  return loadCxConfigFromTomlString(VIRTUAL_CONFIG_PATH, toToml(config));
+  return loadCxConfigFromTomlString(
+    VIRTUAL_CONFIG_PATH,
+    toToml(config),
+    {},
+    {},
+    { emitBehaviorLogs: false },
+  );
 }
 
 describe("loadCxConfig object model", () => {

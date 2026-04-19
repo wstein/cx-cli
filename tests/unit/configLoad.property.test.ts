@@ -36,6 +36,9 @@ const optionalDuplicateArb = fc.option(fc.constantFrom(...duplicateModes), {
 const optionalAssetLayoutArb = fc.option(fc.constantFrom(...assetLayouts), {
   nil: undefined,
 });
+const QUIET_LOAD_OPTIONS = {
+  emitBehaviorLogs: false,
+} as const;
 
 function buildConfigToml(fileSettings: {
   dedupMode: CxDedupMode | undefined;
@@ -210,7 +213,7 @@ describe("loadCxConfig property matrix", () => {
               configPath,
               envOverrides,
               cliOverrides,
-              { emitBehaviorLogs: false },
+              QUIET_LOAD_OPTIONS,
             );
 
             const expectedDedup = expectedValue({
