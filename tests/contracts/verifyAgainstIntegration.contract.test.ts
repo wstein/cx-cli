@@ -86,8 +86,14 @@ describe("verify --against integration audit", () => {
     const exitCode = runVerifyAgainstPolicyCli(
       ["--format", "json", "--output", reportPath],
       {
-        stdout: (message) => stdout.push(message),
-        stderr: (message) => stderr.push(message),
+        stdout: (message) => {
+          stdout.push(message);
+          return true;
+        },
+        stderr: (message) => {
+          stderr.push(message);
+          return true;
+        },
       },
     );
 
