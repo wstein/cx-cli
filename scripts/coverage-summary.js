@@ -10,15 +10,13 @@ const readLcovFile = async (filePath) => {
   for (const line of content.split("\n")) {
     if (line.startsWith("SF:")) {
       const file = line.slice(3);
-      current = { file, lines: new Map(), total: 0, hit: 0 };
+      current = coverage.get(file) ?? { file, lines: new Map() };
       coverage.set(file, current);
     } else if (line.startsWith("DA:") && current) {
       const parts = line.slice(3).split(",");
       const lineNum = Number(parts[0]);
       const count = Number(parts[1]);
-      current.lines.set(lineNum, count);
-      current.total++;
-      if (count > 0) current.hit++;
+      current.lines.set(lineNum, (current.lines.get(lineNum) ?? 0) + count);
     }
   }
 
@@ -87,15 +85,29 @@ const main = async () => {
   const coverage = new Map(
     Array.from(rawCoverage.entries()).filter(([file]) => shouldInclude(file)),
   );
-  const sorted = Array.from(coverage.values()).sort(
-    (a, b) => a.hit / a.total - b.hit / b.total,
-  );
+  const summarized = Array.from(coverage.values()).map((file) => {
+    let total = 0;
+    let hit = 0;
+    for (const count of file.lines.values()) {
+      total += 1;
+      if (count > 0) {
+        hit += 1;
+      }
+    }
 
-  const totalHit = Array.from(coverage.values()).reduce(
+    return {
+      ...file,
+      total,
+      hit,
+    };
+  });
+  const sorted = summarized.sort((a, b) => a.hit / a.total - b.hit / b.total);
+
+  const totalHit = summarized.reduce(
     (sum, c) => sum + c.hit,
     0,
   );
-  const totalLines = Array.from(coverage.values()).reduce(
+  const totalLines = summarized.reduce(
     (sum, c) => sum + c.total,
     0,
   );
@@ -127,7 +139,7 @@ const main = async () => {
     if (file.hit === file.total) continue;
 
     push(`## ${file.file}`, "");
-    push(`Coverage: ${pct}% (${file.hit}/${file.total})`, "");
+    push(`Coverage: ${pct}% (${file.hit}/${file.total} lines)`, "");
 
     const source = await readSourceFile(file.file);
     const ranges = getUncoveredRanges(file.lines);

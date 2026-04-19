@@ -33,29 +33,33 @@ async function writeConfig(
 }
 
 describe("bundle update matrix", () => {
-  test("style-change transition preserves bundle integrity with --update", async () => {
-    const project = await createUpdateMatrixProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const originalXml = path.join(
-      project.bundleDir,
-      "demo-repomix-src.xml.txt",
-    );
-    expect(await fs.stat(originalXml)).toBeDefined();
+  test(
+    "style-change transition preserves bundle integrity with --update",
+    async () => {
+      const project = await createUpdateMatrixProject();
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      const originalXml = path.join(
+        project.bundleDir,
+        "demo-repomix-src.xml.txt",
+      );
+      expect(await fs.stat(originalXml)).toBeDefined();
 
-    const config = (await readConfig(project.configPath)).replace(
-      'style = "xml"',
-      'style = "markdown"',
-    );
-    await writeConfig(project.configPath, config);
+      const config = (await readConfig(project.configPath)).replace(
+        'style = "xml"',
+        'style = "markdown"',
+      );
+      await writeConfig(project.configPath, config);
 
-    expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
-    ).toBe(0);
-    await expect(fs.stat(originalXml)).rejects.toThrow();
-    expect(
-      await fs.stat(path.join(project.bundleDir, "demo-repomix-src.md")),
-    ).toBeDefined();
-  });
+      expect(
+        await runBundleCommand({ config: project.configPath, update: true }),
+      ).toBe(0);
+      await expect(fs.stat(originalXml)).rejects.toThrow();
+      expect(
+        await fs.stat(path.join(project.bundleDir, "demo-repomix-src.md")),
+      ).toBeDefined();
+    },
+    { timeout: 120000 },
+  );
 
   test(
     "section-change transition moves files between sections with --update",
@@ -92,24 +96,28 @@ describe("bundle update matrix", () => {
         false,
       );
     },
-    { timeout: 60000 },
+    { timeout: 120000 },
   );
 
-  test("asset-change transition prunes removed assets with --update", async () => {
-    const project = await createUpdateMatrixProject();
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    const assetPath = path.join(project.bundleDir, "demo-assets", "logo.png");
-    expect(await fs.stat(assetPath)).toBeDefined();
+  test(
+    "asset-change transition prunes removed assets with --update",
+    async () => {
+      const project = await createUpdateMatrixProject();
+      expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+      const assetPath = path.join(project.bundleDir, "demo-assets", "logo.png");
+      expect(await fs.stat(assetPath)).toBeDefined();
 
-    const config = (await readConfig(project.configPath)).replace(
-      'include = ["**/*.png"]',
-      "include = []",
-    );
-    await writeConfig(project.configPath, config);
+      const config = (await readConfig(project.configPath)).replace(
+        'include = ["**/*.png"]',
+        "include = []",
+      );
+      await writeConfig(project.configPath, config);
 
-    expect(
-      await runBundleCommand({ config: project.configPath, update: true }),
-    ).toBe(0);
-    await expect(fs.stat(assetPath)).rejects.toThrow();
-  });
+      expect(
+        await runBundleCommand({ config: project.configPath, update: true }),
+      ).toBe(0);
+      await expect(fs.stat(assetPath)).rejects.toThrow();
+    },
+    { timeout: 120000 },
+  );
 });

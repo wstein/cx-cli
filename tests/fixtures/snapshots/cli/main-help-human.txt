@@ -2,6 +2,7 @@ cx <command> [options]
 
 Commands:
   cx completion            Generate a shell completion script for bash, zsh, or fish.
+  cx audit [subcommand]    Summarize recent MCP audit trends without reading raw JSONL.
   cx init                  Create a starter cx.toml and scaffold repository notes.
   cx inspect               Show the computed plan without writing files.
   cx bundle                Create an immutable bundle snapshot from a project.
