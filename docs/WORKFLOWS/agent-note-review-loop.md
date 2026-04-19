@@ -78,6 +78,13 @@ Use the check to verify:
 - duplicate IDs did not enter the graph
 - broken links or orphaned concepts did not appear
 
+Trust remains explicit even in a trusted local mutation session:
+
+- source tree: trusted
+- notes: conditional
+- agent output: untrusted until verified
+- bundle: trusted
+
 Why this protects you: note mutation is not finished when the write succeeds. It is finished when the updated cognition layer still passes governance and graph review.
 
 ## Step 5: Let CI Reconfirm The Gate

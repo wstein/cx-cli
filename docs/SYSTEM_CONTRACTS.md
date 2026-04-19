@@ -65,6 +65,13 @@ Why this protects you: once boundaries blur, the system stops being a trust syst
 
 Trust moves through `cx` asymmetrically:
 
+The shorthand is:
+
+- **Source tree: trusted**
+- **Notes: conditional**
+- **Agent output: untrusted until verified**
+- **Bundle: trusted**
+
 | Surface | Trust level | Why |
 | --- | --- | --- |
 | Source tree selected from the VCS master list | **trusted** | It is the canonical input set for planning and later verification |

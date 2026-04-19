@@ -60,6 +60,8 @@ Use these commands as a progressive assurance model:
 
 `make verify` and `make certify` are thin wrappers around `bun run verify` and `bun run certify`.
 
+Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.
+
 ### CX Commands
 
 Use `cx` commands for repository planning, bundle generation, verification, and live MCP work.
@@ -108,6 +110,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite with coverage, then enforces the minimum overall coverage gate.
 - `bun run ci:test:coverage` runs the Vitest V8 coverage lane against the Bun-style unit and contract test surface via the repository compatibility shim, then writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
+- Treat that Vitest lane as the authoritative release-assurance reporting surface. The Bun lanes still prove execution compatibility and remain part of the runtime matrix.
 - `bun run pages:build` assembles the public Pages `site/` tree with `/schemas/` and `/coverage/`.
 - `bun run pages:smoke` validates that staged `site/` tree before a workflow publishes it.
 - The latest public HTML coverage view is published at `https://wstein.github.io/cx-cli/coverage/` from successful `main` CI runs.

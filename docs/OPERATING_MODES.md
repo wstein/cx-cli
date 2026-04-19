@@ -22,7 +22,7 @@ Learn later:
 
 - why `Track B = hypothesis generation`
 - why `Track A = proof generation`
-- how the notes graph becomes the durable cognition layer
+- why notes are the durable cognition layer
 
 That order matters. Operators usually trust the model faster after they have watched one live MCP session solve a real problem.
 
@@ -44,7 +44,7 @@ Only after the operator has seen the system in motion should you introduce the d
 
 - **Track B = hypothesis generation**
 - **Track A = proof generation**
-- **The notes graph = the repository cognition layer**
+- **Notes are the durable cognition layer**
 
 Choose the mode that matches the job you need to do right now.
 

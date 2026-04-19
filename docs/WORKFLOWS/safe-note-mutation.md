@@ -87,4 +87,11 @@ Use these commands to confirm:
 - no unexpected orphaning happened
 - the change fits the existing knowledge graph instead of fragmenting it
 
+Trust still stays explicit after the edit:
+
+- source tree: trusted
+- notes: conditional
+- agent output: untrusted until verified
+- bundle: trusted
+
 Why this protects you: safe mutation is not just "permission granted." It is permission plus review. The graph commands make durable knowledge auditable after the edit, not just editable during it.

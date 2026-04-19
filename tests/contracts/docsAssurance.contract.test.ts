@@ -65,6 +65,7 @@ describe("docs assurance contract", () => {
     expect(operatingModes).toContain("Learn later:");
     expect(operatingModes).toContain("Track B = hypothesis generation");
     expect(operatingModes).toContain("Track A = proof generation");
+    expect(operatingModes).toContain("Notes are the durable cognition layer");
     expect(operatingModes).toContain(
       "Need a reproducible, promotable artifact? Use `cx bundle`.",
     );
@@ -84,14 +85,14 @@ describe("docs assurance contract", () => {
       "It does not redefine the canonical semantics",
     );
     expect(agentModel).toContain("cx mcp catalog --json");
+    expect(agentModel).toContain("Source tree: trusted");
     expect(agentIntegration).toContain(
       "This document is an integration guide.",
     );
-    expect(agentIntegration).toContain("stable MCP contract");
-    expect(agentIntegration).toContain(
-      "no longer a blanket experimental surface",
-    );
+    expect(agentIntegration).toContain("documented stable subset");
+    expect(agentIntegration).toContain("MCP remains an evolving integration");
     expect(manual).toContain("cx mcp catalog --json");
+    expect(manual).toContain("Vitest coverage is now the authoritative");
   });
 
   test("manual defines an assurance ladder", async () => {
@@ -179,6 +180,7 @@ describe("docs assurance contract", () => {
     expect(mentalModel).toContain("Track B = hypothesis generation");
     expect(mentalModel).toContain("Track A = proof generation");
     expect(mentalModel).toContain("durable cognition layer");
+    expect(mentalModel).toContain("Source tree: trusted");
     expect(agentModel).toContain("## Operator Decision Ladder");
     expect(agentModel).toContain("## Capability Tiers");
     expect(agentIntegration).toContain("## Agent Point Of View");

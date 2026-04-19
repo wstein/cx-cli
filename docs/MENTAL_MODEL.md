@@ -28,6 +28,7 @@ The shortest framing is:
 
 - **Track B = hypothesis generation**
 - **Track A = proof generation**
+- **Notes are the durable cognition layer.**
 
 Track B is where an agent or operator asks "what might be true, what should I inspect next, and what reasoning should I preserve?" Track A is where the system answers "what can we now prove, freeze, verify, and hand off?"
 
@@ -40,9 +41,17 @@ Rule of thumb:
 
 - Use **Track B** to understand, search, diagnose, and document.
 - Use **Track A** to freeze, verify, and hand off.
+- Treat **notes as the durable cognition layer** between exploration and proof.
 - Switch from B to A when the work stops being exploratory and starts becoming an artifact contract.
 
 The notes surface sits between them as the durable cognition layer. It preserves high-signal reasoning so later Track B sessions do not have to rediscover everything from raw code, and later Track A bundles can carry that reasoning forward in manifest metadata.
+
+The trust shorthand is:
+
+- **Source tree: trusted**
+- **Notes: conditional**
+- **Agent output: untrusted until verified**
+- **Bundle: trusted**
 
 ## Policy Tiers
 

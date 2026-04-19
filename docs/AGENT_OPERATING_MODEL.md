@@ -32,6 +32,13 @@ Use the integration layer in this order:
 
 Why this protects you: the operator sees exactly when a live exploratory session stops being hypothesis work and starts becoming a proof path.
 
+The trust shorthand for that ladder is:
+
+- **Source tree: trusted**
+- **Notes: conditional**
+- **Agent output: untrusted until verified**
+- **Bundle: trusted**
+
 ## Policy Consequences For Agents
 
 The integration layer turns abstract policy into concrete tool visibility.

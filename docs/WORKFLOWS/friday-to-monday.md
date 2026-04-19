@@ -84,6 +84,13 @@ The handoff is the bundle directory, not the MCP session:
 
 The notes you updated on Friday can also be included in the bundle plan, which keeps reasoning and artifact together.
 
+Trust still stays asymmetric across the weekend:
+
+- source tree: trusted
+- notes: conditional
+- agent output: untrusted until verified
+- bundle: trusted
+
 ## Monday Morning: CI Trusts Only The Clean Path
 
 On Monday, CI should trust only the clean, promotable path. It should validate or verify the artifact built from committed source state, not a `forced_dirty` local convenience bundle.

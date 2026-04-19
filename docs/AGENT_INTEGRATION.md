@@ -2,11 +2,11 @@
 
 # Agent Integration Guide — CX MCP
 
-`cx mcp` is no longer a blanket experimental surface.
+`cx mcp` now has a documented stable subset, but MCP remains an evolving integration surface in 0.4.0.
 
-- The stable MCP contract is the semver-protected subset in [STABILITY.md](STABILITY.md): core workspace reads (`list`, `grep`, `read`), bundle planning (`inspect`, `bundle`), and the stable notes graph and note lifecycle/read tools.
+- The semver-protected subset lives in [STABILITY.md](STABILITY.md): core workspace reads (`list`, `grep`, `read`), bundle planning (`inspect`, `bundle`), and the stable notes graph and note lifecycle/read tools.
 - Beta MCP tools still exist and remain intentionally flexible: diagnostic `doctor_*` tools and live workspace span replacement can evolve in minor releases.
-- The upstream MCP ecosystem is still moving, so operators should pin versions when they depend on beta tools or client-specific transport behavior.
+- Core local workflows are ready for serious use, but external integrators should still pin versions when they depend on beta tools or client-specific transport behavior.
 
 For production bundles and verification, use `cx bundle` for artifact proof and `cx mcp` for live workspace exploration within the documented stability tiers.
 
@@ -27,6 +27,8 @@ Overview
 `cx mcp` exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated `cx-mcp.toml` profile and will fall back to `cx.toml` if the MCP profile is absent. In addition to file browsing, the native server also exposes live bundle planning tools plus note reading, search, authoring, renaming, deletion, and note-graph inspection tools so agents can create, inspect, and maintain durable repository knowledge without leaving MCP.
 
 Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
+
+Track B = hypothesis generation. Track A = proof generation. Notes are the durable cognition layer between them.
 
 By default, MCP sessions are not mutation sessions. Stable read and plan tools are available under the active policy, but note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.
 
