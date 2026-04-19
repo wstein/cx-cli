@@ -30,9 +30,8 @@ cx mcp
 doctor_mcp()
 inspect()
 notes_search(query="dirty state", limit=5)
+notes_read(id="20260413153522")
 read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
-notes_new(title="Dirty State Guard", body="Unsafe tracked changes must block bundling because the artifact would not reflect a stable VCS snapshot.", tags=["workflow", "safety"])
-notes_update(id="20260419090000", body="Add Friday handoff guidance and point operators to the canonical mental model.", tags=["workflow", "handoff"])
 bundle()
 ```
 
@@ -40,8 +39,10 @@ What happens here:
 
 - `doctor_mcp` confirms the live workspace boundary.
 - `inspect` and `bundle()` preview the plan without writing artifact files.
-- `notes_new` and `notes_update` preserve reasoning before handoff.
+- `notes_search` and `notes_read` reuse durable reasoning before the agent broad-scans the workspace.
 - `read` and search tools keep the work grounded in the current repository state.
+
+If the developer intentionally enables note mutation in a trusted local session, that workflow belongs in [safe-note-mutation.md](safe-note-mutation.md), not in the default Friday-night exploratory flow.
 
 Why this protects you: the developer gets live reasoning help without pretending the current checkout is already a clean, promotable artifact.
 

@@ -22,16 +22,25 @@ The triad is deliberate: bundles carry stable truth across time, MCP handles liv
 
 `cx` has two operating tracks. They share the same workspace boundary, file-selection rules, hashing model, and safety invariants. They solve different problems.
 
+The shortest framing is:
+
+- **Track B = hypothesis generation**
+- **Track A = proof generation**
+
+Track B is where an agent or operator asks "what might be true, what should I inspect next, and what reasoning should I preserve?" Track A is where the system answers "what can we now prove, freeze, verify, and hand off?"
+
 | Track | Primary question | Main commands | Output | Use it when |
 | --- | --- | --- | --- | --- |
-| **Track A: Pipeline Operations** | "What exact artifact are we handing off?" | `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract` | Immutable bundle artifacts plus manifest, lock file, and checksums | You need something reviewable, reproducible, and verifiable later |
-| **Track B: Live Agent Exploration** | "What is true in the workspace right now?" | `cx mcp`, `cx doctor *`, `cx notes *` | Live workspace reads, plan previews, diagnostics, and note maintenance | You need interactive investigation, note updates, or agent guidance during active work |
+| **Track A: Proof Generation** | "What exact artifact can we prove and hand off?" | `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract` | Immutable bundle artifacts plus manifest, lock file, and checksums | You need something reviewable, reproducible, and verifiable later |
+| **Track B: Hypothesis Generation** | "What is true in the workspace right now, and what should we examine next?" | `cx mcp`, `cx doctor *`, `cx notes *` | Live workspace reads, plan previews, diagnostics, and note maintenance | You need interactive investigation, note updates, or agent guidance during active work |
 
 Rule of thumb:
 
 - Use **Track B** to understand, search, diagnose, and document.
 - Use **Track A** to freeze, verify, and hand off.
 - Switch from B to A when the work stops being exploratory and starts becoming an artifact contract.
+
+The notes surface sits between them as the durable cognition layer. It preserves high-signal reasoning so later Track B sessions do not have to rediscover everything from raw code, and later Track A bundles can carry that reasoning forward in manifest metadata.
 
 ## Policy Tiers
 

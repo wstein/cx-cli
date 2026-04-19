@@ -165,10 +165,10 @@ $ # Agent now has access to:
 # - inspect (bundle planning)
 # - doctor_* (diagnostics)
 # - notes_read/search (knowledge base)
-# - notes_new/update (create/edit notes)
 $ # Agent cannot:
 $ # - Write code (read-only)
-$ # - Run `cx bundle` (needs plan capability approval)
+$ # - Create or update notes
+$ # - Use other mutate-capability tools
 ```
 
 ### Scenario 3: Safe Note Mutation In A Trusted Local Session

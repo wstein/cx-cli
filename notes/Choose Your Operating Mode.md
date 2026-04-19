@@ -5,6 +5,12 @@ tags: ["architecture", "workflow", "docs"]
 ---
 `cx` needs a single front-door explanation that tells operators which surface to use before they learn the deeper internals.
 
+The best onboarding path is progressive:
+
+1. Run `cx mcp`.
+2. Watch the agent work against live code.
+3. Then explain Track B as hypothesis generation, Track A as proof generation, and notes as the durable cognition layer.
+
 The chooser is simple:
 
 1. Use `cx mcp` when the need is live interactive reasoning over the current workspace.
@@ -18,4 +24,5 @@ The operating-mode hub should be the main conceptual entrypoint in `docs/` and t
 ## Links
 * [[CX Triad]]
 * [[Operational Bifurcation]]
+* [[Repository Cognition Layer]]
 * [[Agent Operating Model]]

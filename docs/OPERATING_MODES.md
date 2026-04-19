@@ -4,6 +4,28 @@
 
 This is the main conceptual entrypoint for `cx`.
 
+Start with the fastest proof of value, then learn the deeper model.
+
+## Start Here
+
+If someone is new to `cx`, do not begin with the full architecture lecture. Begin with the live surface:
+
+1. Run `cx mcp`.
+2. Let the agent do real work against live code.
+3. Then explain why the system is split the way it is.
+
+The progressive onboarding model is:
+
+- `cx mcp` shows the agent working on the current checkout.
+- `cx notes` explains how durable reasoning is preserved.
+- `cx bundle` explains how that work becomes a promotable artifact.
+
+Only after the operator has seen the system in motion should you introduce the deeper model:
+
+- **Track B = hypothesis generation**
+- **Track A = proof generation**
+- **The notes graph = the repository cognition layer**
+
 Choose the mode that matches the job you need to do right now.
 
 ## Use `cx mcp`
@@ -58,6 +80,12 @@ These are not competing tools. They are the three operating surfaces of the same
 1. Start with `cx mcp` when you need live understanding.
 2. Record durable conclusions with `cx notes`.
 3. Freeze trusted handoff state with `cx bundle`.
+
+Another way to say the same thing:
+
+- `cx mcp` is where hypotheses are generated and tested against live state.
+- `cx notes` is where high-signal reasoning becomes durable repository memory.
+- `cx bundle` is where proof is generated for review, CI, and handoff.
 
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
 See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)

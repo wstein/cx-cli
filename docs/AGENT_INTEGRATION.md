@@ -25,6 +25,82 @@ Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live 
 
 By default, MCP sessions are not mutation sessions. Note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.
 
+## Progressive Onboarding For Operators
+
+The fastest way to teach `cx` is not to start with Track A vs Track B in the abstract. Start by showing useful motion:
+
+1. Run `cx mcp`.
+2. Let the agent call `doctor_mcp`, `notes_search`, `read`, and `inspect`.
+3. Once the operator has seen the live workflow, explain the model:
+   - **Track B = hypothesis generation**
+   - **Track A = proof generation**
+   - **notes = the durable cognition layer**
+
+This sequence matters. Operators understand the model better after they have seen the agent reason over live code once.
+
+## Agent Point Of View
+
+From the agent's perspective, the MCP session is not a vague "chat with the repo." It is a structured loop over scoped tools, manifest metadata, and durable notes.
+
+### Typical MCP Tool Sequence
+
+```text
+doctor_mcp()
+notes_search(query="dirty state", limit=5)
+read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
+inspect()
+notes_read(id="20260413153522")
+bundle()
+```
+
+What the sequence means:
+
+- `doctor_mcp()` confirms the workspace boundary and active policy.
+- `notes_search(...)` finds durable prior reasoning before the agent broad-scans files.
+- `read(...)` opens only the code span that matters.
+- `inspect()` previews the Track A proof path without writing artifacts.
+- `bundle()` over MCP is still planning metadata, not an immutable handoff.
+
+Why this protects you: the agent sees enough structured state to form and test hypotheses without confusing live exploration with artifact proof.
+
+### Manifest Example From The Agent's Point Of View
+
+When a bundle exists, the agent should consume the manifest as a structured index before reopening raw files:
+
+```json
+{
+  "notes": [
+    {
+      "id": "20260413153522",
+      "title": "Manifest-Side Note Summaries",
+      "summary": "cx stores high-level note summaries in the manifest JSON so downstream agents can route to the right note before reparsing the full graph.",
+      "codeLinks": ["src/manifest/build.ts"]
+    }
+  ],
+  "sections": [
+    {
+      "name": "docs",
+      "files": [
+        {
+          "path": "docs/MENTAL_MODEL.md",
+          "tokenCount": 287,
+          "outputStartLine": 41,
+          "outputEndLine": 132
+        }
+      ]
+    }
+  ]
+}
+```
+
+Why these fields matter to the agent:
+
+- `summary` is the cognition-layer routing hint.
+- `tokenCount` tells the agent how much context a file is likely to cost before reopening it.
+- `outputStartLine` and `outputEndLine` tell extraction and downstream review exactly where the packed text lives.
+
+The agent does not need to guess where the evidence is. The manifest carries routing, size, and coordinate metadata forward explicitly.
+
 Local init support
 - `cx init` now generates additional local agent configuration files to simplify common editor and desktop integration workflows:
   - `.mcp.json` — workspace-local MCP server declaration
