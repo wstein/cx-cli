@@ -468,18 +468,21 @@ The repository-local `make` commands are intentionally small and explicit:
 | --- | --- |
 | `make test` | You want fast unit coverage while iterating |
 | `make verify` | You want the full local gate with coverage before merging |
-| `make release VERSION=x.y.z` | You are cutting a tagged release |
+| `make release VERSION=x.y.z` | You are stepping through the two-phase release wizard |
 
 ```bash
 bun install
 make test
 make verify
 make release VERSION=x.y.z
+make release VERSION=x.y.z
 ```
 
 `make test` runs the unit suite with coverage output. `make verify` is the full
 local gate: lint, typecheck, build, and the complete test suite with coverage. `make release`
-delegates to the release script and requires an explicit semantic version.
+now acts as a two-phase wizard: the first call with a new semantic version starts the
+release candidate on `develop`, and the second call with that same version creates and pushes
+the tag after CI is green.
 
 If you prefer the underlying Bun commands directly:
 
@@ -487,5 +490,6 @@ If you prefer the underlying Bun commands directly:
 bun run ci:test:coverage
 bun run test
 bun run verify
+VERSION=x.y.z bun run release
 VERSION=x.y.z bun run release
 ```

@@ -5,8 +5,8 @@ tags: ["workflow", "development", "release"]
 ---
 
 `make test` is the fast local feedback loop, `make verify` is the full
-pre-merge gate with coverage, and `make release VERSION=x.y.z` is the repository-local handoff
-into the release script. Keeping those roles separate keeps the common command
+pre-merge gate with coverage, and `make release VERSION=x.y.z` is the repository-local
+two-phase release wizard. Keeping those roles separate keeps the common command
 quick while making the release path explicit and repeatable.
 
 - The `Makefile` delegates to `package.json` scripts using 1:1 shell shim wrappers.
@@ -17,6 +17,8 @@ quick while making the release path explicit and repeatable.
 - Bumping `package.json` to the target version starts the release candidate.
 - `make verify` is the normal fix-forward loop while the candidate is still moving.
 - `make certify` is the pre-tag proof gate for the exact candidate commit.
+- The first `make release VERSION=x.y.z` call with a new version starts the candidate by updating the version files, committing, and pushing `develop`.
+- The second `make release VERSION=x.y.z` call with that same version creates and pushes the `vX.Y.Z` tag.
 - The `vX.Y.Z` tag is the finalization action. It should be created only after the `develop` candidate commit is green.
 - After publish succeeds, `main` should fast-forward to the released commit so the branch reflects the shipped history exactly.
 
