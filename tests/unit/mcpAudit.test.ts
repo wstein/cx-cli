@@ -171,6 +171,8 @@ describe("MCP Audit Logger", () => {
       expect(summary.byCapability.plan).toBe(1);
       expect(summary.byCapability.mutate).toBe(2);
       expect(summary.byCapability.observe).toBe(0);
+      expect(summary.byPolicyName["unknown-policy"]).toBe(5);
+      expect(summary.recentTraceIds).toHaveLength(5);
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>
@@ -190,6 +192,8 @@ describe("MCP Audit Logger", () => {
       expect(summary.totalEvents).toBe(0);
       expect(summary.allowedCount).toBe(0);
       expect(summary.deniedCount).toBe(0);
+      expect(summary.byPolicyName).toEqual({});
+      expect(summary.recentTraceIds).toEqual([]);
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>

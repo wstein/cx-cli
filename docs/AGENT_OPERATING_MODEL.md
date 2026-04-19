@@ -90,6 +90,14 @@ When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool call
 
 Audit logging is the integration-layer answer to "what did the agent really do?" The `traceId`, `policyName`, and `decisionBasis` fields make the allow-or-deny path explicit instead of leaving later reviewers to infer it from timing alone.
 
+`cx doctor mcp --json` now summarizes recent audit trends as well:
+
+- total allowed versus denied MCP events
+- policy-name counts
+- recent `traceId` values
+
+Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.
+
 ## Integration Examples
 
 ### Interactive Local Session

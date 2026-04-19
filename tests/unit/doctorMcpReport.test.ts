@@ -16,6 +16,19 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
     sectionNames: [],
     policy: "default",
     mutationEnabled: false,
+    auditSummary: {
+      totalEvents: 0,
+      allowedCount: 0,
+      deniedCount: 0,
+      byCapability: {
+        read: 0,
+        observe: 0,
+        plan: 0,
+        mutate: 0,
+      },
+      byPolicyName: {},
+      recentTraceIds: [],
+    },
     ...overrides,
   };
 }
@@ -65,6 +78,35 @@ describe("printDoctorMcpReport", () => {
     );
     expect(capture.stdout()).toContain("/proj/cx-mcp.toml");
   });
+
+  test("prints audit trend summary and recent trace IDs", async () => {
+    const capture = createBufferedCommandIo();
+    printDoctorMcpReport(
+      makeReport({
+        auditSummary: {
+          totalEvents: 3,
+          allowedCount: 2,
+          deniedCount: 1,
+          byCapability: {
+            read: 1,
+            observe: 1,
+            plan: 0,
+            mutate: 1,
+          },
+          byPolicyName: {
+            "default-deny-mutate": 2,
+            "strict-read-only": 1,
+          },
+          recentTraceIds: ["trace-3", "trace-2"],
+        },
+      }),
+      false,
+      capture.io,
+    );
+    expect(capture.stdout()).toContain("Audit events: 3");
+    expect(capture.stdout()).toContain("default-deny-mutate: 2");
+    expect(capture.stdout()).toContain("trace-3");
+  });
 });
 
 describe("collectDoctorMcpReport", () => {
@@ -78,9 +120,25 @@ describe("collectDoctorMcpReport", () => {
             files: { include: ["src/**"], exclude: ["node_modules/**"] },
             sections: { main: {}, docs: {} },
             mcp: { policy: "default", enableMutation: false },
+            sourceRoot: "/tmp/workspace",
           }) as unknown as Awaited<
             ReturnType<typeof import("../../src/config/load.js").loadCxConfig>
           >,
+        readAuditSummary: async () => ({
+          totalEvents: 2,
+          allowedCount: 1,
+          deniedCount: 1,
+          byCapability: {
+            read: 1,
+            observe: 0,
+            plan: 0,
+            mutate: 1,
+          },
+          byPolicyName: {
+            "default-deny-mutate": 2,
+          },
+          recentTraceIds: ["trace-2", "trace-1"],
+        }),
       },
     );
     expect(report.activeProfile).toBe("cx-mcp.toml");
@@ -89,5 +147,7 @@ describe("collectDoctorMcpReport", () => {
     expect(report.sectionNames).toEqual(["docs", "main"]);
     expect(report.policy).toBe("default");
     expect(report.mutationEnabled).toBe(false);
+    expect(report.auditSummary.totalEvents).toBe(2);
+    expect(report.auditSummary.recentTraceIds).toEqual(["trace-2", "trace-1"]);
   });
 });

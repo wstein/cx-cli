@@ -6,6 +6,22 @@ import type { CommandWriteStream } from "../shared/output.js";
 import type { McpCapability } from "./capabilities.js";
 import type { AuditEvent } from "./policy.js";
 
+export interface AuditSummary {
+  totalEvents: number;
+  allowedCount: number;
+  deniedCount: number;
+  byCapability: Record<McpCapability, number>;
+  byPolicyName: Record<string, number>;
+  recentTraceIds: string[];
+}
+
+export async function collectAuditSummary(
+  workspaceRoot: string,
+): Promise<AuditSummary> {
+  const logger = new AuditLogger(workspaceRoot, true);
+  return logger.getSummary();
+}
+
 /**
  * Audit logger for MCP policy enforcement events.
  * Writes to .cx/audit.log in JSONL format (one JSON event per line).
@@ -129,15 +145,10 @@ export class AuditLogger {
   /**
    * Summary statistics from audit log.
    */
-  async getSummary(): Promise<{
-    totalEvents: number;
-    allowedCount: number;
-    deniedCount: number;
-    byCapability: Record<McpCapability, number>;
-  }> {
+  async getSummary(): Promise<AuditSummary> {
     const events = await this.readLog();
 
-    const summary = {
+    const summary: AuditSummary = {
       totalEvents: events.length,
       allowedCount: 0,
       deniedCount: 0,
@@ -146,7 +157,9 @@ export class AuditLogger {
         observe: 0,
         plan: 0,
         mutate: 0,
-      } as Record<McpCapability, number>,
+      },
+      byPolicyName: {},
+      recentTraceIds: [],
     };
 
     for (const event of events) {
@@ -157,7 +170,14 @@ export class AuditLogger {
       }
       const count = summary.byCapability[event.capability];
       summary.byCapability[event.capability] = (count ?? 0) + 1;
+      summary.byPolicyName[event.policyName] =
+        (summary.byPolicyName[event.policyName] ?? 0) + 1;
     }
+
+    summary.recentTraceIds = events
+      .slice(-5)
+      .reverse()
+      .map((event) => event.traceId);
 
     return summary;
   }

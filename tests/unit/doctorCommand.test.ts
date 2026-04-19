@@ -206,6 +206,7 @@ describe("runDoctorCommand — mcp subcommand", () => {
     expect(exitCode).toBe(0);
     const parsed = parseJsonOutput<Record<string, unknown>>(stdout);
     expect(typeof parsed.activeProfile).toBe("string");
+    expect(typeof parsed.auditSummary).toBe("object");
   });
 });
 
@@ -225,7 +226,7 @@ id: 20260418133000
 title: Architecture
 ---
 
-See [[src/index.ts]] before refactoring.
+See [[src/index.ts]] before refactoring with enough routing words today.
 `,
       "utf8",
     );
@@ -253,7 +254,7 @@ id: 20260418133001
 title: Architecture
 ---
 
-See [[src/missing.ts]] before refactoring.
+See [[src/missing.ts]] before refactoring with enough routing words today.
 `,
       "utf8",
     );

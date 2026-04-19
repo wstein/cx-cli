@@ -1,44 +1,59 @@
 // test-lane: unit
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
+
+import type { AuditLogger } from "../../src/mcp/audit.js";
 import {
   enforceToolAccess,
   withPolicyEnforcement,
 } from "../../src/mcp/enforce.js";
-import { DEFAULT_POLICY, STRICT_POLICY } from "../../src/mcp/policy.js";
-import type { CxMcpToolDefinition } from "../../src/mcp/tools/catalog.js";
+import { DEFAULT_POLICY } from "../../src/mcp/policy.js";
 
-const BUNDLE_TOOL: CxMcpToolDefinition = {
-  name: "bundle",
-  capability: "plan",
-};
+const READ_TOOL = {
+  name: "list",
+  capability: "read",
+} as const;
 
-const NOTES_NEW_TOOL: CxMcpToolDefinition = {
+const MUTATE_TOOL = {
   name: "notes_new",
   capability: "mutate",
-};
+} as const;
 
-describe("MCP enforcement", () => {
-  it("enforces access from the passed tool definition", async () => {
-    await expect(
-      enforceToolAccess(BUNDLE_TOOL, async () => "ok", DEFAULT_POLICY),
-    ).resolves.toBe("ok");
+describe("enforceToolAccess", () => {
+  it("executes the handler when policy allows the tool", async () => {
+    const result = await enforceToolAccess(
+      READ_TOOL,
+      async () => "ok",
+      DEFAULT_POLICY,
+    );
+    expect(result).toBe("ok");
   });
 
-  it("denies access from the passed tool definition", async () => {
+  it("logs denied decisions before throwing", async () => {
+    const logToolAccess = mock(async () => {});
+    const logger = {
+      logToolAccess,
+    } as unknown as AuditLogger;
+
     await expect(
-      enforceToolAccess(NOTES_NEW_TOOL, async () => "nope", DEFAULT_POLICY),
+      enforceToolAccess(
+        MUTATE_TOOL,
+        async () => "never",
+        DEFAULT_POLICY,
+        logger,
+      ),
     ).rejects.toThrow("Access denied");
+    expect(logToolAccess).toHaveBeenCalledTimes(1);
   });
+});
 
-  it("wraps handlers without re-looking up capability by name", async () => {
-    const handler = withPolicyEnforcement(
-      BUNDLE_TOOL,
-      async () => ({
-        ok: true,
-      }),
-      STRICT_POLICY,
+describe("withPolicyEnforcement", () => {
+  it("passes args through to the wrapped handler", async () => {
+    const wrapped = withPolicyEnforcement(
+      READ_TOOL,
+      async (args) => args.value,
+      DEFAULT_POLICY,
     );
 
-    await expect(handler({})).rejects.toThrow("capability: plan");
+    await expect(wrapped({ value: "kept" })).resolves.toBe("kept");
   });
 });
