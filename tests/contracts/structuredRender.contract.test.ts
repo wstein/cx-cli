@@ -31,7 +31,7 @@ function makePlan(styleTag: string): StructuredRenderPlan {
   };
 }
 
-describe("structured render contract", () => {
+describe("render contract plan invariants", () => {
   test("produces deterministic ordering", () => {
     const plan = makePlan("xml");
     expect(validatePlanOrdering(plan)).toBe(true);

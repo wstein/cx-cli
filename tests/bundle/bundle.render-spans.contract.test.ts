@@ -13,7 +13,7 @@ import {
   runQuietBundleCommand,
 } from "./helpers.js";
 
-describe("bundle legacy render markup", () => {
+describe("bundle render span contract", () => {
   test("emits absolute output spans from renderWithMap for all files", async () => {
     const project = await createProject();
 

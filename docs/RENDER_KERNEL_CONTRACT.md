@@ -13,7 +13,7 @@ The contract is derived from the currently implemented proof path in:
 
 And it is already enforced by tests such as:
 
-- [`tests/bundle/bundle.legacy-render-markup.test.ts`](../tests/bundle/bundle.legacy-render-markup.test.ts)
+- [`tests/bundle/bundle.render-spans.contract.test.ts`](../tests/bundle/bundle.render-spans.contract.test.ts)
 - [`tests/bundle/parsers.test.ts`](../tests/bundle/parsers.test.ts)
 - [`tests/unit/structuredRender.test.ts`](../tests/unit/structuredRender.test.ts)
 - [`tests/contracts/structuredRender.contract.test.ts`](../tests/contracts/structuredRender.contract.test.ts)
@@ -66,7 +66,7 @@ Evidence:
 
 - [`src/extract/parsers.ts`](../src/extract/parsers.ts)
 - [`tests/bundle/parsers.test.ts`](../tests/bundle/parsers.test.ts)
-- [`tests/bundle/bundle.legacy-render-markup.test.ts`](../tests/bundle/bundle.legacy-render-markup.test.ts)
+- [`tests/bundle/bundle.render-spans.contract.test.ts`](../tests/bundle/bundle.render-spans.contract.test.ts)
 
 ### Plain
 
@@ -139,7 +139,7 @@ Current contract:
 Evidence:
 
 - [`findContentStartOffset`](../src/repomix/render.ts)
-- [`tests/bundle/bundle.legacy-render-markup.test.ts`](../tests/bundle/bundle.legacy-render-markup.test.ts)
+- [`tests/bundle/bundle.render-spans.contract.test.ts`](../tests/bundle/bundle.render-spans.contract.test.ts)
 
 ## 5. Aggregate Plan Hash Contract
 

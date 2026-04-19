@@ -11,7 +11,7 @@ import {
 } from "../../src/repomix/structured.js";
 import { sha256Text } from "../../src/shared/hashing.js";
 
-describe("Structured Render Contract", () => {
+describe("render constitution invariants", () => {
   describe("validatePlanOrdering", () => {
     it("returns true for sorted ordering", () => {
       const plan: StructuredRenderPlan = {
@@ -204,7 +204,7 @@ describe("Structured Render Contract", () => {
     });
   });
 
-  describe("Deterministic Invariants", () => {
+  describe("deterministic render constitution", () => {
     it("enforces deterministic ordering during extraction", () => {
       // When we extract a plan, entries should be sorted lexicographically
       // This test verifies that property by checking the ordering matches
