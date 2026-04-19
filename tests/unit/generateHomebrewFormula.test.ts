@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
+import packageJson from "../../package.json" with { type: "json" };
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -13,6 +14,8 @@ const ROOT = path.resolve(
 );
 
 describe("generate-homebrew-formula.js", () => {
+  const taggedPackageVersion = `v${packageJson.version}`;
+
   test("emits a formula that links the npm-installed shim and exposes cx", async () => {
     const tempRoot = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-homebrew-formula-"),
@@ -59,7 +62,7 @@ describe("generate-homebrew-formula.js", () => {
       "node",
       [
         path.join(ROOT, "scripts", "generate-homebrew-formula.js"),
-        "v0.4.0-dev",
+        taggedPackageVersion,
         "--output",
         outputPath,
       ],
@@ -73,7 +76,7 @@ describe("generate-homebrew-formula.js", () => {
 
     const formula = await fs.readFile(outputPath, "utf8");
     expect(formula).toContain(
-      'url "https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-0.4.0-dev.tgz"',
+      `url "https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${packageJson.version}.tgz"`,
     );
   });
 });
