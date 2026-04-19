@@ -16,11 +16,21 @@ export interface InclusionProvenanceSummary {
 export function sortInclusionProvenance(
   provenance: InclusionProvenance[],
 ): InclusionProvenance[] {
-  return [...provenance].sort(
-    (left, right) =>
-      INCLUSION_PROVENANCE_ORDER.indexOf(left) -
-      INCLUSION_PROVENANCE_ORDER.indexOf(right),
-  );
+  const unique = [...new Set(provenance)];
+  return unique.sort((left, right) => {
+    const leftIndex = INCLUSION_PROVENANCE_ORDER.indexOf(left);
+    const rightIndex = INCLUSION_PROVENANCE_ORDER.indexOf(right);
+    if (leftIndex === rightIndex) {
+      return 0;
+    }
+    if (leftIndex === -1) {
+      return 1;
+    }
+    if (rightIndex === -1) {
+      return -1;
+    }
+    return leftIndex - rightIndex;
+  });
 }
 
 export function summarizeInclusionProvenance(
