@@ -62,6 +62,11 @@ describe("readEnvOverrides", () => {
     expect(readEnvOverrides().dedupMode).toBe("warn");
   });
 
+  test("reads CX_DEDUP_MODE=first-wins", () => {
+    process.env.CX_DEDUP_MODE = "first-wins";
+    expect(readEnvOverrides().dedupMode).toBe("first-wins");
+  });
+
   test("reads valid CX_REPOMIX_MISSING_EXTENSION", () => {
     process.env.CX_REPOMIX_MISSING_EXTENSION = "warn";
     expect(readEnvOverrides().repomixMissingExtension).toBe("warn");
@@ -97,6 +102,15 @@ describe("readEnvOverrides", () => {
     process.env.CX_ASSETS_LAYOUT = "deep";
     expect(readEnvOverrides().assetsLayout).toBe("deep");
   });
+
+  test("per-area overrides stay independent", () => {
+    process.env.CX_DEDUP_MODE = "warn";
+    process.env.CX_CONFIG_DUPLICATE_ENTRY = "first-wins";
+    const result = readEnvOverrides();
+    expect(result.dedupMode).toBe("warn");
+    expect(result.repomixMissingExtension).toBeUndefined();
+    expect(result.configDuplicateEntry).toBe("first-wins");
+  });
 });
 
 describe("CLI overrides", () => {
@@ -111,8 +125,10 @@ describe("CLI overrides", () => {
   });
 
   test("setCLIOverrides replaces previous overrides", () => {
-    setCLIOverrides({ dedupMode: "fail" });
     setCLIOverrides({ dedupMode: "warn" });
-    expect(getCLIOverrides().dedupMode).toBe("warn");
+    setCLIOverrides({ repomixMissingExtension: "fail" });
+    const overrides = getCLIOverrides();
+    expect(overrides.dedupMode).toBeUndefined();
+    expect(overrides.repomixMissingExtension).toBe("fail");
   });
 });

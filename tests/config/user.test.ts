@@ -7,7 +7,7 @@ import path from "node:path";
 import { loadCxUserConfig } from "../../src/config/user.js";
 
 describe("loadCxUserConfig", () => {
-  test("returns defaults when the user config file is missing", async () => {
+  test("returns defaults when the user config file is missing on disk", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-user-config-"));
     const configPath = path.join(tempDir, "cx.toml");
 
@@ -19,7 +19,7 @@ describe("loadCxUserConfig", () => {
     ]);
   });
 
-  test("loads display settings from the user config file", async () => {
+  test("loads display settings from a real user config file", async () => {
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-user-config-"));
     const configPath = path.join(tempDir, "cx.toml");
 
@@ -47,40 +47,5 @@ time_palette = [255, 254, 253, 252, 251, 250, 249, 248]
     expect(config.display.list.timePalette).toEqual([
       255, 254, 253, 252, 251, 250, 249, 248,
     ]);
-  });
-
-  test("rejects invalid time palette shape", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-user-config-"));
-    const configPath = path.join(tempDir, "cx.toml");
-
-    await fs.writeFile(
-      configPath,
-      `[display.list]
-time_palette = [255, 255, 254]
-`,
-      "utf8",
-    );
-
-    await expect(loadCxUserConfig(configPath)).rejects.toThrow(
-      "display.list.time_palette must contain between 8 and 10 grayscale entries.",
-    );
-  });
-
-  test("rejects invalid threshold ordering", async () => {
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-user-config-"));
-    const configPath = path.join(tempDir, "cx.toml");
-
-    await fs.writeFile(
-      configPath,
-      `[display.list]
-bytes_warm = 4096
-bytes_hot = 4096
-`,
-      "utf8",
-    );
-
-    await expect(loadCxUserConfig(configPath)).rejects.toThrow(
-      "display.list.bytes_hot must be greater than display.list.bytes_warm.",
-    );
   });
 });

@@ -82,23 +82,25 @@ function parseListDisplayConfig(
   return config;
 }
 
-export async function loadCxUserConfig(
-  configPath = getUserConfigPath(),
-): Promise<CxUserConfig> {
-  if (!(await pathExists(configPath))) {
-    return {
-      display: {
-        list: {
-          ...DEFAULT_USER_CONFIG_VALUES.display.list,
-          timePalette: [...DEFAULT_USER_CONFIG_VALUES.display.list.timePalette],
-        },
+function cloneDefaultUserConfig(): CxUserConfig {
+  return {
+    display: {
+      list: {
+        ...DEFAULT_USER_CONFIG_VALUES.display.list,
+        timePalette: [...DEFAULT_USER_CONFIG_VALUES.display.list.timePalette],
       },
-    };
+    },
+  };
+}
+
+export function parseCxUserConfigInput(
+  input: CxUserConfigInput | undefined,
+): CxUserConfig {
+  if (input === undefined) {
+    return cloneDefaultUserConfig();
   }
 
-  const raw = await fs.readFile(configPath, "utf8");
-  const parsed = parseToml(raw) as CxUserConfigInput;
-  const display = parsed.display ?? {};
+  const display = input.display ?? {};
   const displayList =
     typeof display.list === "object" && display.list !== null
       ? (display.list as Record<string, unknown>)
@@ -109,4 +111,20 @@ export async function loadCxUserConfig(
       list: parseListDisplayConfig(displayList),
     },
   };
+}
+
+export function loadCxUserConfigFromTomlString(rawToml: string): CxUserConfig {
+  const parsed = parseToml(rawToml) as CxUserConfigInput;
+  return parseCxUserConfigInput(parsed);
+}
+
+export async function loadCxUserConfig(
+  configPath = getUserConfigPath(),
+): Promise<CxUserConfig> {
+  if (!(await pathExists(configPath))) {
+    return cloneDefaultUserConfig();
+  }
+
+  const raw = await fs.readFile(configPath, "utf8");
+  return loadCxUserConfigFromTomlString(raw);
 }
