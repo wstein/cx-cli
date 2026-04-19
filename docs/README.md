@@ -29,25 +29,26 @@ See:
 
 ## Start Here
 
+Use the smallest core set first:
+
 - Run `cx mcp` first if you want the shortest onboarding path: see value now, learn the model later.
-- [SYSTEM_MAP.md](./SYSTEM_MAP.md) - the compressed front door: where to start and how the surfaces relate
+- [SYSTEM_MAP.md](./SYSTEM_MAP.md) - compressed front door plus contributor subsystem map
 - [OPERATING_MODES.md](./OPERATING_MODES.md) - choose between live MCP help, reproducible bundles, and durable notes
 - [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical semantics, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md) - cognition contract, boundary contract, and trust propagation model
 - [MANUAL.md](./MANUAL.md) - operator path, assurance ladder, and Friday-to-Monday workflow map
-- `bun run test:vitest:mcp:ui` - focused MCP test/debug cockpit with Vitest UI coverage and import-graph inspection
-- `bun run test:vitest:mcp:adversarial:ui` - failure-injection MCP cockpit for startup hangs and hostile runtime cases
-- `cx audit summary` - compact operator view for recent MCP audit trends
-- [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff
-- [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - how a trusted local developer enables note mutation and reviews the result
-- [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md) - end-to-end agent note mutation and review loop with MCP plus `cx notes check`
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - system boundary and core decisions
-- [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
-- [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules
-- [MCP_TOOL_INTENT_TAXONOMY.md](./MCP_TOOL_INTENT_TAXONOMY.md) - machine-oriented prompt grouping for agent usage
-- [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) - release-time schema, npm/Homebrew handoff, and Pages reminders
-- [config-reference.md](./config-reference.md) - configuration knobs and precedence
-- [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) - instructions and examples for integrating `cx mcp` with IDEs and AI agents
+
+## Reference By Concern
+
+- Agent setup and IDE integration: [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md)
+- Agent operating rules and MCP policy consequences: [AGENT_OPERATING_MODEL.md](./AGENT_OPERATING_MODEL.md)
+- Configuration knobs and precedence: [config-reference.md](./config-reference.md)
+- Release-time checks and Pages publishing: [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
+- Notes system details: [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md)
+- Extraction and recovery rules: [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md)
+- Workflow examples over time: [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md), [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md), [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md)
+- MCP debugging cockpit: `bun run test:vitest:mcp:ui`, `bun run test:vitest:mcp:adversarial:ui`
+- Compact operator MCP audit view: `cx audit summary`
 
 Trust shorthand for the whole docs set:
 

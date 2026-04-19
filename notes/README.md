@@ -15,6 +15,20 @@ The revision consensus for the repository lives in
 Use `notes/` for the definitive knowledge graph and `docs/` for snapshots, manuals, and
 implementation contracts.
 
+## Notes And Docs Boundary
+
+Use `notes/` for durable repository reasoning.
+Use `docs/` for canonical semantics, operator maps, and stable implementation
+contracts.
+
+In practice:
+
+- `docs/MENTAL_MODEL.md` owns canonical semantics.
+- `docs/SYSTEM_CONTRACTS.md` owns cognition, boundary, and trust contracts.
+- `docs/OPERATING_MODES.md` and `docs/SYSTEM_MAP.md` own onboarding and routing.
+- Notes should support those documents with durable reasoning, not silently
+  replace them with a second canonical layer.
+
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
 

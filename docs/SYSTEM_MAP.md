@@ -26,6 +26,17 @@ Track B              Cognition Layer       Track A                 Trust Gate
 - Move to `cx bundle` when the work needs a frozen handoff.
 - Finish with `cx verify` when a later reader should receive proof instead of a claim.
 
+## Contributor System Map
+
+| Subsystem | Owning commands | Primary concern | Canonical doc |
+| --- | --- | --- | --- |
+| Live workspace surface | `cx mcp`, `cx doctor mcp`, `cx audit summary` | scoped live agent access | [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md) |
+| Durable reasoning surface | `cx notes`, `cx notes check` | repository memory and cognition quality | [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md) |
+| Planning and artifact surface | `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract` | reproducible handoff and proof | [MENTAL_MODEL.md](MENTAL_MODEL.md) |
+| Init and workspace bootstrap | `cx init` | repository-local setup and templates | [MANUAL.md](MANUAL.md) |
+| Configuration surface | `cx.toml`, `cx-mcp.toml` | selection, overlays, and behavior knobs | [config-reference.md](config-reference.md) |
+| Operator examples | workflow docs and release checklist | execution over time | [README.md](README.md) |
+
 ## Read It Top To Bottom
 
 - **MCP** is the live investigation surface.

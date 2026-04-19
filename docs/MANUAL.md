@@ -7,31 +7,42 @@
 See: [OPERATING_MODES.md](OPERATING_MODES.md) for the main conceptual entrypoint.
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical CX triad, Track A vs Track B, policy tiers, and artifact lifecycle.
 
-## Choose Your Path
+Use this manual when you already know you are operating `cx` and want the
+shortest route to commands, assurance levels, and workflow decisions.
 
-The manual is split into two tracks:
+If you are new to the repository:
 
-### Track A: Pipeline Operations
-Use this path for deterministic bundles, verification, and extraction.
-1. `cx init --name demo`
-2. `cx inspect --token-breakdown`
-3. `cx bundle --config cx.toml`
-4. `cx verify --against .`
-5. `cx extract dist/bundle --to ./restore`
-
-### Track B: Live Agent Exploration
-Use this path for live workspace access and note maintenance.
-1. `cx mcp`
-2. `cx notes new --title "Logic Fix" --body "Documenting the fix."`
-3. `cx doctor mcp`
-4. `cx mcp catalog --json`
-4. `cx doctor workflow --task "refactor index.ts"`
+1. Read the root [README](../README.md)
+2. Read [SYSTEM_MAP.md](SYSTEM_MAP.md)
+3. Return here once you need the operator path instead of the conceptual map
 
 ---
 
 ## Quick Operator Path
 
-If you want the shortest path, use Track A for the bundle and Track B for live agent work.
+Use the smallest operator sequence that matches the job:
+
+- Live investigation: `cx mcp`
+- Durable reasoning: `cx notes`
+- Frozen handoff: `cx inspect`, `cx bundle`, `cx verify`
+- Recovery or audit: `cx validate`, `cx list`, `cx extract`
+
+Typical minimal paths:
+
+### Live Agent Path
+
+1. `cx mcp`
+2. `cx doctor mcp`
+3. `cx mcp catalog --json`
+4. `cx doctor workflow --task "refactor index.ts"`
+
+### Artifact Path
+
+1. `cx init --name demo`
+2. `cx inspect --token-breakdown`
+3. `cx bundle --config cx.toml`
+4. `cx verify --against .`
+5. `cx extract dist/bundle --to ./restore`
 
 ### Repository Commands
 
@@ -173,10 +184,9 @@ Use the CLI for direct on-disk note lifecycle operations. Use MCP when the agent
 
 This guide is for engineers running `cx` as an operational tool: local bundle authors, CI maintainers, and remote-runner owners.
 
-If you are new to the project, read the README first. If you need the invariants and internal model, read [Architecture](ARCHITECTURE.md). If you need the detailed knobs, read [Configuration Reference](config-reference.md).
-
-For the full documentation map, see [docs/README.md](README.md). For the
-editorial consensus behind the docs, see [spec-draft.md](spec-draft.md).
+If you are new to the project, read the README first. If you need the detailed
+knobs, read [Configuration Reference](config-reference.md). If you need the full
+documentation map, read [docs/README.md](README.md).
 
 ## Friday To Monday Map
 

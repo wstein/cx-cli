@@ -26,6 +26,7 @@ describe("docs assurance contract", () => {
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const manual = await readText("docs/MANUAL.md");
+    const notesGuide = await readText("notes/README.md");
 
     expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(rootReadme).toContain("Run `cx mcp`");
@@ -83,6 +84,14 @@ describe("docs assurance contract", () => {
     );
     expect(manual).toContain("See: [OPERATING_MODES.md](OPERATING_MODES.md)");
     expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
+    expect(notesGuide).toContain("## Notes And Docs Boundary");
+    expect(notesGuide).toContain(
+      "`docs/MENTAL_MODEL.md` owns canonical semantics.",
+    );
+    expect(notesGuide).toContain(
+      "`docs/SYSTEM_CONTRACTS.md` owns cognition, boundary, and trust contracts.",
+    );
+    expect(notesGuide).toContain("Notes should support those documents");
     expect(operatingModes).toContain(
       "See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)",
     );
