@@ -39,9 +39,7 @@ describe("generate-homebrew-formula.js", () => {
     expect(formula).toContain('system "npm",');
     expect(formula).toContain('"--no-fund"');
     expect(formula).toContain('libexec.install Dir["*"]');
-    expect(formula).toContain(
-      'bin.install_symlink libexec/"bin/cx" => "cx-cli"',
-    );
+    expect(formula).toContain('bin.install_symlink libexec/"bin/cx" => "cx"');
     expect(formula).toContain('bin.install_symlink libexec/"bin/cx"');
     expect(formula).toContain('shell_output("#{bin}/cx --help")');
     expect(formula).not.toContain('"--prefix=#{libexec}"');

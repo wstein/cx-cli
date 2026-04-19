@@ -66,7 +66,7 @@ const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requested
 
 function npmInstalledBinaryName(pkg) {
   if (typeof pkg.bin === "string") {
-    return String(pkg.name).split("/").at(-1);
+    return basename(pkg.bin);
   }
 
   if (pkg.bin && typeof pkg.bin === "object") {
@@ -167,6 +167,7 @@ try {
   def install
     system "npm",
            "install",
+           *std_npm_args(prefix: false),
            "--omit=dev",
            "--no-audit",
            "--no-fund"
