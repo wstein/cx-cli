@@ -23,8 +23,9 @@ exact tagged commit before it publishes npm, GitHub assets, or Homebrew state.
 Release triggering now follows a two-phase rule: `develop` carries the versioned
 release candidate and absorbs fix-forward release commits, while the `vX.Y.Z`
 tag is the finalization signal for the exact certified candidate commit. After
-that publish succeeds, `main` should fast-forward to the released commit so the
-branch mirrors the shipped state instead of replaying it through a rebase.
+that publish succeeds, the release workflow should fast-forward `main` to the
+released commit so the branch mirrors the shipped state instead of replaying it
+through a rebase.
 
 ## Links
 

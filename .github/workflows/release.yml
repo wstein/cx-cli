@@ -292,3 +292,25 @@ jobs:
             tarball-artifacts/*.tgz
             tarball-artifacts/release-integrity.json
             tarball-artifacts/cx-cli.rb
+
+  promote-main:
+    needs:
+      - gate
+      - release-assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.gate.outputs.release_sha }}
+
+      - name: Fast-forward main to released commit
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          git merge --ff-only "${{ needs.gate.outputs.release_sha }}"
+          git push origin main

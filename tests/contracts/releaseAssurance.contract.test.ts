@@ -107,4 +107,14 @@ describe("release assurance contract", () => {
     expect(workflow).toContain("tarball-artifacts/release-integrity.json");
     expect(workflow).toContain("tarball-artifacts/cx-cli.rb");
   });
+
+  test("release workflow fast-forwards main after successful publish", async () => {
+    const workflow = await readText(".github/workflows/release.yml");
+
+    expect(workflow).toContain("promote-main:");
+    expect(workflow).toContain("Fast-forward main to released commit");
+    expect(workflow).toContain('git merge --ff-only "');
+    expect(workflow).toContain("needs.gate.outputs.release_sha");
+    expect(workflow).toContain("git push origin main");
+  });
 });

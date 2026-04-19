@@ -130,7 +130,9 @@ describe("docs assurance contract", () => {
     );
     expect(ghaTriggers).toContain("two-phase rule");
     expect(ghaTriggers).toContain("`develop` carries the versioned");
-    expect(ghaTriggers).toContain("`main` should fast-forward");
+    expect(ghaTriggers).toContain(
+      "release workflow should fast-forward `main`",
+    );
   });
 
   test("notes module spec documents linked-note enrichment semantics", async () => {
