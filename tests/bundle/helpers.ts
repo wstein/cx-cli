@@ -1,11 +1,18 @@
 import { expect } from "bun:test";
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { sha256File } from "../../src/shared/hashing.js";
-import { buildConfig } from "../helpers/config/buildConfig.js";
+import {
+  type BuildConfigOptions,
+  buildConfig,
+} from "../helpers/config/buildConfig.js";
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
+
+const execFileAsync = promisify(execFile);
 
 function countLogicalLines(content: string): number {
   if (content === "") {
@@ -90,23 +97,35 @@ export async function expectExtractedFilesToMatchManifest(params: {
 export async function createProject(options?: {
   includeSpecialChecksumFile?: boolean;
   includeLinkedNotes?: boolean;
+  initializeGit?: boolean;
+  fixture?: string;
+  config?: BuildConfigOptions;
+  files?: Record<string, string | Uint8Array>;
 }): Promise<{
   root: string;
   configPath: string;
   bundleDir: string;
 }> {
+  const includeLinkedNotes =
+    options?.includeLinkedNotes ??
+    options?.config?.manifest?.includeLinkedNotes ??
+    false;
+
   const workspace = await createWorkspace({
-    fixture: "bundle-basic",
+    fixture: options?.fixture ?? "bundle-basic",
     config: buildConfig({
+      ...options?.config,
       assets: {
         targetDir: "assets",
+        ...(options?.config?.assets ?? {}),
       },
       manifest: {
-        includeLinkedNotes: options?.includeLinkedNotes ?? false,
+        ...(options?.config?.manifest ?? {}),
+        includeLinkedNotes,
       },
     }),
     files: {
-      ...(options?.includeLinkedNotes
+      ...(includeLinkedNotes
         ? {
             "src/index.ts":
               '// [[Linked Note]]\nexport const demo = "================";\n',
@@ -131,8 +150,23 @@ This note is linked from source code.
               "export const special = true;\n",
           }
         : {}),
+      ...(options?.files ?? {}),
     },
   });
+
+  if (options?.initializeGit === true) {
+    await execFileAsync("git", ["init", "-q"], { cwd: workspace.rootDir });
+    await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
+      cwd: workspace.rootDir,
+    });
+    await execFileAsync("git", ["config", "user.name", "cx"], {
+      cwd: workspace.rootDir,
+    });
+    await execFileAsync("git", ["add", "."], { cwd: workspace.rootDir });
+    await execFileAsync("git", ["commit", "-q", "-m", "init"], {
+      cwd: workspace.rootDir,
+    });
+  }
 
   return {
     root: workspace.rootDir,

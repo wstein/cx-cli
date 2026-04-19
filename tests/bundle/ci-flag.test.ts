@@ -1,70 +1,40 @@
 // test-lane: integration
 import { describe, expect, test } from "bun:test";
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { readLock } from "../../src/manifest/lock.js";
-
-const execFileAsync = promisify(execFile);
-
-async function initGitRepo(root: string): Promise<void> {
-  await execFileAsync("git", ["init", "-q"], { cwd: root });
-  await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
-    cwd: root,
-  });
-  await execFileAsync("git", ["config", "user.name", "cx"], { cwd: root });
-  await execFileAsync("git", ["add", "."], { cwd: root });
-  await execFileAsync("git", ["commit", "-q", "-m", "init"], { cwd: root });
-}
+import { createProject } from "./helpers.js";
 
 async function createAndInitProject(): Promise<{
   root: string;
   configPath: string;
   bundleDir: string;
 }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-ci-flag-"));
-  await fs.mkdir(path.join(root, "src"), { recursive: true });
-  await fs.writeFile(
-    path.join(root, "src", "index.ts"),
-    "export const value = 1;\n",
-    "utf8",
-  );
-
-  const bundleDir = path.join(root, "dist", "bundle");
-  const configPath = path.join(root, "cx.toml");
-  await fs.writeFile(
-    configPath,
-    `schema_version = 1
-project_name = "test-ci"
-source_root = "."
-output_dir = "dist/bundle"
-
-[repomix]
-style = "xml"
-show_line_numbers = false
-include_empty_directories = false
-security_check = false
-
-[files]
-exclude = ["dist/**"]
-follow_symlinks = false
-unmatched = "ignore"
-
-[sections.src]
-include = ["src/**"]
-exclude = []
-`,
-    "utf8",
-  );
-
-  await initGitRepo(root);
-
-  return { root, configPath, bundleDir };
+  return createProject({
+    initializeGit: true,
+    config: {
+      projectName: "test-ci",
+      outputDir: "dist/bundle",
+      assets: {
+        include: [],
+        exclude: [],
+        mode: "ignore",
+        targetDir: "assets",
+      },
+      sections: {
+        src: {
+          include: ["src/**"],
+          exclude: [],
+        },
+      },
+    },
+    files: {
+      "src/index.ts": "export const value = 1;\n",
+    },
+  });
 }
 
 describe("cx bundle --ci / --force dirty-state handling", () => {
