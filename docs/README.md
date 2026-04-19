@@ -46,18 +46,17 @@ Use the smallest core set first:
 - Release-time checks and Pages publishing: [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
 - Notes system details: [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md)
 - Extraction and recovery rules: [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md)
-- Workflow examples over time: [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md), [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md), [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md)
+- Workflow examples over time: [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md), [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md)
 - MCP debugging cockpit: `bun run test:vitest:mcp:ui`, `bun run test:vitest:mcp:adversarial:ui`
 - Compact operator MCP audit view: `cx audit summary`
 
 ## Workflow Set
 
 - [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - the primary end-to-end workflow from live investigation to verified handoff
-- [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - the policy boundary for trusted local note mutation
-- [WORKFLOWS/agent-note-review-loop.md](./WORKFLOWS/agent-note-review-loop.md) - the agent point of view for that same trusted mutation path
+- [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - the policy boundary plus operator and agent viewpoints for trusted local note mutation
 
-Read the Friday-to-Monday workflow first. The two note-mutation workflow docs
-are narrower special cases, not parallel onboarding paths.
+Read the Friday-to-Monday workflow first. The note-mutation workflow is a
+narrower special case, not a parallel onboarding path.
 
 ## Historical Material
 

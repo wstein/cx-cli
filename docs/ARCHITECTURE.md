@@ -67,20 +67,12 @@ Core responsibility split:
 - `cx` verification layer: confirm artifacts and source-tree alignment
 - `cx` extraction layer: recover files according to manifest truth
 
-## Structured Render Contract (Phase 1)
+## Structured Render Contract
 
-Starting with v0.3.17, `cx` enforces a **deterministic structured render contract** instead of heuristic span parsing.
+`cx` enforces a deterministic structured render contract instead of relying on
+heuristic span parsing.
 
-### The Problem
-
-Previous versions computed file spans by parsing rendered output markers (XML tags, Markdown headings, plain-text delimiters). This approach suffered from:
-- Marker-based heuristics that could fail silently on rendering variations
-- Span calculations dependent on indirect inference
-- No cryptographic verification of render plan integrity
-
-### The Solution
-
-**Structured truth at render time:** The repomix adapter now provides `packStructured()`, which returns:
+The repomix adapter provides `packStructured()`, which returns:
 
 ```ts
 interface StructuredRenderEntry {

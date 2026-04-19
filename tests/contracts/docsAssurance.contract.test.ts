@@ -195,9 +195,6 @@ describe("docs assurance contract", () => {
     const safeNoteMutation = await readText(
       "docs/WORKFLOWS/safe-note-mutation.md",
     );
-    const agentReviewLoop = await readText(
-      "docs/WORKFLOWS/agent-note-review-loop.md",
-    );
 
     expect(fridayToMonday).toContain("The developer has local tracked changes");
     expect(fridayToMonday).toContain("cx bundle --config cx.toml --force");
@@ -209,9 +206,9 @@ describe("docs assurance contract", () => {
     expect(safeNoteMutation).toContain(
       "cx notes graph --id 20260419090000 --depth 2",
     );
-    expect(agentReviewLoop).toContain("notes_new(");
-    expect(agentReviewLoop).toContain("cx notes check");
-    expect(agentReviewLoop).toContain("bun run ci:notes:governance");
+    expect(safeNoteMutation).toContain("notes_new(");
+    expect(safeNoteMutation).toContain("cx notes check");
+    expect(safeNoteMutation).toContain("bun run ci:notes:governance");
   });
 
   test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {

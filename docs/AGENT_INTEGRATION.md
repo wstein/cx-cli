@@ -17,7 +17,7 @@ This document explains how to integrate the `cx mcp` server with common AI agent
 See: [OPERATING_MODES.md](OPERATING_MODES.md) for the main conceptual entrypoint.
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical Track A vs Track B split, MCP policy tiers, and artifact lifecycle.
 See: [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md) for the integration-layer policy contract.
-See: [WORKFLOWS/agent-note-review-loop.md](WORKFLOWS/agent-note-review-loop.md) for the end-to-end note mutation review loop from the agent's point of view.
+See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md) for the end-to-end note mutation review loop, including the agent point of view.
 
 This document is an integration guide. It should describe client setup, tool flow, and agent-facing metadata, not redefine the canonical semantics already owned by [MENTAL_MODEL.md](MENTAL_MODEL.md).
 

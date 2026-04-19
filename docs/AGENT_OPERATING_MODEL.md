@@ -137,7 +137,6 @@ cx notes graph --id <note-id> --depth 2
 ```
 
 See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)
-See: [WORKFLOWS/agent-note-review-loop.md](WORKFLOWS/agent-note-review-loop.md)
 
 ## Links
 
