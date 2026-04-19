@@ -145,3 +145,4 @@ dist
 tmp/
 .obsidian/
 /.idea/
+.ci/coverage-summary.md
