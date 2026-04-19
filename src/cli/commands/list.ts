@@ -48,6 +48,24 @@ interface RowMeta {
   };
 }
 
+function compareDeterministicText(left: string, right: string): number {
+  const leftFolded = left.toLowerCase();
+  const rightFolded = right.toLowerCase();
+  if (leftFolded < rightFolded) {
+    return -1;
+  }
+  if (leftFolded > rightFolded) {
+    return 1;
+  }
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
+}
+
 function formatProvenanceSuffix(
   provenance: string[],
   useColor: boolean,
@@ -256,7 +274,9 @@ function renderGroupedList(
       : `manifest: ${manifestName}`,
   ];
   for (const sectionName of orderedSections) {
-    const sectionRows = groups.get(sectionName) ?? [];
+    const sectionRows = (groups.get(sectionName) ?? []).toSorted(
+      (left, right) => compareDeterministicText(left.path, right.path),
+    );
     lines.push("");
     lines.push(useColor ? kleur.bold().cyan(sectionName) : sectionName);
     lines.push(
