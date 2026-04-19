@@ -1,8 +1,10 @@
 // test-lane: contract
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { assemblePagesSite } from "../../scripts/assemble-pages-site.js";
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -11,6 +13,10 @@ const ROOT = path.resolve(
 
 async function readText(relativePath: string): Promise<string> {
   return fs.readFile(path.join(ROOT, relativePath), "utf8");
+}
+
+async function makeFixtureRoot(): Promise<string> {
+  return fs.mkdtemp(path.join(os.tmpdir(), "cx-pages-contract-"));
 }
 
 describe("Pages publish contract", () => {
@@ -59,5 +65,38 @@ describe("Pages publish contract", () => {
     expect(pkg.scripts?.["pages:build"]).toBe(
       "node scripts/assemble-pages-site.js",
     );
+  });
+
+  test("root Pages index links both schemas and coverage surfaces", async () => {
+    const root = await makeFixtureRoot();
+    const schemasDir = path.join(root, "schemas");
+    const coverageDir = path.join(root, "coverage", "vitest");
+    const siteRoot = path.join(root, "site");
+
+    await fs.mkdir(schemasDir, { recursive: true });
+    await fs.mkdir(coverageDir, { recursive: true });
+    await fs.writeFile(
+      path.join(schemasDir, "cx-config-v1.schema.json"),
+      '{"$id":"https://example.invalid/cx-config-v1.schema.json"}\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(coverageDir, "index.html"),
+      "<html><body>coverage</body></html>\n",
+      "utf8",
+    );
+
+    await assemblePagesSite({
+      siteRoot,
+      schemasDir,
+      coverageDir,
+    });
+
+    const rootIndex = await fs.readFile(
+      path.join(siteRoot, "index.html"),
+      "utf8",
+    );
+    expect(rootIndex).toContain('href="schemas/"');
+    expect(rootIndex).toContain('href="coverage/"');
   });
 });
