@@ -35,9 +35,18 @@ they needed to be.
 - MCP boundary tests should simulate hangs, delayed throws, and malformed
   startup errors so CLI behavior degrades safely.
 
+## PR checklist guardrails
+
+- Every `*.test.ts` file should start with `// test-lane: ...` and match the
+  lane matrix in `tests/README.md`.
+- PRs should include explicit unit/integration/adversarial checklist results so
+  lane intent is visible during review.
+- If a lane is intentionally skipped, the PR should explain why.
+
 ## Links
 
 - [[tests/README.md]]
+- [[.github/pull_request_template.md]]
 - [[src/notes/validate.ts]]
 - [[tests/unit/configLoad.property.test.ts]]
 - [[tests/mcp/server.run.test.ts]]
