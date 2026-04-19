@@ -10,6 +10,7 @@ import { buildConfig } from "../helpers/config/buildConfig.js";
 import { createWorkspace as createTestWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 const execFileAsync = promisify(execFile);
+const GITHUB_TOKEN_FIXTURE = "ghp_" + "123456789012345678901234567890123456";
 
 interface RegisteredTool {
   handler: (
@@ -133,7 +134,7 @@ async function createWorkspace(
       "README.md": "# Workspace\n\nhello from cx\n",
       ...(options.includeSecret === true
         ? {
-            "secrets.txt": "ghp_123456789012345678901234567890123456\n",
+            "secrets.txt": `${GITHUB_TOKEN_FIXTURE}\n`,
           }
         : {}),
     },

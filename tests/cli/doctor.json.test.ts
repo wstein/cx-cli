@@ -13,6 +13,7 @@ import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 
 const execFileAsync = promisify(execFile);
+const GITHUB_TOKEN_FIXTURE = "ghp_" + "123456789012345678901234567890123456";
 
 async function initGitRepo(root: string): Promise<void> {
   await execFileAsync("git", ["init", "-q"], { cwd: root });
@@ -82,7 +83,7 @@ async function createMcpProject(
   if (options.includeSecret === true) {
     await fs.writeFile(
       path.join(root, "secrets.txt"),
-      "ghp_123456789012345678901234567890123456\n",
+      `${GITHUB_TOKEN_FIXTURE}\n`,
       "utf8",
     );
   }
