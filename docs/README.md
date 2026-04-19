@@ -7,6 +7,7 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 
 ## Start Here
 
+- [OPERATING_MODES.md](./OPERATING_MODES.md) - choose between live MCP help, reproducible bundles, and durable notes
 - [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
 - [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff

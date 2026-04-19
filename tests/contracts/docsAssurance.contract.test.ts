@@ -14,6 +14,24 @@ async function readText(relativePath: string): Promise<string> {
 }
 
 describe("docs assurance contract", () => {
+  test("operating modes hub is the main conceptual entrypoint", async () => {
+    const docsIndex = await readText("docs/README.md");
+    const operatingModes = await readText("docs/OPERATING_MODES.md");
+    const manual = await readText("docs/MANUAL.md");
+
+    expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
+    expect(operatingModes).toContain(
+      "Need fast interactive AI help on live code? Use `cx mcp`.",
+    );
+    expect(operatingModes).toContain(
+      "Need a reproducible, promotable artifact? Use `cx bundle`.",
+    );
+    expect(operatingModes).toContain(
+      "Need durable design memory? Use `cx notes`.",
+    );
+    expect(manual).toContain("See: [OPERATING_MODES.md](OPERATING_MODES.md)");
+  });
+
   test("manual defines an assurance ladder", async () => {
     const manual = await readText("docs/MANUAL.md");
 

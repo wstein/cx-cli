@@ -2,6 +2,7 @@
 
 # Agent Operating Model
 
+See: [OPERATING_MODES.md](OPERATING_MODES.md)
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
 
 cx-cli provides three distinct agent-facing surfaces for repository context. This document narrows the canonical mental model down to policy and workflow consequences for agent operators.

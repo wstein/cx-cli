@@ -4,6 +4,7 @@
 
 `cx` standardizes AI project context, notes, and MCP workflows in one repository-native toolchain.
 
+See: [OPERATING_MODES.md](OPERATING_MODES.md) for the main conceptual entrypoint.
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical CX triad, Track A vs Track B, policy tiers, and artifact lifecycle.
 
 ## Choose Your Path

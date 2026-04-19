@@ -4,6 +4,8 @@
 
 This is the canonical operator model for `cx`.
 
+See: [OPERATING_MODES.md](OPERATING_MODES.md) for the shortest path to choosing the right surface before reading the deeper model.
+
 When another document needs to explain the CX triad, Track A vs Track B, MCP policy tiers, or the artifact lifecycle, it should point here instead of restating the full model.
 
 ## CX Triad

@@ -12,6 +12,7 @@ The project deliberately wraps Repomix in a stricter system because rendering al
 
 ## Canonical Model
 
+See: [OPERATING_MODES.md](OPERATING_MODES.md)
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
 
 This document starts where the shared mental model stops. The mental model defines the CX triad, Track A vs Track B, MCP policy tiers, and the artifact lifecycle. Architecture explains how the codebase enforces that model with deterministic planning, manifest truth, verification rules, and extraction guardrails.
