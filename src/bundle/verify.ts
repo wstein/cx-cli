@@ -11,7 +11,7 @@ import {
   validatePlanOrdering,
 } from "../repomix/structured.js";
 import { CxError, type ErrorRemediation } from "../shared/errors.js";
-import { sha256File } from "../shared/hashing.js";
+import { sha256File, sha256NormalizedText } from "../shared/hashing.js";
 import {
   selectManifestRows,
   type VerifySelection,
@@ -43,6 +43,19 @@ export class VerifyError extends CxError {
     this.type = type;
     this.relativePath = relativePath;
   }
+}
+
+export interface BundleVerifyDeps {
+  validateBundle?: typeof validateBundle;
+  loadManifestFromBundle?: typeof loadManifestFromBundle;
+  readFile?: typeof fs.readFile;
+  parseChecksumFile?: typeof parseChecksumFile;
+  sha256File?: typeof sha256File;
+  renderSectionWithRepomix?: typeof renderSectionWithRepomix;
+  validatePlanOrdering?: typeof validatePlanOrdering;
+  validateEntryHashes?: typeof validateEntryHashes;
+  mkdtemp?: typeof fs.mkdtemp;
+  rm?: typeof fs.rm;
 }
 
 function buildVerifyRemediation(
@@ -91,8 +104,17 @@ async function verifyBundleAgainstSourceTree(
   sourceDir: string,
   selection: VerifySelection,
   config: CxConfig,
+  deps: BundleVerifyDeps = {},
 ): Promise<void> {
-  const { manifest } = await loadManifestFromBundle(bundleDir);
+  const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
+  const renderSection =
+    deps.renderSectionWithRepomix ?? renderSectionWithRepomix;
+  const validateOrdering = deps.validatePlanOrdering ?? validatePlanOrdering;
+  const validateHashes = deps.validateEntryHashes ?? validateEntryHashes;
+  const mkdtemp = deps.mkdtemp ?? fs.mkdtemp;
+  const rm = deps.rm ?? fs.rm;
+
+  const { manifest } = await loadManifest(bundleDir);
   const selectedFiles = selectManifestRows(manifest.files, selection);
 
   const selectedTextFiles = selectedFiles.filter(
@@ -101,6 +123,10 @@ async function verifyBundleAgainstSourceTree(
   const selectedSections = manifest.sections.filter((section) =>
     selectedTextFiles.some((file) => file.section === section.name),
   );
+  const shouldVerifyAggregatePlanHash =
+    manifest.renderPlanHash !== undefined &&
+    !(selection.sections?.length || selection.files?.length);
+  const sectionPlanHashes = new Map<string, string>();
 
   for (const section of selectedSections) {
     const sectionRows = selectedTextFiles.filter(
@@ -109,9 +135,9 @@ async function verifyBundleAgainstSourceTree(
     const explicitFiles = sectionRows.map((file) =>
       path.join(sourceDir, file.path),
     );
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-verify-"));
+    const tmpDir = await mkdtemp(path.join(os.tmpdir(), "cx-verify-"));
     try {
-      const renderResult = await renderSectionWithRepomix({
+      const renderResult = await renderSection({
         config: {
           ...config,
           projectName: manifest.projectName,
@@ -141,8 +167,10 @@ async function verifyBundleAgainstSourceTree(
         renderResult.planHash &&
         manifest.renderPlanHash
       ) {
+        sectionPlanHashes.set(section.name, renderResult.planHash);
+
         // Validate ordering is deterministic
-        if (!validatePlanOrdering(renderResult.structuredPlan)) {
+        if (!validateOrdering(renderResult.structuredPlan)) {
           throw new VerifyError(
             "ordering_violation",
             `Render plan ordering is not deterministic for section ${section.name}.`,
@@ -151,9 +179,7 @@ async function verifyBundleAgainstSourceTree(
         }
 
         // Validate all entry hashes are consistent
-        const hashErrors = validateEntryHashes(
-          renderResult.structuredPlan.entries,
-        );
+        const hashErrors = validateHashes(renderResult.structuredPlan.entries);
         if (hashErrors.size > 0) {
           const errorDetails = Array.from(hashErrors.values()).join(", ");
           throw new VerifyError(
@@ -182,7 +208,29 @@ async function verifyBundleAgainstSourceTree(
         }
       }
     } finally {
-      await fs.rm(tmpDir, { recursive: true, force: true });
+      await rm(tmpDir, { recursive: true, force: true });
+    }
+  }
+
+  if (shouldVerifyAggregatePlanHash) {
+    if (sectionPlanHashes.size !== selectedSections.length) {
+      throw new VerifyError(
+        "render_plan_drift",
+        "Source tree verification could not produce render plan hashes for all sections.",
+      );
+    }
+    const aggregatePlanHash = sha256NormalizedText(
+      JSON.stringify(
+        Array.from(sectionPlanHashes.entries()).sort(([left], [right]) =>
+          left.localeCompare(right),
+        ),
+      ),
+    );
+    if (aggregatePlanHash !== manifest.renderPlanHash) {
+      throw new VerifyError(
+        "render_plan_drift",
+        "Render plan hash drift: source tree plan hash no longer matches the bundle manifest.",
+      );
     }
   }
 }
@@ -192,9 +240,16 @@ export async function verifyBundle(
   againstDir?: string,
   selection: VerifySelection = { sections: undefined, files: undefined },
   config?: CxConfig,
+  deps: BundleVerifyDeps = {},
 ): Promise<void> {
-  const { manifestName } = await validateBundle(bundleDir);
-  const { manifest } = await loadManifestFromBundle(bundleDir);
+  const validate = deps.validateBundle ?? validateBundle;
+  const loadManifest = deps.loadManifestFromBundle ?? loadManifestFromBundle;
+  const readFile = deps.readFile ?? fs.readFile;
+  const parseChecksums = deps.parseChecksumFile ?? parseChecksumFile;
+  const sha256FileImpl = deps.sha256File ?? sha256File;
+
+  const { manifestName } = await validate(bundleDir);
+  const { manifest } = await loadManifest(bundleDir);
   const selectedFiles = selectManifestRows(manifest.files, selection);
   const selectedSections = manifest.sections.filter((section) =>
     selectedFiles.some((file) => file.section === section.name),
@@ -202,8 +257,8 @@ export async function verifyBundle(
   const selectedAssets = manifest.assets.filter((asset) =>
     selectedFiles.some((file) => file.path === asset.sourcePath),
   );
-  const checksums = parseChecksumFile(
-    await fs.readFile(path.join(bundleDir, manifest.checksumFile), "utf8"),
+  const checksums = parseChecksums(
+    await readFile(path.join(bundleDir, manifest.checksumFile), "utf8"),
   );
   const listedFiles = new Set(
     checksums.map((checksum) => checksum.relativePath),
@@ -230,7 +285,7 @@ export async function verifyBundle(
       );
     }
 
-    const actualHash = await sha256File(
+    const actualHash = await sha256FileImpl(
       path.join(bundleDir, checksum.relativePath),
     );
     if (actualHash !== checksum.hash) {
@@ -274,6 +329,7 @@ export async function verifyBundle(
       againstDir,
       selection,
       config,
+      deps,
     );
   }
 }
