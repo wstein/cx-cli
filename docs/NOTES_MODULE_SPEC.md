@@ -185,6 +185,7 @@ This implementation now includes:
 - `codeLinks[]` extraction from note bodies and propagation into `manifest.notes[]` records, enabling manifest-first querying of which notes reference specific source files
 - a `cx notes ...` command family for note creation and graph inspection
 - unresolved note and code-reference auditing via `cx notes links`
+- comment-scoped code reference discovery, so only intentional `[[Note]]` references in source comments count as note links
 - cross-file anchor validation: `[[Note Title#Section Heading]]` wikilinks are checked against actual headings in the target note, reported as `anchor-not-found` broken links
 - graph reachability queries via `cx notes graph --id <id> --depth <n>` and the `notes_graph` MCP tool, returning all notes reachable within N wikilink hops from a seed note
 

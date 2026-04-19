@@ -15,6 +15,9 @@ The notes graph is the repository cognition layer. It is where high-signal reaso
 
 Use `cx notes links` to audit unresolved note references after you rename or
 move entries in the note graph.
+When code should point back into the note graph, place the `[[Note Title]]`
+reference in a source comment so audits can distinguish intentional links from
+plain syntax.
 
 Operational command contracts such as `make test`, `make verify`, and
 `make release` should live here as durable notes instead of ad hoc workflow

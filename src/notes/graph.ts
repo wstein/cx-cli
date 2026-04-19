@@ -128,7 +128,7 @@ async function extractCodeReferences(
     for (const file of codeFiles) {
       try {
         const content = await fs.readFile(file, "utf-8");
-        const wikilinks = extractWikilinkReferences(content);
+        const wikilinks = extractCodeCommentWikilinks(content);
         const relativeFile = toPosixPath(path.relative(projectRoot, file));
 
         for (const link of wikilinks) {
@@ -157,6 +157,87 @@ async function extractCodeReferences(
   }
 
   return { links: codeLinks, brokenLinks };
+}
+
+function extractCodeCommentWikilinks(content: string) {
+  const references = [];
+  const lines = content.split(/\r?\n/u);
+  let inBlockComment = false;
+
+  for (const line of lines) {
+    let remaining = line;
+    const commentSegments: string[] = [];
+
+    if (inBlockComment) {
+      const blockCommentEnd = remaining.indexOf("*/");
+      if (blockCommentEnd === -1) {
+        commentSegments.push(remaining);
+        references.push(...extractSegmentWikilinks(commentSegments));
+        continue;
+      }
+
+      commentSegments.push(remaining.slice(0, blockCommentEnd));
+      remaining = remaining.slice(blockCommentEnd + 2);
+      inBlockComment = false;
+    }
+
+    const leadingCommentSegment = extractLeadingCommentSegment(remaining);
+    if (leadingCommentSegment !== null) {
+      commentSegments.push(leadingCommentSegment);
+      references.push(...extractSegmentWikilinks(commentSegments));
+      continue;
+    }
+
+    const blockCommentStart = remaining.indexOf("/*");
+    if (blockCommentStart >= 0 && remaining.includes("[[", blockCommentStart)) {
+      const blockCommentBody = remaining.slice(blockCommentStart + 2);
+      const blockCommentEnd = blockCommentBody.indexOf("*/");
+      if (blockCommentEnd === -1) {
+        commentSegments.push(blockCommentBody);
+        inBlockComment = true;
+      } else {
+        commentSegments.push(blockCommentBody.slice(0, blockCommentEnd));
+      }
+    }
+
+    const lineCommentStart = remaining.indexOf("//");
+    if (lineCommentStart >= 0 && remaining.includes("[[", lineCommentStart)) {
+      commentSegments.push(remaining.slice(lineCommentStart + 2));
+    }
+
+    if (commentSegments.length > 0) {
+      references.push(...extractSegmentWikilinks(commentSegments));
+    }
+  }
+
+  return references;
+}
+
+function extractLeadingCommentSegment(line: string) {
+  const trimmed = line.trimStart();
+
+  if (
+    trimmed.startsWith("//") ||
+    trimmed.startsWith("#") ||
+    trimmed.startsWith("*") ||
+    trimmed.startsWith("--")
+  ) {
+    return trimmed.replace(/^(\/\/+|#|\*+|--)\s*/u, "");
+  }
+
+  if (trimmed.startsWith("/*")) {
+    return trimmed.slice(2);
+  }
+
+  if (trimmed.startsWith("<!--")) {
+    return trimmed.slice(4);
+  }
+
+  return null;
+}
+
+function extractSegmentWikilinks(segments: string[]) {
+  return segments.flatMap((segment) => extractWikilinkReferences(segment));
 }
 
 export async function buildNoteGraph(

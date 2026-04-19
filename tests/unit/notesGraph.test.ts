@@ -216,6 +216,54 @@ describe("buildNoteGraph with code analysis", () => {
     expect(broken.some((b) => b.source === "code")).toBe(true);
   });
 
+  test("ignores nested array syntax that only looks like a wikilink", async () => {
+    const srcDir = path.join(testDir, "src");
+    await fs.mkdir(srcDir, { recursive: true });
+
+    await fs.writeFile(
+      path.join(srcDir, "table.ts"),
+      'printTable([["Bundle", bundleDir]], io);\n',
+    );
+
+    const graph = await buildNoteGraph("notes", testDir, true);
+    const broken = getBrokenLinks(graph);
+
+    expect(broken.some((issue) => issue.source === "code")).toBe(false);
+  });
+
+  test("ignores shell conditionals embedded in strings", async () => {
+    const srcDir = path.join(testDir, "src");
+    await fs.mkdir(srcDir, { recursive: true });
+
+    await fs.writeFile(
+      path.join(srcDir, "completion.ts"),
+      "const script = `if [[ $cword -eq 1 ]]; then\\n  echo ok\\nfi`;\n",
+    );
+
+    const graph = await buildNoteGraph("notes", testDir, true);
+    const broken = getBrokenLinks(graph);
+
+    expect(broken.some((issue) => issue.source === "code")).toBe(false);
+  });
+
+  test("tracks note references inside inline code comments", async () => {
+    const notesDir = path.join(testDir, "notes");
+    const srcDir = path.join(testDir, "src");
+    await fs.mkdir(srcDir, { recursive: true });
+
+    await writeNote(notesDir, "20260102120000", "Inline Target");
+    await fs.writeFile(
+      path.join(srcDir, "inline.ts"),
+      "export const value = 1; // [[20260102120000]]\n",
+    );
+
+    const graph = await buildNoteGraph("notes", testDir, true);
+    const refs = getCodeReferences(graph, "20260102120000");
+
+    expect(refs.length).toBeGreaterThan(0);
+    expect(refs[0]).toContain("inline.ts");
+  });
+
   test("reports anchor-not-found when #section heading is missing in target note", async () => {
     const notesDir = path.join(testDir, "notes");
     await writeNote(
