@@ -167,6 +167,37 @@ This is a well-formed note with enough routing words.`,
       }
     });
 
+    it("surfaces low-signal notes without treating them as structural failure", async () => {
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
+      const notesDir = path.join(tempDir, "notes");
+      await fs.mkdir(notesDir, { recursive: true });
+
+      await fs.writeFile(
+        path.join(notesDir, "sparse.md"),
+        `---
+id: 20250113143004
+title: Sparse Note
+---
+
+This note remains valid but sparse today.
+
+It intentionally omits structure and supporting links for now.
+`,
+      );
+
+      try {
+        const report = await checkNotesConsistency("notes", tempDir);
+        expect(report.valid).toBe(true);
+        expect(report.lowSignalNotes).toHaveLength(1);
+        expect(report.lowSignalNotes[0]?.title).toBe("Sparse Note");
+        expect(report.lowSignalNotes[0]?.label).toBe("low_signal");
+        expect(report.lowSignalNotes[0]?.trustLevel).toBe("conditional");
+        expect(report.cognition.lowSignalCount).toBe(1);
+      } finally {
+        await fs.rm(tempDir, { recursive: true });
+      }
+    });
+
     it("warns when notes reference code paths missing from the repository", async () => {
       const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "notes-test-"));
       const notesDir = path.join(tempDir, "notes");

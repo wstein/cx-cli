@@ -31,6 +31,8 @@ Current enforcement is intentionally narrow and machine-checkable:
 
 Current scoring is intentionally diagnostic, not philosophical. `cx` measures observable signals such as summary density, structural clarity, and evidence links. It does not claim to prove that the idea itself is true.
 
+The test strategy now treats cognition quality as an adversarial surface. Unit coverage exercises sparse, boilerplate, and high-signal notes separately so future refactors do not collapse the distinction between parseable memory and durable repository knowledge.
+
 Why this protects you: `valid note != good note`. The cognition contract narrows that gap by refusing obvious low-signal memory and by making the remaining quality signals explicit in manifests and CLI review.
 
 ## Boundary Contract
