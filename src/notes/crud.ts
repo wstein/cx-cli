@@ -197,6 +197,11 @@ export interface WriteNoteResult {
   tags: string[];
 }
 
+interface NoteWorkspaceOptions {
+  notesDir?: string | undefined;
+  workspaceRoot?: string | undefined;
+}
+
 function fileNameFromTitle(title: string): string {
   const cleaned = title
     .trim()
@@ -219,10 +224,12 @@ export async function createNewNote(
     body?: string | undefined;
     tags?: string[] | undefined;
     notesDir?: string | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<{ id: string; filePath: string }> {
   const notesDir = options?.notesDir ?? "notes";
-  const notesPath = path.resolve(notesDir);
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const notesPath = path.resolve(workspaceRoot, notesDir);
 
   await ensureDir(notesPath);
 
@@ -249,10 +256,12 @@ export async function updateNote(
     tags?: string[] | undefined;
     title?: string | undefined;
     notesDir?: string | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<WriteNoteResult> {
   const notesDir = options?.notesDir ?? "notes";
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
   const note = result.notes.find((entry) => entry.id === noteId);
 
   if (!note) {
@@ -304,10 +313,12 @@ export async function renameNote(
   title: string,
   options?: {
     notesDir?: string | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<WriteNoteResult & { previousFilePath: string }> {
   const notesDir = options?.notesDir ?? "notes";
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
   const note = result.notes.find((entry) => entry.id === noteId);
 
   if (!note) {
@@ -340,7 +351,7 @@ export async function renameNote(
   });
 
   const baseName = fileNameFromTitle(title);
-  const notesPath = path.resolve(notesDir);
+  const notesPath = path.resolve(workspaceRoot, notesDir);
   const desiredPath = path.join(notesPath, `${baseName}.md`);
   let finalPath = desiredPath;
   if (path.resolve(desiredPath) !== path.resolve(currentPath)) {
@@ -367,10 +378,12 @@ export async function deleteNote(
   noteId: string,
   options?: {
     notesDir?: string | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<{ id: string; filePath: string; title: string }> {
   const notesDir = options?.notesDir ?? "notes";
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
   const note = result.notes.find((entry) => entry.id === noteId);
 
   if (!note) {
@@ -390,10 +403,12 @@ export async function readNote(
   noteId: string,
   options?: {
     notesDir?: string | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<ReadNoteResult> {
   const notesDir = options?.notesDir ?? "notes";
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
   const note = result.notes.find((entry) => entry.id === noteId);
 
   if (!note) {
@@ -426,6 +441,7 @@ export async function searchNotes(
     notesDir?: string | undefined;
     regex?: boolean | undefined;
     tags?: string[] | undefined;
+    workspaceRoot?: string | undefined;
   },
 ): Promise<{
   query: string;
@@ -433,7 +449,8 @@ export async function searchNotes(
   notes: SearchNoteResult[];
 }> {
   const notesDir = options?.notesDir ?? "notes";
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
   const matcher = createTextMatcher({
     query,
     regex: options?.regex,
@@ -520,7 +537,10 @@ export async function searchNotes(
 /**
  * List all notes in the notes directory.
  */
-export async function listNotes(notesDir: string = "notes"): Promise<
+export async function listNotes(
+  notesDir: string = "notes",
+  options?: NoteWorkspaceOptions,
+): Promise<
   Array<{
     id: string;
     title: string;
@@ -528,7 +548,8 @@ export async function listNotes(notesDir: string = "notes"): Promise<
     tags: string[];
   }>
 > {
-  const result = await validateNotes(notesDir, process.cwd());
+  const workspaceRoot = path.resolve(options?.workspaceRoot ?? process.cwd());
+  const result = await validateNotes(notesDir, workspaceRoot);
 
   return result.notes.map((note) => ({
     id: note.id,

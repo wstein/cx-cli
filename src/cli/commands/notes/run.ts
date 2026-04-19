@@ -64,6 +64,7 @@ export async function runNotesCommand(
       body: args.body,
       tags: args.tags ?? undefined,
       notesDir,
+      workspaceRoot,
     });
 
     if (args.json ?? false) {
@@ -91,7 +92,10 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes read'", 2);
     }
 
-    const note = await readNote(args.id, { notesDir });
+    const note = await readNote(args.id, {
+      notesDir,
+      workspaceRoot,
+    });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -136,6 +140,7 @@ export async function runNotesCommand(
       tags: args.tags,
       title: args.title,
       notesDir,
+      workspaceRoot,
     });
 
     if (args.json ?? false) {
@@ -166,7 +171,10 @@ export async function runNotesCommand(
       throw new CxError("--title is required for 'cx notes rename'", 2);
     }
 
-    const note = await renameNote(args.id, args.title, { notesDir });
+    const note = await renameNote(args.id, args.title, {
+      notesDir,
+      workspaceRoot,
+    });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -195,7 +203,10 @@ export async function runNotesCommand(
       throw new CxError("--id is required for 'cx notes delete'", 2);
     }
 
-    const note = await deleteNote(args.id, { notesDir });
+    const note = await deleteNote(args.id, {
+      notesDir,
+      workspaceRoot,
+    });
 
     if (args.json ?? false) {
       writeJsonOutput({
@@ -214,7 +225,7 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "list") {
-    const notes = await listNotes(notesDir);
+    const notes = await listNotes(notesDir, { workspaceRoot });
 
     if (args.json ?? false) {
       writeJsonOutput({
