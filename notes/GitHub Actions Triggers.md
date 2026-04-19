@@ -11,6 +11,11 @@ manual dispatch asks for one, which keeps publish automation off normal pushes
 while the branch feedback loop stays open for feature work and development
 branches.
 
+The CI runtime policy declares `BUN_MIN_VERSION=1.3.11` and validates both the
+minimum lane and `latest` in the Bun matrix. The release gate also checks
+`github.event.workflow_run.conclusion == success` before allowing publish
+automation to continue from a CI-triggered run.
+
 ## Links
 
 - `.github/workflows/ci.yml`

@@ -22,6 +22,24 @@ async function readPackageJson(): Promise<{
 }
 
 describe("release assurance contract", () => {
+  test("release workflow gate blocks publish when upstream CI failed", async () => {
+    const workflow = await readText(".github/workflows/release.yml");
+
+    expect(workflow).toContain(
+      'if [ "$' +
+        "{{ github.event.workflow_run.conclusion }}" +
+        '" != "success" ]; then',
+    );
+    expect(workflow).toContain('echo "run_release=false" >> "$GITHUB_OUTPUT"');
+  });
+
+  test("release workflow pins Bun setup to the declared minimum runtime", async () => {
+    const workflow = await readText(".github/workflows/release.yml");
+
+    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
+    expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
+  });
+
   test("package scripts expose delegated ci assurance entry points", async () => {
     const pkg = await readPackageJson();
     const scripts = pkg.scripts ?? {};

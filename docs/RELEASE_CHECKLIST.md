@@ -5,6 +5,7 @@
 Use this short checklist when cutting a release.
 
 - Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, Repomix fork compatibility smoke, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
+- The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
 - If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.
 - If the Pages branch does not exist yet, let the publish workflow create `gh-pages` on the next run.
 - GitHub Pages must be configured in repository settings to serve from the `gh-pages` branch.
@@ -12,6 +13,7 @@ Use this short checklist when cutting a release.
 - Mirror the same schema files into the GitHub Release assets for the tagged release.
 - Use `make release VERSION=x.y.z` to hand off the tagged release to the release script.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
+- The release workflow only proceeds from `workflow_run` when CI concluded with `success`; failed CI runs cannot publish npm/Homebrew artifacts.
 - The release workflow in `.github/workflows/release.yml` requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
 - Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.

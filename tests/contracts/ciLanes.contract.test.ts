@@ -18,6 +18,7 @@ describe("CI lanes contract", () => {
   test("workflow test lanes invoke script-backed Bun commands", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
     expect(workflow).toContain("run: bun run ci:test:fast");
     expect(workflow).toContain(
       "run: bun run lint && bun run format:check && bun run check",
@@ -83,6 +84,39 @@ describe("CI lanes contract", () => {
       'repomix-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
     );
     expect(workflow).not.toContain("bun add --exact repomix@");
+  });
+
+  test("bun matrix validates minimum and latest runtime lanes", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain(
+      "bun-version: $" +
+        '{{ fromJSON(format(\'["{0}", "latest"]\', env.BUN_MIN_VERSION)) }}',
+    );
+    expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
+  });
+
+  test("release assurance waits for all CI matrices", async () => {
+    const workflow = await readText(".github/workflows/ci.yml");
+
+    expect(workflow).toContain("release-assurance:");
+    expect(workflow).toContain("      - test-fast");
+    expect(workflow).toContain("      - test-contracts");
+    expect(workflow).toContain("      - repomix-matrix");
+    expect(workflow).toContain("      - bundle-update-matrix");
+    expect(workflow).toContain("      - bun-matrix");
+    expect(workflow).toContain("      - reproducibility");
+  });
+
+  test("package metadata declares a minimum supported Bun runtime", async () => {
+    const pkgRaw = await readText("package.json");
+    const pkg = JSON.parse(pkgRaw) as {
+      engines?: Record<string, string>;
+      packageManager?: string;
+    };
+
+    expect(pkg.engines?.bun).toBe(">=1.3.11");
+    expect(pkg.packageManager).toBe("bun@1.3.11");
   });
 
   test("fast lane test discovery includes bundle failure-class unit suites", () => {

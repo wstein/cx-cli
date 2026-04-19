@@ -13,6 +13,9 @@ not broad toolchain replacement. `cx` continues to standardize on `yargs`,
 `bun:test`, Bun-first CI execution, and the Repomix fork while reliability work
 targets command I/O boundaries, workspace context injection, and clearer test
 separation between pure behavior and integration seams.
+CI now declares a minimum supported Bun runtime (`1.3.11`) and continuously
+tests both the minimum and `latest` Bun lanes to detect regressions across the
+supported runtime envelope.
 
 ### STABLE
 
