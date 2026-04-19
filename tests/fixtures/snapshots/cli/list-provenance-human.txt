@@ -1,15 +1,15 @@
 manifest: demo-manifest.json
 
 docs
-    bytes  tokens  time      status  path                
+    bytes  tokens  time  status  path                
    36.0 B   6 tok  <RELATIVE_TIME>  intact  docs/guide.md        [section_match]
   133.0 B  38 tok  <RELATIVE_TIME>  intact  notes/linked-note.md [linked_note_enrichment, manifest_note_inclusion]
    26.0 B   9 tok  <RELATIVE_TIME>  intact  README.md            [section_match]
 
 src
-    bytes  tokens  time      status  path                
+    bytes  tokens  time  status  path                
    59.0 B  12 tok  <RELATIVE_TIME>  intact  src/index.ts         [section_match]
 
 assets
-    bytes  tokens  time      status  path                
+    bytes  tokens  time  status  path                
     7.0 B   0 tok  <RELATIVE_TIME>  copied  logo.png             [asset_rule_match]

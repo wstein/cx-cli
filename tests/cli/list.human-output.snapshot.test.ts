@@ -17,10 +17,17 @@ function scrubListSnapshot(output: string): string {
   return scrubTextSnapshot(
     output
       .replace(ANSI_ESCAPE_PATTERN, "")
-      .replace(/\bjust now\b/g, "<RELATIVE_TIME>")
-      .replace(/\b\d+m ago\b/g, "<RELATIVE_TIME>")
-      .replace(/\b\d+h ago\b/g, "<RELATIVE_TIME>")
-      .replace(/\b\d+d ago\b/g, "<RELATIVE_TIME>"),
+      // Replace time values and consume any trailing padEnd spaces (but not
+      // the two-space column separator) so the status column always aligns
+      // regardless of mtimeWidth at test-run time.
+      .replace(/\bjust now *(?= {2})/g, "<RELATIVE_TIME>")
+      .replace(/\b\d+m ago *(?= {2})/g, "<RELATIVE_TIME>")
+      .replace(/\b\d+h ago *(?= {2})/g, "<RELATIVE_TIME>")
+      .replace(/\b\d+d ago *(?= {2})/g, "<RELATIVE_TIME>")
+      .replace(/\b\d{4}-\d{2}-\d{2} *(?= {2})/g, "<RELATIVE_TIME>")
+      // Normalize the header's time column: strip padEnd trailing spaces so
+      // the column width is stable across runs.
+      .replace(/\btime +(?= {2})/g, "time"),
   );
 }
 
