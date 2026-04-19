@@ -228,6 +228,7 @@ describe("runDoctorCommand — notes subcommand", () => {
       `---
 id: 20260418133000
 title: Architecture
+status: current
 ---
 
 See [[src/index.ts]] before refactoring with enough routing words today.
@@ -256,6 +257,7 @@ See [[src/index.ts]] before refactoring with enough routing words today.
       `---
 id: 20260418133001
 title: Architecture
+status: current
 ---
 
 See [[src/missing.ts]] before refactoring with enough routing words today.
