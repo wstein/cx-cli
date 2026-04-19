@@ -12,7 +12,7 @@ const ROOT = path.resolve(
 );
 
 describe("generate-homebrew-formula.js", () => {
-  test("emits a formula that installs without Language::Node helpers", async () => {
+  test("emits a formula that links the npm-installed shim and exposes cx", async () => {
     const tempRoot = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-homebrew-formula-"),
     );
@@ -36,9 +36,16 @@ describe("generate-homebrew-formula.js", () => {
     const formula = await fs.readFile(outputPath, "utf8");
     expect(formula).toContain('depends_on "node"');
     expect(formula).toContain('system "npm",');
-    expect(formula).toContain('"--prefix=#{libexec}"');
-    expect(formula).toContain("buildpath");
-    expect(formula).toContain('bin.install_symlink Dir["#{libexec}/bin/*"]');
+    expect(formula).toContain('"--no-fund"');
+    expect(formula).toContain('libexec.install Dir["*"]');
+    expect(formula).toContain(
+      'bin.install_symlink libexec/"bin/cx" => "cx-cli"',
+    );
+    expect(formula).toContain('bin.install_symlink libexec/"bin/cx"');
+    expect(formula).toContain('shell_output("#{bin}/cx --help")');
+    expect(formula).not.toContain('"--prefix=#{libexec}"');
+    expect(formula).not.toContain("node_modules/.bin/cx-cli");
+    expect(formula).not.toContain('Dir["#{libexec}/bin/*"]');
     expect(formula).not.toContain("Language::Node");
     expect(formula).not.toContain("std_npm_install_args");
   });

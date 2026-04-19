@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 
 const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -55,6 +55,30 @@ const description =
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
 const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requestedVersion}.tgz`;
+
+function npmInstalledBinaryName(pkg) {
+  if (typeof pkg.bin === "string") {
+    return String(pkg.name).split("/").at(-1);
+  }
+
+  if (pkg.bin && typeof pkg.bin === "object") {
+    return Object.keys(pkg.bin)[0];
+  }
+
+  throw new Error("package.json must declare a CLI binary.");
+}
+
+function canonicalBinaryName(pkg) {
+  if (typeof pkg.bin === "string") {
+    return basename(pkg.bin);
+  }
+
+  if (pkg.bin && typeof pkg.bin === "object") {
+    return Object.keys(pkg.bin)[0];
+  }
+
+  throw new Error("package.json must declare a CLI binary.");
+}
 
 function packLocalTarball() {
   console.log(`Packing local npm tarball for version ${requestedVersion}...`);
@@ -108,10 +132,21 @@ const tarballArtifact = tarballPath
   : packLocalTarball();
 
 try {
+  const installedBinary = npmInstalledBinaryName(packageJson);
+  const canonicalBinary = canonicalBinaryName(packageJson);
   const buffer = readFileSync(tarballArtifact.tarballPath);
   const sha256 = createHash("sha256").update(buffer).digest("hex");
 
   const escapedDescription = description.replace(/"/g, '\\"');
+  const installLines = [
+    `    bin.install_symlink libexec/"bin/${canonicalBinary}" => "${installedBinary}"`,
+  ];
+  if (canonicalBinary !== installedBinary) {
+    installLines.push(
+      `    bin.install_symlink libexec/"bin/${canonicalBinary}"`,
+    );
+  }
+
   const formula = `class CxCli < Formula
   desc "${escapedDescription}"
   homepage "${homepage}"
@@ -126,14 +161,13 @@ try {
            "install",
            "--omit=dev",
            "--no-audit",
-           "--no-fund",
-           "--prefix=#{libexec}",
-           buildpath
-    bin.install_symlink Dir["#{libexec}/bin/*"]
+           "--no-fund"
+    libexec.install Dir["*"]
+${installLines.join("\n")}
   end
 
   test do
-    assert_match "cx", shell_output("#{bin}/cx --help")
+    assert_match "cx", shell_output("#{bin}/${canonicalBinary} --help")
   end
 end
 `;
