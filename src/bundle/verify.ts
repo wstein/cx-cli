@@ -2,11 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import type { CxConfig } from "../config/types.js";
+import type { CxConfig, CxStyle } from "../config/types.js";
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { lockFileName } from "../manifest/lock.js";
 import { renderSectionWithRepomix } from "../repomix/render.js";
 import {
+  type StructuredRenderPlan,
   validateEntryHashes,
   validatePlanOrdering,
 } from "../repomix/structured.js";
@@ -75,15 +76,7 @@ export interface BundleVerifyDeps {
 
 interface CachedVerifyRenderResult {
   fileContentHashes: Map<string, string>;
-  structuredPlan?: {
-    entries: Array<{
-      path: string;
-      content: string;
-      sha256: string;
-      tokenCount: number;
-    }>;
-    ordering: string[];
-  };
+  structuredPlan?: StructuredRenderPlan;
   planHash?: string;
 }
 
@@ -295,7 +288,7 @@ async function buildVerifyRenderCacheKey(params: {
   explicitFiles: string[];
   resolvedConfig: CxConfig;
   sectionName: string;
-  style: string;
+  style: CxStyle;
   stat: StatFile;
 }): Promise<string> {
   const fileStates = await Promise.all(
@@ -337,7 +330,7 @@ async function getOrRenderVerifySection(params: {
   rm: RemovePath;
   sectionName: string;
   sourceDir: string;
-  style: string;
+  style: CxStyle;
 }): Promise<CachedVerifyRenderResult> {
   const cached = verifyRenderPlanCache.get(params.cacheKey);
   if (cached) {
@@ -359,8 +352,12 @@ async function getOrRenderVerifySection(params: {
 
       return {
         fileContentHashes: renderResult.fileContentHashes,
-        structuredPlan: renderResult.structuredPlan,
-        planHash: renderResult.planHash,
+        ...(renderResult.structuredPlan === undefined
+          ? {}
+          : { structuredPlan: renderResult.structuredPlan }),
+        ...(renderResult.planHash === undefined
+          ? {}
+          : { planHash: renderResult.planHash }),
       };
     } finally {
       await params.rm(tmpDir, { recursive: true, force: true });

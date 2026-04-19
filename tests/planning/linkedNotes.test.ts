@@ -16,6 +16,7 @@ const writeNote = async (
   title: string,
   body = "",
 ): Promise<void> => {
+  const noteBody = body.length > 0 ? body : `${title} summary.`;
   const content = `---
 id: ${id}
 aliases: []
@@ -24,7 +25,7 @@ tags: []
 
 # ${title}
 
-${body}
+${noteBody}
 `;
   await fs.writeFile(path.join(notesDir, `${id}-${title}.md`), content);
 };
