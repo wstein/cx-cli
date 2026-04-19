@@ -43,6 +43,9 @@ they needed to be.
   `tests/README.md` so unit versus integration boundaries stay explicit.
 - CI should run `bun run ci:guard:fast-lane` so the fast lane remains
   unit-only and does not silently bloat.
+- CI should track fast-lane runtime drift with
+  `bun run ci:test:fast:monitored` and warn before failing on sustained major
+  regressions.
 - PRs should include explicit unit/integration/adversarial checklist results so
   lane intent is visible during review.
 - If a lane is intentionally skipped, the PR should explain why.

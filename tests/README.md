@@ -82,6 +82,9 @@ Every `*.test.ts` file must start with a lane header on line 1:
 
 - `ci:test:fast` is the unit-only lane (`tests/unit`) and must stay focused.
 - CI enforces lane composition with `bun run ci:guard:fast-lane`.
+- CI tracks `ci:test:fast` duration with `bun run ci:test:fast:monitored`.
+- Runtime drift is warning-first; failure requires sustained significant
+  regressions (consecutive fail-signal streaks).
 - The fast-lane file budget is controlled by `FAST_LANE_MAX_FILES` (default:
   `95`). Raise it only when the team intentionally accepts a slower fast lane.
 

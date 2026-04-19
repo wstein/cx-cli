@@ -37,6 +37,7 @@
     "test:contracts": "node scripts/test-lane.js ./tests/contracts --timeout 20000",
     "ci:guard:fast-lane": "node scripts/check-fast-lane.js",
     "ci:test:fast": "bun run test:unit",
+    "ci:test:fast:monitored": "node scripts/ci-test-fast-monitored.js",
     "ci:test:all": "bun run test:all",
     "ci:test:contracts": "bun run test:contracts",
     "ci:smoke:repomix-version": "node scripts/repomix-version-smoke.js",

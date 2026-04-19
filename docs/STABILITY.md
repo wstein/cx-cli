@@ -19,6 +19,9 @@ supported runtime envelope.
 The fast CI lane is intentionally unit-only and guarded by
 `bun run ci:guard:fast-lane` so integration suites do not silently leak into
 the low-latency feedback path.
+Fast-lane runtime is also monitored with warning-first regression policy:
+`bun run ci:test:fast:monitored` records timing drift and fails only on
+sustained significant regressions.
 
 ### STABLE
 

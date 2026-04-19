@@ -19,11 +19,14 @@ describe("CI lanes contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
-    expect(workflow).toContain("run: bun run ci:test:fast");
+    expect(workflow).toContain("run: bun run ci:test:fast:monitored");
     expect(workflow).toContain(
       "run: bun run lint && bun run format:check && bun run check",
     );
     expect(workflow).toContain("run: bun run ci:guard:fast-lane");
+    expect(workflow).toContain("Restore fast-lane timing state");
+    expect(workflow).toContain("Save fast-lane timing state");
+    expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).not.toContain("bun test tests --timeout");
@@ -50,6 +53,9 @@ describe("CI lanes contract", () => {
       "node scripts/test-lane.js ./tests/contracts",
     );
     expect(scripts["ci:test:fast"]).toBe("bun run test:unit");
+    expect(scripts["ci:test:fast:monitored"]).toBe(
+      "node scripts/ci-test-fast-monitored.js",
+    );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
     );

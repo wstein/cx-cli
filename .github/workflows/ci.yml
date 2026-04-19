@@ -36,8 +36,23 @@ jobs:
       - name: Guard fast unit lane composition
         run: bun run ci:guard:fast-lane
 
-      - name: Run fast unit test lane
-        run: bun run ci:test:fast
+      - name: Restore fast-lane timing state
+        uses: actions/cache/restore@v4
+        with:
+          path: .ci/fast-lane-monitor-state.json
+          key: fast-lane-monitor-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            fast-lane-monitor-${{ github.ref_name }}-
+
+      - name: Run monitored fast unit test lane
+        run: bun run ci:test:fast:monitored
+
+      - name: Save fast-lane timing state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .ci/fast-lane-monitor-state.json
+          key: fast-lane-monitor-${{ github.ref_name }}-${{ github.run_id }}
 
   test-contracts:
     runs-on: ubuntu-latest
