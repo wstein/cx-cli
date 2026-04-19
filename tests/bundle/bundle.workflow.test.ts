@@ -42,6 +42,7 @@ describe("bundle workflow", () => {
   let bundledLinkedNotesProjectPromise:
     | Promise<BundledProjectFixture>
     | undefined;
+  let driftedBundledProjectPromise: Promise<ProjectFixture> | undefined;
 
   function bundledProject(): Promise<BundledProjectFixture> {
     bundledProjectPromise ??= createBundledProjectFixture();
@@ -53,6 +54,22 @@ describe("bundle workflow", () => {
       includeLinkedNotes: true,
     });
     return bundledLinkedNotesProjectPromise;
+  }
+
+  async function createDriftedBundledProjectFixture(): Promise<ProjectFixture> {
+    const project = await createProject();
+    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    await fs.writeFile(
+      path.join(project.root, "README.md"),
+      "# Drifted\n",
+      "utf8",
+    );
+    return project;
+  }
+
+  function driftedBundledProject(): Promise<ProjectFixture> {
+    driftedBundledProjectPromise ??= createDriftedBundledProjectFixture();
+    return driftedBundledProjectPromise;
   }
 
   test("creates, validates, lists, and verifies a bundle", async () => {
@@ -410,14 +427,7 @@ describe("bundle workflow", () => {
 
   // verify-against-integration: Requires a real on-disk source drift mutation and verifies operator-facing JSON remediation payloads from the command boundary.
   test("emits structured JSON failure payload for source-tree drift", async () => {
-    const project = await createProject();
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await fs.writeFile(
-      path.join(project.root, "README.md"),
-      "# Drifted\n",
-      "utf8",
-    );
+    const project = await driftedBundledProject();
 
     const verifyCapture = createBufferedCommandIo();
     const verifyExitCode = await runVerifyCommand(
@@ -579,14 +589,7 @@ exclude = []
 
   // verify-against-integration: Confirms human-mode command failures surface real source-tree drift when filesystem content changes post-bundle.
   test("fails verify --against when the source tree drifts", async () => {
-    const project = await createProject();
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
-    await fs.writeFile(
-      path.join(project.root, "README.md"),
-      "# Drifted\n",
-      "utf8",
-    );
+    const project = await driftedBundledProject();
 
     await expect(
       runVerifyCommand({
@@ -601,16 +604,7 @@ exclude = []
 
   // verify-against-integration: Validates real CLI file-filter semantics against the workspace boundary where one path drifts and another remains valid.
   test("supports selective verify --against by file", async () => {
-    const project = await createProject();
-
-    expect(
-      await runBundleCommand({ config: project.configPath, json: false }),
-    ).toBe(0);
-    await fs.writeFile(
-      path.join(project.root, "README.md"),
-      "# Drifted\n",
-      "utf8",
-    );
+    const project = await driftedBundledProject();
 
     expect(
       await runVerifyCommand({
@@ -635,16 +629,7 @@ exclude = []
 
   // verify-against-integration: Validates real section-filter semantics across bundle metadata, source-tree mutation, and command-level selection behavior.
   test("supports selective verify --against by section", async () => {
-    const project = await createProject();
-
-    expect(
-      await runBundleCommand({ config: project.configPath, json: false }),
-    ).toBe(0);
-    await fs.writeFile(
-      path.join(project.root, "README.md"),
-      "# Drifted\n",
-      "utf8",
-    );
+    const project = await driftedBundledProject();
 
     expect(
       await runVerifyCommand({
