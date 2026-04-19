@@ -205,7 +205,14 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("records allowed audit entries even when runtime fails mid-execution", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = mock(async () => {});
+    const logToolAccess = mock(
+      async (
+        _tool: string,
+        _capability: string,
+        _allowed: boolean,
+        _reason: string,
+      ) => {},
+    );
     const auditLogger = { logToolAccess } as unknown as AuditLogger;
 
     registerCxMcpTool(
@@ -243,7 +250,14 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("times out interrupted mutation tools with single audit decision logging", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = mock(async () => {});
+    const logToolAccess = mock(
+      async (
+        _tool: string,
+        _capability: string,
+        _allowed: boolean,
+        _reason: string,
+      ) => {},
+    );
     const auditLogger = { logToolAccess } as unknown as AuditLogger;
 
     registerCxMcpTool(
