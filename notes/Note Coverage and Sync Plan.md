@@ -16,7 +16,10 @@ This plan outlines the steps to bring the `notes/` directory into full alignment
     -   *I/O Patterns*: Path resolution, streaming output vs structured JSON, safe file writes.
     -   *Validation*: Zod schema integration, file boundary enforcement.
 
-2.  **Doc Content Handoff**: Identify architectural decisions in `docs/` (e.g., in `spec-draft.md` or `ARCHITECTURE.md`) that have not been backfilled into atomic notes.
+2.  **Doc Content Handoff**: Identify durable decisions in `docs/` (especially
+    `MENTAL_MODEL.md`, `SYSTEM_CONTRACTS.md`, and implementation-reference
+    material such as `ARCHITECTURE.md`) that have not been backfilled into
+    atomic notes.
 
 ## Phase 2: Missing Note Creation
 
