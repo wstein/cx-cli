@@ -8,6 +8,8 @@
 
 `cx` standardizes AI project context, notes, and agent workflows in one repository-native toolchain.
 
+Mode chooser: [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md)
+
 > Start here:
 > 1. `cx init --name demo`
 > 2. `cx inspect --token-breakdown`

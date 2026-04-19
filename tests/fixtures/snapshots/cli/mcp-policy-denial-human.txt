@@ -1,0 +1,6 @@
+Access denied: Tool notes_new (capability: mutate) is denied by policy
+Suggested command: cx doctor mcp --config cx.toml
+Docs: docs/AGENT_OPERATING_MODEL.md
+Why this protects you: Mutation-capability tools stay denied until a trusted local operator explicitly enables them, so exploratory MCP sessions cannot silently turn into editing sessions.
+Next step: Confirm that notes_new is allowed for mutate operations under the active MCP policy.
+Next step: Adjust cx-mcp.toml or cx.toml only if this session is intentionally trusted for mutation.

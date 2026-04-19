@@ -19,6 +19,8 @@ Use it when you need:
 
 This is the right choice when the workspace is still moving and you need the agent to understand what is true right now.
 
+Workflow example: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
+
 ## Use `cx bundle`
 
 Need a reproducible, promotable artifact? Use `cx bundle`.
@@ -31,6 +33,8 @@ Use it when you need:
 - extraction under manifest and hash guardrails
 
 This is the right choice when the work must stop being exploratory and become an artifact contract.
+
+Workflow example: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
 
 ## Use `cx notes`
 
@@ -45,6 +49,8 @@ Use it when you need:
 
 This is the right choice when the reasoning itself needs to persist, not just the current task result.
 
+Workflow example: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)
+
 ## How The Modes Fit Together
 
 These are not competing tools. They are the three operating surfaces of the same system:
@@ -54,3 +60,5 @@ These are not competing tools. They are the three operating surfaces of the same
 3. Freeze trusted handoff state with `cx bundle`.
 
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
+See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
+See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)

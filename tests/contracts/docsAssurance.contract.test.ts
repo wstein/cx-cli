@@ -30,6 +30,12 @@ describe("docs assurance contract", () => {
       "Need durable design memory? Use `cx notes`.",
     );
     expect(manual).toContain("See: [OPERATING_MODES.md](OPERATING_MODES.md)");
+    expect(operatingModes).toContain(
+      "See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)",
+    );
+    expect(operatingModes).toContain(
+      "See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)",
+    );
   });
 
   test("manual defines an assurance ladder", async () => {
