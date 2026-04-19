@@ -1,8 +1,14 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const packagePath = resolve(process.cwd(), "package.json");
 const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -53,6 +59,8 @@ const tarballUrl = `https://registry.npmjs.org/@wsmy/cx-cli/-/cx-cli-${requested
 function packLocalTarball() {
   console.log(`Packing local npm tarball for version ${requestedVersion}...`);
   const tempDir = mkdtempSync(join(tmpdir(), "cx-cli-homebrew-"));
+  const npmCacheDir = join(tempDir, ".npm-cache");
+  mkdirSync(npmCacheDir, { recursive: true });
   try {
     const packResult = spawnSync(
       "npm",
@@ -60,6 +68,10 @@ function packLocalTarball() {
       {
         cwd: process.cwd(),
         encoding: "utf8",
+        env: {
+          ...process.env,
+          npm_config_cache: npmCacheDir,
+        },
         stdio: ["ignore", "pipe", "pipe"],
       },
     );
@@ -110,7 +122,13 @@ try {
   depends_on "node"
 
   def install
-    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
+    system "npm",
+           "install",
+           "--omit=dev",
+           "--no-audit",
+           "--no-fund",
+           "--prefix=#{libexec}",
+           buildpath
     bin.install_symlink Dir["#{libexec}/bin/*"]
   end
 
@@ -120,6 +138,7 @@ try {
 end
 `;
 
+  mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, formula, "utf8");
   console.log(`Wrote Homebrew formula to ${outputPath}`);
   console.log(`Computed sha256: ${sha256}`);
