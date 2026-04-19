@@ -31,6 +31,9 @@ describe("release assurance contract", () => {
     expect(workflow).toContain(
       "Existing release tag (vX.Y.Z) to finalize again.",
     );
+    expect(workflow).toContain(
+      "git fetch origin develop:refs/remotes/origin/develop --force",
+    );
     expect(workflow).toContain('git branch -r --contains "$head_sha"');
     expect(workflow).toContain('.name=="CI" and .head_branch=="develop"');
     expect(workflow).toContain("Tagged commit $head_sha has not passed");

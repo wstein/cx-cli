@@ -47,7 +47,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git fetch origin develop --force
+          git fetch origin develop:refs/remotes/origin/develop --force
 
           if [ "${GITHUB_EVENT_NAME}" = 'workflow_dispatch' ]; then
             tag_name="${{ github.event.inputs.tag }}"
