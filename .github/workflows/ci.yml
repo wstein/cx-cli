@@ -47,6 +47,23 @@ jobs:
       - name: Run monitored fast unit test lane
         run: bun run ci:test:fast:monitored
 
+      - name: Generate observability dashboard
+        if: always()
+        run: bun run ci:report:observability
+
+      - name: Append observability dashboard to workflow summary
+        if: always()
+        run: cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload observability dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-lane-observability
+          path: |
+            .ci/observability-summary.json
+            .ci/observability-summary.md
+
       - name: Save fast-lane timing state
         if: always()
         uses: actions/cache/save@v4
@@ -71,12 +88,29 @@ jobs:
       - name: Generate verify-against policy report
         run: bun run ci:report:verify-against
 
+      - name: Generate observability dashboard
+        if: always()
+        run: bun run ci:report:observability
+
+      - name: Append observability dashboard to workflow summary
+        if: always()
+        run: cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload verify-against policy report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: verify-against-policy-report
           path: .ci/verify-against-policy-report.json
+
+      - name: Upload observability dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contracts-observability
+          path: |
+            .ci/observability-summary.json
+            .ci/observability-summary.md
 
       - name: Run contract tests
         run: bun run ci:test:contracts
@@ -149,6 +183,8 @@ jobs:
 
   bun-matrix:
     runs-on: ubuntu-latest
+    needs:
+      - test-fast
     strategy:
       matrix:
         bun-version: ["1.3.11", "latest"]

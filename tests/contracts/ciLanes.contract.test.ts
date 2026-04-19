@@ -20,6 +20,10 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
     expect(workflow).toContain("run: bun run ci:test:fast:monitored");
+    expect(workflow).toContain("run: bun run ci:report:observability");
+    expect(workflow).toContain(
+      'cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"',
+    );
     expect(workflow).toContain(
       "run: bun run lint && bun run format:check && bun run check",
     );
@@ -33,6 +37,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("run: bun run ci:report:verify-against");
     expect(workflow).toContain("Upload verify-against policy report");
     expect(workflow).toContain(".ci/verify-against-policy-report.json");
+    expect(workflow).toContain(".ci/observability-summary.json");
+    expect(workflow).toContain(".ci/observability-summary.md");
     expect(workflow).not.toContain("bun test tests --timeout");
     expect(workflow).not.toContain("bun test tests/contracts --timeout");
     expect(workflow).not.toContain("bun test tests/unit --timeout");
@@ -65,6 +71,9 @@ describe("CI lanes contract", () => {
     );
     expect(scripts["ci:report:verify-against"]).toBe(
       "node scripts/verify-against-policy.js --format json --output .ci/verify-against-policy-report.json",
+    );
+    expect(scripts["ci:report:observability"]).toBe(
+      "node scripts/ci-observability-report.js",
     );
     expect(scripts["ci:test:all"]).toBe("bun run test:all");
     expect(scripts["ci:test:contracts"]).toBe("bun run test:contracts");
@@ -110,6 +119,9 @@ describe("CI lanes contract", () => {
   test("bun matrix validates minimum and latest runtime lanes", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
+    expect(workflow).toContain("bun-matrix:");
+    expect(workflow).toContain("    needs:");
+    expect(workflow).toContain("      - test-fast");
     expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });

@@ -88,6 +88,7 @@ The governance path is operational, not aspirational:
 2. `cx notes check` surfaces governance failures directly for local review and CI logs.
 3. `bun run ci:notes:governance` makes the cognition-layer gate visible as its own CI lane.
 4. `bun run ci:test:contracts` keeps the canonical docs and workflow references aligned with the implemented governance model.
+5. `bun run ci:report:observability` emits CI-readable markdown and JSON summaries so note quality gates and fast-lane drift stay visible over time.
 
 If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.
 
@@ -229,3 +230,5 @@ The following candidates remain for future implementation:
 
 1. extraction-safe note parsing for downstream routing (unimplemented)
 2. manifest-side summaries beyond the first body paragraph (unimplemented)
+3. cognition scoring so CI can distinguish high-signal notes from merely valid notes
+4. agent traceability that links note changes, audit trails, and workflow review history into one provenance path

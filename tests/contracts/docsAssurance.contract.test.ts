@@ -97,11 +97,14 @@ describe("docs assurance contract", () => {
     expect(notesSpec).toContain("4000");
     expect(notesSpec).toContain("100");
     expect(notesSpec).toContain("cx notes check");
+    expect(notesSpec).toContain("ci:report:observability");
     expect(notesSpec).toContain("## Linked-Note Enrichment Semantics");
     expect(notesSpec).toContain("inclusion-changing, not advisory");
     expect(notesSpec).toContain("Run `cx inspect --json`");
     expect(notesSpec).toContain("`cx notes graph --id <seed> --depth <n>`");
     expect(notesSpec).toContain("Depth semantics for graph inspection");
+    expect(notesSpec).toContain("cognition scoring");
+    expect(notesSpec).toContain("agent traceability");
   });
 
   test("stop conditions explain the invariant they protect", async () => {
