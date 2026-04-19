@@ -92,6 +92,15 @@ describe("CI lanes contract", () => {
     expect(scripts["test:all:full"]).toBe("bun run ci:test:coverage");
     expect(scripts["test:contracts"]).toBe("vitest run tests/contracts");
     expect(scripts["test:vitest"]).toBe("vitest run");
+    expect(scripts["test:vitest:bundle"]).toBe(
+      "vitest run tests/bundle tests/cli/render-adapter.test.ts tests/cli/main.json.test.ts",
+    );
+    expect(scripts["test:vitest:notes"]).toBe(
+      "vitest run tests/notes tests/unit/notesConsistency.test.ts tests/planning/linkedNotes.test.ts tests/contracts/linkedNotesOperator.contract.test.ts",
+    );
+    expect(scripts["test:vitest:planning"]).toBe(
+      "vitest run tests/planning tests/config/schema-integration.test.ts",
+    );
     expect(scripts["coverage:vitest"]).toBe("vitest run --coverage");
     expect(scripts["coverage:report"]).toBe("node scripts/coverage-report.js");
     expect(scripts["ci:test:coverage"]).toBe(
@@ -121,6 +130,9 @@ describe("CI lanes contract", () => {
 
     expect(scripts["test:unit"]).not.toContain("bun:test");
     expect(scripts["test:contracts"]).not.toContain("bun:test");
+    expect(scripts["test:vitest:bundle"]).not.toContain("bun:test");
+    expect(scripts["test:vitest:notes"]).not.toContain("bun:test");
+    expect(scripts["test:vitest:planning"]).not.toContain("bun:test");
     expect(scripts["test:bun:regression"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
     expect(Object.keys(scripts)).not.toContain("test:integration");

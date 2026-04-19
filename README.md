@@ -187,6 +187,9 @@ The generated notes directory is intentionally part of the repository contract. 
 - `bun run test:contracts` runs the contract suite through Vitest.
 - `bun run test:all` runs the full shared suite through Vitest without collecting coverage.
 - `bun run test:all:full` runs the authoritative Vitest coverage lane.
+- `bun run test:vitest:bundle` isolates the slow bundle workflow, extraction, render-adapter, and JSON CLI suites.
+- `bun run test:vitest:notes` isolates the slow notes graph and command suites, plus linked-note planning and operator contracts.
+- `bun run test:vitest:planning` isolates planning and schema-integration suites for overlap, linked-note, and config-shape work.
 - `bun run test:vitest:mcp` runs the focused MCP-heavy Vitest lane for server, policy, audit, and CLI MCP debugging.
 - `bun run test:vitest:mcp:ui` opens the MCP lane in Vitest UI so you can rerun failures interactively and inspect coverage or import cost inside the MCP stack.
 - `bun run test:vitest:mcp:adversarial` isolates startup hangs, malformed runtime payloads, and other hostile MCP failure modes in a smaller cockpit.

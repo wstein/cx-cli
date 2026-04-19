@@ -56,6 +56,9 @@ Use these commands as a progressive assurance model:
 | `bun run ci:test:coverage` | Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output over the full shared suite | CI coverage reporting |
 | `bun run test:bun:regression` | focused Bun runtime regression lane over bundle, CLI, MCP, and Repomix suites | CI-shaped Bun runtime proof without a full repository rerun |
 | `bun run test:all` | full shared repository suite through native Vitest | broad local execution proof |
+| `bun run test:vitest:bundle` | focused bundle workflow, extraction, render-adapter, and JSON CLI lane | bundle-heavy local iteration |
+| `bun run test:vitest:notes` | focused notes graph, note commands, linked-note planning, and operator contract lane | notes-heavy local iteration |
+| `bun run test:vitest:planning` | focused planning and schema-integration lane | overlap, linking, and config-shape iteration |
 | `bun run certify` | `verify` + contract lane + Repomix fork compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
 | `bun run integrity` | release integrity metadata generation from the packed npm tarball | release artifact staging |
 | `bun run verify-release` | release integrity metadata verification against packed tarball | release verification and audit |
@@ -117,6 +120,9 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `bun run test:contracts` runs the contract suite through native Vitest.
 - `bun run test:all` runs the full shared suite through native Vitest without collecting coverage.
 - `bun run test:all:full` is the explicit Vitest coverage lane for local release-assurance checks.
+- `bun run test:vitest:bundle` isolates the slow bundle workflow, extraction, render-adapter, and JSON CLI suites.
+- `bun run test:vitest:notes` isolates the slow notes graph and command suites, plus linked-note planning and operator contracts.
+- `bun run test:vitest:planning` isolates planning and schema-integration suites for overlap, linked-note, and config-shape work.
 - `bun run pages:build` assembles the public Pages `site/` tree with `/schemas/` and `/coverage/`.
 - `bun run pages:smoke` validates that staged `site/` tree before a workflow publishes it.
 - The latest public HTML coverage view is published at `https://wstein.github.io/cx-cli/coverage/` from successful `main` CI runs.

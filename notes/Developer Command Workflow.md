@@ -27,6 +27,7 @@ quick while making the release path explicit and repeatable.
 - `package.json` does not define a single generic `coverage` task; the
   authoritative coverage lane is explicit.
 - The dedicated Vitest coverage lane is `bun run ci:test:coverage`; it runs the shared repository suite natively under Vitest, then produces `coverage/vitest/coverage-summary.json`, HTML output, LCOV, and `.ci/coverage-summary.md`.
+- The focused local Vitest lanes are `bun run test:vitest:bundle`, `bun run test:vitest:notes`, and `bun run test:vitest:planning`; they carve the slowest bundle, notes, and planning clusters out of the full repository sweep so the local edit-run loop stays tight.
 - The focused MCP debugging lane is `bun run test:vitest:mcp`; it keeps MCP-heavy server, CLI, audit, and policy tests separate from the broad repository coverage run.
 - `bun run test:vitest:mcp:ui` opens the same MCP lane in Vitest UI so operators can rerun failures interactively and inspect coverage or import-graph cost inside the MCP stack.
 - The default test task runs the fast Vitest unit suite.
