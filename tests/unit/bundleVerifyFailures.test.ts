@@ -1,13 +1,24 @@
 // test-lane: unit
-import { describe, expect, test } from "bun:test";
-import { VerifyError, verifyBundle } from "../../src/bundle/verify.js";
+import { beforeEach, describe, expect, test } from "bun:test";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import {
+  clearVerifyRenderPlanCache,
+  VerifyError,
+  verifyBundle,
+} from "../../src/bundle/verify.js";
 import type { CxConfig } from "../../src/config/types.js";
 import type { CxManifest } from "../../src/manifest/types.js";
+import { sha256NormalizedText } from "../../src/shared/hashing.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 
 const HASH_A = "a".repeat(64);
 const HASH_B = "b".repeat(64);
 const HASH_C = "c".repeat(64);
+const AGGREGATE_PLAN_HASH_B = sha256NormalizedText(
+  JSON.stringify([["src", HASH_B]]),
+);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
@@ -124,6 +135,140 @@ async function expectVerifyFailure(
 }
 
 describe("verifyBundle failure classes", () => {
+  beforeEach(() => {
+    clearVerifyRenderPlanCache();
+  });
+
+  test("reuses cached render plans when verify inputs are unchanged", async () => {
+    const sourceDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-verify-cache-hit-"),
+    );
+    const sourceFile = path.join(sourceDir, "src/index.ts");
+    await fs.mkdir(path.dirname(sourceFile), { recursive: true });
+    await fs.writeFile(sourceFile, "export const x = 1;\n", "utf8");
+
+    const manifest = createManifest({
+      renderPlanHash: AGGREGATE_PLAN_HASH_B,
+    });
+    let renderCallCount = 0;
+
+    const deps = {
+      validateBundle: async () => ({ manifestName: "demo-manifest.json" }),
+      loadManifestFromBundle: async () => ({
+        manifest,
+        manifestName: "demo-manifest.json",
+      }),
+      readFile: async () => "unused",
+      parseChecksumFile: () => passingChecksumRows(),
+      sha256File: async (targetPath: string) =>
+        targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
+      mkdtemp: async () => path.join(sourceDir, ".tmp-render"),
+      rm: async () => undefined,
+      renderSectionWithRepomix: async () => {
+        renderCallCount += 1;
+        return {
+          outputText: "",
+          outputTokenCount: 0,
+          fileTokenCounts: new Map(),
+          fileContentHashes: new Map([["src/index.ts", HASH_C]]),
+          structuredPlan: {
+            entries: [
+              {
+                path: "src/index.ts",
+                content: "export const x = 1;\n",
+                sha256: HASH_C,
+                tokenCount: 8,
+              },
+            ],
+            ordering: ["src/index.ts"],
+          },
+          planHash: HASH_B,
+          warnings: [],
+        };
+      },
+      validateEntryHashes: () => new Map(),
+    };
+
+    try {
+      await verifyBundle("/bundle", sourceDir, undefined, BASE_CONFIG, deps);
+      await verifyBundle("/bundle", sourceDir, undefined, BASE_CONFIG, deps);
+      expect(renderCallCount).toBe(1);
+    } finally {
+      clearVerifyRenderPlanCache();
+      await fs.rm(sourceDir, { recursive: true, force: true });
+    }
+  });
+
+  test("invalidates cached render plans when source file identity changes", async () => {
+    const sourceDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "cx-verify-cache-miss-"),
+    );
+    const sourceFile = path.join(sourceDir, "src/index.ts");
+    await fs.mkdir(path.dirname(sourceFile), { recursive: true });
+    await fs.writeFile(sourceFile, "export const x = 1;\n", "utf8");
+
+    const manifest = createManifest({
+      renderPlanHash: AGGREGATE_PLAN_HASH_B,
+    });
+    let renderCallCount = 0;
+
+    const deps = {
+      validateBundle: async () => ({ manifestName: "demo-manifest.json" }),
+      loadManifestFromBundle: async () => ({
+        manifest,
+        manifestName: "demo-manifest.json",
+      }),
+      readFile: async () => "unused",
+      parseChecksumFile: () => passingChecksumRows(),
+      sha256File: async (targetPath: string) =>
+        targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
+      mkdtemp: async () => path.join(sourceDir, ".tmp-render"),
+      rm: async () => undefined,
+      renderSectionWithRepomix: async () => {
+        renderCallCount += 1;
+        const currentContent = await fs.readFile(sourceFile, "utf8");
+        const currentHash =
+          currentContent === "export const x = 1;\n" ? HASH_C : HASH_A;
+        return {
+          outputText: "",
+          outputTokenCount: 0,
+          fileTokenCounts: new Map(),
+          fileContentHashes: new Map([["src/index.ts", currentHash]]),
+          structuredPlan: {
+            entries: [
+              {
+                path: "src/index.ts",
+                content: currentContent,
+                sha256: currentHash,
+                tokenCount: 8,
+              },
+            ],
+            ordering: ["src/index.ts"],
+          },
+          planHash: HASH_B,
+          warnings: [],
+        };
+      },
+      validateEntryHashes: () => new Map(),
+    };
+
+    try {
+      await verifyBundle("/bundle", sourceDir, undefined, BASE_CONFIG, deps);
+      await fs.writeFile(sourceFile, "export const y = 2;\n", "utf8");
+
+      const failure = await expectVerifyFailure(
+        verifyBundle("/bundle", sourceDir, undefined, BASE_CONFIG, deps),
+        "source_tree_drift",
+      );
+
+      expect(renderCallCount).toBe(2);
+      expect(failure.message).toContain("normalized packed content differs");
+    } finally {
+      clearVerifyRenderPlanCache();
+      await fs.rm(sourceDir, { recursive: true, force: true });
+    }
+  });
+
   test("fails on unexpected checksum references", async () => {
     const manifest = createManifest();
 
@@ -227,6 +372,7 @@ describe("verifyBundle failure classes", () => {
           targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
         mkdtemp: async () => "/tmp/cx-verify-ordering",
         rm: async () => undefined,
+        stat: async () => ({ mtimeMs: 1, size: 17 }),
         renderSectionWithRepomix: async () => ({
           outputText: "",
           outputTokenCount: 0,
@@ -271,6 +417,7 @@ describe("verifyBundle failure classes", () => {
           targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
         mkdtemp: async () => "/tmp/cx-verify-hashes",
         rm: async () => undefined,
+        stat: async () => ({ mtimeMs: 1, size: 17 }),
         renderSectionWithRepomix: async () => ({
           outputText: "",
           outputTokenCount: 0,
@@ -322,6 +469,7 @@ describe("verifyBundle failure classes", () => {
           targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
         mkdtemp: async () => "/tmp/cx-verify-plan-hash",
         rm: async () => undefined,
+        stat: async () => ({ mtimeMs: 1, size: 17 }),
         renderSectionWithRepomix: async () => ({
           outputText: "",
           outputTokenCount: 0,
@@ -372,6 +520,7 @@ describe("verifyBundle failure classes", () => {
             targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
           mkdtemp: async () => "/tmp/cx-verify-selective-file",
           rm: async () => undefined,
+          stat: async () => ({ mtimeMs: 1, size: 17 }),
           renderSectionWithRepomix: async () => ({
             outputText: "",
             outputTokenCount: 0,
@@ -421,6 +570,7 @@ describe("verifyBundle failure classes", () => {
             targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
           mkdtemp: async () => "/tmp/cx-verify-selective-section",
           rm: async () => undefined,
+          stat: async () => ({ mtimeMs: 1, size: 17 }),
           renderSectionWithRepomix: async () => ({
             outputText: "",
             outputTokenCount: 0,
@@ -470,6 +620,7 @@ describe("verifyBundle failure classes", () => {
             targetPath.endsWith("demo-manifest.json") ? HASH_A : HASH_B,
           mkdtemp: async () => "/tmp/cx-verify-selective-file-section",
           rm: async () => undefined,
+          stat: async () => ({ mtimeMs: 1, size: 17 }),
           renderSectionWithRepomix: async () => ({
             outputText: "",
             outputTokenCount: 0,

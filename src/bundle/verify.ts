@@ -27,6 +27,11 @@ type RemovePath = (
   options: { recursive?: boolean; force?: boolean },
 ) => Promise<void>;
 
+type StatFile = (targetPath: string) => Promise<{
+  mtimeMs: number;
+  size: number;
+}>;
+
 export type VerifyFailureType =
   | "checksum_omission"
   | "checksum_mismatch"
@@ -65,6 +70,30 @@ export interface BundleVerifyDeps {
   validateEntryHashes?: typeof validateEntryHashes;
   mkdtemp?: Mkdtemp;
   rm?: RemovePath;
+  stat?: StatFile;
+}
+
+interface CachedVerifyRenderResult {
+  fileContentHashes: Map<string, string>;
+  structuredPlan?: {
+    entries: Array<{
+      path: string;
+      content: string;
+      sha256: string;
+      tokenCount: number;
+    }>;
+    ordering: string[];
+  };
+  planHash?: string;
+}
+
+const verifyRenderPlanCache = new Map<
+  string,
+  Promise<CachedVerifyRenderResult>
+>();
+
+export function clearVerifyRenderPlanCache(): void {
+  verifyRenderPlanCache.clear();
 }
 
 function buildVerifyRemediation(
@@ -128,6 +157,7 @@ async function verifyBundleAgainstSourceTree(
   const validateHashes = deps.validateEntryHashes ?? validateEntryHashes;
   const mkdtemp = deps.mkdtemp ?? ((prefix) => fs.mkdtemp(prefix));
   const rm = deps.rm ?? ((targetPath, options) => fs.rm(targetPath, options));
+  const stat = deps.stat ?? ((targetPath) => fs.stat(targetPath));
 
   const { manifest } = await loadManifest(bundleDir);
   const selectedFiles = selectManifestRows(manifest.files, selection);
@@ -150,80 +180,89 @@ async function verifyBundleAgainstSourceTree(
     const explicitFiles = sectionRows.map((file) =>
       path.join(sourceDir, file.path),
     );
-    const tmpDir = await mkdtemp(path.join(os.tmpdir(), "cx-verify-"));
-    try {
-      const renderResult = await renderSection({
-        config: {
-          ...config,
-          projectName: manifest.projectName,
-          sourceRoot: sourceDir,
-          repomix: {
-            ...config.repomix,
-            showLineNumbers: manifest.settings.showLineNumbers,
-            includeEmptyDirectories: manifest.settings.includeEmptyDirectories,
-            securityCheck: manifest.settings.securityCheck,
-          },
-          tokens: {
-            ...config.tokens,
-            encoding: manifest.settings.tokenEncoding,
-          },
-        },
-        style: section.style,
-        sourceRoot: sourceDir,
-        outputPath: path.join(tmpDir, "output"),
-        sectionName: section.name,
-        explicitFiles,
-        requireStructured: true,
-      });
+    const resolvedConfig: CxConfig = {
+      ...config,
+      projectName: manifest.projectName,
+      sourceRoot: sourceDir,
+      repomix: {
+        ...config.repomix,
+        showLineNumbers: manifest.settings.showLineNumbers,
+        includeEmptyDirectories: manifest.settings.includeEmptyDirectories,
+        securityCheck: manifest.settings.securityCheck,
+      },
+      tokens: {
+        ...config.tokens,
+        encoding: manifest.settings.tokenEncoding,
+      },
+    };
 
-      // Verify structured plan integrity if available
-      if (
-        renderResult.structuredPlan &&
-        renderResult.planHash &&
-        manifest.renderPlanHash
-      ) {
-        sectionPlanHashes.set(section.name, renderResult.planHash);
+    const cacheKey = await buildVerifyRenderCacheKey({
+      sourceDir,
+      sourcePaths: sectionRows.map((file) => file.path),
+      explicitFiles,
+      resolvedConfig,
+      sectionName: section.name,
+      style: section.style,
+      stat,
+    });
 
-        // Validate ordering is deterministic
-        if (!validateOrdering(renderResult.structuredPlan)) {
-          throw new VerifyError(
-            "ordering_violation",
-            `Render plan ordering is not deterministic for section ${section.name}.`,
-            section.name,
-          );
-        }
+    const renderResult = await getOrRenderVerifySection({
+      cacheKey,
+      resolvedConfig,
+      explicitFiles,
+      renderSection,
+      mkdtemp,
+      rm,
+      sectionName: section.name,
+      sourceDir,
+      style: section.style,
+    });
 
-        // Validate all entry hashes are consistent
-        const hashErrors = validateHashes(renderResult.structuredPlan.entries);
-        if (hashErrors.size > 0) {
-          const errorDetails = Array.from(hashErrors.values()).join(", ");
-          throw new VerifyError(
-            "structured_contract_mismatch",
-            `Content hash validation failed for section ${section.name}: ${errorDetails}`,
-            section.name,
-          );
-        }
+    // Verify structured plan integrity if available
+    if (
+      renderResult.structuredPlan &&
+      renderResult.planHash &&
+      manifest.renderPlanHash
+    ) {
+      sectionPlanHashes.set(section.name, renderResult.planHash);
+
+      // Validate ordering is deterministic
+      if (!validateOrdering(renderResult.structuredPlan)) {
+        throw new VerifyError(
+          "ordering_violation",
+          `Render plan ordering is not deterministic for section ${section.name}.`,
+          section.name,
+        );
       }
 
-      for (const file of sectionRows) {
-        const sourceHash = renderResult.fileContentHashes.get(file.path);
-        if (sourceHash === undefined) {
-          throw new VerifyError(
-            "source_tree_drift",
-            `Source tree render for ${file.path} omitted normalized packed content.`,
-            file.path,
-          );
-        }
-        if (sourceHash !== file.sha256) {
-          throw new VerifyError(
-            "source_tree_drift",
-            `Source tree mismatch for ${file.path}: normalized packed content differs between bundle and source tree.`,
-            file.path,
-          );
-        }
+      // Validate all entry hashes are consistent
+      const hashErrors = validateHashes(renderResult.structuredPlan.entries);
+      if (hashErrors.size > 0) {
+        const errorDetails = Array.from(hashErrors.values()).join(", ");
+        throw new VerifyError(
+          "structured_contract_mismatch",
+          `Content hash validation failed for section ${section.name}: ${errorDetails}`,
+          section.name,
+        );
       }
-    } finally {
-      await rm(tmpDir, { recursive: true, force: true });
+    }
+
+    for (const file of sectionRows) {
+      const sourceHash = renderResult.fileContentHashes.get(file.path);
+      if (sourceHash === undefined) {
+        throw new VerifyError(
+          "source_tree_drift",
+          `Source tree render for ${file.path} omitted normalized packed content.`,
+          file.path,
+        );
+      }
+      if (sourceHash !== file.sha256) {
+        throw new VerifyError(
+          "source_tree_drift",
+          `Source tree mismatch for ${file.path}: normalized packed content differs between bundle and source tree.`,
+          file.path,
+        );
+      }
     }
   }
 
@@ -247,6 +286,93 @@ async function verifyBundleAgainstSourceTree(
         "Render plan hash drift: source tree plan hash no longer matches the bundle manifest.",
       );
     }
+  }
+}
+
+async function buildVerifyRenderCacheKey(params: {
+  sourceDir: string;
+  sourcePaths: string[];
+  explicitFiles: string[];
+  resolvedConfig: CxConfig;
+  sectionName: string;
+  style: string;
+  stat: StatFile;
+}): Promise<string> {
+  const fileStates = await Promise.all(
+    params.explicitFiles.map(async (filePath, index) => {
+      try {
+        const stats = await params.stat(filePath);
+        return {
+          path: params.sourcePaths[index],
+          mtimeMs: stats.mtimeMs,
+          size: stats.size,
+        };
+      } catch {
+        throw new VerifyError(
+          "source_tree_drift",
+          `Source tree file ${params.sourcePaths[index]} is missing or unreadable during verification.`,
+          params.sourcePaths[index],
+        );
+      }
+    }),
+  );
+
+  return JSON.stringify({
+    sourceDir: path.resolve(params.sourceDir),
+    sectionName: params.sectionName,
+    style: params.style,
+    projectName: params.resolvedConfig.projectName,
+    repomix: params.resolvedConfig.repomix ?? {},
+    tokens: params.resolvedConfig.tokens ?? {},
+    files: fileStates,
+  });
+}
+
+async function getOrRenderVerifySection(params: {
+  cacheKey: string;
+  resolvedConfig: CxConfig;
+  explicitFiles: string[];
+  renderSection: typeof renderSectionWithRepomix;
+  mkdtemp: Mkdtemp;
+  rm: RemovePath;
+  sectionName: string;
+  sourceDir: string;
+  style: string;
+}): Promise<CachedVerifyRenderResult> {
+  const cached = verifyRenderPlanCache.get(params.cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const renderTask = (async (): Promise<CachedVerifyRenderResult> => {
+    const tmpDir = await params.mkdtemp(path.join(os.tmpdir(), "cx-verify-"));
+    try {
+      const renderResult = await params.renderSection({
+        config: params.resolvedConfig,
+        style: params.style,
+        sourceRoot: params.sourceDir,
+        outputPath: path.join(tmpDir, "output"),
+        sectionName: params.sectionName,
+        explicitFiles: params.explicitFiles,
+        requireStructured: true,
+      });
+
+      return {
+        fileContentHashes: renderResult.fileContentHashes,
+        structuredPlan: renderResult.structuredPlan,
+        planHash: renderResult.planHash,
+      };
+    } finally {
+      await params.rm(tmpDir, { recursive: true, force: true });
+    }
+  })();
+
+  verifyRenderPlanCache.set(params.cacheKey, renderTask);
+  try {
+    return await renderTask;
+  } catch (error) {
+    verifyRenderPlanCache.delete(params.cacheKey);
+    throw error;
   }
 }
 
