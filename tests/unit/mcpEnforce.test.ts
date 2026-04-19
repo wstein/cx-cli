@@ -11,11 +11,13 @@ import { DEFAULT_POLICY } from "../../src/mcp/policy.js";
 const READ_TOOL = {
   name: "list",
   capability: "read",
+  stability: "STABLE",
 } as const;
 
 const MUTATE_TOOL = {
   name: "notes_new",
   capability: "mutate",
+  stability: "STABLE",
 } as const;
 
 describe("enforceToolAccess", () => {

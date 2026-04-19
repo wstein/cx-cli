@@ -116,7 +116,7 @@ If you only need a quick local prompt pack, plain Repomix may be the better fit.
 
 Requirements:
 
-- Node.js `>=25.0.0`
+- Node.js `>=20.0.0`
 
 Global install:
 
@@ -484,7 +484,7 @@ delegates to the release script and requires an explicit semantic version.
 If you prefer the underlying Bun commands directly:
 
 ```bash
-bun run coverage
+bun run ci:test:coverage
 bun run test
 bun run verify
 VERSION=x.y.z bun run release

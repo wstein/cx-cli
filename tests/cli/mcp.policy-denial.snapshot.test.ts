@@ -12,6 +12,7 @@ import { scrubTextSnapshot } from "../helpers/snapshot/scrubbers.js";
 const NOTES_NEW_TOOL: CxMcpToolDefinition = {
   name: "notes_new",
   capability: "mutate",
+  stability: "STABLE",
 };
 
 describe("mcp policy denial human snapshot lane", () => {

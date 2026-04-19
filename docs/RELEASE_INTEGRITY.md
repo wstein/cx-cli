@@ -14,13 +14,13 @@ Each release publishes a **Software Bill of Materials (SBOM)** with:
 - **Tarball name** — published npm tarball filename
 - **Tarball hash** — SHA-256 digest of the tarball
 
-The SBOM is generated at build time and released as `dist/release-integrity.json`.
+The SBOM is generated at build time, staged as `tarball-artifacts/release-integrity.json`, and published into the GitHub release assets as `release-integrity.json`.
 
 ## Verification Steps
 
 ### 1. Obtain the SBOM
 
-Download `release-integrity.json` from the GitHub release artifacts page.
+Download `release-integrity.json` from the GitHub release assets page.
 
 ### 2. Run Local Verification
 
@@ -60,7 +60,7 @@ This catches timestamp injection, non-deterministic compilation, or other drift.
 
 ### Trust Model
 
-The SBOM is released alongside the tarball as a GitHub release artifact. Operators can:
+The SBOM is released alongside the npm tarball and generated Homebrew formula as GitHub release assets. Operators can:
 1. Verify the tarball's SHA-256 matches the SBOM
 2. Confirm build environment (Node, Bun versions)
 3. Audit the release timestamp
@@ -77,7 +77,7 @@ The SBOM itself is **not signed**. For full cryptographic verification, operator
 
 ## Release Integrity Artifact Retention
 
-The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. GitHub retains these for the lifetime of the release.
+The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. Schema files are mirrored into the same release through the tagged Pages/schema workflow. GitHub retains these assets for the lifetime of the release.
 
 ## Future Enhancements
 

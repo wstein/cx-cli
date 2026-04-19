@@ -14,6 +14,7 @@ Use this short checklist when cutting a release.
 - GitHub Pages must be configured in repository settings to serve from the `gh-pages` branch.
 - If a new schema version is added, refresh the public `$id` values in the JSON Schema files and keep the docs pointing at the GitHub Pages host.
 - Mirror the same schema files into the GitHub Release assets for the tagged release.
+- Tagged releases also publish the npm tarball, `release-integrity.json`, and the generated `cx-cli.rb` formula into GitHub release assets so the public release payload matches the documented integrity story.
 - Use `make release VERSION=x.y.z` to hand off the tagged release to the release script.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow only proceeds from `workflow_run` when CI concluded with `success`; failed CI runs cannot publish npm/Homebrew artifacts.

@@ -4,6 +4,7 @@ Active profile: cx.toml
 Policy: default
 Mutation enabled: no
 Audit events: 0 (allowed 0, denied 0)
+Tool catalog: v1, 22 tools (17 stable, 5 beta, 0 experimental, 0 internal)
 Recent policy trends:
   - (no audit events)
 Recent trace IDs:
@@ -17,6 +18,30 @@ files.exclude:
 
 sections:
   - src
+
+tool catalog:
+  - bundle: plan, STABLE
+  - doctor_mcp: observe, BETA
+  - doctor_overlaps: observe, BETA
+  - doctor_secrets: observe, BETA
+  - doctor_workflow: observe, BETA
+  - grep: read, STABLE
+  - inspect: plan, STABLE
+  - list: read, STABLE
+  - notes_backlinks: observe, STABLE
+  - notes_code_links: observe, STABLE
+  - notes_delete: mutate, STABLE
+  - notes_graph: observe, STABLE
+  - notes_links: observe, STABLE
+  - notes_list: observe, STABLE
+  - notes_new: mutate, STABLE
+  - notes_orphans: observe, STABLE
+  - notes_read: observe, STABLE
+  - notes_rename: mutate, STABLE
+  - notes_search: observe, STABLE
+  - notes_update: mutate, STABLE
+  - read: read, STABLE
+  - replace_repomix_span: mutate, BETA
 No note-to-code drift detected against the master list in <ROOT>/cx.toml.
 Checked 0 notes against 2 repository-backed paths.
 No suspicious files detected in <ROOT>/cx.toml.

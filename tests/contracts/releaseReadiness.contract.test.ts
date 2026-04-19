@@ -13,11 +13,19 @@ async function readText(relativePath: string): Promise<string> {
   return fs.readFile(path.join(ROOT, relativePath), "utf8");
 }
 
+async function readPackageVersion(): Promise<string> {
+  const pkg = JSON.parse(await readText("package.json")) as { version: string };
+  return pkg.version;
+}
+
 describe("v0.4.0 release readiness docs contract", () => {
   test("changelog and migration docs explain the v0.4.0 operating contract", async () => {
     const changelog = await readText("CHANGELOG.md");
     const migration = await readText("docs/MIGRATIONS/0.4.0.md");
     const docsIndex = await readText("docs/README.md");
+    const packageVersion = await readPackageVersion();
+
+    expect(packageVersion).toBe("0.4.0");
 
     expect(changelog).toContain("## [0.4.0] - 2026-04-19");
     expect(changelog).toContain("Track B generates hypotheses.");

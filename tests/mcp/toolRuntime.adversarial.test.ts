@@ -11,11 +11,13 @@ type RegisteredHandler = (args: Record<string, unknown>) => Promise<unknown>;
 const TEST_TOOL = {
   name: "list",
   capability: "read",
+  stability: "STABLE",
 } as const;
 
 const TEST_MUTATION_TOOL = {
   name: "replace_repomix_span",
   capability: "mutate",
+  stability: "BETA",
 } as const;
 
 function createWorkspace(options?: {

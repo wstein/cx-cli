@@ -116,6 +116,11 @@ jobs:
       - name: Generate release integrity SBOM
         run: bun run integrity
 
+      - name: Stage release integrity file
+        run: |
+          set -euo pipefail
+          cp dist/release-integrity.json tarball-artifacts/release-integrity.json
+
       - name: Upload release artifacts
         # Keep the packed npm tarball and generated formula together so both publish jobs use the same release payload.
         uses: actions/upload-artifact@v4
@@ -225,3 +230,47 @@ jobs:
           fi
           git commit -m "chore(homebrew): update cx-cli formula for v${{ needs.tarball.outputs.release_version }}"
           git push origin main
+
+  release-assets:
+    needs:
+      - gate
+      - tarball
+      - npm
+      - homebrew
+    if: needs.gate.outputs.run_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_MIN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball-artifacts
+          path: tarball-artifacts
+
+      - name: Generate Homebrew formula release asset
+        run: |
+          bun run scripts/generate-homebrew-formula.js "${{ needs.tarball.outputs.release_version }}" --tarball "tarball-artifacts/${{ needs.tarball.outputs.npm_tarball_name }}" --output tarball-artifacts/cx-cli.rb
+
+      - name: Publish GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.tarball.outputs.release_version }}
+          files: |
+            tarball-artifacts/*.tgz
+            tarball-artifacts/release-integrity.json
+            tarball-artifacts/cx-cli.rb

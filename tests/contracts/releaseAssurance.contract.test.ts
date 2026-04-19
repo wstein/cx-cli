@@ -86,4 +86,22 @@ describe("release assurance contract", () => {
     expect(workflow).toContain("bun run ci:assurance:release-integrity");
     expect(workflow).toContain("bun run ci:assurance:reproducibility");
   });
+
+  test("release workflow publishes tarball, integrity, and formula assets", async () => {
+    const workflow = await readText(".github/workflows/release.yml");
+
+    expect(workflow).toContain("Stage release integrity file");
+    expect(workflow).toContain(
+      "cp dist/release-integrity.json tarball-artifacts/release-integrity.json",
+    );
+    expect(workflow).toContain("release-assets:");
+    expect(workflow).toContain("Publish GitHub release assets");
+    expect(workflow).toContain("uses: softprops/action-gh-release@v2");
+    expect(workflow).toContain(
+      "tag_name: v$" + "{{ needs.tarball.outputs.release_version }}",
+    );
+    expect(workflow).toContain("tarball-artifacts/*.tgz");
+    expect(workflow).toContain("tarball-artifacts/release-integrity.json");
+    expect(workflow).toContain("tarball-artifacts/cx-cli.rb");
+  });
 });
