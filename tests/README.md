@@ -103,6 +103,12 @@ Every `*.test.ts` file must start with a lane header on line 1:
 - The fast-lane file budget is controlled by `FAST_LANE_MAX_FILES` (default:
   `95`). Raise it only when the team intentionally accepts a slower fast lane.
 
+## Focused MCP Cockpit
+
+- Use `bun run test:vitest:mcp` for a narrow MCP-heavy lane when debugging MCP startup, policy, audit, or transport behavior.
+- Use `bun run test:vitest:mcp:ui` when you need interactive reruns, UI coverage, or import-graph inspection for the MCP stack.
+- Keep this cockpit focused on MCP-facing suites. It is a debugging surface, not a replacement for the Bun verification lanes or the repository-wide Vitest coverage lane.
+
 ## Property Matrices
 
 - Use `fast-check` for combinatorial override behavior where input vectors

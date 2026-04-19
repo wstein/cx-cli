@@ -22,6 +22,9 @@ plain syntax.
 Operational command contracts such as `make test`, `make verify`, and
 `make release` should live here as durable notes instead of ad hoc workflow
 comments in docs or issue trackers.
+Focused debugging workflows such as the MCP Vitest UI cockpit should also live
+here when they explain how operators inspect a live subsystem boundary rather
+than how CI proves the full repository state.
 
 ## Why This Directory Exists
 

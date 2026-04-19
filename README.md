@@ -181,6 +181,8 @@ The generated notes directory is intentionally part of the repository contract. 
 
 - `make test` or `bun run test` runs the default unit test suite and collects coverage.
 - `make verify` or `bun run verify` runs lint, typecheck, build, and the full test suite with coverage.
+- `bun run test:vitest:mcp` runs the focused MCP-heavy Vitest lane for server, policy, audit, and CLI MCP debugging.
+- `bun run test:vitest:mcp:ui` opens the MCP lane in Vitest UI so you can rerun failures interactively and inspect coverage or import cost inside the MCP stack.
 - The `Makefile` delegates to `package.json` scripts using 1:1 shell shim wrappers.
 - `package.json` does not expose an explicit `coverage` script; coverage is collected by test executions.
 

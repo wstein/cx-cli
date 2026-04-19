@@ -13,6 +13,7 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 - [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md) - cognition contract, boundary contract, and trust propagation model
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
+- `bun run test:vitest:mcp:ui` - focused MCP test/debug cockpit with Vitest UI coverage and import-graph inspection
 - `cx audit summary` - compact operator view for recent MCP audit trends
 - [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff
 - [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - how a trusted local developer enables note mutation and reviews the result

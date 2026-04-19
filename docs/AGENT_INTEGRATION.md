@@ -39,6 +39,31 @@ Start with the smallest possible proof of value:
 
 Why this protects you: operators learn the abstraction after they have seen the system move, which lowers confusion without creating a second semantic source of truth inside the integration guide.
 
+## MCP Test And Debug Cockpit
+
+For MCP-specific debugging, use the focused Vitest cockpit instead of the broad repository coverage lane:
+
+```bash
+bun run test:vitest:mcp
+bun run test:vitest:mcp:ui
+```
+
+This cockpit is intentionally narrow. It keeps the run centered on:
+
+- MCP server lifecycle tests under `tests/mcp/**`
+- CLI-facing MCP registration and denial tests
+- unit-level MCP policy, audit, and doctor report helpers
+
+Why this matters: policy gating bugs, startup hangs, adversarial tool-runtime failures, and slow import chains usually live inside the MCP boundary, not across the whole repository test surface. The focused UI run makes those failures easier to rerun and easier to localize.
+
+Use the UI view when you need:
+
+- interactive reruns of a failing MCP slice
+- per-file coverage visibility while debugging MCP behavior
+- import-graph and module-cost inspection for `src/mcp/**` and `src/cli/commands/mcp.ts`
+
+This is still a Track B debugging surface. Promote any fix through the normal Bun verification and CI proof lanes once the MCP issue is understood.
+
 ## Agent Point Of View
 
 From the agent's perspective, the MCP session is not a vague "chat with the repo." It is a structured loop over scoped tools, manifest metadata, and durable notes.

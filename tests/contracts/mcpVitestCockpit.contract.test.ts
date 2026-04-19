@@ -44,4 +44,21 @@ describe("MCP Vitest cockpit contract", () => {
     expect(config).toContain('reportsDirectory: "./coverage/vitest-mcp"');
     expect(config).toContain('name: "mcp-cockpit"');
   });
+
+  test("operator docs make the MCP cockpit discoverable", async () => {
+    const readme = await readText("README.md");
+    const manual = await readText("docs/MANUAL.md");
+    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+    const testsGuide = await readText("tests/README.md");
+
+    expect(readme).toContain("bun run test:vitest:mcp");
+    expect(readme).toContain("bun run test:vitest:mcp:ui");
+    expect(manual).toContain("bun run test:vitest:mcp");
+    expect(manual).toContain("bun run test:vitest:mcp:ui");
+    expect(agentIntegration).toContain("## MCP Test And Debug Cockpit");
+    expect(agentIntegration).toContain("bun run test:vitest:mcp:ui");
+    expect(agentIntegration).toContain("import-graph");
+    expect(testsGuide).toContain("## Focused MCP Cockpit");
+    expect(testsGuide).toContain("bun run test:vitest:mcp");
+  });
 });

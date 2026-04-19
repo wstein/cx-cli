@@ -15,6 +15,8 @@ quick while making the release path explicit and repeatable.
 
 - `package.json` does not define an explicit `coverage` task; coverage is collected by the test commands.
 - The dedicated Vitest coverage lane is `bun run ci:test:coverage`; it runs the Bun-style unit and contract suite through the repository compatibility shim, then produces `coverage/vitest/coverage-summary.json`, HTML output, LCOV, and `.ci/coverage-summary.md`.
+- The focused MCP debugging lane is `bun run test:vitest:mcp`; it keeps MCP-heavy server, CLI, audit, and policy tests separate from the broad repository coverage run.
+- `bun run test:vitest:mcp:ui` opens the same MCP lane in Vitest UI so operators can rerun failures interactively and inspect coverage or import-graph cost inside the MCP stack.
 - The default test task runs the unit test suite.
 - Tests always collect coverage information.
 - `verify` runs the full integration and unit test suite.
@@ -28,4 +30,6 @@ quick while making the release path explicit and repeatable.
 - `docs/RELEASE_CHECKLIST.md`
 - [[CLI Command Lifecycle]]
 - [[GitHub Actions Triggers]]
+- [[MCP Import Graph Diagnostics]]
+- [[MCP Vitest UI Cockpit]]
 - [[Test Strategy Hardening]]
