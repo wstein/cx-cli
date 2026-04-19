@@ -6,6 +6,27 @@ Schema and coverage publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_
 Developer command conventions for `make test`, `make verify`, and `make release` live in the repository notes and the operator manual.
 The MCP surface is tiered rather than blanket-experimental: use [STABILITY.md](./STABILITY.md) for the stable subset and [AGENT_INTEGRATION.md](./AGENT_INTEGRATION.md) for client-facing setup guidance.
 
+## What Changed In 0.4.0
+
+`cx` now explicitly operates as three cooperating surfaces:
+
+- immutable snapshots with `cx bundle`
+- live agent protocol with `cx mcp`
+- durable knowledge with `cx notes`
+
+Track B generates hypotheses. Track A generates proofs. Notes preserve durable reasoning between them.
+
+0.4.0 also makes three release-level changes explicit:
+
+- Vitest coverage is now the authoritative coverage-reporting lane for release assurance.
+- The MCP surface has a stable subset, but the broader integration layer still evolves conservatively.
+- Notes governance, cognition scoring, contradiction checks, and trust propagation are part of the operating contract rather than incidental implementation details.
+
+See:
+
+- [../CHANGELOG.md](../CHANGELOG.md)
+- [MIGRATIONS/0.4.0.md](./MIGRATIONS/0.4.0.md)
+
 ## Start Here
 
 - Run `cx mcp` first if you want the shortest onboarding path: see value now, learn the model later.
