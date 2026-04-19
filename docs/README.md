@@ -66,6 +66,10 @@ narrower special case, not a parallel onboarding path.
 Use these when upgrading or reviewing release history. They are not part of the
 core operator front door.
 
+The allowed front-door docs are intentionally small. See
+[GOVERNANCE.md](./GOVERNANCE.md) for the docs surface budget and the
+reference-only rule for everything else.
+
 Trust shorthand for the whole docs set:
 
 - Source tree: trusted

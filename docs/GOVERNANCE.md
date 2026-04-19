@@ -65,6 +65,50 @@ Tutorial and explanation docs:
 | Troubleshooting (if added) | Common issues and solutions |
 | FAQ (if added) | Frequently asked questions |
 
+## Docs Surface Budget
+
+`cx` intentionally keeps a small front-door docs surface.
+
+### Front-Door Docs
+
+These are the only documents that should behave like primary entrypoints:
+
+- `README.md`
+- `docs/README.md`
+- `docs/SYSTEM_MAP.md`
+- `docs/OPERATING_MODES.md`
+- `docs/MANUAL.md`
+
+### Canonical Core Docs
+
+These own stable meaning and contracts, but they are not additional onboarding
+doors:
+
+- `docs/MENTAL_MODEL.md`
+- `docs/SYSTEM_CONTRACTS.md`
+- `docs/GOVERNANCE.md`
+
+### Reference-Only Docs
+
+Everything else should be written as reference, integration detail, workflow
+example, or historical material.
+
+That means:
+
+- `ARCHITECTURE.md` is an implementation reference for contributors, not a
+  first-read overview.
+- `WORKFLOWS/*` are special-case execution examples, not parallel onboarding
+  paths.
+- `MIGRATIONS/*` and release-history material are historical references, not
+  part of the operator front door.
+- Agent integration and configuration docs should be linked by concern, not
+  treated as general entrypoints.
+
+### Default Rule
+
+If a new document would introduce another plausible place to start, it should
+usually become a section inside an existing front-door doc instead.
+
 ---
 
 ## Hard Hierarchy Contract

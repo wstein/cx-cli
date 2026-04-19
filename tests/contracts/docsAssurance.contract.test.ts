@@ -46,7 +46,14 @@ describe("docs assurance contract", () => {
     expect(docsIndex).toContain("## Workflow Set");
     expect(docsIndex).toContain("Read the Friday-to-Monday workflow first.");
     expect(docsIndex).toContain("## Historical Material");
+    expect(docsIndex).toContain("docs surface budget");
     expect(governance).toContain("## Hard Hierarchy Contract");
+    expect(governance).toContain("## Docs Surface Budget");
+    expect(governance).toContain("### Front-Door Docs");
+    expect(governance).toContain("### Reference-Only Docs");
+    expect(governance).toContain(
+      "If a new document would introduce another plausible place to start",
+    );
     expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
     expect(governance).toContain("`OPERATING_MODES.md` maps those semantics");
     expect(governance).toContain(
