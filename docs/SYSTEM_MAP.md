@@ -19,6 +19,13 @@ Track B              Cognition Layer       Track A                 Trust Gate
 3. Run `cx bundle` when the work must become a reproducible artifact.
 4. Run `cx verify` when later humans or CI need proof instead of trust-by-habit.
 
+## Choose The Entry Point
+
+- Start with `cx mcp` when you are still asking questions.
+- Move to `cx notes` when the reasoning should survive the current session.
+- Move to `cx bundle` when the work needs a frozen handoff.
+- Finish with `cx verify` when a later reader should receive proof instead of a claim.
+
 ## Read It Top To Bottom
 
 - **MCP** is the live investigation surface.

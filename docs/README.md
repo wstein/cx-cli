@@ -30,11 +30,11 @@ See:
 ## Start Here
 
 - Run `cx mcp` first if you want the shortest onboarding path: see value now, learn the model later.
+- [SYSTEM_MAP.md](./SYSTEM_MAP.md) - the compressed front door: where to start and how the surfaces relate
 - [OPERATING_MODES.md](./OPERATING_MODES.md) - choose between live MCP help, reproducible bundles, and durable notes
-- [SYSTEM_MAP.md](./SYSTEM_MAP.md) - one-page map from hypothesis to memory to snapshot to proof
-- [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
+- [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical semantics, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md) - cognition contract, boundary contract, and trust propagation model
-- [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
+- [MANUAL.md](./MANUAL.md) - operator path, assurance ladder, and Friday-to-Monday workflow map
 - `bun run test:vitest:mcp:ui` - focused MCP test/debug cockpit with Vitest UI coverage and import-graph inspection
 - `bun run test:vitest:mcp:adversarial:ui` - failure-injection MCP cockpit for startup hangs and hostile runtime cases
 - `cx audit summary` - compact operator view for recent MCP audit trends

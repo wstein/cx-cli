@@ -10,107 +10,98 @@
 
 Mode chooser: [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md)
 
-> Start here:
-> 1. Run `cx mcp`
-> 2. Watch the agent work on live code
-> 3. Learn the model later in [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md) and [docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)
+## Start Here
 
-## Choose Your Path
+Run `cx mcp`.
 
-`cx` has two practical modes:
+That is the shortest path to value:
 
-### Track A: Pipeline Operations
-Use this path when you need deterministic bundles, artifact integrity, and hard failure semantics.
-- **Key Commands:** `cx bundle`, `cx verify`, `cx extract`, `cx validate`
-- **Goal:** Produce immutable, bit-for-bit verifiable bundle artifacts with SHA-256 sidecars.
-- **Outcome:** A locked manifest that keeps downstream automation honest.
+1. Run `cx mcp`
+2. Watch the agent work on live code
+3. Learn the model later in [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md) and [docs/MENTAL_MODEL.md](docs/MENTAL_MODEL.md)
 
-### Track B: Live Agent Exploration
+If you only remember one mental model, keep this one:
+
+- `cx mcp` is the live workspace surface.
+- `cx notes` is the durable cognition layer.
+- `cx bundle` and `cx verify` turn live work into a trusted artifact handoff.
+
+For the one-page map from hypothesis to memory to snapshot to proof, start with [docs/SYSTEM_MAP.md](docs/SYSTEM_MAP.md).
+
+## Choose The Surface
+
+### Live Agent Exploration
+
 Use this path when an LLM agent needs live workspace access, note maintenance, or targeted search.
-- **Key Commands:** `cx mcp`, `cx notes`, `cx doctor mcp`, `cx audit summary`
-- **Goal:** Expose the live workspace and note graph via the Model Context Protocol (MCP).
-- **Outcome:** A live workspace surface for active AI reasoning and documentation.
 
-## Quick Start
-1. `cx init --name demo`
-2. `cx inspect --token-breakdown`
-3. `cx bundle --config cx.toml` for the static bundle path
-4. `cx mcp` for the live agent path
+- Key commands: `cx mcp`, `cx notes`, `cx doctor mcp`, `cx audit summary`
+- Goal: expose the live workspace and note graph through MCP
+- Outcome: faster investigation without freezing a bundle too early
 
-Start with the same timeline in mind: build the bundle once, then let later tools trust the manifest, checksums, token counts, and dirty-state provenance without reconstructing the story from scratch.
+### Deterministic Artifact Operations
 
-The strict invariants protect downstream automation:
+Use this path when the work needs deterministic bundles, artifact integrity, and hard failure semantics.
 
-- SHA-256 checksums prove the emitted artifacts were not silently edited.
-- The manifest preserves the exact file inventory, note summaries, and token budget that later jobs need.
-- `verify` compares the bundle back to a source tree so drift is explicit.
-- Dirty-state gating stops tracked-file changes from masquerading as reviewed inputs.
+- Key commands: `cx bundle`, `cx verify`, `cx extract`, `cx validate`
+- Goal: produce immutable, bit-for-bit verifiable bundle artifacts with SHA-256 sidecars
+- Outcome: a locked manifest that later humans, CI, and automation can trust
 
-It plans repository sections, renders one output per section, copies selected raw assets, and writes a canonical manifest plus SHA-256 checksum sidecar. The result is a bundle that can be verified, inspected, listed, and extracted later without guessing what changed.
-
-It also scaffolds repository notes and exposes graph-oriented note commands so the human intent layer stays close to the code it explains.
-
-## Documentation
-
-- [docs/README.md](docs/README.md) for the formal documentation index
-- [docs/MANUAL.md](docs/MANUAL.md) for the operator-first Friday-to-Monday workflow
-- [docs/spec-draft.md](docs/spec-draft.md) for the editorial consensus draft
-- [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
-- [notes/README.md](notes/README.md) for the permanent repository knowledge layer
-- [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
-- [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `main` CI
-
-Notes governance lane: run `bun run ci:notes:governance` to make the cognition-layer gate visible outside the docs set.
-
-## Why CX Exists
-
-`cx` exists to provide tooling and standards for AI-driven projects into one unified tool. While it began with a deterministic context bundler, it has evolved into a suite that standardizes how LLMs ingest project context, knowledge, and tools.
+## Why The Split Exists
 
 Repomix is great for exploratory work: grab a snapshot, feed a prompt, move on.
 
-`cx` solves a different problem. It is for CI/CD, remote runners, scheduled jobs, and any workflow where a bundle created on Monday must still be trustworthy on Friday.
+`cx` solves the harder follow-through problem. It is for repositories where interactive agent help, durable notes, and reproducible handoffs all need to agree about what was trusted, what was observed, and what was proven.
 
 That changes the design:
 
 - Repomix optimizes for flexible packing. `cx` optimizes for deterministic planning.
-- Repomix is a rendering engine. `cx` adds planning, manifests, checksums, verification, extraction, and failure semantics around that engine.
-- Repomix is the rendering engine. `cx` turns render metadata into a persistent, verifiable artifact contract with immutable manifests and hard-stop invariants.
+- `cx mcp` helps agents inspect live code now.
+- `cx notes` preserves reasoning that should survive the session.
+- `cx bundle` and `cx verify` freeze and prove the exact handoff later.
 
-The strictness is the feature. If a file lands in two sections, if a checksum does not match, or if an extracted file is only approximately recoverable, `cx` makes that visible instead of silently proceeding.
+The strictness is the feature. If a file lands in two sections, if a checksum drifts, or if extraction becomes approximate instead of deterministic, `cx` makes that visible instead of quietly proceeding.
 
 ## What You Get
 
-- VCS-driven master file list (git, fossil, hg, or filesystem fallback)
-- Section globs as classifiers: they sort tracked files, they cannot add new ones
-- Catch-all sections that absorb unmatched files from the VCS master list
-- Dirty-state guard: uncommitted modifications block bundling unless `--force` is passed
-- Differential `--update` mode that stages in a temporary directory and prunes orphaned bundle artifacts safely
-- One rendered output per section
-- A shared bundle index artifact for multi-file handover
-- Persistent token accounting stored in the manifest
-- Optional absolute output spans per file when the active adapter supports them
-- SHA-256 checksums for every emitted artifact
-- Native shell completions for bash, zsh, and fish
-- LLM-friendly output suffixes such as `.xml.txt` and `.json.txt`
-- Manifest-aware `inspect`, `list`, `validate`, `verify`, and `extract` commands
-- `cx notes` commands for creating notes, listing them, and inspecting backlinks or orphans
+- VCS-driven master file list with git, fossil, hg, or filesystem fallback
+- Section planning that sorts tracked files without inventing new inputs
+- Catch-all sections for unmatched tracked files
+- Dirty-state guardrails that block tracked-file drift unless you opt in with `--force`
+- Differential `--update` bundling that prunes orphaned outputs safely
+- One rendered output per section plus a shared handoff index
+- Persistent token accounting, note summaries, and behavioral lock data in the manifest
+- SHA-256 checksums and manifest-aware `inspect`, `list`, `validate`, `verify`, and `extract`
 - Guided overlap diagnosis and repair with `cx doctor`
-- Structured `--json` output across commands for CI integration
-- Lock-file capture of behavioral settings, with drift warnings during `verify`
+- `cx notes` commands for note lifecycle, graph inspection, backlinks, and orphans
+- Structured `--json` output for CI and automation
 
-## When To Use It
+## Quick Start
 
-Use `cx` when you need:
+1. `cx init --name demo`
+2. `cx inspect --token-breakdown`
+3. `cx mcp` for the live workspace path
+4. `cx bundle --config cx.toml` for the immutable artifact path
 
-- reproducible context bundles in CI
-- persistent token accounting recorded in the manifest for later verification and automation
-- downstream tooling that relies on stable manifests and checksums
-- a documented recovery path from bundle back to source files
-- visible failure states instead of silent best-effort behavior
+Start with the same timeline in mind: investigate live, preserve durable reasoning, then freeze the handoff once it needs proof.
 
-Use `cx bundle` when you want a static, immutable snapshot that can be verified later. Use `cx mcp` when you want a live workspace view for targeted reads, searches, note lifecycle updates, and bundle planning helpers. The two workflows share the same repository boundaries, but they serve different phases of the job.
+The invariants that protect downstream automation are explicit:
 
-If you only need a quick local prompt pack, plain Repomix may be the better fit.
+- SHA-256 checksums prove the emitted artifacts were not silently edited.
+- The manifest preserves the exact file inventory, note summaries, token budget, and provenance that later jobs need.
+- `verify` compares the bundle back to a source tree so drift becomes explicit evidence.
+- Dirty-state gating stops tracked-file changes from masquerading as reviewed inputs.
+
+## Documentation
+
+- [docs/README.md](docs/README.md) for the formal documentation index
+- [docs/SYSTEM_MAP.md](docs/SYSTEM_MAP.md) for the condensed system map
+- [docs/MANUAL.md](docs/MANUAL.md) for the operator-first Friday-to-Monday workflow
+- [docs/config-reference.md](docs/config-reference.md) for configuration knobs and editor integration
+- [notes/README.md](notes/README.md) for the durable repository knowledge layer
+- [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
+- [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `main` CI
+
+Notes governance lane: run `bun run ci:notes:governance` to keep the cognition-layer gate visible outside the docs set.
 
 ## Install
 
