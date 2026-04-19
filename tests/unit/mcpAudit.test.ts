@@ -19,7 +19,11 @@ describe("MCP Audit Logger", () => {
         "read",
         "allowed",
         "Tool workspace_list (capability: read) is allowed",
-        "/src/utils",
+        {
+          filePath: "/src/utils",
+          policyName: "default-deny-mutate",
+          decisionBasis: ["tool_catalog", "policy_allow_list"],
+        },
       );
 
       const events = await logger.readLog();
@@ -27,9 +31,15 @@ describe("MCP Audit Logger", () => {
 
       const event = events[0];
       expect(event?.tool).toBe("workspace_list");
+      expect(event?.traceId).toContain("workspace_list:read:allowed:");
       expect(event?.capability).toBe("read");
       expect(event?.decision).toBe("allowed");
       expect(event?.path).toBe("/src/utils");
+      expect(event?.policyName).toBe("default-deny-mutate");
+      expect(event?.decisionBasis).toEqual([
+        "tool_catalog",
+        "policy_allow_list",
+      ]);
       expect(event?.timestamp).toBeDefined();
 
       // Cleanup
@@ -95,11 +105,16 @@ describe("MCP Audit Logger", () => {
         "observe",
         true,
         "Tool allowed under policy",
+        {
+          policyName: "default-deny-mutate",
+          decisionBasis: ["tool_catalog", "policy_allow_list"],
+        },
       );
 
       const events = await logger.readLog();
       expect(events.length).toBe(1);
       expect(events[0]?.decision).toBe("allowed");
+      expect(events[0]?.policyName).toBe("default-deny-mutate");
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>
@@ -241,7 +256,11 @@ describe("MCP Audit Logger", () => {
         "mutate",
         "denied",
         "Custom reason for denial",
-        "/notes/important",
+        {
+          filePath: "/notes/important",
+          policyName: "default-deny-mutate",
+          decisionBasis: ["tool_catalog", "policy_deny_list"],
+        },
       );
 
       const events = await logger.readLog();
@@ -253,6 +272,11 @@ describe("MCP Audit Logger", () => {
       expect(event?.decision).toBe("denied");
       expect(event?.reason).toBe("Custom reason for denial");
       expect(event?.path).toBe("/notes/important");
+      expect(event?.policyName).toBe("default-deny-mutate");
+      expect(event?.decisionBasis).toEqual([
+        "tool_catalog",
+        "policy_deny_list",
+      ]);
 
       // Cleanup
       await import("node:fs/promises").then((fs) =>

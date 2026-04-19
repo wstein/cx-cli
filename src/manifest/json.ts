@@ -10,6 +10,7 @@ import type {
   CxSection,
   ManifestFileRow,
   ManifestSettings,
+  ManifestTraceability,
   ManifestTrustModel,
   SectionOutputRecord,
 } from "./types.js";
@@ -50,6 +51,7 @@ interface ManifestDto {
   dirtyState: string;
   modifiedFiles: string[];
   trustModel: ManifestTrustModel;
+  traceability: ManifestTraceability;
   sections: SectionDto[];
   assets: AssetRecord[];
   notes: Array<{
@@ -261,6 +263,47 @@ function parseNoteDto(
   };
 }
 
+function parseTraceabilityDto(raw: unknown): ManifestTraceability {
+  const obj = requireObject(raw, "traceability");
+  const bundleRaw = requireObject(obj.bundle, "traceability.bundle");
+  const notesRaw = requireObject(obj.notes, "traceability.notes");
+  const agentRaw = requireObject(obj.agent, "traceability.agent");
+
+  return {
+    bundle: {
+      command: requireString(
+        bundleRaw.command,
+        "traceability.bundle.command",
+      ) as "cx bundle",
+      track: requireString(bundleRaw.track, "traceability.bundle.track") as "A",
+    },
+    notes: {
+      governanceCommand: requireString(
+        notesRaw.governanceCommand,
+        "traceability.notes.governanceCommand",
+      ) as "cx notes check",
+      trustLevel: requireString(
+        notesRaw.trustLevel,
+        "traceability.notes.trustLevel",
+      ) as ManifestTraceability["notes"]["trustLevel"],
+    },
+    agent: {
+      auditLogPath: requireString(
+        agentRaw.auditLogPath,
+        "traceability.agent.auditLogPath",
+      ) as ".cx/audit.log",
+      outputTrust: requireString(
+        agentRaw.outputTrust,
+        "traceability.agent.outputTrust",
+      ) as "untrusted_until_verified",
+      decisionSource: requireString(
+        agentRaw.decisionSource,
+        "traceability.agent.decisionSource",
+      ) as "mcp_audit_log",
+    },
+  };
+}
+
 function parseManifestDto(raw: unknown): {
   dto: ManifestDto;
   sectionRows: FileRowWithoutSection[][];
@@ -277,6 +320,7 @@ function parseManifestDto(raw: unknown): {
 
   const settingsRaw = requireObject(obj.settings, "settings");
   const trustModelRaw = requireObject(obj.trustModel, "trustModel");
+  const traceability = parseTraceabilityDto(obj.traceability);
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
   const notesRaw =
@@ -364,6 +408,7 @@ function parseManifestDto(raw: unknown): {
         "trustModel.bundle",
       ) as "trusted",
     },
+    traceability,
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
     notes: notesRaw.map((note, index) => parseNoteDto(note, index)),
@@ -398,6 +443,7 @@ export function renderManifestJson(
     dirtyState: manifest.dirtyState,
     modifiedFiles: manifest.modifiedFiles,
     trustModel: manifest.trustModel,
+    traceability: manifest.traceability,
     sections: manifest.sections.map((section) => ({
       name: section.name,
       style: section.style,
@@ -500,6 +546,7 @@ export function parseManifestJson(source: string): CxManifest {
     dirtyState: dto.dirtyState as CxManifest["dirtyState"],
     modifiedFiles: dto.modifiedFiles,
     trustModel: dto.trustModel,
+    traceability: dto.traceability,
     sections,
     assets: dto.assets,
     ...(dto.notes.length > 0 ? { notes: dto.notes } : {}),

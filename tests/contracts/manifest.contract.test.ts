@@ -39,6 +39,15 @@ function sampleManifest(): CxManifest {
       agentOutput: "untrusted_until_verified",
       bundle: "trusted",
     },
+    traceability: {
+      bundle: { command: "cx bundle", track: "A" },
+      notes: { governanceCommand: "cx notes check", trustLevel: "conditional" },
+      agent: {
+        auditLogPath: ".cx/audit.log",
+        outputTrust: "untrusted_until_verified",
+        decisionSource: "mcp_audit_log",
+      },
+    },
     sections: [
       {
         name: "docs",
@@ -106,6 +115,7 @@ describe("manifest contract", () => {
     expect(reparsed.sections[1]?.name).toBe("src");
     expect(reparsed.sections[0]?.files[0]?.path).toBe("README.md");
     expect(reparsed.sections[1]?.files[0]?.path).toBe("src/index.ts");
+    expect(reparsed.traceability.agent.auditLogPath).toBe(".cx/audit.log");
   });
 
   test("preserves nested section ordering and file ordering", () => {

@@ -47,6 +47,7 @@ It should become the manifest summary.
     expect(manifest.notes?.[0]?.trustLevel).toBe("conditional");
     expect(manifest.notes?.[0]?.cognitionScore).toBeGreaterThan(0);
     expect(manifest.trustModel.notes).toBe("conditional");
+    expect(manifest.traceability.agent.auditLogPath).toBe(".cx/audit.log");
   });
 
   test("pulls linked notes into the bundle when enabled", async () => {
@@ -121,6 +122,18 @@ It should become the manifest summary.
         notes: "conditional",
         agentOutput: "untrusted_until_verified",
         bundle: "trusted",
+      },
+      traceability: {
+        bundle: { command: "cx bundle", track: "A" },
+        notes: {
+          governanceCommand: "cx notes check",
+          trustLevel: "conditional",
+        },
+        agent: {
+          auditLogPath: ".cx/audit.log",
+          outputTrust: "untrusted_until_verified",
+          decisionSource: "mcp_audit_log",
+        },
       },
       sections: [
         {

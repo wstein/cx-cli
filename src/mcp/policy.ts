@@ -40,6 +40,8 @@ export interface ToolAccessDecision {
   allowed: boolean;
   reason: string;
   capability: McpCapability;
+  policyName: string;
+  decisionBasis: string[];
 }
 
 function resolveToolDefinition(
@@ -53,11 +55,14 @@ function resolveToolDefinition(
  */
 export interface AuditEvent {
   timestamp: string;
+  traceId: string;
   tool: string;
   capability: McpCapability;
   path?: string;
   decision: "allowed" | "denied";
   reason: string;
+  policyName: string;
+  decisionBasis: string[];
 }
 
 /**
@@ -120,24 +125,37 @@ export function checkToolAccess(
 ): ToolAccessDecision {
   const resolvedTool = resolveToolDefinition(tool);
   const toolName = typeof tool === "string" ? tool : tool.name;
+  const policyName = policy.name ?? "unnamed-policy";
 
   if (!resolvedTool) {
     return {
       allowed: false,
       reason: `Unknown tool: ${toolName}`,
       capability: "read", // Default for unknown
+      policyName,
+      decisionBasis: ["tool_catalog_lookup"],
     };
   }
 
+  const explicitlyDenied =
+    policy.deny?.includes(resolvedTool.capability) ?? false;
+  const explicitlyAllowed = policy.allow.includes(resolvedTool.capability);
   const allowed = isCapabilityAllowed(policy, resolvedTool.capability);
   const reason = allowed
     ? `Tool ${toolName} (capability: ${resolvedTool.capability}) is allowed`
     : `Tool ${toolName} (capability: ${resolvedTool.capability}) is denied by policy`;
+  const decisionBasis = explicitlyDenied
+    ? ["tool_catalog", "policy_deny_list"]
+    : explicitlyAllowed
+      ? ["tool_catalog", "policy_allow_list"]
+      : ["tool_catalog", "policy_default_deny"];
 
   return {
     allowed,
     reason,
     capability: resolvedTool.capability,
+    policyName,
+    decisionBasis,
   };
 }
 

@@ -209,7 +209,7 @@ function parseNoteDocument(
     const codeLinks = extractCodePathReferences(body);
     const cognition = assessNoteCognition(body, summary, codeLinks, {
       noteId: id,
-      now: options?.now,
+      ...(options?.now !== undefined ? { now: options.now } : {}),
     });
 
     if (cognition.templateBoilerplateDetected) {

@@ -64,6 +64,11 @@ describe("MCP Policy System", () => {
       expect(decision.allowed).toBe(true);
       expect(decision.capability).toBe("read");
       expect(decision.reason).toContain("allowed");
+      expect(decision.policyName).toBe("default-deny-mutate");
+      expect(decision.decisionBasis).toEqual([
+        "tool_catalog",
+        "policy_allow_list",
+      ]);
     });
 
     it("denies mutate tools under default policy", () => {
@@ -89,6 +94,7 @@ describe("MCP Policy System", () => {
       const decision = checkToolAccess("unknown_tool", DEFAULT_POLICY);
       expect(decision.allowed).toBe(false);
       expect(decision.reason).toContain("Unknown tool");
+      expect(decision.decisionBasis).toEqual(["tool_catalog_lookup"]);
     });
 
     it("enforces strict policy (read+observe only)", () => {

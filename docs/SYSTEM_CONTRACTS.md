@@ -72,7 +72,7 @@ Trust moves through `cx` asymmetrically:
 | Agent outputs and live reasoning traces | **untrusted until verified** | They may be useful, but they are not handoff-safe evidence by themselves |
 | Bundle artifacts that pass validation and verification | **trusted** | They are the proof surface frozen under manifest, checksum, and verification rules |
 
-Manifest trust metadata exists so downstream automation can see that difference directly instead of inferring it from prose.
+Manifest trust metadata exists so downstream automation can see that difference directly instead of inferring it from prose. Manifest traceability metadata now also points to the concrete audit path: `cx bundle` as the Track A command, `cx notes check` as the note-governance review gate, and `.cx/audit.log` as the MCP decision ledger for agent actions.
 
 Why this protects you: bad reasoning should not gain the same standing as verified artifacts just because it was serialized into Markdown or emitted by an agent.
 

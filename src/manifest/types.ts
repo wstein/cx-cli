@@ -82,6 +82,22 @@ export interface ManifestTrustModel {
   bundle: "trusted";
 }
 
+export interface ManifestTraceability {
+  bundle: {
+    command: "cx bundle";
+    track: "A";
+  };
+  notes: {
+    governanceCommand: "cx notes check";
+    trustLevel: NoteTrustLevel;
+  };
+  agent: {
+    auditLogPath: ".cx/audit.log";
+    outputTrust: "untrusted_until_verified";
+    decisionSource: "mcp_audit_log";
+  };
+}
+
 /** A section as stored in the manifest, including its file list. */
 export interface CxSection extends SectionOutputRecord {
   files: ManifestFileRow[];
@@ -135,6 +151,7 @@ export interface CxManifest {
    */
   modifiedFiles: string[];
   trustModel: ManifestTrustModel;
+  traceability: ManifestTraceability;
   sections: CxSection[];
   assets: AssetRecord[];
   /** Flat list of all file rows (text + asset), reconstructed after parsing. */

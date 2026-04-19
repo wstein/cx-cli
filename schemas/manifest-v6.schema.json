@@ -21,6 +21,7 @@
     "dirtyState",
     "modifiedFiles",
     "trustModel",
+    "traceability",
     "sections",
     "assets"
   ],
@@ -105,6 +106,9 @@
     "trustModel": {
       "$ref": "#/$defs/ManifestTrustModel"
     },
+    "traceability": {
+      "$ref": "#/$defs/ManifestTraceability"
+    },
     "sections": {
       "description": "Ordered list of text-file sections in the bundle.",
       "type": "array",
@@ -181,6 +185,56 @@
         },
         "bundle": {
           "const": "trusted"
+        }
+      }
+    },
+    "ManifestTraceability": {
+      "description": "Explicit provenance hooks that explain how to audit bundle trust and agent decisions.",
+      "type": "object",
+      "required": ["bundle", "notes", "agent"],
+      "additionalProperties": false,
+      "properties": {
+        "bundle": {
+          "type": "object",
+          "required": ["command", "track"],
+          "additionalProperties": false,
+          "properties": {
+            "command": {
+              "const": "cx bundle"
+            },
+            "track": {
+              "const": "A"
+            }
+          }
+        },
+        "notes": {
+          "type": "object",
+          "required": ["governanceCommand", "trustLevel"],
+          "additionalProperties": false,
+          "properties": {
+            "governanceCommand": {
+              "const": "cx notes check"
+            },
+            "trustLevel": {
+              "const": "conditional"
+            }
+          }
+        },
+        "agent": {
+          "type": "object",
+          "required": ["auditLogPath", "outputTrust", "decisionSource"],
+          "additionalProperties": false,
+          "properties": {
+            "auditLogPath": {
+              "const": ".cx/audit.log"
+            },
+            "outputTrust": {
+              "const": "untrusted_until_verified"
+            },
+            "decisionSource": {
+              "const": "mcp_audit_log"
+            }
+          }
         }
       }
     },

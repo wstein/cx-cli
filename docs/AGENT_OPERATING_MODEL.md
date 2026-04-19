@@ -73,20 +73,22 @@ Why this stops you: an exploratory session should not silently cross from analys
 
 ## Audit Trail
 
-When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool calls are recorded in `.cx/audit.log`:
+When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool calls are recorded in `.cx/audit.log` with explicit policy provenance:
 
 ```json
 {
   "timestamp": "2025-04-17T14:30:00Z",
-  "tool": "read",
-  "policy_decision": "allowed",
+  "traceId": "notes_read:observe:allowed:1744900200000",
+  "tool": "notes_read",
   "capability": "read",
-  "args": { "path": "src/main.ts" },
-  "result_summary": "200 lines"
+  "decision": "allowed",
+  "reason": "Tool notes_read (capability: observe) is allowed",
+  "policyName": "default-deny-mutate",
+  "decisionBasis": ["tool_catalog", "policy_allow_list"]
 }
 ```
 
-Audit logging is the integration-layer answer to "what did the agent really do?" It is also the bridge into future work on agent traceability.
+Audit logging is the integration-layer answer to "what did the agent really do?" The `traceId`, `policyName`, and `decisionBasis` fields make the allow-or-deny path explicit instead of leaving later reviewers to infer it from timing alone.
 
 ## Integration Examples
 

@@ -235,6 +235,18 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
         agentOutput: "untrusted_until_verified",
         bundle: "trusted",
       },
+      traceability: {
+        bundle: { command: "cx bundle", track: "A" },
+        notes: {
+          governanceCommand: "cx notes check",
+          trustLevel: "conditional",
+        },
+        agent: {
+          auditLogPath: ".cx/audit.log",
+          outputTrust: "untrusted_until_verified",
+          decisionSource: "mcp_audit_log",
+        },
+      },
     };
 
     if (fields.bundleIndexFile !== undefined) {

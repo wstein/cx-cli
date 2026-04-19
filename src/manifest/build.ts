@@ -9,6 +9,7 @@ import type {
   CxManifest,
   CxSection,
   ManifestFileRow,
+  ManifestTraceability,
   ManifestTrustModel,
   NoteRecord,
   SectionHashMaps,
@@ -154,6 +155,21 @@ export async function buildManifest(params: {
       agentOutput: "untrusted_until_verified",
       bundle: "trusted",
     } satisfies ManifestTrustModel,
+    traceability: {
+      bundle: {
+        command: "cx bundle",
+        track: "A",
+      },
+      notes: {
+        governanceCommand: "cx notes check",
+        trustLevel: "conditional",
+      },
+      agent: {
+        auditLogPath: ".cx/audit.log",
+        outputTrust: "untrusted_until_verified",
+        decisionSource: "mcp_audit_log",
+      },
+    } satisfies ManifestTraceability,
     sections,
     assets: params.plan.assets.map((asset) => ({
       sourcePath: asset.relativePath,

@@ -20,6 +20,10 @@ export async function enforceToolAccess<T>(
       decision.capability,
       decision.allowed,
       decision.reason,
+      {
+        policyName: decision.policyName,
+        decisionBasis: decision.decisionBasis,
+      },
     );
   }
 

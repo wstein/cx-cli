@@ -51,6 +51,15 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
       agentOutput: "untrusted_until_verified",
       bundle: "trusted",
     },
+    traceability: {
+      bundle: { command: "cx bundle", track: "A" },
+      notes: { governanceCommand: "cx notes check", trustLevel: "conditional" },
+      agent: {
+        auditLogPath: ".cx/audit.log",
+        outputTrust: "untrusted_until_verified",
+        decisionSource: "mcp_audit_log",
+      },
+    },
     sections: [
       {
         name: "src",

@@ -33,7 +33,11 @@ export class AuditLogger {
     capability: McpCapability,
     decision: "allowed" | "denied",
     reason: string,
-    filePath?: string,
+    metadata?: {
+      filePath?: string;
+      policyName?: string;
+      decisionBasis?: string[];
+    },
   ): Promise<void> {
     if (!this.enabled) {
       return;
@@ -41,11 +45,14 @@ export class AuditLogger {
 
     const event: AuditEvent = {
       timestamp: new Date().toISOString(),
+      traceId: `${tool}:${capability}:${decision}:${Date.now()}`,
       tool,
       capability,
       decision,
       reason,
-      ...(filePath ? { path: filePath } : {}),
+      policyName: metadata?.policyName ?? "unknown-policy",
+      decisionBasis: metadata?.decisionBasis ?? ["manual_log"],
+      ...(metadata?.filePath ? { path: metadata.filePath } : {}),
     };
 
     try {
@@ -71,12 +78,18 @@ export class AuditLogger {
     capability: McpCapability,
     allowed: boolean,
     reason: string,
+    metadata?: {
+      filePath?: string;
+      policyName?: string;
+      decisionBasis?: string[];
+    },
   ): Promise<void> {
     await this.logEvent(
       tool,
       capability,
       allowed ? "allowed" : "denied",
       reason,
+      metadata,
     );
   }
 
