@@ -48,7 +48,7 @@ cx-cli provides three distinct agent-facing surfaces for repository context. Thi
 **Policy:** MCP is policy-driven; access controlled by `[mcp.policy]` in `cx.toml`. Three preset policies:
 - **strict** (CI/CD): read + observe only (no writes, no planning)
 - **default** (interactive): read + observe + plan (no mutations; agent can't modify notes or code)
-- **unrestricted** (local dev): all capabilities (agent can read, observe, plan, mutate everything)
+- **unrestricted** (local dev): full mutate capability is available only when `enable_mutation = true`
 
 ### 3. Notes (Durable Knowledge)
 
@@ -68,7 +68,7 @@ cx-cli provides three distinct agent-facing surfaces for repository context. Thi
 - Link code to design (backlinks to source)
 - Audit knowledge coverage and gaps
 
-**Policy:** Notes are separate from code; policies don't restrict note operations. All agents can read and write notes (unless explicitly disabled at the MCP server level).
+**Policy:** `cx notes` on the CLI is a direct local operator command. Over MCP, note reads are observe capability and note writes are mutate capability. In practice that means note mutation is denied in default and strict policy modes, and is only exposed intentionally in trusted local sessions.
 
 ---
 
@@ -98,8 +98,14 @@ cx-cli provides three distinct agent-facing surfaces for repository context. Thi
 - Rationale: Agent helps explore and plan, but humans make final calls
 
 **Local Development** → `policy: unrestricted`
-- Agent can: everything (read, write, plan, observe, mutate)
+- Agent can: everything only when `enable_mutation = true`; otherwise mutate tools remain locked
 - Rationale: Trusted local environment, full autonomy
+
+## Why Mutation Policy Denial Stops You
+
+When an MCP session denies `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, or `replace_repomix_span`, the denial is protecting the read/plan-versus-mutate boundary.
+
+Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. `cx` requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish "the agent may inspect" from "the agent may edit."
 
 ---
 

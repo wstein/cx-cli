@@ -201,6 +201,10 @@ describe("MCP Policy System", () => {
       expect(error.remediation?.recommendedCommand).toBe(
         "cx doctor mcp --config cx.toml",
       );
+      expect(error.remediation?.docsRef).toBe("docs/AGENT_OPERATING_MODEL.md");
+      expect(error.remediation?.whyThisProtectsYou).toContain(
+        "Mutation-capability tools stay denied",
+      );
     });
 
     it("has correct exit code", () => {

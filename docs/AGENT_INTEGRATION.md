@@ -23,6 +23,8 @@ Overview
 
 Use `cx bundle` for immutable snapshots and verification. Use `cx mcp` for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.
 
+By default, MCP sessions are not mutation sessions. Note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.
+
 Local init support
 - `cx init` now generates additional local agent configuration files to simplify common editor and desktop integration workflows:
   - `.mcp.json` — workspace-local MCP server declaration
@@ -188,6 +190,7 @@ Security and safety
 
 - Limit the agent's working directory: run `cx mcp` in the repository root so `cx` can apply the intended `files.include` / `files.exclude` scope. Do not run it from a higher-level directory that would broaden the agent's visibility.
 - Use a colocated `cx-mcp.toml` to create a deliberate, scoped agent profile when exposing the server to 3rd-party tools.
+- Expect note writes and other mutate-capability tools to be denied unless `[mcp] policy = "unrestricted"` and `enable_mutation = true` are both set in the active profile.
 - Prefer `CX_STRICT=true` in CI or shared environments if you want the server to treat Category B warnings as failures.
 - Audit the effective MCP profile with `cx doctor mcp --config cx.toml` before allowing production agents to connect.
 

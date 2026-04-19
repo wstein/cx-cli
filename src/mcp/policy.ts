@@ -193,10 +193,12 @@ function buildPolicyRemediation(
 ): ErrorRemediation {
   return {
     recommendedCommand: "cx doctor mcp --config cx.toml",
-    docsRef: "docs/MCP_TOOL_INTENT_TAXONOMY.md",
+    docsRef: "docs/AGENT_OPERATING_MODEL.md",
+    whyThisProtectsYou:
+      "Mutation-capability tools stay denied until a trusted local operator explicitly enables them, so exploratory MCP sessions cannot silently turn into editing sessions.",
     nextSteps: [
       `Confirm that ${toolName} is allowed for ${capability} operations under the active MCP policy.`,
-      "Adjust cx-mcp.toml or cx.toml if this tool should be available in the current session.",
+      "Adjust cx-mcp.toml or cx.toml only if this session is intentionally trusted for mutation.",
     ],
   };
 }

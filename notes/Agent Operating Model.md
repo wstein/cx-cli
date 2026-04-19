@@ -20,7 +20,9 @@ MCP tools are gated by four capability tiers (read, observe, plan, mutate). Poli
 
 - **strict** (CI/CD): read + observe only
 - **default** (interactive): read + observe + plan
-- **unrestricted** (local): all capabilities
+- **unrestricted** (local): mutate-capability tools only when `enable_mutation = true`
+
+The operational point is that an exploratory MCP session is not automatically a mutation-authorized session. Note writes and other mutate-capability tools stay denied until the local operator explicitly enables them.
 
 ## Links
 

@@ -642,6 +642,8 @@ exclude = []
 
 Section overlap remains a hard failure for planning and bundling when `dedup.mode = "fail"`, which is the default.
 
+Why this stops you: overlap failure protects deterministic ownership. A canonical bundle cannot treat the same file as belonging to multiple sections and still claim one manifest truth.
+
 Use the doctor commands to diagnose and resolve conflicts without weakening that invariant:
 
 - `cx doctor overlaps` lists every conflicted file, all matching sections, and the recommended owner.

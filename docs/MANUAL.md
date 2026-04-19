@@ -424,6 +424,8 @@ If overlap failure mode is active, bundling stops because the same file cannot b
 - the manifest no longer has one clear section of truth for that file
 - downstream tooling has to guess which ownership was intended
 
+Why this stops you: overlap failure protects the one-file, one-owner invariant. If `cx` allowed duplicate ownership to proceed, the bundle would stop being deterministic at the exact moment it claimed to be canonical.
+
 ### Step 1: Diagnose
 
 ```bash
@@ -501,7 +503,7 @@ Keep the escape hatch for local emergencies. Do not rely on terminal warnings
 alone to contain it. Downstream automation should quarantine `forced_dirty`
 bundles before they enter a promotion path.
 
-Why this protects you: tracked-file drift means the bundle would describe a moving working directory instead of a stable VCS-backed source state. Refusing to bundle keeps review, verification, and later extraction anchored to something that can actually be reproduced.
+Why this stops you: tracked-file drift means the bundle would describe a moving working directory instead of a stable VCS-backed source state. Refusing to bundle keeps review, verification, and later extraction anchored to something that can actually be reproduced.
 
 The dirty-state taxonomy is deliberately asymmetric:
 
@@ -647,7 +649,7 @@ Verification during extraction:
 cx extract dist/demo-bundle --to /tmp/restore --verify
 ```
 
-Why this protects you: extraction is only safe when the manifest hashes and output spans still describe the packed content exactly. If that mapping drifts, `cx` refuses to turn an approximate reconstruction into an authoritative file by default.
+Why this stops you: extraction is only safe when the manifest hashes and output spans still describe the packed content exactly. If that mapping drifts, `cx` refuses to turn an approximate reconstruction into an authoritative file by default.
 
 If extraction is blocked by degraded packed-content recovery, stop and read [Extraction Safety](EXTRACTION_SAFETY.md) before using `--allow-degraded`.
 

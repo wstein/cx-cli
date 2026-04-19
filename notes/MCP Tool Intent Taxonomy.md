@@ -51,6 +51,8 @@ State-changing tools. Expose them only when the agent is explicitly authorized t
 3. Gather context first, then mutate second.
 4. Avoid bulk mutations in a single turn unless the task is precise and reviewed.
 
+Mutation denial is therefore a deliberate stop condition, not a missing feature. It keeps a live reasoning session from silently crossing into repository edits before a trusted local operator has made that authority explicit.
+
 This taxonomy is intentionally separate from the human-facing 3-pillar origin taxonomy. Human docs teach subsystem boundaries; this note teaches deterministic tool intent.
 
 ## Links

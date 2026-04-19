@@ -60,4 +60,19 @@ describe("docs assurance contract", () => {
     expect(notesSpec).toContain("`cx notes graph --id <seed> --depth <n>`");
     expect(notesSpec).toContain("Depth semantics for graph inspection");
   });
+
+  test("stop conditions explain the invariant they protect", async () => {
+    const manual = await readText("docs/MANUAL.md");
+    const extractionSafety = await readText("docs/EXTRACTION_SAFETY.md");
+    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
+
+    expect(manual).toContain("Why this stops you: overlap failure protects");
+    expect(manual).toContain("Why this stops you: tracked-file drift means");
+    expect(extractionSafety).toContain(
+      "Why this stops you: once the recovered packed content no longer matches",
+    );
+    expect(agentModel).toContain(
+      "Why this stops you: an exploratory session should not silently cross from analysis into repository mutation.",
+    );
+  });
 });

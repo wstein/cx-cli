@@ -53,7 +53,7 @@ It refuses to write `degraded` text files unless you explicitly pass:
 cx extract dist/demo-bundle --to /tmp/restore --allow-degraded
 ```
 
-Why this protects you: once the recovered packed content no longer matches the manifest hash, the extractor can no longer guarantee that line coordinates and file identity still mean what the rest of the bundle says they mean.
+Why this stops you: once the recovered packed content no longer matches the manifest hash, the extractor can no longer guarantee that line coordinates and file identity still mean what the rest of the bundle says they mean.
 
 ## What The Hash Means
 
@@ -80,7 +80,7 @@ Practical checks:
 
 If the mismatch is intentional and approximate recovery is acceptable, use `--allow-degraded`. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.
 
-Why this protects you: a hash mismatch is not cosmetic drift. It is evidence that the recovered slice is no longer the same packed content the manifest promised to downstream tooling.
+Why this stops you: a hash mismatch is not cosmetic drift. It is evidence that the recovered slice is no longer the same packed content the manifest promised to downstream tooling.
 
 Operational extract failures now surface the same guidance in both human and
 JSON output: a suggested command, a docs reference, and next steps under

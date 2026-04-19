@@ -21,6 +21,8 @@ Key mechanisms:
 
 This model allows for granular control over how the repository’s files are organized and presented to downstream AI and CI consumers.
 
+When `dedup.mode = "fail"`, the stop is intentional. Allowing duplicate ownership to proceed would mean one source path could be treated as multiple canonical truths in the same bundle, which would break manifest clarity, token accounting, and downstream ownership assumptions.
+
 ## Links
 
 - [[Planning Boundary Enforcement]] - Ownership applies only to the master list pool.
