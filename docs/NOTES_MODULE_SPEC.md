@@ -58,6 +58,8 @@ That means notes are not just documentation. They are the durable reasoning surf
 
 For AI-generated notes especially, the question is not "did text get produced?" It is "did the graph gain durable, high-signal knowledge?"
 
+See: [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md) for the formal cognition contract and trust propagation model that sit under this module.
+
 ## Governance Model: How, What, Why
 
 Every note should answer three questions clearly, even when the author does not use literal section headings:
@@ -73,6 +75,8 @@ The opening paragraph is the summary contract. It must stand on its own because 
 The validator and CI now enforce these baseline rules:
 
 - a note must produce a non-empty summary from its first paragraph
+- that summary must be non-trivial
+- untouched template boilerplate is not allowed to survive into committed notes
 - a note body must stay at or below `4000` characters
 - a note body must stay at or below `100` lines
 
@@ -232,5 +236,5 @@ The following candidates remain for future implementation:
 
 1. extraction-safe note parsing for downstream routing (unimplemented)
 2. manifest-side summaries beyond the first body paragraph (unimplemented)
-3. cognition scoring so CI can distinguish high-signal notes from merely valid notes
+3. staleness and contradiction checks so note truth can be challenged explicitly
 4. agent traceability that links note changes, audit trails, and workflow review history into one provenance path

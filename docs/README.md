@@ -9,7 +9,9 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 
 - Run `cx mcp` first if you want the shortest onboarding path: see value now, learn the model later.
 - [OPERATING_MODES.md](./OPERATING_MODES.md) - choose between live MCP help, reproducible bundles, and durable notes
+- [SYSTEM_MAP.md](./SYSTEM_MAP.md) - one-page map from hypothesis to memory to snapshot to proof
 - [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
+- [SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md) - cognition contract, boundary contract, and trust propagation model
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
 - [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff
 - [WORKFLOWS/safe-note-mutation.md](./WORKFLOWS/safe-note-mutation.md) - how a trusted local developer enables note mutation and reviews the result

@@ -15,10 +15,11 @@ The governance model is practical:
 
 That is why summary requirements and size limits belong in validation and CI. Without those constraints, the cognition layer stops being a routing surface and turns into low-confidence context spam.
 
-The next quality step is not just stricter validation. It is better signal measurement. Cognition scoring should eventually help CI distinguish "syntactically valid note" from "note that actually improved repository memory," while agent traceability should connect note mutations back to audit logs and review workflows.
+The next quality step is not just stricter validation. It is better signal measurement. Cognition scoring should help CI distinguish "syntactically valid note" from "note that actually improved repository memory," while trust propagation should keep conditioned notes distinct from proof-grade artifacts.
 
 ## Links
 
 - [[Manifest-Side Note Summaries]] - Manifest routing depends on strong summaries.
 - [[Operational Bifurcation]] - Track B discovers reasoning, Track A proves it, and notes preserve it.
 - [[Note Graph Audit]] - Graph review helps confirm that new notes improved the knowledge layer instead of just enlarging it.
+- [[System Trust Contract]] - cognition quality and trust propagation rules for the note layer.

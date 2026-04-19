@@ -20,6 +20,8 @@ describe("docs assurance contract", () => {
     const governance = await readText("docs/GOVERNANCE.md");
     const mentalModel = await readText("docs/MENTAL_MODEL.md");
     const operatingModes = await readText("docs/OPERATING_MODES.md");
+    const systemMap = await readText("docs/SYSTEM_MAP.md");
+    const systemContracts = await readText("docs/SYSTEM_CONTRACTS.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const manual = await readText("docs/MANUAL.md");
@@ -27,6 +29,8 @@ describe("docs assurance contract", () => {
     expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(rootReadme).toContain("Run `cx mcp`");
     expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
+    expect(docsIndex).toContain("[SYSTEM_MAP.md](./SYSTEM_MAP.md)");
+    expect(docsIndex).toContain("[SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md)");
     expect(docsIndex).toContain("Everything else should reference");
     expect(governance).toContain("## Hard Hierarchy Contract");
     expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
@@ -39,6 +43,18 @@ describe("docs assurance contract", () => {
       "Everything outside `MENTAL_MODEL.md` must reference canonical semantics instead of redefining them.",
     );
     expect(mentalModel).toContain("canonical semantics");
+    expect(mentalModel).toContain("See: [SYSTEM_MAP.md](SYSTEM_MAP.md)");
+    expect(mentalModel).toContain(
+      "See: [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md)",
+    );
+    expect(systemMap).toContain("Hypothesis");
+    expect(systemMap).toContain("Memory");
+    expect(systemMap).toContain("Snapshot");
+    expect(systemMap).toContain("Proof");
+    expect(systemContracts).toContain("## Cognition Contract V1");
+    expect(systemContracts).toContain("## Boundary Contract");
+    expect(systemContracts).toContain("## Trust Propagation Model");
+    expect(systemContracts).toContain("valid note != good note");
     expect(operatingModes).toContain(
       "Need fast interactive AI help on live code? Use `cx mcp`.",
     );
@@ -93,6 +109,7 @@ describe("docs assurance contract", () => {
     const notesSpec = await readText("docs/NOTES_MODULE_SPEC.md");
 
     expect(notesSpec).toContain("## Notes As The Cognition Layer");
+    expect(notesSpec).toContain("formal cognition contract");
     expect(notesSpec).toContain("## Governance Model: How, What, Why");
     expect(notesSpec).toContain("4000");
     expect(notesSpec).toContain("100");
@@ -103,8 +120,8 @@ describe("docs assurance contract", () => {
     expect(notesSpec).toContain("Run `cx inspect --json`");
     expect(notesSpec).toContain("`cx notes graph --id <seed> --depth <n>`");
     expect(notesSpec).toContain("Depth semantics for graph inspection");
-    expect(notesSpec).toContain("cognition scoring");
     expect(notesSpec).toContain("agent traceability");
+    expect(notesSpec).toContain("staleness and contradiction checks");
   });
 
   test("stop conditions explain the invariant they protect", async () => {

@@ -30,6 +30,7 @@ This bifurcation helps operators choose the correct path for their immediate goa
 * [[Agentic Ecosystem MCP]]
 * [[Config Inheritance and Overlays]]
 * [[Repository Cognition Layer]]
+* [[System Trust Contract]]
 * [[MCP Tool Intent Taxonomy]]
 * [[MCP Transport Protocol]]
 * [[CX Triad]]
