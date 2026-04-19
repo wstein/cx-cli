@@ -150,6 +150,7 @@ id: 20260418141500
 title: Architecture
 aliases: []
 tags: []
+status: current
 ---
 
 This architecture note tracks repository-backed files and generated drift candidates.

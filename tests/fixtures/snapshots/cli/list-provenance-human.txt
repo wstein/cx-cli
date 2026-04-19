@@ -3,7 +3,7 @@ manifest: demo-manifest.json
 docs
     bytes  tokens  time  status  path                
    36.0 B   6 tok  <RELATIVE_TIME>  intact  docs/guide.md        [section_match]
-  133.0 B  38 tok  <RELATIVE_TIME>  intact  notes/linked-note.md [linked_note_enrichment, manifest_note_inclusion]
+  149.0 B  42 tok  <RELATIVE_TIME>  intact  notes/linked-note.md [linked_note_enrichment, manifest_note_inclusion]
    26.0 B   9 tok  <RELATIVE_TIME>  intact  README.md            [section_match]
 
 src
