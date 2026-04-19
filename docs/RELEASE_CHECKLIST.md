@@ -25,8 +25,8 @@ Use this short checklist when cutting a release.
 - Tagged releases also publish the npm tarball, `release-integrity.json`, and the generated `cx-cli.rb` formula into GitHub release assets so the public release payload matches the documented integrity story.
 - Use `make release VERSION=x.y.z` to hand off the tagged release to the release script.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
-- The release workflow only proceeds from `workflow_run` when CI concluded with `success`; failed CI runs cannot publish npm/Homebrew artifacts.
-- The release workflow only finalizes from a successful CI run for the tagged `develop` candidate commit; tag presence without certified CI is not enough.
+- The release workflow runs on `vX.Y.Z` tag pushes, plus a manual re-finalization path for an existing tag when needed.
+- The release workflow only finalizes when the tagged commit already has a successful `develop` CI run; tag presence without certified CI is not enough.
 - The release workflow in `.github/workflows/release.yml` requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
 - Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.

@@ -22,15 +22,18 @@ async function readPackageJson(): Promise<{
 }
 
 describe("release assurance contract", () => {
-  test("release workflow gate blocks publish when upstream CI failed", async () => {
+  test("release workflow finalizes from version tags and verifies certified develop CI", async () => {
     const workflow = await readText(".github/workflows/release.yml");
 
+    expect(workflow).toContain("push:");
+    expect(workflow).toContain('      - "v*"');
+    expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).toContain(
-      'if [ "$' +
-        "{{ github.event.workflow_run.conclusion }}" +
-        '" != "success" ]; then',
+      "Existing release tag (vX.Y.Z) to finalize again.",
     );
-    expect(workflow).toContain('echo "run_release=false" >> "$GITHUB_OUTPUT"');
+    expect(workflow).toContain('git branch -r --contains "$head_sha"');
+    expect(workflow).toContain('.name=="CI" and .head_branch=="develop"');
+    expect(workflow).toContain("Tagged commit $head_sha has not passed");
   });
 
   test("release workflow pins Bun setup to the declared minimum runtime", async () => {
@@ -98,7 +101,7 @@ describe("release assurance contract", () => {
     expect(workflow).toContain("Publish GitHub release assets");
     expect(workflow).toContain("uses: softprops/action-gh-release@v2");
     expect(workflow).toContain(
-      "tag_name: v$" + "{{ needs.tarball.outputs.release_version }}",
+      "tag_name: $" + "{{ needs.gate.outputs.release_tag }}",
     );
     expect(workflow).toContain("tarball-artifacts/*.tgz");
     expect(workflow).toContain("tarball-artifacts/release-integrity.json");

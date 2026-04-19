@@ -1,15 +1,14 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Optional package version for manual publish.'
-        required: false
-        default: ''
+      tag:
+        description: 'Existing release tag (vX.Y.Z) to finalize again.'
+        required: true
         type: string
 
 concurrency:
@@ -21,19 +20,21 @@ env:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   gate:
     runs-on: ubuntu-latest
     outputs:
-      run_release: ${{ steps.release-version.outputs.run_release }}
       release_version: ${{ steps.release-version.outputs.version }}
+      release_tag: ${{ steps.release-version.outputs.tag }}
+      release_sha: ${{ steps.release-version.outputs.sha }}
     steps:
       - name: Checkout current repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -42,35 +43,55 @@ jobs:
 
       - name: Determine release version
         id: release-version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          git fetch origin develop --force
+
           if [ "${GITHUB_EVENT_NAME}" = 'workflow_dispatch' ]; then
-            requested_version="${{ github.event.inputs.version }}"
-            if [ -z "$requested_version" ]; then
-              requested_version=$(node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version")
-            fi
-            echo "run_release=true" >> "$GITHUB_OUTPUT"
-            echo "version=$requested_version" >> "$GITHUB_OUTPUT"
-            exit 0
+            tag_name="${{ github.event.inputs.tag }}"
+          else
+            tag_name="${GITHUB_REF_NAME}"
           fi
 
-          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
-            echo "run_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          if ! printf '%s' "$tag_name" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$'; then
+            echo "Release finalization requires a semantic version tag like v0.4.0."
+            exit 1
           fi
 
-          tag_name=$(git tag --points-at HEAD --list 'v*' | head -n 1 || true)
-          if [ -z "$tag_name" ]; then
-            echo "run_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          if ! git rev-parse --verify "refs/tags/$tag_name" >/dev/null 2>&1; then
+            echo "Tag $tag_name does not exist in this checkout."
+            exit 1
           fi
 
-          echo "run_release=true" >> "$GITHUB_OUTPUT"
+          tag_sha=$(git rev-list -n 1 "refs/tags/$tag_name")
+          head_sha=$(git rev-parse HEAD)
+          if [ "$tag_sha" != "$head_sha" ]; then
+            echo "Checked-out commit $head_sha does not match tag $tag_name ($tag_sha)."
+            exit 1
+          fi
+
+          if ! git branch -r --contains "$head_sha" | grep -Eq 'origin/develop$'; then
+            echo "Release tag $tag_name must point at a certified commit from develop."
+            exit 1
+          fi
+
+          ci_runs=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/runs?head_sha=$head_sha&event=push&status=completed&per_page=100")
+
+          if ! printf '%s' "$ci_runs" | jq -e '.workflow_runs[] | select(.name=="CI" and .head_branch=="develop" and .conclusion=="success")' >/dev/null; then
+            echo "Tagged commit $head_sha has not passed the required develop CI workflow."
+            exit 1
+          fi
+
+          echo "tag=$tag_name" >> "$GITHUB_OUTPUT"
           echo "version=${tag_name#v}" >> "$GITHUB_OUTPUT"
+          echo "sha=$head_sha" >> "$GITHUB_OUTPUT"
 
   tarball:
     needs: gate
-    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     outputs:
       release_version: ${{ needs.gate.outputs.release_version }}
@@ -80,7 +101,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.gate.outputs.release_sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -134,7 +155,6 @@ jobs:
     needs:
       - gate
       - tarball
-    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     environment: node
     steps:
@@ -172,7 +192,6 @@ jobs:
       - gate
       - tarball
       - npm
-    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     environment: homebrew
     permissions:
@@ -237,7 +256,6 @@ jobs:
       - tarball
       - npm
       - homebrew
-    if: needs.gate.outputs.run_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -246,7 +264,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.gate.outputs.release_sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -269,7 +287,7 @@ jobs:
       - name: Publish GitHub release assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.tarball.outputs.release_version }}
+          tag_name: ${{ needs.gate.outputs.release_tag }}
           files: |
             tarball-artifacts/*.tgz
             tarball-artifacts/release-integrity.json

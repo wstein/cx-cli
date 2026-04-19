@@ -4,19 +4,21 @@ aliases: ["gha triggers", "ci branch triggers", "workflow triggers"]
 tags: ["ci", "github-actions", "workflow"]
 ---
 
-The CI workflow runs on every branch push and on pull requests, and its verify
-job includes coverage. The release and Pages publish workflows now run after a
-successful CI completion, but they do not share the same gate: Pages publishes
-the unified `/schemas/` and `/coverage/` site from successful `main` runs,
-while release asset mirroring still waits for a version tag or an explicit
-manual dispatch. That keeps normal branch feedback fast without mixing routine
-Pages refreshes with release publishing.
+The CI workflow runs on every branch push, every `v*` tag push, and on pull
+requests, and its verify job includes coverage. The release and Pages publish
+workflows do not share the same gate: Pages publishes the unified `/schemas/`
+and `/coverage/` site from successful `main` runs, while release publishing now
+starts from a `vX.Y.Z` tag and then proves that the tagged commit already
+passed the normal `develop` CI path before it will ship anything. That keeps
+normal branch feedback fast without mixing routine Pages refreshes with release
+publishing.
 
 The CI runtime policy declares `BUN_MIN_VERSION=1.3.11` and validates both the
-minimum lane and `latest` in the Bun matrix. The release and Pages gates both
-check `github.event.workflow_run.conclusion == success` before allowing publish
-automation to continue from a CI-triggered run, and the Pages path also checks
-`github.event.workflow_run.head_branch == main`.
+minimum lane and `latest` in the Bun matrix. The Pages publish gate checks
+`github.event.workflow_run.conclusion == success` and
+`github.event.workflow_run.head_branch == main`, while the release workflow
+checks the GitHub Actions API for a successful `CI` run on `develop` for the
+exact tagged commit before it publishes npm, GitHub assets, or Homebrew state.
 
 Release triggering now follows a two-phase rule: `develop` carries the versioned
 release candidate and absorbs fix-forward release commits, while the `vX.Y.Z`
