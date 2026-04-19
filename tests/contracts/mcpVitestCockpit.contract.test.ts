@@ -70,16 +70,25 @@ describe("MCP Vitest cockpit contract", () => {
     const readme = await readText("README.md");
     const manual = await readText("docs/MANUAL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+    const docsIndex = await readText("docs/README.md");
     const testsGuide = await readText("tests/README.md");
 
     expect(readme).toContain("bun run test:vitest:mcp");
     expect(readme).toContain("bun run test:vitest:mcp:ui");
+    expect(readme).toContain("bun run test:vitest:mcp:adversarial");
     expect(manual).toContain("bun run test:vitest:mcp");
-    expect(manual).toContain("bun run test:vitest:mcp:ui");
+    expect(manual).toContain("bun run test:vitest:mcp:adversarial");
+    expect(docsIndex).toContain("bun run test:vitest:mcp:adversarial:ui");
     expect(agentIntegration).toContain("## MCP Test And Debug Cockpit");
+    expect(agentIntegration).toContain("### MCP Vitest UI Troubleshooting");
     expect(agentIntegration).toContain("bun run test:vitest:mcp:ui");
+    expect(agentIntegration).toContain("bun run test:vitest:mcp:adversarial");
     expect(agentIntegration).toContain("import-graph");
+    expect(agentIntegration).toContain("startup hangs");
+    expect(agentIntegration).toContain("Policy denials");
+    expect(agentIntegration).toContain("Slow imports");
     expect(testsGuide).toContain("## Focused MCP Cockpit");
     expect(testsGuide).toContain("bun run test:vitest:mcp");
+    expect(testsGuide).toContain("bun run test:vitest:mcp:adversarial");
   });
 });

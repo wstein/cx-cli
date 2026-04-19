@@ -46,6 +46,8 @@ For MCP-specific debugging, use the focused Vitest cockpit instead of the broad 
 ```bash
 bun run test:vitest:mcp
 bun run test:vitest:mcp:ui
+bun run test:vitest:mcp:adversarial
+bun run test:vitest:mcp:adversarial:ui
 ```
 
 This cockpit is intentionally narrow. It keeps the run centered on:
@@ -63,6 +65,17 @@ Use the UI view when you need:
 - import-graph and module-cost inspection for `src/mcp/**` and `src/cli/commands/mcp.ts`
 
 This is still a Track B debugging surface. Promote any fix through the normal Bun verification and CI proof lanes once the MCP issue is understood.
+
+### MCP Vitest UI Troubleshooting
+
+- Startup hangs or server boot failures:
+  Use `bun run test:vitest:mcp:adversarial` or `bun run test:vitest:mcp:adversarial:ui` first. Those lanes stay focused on hostile or degraded startup behavior instead of the whole MCP surface.
+- Policy denials or capability surprises:
+  Use `bun run test:vitest:mcp`, then compare the failing case against `cx doctor mcp --json` so the active policy and the denial-facing tests are looking at the same boundary.
+- Slow imports or suspicious startup cost:
+  Use `bun run test:vitest:mcp:ui` and inspect the import graph around `src/mcp/**` and `src/cli/commands/mcp.ts`. That is usually faster than treating a startup slowdown like a generic runtime failure.
+
+Why this helps: the operator can match the failure class to the right cockpit instead of rerunning a broad test surface while guessing whether the problem is startup, policy, or import cost.
 
 ## Agent Point Of View
 

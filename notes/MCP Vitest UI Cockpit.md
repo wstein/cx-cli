@@ -30,5 +30,7 @@ This does not replace Track A proof or the Bun verification lanes. It is a Track
 
 - [[Test Strategy Hardening]] - MCP boundary failures should stay explicit and adversarial.
 - [[Developer Command Workflow]] - the cockpit belongs in the local operator command set.
+- [[MCP Adversarial Test Cockpit]] - use the narrower lane for hostile-boundary failures.
 - [[MCP Tool Intent Taxonomy]] - policy and capability bugs are a core cockpit use case.
 - [[MCP Transport Protocol]] - server lifecycle and stdio behavior are the runtime boundary under inspection.
+- [[MCP Vitest UI Troubleshooting]] - quick failure-mode mapping for operators.

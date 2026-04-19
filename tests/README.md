@@ -107,6 +107,7 @@ Every `*.test.ts` file must start with a lane header on line 1:
 
 - Use `bun run test:vitest:mcp` for a narrow MCP-heavy lane when debugging MCP startup, policy, audit, or transport behavior.
 - Use `bun run test:vitest:mcp:ui` when you need interactive reruns, UI coverage, or import-graph inspection for the MCP stack.
+- Use `bun run test:vitest:mcp:adversarial` or `bun run test:vitest:mcp:adversarial:ui` when the failure is explicitly hostile or degraded boundary behavior, such as startup hangs or malformed runtime payloads.
 - Keep this cockpit focused on MCP-facing suites. It is a debugging surface, not a replacement for the Bun verification lanes or the repository-wide Vitest coverage lane.
 
 ## Property Matrices
