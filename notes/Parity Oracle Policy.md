@@ -2,7 +2,7 @@
 id: 20260420121400
 title: Parity Oracle Policy
 tags: ["migration", "testing", "oracle"]
-status: design
+target: v0.4
 ---
 A temporary oracle is used to prove migration correctness without becoming architecture.
 

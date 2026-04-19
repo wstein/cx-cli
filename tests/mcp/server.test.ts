@@ -449,7 +449,7 @@ describe("cx MCP server", () => {
       notes: Array<{
         title: string;
         summary: string;
-        status: string;
+        target: string;
         availability: string;
       }>;
     };
@@ -467,7 +467,7 @@ describe("cx MCP server", () => {
       listPayload.notes.some(
         (note) =>
           note.title === "Agent Insight" &&
-          note.status === "design" &&
+          note.target === "v0.4" &&
           note.availability.includes("not yet implemented"),
       ),
     ).toBe(true);
@@ -505,7 +505,7 @@ describe("cx MCP server", () => {
       body: string;
       tags: string[];
       filePath: string;
-      status: string;
+      target: string;
       availability: string;
     };
 
@@ -514,7 +514,7 @@ describe("cx MCP server", () => {
     expect(payload.body).toContain("A note body for direct MCP reads.");
     expect(payload.tags).toEqual(["read"]);
     expect(payload.filePath).toBe(createPayload.filePath);
-    expect(payload.status).toBe("design");
+    expect(payload.target).toBe("v0.4");
     expect(payload.availability).toContain("not yet implemented");
   });
 
@@ -554,7 +554,7 @@ describe("cx MCP server", () => {
     expect(payload.notes[0]?.snippet).toContain("workflow");
   });
 
-  test("notes_search prioritizes current notes and marks design notes as planned", async () => {
+  test("notes_search prioritizes current notes and marks v0.4 notes as planned", async () => {
     const project = await createWorkspace();
     const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
@@ -572,10 +572,10 @@ id: 20260420130000
 title: Current Workflow
 aliases: []
 tags: ["workflow"]
-status: current
+target: current
 ---
 
-This workflow is implemented and safe to rely on for operators today.
+This workflow is implemented and trusted for operators today.
 
 ## Links
 
@@ -601,17 +601,17 @@ This workflow is implemented and safe to rely on for operators today.
       {} as never,
     );
     const payload = JSON.parse(firstContentText(result)) as {
-      notes: Array<{ title: string; status: string; availability: string }>;
+      notes: Array<{ title: string; target: string; availability: string }>;
     };
 
     expect(payload.notes[0]?.title).toBe("Current Workflow");
-    expect(payload.notes[0]?.status).toBe("current");
-    expect(payload.notes[0]?.availability).toContain("safe to rely on");
+    expect(payload.notes[0]?.target).toBe("current");
+    expect(payload.notes[0]?.availability).toContain("implemented and trusted");
     expect(
       payload.notes.some(
         (note) =>
           note.title === "Future Workflow" &&
-          note.status === "design" &&
+          note.target === "v0.4" &&
           note.availability.includes("not yet implemented"),
       ),
     ).toBe(true);
@@ -890,7 +890,7 @@ This workflow is implemented and safe to rely on for operators today.
 id: ${createPayload.id}
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Link Audit

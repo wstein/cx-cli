@@ -2,7 +2,7 @@
 id: 20260420122600
 title: Shared Handover As A Compatibility Bridge
 tags: ["migration", "compatibility", "handover"]
-status: design
+target: v0.4
 ---
 The shared handover is the ideal bridge artifact between the old Repomix-centered implementation and the new native render kernel because it is small enough to migrate first but important enough to prove the new architecture is real.
 

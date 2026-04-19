@@ -159,23 +159,23 @@ For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_
 
 Every note must contain:
 
-- YAML frontmatter with `id`, `aliases`, `tags`, and `status`
+- YAML frontmatter with `id`, `aliases`, `tags`, and `target`
 - one atomic body with a non-empty opening summary paragraph
 - one links section with explicit connections to notes, code, or both
 
-Status values:
+Target values:
 
-- `current`: implemented in code, tested, and safe to rely on
-- `design`: intended work that is not yet implemented and must not be treated as truth
-- `roadmap`: future idea that is not scheduled or guaranteed
+- `current`: implemented in code, tested, and trusted
+- `v0.4`: planned for that release and not yet implemented
+- `backlog`: future idea that is not scheduled
 
 ## Governance And CI
 
 The notes layer is governed like code, not like scratch text.
 
-- `validateNotes(...)` enforces the summary requirement, note size limits, and required frontmatter status.
+- `validateNotes(...)` enforces the summary requirement, note size limits, and required frontmatter target.
 - `cx notes check` surfaces governance failures, broken links, and graph drift.
-- `cx notes check` also warns when a `current` note references missing note or code targets, so implemented truth does not silently drift into ambiguity.
+- `cx notes check` also warns when a `target: current` note references missing note or code targets, so implemented truth does not silently drift into ambiguity.
 - `bun run ci:notes:governance` keeps the cognition-layer gate visible as its own CI lane.
 - `bun run ci:test:contracts` keeps the canonical documentation for the cognition layer aligned with the implementation.
 - CI uploads observability and policy artifacts only after the full gate passes, so partial lanes do not look like a successful repository state.

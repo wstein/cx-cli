@@ -2,7 +2,7 @@
 id: 20260419162000
 aliases: ["MCP Test Debug Cockpit", "Vitest UI MCP Cockpit"]
 tags: ["testing", "mcp", "vitest", "workflow"]
-status: current
+target: current
 ---
 The MCP test and debug cockpit is a dedicated Vitest UI entrypoint for the MCP-heavy suite, not a generic replacement for the Bun lanes. It exists so operators can rerun MCP failures interactively, inspect coverage inside the UI, and trace slow startup or policy-registration paths without dragging the full repository test surface into every debugging session.
 

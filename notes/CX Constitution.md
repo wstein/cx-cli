@@ -2,7 +2,7 @@
 id: 20260420120000
 title: CX Constitution
 tags: ["architecture", "constitution", "invariants"]
-status: current
+target: current
 ---
 The CX Constitution defines the non-negotiable rules of the system.
 

@@ -2,7 +2,7 @@
 id: 20260415163500
 aliases: ["cx env vars", "config precedence"]
 tags: [config, env, behavior]
-status: current
+target: current
 ---
 `cx` supports environment variable overrides for Category B behavioral settings, with a clear precedence chain.
 

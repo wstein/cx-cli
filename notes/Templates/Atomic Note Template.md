@@ -2,7 +2,7 @@
 id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
-status: design
+target: v0.4
 ---
 Replace this line with a real summary of at least 6 words so agents can route to the note quickly from the manifest.
 

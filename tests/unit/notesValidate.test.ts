@@ -28,7 +28,7 @@ describe("validateNoteDocuments", () => {
 id: 20250113143015
 aliases: ["alias-a"]
 tags: ["tag-a"]
-status: current
+target: current
 ---
 
 # Valid Note
@@ -41,7 +41,7 @@ This note is valid for cognition routing now.
     expect(result.valid).toBe(true);
     expect(result.notes).toHaveLength(1);
     expect(result.notes[0]?.id).toBe("20250113143015");
-    expect(result.notes[0]?.status).toBe("current");
+    expect(result.notes[0]?.target).toBe("current");
     expect(result.notes[0]?.aliases).toEqual(["alias-a"]);
     expect(result.notes[0]?.tags).toEqual(["tag-a"]);
   });
@@ -53,7 +53,7 @@ This note is valid for cognition routing now.
         `---
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Test
@@ -69,7 +69,7 @@ This note has a real summary paragraph.
     );
   });
 
-  test("missing frontmatter status produces error", () => {
+  test("missing frontmatter target produces error", () => {
     const result = validateNoteDocuments([
       doc(
         "no-status.md",
@@ -88,11 +88,11 @@ This note has a real summary paragraph now.
 
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.error).toContain(
-      "Missing required frontmatter field: status",
+      "Missing required frontmatter field: target",
     );
   });
 
-  test("invalid status value produces error", () => {
+  test("invalid target value produces error", () => {
     const result = validateNoteDocuments([
       doc(
         "bad-status.md",
@@ -100,7 +100,7 @@ This note has a real summary paragraph now.
 id: 20250113143015
 aliases: []
 tags: []
-status: draft
+target: draft
 ---
 
 # Test
@@ -112,7 +112,7 @@ This note has a real summary paragraph now.
 
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.error).toContain(
-      "status must be one of current, design, or roadmap",
+      "target must be one of current, v0.4, or backlog",
     );
   });
 
@@ -124,7 +124,7 @@ This note has a real summary paragraph now.
 id: 20250113143015
 aliases: ["valid", "   ", "other"]
 tags: []
-status: current
+target: current
 ---
 
 # Test
@@ -146,7 +146,7 @@ This note has a real summary paragraph.
 id: 20250113143015
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Extracted From Heading
@@ -168,7 +168,7 @@ Body text now contains enough routing words.
 id: 20250113143015
 aliases: []
 tags: []
-status: current
+target: current
 title: "From Frontmatter"
 ---
 
@@ -191,7 +191,7 @@ Body text now contains enough routing words.
 id: 20250113143015
 aliases: "not-an-array"
 tags: []
-status: current
+target: current
 ---
 
 # Test
@@ -211,7 +211,7 @@ status: current
 id: not-a-timestamp
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Test
@@ -229,7 +229,7 @@ status: current
 id: 20250113143015
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Note
@@ -258,7 +258,7 @@ This note is valid and should still trigger duplicate ID detection.
 id: 20260413123030
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Summary Note
@@ -287,7 +287,7 @@ It should become the manifest summary.
 id: 20260413123031
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 ## Links
@@ -312,7 +312,7 @@ status: current
 id: 20260413123034
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 Too short.
@@ -336,7 +336,7 @@ Too short.
 id: 20260413123035
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 This note explains a real repository concern with enough words to pass routing.
@@ -370,7 +370,7 @@ Describe how an operator, reviewer, or later agent should apply it.
 id: 20260413123036
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 This note preserves durable guidance for the manifest trust path in this repository.
@@ -409,7 +409,7 @@ Carry the note metadata into manifests and review it in CI.
 id: 20260413123032
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 ${Array.from(
@@ -438,7 +438,7 @@ ${Array.from(
 id: 20260413123033
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 ${oversizedBody}
@@ -460,7 +460,7 @@ ${oversizedBody}
 id: 20260413120130
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 Plain body only now contains enough routing words.
@@ -489,7 +489,7 @@ Plain body only now contains enough routing words.
 id: ${id}
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Invalid Timestamp

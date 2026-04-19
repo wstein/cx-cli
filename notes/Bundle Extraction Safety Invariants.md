@@ -2,7 +2,7 @@
 id: 20260415162500
 aliases: ["safe extraction", "recovery invariants"]
 tags: [extract, recovery, architecture]
-status: current
+target: current
 ---
 `cx` restoration ensures that files extracted from a bundle are exactly as they were captured during the planning phase, preventing degraded or corrupted files from entering a project.
 

@@ -2,7 +2,7 @@
 id: 20260420121000
 title: Native Render Migration Strategy
 tags: ["migration", "render", "repomix"]
-status: design
+target: v0.4
 ---
 The render engine must transition from Repomix to a native kernel without changing proof behavior, because migration is only safe when the proof path stays identical while ownership moves inward.
 

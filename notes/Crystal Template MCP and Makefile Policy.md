@@ -2,7 +2,7 @@
 id: 20260418234100
 aliases: []
 tags: [templates, crystal, mcp, makefile]
-status: current
+target: current
 ---
 # Crystal Template MCP and Makefile Policy
 

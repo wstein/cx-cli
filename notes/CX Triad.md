@@ -2,7 +2,7 @@
 id: 20260415123000
 aliases: ["CX Triad", "Operational Bundling Triad"]
 tags: ["architecture", "philosophy"]
-status: current
+target: current
 ---
 The CX architecture is built upon a triad specifically designed for operational bundling rather than just exploratory context generation. The triad consists of:
 

@@ -2,7 +2,7 @@
 id: 20260413123200
 aliases: ["dirty state", "forced dirty"]
 tags: [cx, safety, vcs]
-status: current
+target: current
 ---
 # Dirty State Taxonomy
 

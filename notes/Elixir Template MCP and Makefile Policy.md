@@ -2,7 +2,7 @@
 id: 20260418234000
 aliases: []
 tags: [templates, elixir, mcp, makefile]
-status: current
+target: current
 ---
 # Elixir Template MCP and Makefile Policy
 

@@ -2,7 +2,7 @@
 id: 20260420120700
 title: Adversarial Cognition Testing
 tags: ["testing", "notes", "quality"]
-status: current
+target: current
 ---
 The system must be resilient to bad knowledge.
 

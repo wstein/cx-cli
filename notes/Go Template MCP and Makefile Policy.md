@@ -2,7 +2,7 @@
 id: 20260418234200
 aliases: []
 tags: [templates, go, mcp, makefile]
-status: current
+target: current
 ---
 # Go Template MCP and Makefile Policy
 

@@ -2,7 +2,7 @@
 id: 20260413123100
 aliases: ["master base", "VCS-derived master list"]
 tags: [cx, planning, vcs]
-status: current
+target: current
 ---
 # VCS Master Base
 

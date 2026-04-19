@@ -2,7 +2,7 @@
 id: 20260413123300
 aliases: ["update mode", "differential update"]
 tags: [cx, bundle, operations]
-status: current
+target: current
 ---
 # Differential Update Staging
 

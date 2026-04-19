@@ -2,7 +2,7 @@
 id: 20260413123000
 aliases: ["AI-first toolbox", "developer-friendly AI-first toolbox"]
 tags: [cx, tooling, ai]
-status: current
+target: current
 ---
 # AI-first Toolbox
 

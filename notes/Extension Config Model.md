@@ -2,7 +2,7 @@
 id: 20260420121500
 title: Extension Config Model
 tags: ["config", "plugins", "schema"]
-status: design
+target: v0.4
 ---
 Extensions must declare explicit configuration so plugin settings can remain bounded, schema-visible, and incapable of silently mutating kernel behavior.
 

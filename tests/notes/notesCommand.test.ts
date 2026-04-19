@@ -223,7 +223,7 @@ id: 20250113143015
 title: Alias Note
 aliases: [Alias One, Alias Two]
 tags: [test, example]
-status: current
+target: current
 ---
 
 This note has aliases and tags.
@@ -619,7 +619,7 @@ This note has aliases and tags.
         `---
 id: 20250113143016
 title: Source Note
-status: current
+target: current
 ---
 
 See [[Target Note]] while keeping enough routing words for validation.
@@ -631,7 +631,7 @@ See [[Target Note]] while keeping enough routing words for validation.
         `---
 id: 20250113143017
 title: Target Note
-status: current
+target: current
 ---
 
 Target content with enough routing words for validation.
@@ -764,7 +764,7 @@ Target content with enough routing words for validation.
         `---
 id: 20250113143018
 title: Code Link Note
-status: current
+target: current
 ---
 
 Note content with enough routing words for validation.
@@ -847,7 +847,7 @@ Note content with enough routing words for validation.
 id: 20250113143019
 aliases: []
 tags: []
-status: current
+target: current
 title: Links Source
 ---
 
@@ -863,7 +863,7 @@ See [[Links Target]] and [[Missing Note]].
 id: 20250113143020
 aliases: []
 tags: []
-status: current
+target: current
 title: Links Target
 ---
 
@@ -945,7 +945,7 @@ This target note exists and should appear as an outgoing link.
 id: 20250113143009
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 ## Links
@@ -974,7 +974,7 @@ status: current
         `---
 id: 20250113143004
 title: Code Path Warning
-status: current
+target: current
 ---
 
 Check [[src/missing.ts]] before touching the pipeline with enough routing words.
@@ -1018,7 +1018,7 @@ Check [[src/missing.ts]] before touching the pipeline with enough routing words.
         `---
 id: 20250113143021
 title: Graph Root
-status: current
+target: current
 ---
 
 See [[Graph Hop]] with enough routing words for validation.
@@ -1030,7 +1030,7 @@ See [[Graph Hop]] with enough routing words for validation.
         `---
 id: 20250113143022
 title: Graph Hop
-status: current
+target: current
 ---
 
 Terminal note with enough routing words for validation.
@@ -1059,7 +1059,7 @@ Terminal note with enough routing words for validation.
         `---
 id: 20250113143023
 title: Graph Root JSON
-status: current
+target: current
 ---
 
 See [[Graph Hop JSON]] with enough routing words for validation.
@@ -1071,7 +1071,7 @@ See [[Graph Hop JSON]] with enough routing words for validation.
         `---
 id: 20250113143024
 title: Graph Hop JSON
-status: current
+target: current
 ---
 
 Terminal note with enough routing words for validation.

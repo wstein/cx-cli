@@ -2,7 +2,7 @@
 id: 20260417143000
 title: Product Tiering Model
 tags: [architecture, mcp, stability]
-status: current
+target: current
 ---
 # Product Tiering Model
 

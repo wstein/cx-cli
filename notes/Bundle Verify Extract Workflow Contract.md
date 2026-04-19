@@ -2,7 +2,7 @@
 id: 20260420124300
 title: Bundle Verify Extract Workflow Contract
 tags: ["workflow", "contracts", "bundle"]
-status: current
+target: current
 ---
 The bundle to verify to extract path is a contract, not just a convenient command sequence.
 

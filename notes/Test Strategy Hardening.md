@@ -2,7 +2,7 @@
 id: 20260419093000
 aliases: ["Test Strategy Hardening", "Adversarial Test Matrix"]
 tags: ["testing", "quality", "architecture"]
-status: current
+target: current
 ---
 # Test Strategy Hardening
 

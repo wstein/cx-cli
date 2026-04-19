@@ -2,7 +2,7 @@
 id: 20260420122500
 title: Shared Handover Config Policy
 tags: ["handover", "config", "policy"]
-status: design
+target: v0.4
 ---
 The shared handover should have a small, explicit configuration surface so operators can bound context density without turning handover generation into an open-ended reporting system.
 

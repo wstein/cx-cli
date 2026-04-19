@@ -37,7 +37,7 @@ async function createProject(options?: {
 id: 20260418120000
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 This linked note stays visible through inspect provenance for governance-safe coverage.
@@ -101,7 +101,7 @@ describe("CLI JSON contract", () => {
 id: 20260418115900
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 This seed note links to another durable note for inspect provenance coverage.

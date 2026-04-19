@@ -2,7 +2,7 @@
 id: 20260420122300
 title: Shared Handover Is The First Native Render Migration Candidate
 tags: ["migration", "render", "handover"]
-status: design
+target: v0.4
 ---
 The shared handover artifact is the safest first candidate to move onto the native render engine because it is real, deterministic, and structurally important without carrying the full blast radius of section rendering.
 

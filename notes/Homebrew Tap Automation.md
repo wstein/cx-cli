@@ -2,7 +2,7 @@
 id: 20260417114500
 aliases: ["homebrew tap automation", "tap workflow", "formula push workflow"]
 tags: ["homebrew", "release", "github-actions"]
-status: current
+target: current
 ---
 # Homebrew Tap Automation
 

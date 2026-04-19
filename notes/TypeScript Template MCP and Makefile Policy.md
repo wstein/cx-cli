@@ -2,7 +2,7 @@
 id: 20260418213000
 aliases: []
 tags: [templates, typescript, mcp, makefile]
-status: current
+target: current
 ---
 # TypeScript Template MCP and Makefile Policy
 

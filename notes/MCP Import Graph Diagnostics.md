@@ -2,7 +2,7 @@
 id: 20260419162500
 aliases: ["MCP Import Timing Diagnostics", "MCP Module Graph Review"]
 tags: ["mcp", "performance", "testing", "architecture"]
-status: current
+target: current
 ---
 Vitest UI is unusually valuable for MCP performance investigation because the MCP stack is registration-heavy and spread across `src/cli/commands/mcp.ts`, `src/mcp/server.ts`, `src/mcp/policy.ts`, `src/mcp/workspace.ts`, and the tool-registration layer in `src/mcp/tools/**`. A focused UI run makes import cost and module-graph shape visible at the exact boundary where startup latency or policy bugs surface.
 

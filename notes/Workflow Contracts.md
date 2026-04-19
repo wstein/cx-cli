@@ -2,7 +2,7 @@
 id: 20260420124100
 title: Workflow Contracts
 tags: ["workflow", "contracts", "operations"]
-status: current
+target: current
 ---
 Operator workflows should be treated as contracts when later automation depends on them.
 

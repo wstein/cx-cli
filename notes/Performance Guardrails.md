@@ -2,7 +2,7 @@
 id: 20260420120800
 title: Performance Guardrails
 tags: ["ci", "performance"]
-status: current
+target: current
 ---
 Performance must be enforced, not assumed.
 

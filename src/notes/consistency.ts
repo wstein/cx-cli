@@ -298,7 +298,7 @@ export async function checkNotesConsistency(
 
   const currentNotes = new Map(
     validation.notes
-      .filter((note) => note.status === "current")
+      .filter((note) => note.target === "current")
       .map((note) => [note.id, note]),
   );
   const currentFeatureWarnings = [

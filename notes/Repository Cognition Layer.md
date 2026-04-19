@@ -2,7 +2,7 @@
 id: 20260419153000
 aliases: ["Cognition Layer", "Notes Quality Gate"]
 tags: ["notes", "architecture", "quality"]
-status: current
+target: current
 ---
 The notes graph is the repository cognition layer: durable reasoning that agents and humans can query safely only if the graph keeps strong signal-to-noise, summary-first routing, and bounded note size.
 

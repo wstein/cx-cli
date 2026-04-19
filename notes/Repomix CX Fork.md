@@ -2,7 +2,7 @@
 id: 20260416093041
 aliases: ["repomix cx fork","@wsmy/repomix-cx-fork"]
 tags: ["dependency","repomix","package"]
-status: current
+target: current
 ---
 # Repomix CX Fork
 

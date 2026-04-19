@@ -2,7 +2,7 @@
 id: 20260415161000
 aliases: ["boundary enforcement", "planning rules"]
 tags: [planning, safety, architecture]
-status: current
+target: current
 ---
 `cx` enforces a strict repository boundary during bundle planning and live MCP sessions. This prevents sensitive files from leaking into the agent context or the final bundle.
 

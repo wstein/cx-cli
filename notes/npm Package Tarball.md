@@ -2,7 +2,7 @@
 id: 20260416093011
 aliases: ["npm registry tarball","npm tarball url"]
 tags: ["distribution","npm","homebrew"]
-status: current
+target: current
 ---
 # npm Package Tarball
 

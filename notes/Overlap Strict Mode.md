@@ -2,7 +2,7 @@
 id: 20260420130000
 title: Overlap Strict Mode
 tags: ["bundle", "determinism", "sections"]
-status: design
+target: v0.4
 ---
 Overlap resolution must be explicit in strict environments.
 

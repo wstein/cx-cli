@@ -14,19 +14,19 @@ import {
 
 export interface NoteFrontmatter {
   id: string;
-  status: NoteStatus;
+  target: NoteTarget;
   aliases?: string[];
   tags?: string[];
   title?: string;
 }
 
-export const NOTE_STATUS_VALUES = ["current", "design", "roadmap"] as const;
-export type NoteStatus = (typeof NOTE_STATUS_VALUES)[number];
+export const NOTE_TARGET_VALUES = ["current", "v0.4", "backlog"] as const;
+export type NoteTarget = (typeof NOTE_TARGET_VALUES)[number];
 
-export function isNoteStatus(value: unknown): value is NoteStatus {
+export function isNoteTarget(value: unknown): value is NoteTarget {
   return (
     typeof value === "string" &&
-    (NOTE_STATUS_VALUES as readonly string[]).includes(value)
+    (NOTE_TARGET_VALUES as readonly string[]).includes(value)
   );
 }
 
@@ -138,25 +138,25 @@ function parseNoteDocument(
       };
     }
 
-    const status = frontmatter.status;
-    if (status === undefined) {
+    const target = frontmatter.target;
+    if (target === undefined) {
       return {
         metadata: null,
         error: {
           filePath,
           error:
-            "Missing required frontmatter field: status (current | design | roadmap)",
+            "Missing required frontmatter field: target (current | v0.4 | backlog)",
         },
       };
     }
 
-    if (!isNoteStatus(status)) {
+    if (!isNoteTarget(target)) {
       return {
         metadata: null,
         error: {
           filePath,
           error:
-            "Invalid frontmatter field: status must be one of current, design, or roadmap",
+            "Invalid frontmatter field: target must be one of current, v0.4, or backlog",
         },
       };
     }
@@ -292,7 +292,7 @@ function parseNoteDocument(
     return {
       metadata: {
         id,
-        status,
+        target,
         aliases: aliases.value,
         tags: tags.value,
         title,

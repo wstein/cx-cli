@@ -2,7 +2,7 @@
 id: 20260420121200
 title: Deprecation and Removal Policy
 tags: ["governance", "deprecation"]
-status: current
+target: current
 ---
 `cx` does not use deprecation layers while it remains pre-public, because compatibility shims and dual behavior paths weaken contracts faster than they help migration.
 

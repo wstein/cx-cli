@@ -2,7 +2,7 @@
 id: 20260417165100
 title: Structured Render Contract
 tags: [architecture, phase-1, determinism, cryptography]
-status: current
+target: current
 ---
 # Structured Render Contract
 

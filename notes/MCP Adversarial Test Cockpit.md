@@ -2,7 +2,7 @@
 id: 20260419170000
 aliases: ["MCP Adversarial Cockpit", "MCP Failure Injection Lane"]
 tags: ["mcp", "testing", "adversarial", "vitest"]
-status: current
+target: current
 ---
 The MCP adversarial cockpit is a narrower Vitest lane for failure injection, startup breakdowns, malformed runtime payloads, and other hostile-boundary scenarios that should stay easy to rerun without dragging the broader MCP test surface along with them. It exists alongside the general MCP cockpit, not instead of it.
 

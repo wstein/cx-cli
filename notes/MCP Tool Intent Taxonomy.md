@@ -2,7 +2,7 @@
 id: 20260415171500
 aliases: ["Read/Write Taxonomy", "Agent Intent Tool Policy"]
 tags: ["mcp", "agent", "documentation"]
-status: current
+target: current
 ---
 The native `cx mcp` tool set can be grouped by agent intent instead of implementation origin. This machine-oriented taxonomy is useful for prompt engineering, policy enforcement, and safe agent session design.
 

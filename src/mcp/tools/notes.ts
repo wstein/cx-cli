@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   createNewNote,
   deleteNote,
-  describeNoteStatus,
+  describeNoteTarget,
   listNotes,
   readNote,
   renameNote,
@@ -19,7 +19,7 @@ import {
   getOutgoingLinks,
   getReachableNotes,
 } from "../../notes/graph.js";
-import { NOTE_STATUS_VALUES, validateNotes } from "../../notes/validate.js";
+import { NOTE_TARGET_VALUES, validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
 import { tierLabel } from "../tiers.js";
@@ -121,7 +121,7 @@ export function registerNotesTools(
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        status: z.enum(NOTE_STATUS_VALUES).optional(),
+        target: z.enum(NOTE_TARGET_VALUES).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -129,9 +129,9 @@ export function registerNotesTools(
         notesDir,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        status:
-          typeof args.status === "string"
-            ? (args.status as (typeof NOTE_STATUS_VALUES)[number])
+        target:
+          typeof args.target === "string"
+            ? (args.target as (typeof NOTE_TARGET_VALUES)[number])
             : undefined,
       });
 
@@ -141,13 +141,13 @@ export function registerNotesTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: (args.tags as string[] | undefined) ?? [],
-        status: typeof args.status === "string" ? args.status : "design",
+        target: typeof args.target === "string" ? args.target : "v0.4",
         availability:
-          typeof args.status === "string"
-            ? describeNoteStatus(
-                args.status as (typeof NOTE_STATUS_VALUES)[number],
+          typeof args.target === "string"
+            ? describeNoteTarget(
+                args.target as (typeof NOTE_TARGET_VALUES)[number],
               )
-            : describeNoteStatus("design"),
+            : describeNoteTarget("v0.4"),
       });
     },
   );
@@ -172,7 +172,7 @@ export function registerNotesTools(
         command: "notes read",
         ...note,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        availability: describeNoteStatus(note.status),
+        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -189,7 +189,7 @@ export function registerNotesTools(
         title: z.string().min(1).optional(),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        status: z.enum(NOTE_STATUS_VALUES).optional(),
+        target: z.enum(NOTE_TARGET_VALUES).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -198,9 +198,9 @@ export function registerNotesTools(
         title: args.title as string | undefined,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        status:
-          typeof args.status === "string"
-            ? (args.status as (typeof NOTE_STATUS_VALUES)[number])
+        target:
+          typeof args.target === "string"
+            ? (args.target as (typeof NOTE_TARGET_VALUES)[number])
             : undefined,
       });
 
@@ -210,8 +210,8 @@ export function registerNotesTools(
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
-        status: note.status,
-        availability: describeNoteStatus(note.status),
+        target: note.target,
+        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -243,8 +243,8 @@ export function registerNotesTools(
         ),
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
-        status: note.status,
-        availability: describeNoteStatus(note.status),
+        target: note.target,
+        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -270,8 +270,8 @@ export function registerNotesTools(
         id: note.id,
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        status: note.status,
-        availability: describeNoteStatus(note.status),
+        target: note.target,
+        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -307,7 +307,7 @@ export function registerNotesTools(
         notes: result.notes.map((note) => ({
           ...note,
           filePath: relativePosix(workspace.sourceRoot, note.filePath),
-          availability: describeNoteStatus(note.status),
+          availability: describeNoteTarget(note.target),
         })),
       });
     },
@@ -335,8 +335,8 @@ export function registerNotesTools(
         const indexed = indexedNotes.get(note.id);
         return {
           id: note.id,
-          status: note.status,
-          availability: describeNoteStatus(note.status),
+          target: note.target,
+          availability: describeNoteTarget(note.target),
           title: note.title,
           fileName: note.fileName,
           tags: note.tags ?? [],

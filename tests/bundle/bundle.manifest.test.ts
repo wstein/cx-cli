@@ -23,7 +23,7 @@ describe("bundle manifest", () => {
 id: 20260413123030
 aliases: []
 tags: []
-status: current
+target: current
 ---
 
 # Summary Note
