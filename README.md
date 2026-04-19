@@ -440,7 +440,8 @@ exclude = []
 ## Documentation Map
 
 - [Operator Manual](docs/MANUAL.md): end-to-end workflows, including overlap resolution
-- [Architecture](docs/ARCHITECTURE.md): invariants, manifest model, and rendering pipeline
+- [System Map](docs/SYSTEM_MAP.md): condensed entrypoint and subsystem map
+- [Architecture](docs/ARCHITECTURE.md): implementation reference for contributors working below the front door
 - [Extraction Safety](docs/EXTRACTION_SAFETY.md): packed-content recovery, degraded fallback, and `--allow-degraded`
 - [Configuration Reference](docs/config-reference.md): settings, precedence, and examples
 

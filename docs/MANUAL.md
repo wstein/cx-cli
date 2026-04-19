@@ -784,6 +784,7 @@ disconnected before the next bundle run.
 
 1. README
 2. This manual
-3. [Architecture](ARCHITECTURE.md)
+3. [System Map](SYSTEM_MAP.md)
 4. [Extraction Safety](EXTRACTION_SAFETY.md)
 5. [Configuration Reference](config-reference.md)
+6. [Architecture](ARCHITECTURE.md) if you need the implementation-reference layer
