@@ -33,8 +33,9 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("run: bun run ci:test:all");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
+    expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
     expect(workflow).toContain(
-      'cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"',
+      'run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"',
     );
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).toContain("run: bun run ci:notes:governance");

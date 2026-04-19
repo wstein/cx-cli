@@ -123,7 +123,7 @@ jobs:
         run: bun run ci:test:coverage
 
       - name: Append coverage summary to workflow summary
-        if: always()
+        if: ${{ always() && hashFiles('.ci/coverage-summary.md') != '' }}
         run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
 
   repomix-matrix:

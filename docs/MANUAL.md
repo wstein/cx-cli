@@ -52,7 +52,7 @@ Use these commands as a progressive assurance model:
 | Command | What it covers | When to run |
 | --- | --- | --- |
 | `bun run verify` | lint, typecheck, build, full test suite with coverage, coverage summary, minimum overall coverage gate | normal pre-merge gate |
-| `bun run ci:test:coverage` | Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output | CI coverage reporting |
+| `bun run ci:test:coverage` | Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output over the Bun-style unit and contract suite via the repository shim | CI coverage reporting |
 | `bun run certify` | `verify` + contract lane + Repomix fork compatibility smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check | pre-tag local CI-equivalent certification |
 | `bun run integrity` | release integrity metadata generation from the packed npm tarball | release artifact staging |
 | `bun run verify-release` | release integrity metadata verification against packed tarball | release verification and audit |
@@ -103,7 +103,7 @@ Repository-local `make` shortcuts keep the developer loop compact:
 
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite with coverage, then enforces the minimum overall coverage gate.
-- `bun run ci:test:coverage` runs the Vitest V8 coverage lane and writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
+- `bun run ci:test:coverage` runs the Vitest V8 coverage lane against the Bun-style unit and contract test surface via the repository compatibility shim, then writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
 - `make certify` runs everything `verify` does plus contract tests, smoke lanes, release integrity smoke, and reproducibility checks — the CI-grade local gate to use before tagging.
 - `make release VERSION=x.y.z` hands off to the release script for a tagged release.
 
