@@ -16,16 +16,47 @@ import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { createProject, tamperSectionOutput } from "./helpers.js";
 
-describe("bundle workflow", () => {
-  test("creates, validates, lists, and verifies a bundle", async () => {
-    const project = await createProject();
-    const bundleCapture = createBufferedCommandIo();
-    const bundleExitCode = await runBundleCommand(
-      { config: project.configPath },
-      bundleCapture.io,
-    );
+type ProjectFixture = Awaited<ReturnType<typeof createProject>>;
 
-    expect(bundleExitCode).toBe(0);
+type BundledProjectFixture = {
+  project: ProjectFixture;
+  bundleCapture: ReturnType<typeof createBufferedCommandIo>;
+};
+
+async function createBundledProjectFixture(
+  options?: Parameters<typeof createProject>[0],
+): Promise<BundledProjectFixture> {
+  const project = await createProject(options);
+  const bundleCapture = createBufferedCommandIo();
+  const bundleExitCode = await runBundleCommand(
+    { config: project.configPath },
+    bundleCapture.io,
+  );
+  expect(bundleExitCode).toBe(0);
+
+  return { project, bundleCapture };
+}
+
+describe("bundle workflow", () => {
+  let bundledProjectPromise: Promise<BundledProjectFixture> | undefined;
+  let bundledLinkedNotesProjectPromise:
+    | Promise<BundledProjectFixture>
+    | undefined;
+
+  function bundledProject(): Promise<BundledProjectFixture> {
+    bundledProjectPromise ??= createBundledProjectFixture();
+    return bundledProjectPromise;
+  }
+
+  function bundledLinkedNotesProject(): Promise<BundledProjectFixture> {
+    bundledLinkedNotesProjectPromise ??= createBundledProjectFixture({
+      includeLinkedNotes: true,
+    });
+    return bundledLinkedNotesProjectPromise;
+  }
+
+  test("creates, validates, lists, and verifies a bundle", async () => {
+    const { project, bundleCapture } = await bundledProject();
     const summary = bundleCapture.logs();
     expect(summary).toContain("Packed tokens");
     expect(summary).toContain("Output tokens");
@@ -74,9 +105,7 @@ describe("bundle workflow", () => {
   });
 
   test("emits structured JSON for list and inspect automation", async () => {
-    const project = await createProject();
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const { project } = await bundledProject();
     const inspectCapture = createBufferedCommandIo();
     const inspectExitCode = await runInspectCommand(
       { config: project.configPath, json: true },
@@ -183,9 +212,7 @@ describe("bundle workflow", () => {
   });
 
   test("renders human inspect output with bundle status vocabulary", async () => {
-    const project = await createProject({ includeLinkedNotes: true });
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const { project } = await bundledLinkedNotesProject();
     const inspectCapture = createBufferedCommandIo();
     const inspectExitCode = await runInspectCommand(
       { config: project.configPath, json: false },
@@ -244,14 +271,8 @@ describe("bundle workflow", () => {
   });
 
   test("renders provenance rollups in bundle summary and index", async () => {
-    const project = await createProject({ includeLinkedNotes: true });
-    const capture = createBufferedCommandIo();
-
-    expect(
-      await runBundleCommand({ config: project.configPath }, capture.io),
-    ).toBe(0);
-
-    const summary = capture.logs();
+    const { project, bundleCapture } = await bundledLinkedNotesProject();
+    const summary = bundleCapture.logs();
     expect(summary).toContain("Inclusion Provenance");
     expect(summary).toContain("section_match");
     expect(summary).toContain("asset_rule_match");
@@ -270,12 +291,7 @@ describe("bundle workflow", () => {
   });
 
   test("surfaces provenance suffixes in human list output", async () => {
-    const project = await createProject({ includeLinkedNotes: true });
-    const capture = createBufferedCommandIo();
-
-    expect(
-      await runBundleCommand({ config: project.configPath }, capture.io),
-    ).toBe(0);
+    const { project } = await bundledLinkedNotesProject();
 
     const listCapture = createBufferedCommandIo();
     expect(
@@ -438,9 +454,7 @@ describe("bundle workflow", () => {
   });
 
   test("emits detailed JSON for validate automation", async () => {
-    const project = await createProject();
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const { project } = await bundledProject();
     const validateCapture = createBufferedCommandIo();
     expect(
       await runValidateCommand(
@@ -471,9 +485,7 @@ describe("bundle workflow", () => {
   });
 
   test("verifies a bundle against the original source tree", async () => {
-    const project = await createProject();
-
-    expect(await runBundleCommand({ config: project.configPath })).toBe(0);
+    const { project } = await bundledProject();
     expect(
       await runVerifyCommand({
         bundleDir: project.bundleDir,
