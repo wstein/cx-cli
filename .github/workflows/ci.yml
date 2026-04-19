@@ -124,6 +124,15 @@ jobs:
         if: ${{ always() && hashFiles('.ci/coverage-summary.md') != '' }}
         run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Upload internal coverage handoff
+        if: ${{ always() && hashFiles('coverage/vitest/index.html') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-vitest-handoff
+          path: |
+            coverage/vitest
+            .ci/coverage-summary.md
+
   repomix-matrix:
     runs-on: ubuntu-latest
     needs:
@@ -282,8 +291,15 @@ jobs:
       - name: Append observability dashboard to workflow summary
         run: cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Generate Vitest coverage reports
-        run: bun run ci:test:coverage
+      - name: Download Vitest coverage handoff
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-vitest-handoff
+          path: .
+
+      - name: Append downloaded coverage summary to workflow summary
+        if: ${{ hashFiles('.ci/coverage-summary.md') != '' }}
+        run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload verify-against policy report
         uses: actions/upload-artifact@v4

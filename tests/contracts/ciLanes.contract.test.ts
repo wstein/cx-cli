@@ -50,6 +50,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(
       'run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"',
     );
+    expect(workflow).toContain("Upload internal coverage handoff");
+    expect(workflow).toContain("name: coverage-vitest-handoff");
     expect(workflow).toContain("run: bun run ci:test:contracts");
     expect(workflow).toContain("run: bun run ci:notes:governance");
     expect(workflow).toContain("run: bun run ci:report:verify-against");
@@ -60,7 +62,11 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("coverage/vitest");
     expect(workflow).toContain(".ci/coverage-summary.md");
     expect(workflow).toContain("ci-artifacts:");
-    expect(workflow).toContain("Generate Vitest coverage reports");
+    expect(workflow).toContain("Download Vitest coverage handoff");
+    expect(workflow).toContain(
+      "Append downloaded coverage summary to workflow summary",
+    );
+    expect(workflow).toContain("name: coverage-vitest-handoff");
     expect(workflow).toContain("Upload HTML coverage report");
     expect(workflow).toContain("          name: ci-observability");
     expect(workflow).toContain("          name: coverage-html");
@@ -199,7 +205,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - release-assurance");
     expect(workflow).toContain("Generate verify-against policy report");
     expect(workflow).toContain("Generate observability dashboard");
-    expect(workflow).toContain("Generate Vitest coverage reports");
+    expect(workflow).toContain("Download Vitest coverage handoff");
     expect(workflow).toContain("Upload verify-against policy report");
     expect(workflow).toContain("Upload observability dashboard");
     expect(workflow).toContain("Upload HTML coverage report");
