@@ -4,6 +4,8 @@
 
 `cx` standardizes AI project context, notes, and MCP workflows in one repository-native toolchain.
 
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical CX triad, Track A vs Track B, policy tiers, and artifact lifecycle.
+
 ## Choose Your Path
 
 The manual is split into two tracks:
@@ -161,7 +163,11 @@ Read the rest of this manual with one concrete timeline in mind:
 
 The invariants are the mechanisms that keep Friday's intent queryable and safe on Monday.
 
+See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
+
 ## Static Bundle Versus Live MCP
+
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
 
 The two main CX workflows are intentionally different:
 
@@ -358,6 +364,8 @@ cx verify dist/demo-bundle --against . --config cx.toml
 
 `verify` checks checksums and can compare the bundle back to a source tree with `--against`. It also reads the lock file and warns if the behavioral settings currently in effect differ from the settings used when the bundle was built.
 
+Why this protects you: a checksum failure means Monday's runner is no longer looking at exactly the artifact Friday wrote. `cx verify` stops before a modified, incomplete, or substituted bundle is treated as trustworthy input.
+
 When `validate`, `verify`, or `extract` fail with an operational `CxError`, the
 CLI now prints a suggested follow-up command, a documentation reference, and
 concrete next steps. The JSON output carries the same remediation block under
@@ -491,6 +499,8 @@ exactly which files were dirty when the bundle was built.
 Keep the escape hatch for local emergencies. Do not rely on terminal warnings
 alone to contain it. Downstream automation should quarantine `forced_dirty`
 bundles before they enter a promotion path.
+
+Why this protects you: tracked-file drift means the bundle would describe a moving working directory instead of a stable VCS-backed source state. Refusing to bundle keeps review, verification, and later extraction anchored to something that can actually be reproduced.
 
 The dirty-state taxonomy is deliberately asymmetric:
 
@@ -635,6 +645,8 @@ Verification during extraction:
 ```bash
 cx extract dist/demo-bundle --to /tmp/restore --verify
 ```
+
+Why this protects you: extraction is only safe when the manifest hashes and output spans still describe the packed content exactly. If that mapping drifts, `cx` refuses to turn an approximate reconstruction into an authoritative file by default.
 
 If extraction is blocked by degraded packed-content recovery, stop and read [Extraction Safety](EXTRACTION_SAFETY.md) before using `--allow-degraded`.
 

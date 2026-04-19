@@ -2,7 +2,9 @@
 
 # Agent Operating Model
 
-cx-cli provides three distinct workflows for agents to work with repository context. Each has different guarantees, use cases, and policy implications.
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
+
+cx-cli provides three distinct agent-facing surfaces for repository context. This document narrows the canonical mental model down to policy and workflow consequences for agent operators.
 
 ## Three-Workflow Model
 

@@ -240,13 +240,19 @@ export async function runBundleCommand(
           ? ` … and ${plan.modifiedFiles.length - 10} more`
           : "";
       throw new CxError(
-        `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.\n\n` +
-          "This is a safety check — bundles should reflect your VCS state, not your working directory.\n\n" +
-          "To proceed, choose one:\n" +
-          "  --force     Bundle with local changes (records 'forced_dirty' in manifest — use for local dev)\n" +
-          "  --ci        Bundle with local changes (records 'ci_dirty' in manifest — use in CI/CD pipelines)\n\n" +
-          "For details, see: docs/ARCHITECTURE.md#dirty-state-taxonomy",
+        `Refusing to bundle: ${plan.modifiedFiles.length} VCS-tracked file(s) have uncommitted changes: ${listed}${more}.`,
         7,
+        {
+          remediation: {
+            docsRef: "docs/MENTAL_MODEL.md",
+            whyThisProtectsYou:
+              "A bundle built from tracked-file drift cannot later be verified against a committed source tree, which breaks the artifact contract for reviewers, CI, and handoff automation.",
+            nextSteps: [
+              "Commit or stash the tracked changes, then rerun cx bundle.",
+              "Use --force for a local override or --ci for a pipeline override only when you intend to record dirty provenance in the manifest.",
+            ],
+          },
+        },
       );
     }
     const recordedState = ciMode ? "ci_dirty" : "forced_dirty";

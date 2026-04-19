@@ -1,6 +1,7 @@
 export interface ErrorRemediation {
   readonly recommendedCommand?: string;
   readonly docsRef?: string;
+  readonly whyThisProtectsYou?: string;
   readonly nextSteps?: readonly string[];
 }
 
@@ -44,6 +45,9 @@ export function formatErrorRemediation(
   }
   if (remediation.docsRef) {
     lines.push(`Docs: ${remediation.docsRef}`);
+  }
+  if (remediation.whyThisProtectsYou) {
+    lines.push(`Why this protects you: ${remediation.whyThisProtectsYou}`);
   }
   for (const step of remediation.nextSteps ?? []) {
     lines.push(`Next step: ${step}`);

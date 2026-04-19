@@ -254,6 +254,7 @@ export const VerifyCommandJsonSchema = z.union([
         .object({
           recommendedCommand: z.string().optional(),
           docsRef: z.string().optional(),
+          whyThisProtectsYou: z.string().optional(),
           nextSteps: z.array(z.string()).optional(),
         })
         .nullable(),
@@ -389,6 +390,7 @@ export const ExtractCommandJsonSchema = z.union([
         .object({
           recommendedCommand: z.string().optional(),
           docsRef: z.string().optional(),
+          whyThisProtectsYou: z.string().optional(),
           nextSteps: z.array(z.string()).optional(),
         })
         .nullable(),

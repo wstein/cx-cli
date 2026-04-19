@@ -10,21 +10,11 @@ For the documentation map, see [README.md](README.md).
 
 The project deliberately wraps Repomix in a stricter system because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics.
 
-## Operational Bifurcation
+## Canonical Model
 
-`cx` is unified by a single identity model but bifurcated in operation:
-- **Track A (Pipeline Operations):** The "Factory Floor" for deterministic CI/CD bundling, producing bit-for-bit verifiable artifacts.
-- **Track B (Live Agent Exploration):** The "Laboratory" for dynamic, interactive MCP-driven agent workflows and knowledge graph maintenance.
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
 
-Both tracks obey the exact same exclusion rules, hashing engines, and invariant checkpoints.
-
-## The CX Triad
-
-The architecture follows the **CX Triad**, specifically designed for operational bundling:
-
-1.  **Immutable Snapshots**: Static, verifiable snapshots (via `cx bundle`) that provide bit-for-bit identity and token accounting.
-2.  **Live Agent Protocol**: Real-time workspace interaction (via `cx mcp`) following the same strict boundary rules.
-3.  **Durable Knowledge**: A machine-queryable knowledge graph (via `cx notes`) with metadata stored directly in the manifest to avoid expensive file scans.
+This document starts where the shared mental model stops. The mental model defines the CX triad, Track A vs Track B, MCP policy tiers, and the artifact lifecycle. Architecture explains how the codebase enforces that model with deterministic planning, manifest truth, verification rules, and extraction guardrails.
 
 ## Philosophy
 
@@ -276,6 +266,8 @@ available: `--force` for local experimentation where a human is present, and
 distinct state labels so audit tooling can distinguish human overrides from
 pipeline overrides.
 
+Why this protects you: a tracked-file bundle built from a moving working tree cannot later prove what source state it represents. Refusing to proceed by default keeps the artifact contract anchored to reproducible input.
+
 VCS state is not tracked for filesystem-fallback workspaces. Those always
 produce `dirtyState = "clean"` and `vcsProvider = "none"`.
 
@@ -407,6 +399,8 @@ That matters in automation because later verification and downstream tooling can
 ## Why SHA-256 Matters
 
 Checksums are not included for cryptography theater. They prove that the artifacts the runner sees are the same artifacts the bundler emitted.
+
+Why this protects you: checksum failures are evidence that the artifact set in hand is no longer provably the one `cx` wrote. Verification stops before a tampered, partial, or substituted bundle can pass as authoritative.
 
 That lets `verify` detect:
 

@@ -9,6 +9,8 @@
 For the broader document map and architecture context, see
 [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical artifact lifecycle that extraction sits inside.
+
 For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.
 
 Text extraction uses the manifest's `outputStartLine` and `outputEndLine` values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.
@@ -51,6 +53,8 @@ It refuses to write `degraded` text files unless you explicitly pass:
 cx extract dist/demo-bundle --to /tmp/restore --allow-degraded
 ```
 
+Why this protects you: once the recovered packed content no longer matches the manifest hash, the extractor can no longer guarantee that line coordinates and file identity still mean what the rest of the bundle says they mean.
+
 ## What The Hash Means
 
 The manifest `sha256` for a packed text file is the hash of the normalized packed content stored in the section output.
@@ -75,6 +79,8 @@ Practical checks:
 - rebuild the bundle if the packed content is supposed to be stable
 
 If the mismatch is intentional and approximate recovery is acceptable, use `--allow-degraded`. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.
+
+Why this protects you: a hash mismatch is not cosmetic drift. It is evidence that the recovered slice is no longer the same packed content the manifest promised to downstream tooling.
 
 Operational extract failures now surface the same guidance in both human and
 JSON output: a suggested command, a docs reference, and next steps under

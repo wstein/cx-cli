@@ -13,6 +13,8 @@ verification, use `cx bundle` which follows semantic versioning strictly.
 
 This document explains how to integrate the `cx mcp` server with common AI agents and IDE integrations. It shows recommended, production-ready configuration patterns, security and safety notes, and troubleshooting tips. Where integrations differ across vendors, examples show the common pattern; verify the final keys with the specific client documentation before deploying.
 
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical Track A vs Track B split, MCP policy tiers, and artifact lifecycle.
+
 Overview
 --------
 

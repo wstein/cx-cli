@@ -7,7 +7,9 @@ Developer command conventions for `make test`, `make verify`, and `make release`
 
 ## Start Here
 
+- [MENTAL_MODEL.md](./MENTAL_MODEL.md) - canonical CX triad, Track A vs B, MCP policy tiers, and artifact lifecycle
 - [MANUAL.md](./MANUAL.md) - quick operator path and Friday-to-Monday workflow map
+- [WORKFLOWS/friday-to-monday.md](./WORKFLOWS/friday-to-monday.md) - end-to-end agent workflow from live MCP investigation to verified bundle handoff
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - system boundary and core decisions
 - [NOTES_MODULE_SPEC.md](./NOTES_MODULE_SPEC.md) - notes system contract
 - [EXTRACTION_SAFETY.md](./EXTRACTION_SAFETY.md) - extraction and recovery rules

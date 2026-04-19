@@ -75,7 +75,9 @@ function buildVerifyRemediation(
     case "source_tree_drift":
       return {
         recommendedCommand: "cx bundle --config cx.toml",
-        docsRef: "docs/MANUAL.md",
+        docsRef: "docs/MENTAL_MODEL.md",
+        whyThisProtectsYou:
+          "Source-tree drift means the live checkout no longer produces the same packed content as the bundle, so the artifact can no longer serve as a verified handoff.",
         nextSteps: [
           relativePath
             ? `Review whether ${relativePath} changed intentionally after the bundle was created.`
@@ -88,7 +90,9 @@ function buildVerifyRemediation(
     case "unexpected_checksum_reference":
       return {
         recommendedCommand: "cx validate dist/demo-bundle",
-        docsRef: "docs/MANUAL.md",
+        docsRef: "docs/MENTAL_MODEL.md",
+        whyThisProtectsYou:
+          "A checksum failure means the artifact set in hand is no longer provably the exact bundle cx wrote, so verification stops before edited, missing, or substituted files are trusted.",
         nextSteps: [
           "Inspect the bundle directory for missing or modified artifacts.",
           "Regenerate the bundle if the current artifact set is no longer trustworthy.",
@@ -100,6 +104,8 @@ function buildVerifyRemediation(
       return {
         recommendedCommand: "cx inspect --config cx.toml --token-breakdown",
         docsRef: "docs/ARCHITECTURE.md",
+        whyThisProtectsYou:
+          "Structured render drift breaks the deterministic mapping between source files, packed outputs, and manifest metadata.",
         nextSteps: [
           "Confirm that the current render plan and section ordering are deterministic.",
           "Rebuild the bundle after correcting render-path or section-definition drift.",

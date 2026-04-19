@@ -546,6 +546,8 @@ If a file matches both an asset rule (`assets.include`) and a section rule simul
 
 The short version is below. For the operator guidance and blast radius of `--allow-degraded`, read [Extraction Safety](EXTRACTION_SAFETY.md).
 
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical artifact lifecycle behind these recovery states.
+
 `cx` uses four production statuses for bundle-side recovery:
 
 - `intact`: reconstructed text matches the packed-content hash in the manifest.
@@ -554,6 +556,8 @@ The short version is below. For the operator guidance and blast radius of `--all
 - `blocked`: the file cannot be reconstructed deterministically from bundle output.
 
 By default, `cx extract` restores `intact` text files and `copied` assets only. Restoring `degraded` files requires `--allow-degraded`.
+
+Why this protects you: `degraded` means the bundle can still show you approximate content, but it can no longer prove that the reconstructed file still matches the manifest's identity and coordinates.
 
 ## Bundle invariants
 
@@ -568,6 +572,8 @@ A generated bundle must satisfy these invariants:
 - The manifest does not store user-specific `cx list` heat-map settings.
 - `cx verify` fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if `--against` detects normalized packed-content drift against the source tree.
 - Section output names are deterministic and derived from `project_name` plus the section name.
+
+Why this protects you: checksum verification is what tells a later operator that the artifact set on disk is still exactly the one `cx bundle` wrote. If an expected entry is missing or a hash changes, the handoff contract is broken and `cx verify` stops there.
 
 `manifest.include_output_spans` defaults to `true`. Text sections require it:
 if a bundle contains XML, Markdown, or plain sections, `cx bundle` fails

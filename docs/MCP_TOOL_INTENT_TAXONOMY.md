@@ -4,6 +4,8 @@
 
 This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.
 
+See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.
+
 `cx mcp` exposes tools in three intent-focused groups:
 
 - `Read / Observe` tools: safe inspection, search, and non-mutating note reads.
