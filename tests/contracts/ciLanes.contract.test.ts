@@ -89,10 +89,7 @@ describe("CI lanes contract", () => {
   test("bun matrix validates minimum and latest runtime lanes", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain(
-      "bun-version: $" +
-        '{{ fromJSON(format(\'["{0}", "latest"]\', env.BUN_MIN_VERSION)) }}',
-    );
+    expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });
 
