@@ -96,6 +96,8 @@ Audit logging is the integration-layer answer to "what did the agent really do?"
 - policy-name counts
 - recent `traceId` values
 
+For operators who only need the audit ledger, `cx audit summary --json` exposes the same trend view without mixing it into the broader MCP profile report.
+
 Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.
 
 ## Integration Examples

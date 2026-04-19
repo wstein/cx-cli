@@ -202,6 +202,7 @@ They share the same repository boundary rules, but they answer different questio
 | `cx doctor notes` | You want to audit note-to-code references against the VCS-backed planning master list |
 | `cx doctor secrets` | You want to scan the master list for suspicious secret patterns |
 | `cx doctor workflow` | You want a quick recommendation for bundle, inspect, or MCP, including mixed-task paths |
+| `cx audit summary` | You want recent `traceId`, policy, and capability trends from `.cx/audit.log` without the full MCP profile report |
 | `cx completion` | You want shell-native command and flag completion |
 
 ## Standard Workflow
@@ -237,9 +238,12 @@ Use the doctor subcommands when you want to inspect the agent boundary directly:
 cx doctor mcp --config cx.toml
 cx doctor notes --config cx.toml
 cx doctor secrets --config cx.toml
+cx audit summary --json
 ```
 
 `cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor notes` audits note wikilinks that look like repository paths against the planning master list after `files.include` and `files.exclude` are applied. `cx doctor secrets` scans that same master list for suspicious credentials using the same security rules the planning workflow relies on.
+
+When you only need the audit ledger itself, `cx audit summary --json` reports allowed versus denied totals, policy-name counts, capability counts, and recent `traceId` values from `.cx/audit.log` without repeating the rest of the MCP profile.
 
 When overlap analysis is the issue, the output names the conflicting file, the matching sections, the recommended owner, and the sections that should exclude the file. For example:
 

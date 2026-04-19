@@ -530,7 +530,7 @@ describe("cx MCP server", () => {
     const createResult = await tools.notes_new.handler(
       {
         title: "Editable Note",
-        body: "Original body.",
+        body: "This editable note keeps enough routing words today.",
       },
       {} as never,
     );
@@ -542,7 +542,7 @@ describe("cx MCP server", () => {
     const updateResult = await tools.notes_update.handler(
       {
         id: createPayload.id,
-        body: "Updated body.",
+        body: "This updated note still keeps enough routing words today.",
         tags: ["revised"],
       },
       {} as never,
@@ -559,7 +559,9 @@ describe("cx MCP server", () => {
       path.join(project.root, createPayload.filePath),
       "utf8",
     );
-    expect(updatedContent).toContain("Updated body.");
+    expect(updatedContent).toContain(
+      "This updated note still keeps enough routing words today.",
+    );
   });
 
   test("notes_rename updates the note title and filename", async () => {
@@ -574,7 +576,7 @@ describe("cx MCP server", () => {
     const createResult = await tools.notes_new.handler(
       {
         title: "Rename Source",
-        body: "The original note body.",
+        body: "This original note body keeps enough routing words today.",
       },
       {} as never,
     );
@@ -621,7 +623,7 @@ describe("cx MCP server", () => {
     const createResult = await tools.notes_new.handler(
       {
         title: "Delete Source",
-        body: "A note to remove.",
+        body: "This note to remove keeps enough routing words today.",
       },
       {} as never,
     );
@@ -723,13 +725,19 @@ describe("cx MCP server", () => {
     const tools = getRegisteredTools(server);
 
     const createA = await tools.notes_new.handler(
-      { title: "Graph Root", body: "See [[Graph Hop]]." },
+      {
+        title: "Graph Root",
+        body: "This graph root keeps enough routing words and points to [[Graph Hop]].",
+      },
       {} as never,
     );
     const idA = (JSON.parse(firstContentText(createA)) as { id: string }).id;
 
     await tools.notes_new.handler(
-      { title: "Graph Hop", body: "Terminal note." },
+      {
+        title: "Graph Hop",
+        body: "This terminal note keeps enough routing words today.",
+      },
       {} as never,
     );
 

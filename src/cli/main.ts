@@ -14,6 +14,7 @@ import {
 } from "../shared/output.js";
 import { CX_VERSION } from "../shared/version.js";
 import { runAdapterCommand } from "./commands/adapter.js";
+import { runAuditCommand } from "./commands/audit.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runConfigCommand } from "./commands/config.js";
 import { runDoctorCommand } from "./commands/doctor.js";
@@ -234,6 +235,44 @@ export async function main(
           await writeStdoutSafe(renderCompletionScript(shell), io);
           exitCode = 0;
         }
+      },
+    )
+    .command(
+      "audit [subcommand]",
+      "Summarize recent MCP audit trends without reading raw JSONL.",
+      (command) =>
+        command
+          .example(
+            "$0 audit summary --json",
+            "Show recent trace IDs, policy trends, and capability totals.",
+          )
+          .positional("subcommand", {
+            type: "string",
+            choices: ["summary"],
+            default: "summary",
+          })
+          .option("config", {
+            type: "string",
+            default: "cx.toml",
+            description:
+              "Resolve the workspace root from this config before reading .cx/audit.log.",
+          })
+          .option("workspace-root", {
+            type: "string",
+            description:
+              "Override the workspace root directly instead of resolving it from cx.toml.",
+          })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runAuditCommand(
+          {
+            subcommand: args.subcommand as "summary",
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
+            workspaceRoot: resolveCliPath(args["workspace-root"], io.cwd),
+            json: args.json,
+          },
+          io,
+        );
       },
     )
     .command(

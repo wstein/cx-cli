@@ -472,3 +472,20 @@ export const DoctorFixOverlapsJsonSchema = z.object({
     )
     .optional(),
 });
+
+export const AuditSummaryCommandJsonSchema = z.object({
+  command: z.literal("audit summary"),
+  workspaceRoot: z.string(),
+  auditLogPath: z.string(),
+  totalEvents: z.number().int().nonnegative(),
+  allowedCount: z.number().int().nonnegative(),
+  deniedCount: z.number().int().nonnegative(),
+  byCapability: z.object({
+    read: z.number().int().nonnegative(),
+    observe: z.number().int().nonnegative(),
+    plan: z.number().int().nonnegative(),
+    mutate: z.number().int().nonnegative(),
+  }),
+  byPolicyName: z.record(z.string(), z.number().int().nonnegative()),
+  recentTraceIds: z.array(z.string()),
+});

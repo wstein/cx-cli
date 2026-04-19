@@ -1,3 +1,4 @@
+import path from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { CxConfig } from "../config/types.js";
@@ -132,7 +133,10 @@ export function createCxMcpServer(
 ): McpServer {
   const policy = resolvePolicy(options.config);
   const auditLogger = options.config.mcp.auditLogging
-    ? new AuditLogger(".cx", options.config.mcp.auditLogging)
+    ? new AuditLogger(
+        path.resolve(options.config.sourceRoot),
+        options.config.mcp.auditLogging,
+      )
     : undefined;
 
   const workspaceOptions: {
