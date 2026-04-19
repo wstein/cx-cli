@@ -27,5 +27,8 @@ describe("PR template contract", () => {
     expect(template).toContain(
       "declare a lane header (`// test-lane: ...`) that matches `tests/README.md`",
     );
+    expect(template).toContain(
+      "follow the lane decision checklist in `tests/README.md`",
+    );
   });
 });

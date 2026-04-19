@@ -39,6 +39,8 @@ they needed to be.
 
 - Every `*.test.ts` file should start with `// test-lane: ...` and match the
   lane matrix in `tests/README.md`.
+- Every new test should follow the lane decision checklist in
+  `tests/README.md` so unit versus integration boundaries stay explicit.
 - PRs should include explicit unit/integration/adversarial checklist results so
   lane intent is visible during review.
 - If a lane is intentionally skipped, the PR should explain why.

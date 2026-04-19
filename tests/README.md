@@ -54,9 +54,9 @@ Every `*.test.ts` file must start with a lane header on line 1:
 | Path | Primary lane | Notes |
 | --- | --- | --- |
 | `tests/unit` | Unit | Pure logic and helper seams; prefer in-memory fixtures, including parser/preference checks via `loadCxConfigFromTomlString()`. |
-| `tests/config` | Integration | Config inheritance and schema flows that intentionally exercise on-disk config boundaries. |
+| `tests/config` | Integration | Keep only on-disk config and schema boundaries here; move pure parser/default/merge behavior to `tests/unit`. |
 | `tests/mcp` | Integration + Adversarial | MCP tool wiring and boundary fault behavior (startup/runtime timeouts, malformed payloads, interrupted responses). |
-| `tests/notes` | Unit/Integration | Keep parser/validation in-memory; keep CLI and note-graph workflows realistic. |
+| `tests/notes` | Integration | Keep notes CRUD/CLI/note-graph workflows realistic; keep parser/validation logic in `tests/unit/note*`. |
 | `tests/planning` | Unit | Plan/provenance logic with deterministic fixtures. |
 | `tests/manifest` | Unit/Integration | Schema/render round-trips plus manifest file compatibility checks. |
 | `tests/repomix` | Integration | Adapter/runtime resolution against real module boundaries. |
@@ -66,6 +66,17 @@ Every `*.test.ts` file must start with a lane header on line 1:
 | `tests/shared` | Unit | Shared primitives and utility behavior. |
 | `tests/vcs` | Unit/Integration | VCS adapters, dispatch rules, and command integration edges. |
 | `tests/init` | Integration | Template generation and initialization outcomes. |
+
+### Lane Decision Checklist
+
+- Choose `unit` when behavior can run in-memory with injected seams and no
+  workspace/process boundary setup.
+- Choose `integration` when the filesystem, command wiring, module resolution,
+  or config file boundary is part of the behavior under test.
+- Choose `adversarial` when the test intentionally simulates degraded,
+  malformed, stalled, interrupted, or hostile boundary behavior.
+- Choose `contract` when the test protects operator-facing promises (docs,
+  workflow wiring, schema guarantees, release or CI policy).
 
 ## Property Matrices
 
