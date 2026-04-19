@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { collectTestFiles } from "../../scripts/test-lane-policy.js";
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -68,5 +69,16 @@ describe("CI lanes contract", () => {
       'repomix-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
     );
     expect(workflow).not.toContain("bun add --exact repomix@");
+  });
+
+  test("fast lane test discovery includes bundle failure-class unit suites", () => {
+    const files = collectTestFiles(path.join(ROOT, "tests"))
+      .map((fullPath) =>
+        path.relative(ROOT, fullPath).split(path.sep).join("/"),
+      )
+      .sort();
+
+    expect(files).toContain("tests/unit/bundleValidateFailures.test.ts");
+    expect(files).toContain("tests/unit/bundleVerifyFailures.test.ts");
   });
 });
