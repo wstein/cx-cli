@@ -107,6 +107,21 @@ jobs:
       - name: Stage Pages site
         run: bun run pages:build
 
+      - name: Smoke-check staged Pages site
+        id: pages-smoke
+        continue-on-error: true
+        run: bun run pages:smoke
+
+      - name: Report non-blocking Pages smoke failure
+        if: always() && steps.pages-smoke.outcome == 'failure'
+        run: |
+          {
+            echo "## Pages smoke warning"
+            echo
+            echo "The staged \`site/\` tree failed the smoke check, but publish remained non-blocking."
+            echo "Review the \`Smoke-check staged Pages site\` step before trusting the public output."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish Pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:

@@ -14,6 +14,7 @@ How to apply it:
 - publish the unified Pages site when upstream CI concluded with success and the source branch is `main`
 - keep release asset mirroring gated by tags or an explicit manual dispatch
 - rebuild coverage inside the Pages publish workflow so the public `/coverage/` path always matches the published site tree
+- treat staged-site smoke validation as advisory inside the publish workflow so deploys warn loudly without losing the publish path entirely
 
 ## Links
 
@@ -21,4 +22,5 @@ How to apply it:
 - [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md)
 - [README.md](../README.md)
 - [[Unified Pages Site Assembly]]
+- [[Pages Smoke Validation Workflow]]
 - [[GitHub Actions Triggers]]

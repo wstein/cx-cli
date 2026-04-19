@@ -1,0 +1,57 @@
+name: Pages Smoke
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/pages-smoke.yml"
+      - ".github/workflows/publish-schemas.yml"
+      - "package.json"
+      - "schemas/**"
+      - "scripts/assemble-pages-site.js"
+      - "scripts/check-pages-site.js"
+      - "tests/contracts/pagesPublish.contract.test.ts"
+      - "tests/unit/assemblePagesSite.test.ts"
+      - "tests/unit/checkPagesSite.test.ts"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pages-smoke.yml"
+      - ".github/workflows/publish-schemas.yml"
+      - "package.json"
+      - "schemas/**"
+      - "scripts/assemble-pages-site.js"
+      - "scripts/check-pages-site.js"
+      - "tests/contracts/pagesPublish.contract.test.ts"
+      - "tests/unit/assemblePagesSite.test.ts"
+      - "tests/unit/checkPagesSite.test.ts"
+  workflow_dispatch:
+
+env:
+  BUN_MIN_VERSION: 1.3.11
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_MIN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate coverage report
+        run: bun run ci:test:coverage
+
+      - name: Stage Pages site
+        run: bun run pages:build
+
+      - name: Smoke-check staged Pages site
+        run: bun run pages:smoke

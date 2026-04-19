@@ -104,6 +104,8 @@ Repository-local `make` shortcuts keep the developer loop compact:
 - `make test` runs the unit suite with coverage.
 - `make verify` runs lint, typecheck, build, and the full test suite with coverage, then enforces the minimum overall coverage gate.
 - `bun run ci:test:coverage` runs the Vitest V8 coverage lane against the Bun-style unit and contract test surface via the repository compatibility shim, then writes `coverage/vitest/` plus `.ci/coverage-summary.md` for CI reporting.
+- `bun run pages:build` assembles the public Pages `site/` tree with `/schemas/` and `/coverage/`.
+- `bun run pages:smoke` validates that staged `site/` tree before a workflow publishes it.
 - The latest public HTML coverage view is published at `https://wstein.github.io/cx-cli/coverage/` from successful `main` CI runs.
 - `bun run test:vitest:mcp` runs the focused MCP cockpit lane for MCP-heavy tests without starting the full repository coverage surface.
 - `bun run test:vitest:mcp:ui` opens the same MCP-focused lane in Vitest UI so operators can rerun failures, inspect coverage, and review the import graph for slow MCP startup or registration paths.

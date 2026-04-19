@@ -45,6 +45,7 @@
     "coverage:vitest:mcp:adversarial": "vitest run --config vitest.mcp.adversarial.config.ts --coverage",
     "coverage:report": "node scripts/coverage-report.js",
     "pages:build": "node scripts/assemble-pages-site.js",
+    "pages:smoke": "node scripts/check-pages-site.js",
     "ci:test:coverage": "vitest run --coverage && node scripts/coverage-report.js",
     "ci:guard:fast-lane": "node scripts/check-fast-lane.js",
     "ci:report:verify-against": "node scripts/verify-against-policy.js --format json --output .ci/verify-against-policy-report.json",

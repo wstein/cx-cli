@@ -14,11 +14,14 @@ How to apply it:
 - build Pages content through the shared assembly script, not inline workflow shell
 - treat `/schemas/` as required and `/coverage/` as conditional on coverage assets being present
 - keep the public root page responsible for linking the available surfaces
+- validate the staged `site/` tree with a smoke checker before any workflow pushes `gh-pages`
 
 ## Links
 
 - [.github/workflows/publish-schemas.yml](../.github/workflows/publish-schemas.yml)
 - [scripts/assemble-pages-site.js](../scripts/assemble-pages-site.js)
+- [scripts/check-pages-site.js](../scripts/check-pages-site.js)
 - [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md)
 - [[GitHub Actions Triggers]]
+- [[Pages Smoke Validation Workflow]]
 - [[MCP Stable Contract Boundary]]

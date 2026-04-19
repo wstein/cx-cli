@@ -41,6 +41,9 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain("Generate coverage report");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("run: bun run pages:build");
+    expect(workflow).toContain("Smoke-check staged Pages site");
+    expect(workflow).toContain("continue-on-error: true");
+    expect(workflow).toContain("run: bun run pages:smoke");
     expect(workflow).toContain("publish_branch: gh-pages");
     expect(workflow).toContain("publish_dir: site");
   });
@@ -64,6 +67,9 @@ describe("Pages publish contract", () => {
 
     expect(pkg.scripts?.["pages:build"]).toBe(
       "node scripts/assemble-pages-site.js",
+    );
+    expect(pkg.scripts?.["pages:smoke"]).toBe(
+      "node scripts/check-pages-site.js",
     );
   });
 
@@ -98,5 +104,16 @@ describe("Pages publish contract", () => {
     );
     expect(rootIndex).toContain('href="schemas/"');
     expect(rootIndex).toContain('href="coverage/"');
+  });
+
+  test("pages smoke workflow validates the staged site tree", async () => {
+    const workflow = await readText(".github/workflows/pages-smoke.yml");
+
+    expect(workflow).toContain("name: Pages Smoke");
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("Generate coverage report");
+    expect(workflow).toContain("run: bun run ci:test:coverage");
+    expect(workflow).toContain("run: bun run pages:build");
+    expect(workflow).toContain("run: bun run pages:smoke");
   });
 });
