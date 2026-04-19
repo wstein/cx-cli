@@ -171,17 +171,25 @@ $ # - Write code (read-only)
 $ # - Run `cx bundle` (needs plan capability approval)
 ```
 
-### Scenario 3: Full Autonomy (Local Dev)
+### Scenario 3: Safe Note Mutation In A Trusted Local Session
 
 ```bash
-# Trusted local machine (policy: unrestricted)
+# Trusted local machine
 $ cx mcp &
-$ # Agent has all capabilities:
-$ # - Read code
-$ # - Write tests
-$ # - Create/update notes
-$ # - Run inspect, bundle, doctor tools
+# Default MCP policy still denies note mutation.
+# Enable it intentionally in cx-mcp.toml or cx.toml:
+#
+# [mcp]
+# policy = "unrestricted"
+# enable_mutation = true
+#
+# Then verify the active profile:
+$ cx doctor mcp --config cx.toml
+$ cx notes links
+$ cx notes graph --id <note-id> --depth 2
 ```
+
+The session becomes mutation-authorized only after that explicit operator choice. Review the resulting note graph after the edit instead of treating note mutation as self-validating.
 
 ---
 

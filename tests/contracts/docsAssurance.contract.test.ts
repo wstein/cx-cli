@@ -75,4 +75,22 @@ describe("docs assurance contract", () => {
       "Why this stops you: an exploratory session should not silently cross from analysis into repository mutation.",
     );
   });
+
+  test("workflow docs include temporal provenance and safe note mutation scenarios", async () => {
+    const fridayToMonday = await readText("docs/WORKFLOWS/friday-to-monday.md");
+    const safeNoteMutation = await readText(
+      "docs/WORKFLOWS/safe-note-mutation.md",
+    );
+
+    expect(fridayToMonday).toContain("The developer has local tracked changes");
+    expect(fridayToMonday).toContain("cx bundle --config cx.toml --force");
+    expect(fridayToMonday).toContain(
+      "On Monday, CI should trust only the clean, promotable path.",
+    );
+    expect(safeNoteMutation).toContain("[mcp]");
+    expect(safeNoteMutation).toContain("enable_mutation = true");
+    expect(safeNoteMutation).toContain(
+      "cx notes graph --id 20260419090000 --depth 2",
+    );
+  });
 });

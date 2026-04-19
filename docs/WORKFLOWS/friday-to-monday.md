@@ -4,11 +4,13 @@
 
 See: [../MENTAL_MODEL.md](../MENTAL_MODEL.md)
 
-This is the canonical end-to-end workflow for a team that investigates with MCP on Friday and trusts the bundle on Monday.
+This is the canonical end-to-end workflow for a team that investigates with MCP on Friday night and trusts a promotable artifact on Monday morning.
 
-## Friday: Investigate In The Live Workspace
+## Friday Night: Dirty Local Code, Fast AI Help
 
-Use Track B while the work is still exploratory.
+It is late on Friday. The developer has local tracked changes that are not ready to commit, but still needs fast AI help on the live code.
+
+That is a Track B problem, not a clean promotion problem.
 
 1. Confirm the recommended mode:
 
@@ -41,9 +43,25 @@ What happens here:
 - `notes_new` and `notes_update` preserve reasoning before handoff.
 - `read` and search tools keep the work grounded in the current repository state.
 
-## Friday Closeout: Freeze The Artifact
+Why this protects you: the developer gets live reasoning help without pretending the current checkout is already a clean, promotable artifact.
 
-Once the investigation is complete, switch to Track A and write the actual handoff:
+## Friday Night Closeout: Optional Local Review Bundle
+
+Sometimes the developer still wants a temporary local snapshot for review, even though the checkout is dirty.
+
+That is the exceptional case for a local override:
+
+```bash
+cx bundle --config cx.toml --force
+```
+
+This is acceptable only as a local review aid. The manifest records `forced_dirty` so nobody has to guess later whether the bundle came from a clean source state.
+
+Why this protects you: the override does not erase the provenance problem. It records it. A local operator can still inspect the snapshot, but Monday automation does not have to mistake it for a clean promotion artifact.
+
+## Friday Closeout: Freeze The Real Handoff
+
+Once the code is committed or the working tree is otherwise returned to a promotable state, switch to Track A and write the actual handoff:
 
 ```bash
 cx inspect --config cx.toml --token-breakdown
@@ -65,9 +83,9 @@ The handoff is the bundle directory, not the MCP session:
 
 The notes you updated on Friday can also be included in the bundle plan, which keeps reasoning and artifact together.
 
-## Monday: Verify Before You Trust
+## Monday Morning: CI Trusts Only The Clean Path
 
-On Monday, treat the bundle as an artifact under test, not as an assumption.
+On Monday, CI should trust only the clean, promotable path. It should validate or verify the artifact built from committed source state, not a `forced_dirty` local convenience bundle.
 
 Start with structure and integrity:
 
@@ -92,7 +110,8 @@ Why this protects you: Monday's runner should prove that the artifact still matc
 
 ## Failure Interpretation
 
-- Dirty-state refusal on Friday means the workspace was not stable enough to freeze.
+- Dirty-state refusal on Friday means the workspace was not stable enough to freeze as a promotable artifact.
+- `forced_dirty` on Friday means the bundle was only suitable for explicit local review, not for clean CI trust.
 - Checksum failure on Monday means the artifact set in hand is no longer provably the one written on Friday.
 - Degraded extraction means the bundle can no longer reconstruct text deterministically enough for safe automation.
 
