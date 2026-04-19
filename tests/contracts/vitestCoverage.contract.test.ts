@@ -30,10 +30,6 @@ describe("Vitest coverage contract", () => {
     expect(shared).toContain("all: true");
     expect(config).toContain("defineCxVitestConfig");
     expect(config).toContain('reportsDirectory: "./coverage/vitest"');
-    expect(config).toContain('"tests/unit/**/*.test.ts"');
-    expect(config).toContain('"tests/contracts/**/*.test.ts"');
-    expect(config).toContain('"tests/config/**/*.test.ts"');
-    expect(config).toContain('"tests/mcp/**/*.test.ts"');
-    expect(config).toContain('"tests/cli/mcp*.test.ts"');
+    expect(config).toContain('"tests/**/*.test.ts"');
   });
 });

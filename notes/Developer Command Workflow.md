@@ -26,16 +26,16 @@ quick while making the release path explicit and repeatable.
 
 - `package.json` does not define a single generic `coverage` task; the
   authoritative coverage lane is explicit.
-- The dedicated Vitest coverage lane is `bun run ci:test:coverage`; it runs the Bun-style unit and contract suite through the repository compatibility shim, then produces `coverage/vitest/coverage-summary.json`, HTML output, LCOV, and `.ci/coverage-summary.md`.
+- The dedicated Vitest coverage lane is `bun run ci:test:coverage`; it runs the shared repository suite natively under Vitest, then produces `coverage/vitest/coverage-summary.json`, HTML output, LCOV, and `.ci/coverage-summary.md`.
 - The focused MCP debugging lane is `bun run test:vitest:mcp`; it keeps MCP-heavy server, CLI, audit, and policy tests separate from the broad repository coverage run.
 - `bun run test:vitest:mcp:ui` opens the same MCP lane in Vitest UI so operators can rerun failures interactively and inspect coverage or import-graph cost inside the MCP stack.
-- The default test task runs the unit test suite.
-- `bun run test:bun:regression` runs the Bun-only integration and adversarial
-  regression lane that CI uses for real Bun runtime proof without rerunning the
-  whole repository.
-- `bun run test:all` and `bun run test:all:full` remain available when you want
-  an exhaustive Bun sweep locally; the `:full` variant adds Bun coverage,
-  reruns, and randomization.
+- The default test task runs the fast Vitest unit suite.
+- `bun run test:bun:regression` runs the Bun-only runtime regression lane that
+  CI uses for real Bun runtime proof over bundle, CLI, MCP, and Repomix
+  surfaces without rerunning the whole repository.
+- `bun run test:contracts`, `bun run test:all`, and `bun run test:all:full`
+  are native Vitest lanes for the contract suite, the full shared suite, and
+  the authoritative coverage pass.
 - `verify` runs lint, typecheck, build, the Vitest coverage lane, and the Bun
   compatibility smoke instead of routing repository-wide coverage through Bun.
 

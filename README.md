@@ -180,11 +180,13 @@ The generated notes directory is intentionally part of the repository contract. 
 
 ### Development workflow
 
-- `make test` or `bun run test` runs the fast unit test suite.
+- `make test` or `bun run test` runs the fast Vitest unit suite.
 - `make verify` or `bun run verify` runs lint, typecheck, build, the Vitest coverage lane, and the Bun compatibility smoke.
-- `bun run ci:test:coverage` measures unit, contract, config, MCP, and MCP-facing CLI suites through the Bun-compatibility Vitest lane.
-- `bun run test:bun:regression` runs the focused Bun integration and adversarial regression lane that CI uses for runtime proof.
-- `bun run test:all` still runs the full Bun suite when you want the broad execution surface locally.
+- `bun run ci:test:coverage` measures the full shared suite through Vitest and publishes the repository coverage artifacts.
+- `bun run test:bun:regression` runs the focused Bun runtime regression lane over `tests/bundle`, `tests/cli`, `tests/mcp`, and `tests/repomix`.
+- `bun run test:contracts` runs the contract suite through Vitest.
+- `bun run test:all` runs the full shared suite through Vitest.
+- `bun run test:all:full` runs the authoritative Vitest coverage lane.
 - `bun run test:vitest:mcp` runs the focused MCP-heavy Vitest lane for server, policy, audit, and CLI MCP debugging.
 - `bun run test:vitest:mcp:ui` opens the MCP lane in Vitest UI so you can rerun failures interactively and inspect coverage or import cost inside the MCP stack.
 - `bun run test:vitest:mcp:adversarial` isolates startup hangs, malformed runtime payloads, and other hostile MCP failure modes in a smaller cockpit.
@@ -482,9 +484,9 @@ make release VERSION=x.y.z
 
 `make test` runs the fast unit suite. `make verify` is the normal local gate:
 lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.
-`bun run test:bun:regression` mirrors the focused Bun regression lane used in
-CI, and `bun run test:all` remains available when you want the full Bun
-execution surface locally. `make release`
+`bun run test:bun:regression` mirrors the focused Bun runtime regression lane
+used in CI, while `bun run test:all` and `bun run test:all:full` stay on the
+native Vitest suite and coverage lanes. `make release`
 now acts as a two-phase wizard: the first call with a new semantic version starts the
 release candidate on `develop`, and the second call with that same version creates and pushes
 the tag after CI is green.

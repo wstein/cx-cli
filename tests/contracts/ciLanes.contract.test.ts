@@ -71,7 +71,7 @@ describe("CI lanes contract", () => {
     expect(workflow).not.toContain("run: bun run lint && bun run check");
   });
 
-  test("package scripts use deterministic file-list discovery via test-lane.js", async () => {
+  test("package scripts expose Vitest-first shared lanes and focused Bun runtime proof", async () => {
     const pkgRaw = await readText("package.json");
     const pkg = JSON.parse(pkgRaw) as {
       scripts?: Record<string, string>;
@@ -82,22 +82,13 @@ describe("CI lanes contract", () => {
       "biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false .",
     );
     expect(scripts.test).toBe("bun run test:unit");
-    expect(scripts["test:unit"]).toContain(
-      "node scripts/test-lane.js ./tests/unit",
+    expect(scripts["test:unit"]).toBe("vitest run tests/unit");
+    expect(scripts["test:bun:regression"]).toBe(
+      "node scripts/bun-runtime-regression.js --timeout 60000",
     );
-    expect(scripts["test:unit"]).not.toContain("--coverage");
-    expect(scripts["test:bun:regression"]).toContain(
-      "node scripts/test-lane.js ./tests",
-    );
-    expect(scripts["test:bun:regression"]).toContain("--lane integration");
-    expect(scripts["test:bun:regression"]).toContain("--lane adversarial");
-    expect(scripts["test:all"]).toContain("node scripts/test-lane.js ./tests");
-    expect(scripts["test:all:full"]).toContain(
-      "node scripts/test-lane.js ./tests --bun-config bunfig.full.toml",
-    );
-    expect(scripts["test:contracts"]).toContain(
-      "node scripts/test-lane.js ./tests/contracts",
-    );
+    expect(scripts["test:all"]).toBe("bun run test:vitest");
+    expect(scripts["test:all:full"]).toBe("bun run ci:test:coverage");
+    expect(scripts["test:contracts"]).toBe("vitest run tests/contracts");
     expect(scripts["test:vitest"]).toBe("vitest run");
     expect(scripts["coverage:vitest"]).toBe("vitest run --coverage");
     expect(scripts["coverage:report"]).toBe("node scripts/coverage-report.js");
@@ -126,11 +117,10 @@ describe("CI lanes contract", () => {
       "node scripts/notes-governance.js",
     );
 
-    // shell find must not survive in any test-discovery script
-    expect(scripts["test:unit"]).not.toContain("find ./tests");
+    expect(scripts["test:unit"]).not.toContain("bun:test");
+    expect(scripts["test:contracts"]).not.toContain("bun:test");
     expect(scripts["test:bun:regression"]).not.toContain("find ./tests");
     expect(scripts["test:all"]).not.toContain("find ./tests");
-    expect(scripts["test:contracts"]).not.toContain("find ./tests");
   });
 
   test("CI reproducibility job delegates to a reproducibility assurance wrapper", async () => {

@@ -4,7 +4,6 @@ coverageReporter = ["text", "lcov"]
 coverageDir = "coverage"
 coverageSkipTestFiles = true
 randomize = true
-rerunEach = 2
 timeout = 20000
 
 [test.coverageThreshold]
