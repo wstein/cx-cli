@@ -41,7 +41,7 @@ describe("runNotesCommand I/O injection", () => {
       {
         subcommand: "new",
         title: "Injected Note",
-        body: "Injected body.",
+        body: "This injected note body keeps enough routing words today.",
       },
       createCapture.io,
     );
@@ -64,7 +64,9 @@ describe("runNotesCommand I/O injection", () => {
     expect(readExitCode).toBe(0);
     expect(readCapture.logs()).toContain("Read note:");
     expect(readCapture.logs()).toContain("Title: Injected Note");
-    expect(readCapture.stdout()).toContain("Injected body.");
+    expect(readCapture.stdout()).toContain(
+      "This injected note body keeps enough routing words today.",
+    );
   });
 
   test("writes JSON output through the injected stdout writer", async () => {

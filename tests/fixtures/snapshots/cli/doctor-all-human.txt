@@ -3,6 +3,11 @@ Resolved MCP profile: <ROOT>/cx.toml
 Active profile: cx.toml
 Policy: default
 Mutation enabled: no
+Audit events: 0 (allowed 0, denied 0)
+Recent policy trends:
+  - (no audit events)
+Recent trace IDs:
+  - (none)
 
 files.include:
   - (empty)

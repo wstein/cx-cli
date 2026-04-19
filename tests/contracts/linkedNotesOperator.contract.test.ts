@@ -23,16 +23,18 @@ const writeNote = async (
   title: string,
   body = "",
 ): Promise<void> => {
-  const noteBody = body.length > 0 ? body : `${title} summary.`;
+  const summary = `This note captures durable context about ${title} for linked-note enrichment coverage and operator-facing inspection.`;
+  const noteBody = body.length > 0 ? `${summary}\n\n${body}` : summary;
   const content = `---
 id: ${id}
 aliases: []
 tags: []
 ---
 
-# ${title}
-
 ${noteBody}
+
+## Links
+
 `;
   await fs.writeFile(path.join(notesDir, `${id}-${title}.md`), content);
 };

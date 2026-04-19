@@ -76,7 +76,7 @@ describe("Notes Commands", () => {
     expect(content).toContain(`id: ${id}`);
     expect(content).not.toContain("title: Test Note");
     expect(content).toContain(
-      "Summarize the note in one or two sentences so agents can route to it quickly from the manifest.",
+      "This note captures durable context about Test Note for later review and routing.",
     );
     expect(content).toContain("## What");
     expect(content).toContain("## Why");
@@ -116,7 +116,7 @@ describe("Notes Commands", () => {
     const created = await createNewNote(
       "Update Note",
       noteOptions({
-        body: "Original body.",
+        body: "This original note body keeps enough routing words today.",
         tags: ["old"],
       }),
     );
@@ -124,7 +124,7 @@ describe("Notes Commands", () => {
     const updated = await updateNote(
       created.id,
       noteOptions({
-        body: "Revised body.",
+        body: "This revised note body keeps enough routing words today.",
         tags: ["new", "better"],
       }),
     );
@@ -132,16 +132,20 @@ describe("Notes Commands", () => {
     expect(updated.tags).toEqual(["new", "better"]);
 
     const content = await fs.readFile(updated.filePath, "utf8");
-    expect(content).toContain("Revised body.");
+    expect(content).toContain(
+      "This revised note body keeps enough routing words today.",
+    );
     expect(content).toContain("new");
-    expect(content).not.toContain("Original body.");
+    expect(content).not.toContain(
+      "This original note body keeps enough routing words today.",
+    );
   });
 
   test("renames an existing note without changing its id", async () => {
     const created = await createNewNote(
       "Old Title",
       noteOptions({
-        body: "Rename me.",
+        body: "This note is ready for a rename today.",
       }),
     );
 
@@ -153,7 +157,7 @@ describe("Notes Commands", () => {
     expect(renamed.previousFilePath).toBe(created.filePath);
 
     const content = await fs.readFile(renamed.filePath, "utf8");
-    expect(content).toContain("Rename me.");
+    expect(content).toContain("This note is ready for a rename today.");
     expect(content).toContain('title: "New Title"');
   });
 
@@ -161,7 +165,7 @@ describe("Notes Commands", () => {
     const created = await createNewNote(
       "Disposable Note",
       noteOptions({
-        body: "This note can be deleted.",
+        body: "This note can be deleted after the workflow check.",
       }),
     );
 
@@ -241,7 +245,7 @@ describe("Notes Commands", () => {
     const created = await createNewNote(
       "CLI Rename",
       noteOptions({
-        body: "Rename from the CLI.",
+        body: "This note can be renamed from the CLI safely.",
       }),
     );
 
@@ -261,14 +265,14 @@ describe("Notes Commands", () => {
         path.join(testDir, NOTES_DIR, renamed?.fileName ?? ""),
         "utf8",
       ),
-    ).toContain("Rename from the CLI.");
+    ).toContain("This note can be renamed from the CLI safely.");
   });
 
   test("delete command removes the note file", async () => {
     const created = await createNewNote(
       "CLI Delete",
       noteOptions({
-        body: "Delete from the CLI.",
+        body: "This note can be deleted from the CLI safely.",
       }),
     );
 

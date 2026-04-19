@@ -147,10 +147,17 @@ async function createNotesProject(
     `---
 id: 20260418141500
 title: Architecture
+aliases: []
+tags: []
 ---
+
+This architecture note tracks repository-backed files and generated drift candidates.
 
 Tracked: [[src/index.ts]]
 Generated: [[generated/client.ts]]
+
+## Links
+
 `,
     "utf8",
   );

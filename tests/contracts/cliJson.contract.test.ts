@@ -38,9 +38,10 @@ aliases: []
 tags: []
 ---
 
-# Linked Note
+This linked note stays visible through inspect provenance for governance-safe coverage.
 
-Visible through inspect provenance.
+## Links
+
 `,
           }
         : {}),
@@ -100,9 +101,12 @@ aliases: []
 tags: []
 ---
 
-# Seed
+This seed note links to another durable note for inspect provenance coverage.
 
 See [[20260418120000]].
+
+## Links
+
 `,
       "utf8",
     );

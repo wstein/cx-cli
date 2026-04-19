@@ -179,7 +179,7 @@ aliases: []
 tags: []
 ---
 
-Body.
+This note provides a durable summary so the bundle wrapper coverage test passes governance.
 `,
       "utf8",
     );

@@ -4,5 +4,6 @@
 ℹ   Cognition score: avg 0 (high-signal 0, review 0, low-signal 0)
 ℹ   Trust model: source=trusted, notes=conditional, agent=untrusted_until_verified, bundle=trusted
 ℹ   Staleness: avg-age 0d (fresh 0, aging 0, stale 0, drift-pressured 0)
+ℹ   Contradictions: 0 (code-state 0, sibling 0)
 ⚠   Validation errors: 1
 ℹ     <ROOT>/notes/Invalid Note.md: Missing required summary paragraph. The first body paragraph must stand on its own before the links section. Why this protects you: Manifest note summaries are the fast path agents use to find durable knowledge without reparsing the entire graph.
