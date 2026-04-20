@@ -1,17 +1,21 @@
 = CX Architecture
 :page-layout: default
 
+include::../../partials/track-primer.adoc[]
+include::../../partials/trust-boundary-primer.adoc[]
+
 This is the implementation reference for contributors who need to
 understand how the codebase enforces the canonical model.
 
-Read this after MENTAL_MODEL.md, SYSTEM_CONTRACTS.md, and SYSTEM_MAP.md,
-not before them.
+Read this after xref:architecture/mental-model.adoc[Mental Model],
+xref:architecture/system-contracts.adoc[System Contracts], and
+xref:architecture/system-map.adoc[System Map], not before them.
 
 == Design Goal
 
 `cx` exists to make context bundling reproducible enough for automation.
 
-For the documentation map, see README.md.
+For the documentation map, see xref:start-here/docs-index.adoc[Documentation Index].
 
 The project now centers a native render kernel because rendering alone
 is not enough for CI/CD. A pipeline also needs deterministic planning,
@@ -645,5 +649,5 @@ output
 `degraded` is intentionally not the default success path. It requires
 explicit operator consent with `--allow-degraded`.
 
-See xref:repository/docs/extraction_safety.adoc[Extraction Safety] for the operational
+See xref:page$repository/docs/extraction_safety.adoc[Extraction Safety] for the operational
 consequences.

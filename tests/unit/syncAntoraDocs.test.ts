@@ -38,11 +38,11 @@ describe("sync-antora-docs.js", () => {
     );
     expect(generatedChangelog).toContain("Source companion: `CHANGELOG.md`");
     expect(navPartial).toContain(
-      "xref:repository/docs/agent_integration.adoc[docs/AGENT_INTEGRATION.md]",
+      "xref:page$repository/docs/agent_integration.adoc[docs/AGENT_INTEGRATION.md]",
     );
     expect(navPartial).not.toContain("docs/README.md");
     expect(navPartial).toContain(
-      "xref:repository/root/changelog.adoc[CHANGELOG.md]",
+      "xref:page$repository/root/changelog.adoc[CHANGELOG.md]",
     );
   });
 });

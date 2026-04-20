@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { marked } from "marked";
 
 export const DEFAULT_REPO_ROOT = process.cwd();
-export const DEFAULT_ANTORA_ROOT = "docs/antora";
+export const DEFAULT_ANTORA_ROOT = "docs";
 export const DEFAULT_ANTORA_PAGES_ROOT = path.join(
   DEFAULT_ANTORA_ROOT,
   "modules/ROOT/pages/repository",
@@ -225,7 +225,7 @@ function buildNavTree(sourceToOutput, repoRoot) {
   for (const [sourcePath, outputPath] of [...sourceToOutput.entries()].sort()) {
     const repoRelativeSource = toPosix(path.relative(repoRoot, sourcePath));
     const outputRelative = toPosix(path.relative(pagesRoot, outputPath));
-    const line = `*** xref:${outputRelative}[${repoRelativeSource}]`;
+    const line = `*** xref:page$${outputRelative}[${repoRelativeSource}]`;
 
     if (repoRelativeSource.startsWith("docs/")) {
       docsEntries.push(line);

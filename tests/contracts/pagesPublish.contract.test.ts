@@ -123,9 +123,44 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("run: bun run pages:build");
     expect(workflow).toContain("run: bun run pages:smoke");
-    expect(workflow).toContain("docs/antora/**");
-    expect(workflow).toContain("docs/antora-ui/**");
+    expect(workflow).toContain("docs/**");
+    expect(workflow).toContain("docs/ui/**");
     expect(workflow).toContain("scripts/build-antora-site.js");
     expect(workflow).toContain("scripts/sync-antora-docs.js");
+  });
+
+  test("highest-traffic markdown stubs stay aligned with canonical source and published URLs", async () => {
+    const docsIndexStub = await readText("docs/README.md");
+    const manualStub = await readText("docs/MANUAL.md");
+    const architectureStub = await readText("docs/ARCHITECTURE.md");
+    const operatingModesStub = await readText("docs/OPERATING_MODES.md");
+
+    expect(docsIndexStub).toContain(
+      "[docs/modules/ROOT/pages/start-here/docs-index.adoc](modules/ROOT/pages/start-here/docs-index.adoc)",
+    );
+    expect(docsIndexStub).toContain(
+      "https://wstein.github.io/cx-cli/docs/cx/0.4/start-here/docs-index/",
+    );
+
+    expect(manualStub).toContain(
+      "[docs/modules/ROOT/pages/manual/operator-manual.adoc](modules/ROOT/pages/manual/operator-manual.adoc)",
+    );
+    expect(manualStub).toContain(
+      "https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operator-manual/",
+    );
+
+    expect(architectureStub).toContain(
+      "[docs/modules/ROOT/pages/architecture/implementation-reference.adoc](modules/ROOT/pages/architecture/implementation-reference.adoc)",
+    );
+    expect(architectureStub).toContain(
+      "https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/implementation-reference/",
+    );
+
+    expect(operatingModesStub).toContain(
+      "[docs/modules/ROOT/pages/manual/operating-modes.adoc](modules/ROOT/pages/manual/operating-modes.adoc)",
+    );
+    expect(operatingModesStub).toContain(
+      "https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operating-modes/",
+    );
   });
 });

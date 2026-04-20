@@ -23,10 +23,10 @@ describe("release readiness docs contract", () => {
   test("changelog and migration docs explain the v0.4.0 operating contract", async () => {
     const changelog = await readText("CHANGELOG.md");
     const migration = await readText(
-      "docs/antora/modules/ROOT/pages/release/migration-v0.4.adoc",
+      "docs/modules/ROOT/pages/release/migration-v0.4.adoc",
     );
     const docsIndex = await readText(
-      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );
     const packageVersion = await readPackageVersion();
 
@@ -46,7 +46,7 @@ describe("release readiness docs contract", () => {
 
     expect(docsIndex).toContain("== What Changed In 0.4.0");
     expect(docsIndex).toContain(
-      "xref:repository/root/changelog.adoc[CHANGELOG.md]",
+      "xref:page$repository/root/changelog.adoc[CHANGELOG.md]",
     );
     expect(docsIndex).toContain(
       "xref:release/migration-v0.4.adoc[MIGRATIONS/0.4.0.md]",

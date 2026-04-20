@@ -22,25 +22,25 @@ describe("docs assurance contract", () => {
   test("doc hierarchy keeps semantics, mapping, workflows, and integration separate", async () => {
     const rootReadme = await readText("README.md");
     const docsIndex = await readText(
-      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );
     const governance = await readText("docs/GOVERNANCE.md");
     const mentalModel = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/mental-model.adoc",
+      "docs/modules/ROOT/pages/architecture/mental-model.adoc",
     );
     const operatingModes = await readText(
-      "docs/antora/modules/ROOT/pages/manual/operating-modes.adoc",
+      "docs/modules/ROOT/pages/manual/operating-modes.adoc",
     );
     const systemMap = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/system-map.adoc",
+      "docs/modules/ROOT/pages/architecture/system-map.adoc",
     );
     const systemContracts = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/system-contracts.adoc",
+      "docs/modules/ROOT/pages/architecture/system-contracts.adoc",
     );
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const manual = await readText(
-      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
     const notesGuide = await readText("notes/README.md");
     const docsIndexNormalized = squashWhitespace(docsIndex);
@@ -168,14 +168,14 @@ describe("docs assurance contract", () => {
     );
     expect(rootReadme).not.toContain("built on top of Repomix");
     expect(manualNormalized).toContain(
-      "Adapter/oracle path: diagnostics and parity only",
+      "Adapter/oracle path: expert diagnostics and parity only",
     );
     expect(manual).not.toContain("built on top of Repomix");
   });
 
   test("manual defines an assurance ladder", async () => {
     const manual = await readText(
-      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
 
     expect(manual).toContain("== Assurance Ladder");
@@ -187,7 +187,7 @@ describe("docs assurance contract", () => {
 
   test("release checklist states certify as CI-equivalent gate", async () => {
     const checklist = await readText(
-      "docs/antora/modules/ROOT/pages/release/checklist.adoc",
+      "docs/modules/ROOT/pages/release/checklist.adoc",
     );
 
     const normalized = squashWhitespace(checklist);
@@ -202,7 +202,7 @@ describe("docs assurance contract", () => {
 
   test("release docs lock the two-phase candidate and finalization model", async () => {
     const checklist = await readText(
-      "docs/antora/modules/ROOT/pages/release/checklist.adoc",
+      "docs/modules/ROOT/pages/release/checklist.adoc",
     );
     const developerWorkflow = await readText(
       "notes/Developer Command Workflow.md",
@@ -229,10 +229,10 @@ describe("docs assurance contract", () => {
   test("public docs keep the native-proof-path story and reject fork-backed runtime language", async () => {
     const readme = await readText("README.md");
     const architecture = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
     );
     const migration = await readText(
-      "docs/antora/modules/ROOT/pages/release/migration-v0.4.adoc",
+      "docs/modules/ROOT/pages/release/migration-v0.4.adoc",
     );
     const changelog = await readText("CHANGELOG.md");
 
@@ -256,13 +256,13 @@ describe("docs assurance contract", () => {
 
     expect(docsIndexStub).toContain("redirect stub");
     expect(docsIndexStub).toContain(
-      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );
     expect(manualStub).toContain(
-      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
     expect(architectureStub).toContain(
-      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
     );
   });
 
@@ -287,7 +287,7 @@ describe("docs assurance contract", () => {
 
   test("stop conditions explain the invariant they protect", async () => {
     const manual = await readText(
-      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
     const extractionSafety = await readText("docs/EXTRACTION_SAFETY.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
@@ -310,10 +310,10 @@ describe("docs assurance contract", () => {
 
   test("workflow docs include temporal provenance and safe note mutation scenarios", async () => {
     const fridayToMonday = await readText(
-      "docs/antora/modules/ROOT/pages/workflows/friday-to-monday.adoc",
+      "docs/modules/ROOT/pages/workflows/friday-to-monday.adoc",
     );
     const safeNoteMutation = await readText(
-      "docs/antora/modules/ROOT/pages/workflows/safe-note-mutation.adoc",
+      "docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc",
     );
 
     expect(fridayToMonday).toContain("The developer has local tracked changes");
@@ -333,12 +333,12 @@ describe("docs assurance contract", () => {
 
   test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {
     const mentalModel = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/mental-model.adoc",
+      "docs/modules/ROOT/pages/architecture/mental-model.adoc",
     );
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
     const architecture = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
     );
 
     expect(mentalModel).toContain("Track B = hypothesis generation");

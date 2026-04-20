@@ -1,0 +1,16 @@
+= Antora Packages
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/packages/README.md`
+
+++++
+<p>This directory is reserved for future Antora package or extension assets that belong to the curated documentation surface.</p>
+<p>Current policy:</p>
+<ul>
+<li><code>docs/antora.yml</code> is the component descriptor</li>
+<li><code>docs/modules/</code> contains the component content modules</li>
+<li><code>docs/packages/</code> exists for package-level documentation assets only when they are intentionally introduced</li>
+</ul>
+<p>Do not place canonical page content here.</p>
+++++

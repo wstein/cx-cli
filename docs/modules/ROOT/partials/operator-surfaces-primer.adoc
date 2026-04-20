@@ -1,0 +1,11 @@
+[NOTE]
+====
+`cx` is documented as four cooperating surfaces:
+
+* native proof path: `bundle`, `validate`, `verify`, `extract`
+* live workspace path: `mcp`
+* durable cognition path: `notes`
+* adapter/oracle path: diagnostics and parity only
+
+Use this page for its local concern first. Return to xref:start-here/docs-index.adoc[Documentation Index] when you need the broader map.
+====

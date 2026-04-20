@@ -1,17 +1,14 @@
 = CX Documentation Index
 :page-layout: default
 
+include::../../partials/operator-surfaces-primer.adoc[]
+include::../../partials/track-primer.adoc[]
+include::../../partials/trust-boundary-primer.adoc[]
+
 This is the curated front door for the `cx` documentation surface.
 The repository-local `docs/*.md` files remain as redirect stubs so
 stable in-repo links continue to resolve, but the canonical docs now
 live here.
-
-`cx` is documented as four cooperating surfaces:
-
-* native proof path: `bundle`, `validate`, `verify`, `extract`
-* live workspace path: `mcp`
-* durable cognition path: `notes`
-* adapter/oracle path: diagnostics and parity only
 
 Use the published Antora site for curated navigation, breadcrumbs,
 architecture structure, and workflow entrypoints. Use this directory
@@ -24,8 +21,8 @@ public GitHub Pages host and release mirror aligned with the checked-in
 command conventions for `make test`, `make verify`, and `make release`
 live in the repository notes and the operator manual. The MCP surface
 has a documented stable subset, but the broader integration layer still
-evolves conservatively. Use xref:repository/docs/stability.adoc[Stability]
-for the stable subset and xref:repository/docs/agent_integration.adoc[Agent Integration]
+evolves conservatively. Use xref:page$repository/docs/stability.adoc[Stability]
+for the stable subset and xref:page$repository/docs/agent_integration.adoc[Agent Integration]
 for client-facing setup guidance.
 
 [[what-changed-in-040]]
@@ -56,7 +53,7 @@ implementation details.
 
 See:
 
-* xref:repository/root/changelog.adoc[CHANGELOG.md]
+* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 * xref:release/migration-v0.4.adoc[MIGRATIONS/0.4.0.md]
 
 == Start Here
@@ -74,14 +71,14 @@ Track A vs B, MCP policy tiers, and artifact lifecycle
 * xref:architecture/system-contracts.adoc[System Contracts] - cognition
 contract, boundary contract, and trust propagation model
 * xref:manual/operator-manual.adoc[Operator Manual] - operator path, assurance ladder, and
-Friday-to-Monday workflow map
+workflow map
 
 == Reference By Concern
 
 * Agent setup and IDE integration:
-xref:repository/docs/agent_integration.adoc[Agent Integration]
+xref:page$repository/docs/agent_integration.adoc[Agent Integration]
 * Agent operating rules and MCP policy consequences:
-xref:repository/docs/agent_operating_model.adoc[Agent Operating Model]
+xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
 * Configuration knobs and precedence:
 xref:manual/config-reference.adoc[Configuration Reference]
 * Render constitution during the native-kernel migration:
@@ -89,9 +86,9 @@ xref:architecture/render-kernel-contract.adoc[Render Kernel Contract]
 * Release-time checks and Pages publishing:
 xref:release/checklist.adoc[Release Checklist]
 * Notes system details:
-xref:repository/docs/notes_module_spec.adoc[Notes Module Spec]
+xref:page$repository/docs/notes_module_spec.adoc[Notes Module Spec]
 * Extraction and recovery rules:
-xref:repository/docs/extraction_safety.adoc[Extraction Safety]
+xref:page$repository/docs/extraction_safety.adoc[Extraction Safety]
 * Workflow examples over time:
 xref:workflows/friday-to-monday.adoc[Friday to Monday],
 xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
@@ -113,14 +110,14 @@ a narrower special case, not a parallel onboarding path.
 
 == Historical Material
 
-* xref:repository/root/changelog.adoc[CHANGELOG.md]
+* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 * xref:release/migration-v0.4.adoc[MIGRATIONS/0.4.0.md]
 
 Use these when upgrading or reviewing release history. They are not part
 of the core operator front door.
 
 The allowed front-door docs are intentionally small. See
-xref:repository/docs/governance.adoc[GOVERNANCE.md] for the docs surface budget and the
+xref:page$repository/docs/governance.adoc[GOVERNANCE.md] for the docs surface budget and the
 reference-only rule for everything else.
 
 Trust shorthand for the whole docs set:
@@ -136,7 +133,7 @@ Trust shorthand for the whole docs set:
 * `Operating Modes` maps those semantics to operator choices.
 * `Workflows` shows execution examples.
 * `Agent` documents the integration layer.
-* `docs/antora/` publishes the curated documentation site and
+* `docs/` publishes the curated documentation site and
 arc42-based architecture spine.
 
 Everything else should reference those layers instead of redefining

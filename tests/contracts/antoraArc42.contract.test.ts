@@ -16,9 +16,9 @@ async function readText(relativePath: string): Promise<string> {
 
 describe("Antora arc42 spine contract", () => {
   test("architecture overview and nav keep the arc42 spine ordered and explicit", async () => {
-    const nav = await readText("docs/antora/modules/ROOT/nav.adoc");
+    const nav = await readText("docs/modules/ROOT/nav.adoc");
     const architectureIndex = await readText(
-      "docs/antora/modules/ROOT/pages/architecture/index.adoc",
+      "docs/modules/ROOT/pages/architecture/index.adoc",
     );
 
     const expectedSections = [

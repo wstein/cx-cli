@@ -66,7 +66,7 @@ This reduces cognitive dependency chains without abandoning canonical ownership.
 
 The docs can remain precise while becoming easier to traverse.
 
-The repository-local Markdown files should remain redirect stubs and compatibility anchors, not a second canonical prose surface.
+The repository-local Markdown files should remain redirect stubs and compatibility anchors, not a second canonical prose surface, while the canonical hierarchy lives in the Antora component layout under `docs/antora.yml` and `docs/modules/`.
 
 ## Links
 

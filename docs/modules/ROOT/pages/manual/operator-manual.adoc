@@ -1,6 +1,9 @@
 = CX Operator Manual
 :page-layout: default
 
+include::../../partials/operator-surfaces-primer.adoc[]
+include::../../partials/track-primer.adoc[]
+
 `cx` is a repository-native toolchain with a kernel-owned proof path, a
 live MCP workspace surface, and a durable notes layer for AI handoff and
 verification.
@@ -17,7 +20,7 @@ decisions.
 If you are new to the repository:
 
 [arabic]
-. Read the root xref:repository/root/readme.adoc[README]
+. Read the root xref:page$repository/root/readme.adoc[README]
 . Read xref:architecture/system-map.adoc[System Map]
 . Return here once you need the operator path instead of the conceptual
 map
@@ -33,7 +36,7 @@ Use the smallest operator sequence that matches the job:
 * Native proof path: `cx inspect`, `cx bundle`, `cx validate`,
 `cx verify`, `cx extract`
 * Recovery or audit: `cx list`, `cx audit`, `cx doctor`
-* Adapter/oracle path: diagnostics and parity only, not the primary
+* Adapter/oracle path: expert diagnostics and parity only, not the primary
 operator workflow
 
 Typical minimal paths:
@@ -205,7 +208,7 @@ in profile resolution or audit state.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline,
 Roo Code, Cursor, Claude Desktop), see the
-xref:repository/docs/agent_integration.adoc[Agent Integration Guide].
+xref:page$repository/docs/agent_integration.adoc[Agent Integration Guide].
 
 Repository-local `make` shortcuts keep the developer loop compact:
 

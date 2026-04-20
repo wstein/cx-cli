@@ -1,12 +1,15 @@
 = Choose Your Operating Mode
 :page-layout: default
 
+include::../../partials/operator-surfaces-primer.adoc[]
+include::../../partials/track-primer.adoc[]
+
 This is the main conceptual entrypoint for `cx`.
 
 Start with the fastest proof of value, then learn the deeper model.
 
 The job of this document is mapping, not semantics. For canonical
-definitions, see MENTAL_MODEL.md.
+definitions, see xref:architecture/mental-model.adoc[Mental Model].
 
 == Ultra-Minimal Onboarding
 

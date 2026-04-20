@@ -1,8 +1,11 @@
 = Safe Note Mutation Workflow
 :page-layout: default
 
+include::../../partials/track-primer.adoc[]
+include::../../partials/trust-boundary-primer.adoc[]
+
 See xref:manual/operating-modes.adoc[Operating Modes],
-xref:repository/docs/agent_operating_model.adoc[Agent Operating Model], and
+xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model], and
 ../AGENT_INTEGRATION.md
 
 This workflow explains how note mutation is intentionally denied by

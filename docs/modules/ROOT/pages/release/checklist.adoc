@@ -1,6 +1,8 @@
 = Release Checklist
 :page-layout: default
 
+include::../../partials/trust-boundary-primer.adoc[]
+
 Use this short checklist when cutting a release.
 
 * Two-phase release protocol:

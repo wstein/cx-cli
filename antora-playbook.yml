@@ -5,10 +5,10 @@ content:
   sources:
     - url: .
       branches: HEAD
-      start_path: docs/antora
+      start_path: docs
 ui:
   bundle:
-    url: ./docs/antora-ui
+    url: ./docs/ui
 asciidoc:
   attributes:
     page-pagination: ''

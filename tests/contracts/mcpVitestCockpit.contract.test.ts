@@ -70,11 +70,11 @@ describe("MCP Vitest cockpit contract", () => {
   test("operator docs make the MCP cockpit discoverable", async () => {
     const readme = await readText("README.md");
     const manual = await readText(
-      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const docsIndex = await readText(
-      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );
     const testsGuide = await readText("tests/README.md");
 

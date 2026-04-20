@@ -17,7 +17,7 @@ Notes are durable cognition artifacts: atomic, historical, exploratory, and some
 
 ## Policy
 
-- `docs/` now publish through Antora and AsciiDoctor from `docs/antora/`
+- `docs/` now publish through Antora and AsciiDoctor from `docs/`
 - `notes/` should remain note-native
 - selected notes may be promoted into:
   - decision records

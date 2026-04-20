@@ -872,7 +872,7 @@ Category A invariant and cannot be configured away.
 == Extract Status Semantics
 
 The short version is below. For the operator guidance and blast radius
-of `--allow-degraded`, read xref:repository/docs/extraction_safety.adoc[Extraction
+of `--allow-degraded`, read xref:page$repository/docs/extraction_safety.adoc[Extraction
 Safety].
 
 See: MENTAL_MODEL.md for the canonical artifact lifecycle behind these

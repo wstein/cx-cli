@@ -138,7 +138,7 @@ schema history will be reset deliberately when `cx` reaches `v1.0.0`.
 
 == Related release docs
 
-* xref:repository/root/changelog.adoc[CHANGELOG.md]
+* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 * ../RELEASE_CHECKLIST.md
 * ../MENTAL_MODEL.md
 * ../STABILITY.md
