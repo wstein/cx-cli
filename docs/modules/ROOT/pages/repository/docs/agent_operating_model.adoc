@@ -68,7 +68,10 @@ The MCP registration wrapper assigns every tool one capability tier. Policy enfo
 * `plan`: `inspect`, `bundle`
 * `mutate`: `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
 
-See xref:repository/docs/stability.adoc[Stability Tiers] for tool stability tiers and xref:repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy] for machine-oriented prompt grouping.
+See xref:repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
+for tool stability tiers and
+xref:repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy]
+for machine-oriented prompt grouping.
 
 == Why Mutation Policy Denial Stops You
 

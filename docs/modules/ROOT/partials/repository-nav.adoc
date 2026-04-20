@@ -5,7 +5,6 @@
 *** xref:page$repository/docs/governance.adoc[Governance]
 *** xref:page$repository/docs/init_template_contract.adoc[Init Template Contract]
 *** xref:page$repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy]
-*** xref:page$repository/docs/stability.adoc[Stability]
 *** xref:page$repository/docs/template_typescript.adoc[TypeScript Template]
 ** Root Repository Companions
 *** xref:page$repository/root/changelog.adoc[CHANGELOG.md]

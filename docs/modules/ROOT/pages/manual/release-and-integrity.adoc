@@ -256,4 +256,4 @@ For the closed `v0.4` native-render contract state, the manifest schema is now `
 
 * xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 * xref:architecture/mental-model.adoc[Mental Model]
-* xref:page$repository/docs/stability.adoc[Stability]
+* xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]

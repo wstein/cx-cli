@@ -104,9 +104,10 @@ authority
 local development |Let agents operate with full workspace authority
 |===
 
-This is separate from tool stability tiers in STABILITY.md. Stability
-answers "how locked is this interface?" Policy answers "what is this
-agent allowed to do right now?"
+This is separate from tool stability tiers in
+xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers].
+Stability answers "how locked is this interface?" Policy answers "what
+is this agent allowed to do right now?"
 
 == Artifact Lifecycle
 

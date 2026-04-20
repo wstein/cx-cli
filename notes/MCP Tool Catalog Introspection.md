@@ -20,6 +20,6 @@ How to apply it:
 - [src/doctor/mcp.ts](../src/doctor/mcp.ts)
 - [src/cli/commands/mcp.ts](../src/cli/commands/mcp.ts)
 - [src/mcp/tools/catalog.ts](../src/mcp/tools/catalog.ts)
-- [docs/modules/ROOT/pages/repository/docs/stability.adoc](../docs/modules/ROOT/pages/repository/docs/stability.adoc)
+- [docs/modules/ROOT/pages/repository/docs/governance.adoc](../docs/modules/ROOT/pages/repository/docs/governance.adoc)
 - [[MCP Stable Contract Boundary]]
 - [[Product Tiering Model]]

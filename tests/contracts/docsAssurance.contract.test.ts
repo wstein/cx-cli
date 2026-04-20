@@ -85,6 +85,9 @@ describe("docs assurance contract", () => {
     expect(docsIndexNormalized).toContain("docs surface budget");
     expect(governance).toContain("=== Hard Hierarchy Contract");
     expect(governance).toContain("=== Docs Surface Budget");
+    expect(governance).toContain("=== MCP Tool Stability Tiers");
+    expect(governance).toContain("[[mcp-tool-stability]]");
+    expect(governance).toContain("=== Tool Stability Matrix");
     expect(governance).toContain("==== Front-Door Docs");
     expect(governance).toContain("==== Reference-Only Docs");
     expect(governance).toContain(
@@ -161,6 +164,7 @@ describe("docs assurance contract", () => {
       "It does not redefine the canonical semantics",
     );
     expect(agentModel).toContain("cx mcp catalog --json");
+    expect(agentModel).toContain("MCP Tool Stability Tiers");
     expect(agentModel).toContain("*Source tree:* trusted");
     expect(agentIntegration).toContain(
       "This document is an integration guide.",
@@ -174,6 +178,7 @@ describe("docs assurance contract", () => {
     );
     expect(manualNormalized).toContain("cx mcp catalog --json");
     expect(manual).toContain("=== MCP Setup And Daily Operator Use");
+    expect(docsIndex).toContain("MCP Tool Stability Tiers");
     expect(manualNormalized).toContain(
       "Vitest coverage is now the authoritative",
     );

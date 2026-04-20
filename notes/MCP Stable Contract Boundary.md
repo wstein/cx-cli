@@ -17,7 +17,7 @@ How to apply it:
 
 ## Links
 
-- [docs/modules/ROOT/pages/repository/docs/stability.adoc](../docs/modules/ROOT/pages/repository/docs/stability.adoc)
+- [docs/modules/ROOT/pages/repository/docs/governance.adoc](../docs/modules/ROOT/pages/repository/docs/governance.adoc)
 - [docs/modules/ROOT/pages/repository/docs/agent_integration.adoc](../docs/modules/ROOT/pages/repository/docs/agent_integration.adoc)
 - [src/mcp/tools/catalog.ts](../src/mcp/tools/catalog.ts)
 - [[Product Tiering Model]]

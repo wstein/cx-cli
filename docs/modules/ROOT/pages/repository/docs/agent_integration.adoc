@@ -6,7 +6,7 @@
 integration surface in 0.4.0.
 
 * The semver-protected subset lives in
-  xref:page$repository/docs/stability.adoc[Stability Tiers]:
+  xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]:
 core workspace reads (`list`, `grep`, `read`), bundle planning
 (`inspect`, `bundle`), and the stable notes graph and note
 lifecycle/read tools.
