@@ -63,13 +63,23 @@ describe("loadCxConfig object model", () => {
       notes: {
         requireCognitionScore: 80,
         strictNotesMode: true,
+        failOnDriftPressuredNotes: true,
         appliesToSections: ["docs"],
       },
     });
 
     expect(config.notes.requireCognitionScore).toBe(80);
     expect(config.notes.strictNotesMode).toBe(true);
+    expect(config.notes.failOnDriftPressuredNotes).toBe(true);
     expect(config.notes.appliesToSections).toEqual(["docs"]);
+  });
+
+  test("loads scanner mode from config", async () => {
+    const config = await loadConfig({
+      scanner: { mode: "fail" },
+    });
+
+    expect(config.scanner.mode).toBe("fail");
   });
 
   test("loads custom output extension overrides", async () => {

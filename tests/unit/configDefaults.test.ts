@@ -84,6 +84,16 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_VALUES.handover.repoHistoryCount).toBe(25);
     });
 
+    it("includes notes gating settings", () => {
+      expect(DEFAULT_CONFIG_VALUES.notes.strictNotesMode).toBe(false);
+      expect(DEFAULT_CONFIG_VALUES.notes.failOnDriftPressuredNotes).toBe(false);
+      expect(DEFAULT_CONFIG_VALUES.notes.appliesToSections).toEqual([]);
+    });
+
+    it("includes scanner settings", () => {
+      expect(DEFAULT_CONFIG_VALUES.scanner.mode).toBe("warn");
+    });
+
     it("includes checksum settings", () => {
       expect(DEFAULT_CONFIG_VALUES.checksums.algorithm).toBe("sha256");
       expect(DEFAULT_CONFIG_VALUES.checksums.fileName).toBe("{project}.sha256");

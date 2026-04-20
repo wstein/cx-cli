@@ -33,6 +33,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "manifest",
     "handover",
     "notes",
+    "scanner",
     "checksums",
     "tokens",
     "assets",
@@ -69,7 +70,9 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "repo_history_count",
     "require_cognition_score",
     "strict_notes_mode",
+    "fail_on_drift_pressured_notes",
     "applies_to_sections",
+    "mode",
     "algorithm",
     "file_name",
     "encoding",
@@ -192,9 +195,13 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
         ? { require_cognition_score: config.notes.requireCognitionScore }
         : {}),
       strict_notes_mode: config.notes.strictNotesMode,
+      fail_on_drift_pressured_notes: config.notes.failOnDriftPressuredNotes,
       ...(config.notes.appliesToSections.length > 0
         ? { applies_to_sections: config.notes.appliesToSections }
         : {}),
+    },
+    scanner: {
+      mode: config.scanner.mode,
     },
     checksums: {
       algorithm: config.checksums.algorithm,

@@ -165,6 +165,7 @@ proceeds.
 | --- | --- | --- |
 | `require_cognition_score` | unset | Minimum effective cognition score for gated notes. Uses the same drift- and contradiction-adjusted scoring model as `cx notes check`. |
 | `strict_notes_mode` | `false` | When `true`, every gated note must remain `high_signal` after pressure adjustments. Requires `require_cognition_score`. |
+| `fail_on_drift_pressured_notes` | `false` | When `true`, bundling fails if any gated note carries note-to-code drift pressure. |
 | `applies_to_sections` | `[]` | Optional section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes. |
 
 Example:
@@ -173,6 +174,7 @@ Example:
 [notes]
 require_cognition_score = 80
 strict_notes_mode = true
+fail_on_drift_pressured_notes = true
 applies_to_sections = ["docs"]
 ```
 
@@ -180,6 +182,23 @@ applies_to_sections = ["docs"]
 existing cognition labels and requires every gated note to stay
 `high_signal`. When the gate is active, `cx bundle` aborts with the same
 non-zero notes exit family used for malformed or duplicate notes.
+
+### `[scanner]`
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `mode` | `"warn"` | How the core source-stage scanner pipeline handles findings during bundling. `fail` blocks the bundle, `warn` emits warnings and continues. |
+
+Example:
+
+```toml
+[scanner]
+mode = "fail"
+```
+
+The scanner pipeline is currently source-stage only and is enabled by
+`repomix.security_check = true`. `scanner.mode` controls whether findings stay
+advisory or block proof-path bundling.
 
 ## Behavioral Settings
 

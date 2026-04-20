@@ -2,7 +2,7 @@
 id: 20260420120500
 title: Scanner Pipeline Contract
 tags: ["security", "scanner"]
-target: v0.4
+target: current
 ---
 Security scanning is a pluggable pipeline, not a renderer feature.
 
@@ -19,6 +19,7 @@ Scanners evaluate:
 - structured findings
 - severity
 - optional gating
+- source-stage enforcement via `fail` or `warn`
 
 ## Rule
 
@@ -33,3 +34,4 @@ Security must be extensible but deterministic.
 
 - [[Plugin Capability Tiers]]
 - [[Bundle Extraction Safety Invariants]]
+- `src/doctor/scanner.ts`

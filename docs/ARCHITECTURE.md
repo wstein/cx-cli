@@ -76,6 +76,9 @@ The canonical proof-path contract now lives in
 [`RENDER_KERNEL_CONTRACT.md`](./RENDER_KERNEL_CONTRACT.md). This section gives
 architectural context for the current implementation.
 
+The stabilized internal seams that sit beneath that contract are recorded in
+[`INTERNAL_API_CONTRACT.md`](./INTERNAL_API_CONTRACT.md).
+
 `cx` enforces a deterministic structured render contract instead of relying on
 heuristic span parsing.
 

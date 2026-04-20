@@ -56,8 +56,12 @@ repo_history_count = 25
 
 [notes]
 strict_notes_mode = false
+fail_on_drift_pressured_notes = false
 # require_cognition_score = 80
 # applies_to_sections = ["docs"]
+
+[scanner]
+mode = "warn"
 
 [checksums]
 algorithm = "sha256"
@@ -150,7 +154,11 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   },
   notes: {
     strictNotesMode: false,
+    failOnDriftPressuredNotes: false,
     appliesToSections: [],
+  },
+  scanner: {
+    mode: "warn",
   },
   checksums: {
     algorithm: "sha256",

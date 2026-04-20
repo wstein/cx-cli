@@ -2,6 +2,7 @@ export type CxStyle = "xml" | "markdown" | "json" | "plain";
 export type CxDedupMode = "fail" | "warn" | "first-wins";
 export type CxRepomixMissingExtensionMode = "fail" | "warn";
 export type CxConfigDuplicateEntryMode = "fail" | "warn" | "first-wins";
+export type CxScannerMode = "fail" | "warn";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
@@ -106,7 +107,12 @@ export interface CxHandoverConfig {
 export interface CxNotesConfig {
   requireCognitionScore?: number;
   strictNotesMode: boolean;
+  failOnDriftPressuredNotes: boolean;
   appliesToSections: string[];
+}
+
+export interface CxScannerConfig {
+  mode: CxScannerMode;
 }
 
 export interface CxChecksumsConfig {
@@ -238,6 +244,7 @@ export interface CxConfig {
   manifest: CxManifestConfig;
   handover: CxHandoverConfig;
   notes: CxNotesConfig;
+  scanner: CxScannerConfig;
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
@@ -260,6 +267,7 @@ export interface CxConfigInput {
   manifest?: Record<string, unknown>;
   handover?: Record<string, unknown>;
   notes?: Record<string, unknown>;
+  scanner?: Record<string, unknown>;
   checksums?: Record<string, unknown>;
   tokens?: Record<string, unknown>;
   display?: unknown;

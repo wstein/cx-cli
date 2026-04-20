@@ -7,8 +7,8 @@ import { type CommandIo, writeJson, writeStdout } from "../shared/output.js";
 import { getVCSState } from "../vcs/provider.js";
 import {
   loadReferenceScannerPipeline,
-  type ScannerFinding,
   type ScannerPipeline,
+  type ScannerPipelineReport,
 } from "./scanner.js";
 
 export interface DoctorSecretsArgs {
@@ -19,9 +19,12 @@ export interface DoctorSecretsArgs {
 export interface DoctorSecretsReport {
   resolvedConfigPath: string;
   securityCheckEnabled: boolean;
+  scannerMode: "fail" | "warn";
   scannedFileCount: number;
   suspiciousCount: number;
-  suspiciousFiles: ScannerFinding[];
+  findings: ScannerPipelineReport["findings"];
+  warningCount: number;
+  blockingCount: number;
 }
 
 export interface DoctorSecretsDeps {
@@ -71,14 +74,19 @@ export async function collectDoctorSecretsReport(
     masterList,
     readFile,
   );
-  const suspiciousFiles = await scannerPipeline.scanFiles(rawFiles);
+  const scanReport = await scannerPipeline.scanFiles(rawFiles, {
+    mode: config.scanner.mode,
+  });
 
   return {
     resolvedConfigPath,
     securityCheckEnabled: config.repomix.securityCheck,
+    scannerMode: config.scanner.mode,
     scannedFileCount: rawFiles.length,
-    suspiciousCount: suspiciousFiles.length,
-    suspiciousFiles,
+    suspiciousCount: scanReport.findings.length,
+    findings: scanReport.findings,
+    warningCount: scanReport.warningCount,
+    blockingCount: scanReport.blockingCount,
   };
 }
 
@@ -110,8 +118,11 @@ export function printDoctorSecretsReport(
     `Detected ${report.suspiciousCount} suspicious file${report.suspiciousCount === 1 ? "" : "s"} in ${report.resolvedConfigPath}.\n\n`,
     io,
   );
-  for (const result of report.suspiciousFiles) {
-    writeStdout(`${result.filePath}\n`, io);
+  for (const result of report.findings) {
+    writeStdout(
+      `${result.filePath} (${result.scannerId}, ${result.severity})\n`,
+      io,
+    );
     for (const message of result.messages) {
       writeStdout(`  - ${message}\n`, io);
     }

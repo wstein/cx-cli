@@ -23,6 +23,7 @@ When enabled:
 - bundle fails if required notes fall below the configured threshold
 - enforcement can apply globally or to selected sections
 - `strict_notes_mode` requires gated notes to remain `high_signal`
+- `fail_on_drift_pressured_notes` rejects gated notes with note-to-code drift pressure
 
 ## Why
 

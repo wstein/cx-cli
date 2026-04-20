@@ -2,7 +2,7 @@
 id: 20260420110300
 title: Scanner Pipeline Architecture
 tags: ["security", "scanner", "pipeline"]
-target: v0.4
+target: current
 ---
 `security_check` evolves into a pluggable scanner pipeline.
 
@@ -31,6 +31,11 @@ Scanner interface:
 - input: source or packed content
 - output: structured findings
 - optional: fail/warn gating
+
+Current implementation:
+
+- source-stage scanning before proof artifacts are finalized
+- doctor diagnostics and bundle enforcement share the same pipeline seam
 
 ## Trust rule
 

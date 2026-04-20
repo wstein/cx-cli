@@ -194,6 +194,10 @@
           "type": "boolean",
           "description": "When true, all gated notes must remain high-signal after pressure adjustments. Requires require_cognition_score to be set."
         },
+        "fail_on_drift_pressured_notes": {
+          "type": "boolean",
+          "description": "When true, bundling fails if any gated note carries note-to-code drift pressure."
+        },
         "applies_to_sections": {
           "type": "array",
           "items": {
@@ -201,6 +205,16 @@
             "minLength": 1
           },
           "description": "Optional list of section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes."
+        }
+      }
+    },
+    "scanner": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["fail", "warn"],
+          "description": "How the core source-stage scanner pipeline handles findings during bundling. 'fail' blocks the bundle; 'warn' emits warnings and continues."
         }
       }
     },

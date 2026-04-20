@@ -18,14 +18,28 @@ describe("createScannerPipelineFromRunner", () => {
     );
 
     await expect(
-      pipeline.scanFiles([{ path: "secrets.env", content: "abc123" }]),
-    ).resolves.toEqual([
-      {
-        type: "file",
-        filePath: "secrets.env",
-        messages: ["checked 6 bytes"],
-      },
-    ]);
+      pipeline.scanFiles([{ path: "secrets.env", content: "abc123" }], {
+        mode: "fail",
+      }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        mode: "fail",
+        warningCount: 0,
+        blockingCount: 1,
+        findings: [
+          {
+            scannerId: "reference_secrets",
+            profile: "core",
+            stage: "pre_pack_source",
+            severity: "error",
+            blocksProof: true,
+            type: "file",
+            filePath: "secrets.env",
+            messages: ["checked 6 bytes"],
+          },
+        ],
+      }),
+    );
   });
 });
 

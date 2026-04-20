@@ -5,12 +5,15 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
+import { runBundleCommand } from "../../src/cli/commands/bundle.js";
+import type { ScannerPipeline } from "../../src/doctor/scanner.js";
 import {
   MANIFEST_SCHEMA_VERSION,
   parseManifestJson,
   renderManifestJson,
 } from "../../src/manifest/json.js";
 import type { CxManifest } from "../../src/manifest/types.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import {
   commandAvailable,
   createProject,
@@ -99,6 +102,137 @@ This note states one small idea.
     await expect(
       runQuietBundleCommand({ config: project.configPath }),
     ).resolves.toBe(0);
+  });
+
+  test("fails bundling when gated notes are drift-pressured", async () => {
+    const project = await createProject({
+      config: {
+        sections: {
+          docs: {
+            include: ["README.md", "docs/**", "notes/**"],
+            exclude: [],
+          },
+          src: {
+            include: ["src/**"],
+            exclude: [],
+          },
+        },
+        notes: {
+          failOnDriftPressuredNotes: true,
+          strictNotesMode: false,
+          appliesToSections: ["docs"],
+        },
+      },
+      files: {
+        "notes/drifted-note.md": `---
+id: 20260420150002
+aliases: []
+tags: []
+target: current
+---
+
+# Drifted Note
+
+This note explains a real file path so the summary stays non-trivial.
+
+## Links
+
+- [[src/missing.ts]]
+`,
+      },
+    });
+
+    await expect(
+      runQuietBundleCommand({ config: project.configPath }),
+    ).rejects.toMatchObject({
+      exitCode: 10,
+      message: expect.stringContaining("fail_on_drift_pressured_notes"),
+    });
+  });
+
+  test("blocks bundling when the core scanner runs in fail mode", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          securityCheck: true,
+        },
+        scanner: {
+          mode: "fail",
+        },
+      },
+    });
+    const scannerPipeline: ScannerPipeline = {
+      scanFiles: async () => ({
+        mode: "fail",
+        warningCount: 0,
+        blockingCount: 1,
+        findings: [
+          {
+            scannerId: "test_scanner",
+            profile: "core",
+            stage: "pre_pack_source",
+            severity: "error",
+            blocksProof: true,
+            filePath: "src/index.ts",
+            messages: ["contains simulated secret"],
+          },
+        ],
+      }),
+    };
+
+    await expect(
+      runBundleCommand(
+        { config: project.configPath },
+        createBufferedCommandIo().io,
+        { scannerPipeline },
+      ),
+    ).rejects.toMatchObject({
+      exitCode: 10,
+      message: expect.stringContaining("Scanner pipeline blocked bundling"),
+    });
+  });
+
+  test("surfaces scanner warnings in bundle json output when scanner.mode = warn", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          securityCheck: true,
+        },
+        scanner: {
+          mode: "warn",
+        },
+      },
+    });
+    const scannerPipeline: ScannerPipeline = {
+      scanFiles: async () => ({
+        mode: "warn",
+        warningCount: 1,
+        blockingCount: 0,
+        findings: [
+          {
+            scannerId: "test_scanner",
+            profile: "core",
+            stage: "pre_pack_source",
+            severity: "warning",
+            blocksProof: false,
+            filePath: "src/index.ts",
+            messages: ["contains simulated secret"],
+          },
+        ],
+      }),
+    };
+    const capture = createBufferedCommandIo();
+
+    await expect(
+      runBundleCommand({ config: project.configPath, json: true }, capture.io, {
+        scannerPipeline,
+      }),
+    ).resolves.toBe(0);
+
+    const payload = JSON.parse(capture.stdout()) as { warnings: string[] };
+    expect(payload.warnings).toContain(
+      "Scanner warning: src/index.ts (test_scanner, warning): contains simulated secret",
+    );
   });
 
   test("records note summaries in the manifest", async () => {

@@ -14,9 +14,12 @@ function makeReport(
   return {
     resolvedConfigPath: "/tmp/cx.toml",
     securityCheckEnabled: true,
+    scannerMode: "warn",
     scannedFileCount: 0,
     suspiciousCount: 0,
-    suspiciousFiles: [],
+    findings: [],
+    warningCount: 0,
+    blockingCount: 0,
     ...overrides,
   };
 }
@@ -48,8 +51,13 @@ describe("printDoctorSecretsReport", () => {
   test("suspicious files prints file paths and messages", async () => {
     const report = makeReport({
       suspiciousCount: 1,
-      suspiciousFiles: [
+      findings: [
         {
+          scannerId: "reference_secrets",
+          profile: "core",
+          stage: "pre_pack_source",
+          severity: "warning",
+          blocksProof: false,
           type: "file",
           filePath: "secrets/.env",
           messages: ["contains API key pattern"],
@@ -59,6 +67,7 @@ describe("printDoctorSecretsReport", () => {
     const capture = createBufferedCommandIo();
     printDoctorSecretsReport(report, false, capture.io);
     expect(capture.stdout()).toContain("secrets/.env");
+    expect(capture.stdout()).toContain("reference_secrets");
     expect(capture.stdout()).toContain("contains API key pattern");
     expect(capture.stdout()).toContain("Detected 1 suspicious file");
   });
@@ -66,9 +75,27 @@ describe("printDoctorSecretsReport", () => {
   test("multiple suspicious files uses plural label", async () => {
     const report = makeReport({
       suspiciousCount: 2,
-      suspiciousFiles: [
-        { type: "file", filePath: "a.env", messages: ["msg1"] },
-        { type: "file", filePath: "b.env", messages: ["msg2"] },
+      findings: [
+        {
+          scannerId: "reference_secrets",
+          profile: "core",
+          stage: "pre_pack_source",
+          severity: "warning",
+          blocksProof: false,
+          type: "file",
+          filePath: "a.env",
+          messages: ["msg1"],
+        },
+        {
+          scannerId: "reference_secrets",
+          profile: "core",
+          stage: "pre_pack_source",
+          severity: "warning",
+          blocksProof: false,
+          type: "file",
+          filePath: "b.env",
+          messages: ["msg2"],
+        },
       ],
     });
     const capture = createBufferedCommandIo();
@@ -86,6 +113,7 @@ describe("collectDoctorSecretsReport", () => {
           ({
             sourceRoot: "/tmp",
             repomix: { securityCheck: true },
+            scanner: { mode: "warn" },
           }) as unknown as Awaited<
             ReturnType<typeof import("../../src/config/load.js").loadCxConfig>
           >,
@@ -95,7 +123,12 @@ describe("collectDoctorSecretsReport", () => {
           >,
         getMasterList: async () => [] as unknown as string[],
         scannerPipeline: {
-          scanFiles: async () => [],
+          scanFiles: async () => ({
+            mode: "warn",
+            findings: [],
+            warningCount: 0,
+            blockingCount: 0,
+          }),
         } satisfies ScannerPipeline,
         readFile: (async () =>
           "") as unknown as typeof import("node:fs/promises").readFile,
@@ -104,5 +137,6 @@ describe("collectDoctorSecretsReport", () => {
     expect(report.suspiciousCount).toBe(0);
     expect(report.scannedFileCount).toBe(0);
     expect(report.securityCheckEnabled).toBe(true);
+    expect(report.scannerMode).toBe("warn");
   });
 });

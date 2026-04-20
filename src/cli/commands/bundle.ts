@@ -5,6 +5,8 @@ import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout, CxStyle } from "../../config/types.js";
+import type { ScannerPipeline } from "../../doctor/scanner.js";
+import { loadReferenceScannerPipeline } from "../../doctor/scanner.js";
 import { buildManifest } from "../../manifest/build.js";
 import { writeChecksumFile } from "../../manifest/checksums.js";
 import { renderManifestJson } from "../../manifest/json.js";
@@ -104,6 +106,11 @@ interface RenderedSectionArtifacts {
   planHash?: string;
 }
 
+interface BundleCommandDeps {
+  scannerPipeline?: ScannerPipeline;
+  readFile?: typeof fs.readFile;
+}
+
 function normalizeRelativeNotePath(
   sourceRoot: string,
   filePath: string,
@@ -144,6 +151,7 @@ async function enforceNotesGate(params: {
     notes: {
       requireCognitionScore?: number;
       strictNotesMode: boolean;
+      failOnDriftPressuredNotes: boolean;
       appliesToSections: string[];
     };
   };
@@ -155,7 +163,8 @@ async function enforceNotesGate(params: {
   const notesConfig = params.config.notes;
   if (
     notesConfig.requireCognitionScore === undefined &&
-    !notesConfig.strictNotesMode
+    !notesConfig.strictNotesMode &&
+    !notesConfig.failOnDriftPressuredNotes
   ) {
     return;
   }
@@ -185,8 +194,15 @@ async function enforceNotesGate(params: {
   const strictFailures = notesConfig.strictNotesMode
     ? gatedNotes.filter((note) => note.label !== "high_signal")
     : [];
+  const driftFailures = notesConfig.failOnDriftPressuredNotes
+    ? gatedNotes.filter((note) => note.driftWarningCount > 0)
+    : [];
 
-  if (thresholdFailures.length === 0 && strictFailures.length === 0) {
+  if (
+    thresholdFailures.length === 0 &&
+    strictFailures.length === 0 &&
+    driftFailures.length === 0
+  ) {
     return;
   }
 
@@ -209,6 +225,16 @@ async function enforceNotesGate(params: {
       );
     }
   }
+  if (driftFailures.length > 0) {
+    detailLines.push(
+      `fail_on_drift_pressured_notes rejects gated notes with note-to-code drift warnings, but ${driftFailures.length} gated note(s) were drift-pressured:`,
+    );
+    for (const note of driftFailures) {
+      detailLines.push(
+        `- [${note.id}] ${note.title} (drift warnings ${note.driftWarningCount})`,
+      );
+    }
+  }
 
   throw new CxError(detailLines.join("\n"), 10, {
     remediation: {
@@ -222,6 +248,106 @@ async function enforceNotesGate(params: {
       ],
     },
   });
+}
+
+async function collectScannerSourceFiles(params: {
+  sourceRoot: string;
+  plan: {
+    sections: Array<{
+      files: Array<{
+        relativePath: string;
+        absolutePath: string;
+        kind: string;
+      }>;
+    }>;
+  };
+  readFile: typeof fs.readFile;
+}): Promise<Array<{ path: string; content: string }>> {
+  const files: Array<{ path: string; content: string }> = [];
+
+  for (const section of params.plan.sections) {
+    for (const file of section.files) {
+      if (file.kind !== "text") {
+        continue;
+      }
+
+      files.push({
+        path: file.relativePath,
+        content: await params.readFile(file.absolutePath, "utf8"),
+      });
+    }
+  }
+
+  return files;
+}
+
+async function enforceScannerPipeline(params: {
+  config: {
+    repomix: { securityCheck: boolean };
+    scanner: { mode: "fail" | "warn" };
+  };
+  plan: {
+    sourceRoot: string;
+    sections: Array<{
+      files: Array<{
+        relativePath: string;
+        absolutePath: string;
+        kind: string;
+      }>;
+    }>;
+  };
+  io: Partial<CommandIo>;
+  scannerPipeline?: ScannerPipeline;
+  readFile: typeof fs.readFile;
+}): Promise<string[]> {
+  if (!params.config.repomix.securityCheck) {
+    return [];
+  }
+
+  const scannerPipeline =
+    params.scannerPipeline ?? (await loadReferenceScannerPipeline());
+  const scannerFiles = await collectScannerSourceFiles({
+    sourceRoot: params.plan.sourceRoot,
+    plan: params.plan,
+    readFile: params.readFile,
+  });
+  const scanReport = await scannerPipeline.scanFiles(scannerFiles, {
+    mode: params.config.scanner.mode,
+  });
+
+  if (scanReport.findings.length === 0) {
+    return [];
+  }
+
+  const findingSummaries = scanReport.findings.map(
+    (finding) =>
+      `${finding.filePath} (${finding.scannerId}, ${finding.severity}): ${finding.messages.join("; ")}`,
+  );
+
+  if (scanReport.blockingCount > 0) {
+    throw new CxError(
+      `Scanner pipeline blocked bundling with ${scanReport.blockingCount} finding(s).\n${findingSummaries.map((line) => `- ${line}`).join("\n")}`,
+      10,
+      {
+        remediation: {
+          docsRef: "notes/Scanner Pipeline Contract.md",
+          whyThisProtectsYou:
+            "Core scanners protect the proof path from shipping known-sensitive content inside a bundle.",
+          nextSteps: [
+            "Remove or rotate the flagged secret material, then rerun cx bundle.",
+            'Set scanner.mode = "warn" only when the reduced enforcement is intentional.',
+            "Run `cx doctor secrets --config cx.toml` to review the scanner findings directly.",
+          ],
+        },
+      },
+    );
+  }
+
+  const warnings = findingSummaries.map((line) => `Scanner warning: ${line}`);
+  for (const warning of warnings) {
+    writeStderr(`Warning: ${warning}\n`, params.io);
+  }
+  return warnings;
 }
 
 export async function collectSharedHandoverRepoHistory(params: {
@@ -358,6 +484,7 @@ async function performDifferentialSync(params: {
 export async function runBundleCommand(
   args: BundleArgs,
   ioArg: Partial<CommandIo> = {},
+  deps: BundleCommandDeps = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
   const config = await loadCxConfig(
@@ -406,6 +533,13 @@ export async function runBundleCommand(
     });
   }
   await enforceNotesGate({ config, plan });
+  const scannerWarnings = await enforceScannerPipeline({
+    config,
+    plan,
+    io,
+    scannerPipeline: deps.scannerPipeline,
+    readFile: deps.readFile ?? fs.readFile,
+  });
 
   const ciMode = args.ci ?? false;
   const forceMode = args.force ?? false;
@@ -828,7 +962,7 @@ export async function runBundleCommand(
             totalPackedTokens: totalTokens,
             totalOutputTokens,
           },
-          warnings: [...plan.warnings, ...renderWarnings],
+          warnings: [...plan.warnings, ...scannerWarnings, ...renderWarnings],
         },
         io,
       );

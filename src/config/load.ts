@@ -23,6 +23,8 @@ import type {
   CxNotesConfig,
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
+  CxScannerConfig,
+  CxScannerMode,
   CxSectionConfig,
   CxStyle,
 } from "./types.js";
@@ -46,6 +48,7 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
   "fail",
 ]);
 const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
+const VALID_SCANNER_MODES = new Set<CxScannerMode>(["fail", "warn"]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -330,6 +333,11 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
     "notes.strict_notes_mode",
     DEFAULT_CONFIG_VALUES.notes.strictNotesMode,
   );
+  const failOnDriftPressuredNotes = expectBoolean(
+    notes.fail_on_drift_pressured_notes,
+    "notes.fail_on_drift_pressured_notes",
+    DEFAULT_CONFIG_VALUES.notes.failOnDriftPressuredNotes,
+  );
   const appliesToSections = expectStringArray(
     notes.applies_to_sections,
     "notes.applies_to_sections",
@@ -345,7 +353,19 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
   return {
     ...(requireCognitionScore !== undefined && { requireCognitionScore }),
     strictNotesMode,
+    failOnDriftPressuredNotes,
     appliesToSections,
+  };
+}
+
+function parseScannerConfig(scanner: Record<string, unknown>): CxScannerConfig {
+  return {
+    mode: expectEnum(
+      scanner.mode,
+      "scanner.mode",
+      VALID_SCANNER_MODES,
+      DEFAULT_CONFIG_VALUES.scanner.mode,
+    ),
   };
 }
 
@@ -638,6 +658,7 @@ function buildCxConfigFromParsedInput(
   const manifest = parsed.manifest ?? {};
   const handover = parsed.handover ?? {};
   const notes = parsed.notes ?? {};
+  const scanner = parsed.scanner ?? {};
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
@@ -926,6 +947,7 @@ function buildCxConfigFromParsedInput(
     },
     handover: parseHandoverConfig(handover),
     notes: notesConfig,
+    scanner: parseScannerConfig(scanner),
     checksums: {
       algorithm: "sha256",
       fileName: resolveTemplate(

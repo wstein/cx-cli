@@ -371,13 +371,11 @@ describe("doctor JSON lane", () => {
 
     const payload = parseJsonOutput<{
       suspiciousCount?: number;
-      suspiciousFiles?: Array<{ filePath: string; messages: string[] }>;
+      findings?: Array<{ filePath: string; messages: string[] }>;
     }>(result.stdout);
     expect(payload.suspiciousCount).toBe(1);
-    expect(payload.suspiciousFiles?.[0]?.filePath).toBe("secrets.txt");
-    expect(payload.suspiciousFiles?.[0]?.messages?.[0]).toContain(
-      "GitHub Token",
-    );
+    expect(payload.findings?.[0]?.filePath).toBe("secrets.txt");
+    expect(payload.findings?.[0]?.messages?.[0]).toContain("GitHub Token");
   });
 
   test("doctor workflow emits JSON recommendations", async () => {

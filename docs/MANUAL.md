@@ -279,6 +279,17 @@ cx audit summary --json
 
 `cx doctor mcp` shows the resolved MCP profile and the effective `files.include` and `files.exclude` arrays. `cx doctor notes` audits note wikilinks that look like repository paths against the planning master list after `files.include` and `files.exclude` are applied. `cx doctor secrets` scans that same master list for suspicious credentials using the same security rules the planning workflow relies on.
 
+Bundle-time scanner enforcement is controlled separately:
+
+```toml
+[scanner]
+mode = "warn"  # or "fail"
+```
+
+With `scanner.mode = "warn"`, `cx bundle` emits scanner findings as warnings and
+continues. With `scanner.mode = "fail"`, the same core findings block the
+bundle before proof artifacts are finalized.
+
 `cx mcp catalog --json` is the preferred narrow machine-readable endpoint for MCP tool metadata. `cx doctor mcp --json` also exposes the same catalog fields when you need them alongside profile resolution and audit trends.
 
 When you only need the audit ledger itself, `cx audit summary --json` reports allowed versus denied totals, policy-name counts, capability counts, and recent `traceId` values from `.cx/audit.log` without repeating the rest of the MCP profile.
@@ -361,6 +372,7 @@ high-assurance environments, add:
 [notes]
 require_cognition_score = 80
 strict_notes_mode = true
+fail_on_drift_pressured_notes = true
 applies_to_sections = ["docs"]
 ```
 
@@ -368,6 +380,10 @@ This uses the same effective cognition model as `cx notes check`, including
 drift and contradiction pressure. `strict_notes_mode` raises the bar further:
 every gated note must remain `high_signal`, not merely above a numeric
 threshold.
+
+`fail_on_drift_pressured_notes` is stricter still. It rejects gated notes whose
+score may still be acceptable overall but that are already under note-to-code
+drift pressure.
 
 If you are checking whether a section is becoming too large, run:
 

@@ -10,6 +10,7 @@ import type {
   CxNotesConfig,
   CxOutputConfig,
   CxRepomixConfig,
+  CxScannerConfig,
   CxSectionConfig,
   CxTokensConfig,
 } from "../../../src/config/types.js";
@@ -32,6 +33,7 @@ export interface BuildConfigOptions {
   manifest?: Partial<CxManifestConfig>;
   handover?: Partial<CxHandoverConfig>;
   notes?: Partial<CxNotesConfig>;
+  scanner?: Partial<CxScannerConfig>;
   checksums?: Partial<CxChecksumsConfig>;
   tokens?: Partial<CxTokensConfig>;
   assets?: Partial<CxAssetsConfig>;
@@ -141,8 +143,13 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
     },
     notes: {
       strictNotesMode: false,
+      failOnDriftPressuredNotes: false,
       appliesToSections: [],
       ...options.notes,
+    },
+    scanner: {
+      mode: "warn",
+      ...options.scanner,
     },
     checksums: {
       algorithm: "sha256",
