@@ -125,21 +125,22 @@ for operator and agent context.
 
 | Key | Default | Description |
 | --- | --- | --- |
-| `include_repo_history` | `false` | Include recent Git, Mercurial, or Fossil commit subjects in the shared handover when bundling from a supported VCS worktree. |
-| `repo_history_count` | `30` | Maximum number of recent commit subjects to include when repository history is enabled. |
+| `include_repo_history` | `false` | Include recent Git, Mercurial, or Fossil commit messages in the shared handover when bundling from a supported VCS worktree. |
+| `repo_history_count` | `25` | Maximum number of recent commit messages to include when repository history is enabled. |
 
 Example:
 
 ```toml
 [handover]
 include_repo_history = true
-repo_history_count = 30
+repo_history_count = 25
 ```
 
-When enabled, `cx` records the newest bounded commit subjects in deterministic
-newest-first order for Git, Mercurial, and Fossil repositories. Diffs are never
-embedded in the shared handover, and this setting does not affect proof-path
-section outputs or manifest hashing rules.
+When enabled, `cx` records the newest bounded commit messages in deterministic
+newest-first order for Git, Mercurial, and Fossil repositories. Multiline
+messages are preserved, diffs are never embedded in the shared handover, and
+this setting does not affect proof-path section outputs or manifest hashing
+rules.
 
 For `json` bundles, both the shared handover and JSON section output artifacts
 must satisfy their published schema-shaped contracts:

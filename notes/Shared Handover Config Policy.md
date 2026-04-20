@@ -11,11 +11,11 @@ The shared handover should have a small, explicit configuration surface so opera
 Reasonable first controls:
 
 - include_repo_history = true|false
-- repo_history_count = 30
+- repo_history_count = 25
 
 Optional later controls:
 
-- repo_history_format = "subject"
+- repo_history_format = "message"
 - include_repo_history_body = false
 
 ## Why

@@ -52,7 +52,7 @@ describe("loadCxConfig", () => {
     expect(config.dedup.mode).toBe("fail");
     expect(config.manifest.pretty).toBe(true);
     expect(config.handover.includeRepoHistory).toBe(false);
-    expect(config.handover.repoHistoryCount).toBe(30);
+    expect(config.handover.repoHistoryCount).toBe(25);
     expect(config.mcp.policy).toBe("default");
   });
 

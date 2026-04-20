@@ -10,18 +10,11 @@ type FossilRunner = (
   args: string[],
   cwd: string,
 ) => Promise<{ stdout: string }>;
-const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
+const HISTORY_RECORD_SEPARATOR = "CX_HISTORY_RECORD__";
+const HISTORY_FIELD_SEPARATOR = "CX_HISTORY_FIELD__";
 
 export interface FossilHistoryEntry extends RepositoryHistoryEntry {
   hash: string;
-}
-
-function truncateHistorySubject(subject: string, limit: number): string {
-  const normalized = subject.trim();
-  if (normalized.length <= limit) {
-    return normalized;
-  }
-  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
 }
 
 /**
@@ -110,9 +103,7 @@ export async function getRecentFossilHistory(
   }
 
   const query = [
-    "select b.uuid || char(9) ||",
-    "trim(substr(coalesce(e.comment,''), 1,",
-    "instr(coalesce(e.comment,'') || char(10), char(10)) - 1))",
+    `select b.uuid || '${HISTORY_FIELD_SEPARATOR}' || coalesce(e.comment,'') || '${HISTORY_RECORD_SEPARATOR}'`,
     "from event e",
     "join blob b on b.rid=e.objid",
     "where e.type='ci'",
@@ -122,19 +113,25 @@ export async function getRecentFossilHistory(
   const { stdout } = await run(["sql", query], sourceRoot);
 
   return stdout
-    .split("\n")
-    .map((line) => line.trim())
+    .split(HISTORY_RECORD_SEPARATOR)
+    .map((entry) => entry.replace(/\n+$/u, ""))
     .filter(Boolean)
-    .map((line) => {
-      const [hash, ...subjectParts] = line.split("\t");
-      const subject = subjectParts.join("\t");
-      if (!hash || !subject) {
+    .map((entry) => {
+      const separatorIndex = entry.indexOf(HISTORY_FIELD_SEPARATOR);
+      if (separatorIndex === -1) {
+        return null;
+      }
+      const hash = entry.slice(0, separatorIndex).trim();
+      const message = entry
+        .slice(separatorIndex + HISTORY_FIELD_SEPARATOR.length)
+        .replace(/\n+$/u, "");
+      if (!hash || !message) {
         return null;
       }
       return {
         hash,
         shortHash: hash.slice(0, 12),
-        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+        message,
       } satisfies FossilHistoryEntry;
     })
     .filter((entry): entry is FossilHistoryEntry => entry !== null);

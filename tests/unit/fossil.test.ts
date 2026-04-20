@@ -77,14 +77,14 @@ describe("Fossil VCS helpers", () => {
     expect(state.untrackedFiles).toEqual([]);
   });
 
-  test("getRecentFossilHistory parses bounded subject-only history", async () => {
+  test("getRecentFossilHistory preserves multiline commit messages", async () => {
     const run = async (args: string[]) => {
       if (args[0] === "sql") {
         return {
           stdout: [
-            "aaaaaaaaaaaa1111111111111111111111111111\tAdd handover history",
-            "bbbbbbbbbbbb2222222222222222222222222222\tTighten contract tests",
-          ].join("\n"),
+            "aaaaaaaaaaaa1111111111111111111111111111CX_HISTORY_FIELD__Add handover history\n\nBody lineCX_HISTORY_RECORD__",
+            "bbbbbbbbbbbb2222222222222222222222222222CX_HISTORY_FIELD__Tighten contract testsCX_HISTORY_RECORD__",
+          ].join(""),
         };
       }
       throw new Error(`unexpected fossil command: ${args.join(" ")}`);
@@ -96,12 +96,12 @@ describe("Fossil VCS helpers", () => {
       {
         hash: "aaaaaaaaaaaa1111111111111111111111111111",
         shortHash: "aaaaaaaaaaaa",
-        subject: "Add handover history",
+        message: "Add handover history\n\nBody line",
       },
       {
         hash: "bbbbbbbbbbbb2222222222222222222222222222",
         shortHash: "bbbbbbbbbbbb",
-        subject: "Tighten contract tests",
+        message: "Tighten contract tests",
       },
     ]);
   });

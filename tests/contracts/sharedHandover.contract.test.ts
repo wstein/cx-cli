@@ -24,7 +24,7 @@ describe("shared handover contract", () => {
       repoHistory: [
         {
           shortHash: "cccccccccccc",
-          subject: "Add xml handover contract",
+          message: "Add xml handover contract\n\nBody context",
         },
       ],
     });
@@ -41,7 +41,9 @@ describe("shared handover contract", () => {
     expect(rendered).toContain(
       "- docs: demo-repomix-docs.xml.txt | xml | 1 files | packed tokens 4 | output tokens 9",
     );
-    expect(rendered).toContain("- cccccccccccc Add xml handover contract");
+    expect(rendered).toContain(
+      "- cccccccccccc\n  Add xml handover contract\n  \n  Body context",
+    );
     expect(rendered).not.toContain("<?xml");
     expect(rendered).not.toContain("<cx_shared_handover>");
   });
@@ -64,7 +66,7 @@ describe("shared handover contract", () => {
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
-          subject: "Add markdown handover contract",
+          message: "Add markdown handover contract\n\nBody context",
         },
       ],
     });
@@ -80,7 +82,10 @@ describe("shared handover contract", () => {
         "- docs: demo-repomix-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
         "",
         "## Recent repository history",
-        "- aaaaaaaaaaaa Add markdown handover contract",
+        "- aaaaaaaaaaaa",
+        "  Add markdown handover contract",
+        "  ",
+        "  Body context",
         "",
         "use this shared handover with the section files; each section output remains self-contained.",
         "",
@@ -107,7 +112,7 @@ describe("shared handover contract", () => {
       repoHistory: [
         {
           shortHash: "bbbbbbbbbbbb",
-          subject: "Add json handover contract",
+          message: "Add json handover contract\n\nBody context",
         },
       ],
     });
@@ -134,7 +139,7 @@ describe("shared handover contract", () => {
           recentRepositoryHistory: [
             {
               shortHash: "bbbbbbbbbbbb",
-              subject: "Add json handover contract",
+              message: "Add json handover contract\n\nBody context",
             },
           ],
           usage:

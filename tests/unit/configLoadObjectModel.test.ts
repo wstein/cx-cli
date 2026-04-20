@@ -42,7 +42,7 @@ describe("loadCxConfig object model", () => {
       plain: ".txt",
     });
     expect(config.handover.includeRepoHistory).toBe(false);
-    expect(config.handover.repoHistoryCount).toBe(30);
+    expect(config.handover.repoHistoryCount).toBe(25);
     expect(config.sections.src?.include).toEqual(["src/**"]);
   });
 

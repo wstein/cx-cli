@@ -55,10 +55,10 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["shortHash", "subject"],
+        "required": ["shortHash", "message"],
         "properties": {
           "shortHash": { "type": "string", "minLength": 1 },
-          "subject": { "type": "string", "minLength": 1 }
+          "message": { "type": "string", "minLength": 1 }
         }
       }
     },

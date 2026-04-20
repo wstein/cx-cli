@@ -131,7 +131,7 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
     },
     handover: {
       includeRepoHistory: false,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
       ...options.handover,
     },
     checksums: {

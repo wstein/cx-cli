@@ -103,7 +103,7 @@ It should become the manifest summary.
       config: {
         handover: {
           includeRepoHistory: true,
-          repoHistoryCount: 30,
+          repoHistoryCount: 25,
         },
       },
     });
@@ -118,7 +118,7 @@ It should become the manifest summary.
     const handover = await fs.readFile(handoverPath, "utf8");
 
     expect(handover).toContain("<recent_repository_history>");
-    expect(handover).toMatch(/- [a-f0-9]{12} init/);
+    expect(handover).toMatch(/- [a-f0-9]{12}\n {2}init/);
   });
 
   test("omits repository history from the shared handover outside git worktrees", async () => {
@@ -126,7 +126,7 @@ It should become the manifest summary.
       config: {
         handover: {
           includeRepoHistory: true,
-          repoHistoryCount: 30,
+          repoHistoryCount: 25,
         },
       },
     });
@@ -153,7 +153,7 @@ It should become the manifest summary.
       config: {
         handover: {
           includeRepoHistory: true,
-          repoHistoryCount: 30,
+          repoHistoryCount: 25,
         },
       },
     });
@@ -170,7 +170,7 @@ It should become the manifest summary.
     );
 
     expect(handover).toContain("<recent_repository_history>");
-    expect(handover).toMatch(/- [a-f0-9]{12} init/);
+    expect(handover).toMatch(/- [a-f0-9]{12}\n {2}init/);
   });
 
   test("nests files inside their section in the JSON manifest", () => {

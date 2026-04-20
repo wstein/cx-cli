@@ -60,12 +60,12 @@ describe("Git VCS helpers", () => {
     expect(state.untrackedFiles).toEqual(["stray.txt"]);
   });
 
-  test("getRecentGitHistory trims record separator newlines cleanly", async () => {
+  test("getRecentGitHistory preserves multiline commit messages", async () => {
     const run = async (args: string[]) => {
       expect(args[0]).toBe("log");
       return {
         stdout:
-          "aaaaaaaaaaaa1111111111111111111111111111\u001fFirst commit\u001e\nbbbbbbbbbbbb2222222222222222222222222222\u001fSecond commit\u001e\n",
+          "aaaaaaaaaaaa1111111111111111111111111111\u001fFirst commit\n\nBody line\u001e\nbbbbbbbbbbbb2222222222222222222222222222\u001fSecond commit\u001e\n",
       };
     };
 
@@ -75,12 +75,12 @@ describe("Git VCS helpers", () => {
       {
         hash: "aaaaaaaaaaaa1111111111111111111111111111",
         shortHash: "aaaaaaaaaaaa",
-        subject: "First commit",
+        message: "First commit\n\nBody line",
       },
       {
         hash: "bbbbbbbbbbbb2222222222222222222222222222",
         shortHash: "bbbbbbbbbbbb",
-        subject: "Second commit",
+        message: "Second commit",
       },
     ]);
   });

@@ -13,7 +13,17 @@ export interface SharedHandoverSectionSummary {
 
 export interface RepositoryHistoryEntry {
   shortHash: string;
-  subject: string;
+  message: string;
+}
+
+function appendHistoryLines(
+  lines: string[],
+  entry: RepositoryHistoryEntry,
+): void {
+  lines.push(`- ${entry.shortHash}`);
+  for (const line of entry.message.replace(/\n+$/u, "").split("\n")) {
+    lines.push(line.length === 0 ? "  " : `  ${line}`);
+  }
 }
 
 interface SharedHandoverRenderParams {
@@ -61,7 +71,7 @@ function renderSharedHandoverPlainText(
   if ((params.repoHistory?.length ?? 0) > 0) {
     lines.push("", "recent repository history:");
     for (const entry of params.repoHistory ?? []) {
-      lines.push(`- ${entry.shortHash} ${entry.subject}`);
+      appendHistoryLines(lines, entry);
     }
   }
 
@@ -112,7 +122,7 @@ function renderSharedHandoverXml(
   if ((params.repoHistory?.length ?? 0) > 0) {
     lines.push("", "<recent_repository_history>");
     for (const entry of params.repoHistory ?? []) {
-      lines.push(`- ${entry.shortHash} ${entry.subject}`);
+      appendHistoryLines(lines, entry);
     }
     lines.push("</recent_repository_history>");
   }
@@ -180,7 +190,7 @@ function renderSharedHandoverMarkdown(
   if ((params.repoHistory?.length ?? 0) > 0) {
     lines.push("", "## Recent repository history");
     for (const entry of params.repoHistory ?? []) {
-      lines.push(`- ${entry.shortHash} ${entry.subject}`);
+      appendHistoryLines(lines, entry);
     }
   }
 

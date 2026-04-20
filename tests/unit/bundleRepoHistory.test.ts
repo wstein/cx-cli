@@ -9,7 +9,7 @@ describe("shared handover repo history collection", () => {
 
     const history = await collectSharedHandoverRepoHistory({
       includeRepoHistory: true,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
       vcsKind: "none",
       sourceRoot: "/tmp/demo",
       emitWarning,
@@ -30,7 +30,7 @@ describe("shared handover repo history collection", () => {
 
     const history = await collectSharedHandoverRepoHistory({
       includeRepoHistory: true,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
       vcsKind: "git",
       sourceRoot: "/tmp/demo",
       emitWarning,
@@ -40,7 +40,7 @@ describe("shared handover repo history collection", () => {
     });
 
     expect(history).toEqual([]);
-    expect(historyLoader).toHaveBeenCalledWith("/tmp/demo", 30);
+    expect(historyLoader).toHaveBeenCalledWith("/tmp/demo", 25);
     expect(emitWarning).toHaveBeenCalledWith(
       "failed to collect recent repository history for shared handover: git log failed",
     );
@@ -50,13 +50,13 @@ describe("shared handover repo history collection", () => {
     const hgLoader = vi.fn().mockResolvedValue([
       {
         shortHash: "aaaaaaaaaaaa",
-        subject: "Add mercurial history",
+        message: "Add mercurial history\n\nBody line",
       },
     ]);
 
     const history = await collectSharedHandoverRepoHistory({
       includeRepoHistory: true,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
       vcsKind: "hg",
       sourceRoot: "/tmp/demo",
       emitWarning: vi.fn(),
@@ -65,11 +65,11 @@ describe("shared handover repo history collection", () => {
       },
     });
 
-    expect(hgLoader).toHaveBeenCalledWith("/tmp/demo", 30);
+    expect(hgLoader).toHaveBeenCalledWith("/tmp/demo", 25);
     expect(history).toEqual([
       {
         shortHash: "aaaaaaaaaaaa",
-        subject: "Add mercurial history",
+        message: "Add mercurial history\n\nBody line",
       },
     ]);
   });
@@ -78,13 +78,13 @@ describe("shared handover repo history collection", () => {
     const fossilLoader = vi.fn().mockResolvedValue([
       {
         shortHash: "bbbbbbbbbbbb",
-        subject: "Add fossil history",
+        message: "Add fossil history\n\nBody line",
       },
     ]);
 
     const history = await collectSharedHandoverRepoHistory({
       includeRepoHistory: true,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
       vcsKind: "fossil",
       sourceRoot: "/tmp/demo",
       emitWarning: vi.fn(),
@@ -93,11 +93,11 @@ describe("shared handover repo history collection", () => {
       },
     });
 
-    expect(fossilLoader).toHaveBeenCalledWith("/tmp/demo", 30);
+    expect(fossilLoader).toHaveBeenCalledWith("/tmp/demo", 25);
     expect(history).toEqual([
       {
         shortHash: "bbbbbbbbbbbb",
-        subject: "Add fossil history",
+        message: "Add fossil history\n\nBody line",
       },
     ]);
   });

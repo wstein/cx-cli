@@ -81,7 +81,7 @@ describe("config defaults", () => {
 
     it("includes shared handover settings", () => {
       expect(DEFAULT_CONFIG_VALUES.handover.includeRepoHistory).toBe(false);
-      expect(DEFAULT_CONFIG_VALUES.handover.repoHistoryCount).toBe(30);
+      expect(DEFAULT_CONFIG_VALUES.handover.repoHistoryCount).toBe(25);
     });
 
     it("includes checksum settings", () => {

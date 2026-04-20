@@ -41,7 +41,7 @@ include_source_metadata = true
 
 [handover]
 include_repo_history = true
-repo_history_count = 30
+repo_history_count = 25
 
 [checksums]
 algorithm = "sha256"

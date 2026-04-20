@@ -74,21 +74,21 @@ describe("handover text", () => {
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
-          subject: "Add native shared handover history",
+          message: "Add native shared handover history\n\nBody line",
         },
         {
           shortHash: "bbbbbbbbbbbb",
-          subject: "Tighten contract tests for manifest v8",
+          message: "Tighten contract tests for manifest v8",
         },
       ],
     });
 
     expect(indexText).toContain("<recent_repository_history>");
     expect(indexText).toContain(
-      "- aaaaaaaaaaaa Add native shared handover history",
+      "- aaaaaaaaaaaa\n  Add native shared handover history\n  \n  Body line",
     );
     expect(indexText).toContain(
-      "- bbbbbbbbbbbb Tighten contract tests for manifest v8",
+      "- bbbbbbbbbbbb\n  Tighten contract tests for manifest v8",
     );
   });
 
@@ -101,14 +101,14 @@ describe("handover text", () => {
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
-          subject: "Add native shared handover history",
+          message: "Add native shared handover history\n\nBody line",
         },
       ],
     });
 
     expect(indexText).toContain("recent repository history:");
     expect(indexText).toContain(
-      "- aaaaaaaaaaaa Add native shared handover history",
+      "- aaaaaaaaaaaa\n  Add native shared handover history\n  \n  Body line",
     );
     expect(indexText).not.toContain("- \naaaaaaaaaaaa");
   });
@@ -131,7 +131,7 @@ describe("handover text", () => {
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
-          subject: "Add markdown handover coverage",
+          message: "Add markdown handover coverage\n\nBody line",
         },
       ],
     });
@@ -143,7 +143,7 @@ describe("handover text", () => {
       "- docs: demo-repomix-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
     );
     expect(indexText).toContain(
-      "- aaaaaaaaaaaa Add markdown handover coverage",
+      "- aaaaaaaaaaaa\n  Add markdown handover coverage\n  \n  Body line",
     );
   });
 
@@ -166,7 +166,7 @@ describe("handover text", () => {
       repoHistory: [
         {
           shortHash: "bbbbbbbbbbbb",
-          subject: "Add json handover coverage",
+          message: "Add json handover coverage\n\nBody line",
         },
       ],
     });
@@ -176,7 +176,7 @@ describe("handover text", () => {
       sections: Array<{ outputFile: string; packedTokens: number }>;
       assets?: Array<{ sourcePath: string }>;
       inclusionProvenance?: Array<{ marker: string }>;
-      recentRepositoryHistory?: Array<{ shortHash: string }>;
+      recentRepositoryHistory?: Array<{ shortHash: string; message: string }>;
     };
 
     expect(parsed.kind).toBe("cx_shared_handover");
@@ -185,5 +185,8 @@ describe("handover text", () => {
     expect(parsed.assets?.[0]?.sourcePath).toBe("logo.png");
     expect(parsed.inclusionProvenance?.[0]?.marker).toBe("section_match");
     expect(parsed.recentRepositoryHistory?.[0]?.shortHash).toBe("bbbbbbbbbbbb");
+    expect(parsed.recentRepositoryHistory?.[0]?.message).toBe(
+      "Add json handover coverage\n\nBody line",
+    );
   });
 });

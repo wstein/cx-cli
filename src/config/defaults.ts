@@ -51,7 +51,7 @@ include_linked_notes = false
 
 [handover]
 include_repo_history = false
-repo_history_count = 30
+repo_history_count = 25
 
 [checksums]
 algorithm = "sha256"
@@ -139,7 +139,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   },
   handover: {
     includeRepoHistory: false,
-    repoHistoryCount: 30,
+    repoHistoryCount: 25,
   },
   checksums: {
     algorithm: "sha256",

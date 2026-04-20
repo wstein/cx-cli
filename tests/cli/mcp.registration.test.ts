@@ -189,7 +189,7 @@ exclude = []
               },
               handover: {
                 includeRepoHistory: false,
-                repoHistoryCount: 30,
+                repoHistoryCount: 25,
               },
               checksums: {
                 algorithm: "sha256",

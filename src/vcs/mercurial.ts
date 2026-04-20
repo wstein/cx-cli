@@ -7,18 +7,11 @@ import type { VCSState } from "./provider.js";
 const execFileAsync = promisify(execFile);
 
 type HgRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
-const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
+const HISTORY_RECORD_SEPARATOR = "\u001e";
+const HISTORY_FIELD_SEPARATOR = "\u001f";
 
 export interface HgHistoryEntry extends RepositoryHistoryEntry {
   hash: string;
-}
-
-function truncateHistorySubject(subject: string, limit: number): string {
-  const normalized = subject.trim();
-  if (normalized.length <= limit) {
-    return normalized;
-  }
-  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
 }
 
 /**
@@ -114,25 +107,30 @@ export async function getRecentHgHistory(
     return [];
   }
 
-  const template = "{node}\\t{desc|firstline}\\n";
+  const template = `{node}${HISTORY_FIELD_SEPARATOR}{desc}${HISTORY_RECORD_SEPARATOR}`;
   const { stdout } = await run(
     ["log", "-l", String(count), "--template", template],
     sourceRoot,
   );
 
   return stdout
-    .split("\n")
-    .map((line) => line.trim())
+    .split(HISTORY_RECORD_SEPARATOR)
+    .map((entry) => entry.replace(/\n+$/u, ""))
     .filter(Boolean)
-    .map((line) => {
-      const [hash, subject] = line.split("\t");
-      if (!hash || !subject) {
+    .map((entry) => {
+      const separatorIndex = entry.indexOf(HISTORY_FIELD_SEPARATOR);
+      if (separatorIndex === -1) {
+        return null;
+      }
+      const hash = entry.slice(0, separatorIndex).trim();
+      const message = entry.slice(separatorIndex + 1).replace(/\n+$/u, "");
+      if (!hash || !message) {
         return null;
       }
       return {
         hash,
         shortHash: hash.slice(0, 12),
-        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+        message,
       } satisfies HgHistoryEntry;
     })
     .filter((entry): entry is HgHistoryEntry => entry !== null);

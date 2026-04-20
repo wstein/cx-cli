@@ -11,7 +11,6 @@ type GitRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
 export interface GitHistoryEntry extends RepositoryHistoryEntry {
   hash: string;
   shortHash: string;
-  subject: string;
 }
 
 /**
@@ -100,15 +99,6 @@ export async function getGitState(
 
 const HISTORY_RECORD_SEPARATOR = "\u001e";
 const HISTORY_FIELD_SEPARATOR = "\u001f";
-const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
-
-function truncateHistorySubject(subject: string, limit: number): string {
-  const normalized = subject.trim();
-  if (normalized.length <= limit) {
-    return normalized;
-  }
-  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
-}
 
 export async function getRecentGitHistory(
   sourceRoot: string,
@@ -123,7 +113,7 @@ export async function getRecentGitHistory(
     [
       "log",
       `--max-count=${count}`,
-      `--format=%H${HISTORY_FIELD_SEPARATOR}%s${HISTORY_RECORD_SEPARATOR}`,
+      `--format=%H${HISTORY_FIELD_SEPARATOR}%B${HISTORY_RECORD_SEPARATOR}`,
       "--no-show-signature",
     ],
     sourceRoot,
@@ -131,17 +121,22 @@ export async function getRecentGitHistory(
 
   return stdout
     .split(HISTORY_RECORD_SEPARATOR)
-    .map((entry) => entry.trim())
+    .map((entry) => entry.replace(/\n+$/u, ""))
     .filter(Boolean)
     .map((entry) => {
-      const [hash, subject] = entry.split(HISTORY_FIELD_SEPARATOR);
-      if (!hash || !subject) {
+      const separatorIndex = entry.indexOf(HISTORY_FIELD_SEPARATOR);
+      if (separatorIndex === -1) {
+        return null;
+      }
+      const hash = entry.slice(0, separatorIndex).trim();
+      const message = entry.slice(separatorIndex + 1).replace(/\n+$/u, "");
+      if (!hash || !message) {
         return null;
       }
       return {
-        hash: hash.trim(),
-        shortHash: hash.trim().slice(0, 12),
-        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+        hash,
+        shortHash: hash.slice(0, 12),
+        message,
       } satisfies GitHistoryEntry;
     })
     .filter((entry): entry is GitHistoryEntry => entry !== null);

@@ -77,14 +77,14 @@ describe("Mercurial VCS helpers", () => {
     expect(state.untrackedFiles).toEqual([]);
   });
 
-  test("getRecentHgHistory parses bounded subject-only history", async () => {
+  test("getRecentHgHistory preserves multiline commit messages", async () => {
     const run = async (args: string[]) => {
       if (args[0] === "log") {
         return {
           stdout: [
-            "aaaaaaaaaaaa1111111111111111111111111111\tAdd handover history",
-            "bbbbbbbbbbbb2222222222222222222222222222\tTighten contract tests",
-          ].join("\n"),
+            `aaaaaaaaaaaa1111111111111111111111111111\u001fAdd handover history\n\nBody line\u001e`,
+            `bbbbbbbbbbbb2222222222222222222222222222\u001fTighten contract tests\u001e`,
+          ].join(""),
         };
       }
       throw new Error(`unexpected hg command: ${args.join(" ")}`);
@@ -96,12 +96,12 @@ describe("Mercurial VCS helpers", () => {
       {
         hash: "aaaaaaaaaaaa1111111111111111111111111111",
         shortHash: "aaaaaaaaaaaa",
-        subject: "Add handover history",
+        message: "Add handover history\n\nBody line",
       },
       {
         hash: "bbbbbbbbbbbb2222222222222222222222222222",
         shortHash: "bbbbbbbbbbbb",
-        subject: "Tighten contract tests",
+        message: "Tighten contract tests",
       },
     ]);
   });

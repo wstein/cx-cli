@@ -33,7 +33,7 @@ function createConfig(): CxConfig {
     },
     handover: {
       includeRepoHistory: false,
-      repoHistoryCount: 30,
+      repoHistoryCount: 25,
     },
     files: {
       include: [],

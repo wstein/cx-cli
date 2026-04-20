@@ -40,7 +40,7 @@ const JsonSharedHandoverProvenanceSchema = z.object({
 
 const JsonSharedHandoverHistoryEntrySchema = z.object({
   shortHash: z.string(),
-  subject: z.string(),
+  message: z.string(),
 });
 
 export const JsonSharedHandoverSchema = z.object({
@@ -63,7 +63,7 @@ export function buildJsonSharedHandover(params: {
   sectionOutputs: SharedHandoverSectionSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
   provenanceSummary?: Array<{ marker: string; count: number }> | undefined;
-  repoHistory?: Array<{ shortHash: string; subject: string }> | undefined;
+  repoHistory?: Array<{ shortHash: string; message: string }> | undefined;
 }): JsonSharedHandover {
   return JsonSharedHandoverSchema.parse({
     kind: "cx_shared_handover",
@@ -100,7 +100,7 @@ export function buildJsonSharedHandover(params: {
       ? {
           recentRepositoryHistory: (params.repoHistory ?? []).map((entry) => ({
             shortHash: entry.shortHash,
-            subject: entry.subject,
+            message: entry.message,
           })),
         }
       : {}),

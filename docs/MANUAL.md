@@ -326,12 +326,12 @@ Shared handover content can optionally include recent repository history through
 ```toml
 [handover]
 include_repo_history = true
-repo_history_count = 30
+repo_history_count = 25
 ```
 
-When enabled, `cx` records the newest bounded commit subjects in deterministic
-newest-first order for Git, Mercurial, and Fossil repositories. Diffs are never
-embedded in the handover.
+When enabled, `cx` records the newest bounded commit messages in deterministic
+newest-first order for Git, Mercurial, and Fossil repositories. Multiline
+messages are preserved, and diffs are never embedded in the handover.
 
 For XML-style bundles, the shared handover stays mostly plain text and uses a
 small set of rare XML tags as semantic anchors for LLMs and operators. It is
