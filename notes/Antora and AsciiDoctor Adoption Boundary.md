@@ -5,7 +5,7 @@ aliases: []
 tags: ["docs", "antora", "asciidoctor", "architecture"]
 target: current
 ---
-Antora and AsciiDoctor now define the curated documentation surface through `docs/antora/`, not every text artifact in the repository.
+Antora and AsciiDoctor now define the curated documentation surface through `docs/antora/`, with first-class `.adoc` source pages under `docs/antora/modules/ROOT/pages/`, not every text artifact in the repository.
 
 ## Why
 
@@ -38,6 +38,8 @@ Do not automatically migrate:
 A selective boundary avoids turning the documentation migration into a format war.
 
 The goal is not to upgrade all prose. The goal is to improve the information architecture of the official docs without flattening the distinction between curated documentation and durable cognition notes.
+
+The repository-local `docs/*.md` files now serve as redirect stubs for stable in-repo links rather than as the canonical source of the curated docs surface.
 
 ## Links
 

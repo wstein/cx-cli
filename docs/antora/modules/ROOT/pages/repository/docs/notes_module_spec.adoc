@@ -7,7 +7,7 @@ Source companion: `docs/NOTES_MODULE_SPEC.md`
 ++++
 <h2>Goal</h2>
 <p><code>cx</code> exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native notes graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.</p>
-<p>For the document map and revision consensus, see <a href="readme/">README.md</a> and
+<p>For the document map and revision consensus, see <a href="https://github.com/wstein/cx-cli/blob/main/docs/README.md">README.md</a> and
 <a href="https://github.com/wstein/cx-cli/blob/main/docs/spec-draft.md">spec-draft.md</a>.</p>
 <h2>Scope</h2>
 <p>This phase defines native notes support in four places:</p>
@@ -50,7 +50,7 @@ It also adds graph-level link auditing so unresolved note references can be insp
 <li>CI treats note quality as an integrity concern because low-signal notes degrade both humans and agents.</li>
 </ul>
 <p>For AI-generated notes especially, the question is not &quot;did text get produced?&quot; It is &quot;did the graph gain durable, high-signal knowledge?&quot;</p>
-<p>See: <a href="system_contracts/">SYSTEM_CONTRACTS.md</a> for the formal cognition contract and trust propagation model that sit under this module.</p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/SYSTEM_CONTRACTS.md">SYSTEM_CONTRACTS.md</a> for the formal cognition contract and trust propagation model that sit under this module.</p>
 <h2>Governance Model: How, What, Why</h2>
 <p>Every note should answer three questions clearly, even when the author does not use literal section headings:</p>
 <ul>

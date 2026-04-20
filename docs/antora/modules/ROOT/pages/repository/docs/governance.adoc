@@ -269,12 +269,12 @@ usually become a section inside an existing front-door doc instead.</p>
 <p>When updating or referencing governance decisions:</p>
 <ul>
 <li><strong>&quot;What&#39;s the contract?&quot;</strong> → <a href="stability/">STABILITY.md</a></li>
-<li><strong>&quot;What do the concepts mean?&quot;</strong> → <a href="mental_model/">MENTAL_MODEL.md</a></li>
-<li><strong>&quot;Which mode should I choose first?&quot;</strong> → <a href="operating_modes/">OPERATING_MODES.md</a></li>
+<li><strong>&quot;What do the concepts mean?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a></li>
+<li><strong>&quot;Which mode should I choose first?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md">OPERATING_MODES.md</a></li>
 <li><strong>&quot;How do tools work in an agent integration?&quot;</strong> → <a href="agent_operating_model/">AGENT_OPERATING_MODEL.md</a></li>
-<li><strong>&quot;What are all the options?&quot;</strong> → <a href="config-reference/">config-reference.md</a> (CANONICAL)</li>
-<li><strong>&quot;When do I use each workflow?&quot;</strong> → <a href="operating_modes/">OPERATING_MODES.md</a></li>
-<li><strong>&quot;Where can I see the model play out over time?&quot;</strong> → <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a></li>
+<li><strong>&quot;What are all the options?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/config-reference.md">config-reference.md</a> (CANONICAL)</li>
+<li><strong>&quot;When do I use each workflow?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md">OPERATING_MODES.md</a></li>
+<li><strong>&quot;Where can I see the model play out over time?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/WORKFLOWS/friday-to-monday.md">WORKFLOWS/friday-to-monday.md</a></li>
 <li><strong>&quot;Is this doc authoritative?&quot;</strong> → Check the source-of-truth marker at the top</li>
 </ul>
 <hr>

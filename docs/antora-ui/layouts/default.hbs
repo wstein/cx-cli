@@ -18,7 +18,7 @@
       <aside class="site-nav">
         <nav>
           <p class="nav-title">Navigation</p>
-          {{#each navigation}}
+          {{#each page.navigation}}
           <div class="nav-group">
             {{#if this.content}}
             <p class="nav-group-title">{{this.content}}</p>
@@ -26,11 +26,21 @@
             <ul>
               {{#each this.items}}
               <li>
+                {{#if this.url}}
                 <a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
+                {{else}}
+                <span>{{this.content}}</span>
+                {{/if}}
                 {{#if this.items}}
                 <ul>
                   {{#each this.items}}
-                  <li><a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a></li>
+                  <li>
+                    {{#if this.url}}
+                    <a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
+                    {{else}}
+                    <span>{{this.content}}</span>
+                    {{/if}}
+                  </li>
                   {{/each}}
                 </ul>
                 {{/if}}
@@ -43,7 +53,7 @@
       </aside>
       <main class="site-main">
         <article class="doc">
-          {{{contents}}}
+          {{{page.contents}}}
         </article>
       </main>
     </div>

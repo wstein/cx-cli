@@ -6,24 +6,7 @@ include::../../partials/trust-boundary-primer.adoc[]
 This section uses arc42 as the architecture spine for the curated docs surface.
 It does not try to normalize the whole repository into one architecture template.
 
-== Scope
-
-The arc42 mapping here covers:
-
-- goals and constraints
-- context and boundaries
-- solution strategy
-- building blocks and runtime views
-- deployment and release surfaces
-- cross-cutting concepts
-- decisions, quality requirements, risks, and glossary
-
-== Non-goal
-
-The `notes/` graph is not part of the arc42 spine.
-Selected notes may be promoted into decisions or historical references, but the note corpus remains a separate knowledge surface.
-
-== Sections
+== arc42 spine
 
 - xref:architecture/01-introduction-and-goals.adoc[01 Introduction and Goals]
 - xref:architecture/02-constraints.adoc[02 Constraints]
@@ -37,3 +20,17 @@ Selected notes may be promoted into decisions or historical references, but the 
 - xref:architecture/10-quality-requirements.adoc[10 Quality Requirements]
 - xref:architecture/11-risks.adoc[11 Risks]
 - xref:architecture/12-glossary.adoc[12 Glossary]
+
+== Supporting canonical references
+
+- xref:architecture/mental-model.adoc[Mental Model]
+- xref:architecture/system-map.adoc[System Map]
+- xref:architecture/system-contracts.adoc[System Contracts]
+- xref:architecture/implementation-reference.adoc[Implementation Reference]
+- xref:architecture/internal-api-contract.adoc[Internal API Contract]
+- xref:architecture/render-kernel-contract.adoc[Render Kernel Contract]
+
+== Non-goal
+
+The `notes/` graph is not part of the arc42 spine.
+Selected notes may be promoted into decisions or historical references, but the note corpus remains a separate knowledge surface.

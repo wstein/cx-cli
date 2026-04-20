@@ -14,6 +14,23 @@ export const DEFAULT_ANTORA_NAV_PARTIAL = path.join(
   "modules/ROOT/partials/repository-nav.adoc",
 );
 export const REPOSITORY_BLOB_BASE = "https://github.com/wstein/cx-cli/blob/main/";
+export const CURATED_SOURCE_PATHS = new Set([
+  "docs/README.md",
+  "docs/MANUAL.md",
+  "docs/OPERATING_MODES.md",
+  "docs/MENTAL_MODEL.md",
+  "docs/ARCHITECTURE.md",
+  "docs/SYSTEM_MAP.md",
+  "docs/SYSTEM_CONTRACTS.md",
+  "docs/INTERNAL_API_CONTRACT.md",
+  "docs/RENDER_KERNEL_CONTRACT.md",
+  "docs/config-reference.md",
+  "docs/RELEASE_CHECKLIST.md",
+  "docs/RELEASE_INTEGRITY.md",
+  "docs/MIGRATIONS/0.4.0.md",
+  "docs/WORKFLOWS/friday-to-monday.md",
+  "docs/WORKFLOWS/safe-note-mutation.md",
+]);
 
 const EXTRA_SOURCE_FILES = ["README.md", "CHANGELOG.md"];
 const DEFAULT_LOCK_DIR = ".antora/locks/sync.lock";
@@ -87,7 +104,12 @@ async function buildSourceCatalog(repoRoot) {
     }
   }
 
-  return [...docsFiles, ...extraFiles].sort();
+  return [...docsFiles, ...extraFiles]
+    .filter((absolutePath) => {
+      const relativePath = toPosix(path.relative(repoRoot, absolutePath));
+      return !CURATED_SOURCE_PATHS.has(relativePath);
+    })
+    .sort();
 }
 
 function sourceToOutputPath(repoRoot, sourcePath) {

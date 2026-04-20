@@ -43,6 +43,8 @@ AsciiDoctor and Antora make this easier because the primer can be implemented wi
 
 That means the repo can preserve a single semantic source of truth while still giving readers just-in-time context.
 
+Now that the curated docs live as first-class `.adoc` sources, those primers belong in the canonical Antora pages rather than in the repository-local Markdown redirect stubs.
+
 ## Why this protects you
 
 This lowers navigation cost without reintroducing uncontrolled prose duplication.

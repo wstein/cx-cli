@@ -1,51 +1,12 @@
-<!-- Source: SYSTEM_MAP.md | Status: SUPPORTING | Stability: STABLE -->
-
 # CX System Map
 
-Use this page when you need one mental anchor before reading the deeper docs.
+This repository-local Markdown file is a redirect stub.
 
-```text
-Live Code ──cx mcp────► Notes ──cx bundle────► Bundle ──cx verify────► Trusted Handoff
-   │                     │                      │                      │
-   │                     │                      │                      │
-Hypothesis           Memory                Snapshot                 Proof
-Track B              Cognition Layer       Track A                 Trust Gate
-```
+The canonical curated document now lives in the Antora source tree:
 
-## Read It Left To Right
+- Source: [docs/antora/modules/ROOT/pages/architecture/system-map.adoc](antora/modules/ROOT/pages/architecture/system-map.adoc)
+- Published: https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/system-map/
 
-1. Run `cx mcp` when you need fast interactive help on live code.
-2. Use `cx notes` to preserve reasoning that should survive the current session.
-3. Run `cx bundle` when the work must become a reproducible artifact.
-4. Run `cx verify` when later humans or CI need proof instead of trust-by-habit.
+This stub remains so stable repository links from notes, code, tests, and older docs do not break abruptly.
 
-## Choose The Entry Point
-
-- Start with `cx mcp` when you are still asking questions.
-- Move to `cx notes` when the reasoning should survive the current session.
-- Move to `cx bundle` when the work needs a frozen handoff.
-- Finish with `cx verify` when a later reader should receive proof instead of a claim.
-
-## Contributor System Map
-
-| Subsystem | Owning commands | Primary concern | Canonical doc |
-| --- | --- | --- | --- |
-| Live workspace surface | `cx mcp`, `cx doctor mcp`, `cx audit summary` | scoped live agent access | [AGENT_OPERATING_MODEL.md](AGENT_OPERATING_MODEL.md) |
-| Durable reasoning surface | `cx notes`, `cx notes check` | repository memory and cognition quality | [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md) |
-| Planning and artifact surface | `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract` | reproducible handoff and proof | [MENTAL_MODEL.md](MENTAL_MODEL.md) |
-| Init and workspace bootstrap | `cx init` | repository-local setup and templates | [MANUAL.md](MANUAL.md) |
-| Configuration surface | `cx.toml`, `cx-mcp.toml` | selection, overlays, and behavior knobs | [config-reference.md](config-reference.md) |
-| Operator examples | workflow docs and release checklist | execution over time | [README.md](README.md) |
-
-## Read It Top To Bottom
-
-- **MCP** is the live investigation surface.
-- **Notes** are the durable cognition layer.
-- **Bundle** is the frozen snapshot.
-- **Verify** is the proof gate.
-
-## Learn Later
-
-- [OPERATING_MODES.md](OPERATING_MODES.md) maps the right tool to the current job.
-- [MENTAL_MODEL.md](MENTAL_MODEL.md) defines the canonical semantics.
-- [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md) defines cognition quality, hard boundaries, and trust propagation.
+- Start at [docs/antora/modules/ROOT/pages/index.adoc](antora/modules/ROOT/pages/index.adoc) for the curated front door.

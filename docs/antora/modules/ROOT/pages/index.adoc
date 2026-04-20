@@ -11,11 +11,12 @@ include::../partials/track-primer.adoc[]
 - adapter/oracle path: expert diagnostics and parity only
 
 This Antora site is the front door for the curated documentation surface.
-The legacy Markdown files in `docs/` remain available as migration references, but the curated navigation now lives here.
+The repository-local Markdown files in `docs/` now act as stable redirect stubs that point back here.
 
 == Start Here
 
-- xref:manual/index.adoc[Operator Manual] for the shortest route to commands and workflows.
+- xref:start-here/docs-index.adoc[Documentation Index] for the migrated docs front door.
+- xref:manual/operator-manual.adoc[Operator Manual] for the shortest route to commands and workflows.
 - xref:manual/operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
 - xref:architecture/index.adoc[Architecture Overview] for the arc42-based architecture spine.
 - xref:release/index.adoc[Release Overview] for release assurance, schema publishing, and v0.4 closure.
@@ -27,14 +28,6 @@ Antora gives that system explicit navigation, page classes, breadcrumbs, reusabl
 
 include::../partials/notes-boundary-primer.adoc[]
 
-== Migration boundary
+== Repository-local compatibility
 
-The curated site currently covers the canonical docs surface.
-It does not flatten the `notes/` graph into site-native content.
-That boundary is deliberate.
-
-== Legacy references
-
-- link:../../../../docs/README.md[Legacy docs index]
-- link:../../../../docs/MANUAL.md[Legacy operator manual]
-- link:../../../../docs/ARCHITECTURE.md[Legacy architecture reference]
+The `docs/*.md` files still exist so older repository links, code references, and notes keep working. They now point readers to the canonical Antora pages instead of trying to remain a second full prose surface.

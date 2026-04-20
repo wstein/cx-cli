@@ -1,32 +1,124 @@
-= Operating Modes
+= Choose Your Operating Mode
+:page-layout: default
 
-include::../../partials/track-primer.adoc[]
+This is the main conceptual entrypoint for `cx`.
 
-Each operator task should start by choosing the right mode instead of forcing one tool to cover every job.
+Start with the fastest proof of value, then learn the deeper model.
 
-== Modes
+The job of this document is mapping, not semantics. For canonical
+definitions, see MENTAL_MODEL.md.
 
-[cols="1,3"]
-|===
-| Mode | Use it when
+== Ultra-Minimal Onboarding
 
-| Live MCP
-| You need fast investigation on the current workspace state.
+Run this first:
 
-| Notes
-| The reasoning should survive the current session and become repository cognition.
+[source,bash]
+----
+cx mcp
+----
 
-| Bundle / verify
-| The output must become a reproducible, promotable artifact.
-|===
+See the agent work on live code.
 
-== Rule
+Learn later:
 
-Do not treat exploratory live state as if it were already a proof-grade handoff.
-Switch from Track B to Track A explicitly.
+* why `Track B = hypothesis generation`
+* why `Track A = proof generation`
+* why notes are the durable cognition layer
 
-== Where to go next
+That order matters. Operators usually trust the model faster after they
+have watched one live MCP session solve a real problem.
 
-- xref:workflows/friday-to-monday.adoc[Friday to Monday] for the canonical end-to-end flow
-- xref:architecture/04-solution-strategy.adoc[Solution Strategy] for why the kernel owns the proof path
-- link:../../../../docs/OPERATING_MODES.md[Legacy Markdown source]
+== Start Here
+
+If someone is new to `cx`, do not begin with the full architecture
+lecture. Begin with the live surface:
+
+[arabic]
+. Run `cx mcp`.
+. Let the agent do real work against live code.
+. Then explain why the system is split the way it is.
+
+The progressive onboarding model is:
+
+* `cx mcp` shows the agent working on the current checkout.
+* `cx notes` explains how durable reasoning is preserved.
+* `cx bundle` explains how that work becomes a promotable artifact.
+
+Only after the operator has seen the system in motion should you
+introduce the deeper model:
+
+* *Track B = hypothesis generation*
+* *Track A = proof generation*
+* *Notes are the durable cognition layer*
+
+Choose the mode that matches the job you need to do right now.
+
+== Use `cx mcp`
+
+Need fast interactive AI help on live code? Use `cx mcp`.
+
+Use it when you need:
+
+* live workspace reads and search
+* interactive reasoning over the current checkout
+* note discovery and review during active work
+* planning help before you freeze an artifact
+
+This is the right choice when the workspace is still moving and you need
+the agent to understand what is true right now.
+
+Workflow example: xref:workflows/friday-to-monday.adoc[Friday to Monday]
+
+== Use `cx bundle`
+
+Need a reproducible, promotable artifact? Use `cx bundle`.
+
+Use it when you need:
+
+* a deterministic handoff for CI, review, or downstream automation
+* manifest, lock file, and checksum sidecar protection
+* later validation and verification
+* extraction under manifest and hash guardrails
+
+This is the right choice when the work must stop being exploratory and
+become an artifact contract.
+
+Workflow example: xref:workflows/friday-to-monday.adoc[Friday to Monday]
+
+== Use `cx notes`
+
+Need durable design memory? Use `cx notes`.
+
+Use it when you need:
+
+* stable architectural intent in version control
+* linked repository knowledge that survives sessions
+* searchable note history and graph review
+* durable context for later humans and agents
+
+This is the right choice when the reasoning itself needs to persist, not
+just the current task result.
+
+Workflow example: xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
+
+== How The Modes Fit Together
+
+These are not competing tools. They are the three operating surfaces of
+the same system:
+
+[arabic]
+. Start with `cx mcp` when you need live understanding.
+. Record durable conclusions with `cx notes`.
+. Freeze trusted handoff state with `cx bundle`.
+
+Another way to say the same thing:
+
+* `cx mcp` is where hypotheses are generated and tested against live
+state.
+* `cx notes` is where high-signal reasoning becomes durable repository
+memory.
+* `cx bundle` is where proof is generated for review, CI, and handoff.
+
+See xref:architecture/mental-model.adoc[Mental Model],
+xref:workflows/friday-to-monday.adoc[Friday to Monday], and
+xref:workflows/safe-note-mutation.adoc[Safe Note Mutation].

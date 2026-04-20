@@ -8,8 +8,8 @@ Source companion: `docs/EXTRACTION_SAFETY.md`
 <h2>Why This Document Exists</h2>
 <p><code>cx</code> is a deterministic bundler, not an archiver.</p>
 <p>For the broader document map and architecture context, see
-<a href="readme/">README.md</a> and <a href="architecture/">ARCHITECTURE.md</a>.</p>
-<p>See: <a href="mental_model/">MENTAL_MODEL.md</a> for the canonical artifact lifecycle that extraction sits inside.</p>
+<a href="https://github.com/wstein/cx-cli/blob/main/docs/README.md">README.md</a> and <a href="https://github.com/wstein/cx-cli/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>.</p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a> for the canonical artifact lifecycle that extraction sits inside.</p>
 <p>For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.</p>
 <p>Text extraction uses the manifest&#39;s <code>outputStartLine</code> and <code>outputEndLine</code> values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.</p>
 <p>Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle may exist at all, while this document explains what happens after a valid bundle has already been written.</p>

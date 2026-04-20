@@ -6,7 +6,7 @@ Source companion: `docs/MCP_TOOL_INTENT_TAXONOMY.md`
 
 ++++
 <p>This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.</p>
-<p>See: <a href="mental_model/">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
 <p><code>cx mcp</code> exposes tools in three intent-focused groups:</p>
 <ul>
 <li><code>Read / Observe</code> tools: safe inspection, search, and non-mutating note reads.</li>

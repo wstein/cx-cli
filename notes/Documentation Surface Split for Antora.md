@@ -5,7 +5,7 @@ aliases: []
 tags: ["docs", "antora", "information-architecture"]
 target: current
 ---
-With Antora adopted for the curated docs site, the documentation should stay split into explicit surfaces instead of collapsing back into one large flat canonical directory with mostly human-inferred entrypoints.
+With Antora adopted for the curated docs site and the curated pages promoted to first-class `.adoc` sources, the documentation should stay split into explicit surfaces instead of collapsing back into one large flat canonical directory with mostly human-inferred entrypoints.
 
 ## Problem
 
@@ -65,6 +65,8 @@ The site structure should reveal whether a page is:
 This reduces cognitive dependency chains without abandoning canonical ownership.
 
 The docs can remain precise while becoming easier to traverse.
+
+The repository-local Markdown files should remain redirect stubs and compatibility anchors, not a second canonical prose surface.
 
 ## Links
 

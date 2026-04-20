@@ -1,112 +1,12 @@
-<!-- Source: OPERATING_MODES.md | Status: CANONICAL | Stability: STABLE -->
-
 # Choose Your Operating Mode
 
-This is the main conceptual entrypoint for `cx`.
+This repository-local Markdown file is a redirect stub.
 
-Start with the fastest proof of value, then learn the deeper model.
+The canonical curated document now lives in the Antora source tree:
 
-The job of this document is mapping, not semantics. For canonical definitions, see [MENTAL_MODEL.md](MENTAL_MODEL.md).
+- Source: [docs/antora/modules/ROOT/pages/manual/operating-modes.adoc](antora/modules/ROOT/pages/manual/operating-modes.adoc)
+- Published: https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operating-modes/
 
-## Ultra-Minimal Onboarding
+This stub remains so stable repository links from notes, code, tests, and older docs do not break abruptly.
 
-Run this first:
-
-```bash
-cx mcp
-```
-
-See the agent work on live code.
-
-Learn later:
-
-- why `Track B = hypothesis generation`
-- why `Track A = proof generation`
-- why notes are the durable cognition layer
-
-That order matters. Operators usually trust the model faster after they have watched one live MCP session solve a real problem.
-
-## Start Here
-
-If someone is new to `cx`, do not begin with the full architecture lecture. Begin with the live surface:
-
-1. Run `cx mcp`.
-2. Let the agent do real work against live code.
-3. Then explain why the system is split the way it is.
-
-The progressive onboarding model is:
-
-- `cx mcp` shows the agent working on the current checkout.
-- `cx notes` explains how durable reasoning is preserved.
-- `cx bundle` explains how that work becomes a promotable artifact.
-
-Only after the operator has seen the system in motion should you introduce the deeper model:
-
-- **Track B = hypothesis generation**
-- **Track A = proof generation**
-- **Notes are the durable cognition layer**
-
-Choose the mode that matches the job you need to do right now.
-
-## Use `cx mcp`
-
-Need fast interactive AI help on live code? Use `cx mcp`.
-
-Use it when you need:
-
-- live workspace reads and search
-- interactive reasoning over the current checkout
-- note discovery and review during active work
-- planning help before you freeze an artifact
-
-This is the right choice when the workspace is still moving and you need the agent to understand what is true right now.
-
-Workflow example: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
-
-## Use `cx bundle`
-
-Need a reproducible, promotable artifact? Use `cx bundle`.
-
-Use it when you need:
-
-- a deterministic handoff for CI, review, or downstream automation
-- manifest, lock file, and checksum sidecar protection
-- later validation and verification
-- extraction under manifest and hash guardrails
-
-This is the right choice when the work must stop being exploratory and become an artifact contract.
-
-Workflow example: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
-
-## Use `cx notes`
-
-Need durable design memory? Use `cx notes`.
-
-Use it when you need:
-
-- stable architectural intent in version control
-- linked repository knowledge that survives sessions
-- searchable note history and graph review
-- durable context for later humans and agents
-
-This is the right choice when the reasoning itself needs to persist, not just the current task result.
-
-Workflow example: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)
-
-## How The Modes Fit Together
-
-These are not competing tools. They are the three operating surfaces of the same system:
-
-1. Start with `cx mcp` when you need live understanding.
-2. Record durable conclusions with `cx notes`.
-3. Freeze trusted handoff state with `cx bundle`.
-
-Another way to say the same thing:
-
-- `cx mcp` is where hypotheses are generated and tested against live state.
-- `cx notes` is where high-signal reasoning becomes durable repository memory.
-- `cx bundle` is where proof is generated for review, CI, and handoff.
-
-See: [MENTAL_MODEL.md](MENTAL_MODEL.md)
-See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)
-See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)
+- Start at [docs/antora/modules/ROOT/pages/index.adoc](antora/modules/ROOT/pages/index.adoc) for the curated front door.

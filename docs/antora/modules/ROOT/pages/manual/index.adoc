@@ -1,38 +1,14 @@
-= Operator Manual
+= Operator Manual Overview
 
 include::../../partials/track-primer.adoc[]
 include::../../partials/trust-boundary-primer.adoc[]
 
-This page is the shortest operator path through `cx`.
-Use it when you already know you are running the tool and need commands, assurance levels, and workflow choices instead of the full conceptual model.
+Use this section when you need the operator-facing command model, assurance ladder, workflows, and configuration choices in one curated surface.
 
-== Primary operator surfaces
+== Canonical manual pages
 
-[cols="1,3"]
-|===
-| Surface | Use it for
-
-| Live workspace
-| `cx mcp`, `cx doctor mcp`, `cx audit summary`
-
-| Durable cognition
-| `cx notes`, `cx notes check`, repository memory hygiene
-
-| Native proof path
-| `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract`
-
-| Adapter/oracle diagnostics
-| `cx adapter *` for expert parity checks and reference-oracle inspection only
-|===
-
-== Recommended reading order
-
+- xref:manual/operator-manual.adoc[Operator Manual]
 - xref:manual/operating-modes.adoc[Operating Modes]
 - xref:manual/config-reference.adoc[Configuration Reference]
-- xref:workflows/friday-to-monday.adoc[Friday to Monday Workflow]
-- xref:release/index.adoc[Release Overview]
-
-== Legacy manual
-
-The full Markdown manual remains available during migration:
-link:../../../../docs/MANUAL.md[docs/MANUAL.md]
+- xref:workflows/friday-to-monday.adoc[Friday to Monday]
+- xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
