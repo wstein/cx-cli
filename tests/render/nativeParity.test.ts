@@ -10,7 +10,7 @@ import { defaultRenderEngine } from "../../src/render/engine.js";
 import { computeAggregatePlanHash } from "../../src/render/planHash.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
-import { createRenderFixture } from "../repomix/helpers.js";
+import { createRenderFixture } from "../oracle/helpers.js";
 
 const createdRoots: string[] = [];
 
