@@ -86,6 +86,19 @@ export interface ConsistencyReport {
     driftWarningCount: number;
     contradictionCount: number;
   }>;
+  evaluatedNotes: Array<{
+    id: string;
+    filePath: string;
+    title: string;
+    target: "current" | "v0.4" | "backlog";
+    score: number;
+    label: NoteCognitionLabel;
+    trustLevel: NoteTrustLevel;
+    ageDays: number;
+    stalenessLabel: NoteStalenessLabel;
+    driftWarningCount: number;
+    contradictionCount: number;
+  }>;
   trustModel: {
     sourceTree: "trusted";
     notes: NoteTrustLevel;
@@ -290,6 +303,21 @@ export async function checkNotesConsistency(
       (left, right) =>
         left.score - right.score || left.id.localeCompare(right.id),
     );
+  const evaluatedNotes = effectiveNotes
+    .map((note) => ({
+      id: note.id,
+      filePath: note.filePath,
+      title: note.title,
+      target: note.target,
+      score: note.cognition.score,
+      label: note.cognition.label,
+      trustLevel: note.cognition.trustLevel,
+      ageDays: note.cognition.ageDays,
+      stalenessLabel: note.cognition.stalenessLabel,
+      driftWarningCount: note.cognition.driftWarningCount,
+      contradictionCount: note.cognition.contradictionCount,
+    }))
+    .sort((left, right) => left.id.localeCompare(right.id));
 
   const valid =
     validation.errors.length === 0 &&
@@ -349,6 +377,7 @@ export async function checkNotesConsistency(
     },
     contradictionIssues,
     lowSignalNotes,
+    evaluatedNotes,
     trustModel: {
       sourceTree: "trusted",
       notes: "conditional",

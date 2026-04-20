@@ -54,6 +54,11 @@ include_linked_notes = false
 include_repo_history = false
 repo_history_count = 25
 
+[notes]
+strict_notes_mode = false
+# require_cognition_score = 80
+# applies_to_sections = ["docs"]
+
 [checksums]
 algorithm = "sha256"
 file_name = "{project}.sha256"
@@ -142,6 +147,10 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   handover: {
     includeRepoHistory: false,
     repoHistoryCount: 25,
+  },
+  notes: {
+    strictNotesMode: false,
+    appliesToSections: [],
   },
   checksums: {
     algorithm: "sha256",

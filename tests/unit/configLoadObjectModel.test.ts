@@ -58,6 +58,20 @@ describe("loadCxConfig object model", () => {
     expect(config.handover.repoHistoryCount).toBe(12);
   });
 
+  test("loads notes gating settings from config", async () => {
+    const config = await loadConfig({
+      notes: {
+        requireCognitionScore: 80,
+        strictNotesMode: true,
+        appliesToSections: ["docs"],
+      },
+    });
+
+    expect(config.notes.requireCognitionScore).toBe(80);
+    expect(config.notes.strictNotesMode).toBe(true);
+    expect(config.notes.appliesToSections).toEqual(["docs"]);
+  });
+
   test("loads custom output extension overrides", async () => {
     const config = await loadConfig({
       output: {

@@ -2,7 +2,7 @@
 id: 20260420130200
 title: Notes Gating Policy
 tags: ["notes", "governance", "quality"]
-target: v0.4
+target: current
 ---
 Notes may act as optional build constraints in higher-assurance environments.
 
@@ -22,6 +22,7 @@ When enabled:
 
 - bundle fails if required notes fall below the configured threshold
 - enforcement can apply globally or to selected sections
+- `strict_notes_mode` requires gated notes to remain `high_signal`
 
 ## Why
 

@@ -18,6 +18,7 @@ import type {
   SectionSpanMaps,
   SectionTokenMaps,
 } from "../../manifest/types.js";
+import { checkNotesConsistency } from "../../notes/consistency.js";
 import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
 import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
@@ -101,6 +102,126 @@ interface RenderedSectionArtifacts {
   fileContentHashes: Map<string, string>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
   planHash?: string;
+}
+
+function normalizeRelativeNotePath(
+  sourceRoot: string,
+  filePath: string,
+): string {
+  return path.relative(sourceRoot, filePath).replaceAll("\\", "/");
+}
+
+function collectGatedNotePaths(params: {
+  sourceRoot: string;
+  plan: {
+    sections: Array<{ name: string; files: Array<{ relativePath: string }> }>;
+  };
+  appliesToSections: string[];
+}): Set<string> {
+  const sectionFilter =
+    params.appliesToSections.length > 0
+      ? new Set(params.appliesToSections)
+      : null;
+  const notePaths = new Set<string>();
+
+  for (const section of params.plan.sections) {
+    if (sectionFilter !== null && !sectionFilter.has(section.name)) {
+      continue;
+    }
+
+    for (const file of section.files) {
+      if (file.relativePath.startsWith("notes/")) {
+        notePaths.add(file.relativePath);
+      }
+    }
+  }
+
+  return notePaths;
+}
+
+async function enforceNotesGate(params: {
+  config: {
+    notes: {
+      requireCognitionScore?: number;
+      strictNotesMode: boolean;
+      appliesToSections: string[];
+    };
+  };
+  plan: {
+    sourceRoot: string;
+    sections: Array<{ name: string; files: Array<{ relativePath: string }> }>;
+  };
+}): Promise<void> {
+  const notesConfig = params.config.notes;
+  if (
+    notesConfig.requireCognitionScore === undefined &&
+    !notesConfig.strictNotesMode
+  ) {
+    return;
+  }
+
+  const report = await checkNotesConsistency("notes", params.plan.sourceRoot);
+  const gatedNotePaths = collectGatedNotePaths({
+    sourceRoot: params.plan.sourceRoot,
+    plan: params.plan,
+    appliesToSections: notesConfig.appliesToSections,
+  });
+
+  const gatedNotes = report.evaluatedNotes.filter((note) =>
+    gatedNotePaths.has(
+      normalizeRelativeNotePath(params.plan.sourceRoot, note.filePath),
+    ),
+  );
+
+  if (gatedNotes.length === 0) {
+    return;
+  }
+
+  const requiredScore = notesConfig.requireCognitionScore;
+  const thresholdFailures =
+    requiredScore === undefined
+      ? []
+      : gatedNotes.filter((note) => note.score < requiredScore);
+  const strictFailures = notesConfig.strictNotesMode
+    ? gatedNotes.filter((note) => note.label !== "high_signal")
+    : [];
+
+  if (thresholdFailures.length === 0 && strictFailures.length === 0) {
+    return;
+  }
+
+  const detailLines: string[] = [];
+  if (thresholdFailures.length > 0) {
+    detailLines.push(
+      `Required note cognition score ${requiredScore} was not met by ${thresholdFailures.length} gated note(s):`,
+    );
+    for (const note of thresholdFailures) {
+      detailLines.push(`- [${note.id}] ${note.title} (score ${note.score})`);
+    }
+  }
+  if (strictFailures.length > 0) {
+    detailLines.push(
+      `strict_notes_mode requires gated notes to remain high-signal, but ${strictFailures.length} gated note(s) did not:`,
+    );
+    for (const note of strictFailures) {
+      detailLines.push(
+        `- [${note.id}] ${note.title} (${note.label}, score ${note.score})`,
+      );
+    }
+  }
+
+  throw new CxError(detailLines.join("\n"), 10, {
+    remediation: {
+      docsRef: "notes/Notes Gating Policy.md",
+      whyThisProtectsYou:
+        "Optional note gates keep high-assurance bundles from carrying weak or drift-pressured cognition into downstream agent workflows.",
+      nextSteps: [
+        "Strengthen the gated notes until they meet the configured cognition threshold.",
+        "Lower or scope the notes gate only if the reduced assurance is intentional.",
+        "Run `cx notes check` to inspect low-signal notes, drift warnings, and contradictions.",
+      ],
+    },
+  });
 }
 
 export async function collectSharedHandoverRepoHistory(params: {
@@ -284,6 +405,7 @@ export async function runBundleCommand(
       },
     });
   }
+  await enforceNotesGate({ config, plan });
 
   const ciMode = args.ci ?? false;
   const forceMode = args.force ?? false;

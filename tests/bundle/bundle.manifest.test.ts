@@ -18,6 +18,89 @@ import {
 } from "./helpers.js";
 
 describe("bundle manifest", () => {
+  test("fails bundling when gated notes fall below the configured cognition score", async () => {
+    const project = await createProject({
+      config: {
+        sections: {
+          docs: {
+            include: ["README.md", "docs/**", "notes/**"],
+            exclude: [],
+          },
+          src: {
+            include: ["src/**"],
+            exclude: [],
+          },
+        },
+        notes: {
+          requireCognitionScore: 80,
+          strictNotesMode: false,
+          appliesToSections: ["docs"],
+        },
+      },
+      files: {
+        "notes/summary-note.md": `---
+id: 20260420150000
+aliases: []
+tags: []
+target: current
+---
+
+# Sparse Note
+
+This note states one small idea.
+`,
+      },
+    });
+
+    await expect(
+      runQuietBundleCommand({ config: project.configPath }),
+    ).rejects.toMatchObject({
+      exitCode: 10,
+      message: expect.stringContaining(
+        "Required note cognition score 80 was not met",
+      ),
+    });
+  });
+
+  test("scopes notes gating to the selected sections", async () => {
+    const project = await createProject({
+      config: {
+        sections: {
+          docs: {
+            include: ["README.md", "docs/**", "notes/**"],
+            exclude: [],
+          },
+          src: {
+            include: ["src/**"],
+            exclude: [],
+          },
+        },
+        notes: {
+          requireCognitionScore: 80,
+          strictNotesMode: false,
+          appliesToSections: ["src"],
+        },
+      },
+      files: {
+        "notes/summary-note.md": `---
+id: 20260420150001
+aliases: []
+tags: []
+target: current
+---
+
+# Sparse Note
+
+This note states one small idea.
+`,
+      },
+    });
+
+    await expect(
+      runQuietBundleCommand({ config: project.configPath }),
+    ).resolves.toBe(0);
+  });
+
   test("records note summaries in the manifest", async () => {
     const project = await createProject();
     await fs.mkdir(path.join(project.root, "notes"), { recursive: true });

@@ -354,6 +354,21 @@ cx notes graph --id <note-id> --depth 2
 
 For graph traversal, `--depth` is the maximum wikilink hop count from the seed note. `--depth 1` returns direct links only, while higher values include transitive reachable notes up to that bound.
 
+If you want note quality to become a bundle gate in CI or other
+high-assurance environments, add:
+
+```toml
+[notes]
+require_cognition_score = 80
+strict_notes_mode = true
+applies_to_sections = ["docs"]
+```
+
+This uses the same effective cognition model as `cx notes check`, including
+drift and contradiction pressure. `strict_notes_mode` raises the bar further:
+every gated note must remain `high_signal`, not merely above a numeric
+threshold.
+
 If you are checking whether a section is becoming too large, run:
 
 ```bash

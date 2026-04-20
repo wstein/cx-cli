@@ -32,6 +32,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "dedup",
     "manifest",
     "handover",
+    "notes",
     "checksums",
     "tokens",
     "assets",
@@ -66,6 +67,9 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "include_linked_notes",
     "include_repo_history",
     "repo_history_count",
+    "require_cognition_score",
+    "strict_notes_mode",
+    "applies_to_sections",
     "algorithm",
     "file_name",
     "encoding",
@@ -182,6 +186,15 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
     handover: {
       include_repo_history: config.handover.includeRepoHistory,
       repo_history_count: config.handover.repoHistoryCount,
+    },
+    notes: {
+      ...(config.notes.requireCognitionScore !== undefined
+        ? { require_cognition_score: config.notes.requireCognitionScore }
+        : {}),
+      strict_notes_mode: config.notes.strictNotesMode,
+      ...(config.notes.appliesToSections.length > 0
+        ? { applies_to_sections: config.notes.appliesToSections }
+        : {}),
     },
     checksums: {
       algorithm: config.checksums.algorithm,

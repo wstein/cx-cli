@@ -181,6 +181,29 @@
         }
       }
     },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "require_cognition_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum effective cognition score required for gated notes during bundling. Scores include drift and contradiction pressure."
+        },
+        "strict_notes_mode": {
+          "type": "boolean",
+          "description": "When true, all gated notes must remain high-signal after pressure adjustments. Requires require_cognition_score to be set."
+        },
+        "applies_to_sections": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Optional list of section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes."
+        }
+      }
+    },
     "checksums": {
       "type": "object",
       "properties": {

@@ -103,6 +103,12 @@ export interface CxHandoverConfig {
   repoHistoryCount: number;
 }
 
+export interface CxNotesConfig {
+  requireCognitionScore?: number;
+  strictNotesMode: boolean;
+  appliesToSections: string[];
+}
+
 export interface CxChecksumsConfig {
   algorithm: "sha256";
   fileName: string;
@@ -231,6 +237,7 @@ export interface CxConfig {
   dedup: CxDedupConfig;
   manifest: CxManifestConfig;
   handover: CxHandoverConfig;
+  notes: CxNotesConfig;
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
@@ -252,6 +259,7 @@ export interface CxConfigInput {
   dedup?: Record<string, unknown>;
   manifest?: Record<string, unknown>;
   handover?: Record<string, unknown>;
+  notes?: Record<string, unknown>;
   checksums?: Record<string, unknown>;
   tokens?: Record<string, unknown>;
   display?: unknown;

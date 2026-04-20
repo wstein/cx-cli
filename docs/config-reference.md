@@ -153,6 +153,34 @@ The repo also keeps the versioned source files in `schemas/` for offline use:
 - `schemas/shared-handover-v2.schema.json`
 - `schemas/json-section-output-v1.schema.json`
 
+## Notes Gating
+
+Notes remain conditional cognition, but higher-assurance pipelines can require
+bundled notes to meet a minimum effective cognition score before bundling
+proceeds.
+
+### `[notes]`
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `require_cognition_score` | unset | Minimum effective cognition score for gated notes. Uses the same drift- and contradiction-adjusted scoring model as `cx notes check`. |
+| `strict_notes_mode` | `false` | When `true`, every gated note must remain `high_signal` after pressure adjustments. Requires `require_cognition_score`. |
+| `applies_to_sections` | `[]` | Optional section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes. |
+
+Example:
+
+```toml
+[notes]
+require_cognition_score = 80
+strict_notes_mode = true
+applies_to_sections = ["docs"]
+```
+
+`strict_notes_mode` does not create a separate scoring system. It uses the
+existing cognition labels and requires every gated note to stay
+`high_signal`. When the gate is active, `cx bundle` aborts with the same
+non-zero notes exit family used for malformed or duplicate notes.
+
 ## Behavioral Settings
 
 Behavioral settings control how `cx` handles non-fundamental friction points. They do not change the core integrity model.

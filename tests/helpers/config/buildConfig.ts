@@ -7,6 +7,7 @@ import type {
   CxHandoverConfig,
   CxManifestConfig,
   CxMcpConfig,
+  CxNotesConfig,
   CxOutputConfig,
   CxRepomixConfig,
   CxSectionConfig,
@@ -30,6 +31,7 @@ export interface BuildConfigOptions {
   files?: Partial<CxFilesConfig>;
   manifest?: Partial<CxManifestConfig>;
   handover?: Partial<CxHandoverConfig>;
+  notes?: Partial<CxNotesConfig>;
   checksums?: Partial<CxChecksumsConfig>;
   tokens?: Partial<CxTokensConfig>;
   assets?: Partial<CxAssetsConfig>;
@@ -136,6 +138,11 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
       includeRepoHistory: false,
       repoHistoryCount: 25,
       ...options.handover,
+    },
+    notes: {
+      strictNotesMode: false,
+      appliesToSections: [],
+      ...options.notes,
     },
     checksums: {
       algorithm: "sha256",

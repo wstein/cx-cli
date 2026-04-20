@@ -20,6 +20,7 @@ import type {
   CxConfigInput,
   CxDedupMode,
   CxHandoverConfig,
+  CxNotesConfig,
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxSectionConfig,
@@ -291,6 +292,60 @@ function parseHandoverConfig(
             handover.repo_history_count,
             "handover.repo_history_count",
           ),
+  };
+}
+
+function expectBoundedInteger(
+  value: unknown,
+  label: string,
+  minimum: number,
+  maximum: number,
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value < minimum ||
+    value > maximum
+  ) {
+    throw new CxError(
+      `${label} must be an integer between ${minimum} and ${maximum}.`,
+    );
+  }
+
+  return value;
+}
+
+function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
+  const requireCognitionScore =
+    notes.require_cognition_score === undefined
+      ? undefined
+      : expectBoundedInteger(
+          notes.require_cognition_score,
+          "notes.require_cognition_score",
+          0,
+          100,
+        );
+  const strictNotesMode = expectBoolean(
+    notes.strict_notes_mode,
+    "notes.strict_notes_mode",
+    DEFAULT_CONFIG_VALUES.notes.strictNotesMode,
+  );
+  const appliesToSections = expectStringArray(
+    notes.applies_to_sections,
+    "notes.applies_to_sections",
+    DEFAULT_CONFIG_VALUES.notes.appliesToSections,
+  );
+
+  if (strictNotesMode && requireCognitionScore === undefined) {
+    throw new CxError(
+      "notes.strict_notes_mode requires notes.require_cognition_score to be set.",
+    );
+  }
+
+  return {
+    requireCognitionScore,
+    strictNotesMode,
+    appliesToSections,
   };
 }
 
@@ -582,6 +637,7 @@ function buildCxConfigFromParsedInput(
   const dedup = parsed.dedup ?? {};
   const manifest = parsed.manifest ?? {};
   const handover = parsed.handover ?? {};
+  const notes = parsed.notes ?? {};
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
@@ -723,6 +779,15 @@ function buildCxConfigFromParsedInput(
     );
   }
 
+  const notesConfig = parseNotesConfig(notes);
+  for (const sectionName of notesConfig.appliesToSections) {
+    if (sections[sectionName] === undefined) {
+      throw new CxError(
+        `notes.applies_to_sections references unknown section ${sectionName}.`,
+      );
+    }
+  }
+
   // --- Remaining config fields ---
 
   const filesInclude = deduplicatePatterns(
@@ -860,6 +925,7 @@ function buildCxConfigFromParsedInput(
       ),
     },
     handover: parseHandoverConfig(handover),
+    notes: notesConfig,
     checksums: {
       algorithm: "sha256",
       fileName: resolveTemplate(
