@@ -5,8 +5,7 @@
 ++++
 <h2>Goal</h2>
 <p><code>cx</code> exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native notes graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.</p>
-<p>For the document map and revision consensus, see <a href="https://github.com/wstein/cx-cli/blob/main/docs/README.md">README.md</a> and
-<a href="https://github.com/wstein/cx-cli/blob/main/docs/spec-draft.md">spec-draft.md</a>.</p>
+<p>For the curated document map and the current canonical architecture set, start with the <a href="../../start-here/docs-index/">Documentation Index</a>.</p>
 <h2>Scope</h2>
 <p>This phase defines native notes support in four places:</p>
 <ol>
@@ -48,7 +47,7 @@ It also adds graph-level link auditing so unresolved note references can be insp
 <li>CI treats note quality as an integrity concern because low-signal notes degrade both humans and agents.</li>
 </ul>
 <p>For AI-generated notes especially, the question is not &quot;did text get produced?&quot; It is &quot;did the graph gain durable, high-signal knowledge?&quot;</p>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/system-contracts.adoc">SYSTEM_CONTRACTS.md</a> for the formal cognition contract and trust propagation model that sit under this module.</p>
+<p>See <a href="../../architecture/system-contracts/">System Contracts</a> for the formal cognition contract and trust propagation model that sit under this module.</p>
 <h2>Governance Model: How, What, Why</h2>
 <p>Every note should answer three questions clearly, even when the author does not use literal section headings:</p>
 <ul>
@@ -108,7 +107,7 @@ It also adds graph-level link auditing so unresolved note references can be insp
 <ul>
 <li><code>cx.toml</code></li>
 <li><code>Makefile</code></li>
-<li><code>notes/README.md</code></li>
+<li><code>notes/Documentation Index</code></li>
 <li><code>notes/Templates/Atomic Note Template.md</code></li>
 </ul>
 <p>Rules:</p>
@@ -121,7 +120,7 @@ It also adds graph-level link auditing so unresolved note references can be insp
 <h2>Notes Directory Layout</h2>
 <p>Required files:</p>
 <ul>
-<li><code>notes/README.md</code> — the mandatory 101 guide</li>
+<li><code>notes/Documentation Index</code> — the mandatory 101 guide</li>
 <li><code>notes/Templates/Atomic Note Template.md</code> — the canonical atomic note template</li>
 </ul>
 <p>User-authored notes live beside those files in <code>notes/</code> and may use any human-readable filename.</p>
@@ -164,7 +163,7 @@ Atomic body in the author&#39;s own words.
 <p>The default starter config must include <code>notes/**</code> inside <code>[sections.docs].include</code>.</p>
 <p>Canonical default:</p>
 <pre><code class="language-toml">[sections.docs]
-include = [&quot;docs/**&quot;, &quot;notes/**&quot;, &quot;README.md&quot;, &quot;*.md&quot;]
+include = [&quot;docs/**&quot;, &quot;notes/**&quot;, &quot;Documentation Index&quot;, &quot;*.md&quot;]
 exclude = []
 </code></pre>
 <p>This ensures the repository contract carries both machine state and human intent.</p>

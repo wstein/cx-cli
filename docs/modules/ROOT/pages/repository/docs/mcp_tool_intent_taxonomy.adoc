@@ -3,8 +3,8 @@
 
 
 ++++
-<p>This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.</p>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
+<p>This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not as the primary human entrypoint.</p>
+<p>See the <a href="../../architecture/mental-model/">Mental Model</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
 <p><code>cx mcp</code> exposes tools in three intent-focused groups:</p>
 <ul>
 <li><code>Read / Observe</code> tools: safe inspection, search, and non-mutating note reads.</li>

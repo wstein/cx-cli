@@ -12,11 +12,8 @@
 <p>For production bundles and verification, use <code>cx bundle</code> for artifact proof and <code>cx mcp</code> for live workspace exploration within the documented stability tiers.</p>
 <hr>
 <p>This document explains how to integrate the <code>cx mcp</code> server with common AI agents and IDE integrations. It shows recommended, production-ready configuration patterns, security and safety notes, and troubleshooting tips. Where integrations differ across vendors, examples show the common pattern; verify the final keys with the specific client documentation before deploying.</p>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> for the main conceptual entrypoint.
-See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> for the canonical Track A vs Track B split, MCP policy tiers, and artifact lifecycle.
-See: <a href="agent_operating_model/">AGENT_OPERATING_MODEL.md</a> for the integration-layer policy contract.
-See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc">WORKFLOWS/safe-note-mutation.md</a> for the end-to-end note mutation review loop, including the agent point of view.</p>
-<p>This document is an integration guide. It should describe client setup, tool flow, and agent-facing metadata, not redefine the canonical semantics already owned by <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>.</p>
+<p>Use <a href="../../manual/operating-modes/">Operating Modes</a> as the main conceptual entrypoint, the <a href="../../architecture/mental-model/">Mental Model</a> for canonical semantics, <a href="agent_operating_model/">Agent Operating Model</a> for the policy-facing integration layer, and <a href="../../workflows/safe-note-mutation/">Safe Note Mutation</a> for the trusted note review loop.</p>
+<p>This document is an integration guide. It should describe client setup, tool flow, and agent-facing metadata, not redefine the canonical semantics already owned by the <a href="../../architecture/mental-model/">Mental Model</a>.</p>
 <h2>Overview</h2>
 <p><code>cx mcp</code> exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated <code>cx-mcp.toml</code> profile and will fall back to <code>cx.toml</code> if the MCP profile is absent. In addition to file browsing, the native server also exposes live bundle planning tools plus note reading, search, authoring, renaming, deletion, and note-graph inspection tools so agents can create, inspect, and maintain durable repository knowledge without leaving MCP.</p>
 <p>Use <code>cx bundle</code> for immutable snapshots and verification. Use <code>cx mcp</code> for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.</p>
@@ -27,7 +24,7 @@ See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages
 <ol>
 <li>Run <code>cx mcp</code>.</li>
 <li>Let the agent call <code>doctor_mcp</code>, <code>notes_search</code>, <code>read</code>, and <code>inspect</code>.</li>
-<li>Only then send the operator to <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> and <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> for the deeper model.</li>
+<li>Only then send the operator to <a href="../../manual/operating-modes/">Operating Modes</a> and the <a href="../../architecture/mental-model/">Mental Model</a> for the deeper model.</li>
 </ol>
 <p>Why this protects you: operators learn the abstraction after they have seen the system move, which lowers confusion without creating a second semantic source of truth inside the integration guide.</p>
 <h2>MCP Test And Debug Cockpit</h2>

@@ -3,10 +3,9 @@
 
 
 ++++
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>
-See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a></p>
+<p>Start with the <a href="../../architecture/mental-model/">Mental Model</a> for canonical semantics and <a href="../../manual/operating-modes/">Operating Modes</a> for the operator-facing entrypoint.</p>
 <p>This document covers the integration layer for agent operators.</p>
-<p>It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
+<p>It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in the <a href="../../architecture/mental-model/">Mental Model</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
 <h2>Integration-Layer Responsibilities</h2>
 <p>At the agent layer, the model becomes four practical questions:</p>
 <ol>
@@ -15,11 +14,11 @@ See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages
 <li>Which workflow should the operator invoke next?</li>
 <li>Which audit trail explains what the agent actually did?</li>
 </ol>
-<p>That is the scope of this document. Canonical semantics stay upstream in <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>.</p>
+<p>That is the scope of this document. Canonical semantics stay upstream in the <a href="../../architecture/mental-model/">Mental Model</a>.</p>
 <h2>Operator Decision Ladder</h2>
 <p>Use the integration layer in this order:</p>
 <ol>
-<li>Start with <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> to pick the right surface.</li>
+<li>Start with <a href="../../manual/operating-modes/">Operating Modes</a> to choose the right surface.</li>
 <li>Use <code>cx mcp</code> when the operator needs live agent help on the current checkout.</li>
 <li>Use <code>cx doctor mcp</code> to confirm the resolved profile, workspace boundary, and policy state.</li>
 <li>Let the agent operate inside the allowed capability set.</li>
@@ -62,7 +61,7 @@ See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages
 <li><code>plan</code>: <code>inspect</code>, <code>bundle</code></li>
 <li><code>mutate</code>: <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, <code>replace_repomix_span</code></li>
 </ul>
-<p>See <a href="stability/">STABILITY.md</a> for tool stability tiers and <a href="mcp_tool_intent_taxonomy/">MCP_TOOL_INTENT_TAXONOMY.md</a> for machine-oriented prompt grouping.</p>
+<p>See <a href="stability/">STABILITY.md</a> for tool stability tiers and <a href="mcp_tool_intent_taxonomy/">MCP Tool Intent Taxonomy</a> for machine-oriented prompt grouping.</p>
 <h2>Why Mutation Policy Denial Stops You</h2>
 <p>When an MCP session denies <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, or <code>replace_repomix_span</code>, the denial is protecting the read/plan-versus-mutate boundary.</p>
 <p>Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. <code>cx</code> requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish &quot;the agent may inspect&quot; from &quot;the agent may edit.&quot;</p>
@@ -105,13 +104,13 @@ enable_mutation = true
 <pre><code class="language-bash">cx notes check
 cx notes graph --id &lt;note-id&gt; --depth 2
 </code></pre>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc">WORKFLOWS/safe-note-mutation.md</a></p>
+<p>For the review loop that follows trusted note edits, see <a href="../../workflows/safe-note-mutation/">Safe Note Mutation</a>.</p>
 <h2>Links</h2>
 <ul>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> — canonical semantics</li>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> — operator mode chooser</li>
-<li><a href="agent_integration/">AGENT_INTEGRATION.md</a> — IDE and client setup</li>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/friday-to-monday.adoc">WORKFLOWS/friday-to-monday.md</a> — temporal provenance example</li>
+<li><a href="../../architecture/mental-model/">Mental Model</a> — canonical semantics</li>
+<li><a href="../../manual/operating-modes/">Operating Modes</a> — operator mode chooser</li>
+<li><a href="agent_integration/">Agent Integration Guide</a> — IDE and client setup</li>
+<li><a href="../../workflows/friday-to-monday/">Friday to Monday</a> — temporal provenance example</li>
 <li><a href="https://github.com/wstein/cx-cli/blob/main/notes/Agent%20Operating%20Model.md">notes/Agent Operating Model</a> — knowledge graph entry</li>
 </ul>
 ++++

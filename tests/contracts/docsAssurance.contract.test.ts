@@ -90,10 +90,10 @@ describe("docs assurance contract", () => {
       "If a new document would introduce another plausible place to start",
     );
     expect(governance).toContain(
-      "<code>MENTAL_MODEL.md</code> owns canonical semantics.",
+      "<code>Mental Model</code> owns canonical semantics.",
     );
     expect(governance).toContain(
-      "<code>OPERATING_MODES.md</code> maps those semantics",
+      "<code>Operating Modes</code> maps those semantics",
     );
     expect(governance).toContain(
       "<code>WORKFLOWS/*</code> shows concrete execution examples",
@@ -102,7 +102,7 @@ describe("docs assurance contract", () => {
       "<code>AGENT_*</code> documents the integration layer",
     );
     expect(governance).toContain(
-      "Everything outside <code>MENTAL_MODEL.md</code> must reference canonical semantics instead of redefining them.",
+      "Everything outside <code>Mental Model</code> must reference canonical semantics instead of redefining them.",
     );
     expect(mentalModelNormalized).toContain("canonical semantics");
     expect(mentalModelNormalized).toContain(

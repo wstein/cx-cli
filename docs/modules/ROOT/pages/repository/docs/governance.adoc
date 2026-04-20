@@ -32,7 +32,7 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>ARCHITECTURE.md</td>
+<td>Implementation Reference</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>System architecture and layer design</td>
@@ -50,31 +50,31 @@
 <td>Tool stability contracts and versioning</td>
 </tr>
 <tr>
-<td>MENTAL_MODEL.md</td>
+<td>Mental Model</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>Canonical semantics for the CX triad, Track A vs Track B, policy tiers, and artifact lifecycle</td>
 </tr>
 <tr>
-<td>OPERATING_MODES.md</td>
+<td>Operating Modes</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>Operator-facing mode chooser and onboarding map</td>
 </tr>
 <tr>
-<td>AGENT_OPERATING_MODEL.md</td>
+<td>Agent Operating Model</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>Integration-layer policy consequences for agent operators</td>
 </tr>
 <tr>
-<td>AGENT_INTEGRATION.md</td>
+<td>Agent Integration Guide</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>IDE and client integration guide</td>
 </tr>
 <tr>
-<td>MCP_TOOL_INTENT_TAXONOMY.md</td>
+<td>MCP Tool Intent Taxonomy</td>
 <td>CANONICAL</td>
 <td>STABLE</td>
 <td>Tool categorization and intent</td>
@@ -127,7 +127,7 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>README.md</td>
+<td>Documentation Index</td>
 <td>MANUAL.md</td>
 <td>Manual excerpt during release</td>
 </tr>
@@ -168,8 +168,8 @@
 <h3>Front-Door Docs</h3>
 <p>These are the only documents that should behave like primary entrypoints:</p>
 <ul>
-<li><code>README.md</code></li>
-<li><code>docs/README.md</code></li>
+<li><code>Documentation Index</code></li>
+<li><code>docs/Documentation Index</code></li>
 <li><code>docs/modules/ROOT/pages/architecture/system-map.adoc</code></li>
 <li><code>docs/modules/ROOT/pages/manual/operating-modes.adoc</code></li>
 <li><code>docs/modules/ROOT/pages/manual/operator-manual.adoc</code></li>
@@ -187,7 +187,7 @@ doors:</p>
 example, or historical material.</p>
 <p>That means:</p>
 <ul>
-<li><code>ARCHITECTURE.md</code> is an implementation reference for contributors, not a
+<li><code>Implementation Reference</code> is an implementation reference for contributors, not a
 first-read overview.</li>
 <li><code>WORKFLOWS/*</code> are special-case execution examples, not parallel onboarding
 paths.</li>
@@ -204,19 +204,19 @@ usually become a section inside an existing front-door doc instead.</p>
 <p><code>cx</code> intentionally uses a hard documentation hierarchy so semantics have one canonical home.</p>
 <h3>Canonical Roles</h3>
 <ul>
-<li><code>MENTAL_MODEL.md</code> owns canonical semantics.</li>
-<li><code>OPERATING_MODES.md</code> maps those semantics to operator choices and progressive onboarding.</li>
+<li><code>Mental Model</code> owns canonical semantics.</li>
+<li><code>Operating Modes</code> maps those semantics to operator choices and progressive onboarding.</li>
 <li><code>WORKFLOWS/*</code> shows concrete execution examples across time.</li>
 <li><code>AGENT_*</code> documents the integration layer: policy consequences, tool sequences, client setup, and review loops.</li>
 </ul>
 <h3>Non-Negotiable Rule</h3>
-<p>Everything outside <code>MENTAL_MODEL.md</code> must reference canonical semantics instead of redefining them.</p>
+<p>Everything outside <code>Mental Model</code> must reference canonical semantics instead of redefining them.</p>
 <p>That means:</p>
 <ul>
-<li><code>OPERATING_MODES.md</code> should say which mode to choose, not restate the full semantics of the CX triad.</li>
+<li><code>Operating Modes</code> should say which mode to choose, not restate the full semantics of the CX triad.</li>
 <li><code>WORKFLOWS/*</code> should show commands, decisions, and outcomes, not redefine Track A vs Track B.</li>
 <li><code>AGENT_*</code> docs should explain how agents consume the model through MCP and integration boundaries, not fork the semantics into a second source of truth.</li>
-<li>General docs such as <code>README.md</code>, <code>MANUAL.md</code>, and <code>ARCHITECTURE.md</code> should point back to the canonical layer with <code>See: MENTAL_MODEL.md</code> where deeper semantics would otherwise be repeated.</li>
+<li>General docs such as <code>Documentation Index</code>, <code>MANUAL.md</code>, and <code>Implementation Reference</code> should point back to the canonical layer with <code>See: Mental Model</code> where deeper semantics would otherwise be repeated.</li>
 </ul>
 <p>Why this protects you: once multiple docs compete to define the same concept, semantic drift becomes invisible until operators make the wrong decision from stale text. The hierarchy keeps one semantic source of truth and pushes every other doc toward mapping, execution, or integration.</p>
 <hr>
@@ -254,7 +254,7 @@ usually become a section inside an existing front-door doc instead.</p>
 <li>Field names, structure, or guidance may change</li>
 <li>Deprecation notice given 1 release in advance</li>
 </ul>
-<p><strong>Example:</strong> If AGENT_OPERATING_MODEL.md policy tier system were BETA, operators should not depend on exact policy names across versions.</p>
+<p><strong>Example:</strong> If Agent Operating Model policy tier system were BETA, operators should not depend on exact policy names across versions.</p>
 <h3>EXPERIMENTAL Documents</h3>
 <p><strong>What it means:</strong></p>
 <ul>
@@ -267,12 +267,12 @@ usually become a section inside an existing front-door doc instead.</p>
 <p>When updating or referencing governance decisions:</p>
 <ul>
 <li><strong>&quot;What&#39;s the contract?&quot;</strong> → <a href="stability/">STABILITY.md</a></li>
-<li><strong>&quot;What do the concepts mean?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a></li>
-<li><strong>&quot;Which mode should I choose first?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a></li>
-<li><strong>&quot;How do tools work in an agent integration?&quot;</strong> → <a href="agent_operating_model/">AGENT_OPERATING_MODEL.md</a></li>
-<li><strong>&quot;What are all the options?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/config-reference.adoc">config-reference.md</a> (CANONICAL)</li>
-<li><strong>&quot;When do I use each workflow?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a></li>
-<li><strong>&quot;Where can I see the model play out over time?&quot;</strong> → <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/friday-to-monday.adoc">WORKFLOWS/friday-to-monday.md</a></li>
+<li><strong>&quot;What do the concepts mean?&quot;</strong> → <a href="../../architecture/mental-model/">Mental Model</a></li>
+<li><strong>&quot;Which mode should I choose first?&quot;</strong> → <a href="../../manual/operating-modes/">Operating Modes</a></li>
+<li><strong>&quot;How do tools work in an agent integration?&quot;</strong> → <a href="agent_operating_model/">Agent Operating Model</a></li>
+<li><strong>&quot;What are all the options?&quot;</strong> → <a href="../../manual/config-reference/">config-reference.md</a> (CANONICAL)</li>
+<li><strong>&quot;When do I use each workflow?&quot;</strong> → <a href="../../manual/operating-modes/">Operating Modes</a></li>
+<li><strong>&quot;Where can I see the model play out over time?&quot;</strong> → <a href="../../workflows/friday-to-monday/">Friday to Monday</a></li>
 <li><strong>&quot;Is this doc authoritative?&quot;</strong> → Check the source-of-truth marker at the top</li>
 </ul>
 <hr>
