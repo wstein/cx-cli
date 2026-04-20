@@ -28,7 +28,7 @@ afterEach(async () => {
 });
 
 describe("renderSection", () => {
-  test("renders a section through the configured adapter", async () => {
+  test("renders a section through the configured render path", async () => {
     const adapterDir = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-render-adapter-"),
     );
@@ -55,6 +55,6 @@ describe("renderSection", () => {
     expect(result.style).toBe("markdown");
     expect(result.tokenCount).toBe(7);
     expect(result.content).toContain("## File: src/index.ts");
-    expect(result.content).toContain("alpha");
+    expect(result.content).toContain("export const ok = 1;");
   });
 });

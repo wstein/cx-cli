@@ -112,13 +112,15 @@ interface StructuredRenderPlan {
 - `src/render/types.ts`: kernel-owned proof-path types
 - `src/render/engine.ts`: render engine interface plus the current native-first
   default implementation
-- `src/render/native/`: native XML and Markdown section renderers plus shared
-  render helpers
+- `src/render/native/`: native proof-path renderers for XML, Markdown, Plain,
+  and JSON section outputs plus shared render helpers
+- `src/render/structuredPlan.ts`: kernel-owned structured plan construction for
+  native rendering plus adapter-plan extraction for parity/oracle use
 - `src/render/ordering.ts`: deterministic ordering invariant checks
 - `src/render/planHash.ts`: section and aggregate render-plan hashing
 - `src/render/spans.ts`: style-aware output span helpers
 - `src/repomix/render.ts`: Repomix-backed renderer retained as the migration
-  oracle and fallback path
+  oracle and compatibility surface
 - `src/manifest/types.ts`: Added `renderPlanHash` field
 - `src/manifest/build.ts`: Computes aggregate plan hash from sections
 - `src/bundle/verify.ts`: Validates plan integrity during verification

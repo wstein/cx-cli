@@ -27,13 +27,17 @@ export async function renderSection(
   const outputPath = path.join(tmpDir, "output");
 
   try {
+    const explicitFiles = params.files.map((file) =>
+      path.isAbsolute(file) ? file : path.join(params.sourceRoot, file),
+    );
+
     const result = await defaultRenderEngine.renderSection({
       config: params.config,
       style: params.style,
       sourceRoot: params.sourceRoot,
       outputPath,
       sectionName: params.section,
-      explicitFiles: params.files,
+      explicitFiles,
     });
 
     return {

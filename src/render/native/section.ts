@@ -1,25 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-import {
-  getAdapterModulePath,
-  validateRepomixContract,
-} from "../../repomix/capabilities.js";
-import { buildSectionHeaderText } from "../../repomix/handover.js";
-import { CxError } from "../../shared/errors.js";
 import { computePlanHash, planToMaps } from "../planHash.js";
-import { buildRepomixCliConfig } from "../repomixConfig.js";
-import { extractStructuredPlan } from "../structuredPlan.js";
+import { buildSectionHandoverText } from "../sectionHandover.js";
+import { buildStructuredPlanFromFiles } from "../structuredPlan.js";
 import type { RenderSectionInput, RenderSectionResult } from "../types.js";
 import { renderNativeJsonSection } from "./json.js";
 import { renderNativeMarkdownSection } from "./markdown.js";
 import { renderNativePlainSection } from "./plain.js";
 import { renderNativeXmlSection } from "./xml.js";
-
-async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
-  return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
-}
 
 export function createNativeRenderSectionFn(): (
   input: RenderSectionInput,
@@ -37,36 +26,14 @@ export function createNativeRenderSectionFn(): (
       };
     }
 
-    const validation = await validateRepomixContract();
-    if (!validation.valid) {
-      throw new CxError(
-        `Incompatible Repomix adapter contract:\n${validation.errors.join("\n")}`,
-        5,
-      );
-    }
-
-    const adapter = await loadRepomixAdapter();
-    if (typeof adapter.packStructured !== "function") {
-      throw new CxError(
-        "Incompatible Repomix adapter: packStructured() is required for native proof-path rendering.",
-        5,
-      );
-    }
-
-    const mergedConfig = adapter.mergeConfigs(
-      input.sourceRoot,
-      {},
-      buildRepomixCliConfig(input),
-    );
-    const structuredPack = await adapter.packStructured(
-      [input.sourceRoot],
-      mergedConfig,
-      { explicitFiles: input.explicitFiles },
-    );
-    const plan = extractStructuredPlan(structuredPack);
+    const plan = await buildStructuredPlanFromFiles({
+      sourceRoot: input.sourceRoot,
+      explicitFiles: input.explicitFiles,
+      encoding: input.config.tokens.encoding,
+    });
     const planHash = computePlanHash(plan);
     const { fileTokenCounts, fileContentHashes } = planToMaps(plan);
-    const headerText = buildSectionHeaderText({
+    const headerText = buildSectionHandoverText({
       projectName: input.config.projectName,
       sectionName: input.sectionName,
       ...(path.basename(input.outputPath) === "output"

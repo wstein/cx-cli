@@ -201,6 +201,8 @@ The current default proof path is split deliberately:
 - all four proof styles (`xml`, `markdown`, `plain`, and `json`) now flow
   through the native kernel implementation in
   [`src/render/native/`](../src/render/native/)
+- structured render plans for the native proof path are now built directly from
+  source files by the kernel
 - the shared handover is already kernel-rendered
 - the Repomix-backed renderer remains the parity oracle seam, not the default
   proof-path implementation and not a hidden runtime fallback

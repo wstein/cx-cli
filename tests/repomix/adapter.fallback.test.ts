@@ -146,7 +146,7 @@ describe("Repomix adapter fallback behavior", () => {
     );
   });
 
-  test("bundling requires structured rendering for normalized content hashes", async () => {
+  test("bundling stays native when structured adapter support is unavailable", async () => {
     const fixture = await createRenderFixture();
     await installMockAdapter({
       withPackStructured: false,
@@ -155,20 +155,12 @@ describe("Repomix adapter fallback behavior", () => {
     });
 
     const capture = createBufferedCommandIo();
-    let thrown: unknown;
-    let exitCode = 0;
-    try {
-      await runBundleCommand({ config: fixture.configPath }, capture.io);
-    } catch (error) {
-      thrown = error;
-      exitCode = 1;
-    }
-
-    expect(exitCode).toBe(1);
-    expect(thrown).toBeInstanceOf(Error);
-    expect((thrown as Error).message).toContain(
-      "packStructured() is required for native proof-path rendering",
+    const exitCode = await runBundleCommand(
+      { config: fixture.configPath },
+      capture.io,
     );
+
+    expect(exitCode).toBe(0);
 
     const capabilities = await getRepomixCapabilities();
     expect(capabilities.contractValid).toBe(true);

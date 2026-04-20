@@ -1,4 +1,7 @@
 // test-lane: unit
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { validatePlanOrdering } from "../../src/render/ordering.js";
 import {
@@ -6,7 +9,10 @@ import {
   planToMaps,
   validateEntryHashes,
 } from "../../src/render/planHash.js";
-import { extractStructuredPlan } from "../../src/render/structuredPlan.js";
+import {
+  buildStructuredPlanFromFiles,
+  extractStructuredPlan,
+} from "../../src/render/structuredPlan.js";
 import type {
   StructuredRenderEntry,
   StructuredRenderPlan,
@@ -203,6 +209,45 @@ describe("render constitution invariants", () => {
       expect(plan.entries[0]?.tokenCount).toBe(7);
       expect(plan.entries[1]?.path).toBe("b.ts");
       expect(plan.entries[1]?.tokenCount).toBe(0);
+    });
+
+    it("builds a sorted kernel plan directly from source files", async () => {
+      const rootDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), "cx-render-plan-files-"),
+      );
+
+      try {
+        await fs.mkdir(path.join(rootDir, "src"), { recursive: true });
+        await fs.mkdir(path.join(rootDir, "docs"), { recursive: true });
+        await fs.writeFile(
+          path.join(rootDir, "src", "index.ts"),
+          "export const ok = 1;\n",
+          "utf8",
+        );
+        await fs.writeFile(
+          path.join(rootDir, "docs", "guide.md"),
+          "# Guide\n",
+          "utf8",
+        );
+
+        const plan = await buildStructuredPlanFromFiles({
+          sourceRoot: rootDir,
+          explicitFiles: [
+            path.join(rootDir, "src", "index.ts"),
+            path.join(rootDir, "docs", "guide.md"),
+          ],
+          encoding: "o200k_base",
+        });
+
+        expect(plan.ordering).toEqual(["docs/guide.md", "src/index.ts"]);
+        expect(plan.entries[0]?.path).toBe("docs/guide.md");
+        expect(plan.entries[0]?.language).toBe("markdown");
+        expect(plan.entries[1]?.path).toBe("src/index.ts");
+        expect(plan.entries[1]?.language).toBe("typescript");
+        expect(plan.entries[1]?.content).toBe("export const ok = 1;");
+      } finally {
+        await fs.rm(rootDir, { recursive: true, force: true });
+      }
     });
   });
 

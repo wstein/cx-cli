@@ -93,5 +93,5 @@ interface StructuredRenderPlan {
 
 - [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
 - [docs/SYSTEM_CONTRACTS.md](../docs/SYSTEM_CONTRACTS.md)
-- [[src/repomix/structured.ts]]
+- [src/render/structuredPlan.ts](../src/render/structuredPlan.ts)
 - [[src/bundle/verify.ts]]
