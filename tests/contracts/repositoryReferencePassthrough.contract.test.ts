@@ -15,7 +15,6 @@ const REPOSITORY_DOCS_ROOT = path.join(
 );
 const ALLOWED_PASSTHROUGH_FILES = [
   "agent_integration.adoc",
-  "extraction_safety.adoc",
   "governance.adoc",
   "init_template_contract.adoc",
   "notes_module_spec.adoc",

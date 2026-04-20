@@ -15,10 +15,10 @@ on:
       - "scripts/assemble-pages-site.js"
       - "scripts/check-pages-site.js"
       - "tests/contracts/pagesPublish.contract.test.ts"
-      - "tests/unit/buildAntoraSite.test.ts"
+      - "tests/integration/buildAntoraSite.integration.test.ts"
       - "tests/unit/syncAntoraDocs.test.ts"
       - "tests/unit/assemblePagesSite.test.ts"
-      - "tests/unit/checkPagesSite.test.ts"
+      - "tests/integration/checkPagesSite.integration.test.ts"
   push:
     branches: [main]
     paths:
@@ -34,10 +34,10 @@ on:
       - "scripts/assemble-pages-site.js"
       - "scripts/check-pages-site.js"
       - "tests/contracts/pagesPublish.contract.test.ts"
-      - "tests/unit/buildAntoraSite.test.ts"
+      - "tests/integration/buildAntoraSite.integration.test.ts"
       - "tests/unit/syncAntoraDocs.test.ts"
       - "tests/unit/assemblePagesSite.test.ts"
-      - "tests/unit/checkPagesSite.test.ts"
+      - "tests/integration/checkPagesSite.integration.test.ts"
   workflow_dispatch:
 
 env:

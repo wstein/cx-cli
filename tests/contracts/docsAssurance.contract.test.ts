@@ -316,6 +316,9 @@ describe("docs assurance contract", () => {
     expect(manualNormalized).toContain(
       "Dirty-state gating stops tracked-file drift",
     );
+    expect(manualNormalized).toContain(
+      "use `cx extract ... --allow-degraded` only for human inspection",
+    );
     expect(extractionSafety).toContain(
       "Why this stops you: once the recovered packed content no longer matches",
     );

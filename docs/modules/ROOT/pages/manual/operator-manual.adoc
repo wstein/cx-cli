@@ -58,6 +58,20 @@ Typical minimal paths:
 . `cx verify --against .`
 . `cx extract dist/bundle --to ./restore`
 
+=== Extraction Safety
+
+When you extract bundle contents, treat `intact` and `copied` outputs as the ordinary safe path.
+
+If extraction reports `degraded`, stop and decide whether you need approximate human review or deterministic machine-safe recovery:
+
+* use `cx extract ... --allow-degraded` only for human inspection
+* do not use degraded output as automation input
+* rebuild the bundle instead of forcing degraded fallback when coordinates, hashes, or downstream edits matter
+
+Why this protects you: degraded extraction means the recovered packed content no longer matches the manifest contract, so line coordinates and file identity may no longer be trustworthy enough for safe automation.
+
+For the full failure model, recovery statuses, and detailed examples, see xref:page$repository/docs/extraction_safety.adoc[Extraction Safety].
+
 === Repository Commands
 
 Use the repository-local `make` targets for day-to-day development:
