@@ -206,6 +206,13 @@ The scanner pipeline is enabled by `repomix.security_check = true`.
 - `scanner.ids` keeps scanner selection explicit and bounded.
 - `scanner.include_post_pack_artifacts = true` adds a second scan pass over rendered section outputs, the shared handover, and the manifest.
 
+Current bounded scanner set:
+
+- `reference_secrets`
+
+This is intentionally not a plugin registry. Additional scanner IDs should be
+introduced only as deliberate core contract changes.
+
 ## Behavioral Settings
 
 Behavioral settings control how `cx` handles non-fundamental friction points. They do not change the core integrity model.

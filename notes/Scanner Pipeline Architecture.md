@@ -39,6 +39,12 @@ Current implementation:
 - doctor diagnostics and bundle enforcement share the same pipeline seam
 - scanner selection is explicit through bounded scanner IDs
 
+## Non-goals
+
+- turning scanner configuration into a plugin registry
+- making proof blocking depend on implicitly discovered scanners
+- reopening `v0.4` with a broader extension architecture
+
 ## Trust rule
 
 - core scanners may block proof path
@@ -48,9 +54,11 @@ Current implementation:
 
 - CI gating integration
 - policy-based activation
+- additional bounded core scanners
 
 ## Links
 
 - [[Bundle Extraction Safety Invariants]]
 - [[System Trust Contract]]
+- [[v0.4 Release Closure]]
 - `src/adapter/oracleRender.ts`

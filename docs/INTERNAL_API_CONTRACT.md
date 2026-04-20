@@ -88,6 +88,18 @@ Current default implementation:
 
 - the reference scanner bridge around the installed oracle scanner
 
+Current bounded configuration:
+
+- explicit scanner IDs
+- source-stage scanning
+- optional post-pack artifact scanning
+
+Non-goals:
+
+- plugin discovery
+- open-ended scanner loading
+- implicit proof-path scanner activation
+
 Rule:
 
 - scanning behavior belongs to the pipeline contract, not to renderer helpers

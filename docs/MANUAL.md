@@ -300,6 +300,12 @@ When `scanner.include_post_pack_artifacts = true`, `cx bundle` reruns the
 enabled scanners over rendered section outputs, the shared handover, and the
 manifest before finalizing the bundle.
 
+The scanner surface is intentionally bounded in `v0.4`:
+
+- scanner IDs are explicit
+- the current core scanner set contains `reference_secrets`
+- scanner growth after `v0.4` should happen as deliberate contract work, not implicit tool discovery
+
 `cx mcp catalog --json` is the preferred narrow machine-readable endpoint for MCP tool metadata. `cx doctor mcp --json` also exposes the same catalog fields when you need them alongside profile resolution and audit trends.
 
 When you only need the audit ledger itself, `cx audit summary --json` reports allowed versus denied totals, policy-name counts, capability counts, and recent `traceId` values from `.cx/audit.log` without repeating the rest of the MCP profile.
