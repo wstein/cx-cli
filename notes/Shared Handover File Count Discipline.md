@@ -25,7 +25,7 @@ Put into the single shared handover:
 
 - section inventory
 - provenance rollup
-- recent repository history
+- recent repository history (git log, etc.)
 - shared usage guidance
 
 Do not create separate files such as:
