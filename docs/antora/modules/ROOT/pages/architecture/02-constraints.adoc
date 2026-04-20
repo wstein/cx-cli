@@ -1,0 +1,17 @@
+= 02 Constraints
+
+This architecture is shaped by a small set of hard constraints.
+
+== Hard constraints
+
+- deterministic planning, hashing, and verification
+- explicit trust propagation across source, notes, agent output, and bundles
+- kernel-owned proof path for ordinary runtime execution
+- expert-only oracle seam for parity and diagnostics
+- governed note quality instead of free-form repository memory
+- bounded scanner selection and explicit scanner activation
+
+== Documentation constraint
+
+Canonical docs may adopt Antora and AsciiDoctor, but `notes/` stays note-native.
+Curated architecture and cognition memory are different artifact classes.

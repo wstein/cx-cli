@@ -1,0 +1,6 @@
+[IMPORTANT]
+====
+Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.
+====

@@ -1,0 +1,31 @@
+= Configuration Reference
+
+include::../../partials/trust-boundary-primer.adoc[]
+
+The configuration surface controls file selection, proof-path behavior, note governance, scanner policy, and MCP overlays.
+
+== Main config files
+
+- `cx.toml` for the baseline repository configuration
+- `cx-mcp.toml` for MCP-focused overlays
+- generated init templates for workspace-specific defaults
+
+== High-value configuration areas
+
+- sections and include/exclude patterns
+- overlap ownership and dedup policy
+- manifest and handover behavior
+- note targets and notes gating
+- scanner stages, scanner IDs, and enforcement mode
+- token accounting and encoding
+
+== Public schemas
+
+- `cx-config-v1.schema.json`
+- `cx-config-overlay-v1.schema.json`
+
+Published schema endpoints remain part of the public Pages surface.
+
+== Legacy reference
+
+Use link:../../../../docs/config-reference.md[docs/config-reference.md] for the full current option matrix during migration.

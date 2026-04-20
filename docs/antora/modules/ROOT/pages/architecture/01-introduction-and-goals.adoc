@@ -1,0 +1,15 @@
+= 01 Introduction and Goals
+
+The goal of `cx` is to turn repository context into something reproducible enough for automation, not merely convenient enough for prompting.
+
+== Primary goals
+
+- make AI handoff deterministic enough for later humans and CI to trust
+- preserve a clean boundary between exploratory work and proof-grade artifacts
+- keep live MCP access, durable notes, and bundles as distinct but cooperating surfaces
+- record provenance and trust labels honestly instead of flattening them into prose
+
+== Why this matters
+
+The system is designed for real handoff over time.
+That means a later operator must be able to inspect, validate, verify, and extract without inheriting hidden assumptions from the original session.

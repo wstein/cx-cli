@@ -1,0 +1,92 @@
+= Choose Your Operating Mode
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/OPERATING_MODES.md`
+
+++++
+<p>This is the main conceptual entrypoint for <code>cx</code>.</p>
+<p>Start with the fastest proof of value, then learn the deeper model.</p>
+<p>The job of this document is mapping, not semantics. For canonical definitions, see <a href="mental_model/">MENTAL_MODEL.md</a>.</p>
+<h2>Ultra-Minimal Onboarding</h2>
+<p>Run this first:</p>
+<pre><code class="language-bash">cx mcp
+</code></pre>
+<p>See the agent work on live code.</p>
+<p>Learn later:</p>
+<ul>
+<li>why <code>Track B = hypothesis generation</code></li>
+<li>why <code>Track A = proof generation</code></li>
+<li>why notes are the durable cognition layer</li>
+</ul>
+<p>That order matters. Operators usually trust the model faster after they have watched one live MCP session solve a real problem.</p>
+<h2>Start Here</h2>
+<p>If someone is new to <code>cx</code>, do not begin with the full architecture lecture. Begin with the live surface:</p>
+<ol>
+<li>Run <code>cx mcp</code>.</li>
+<li>Let the agent do real work against live code.</li>
+<li>Then explain why the system is split the way it is.</li>
+</ol>
+<p>The progressive onboarding model is:</p>
+<ul>
+<li><code>cx mcp</code> shows the agent working on the current checkout.</li>
+<li><code>cx notes</code> explains how durable reasoning is preserved.</li>
+<li><code>cx bundle</code> explains how that work becomes a promotable artifact.</li>
+</ul>
+<p>Only after the operator has seen the system in motion should you introduce the deeper model:</p>
+<ul>
+<li><strong>Track B = hypothesis generation</strong></li>
+<li><strong>Track A = proof generation</strong></li>
+<li><strong>Notes are the durable cognition layer</strong></li>
+</ul>
+<p>Choose the mode that matches the job you need to do right now.</p>
+<h2>Use <code>cx mcp</code></h2>
+<p>Need fast interactive AI help on live code? Use <code>cx mcp</code>.</p>
+<p>Use it when you need:</p>
+<ul>
+<li>live workspace reads and search</li>
+<li>interactive reasoning over the current checkout</li>
+<li>note discovery and review during active work</li>
+<li>planning help before you freeze an artifact</li>
+</ul>
+<p>This is the right choice when the workspace is still moving and you need the agent to understand what is true right now.</p>
+<p>Workflow example: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a></p>
+<h2>Use <code>cx bundle</code></h2>
+<p>Need a reproducible, promotable artifact? Use <code>cx bundle</code>.</p>
+<p>Use it when you need:</p>
+<ul>
+<li>a deterministic handoff for CI, review, or downstream automation</li>
+<li>manifest, lock file, and checksum sidecar protection</li>
+<li>later validation and verification</li>
+<li>extraction under manifest and hash guardrails</li>
+</ul>
+<p>This is the right choice when the work must stop being exploratory and become an artifact contract.</p>
+<p>Workflow example: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a></p>
+<h2>Use <code>cx notes</code></h2>
+<p>Need durable design memory? Use <code>cx notes</code>.</p>
+<p>Use it when you need:</p>
+<ul>
+<li>stable architectural intent in version control</li>
+<li>linked repository knowledge that survives sessions</li>
+<li>searchable note history and graph review</li>
+<li>durable context for later humans and agents</li>
+</ul>
+<p>This is the right choice when the reasoning itself needs to persist, not just the current task result.</p>
+<p>Workflow example: <a href="workflows/safe-note-mutation/">WORKFLOWS/safe-note-mutation.md</a></p>
+<h2>How The Modes Fit Together</h2>
+<p>These are not competing tools. They are the three operating surfaces of the same system:</p>
+<ol>
+<li>Start with <code>cx mcp</code> when you need live understanding.</li>
+<li>Record durable conclusions with <code>cx notes</code>.</li>
+<li>Freeze trusted handoff state with <code>cx bundle</code>.</li>
+</ol>
+<p>Another way to say the same thing:</p>
+<ul>
+<li><code>cx mcp</code> is where hypotheses are generated and tested against live state.</li>
+<li><code>cx notes</code> is where high-signal reasoning becomes durable repository memory.</li>
+<li><code>cx bundle</code> is where proof is generated for review, CI, and handoff.</li>
+</ul>
+<p>See: <a href="mental_model/">MENTAL_MODEL.md</a>
+See: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a>
+See: <a href="workflows/safe-note-mutation/">WORKFLOWS/safe-note-mutation.md</a></p>
+++++

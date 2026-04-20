@@ -1,0 +1,139 @@
+= CX Mental Model
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/MENTAL_MODEL.md`
+
+++++
+<p>This is the canonical semantics and operator model for <code>cx</code>.</p>
+<p>See: <a href="operating_modes/">OPERATING_MODES.md</a> for the shortest path to choosing the right surface before reading the deeper model.
+See: <a href="system_map/">SYSTEM_MAP.md</a> for the compressed one-page view.
+See: <a href="system_contracts/">SYSTEM_CONTRACTS.md</a> for cognition quality, hard boundaries, and trust propagation.</p>
+<p>When another document needs to explain the CX triad, Track A vs Track B, MCP policy tiers, or the artifact lifecycle, it should point here instead of restating the full model.</p>
+<h2>CX Triad</h2>
+<p><code>cx</code> is built around three cooperating surfaces:</p>
+<ol>
+<li><strong>Immutable snapshots</strong>: <code>cx bundle</code> writes a deterministic artifact set that can be validated, verified, transported, and audited later.</li>
+<li><strong>Live agent protocol</strong>: <code>cx mcp</code> exposes the current workspace through scoped MCP tools for search, reads, planning, diagnostics, and note operations.</li>
+<li><strong>Durable knowledge</strong>: <code>cx notes</code> keeps repository knowledge in versioned atomic notes that can be queried directly and carried into manifests.</li>
+</ol>
+<p>The triad is deliberate: bundles carry stable truth across time, MCP handles live investigation, and notes preserve reasoning that should survive both.</p>
+<h2>Track A Vs B</h2>
+<p><code>cx</code> has two operating tracks. They share the same workspace boundary, file-selection rules, hashing model, and safety invariants. They solve different problems.</p>
+<p>The shortest framing is:</p>
+<ul>
+<li><strong>Track B = hypothesis generation</strong></li>
+<li><strong>Track A = proof generation</strong></li>
+<li><strong>Notes are the durable cognition layer.</strong></li>
+</ul>
+<p>Track B is where an agent or operator asks &quot;what might be true, what should I inspect next, and what reasoning should I preserve?&quot; Track A is where the system answers &quot;what can we now prove, freeze, verify, and hand off?&quot;</p>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Primary question</th>
+<th>Main commands</th>
+<th>Output</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Track A: Proof Generation</strong></td>
+<td>&quot;What exact artifact can we prove and hand off?&quot;</td>
+<td><code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, <code>cx extract</code></td>
+<td>Immutable bundle artifacts plus manifest, lock file, and checksums</td>
+<td>You need something reviewable, reproducible, and verifiable later</td>
+</tr>
+<tr>
+<td><strong>Track B: Hypothesis Generation</strong></td>
+<td>&quot;What is true in the workspace right now, and what should we examine next?&quot;</td>
+<td><code>cx mcp</code>, <code>cx doctor *</code>, <code>cx notes *</code></td>
+<td>Live workspace reads, plan previews, diagnostics, and note maintenance</td>
+<td>You need interactive investigation, note updates, or agent guidance during active work</td>
+</tr>
+</tbody></table>
+<p>Rule of thumb:</p>
+<ul>
+<li>Use <strong>Track B</strong> to understand, search, diagnose, and document.</li>
+<li>Use <strong>Track A</strong> to freeze, verify, and hand off.</li>
+<li>Treat <strong>notes as the durable cognition layer</strong> between exploration and proof.</li>
+<li>Switch from B to A when the work stops being exploratory and starts becoming an artifact contract.</li>
+</ul>
+<p>The notes surface sits between them as the durable cognition layer. It preserves high-signal reasoning so later Track B sessions do not have to rediscover everything from raw code, and later Track A bundles can carry that reasoning forward in manifest metadata.</p>
+<p>The trust shorthand is:</p>
+<ul>
+<li><strong>Source tree: trusted</strong></li>
+<li><strong>Notes: conditional</strong></li>
+<li><strong>Agent output: untrusted until verified</strong></li>
+<li><strong>Bundle: trusted</strong></li>
+</ul>
+<h2>Policy Tiers</h2>
+<p>Policy tiers apply to the live MCP surface, not to immutable bundle semantics. Bundle invariants stay hard stops regardless of MCP policy.</p>
+<table>
+<thead>
+<tr>
+<th>MCP policy</th>
+<th>Allowed capabilities</th>
+<th>Typical environment</th>
+<th>Intended use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>strict</code></td>
+<td>read + observe</td>
+<td>CI, shared runners, untrusted automation</td>
+<td>Let agents inspect without mutating or planning freely</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>read + observe + plan</td>
+<td>interactive engineering sessions</td>
+<td>Let agents investigate and preview while humans keep mutation authority</td>
+</tr>
+<tr>
+<td><code>unrestricted</code></td>
+<td>read + observe + plan + mutate</td>
+<td>trusted local development</td>
+<td>Let agents operate with full workspace authority</td>
+</tr>
+</tbody></table>
+<p>This is separate from tool stability tiers in <a href="stability/">STABILITY.md</a>. Stability answers &quot;how locked is this interface?&quot; Policy answers &quot;what is this agent allowed to do right now?&quot;</p>
+<h2>Artifact Lifecycle</h2>
+<p>An artifact moves through a fixed lifecycle:</p>
+<ol>
+<li><strong>Live workspace</strong><ul>
+<li>Code, docs, config, and notes are still changing.</li>
+<li>Track B is the right place for investigation, note updates, and planning.</li>
+</ul>
+</li>
+<li><strong>Inspect</strong><ul>
+<li><code>cx inspect</code> previews section membership, token counts, overlaps, and extraction implications before anything is written.</li>
+</ul>
+</li>
+<li><strong>Bundle</strong><ul>
+<li><code>cx bundle</code> freezes the selected workspace state into section outputs, manifest, lock file, checksum sidecar, and copied assets.</li>
+</ul>
+</li>
+<li><strong>Validate</strong><ul>
+<li><code>cx validate</code> checks structural integrity: the bundle contains the required files and the manifest/checksum contract is internally coherent.</li>
+</ul>
+</li>
+<li><strong>Verify</strong><ul>
+<li><code>cx verify</code> proves the artifact set was not altered after bundling and can optionally compare the bundle back to a source tree with <code>--against</code>.</li>
+</ul>
+</li>
+<li><strong>Extract</strong><ul>
+<li><code>cx extract</code> reconstructs files under manifest and hash guardrails instead of treating the bundle like a blind archive.</li>
+</ul>
+</li>
+</ol>
+<p>Why this protects you: every step narrows trust. Planning tells you what would be bundled. Bundling freezes it. Validation confirms the structure exists. Verification proves the artifact still matches what was written. Extraction refuses reconstructions that would break identity or line-coordinate trust.</p>
+<h2>Friday To Monday</h2>
+<p>The practical handoff is simple:</p>
+<ul>
+<li><strong>Friday</strong>: use Track B to investigate, update notes, and confirm the plan.</li>
+<li><strong>Friday closeout</strong>: switch to Track A and write the bundle.</li>
+<li><strong>Monday</strong>: validate or verify the handed-off artifact before trusting it.</li>
+</ul>
+<p>See: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a></p>
+++++

@@ -71,9 +71,18 @@ describe("assemble-pages-site.js", () => {
     ]);
     expect(result.hasCoverage).toBe(true);
     expect(result.coverageDir).toBe(path.join(siteRoot, "coverage"));
+    expect(result.docsDir).toBe(path.join(siteRoot, "docs"));
 
     const rootIndex = await fs.readFile(
       path.join(siteRoot, "index.html"),
+      "utf8",
+    );
+    const docsIndex = await fs.readFile(
+      path.join(siteRoot, "docs", "index.html"),
+      "utf8",
+    );
+    const versionedDocsIndex = await fs.readFile(
+      path.join(siteRoot, "docs", "cx", "0.4", "index.html"),
       "utf8",
     );
     const schemasIndex = await fs.readFile(
@@ -85,8 +94,11 @@ describe("assemble-pages-site.js", () => {
       "utf8",
     );
 
+    expect(rootIndex).toContain('href="docs/"');
     expect(rootIndex).toContain('href="schemas/"');
     expect(rootIndex).toContain('href="coverage/"');
+    expect(docsIndex).toContain('location="cx/0.4/"');
+    expect(versionedDocsIndex).toContain("CX Documentation");
     expect(schemasIndex).toContain("cx-config-v1.schema.json");
     expect(schemasIndex).toContain("json-section-output-v1.schema.json");
     expect(schemasIndex).toContain("manifest-v7.schema.json");
@@ -116,11 +128,23 @@ describe("assemble-pages-site.js", () => {
 
     expect(result.hasCoverage).toBe(false);
     expect(result.coverageDir).toBeNull();
+    expect(result.docsDir).toBe(path.join(siteRoot, "docs"));
 
     const rootIndex = await fs.readFile(
       path.join(siteRoot, "index.html"),
       "utf8",
     );
+    const docsIndex = await fs.readFile(
+      path.join(siteRoot, "docs", "index.html"),
+      "utf8",
+    );
+    const versionedDocsIndex = await fs.readFile(
+      path.join(siteRoot, "docs", "cx", "0.4", "index.html"),
+      "utf8",
+    );
+    expect(rootIndex).toContain('href="docs/"');
+    expect(docsIndex).toContain('location="cx/0.4/"');
+    expect(versionedDocsIndex).toContain("CX Documentation");
     expect(rootIndex).toContain("does not include a coverage report");
     await expect(
       fs.access(path.join(siteRoot, "coverage", "index.html")),

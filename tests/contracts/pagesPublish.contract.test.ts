@@ -46,7 +46,7 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain("continue-on-error: true");
     expect(workflow).toContain("run: bun run pages:smoke");
     expect(workflow).toContain("publish_branch: gh-pages");
-    expect(workflow).toContain("publish_dir: site");
+    expect(workflow).toContain("publish_dir: dist/site");
   });
 
   test("release asset mirroring stays separate from automatic Pages publishing", async () => {
@@ -66,6 +66,12 @@ describe("Pages publish contract", () => {
       scripts?: Record<string, string>;
     };
 
+    expect(pkg.scripts?.["docs:antora:sync"]).toBe(
+      "node scripts/sync-antora-docs.js",
+    );
+    expect(pkg.scripts?.["docs:antora:build"]).toBe(
+      "node scripts/build-antora-site.js",
+    );
     expect(pkg.scripts?.["pages:build"]).toBe(
       "node scripts/assemble-pages-site.js",
     );
@@ -74,7 +80,7 @@ describe("Pages publish contract", () => {
     );
   });
 
-  test("root Pages index links both schemas and coverage surfaces", async () => {
+  test("root Pages index links docs, schemas, and coverage surfaces", async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const coverageDir = path.join(root, "coverage", "vitest");
@@ -103,6 +109,7 @@ describe("Pages publish contract", () => {
       path.join(siteRoot, "index.html"),
       "utf8",
     );
+    expect(rootIndex).toContain('href="docs/"');
     expect(rootIndex).toContain('href="schemas/"');
     expect(rootIndex).toContain('href="coverage/"');
   });
@@ -116,5 +123,9 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("run: bun run pages:build");
     expect(workflow).toContain("run: bun run pages:smoke");
+    expect(workflow).toContain("docs/antora/**");
+    expect(workflow).toContain("docs/antora-ui/**");
+    expect(workflow).toContain("scripts/build-antora-site.js");
+    expect(workflow).toContain("scripts/sync-antora-docs.js");
   });
 });

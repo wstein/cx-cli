@@ -1,0 +1,15 @@
+= 05 Building Block View
+
+Key building blocks in the shipped architecture:
+
+- `src/render/` for kernel-owned rendering, spans, ordering, and plan hashes
+- `src/planning/` for file selection and section ownership
+- `src/manifest/` for canonical artifact truth
+- `src/bundle/verify.ts` and extraction surfaces for proof and recovery
+- `src/notes/` for repository cognition and governance
+- `src/doctor/` and `src/mcp/` for live inspection and policy-backed tooling
+- `src/adapter/` for oracle diagnostics only
+
+== Rule
+
+Ordinary bundle, validate, verify, and extract flows do not rely on the oracle seam.

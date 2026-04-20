@@ -1,10 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import {
+  buildAntoraSite,
+  DEFAULT_ANTORA_PLAYBOOK,
+} from "./build-antora-site.js";
 
-export const DEFAULT_SITE_ROOT = "site";
+export const DEFAULT_SITE_ROOT = "dist/site";
 export const DEFAULT_SCHEMAS_DIR = "schemas";
 export const DEFAULT_COVERAGE_DIR = "coverage/vitest";
+export const DEFAULT_DOCS_DIR = "dist/antora";
 
 async function pathExists(targetPath) {
   try {
@@ -91,8 +96,13 @@ function renderRootIndex({ hasCoverage }) {
     "  <body>",
     "    <main>",
     "      <h1>CX Publish Surface</h1>",
-    '      <p class="lede">One Pages site hosts the semver-tracked schema endpoints and the latest public coverage status page, so operators do not have to choose between release metadata and CI visibility.</p>',
+    '      <p class="lede">One Pages site hosts the curated Antora documentation, semver-tracked schema endpoints, and the latest public coverage status page, so operators do not have to choose between guidance, release metadata, and CI visibility.</p>',
     '      <div class="grid">',
+    '        <section class="card">',
+    "          <h2>Documentation</h2>",
+    "          <p>The curated canonical docs site is published here as an Antora and AsciiDoctor surface with an arc42-based architecture spine.</p>",
+    '          <p><a href="docs/">Open documentation site</a></p>',
+    "        </section>",
     '        <section class="card">',
     "          <h2>Schemas</h2>",
     "          <p>Canonical JSON Schemas mirrored from the checked-in <code>schemas/</code> directory.</p>",
@@ -136,7 +146,7 @@ function renderSchemasIndex(schemaNames) {
     "    </style>",
     "  </head>",
     "  <body>",
-    "    <p><a href=\"../\">Back to CX publish surface</a></p>",
+    '    <p><a href="../">Back to CX publish surface</a></p>',
     "    <h1>CX Schemas</h1>",
     "    <p>The canonical JSON Schemas for <code>cx</code> are published here.</p>",
     "    <ul>",
@@ -154,6 +164,8 @@ export async function assemblePagesSite({
   siteRoot = DEFAULT_SITE_ROOT,
   schemasDir = DEFAULT_SCHEMAS_DIR,
   coverageDir = DEFAULT_COVERAGE_DIR,
+  docsBuildDir,
+  antoraPlaybook = DEFAULT_ANTORA_PLAYBOOK,
 } = {}) {
   const schemaEntries = await fs.readdir(schemasDir, { withFileTypes: true });
   const schemaNames = schemaEntries
@@ -163,10 +175,18 @@ export async function assemblePagesSite({
 
   const siteSchemasDir = path.join(siteRoot, "schemas");
   const siteCoverageDir = path.join(siteRoot, "coverage");
+  const siteDocsDir = path.join(siteRoot, "docs");
+  const resolvedDocsBuildDir = docsBuildDir ?? path.join(path.dirname(siteRoot), "antora");
   const hasCoverage = await pathExists(coverageDir);
 
   await fs.rm(siteRoot, { recursive: true, force: true });
   await fs.mkdir(siteSchemasDir, { recursive: true });
+
+  await buildAntoraSite({
+    playbook: antoraPlaybook,
+    toDir: resolvedDocsBuildDir,
+  });
+  await fs.cp(resolvedDocsBuildDir, siteDocsDir, { recursive: true });
 
   await Promise.all(
     schemaNames.map((schemaName) =>
@@ -199,6 +219,7 @@ export async function assemblePagesSite({
     schemaNames,
     hasCoverage,
     coverageDir: hasCoverage ? siteCoverageDir : null,
+    docsDir: siteDocsDir,
   };
 }
 

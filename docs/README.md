@@ -1,5 +1,9 @@
 # CX Documentation Index
 
+`cx` publishes its curated canonical documentation site from `docs/antora/`.
+
+This `docs/` directory remains the repository-local reference surface during the migration and still matters for contributors, release review, and link stability inside the repo. The published site is the primary front door; these Markdown files are the checked-in companion surface while the transition finishes.
+
 `cx` is documented as four cooperating surfaces:
 
 - native proof path: `bundle`, `validate`, `verify`, `extract`
@@ -7,7 +11,7 @@
 - durable cognition path: `notes`
 - adapter/oracle path: diagnostics and parity only
 
-Use this directory as the map for the documentation set.
+Use the published Antora site for curated navigation, breadcrumbs, architecture structure, and workflow entrypoints. Use this directory when you need the repository-local Markdown companions.
 
 Schema and coverage publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), which keeps the public GitHub Pages host and release mirror aligned with the checked-in `schemas/` files and the successful `main` CI proof path.
 Developer command conventions for `make test`, `make verify`, and `make release` live in the repository notes and the operator manual.
@@ -95,5 +99,6 @@ Trust shorthand for the whole docs set:
 - `OPERATING_MODES.md` maps those semantics to operator choices.
 - `WORKFLOWS/*` shows execution examples.
 - `AGENT_*` documents the integration layer.
+- `docs/antora/` publishes the curated documentation site and arc42-based architecture spine.
 
 Everything else should reference those layers instead of redefining them.

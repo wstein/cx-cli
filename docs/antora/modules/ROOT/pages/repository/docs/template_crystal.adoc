@@ -1,0 +1,29 @@
+= Crystal Template
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/TEMPLATE_CRYSTAL.md`
+
+++++
+<p>The Crystal <code>cx init</code> template is designed for <code>shard.yml</code> workspaces with a
+small, source-oriented MCP surface.</p>
+<h2>Generated Targets</h2>
+<ul>
+<li><code>make build</code> → <code>shards build</code> when shard metadata exists, otherwise
+<code>crystal build src/main.cr --release</code></li>
+<li><code>make test</code> → <code>crystal spec</code></li>
+<li><code>make verify</code> → <code>test + build</code></li>
+<li><code>make certify</code> → <code>verify</code></li>
+</ul>
+<h2>MCP Overlay</h2>
+<p>The generated <code>cx-mcp.toml</code> exposes:</p>
+<ul>
+<li><code>src/**</code></li>
+<li><code>spec/**</code></li>
+<li><code>shard.yml</code></li>
+<li><code>shard.lock</code></li>
+<li><code>README.md</code></li>
+</ul>
+<p>It excludes dependency and build caches such as <code>.shards/**</code>, <code>lib/**</code>, and
+<code>bin/**</code>.</p>
+++++

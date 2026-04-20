@@ -1,0 +1,205 @@
+= Render Kernel Contract
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/RENDER_KERNEL_CONTRACT.md`
+
+++++
+<p>This document freezes the current proof-path rendering behavior that the native
+kernel must preserve while <code>cx</code> replaces the Repomix-backed engine underneath.
+It is a contract document, not a design sketch.</p>
+<p>The contract is derived from the currently implemented proof path in:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/engine.ts"><code>src/render/engine.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/ordering.ts"><code>src/render/ordering.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/planHash.ts"><code>src/render/planHash.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/spans.ts"><code>src/render/spans.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/adapter/oracleRender.ts"><code>src/adapter/oracleRender.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/structuredPlan.ts"><code>src/render/structuredPlan.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/bundle/verify.ts"><code>src/bundle/verify.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts"><code>src/extract/parsers.ts</code></a></li>
+</ul>
+<p>And it is already enforced by tests such as:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/bundle.render-spans.contract.test.ts"><code>tests/bundle/bundle.render-spans.contract.test.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/unit/structuredRender.test.ts"><code>tests/unit/structuredRender.test.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/contracts/structuredRender.contract.test.ts"><code>tests/contracts/structuredRender.contract.test.ts</code></a></li>
+</ul>
+<p>The adapter/oracle seam remains comparison-only:</p>
+<ul>
+<li>useful for parity diagnostics</li>
+<li>useful for oracle capability inspection</li>
+<li>useful for migration/reference testing</li>
+<li>not required for ordinary proof-path execution</li>
+</ul>
+<h2>1. Output Contract</h2>
+<p>The proof path currently supports four styles: <code>xml</code>, <code>markdown</code>, <code>json</code>, and
+<code>plain</code>.</p>
+<h3>XML</h3>
+<p>Observed contract:</p>
+<ul>
+<li>file wrappers use <code>&lt;file path=&quot;...&quot;&gt;</code></li>
+<li>content begins immediately after the opening wrapper, with one wrapper-owned
+newline removed from the content start offset</li>
+<li>empty files remain representable</li>
+<li>multi-file sections preserve deterministic file ordering inside the wrapper</li>
+<li>content may contain literal text such as <code>&lt;/file&gt;</code> and extraction must still
+recover normalized packed content correctly</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/adapter/oracleRender.ts"><code>src/adapter/oracleRender.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+</ul>
+<h3>Markdown</h3>
+<p>Observed contract:</p>
+<ul>
+<li>each file begins with <code>## File: &lt;path&gt;</code></li>
+<li>content is wrapped in fenced blocks</li>
+<li>packed-content expectation strips a trailing newline before comparison</li>
+<li>multi-file sections preserve deterministic file ordering</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts"><code>src/extract/parsers.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+</ul>
+<h3>JSON</h3>
+<p>Observed contract:</p>
+<ul>
+<li>output is an object keyed by file path</li>
+<li>packed-content expectation strips a trailing newline before comparison</li>
+<li>JSON sections do not participate in output-span capture</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts"><code>src/extract/parsers.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/bundle.render-spans.contract.test.ts"><code>tests/bundle/bundle.render-spans.contract.test.ts</code></a></li>
+</ul>
+<h3>Plain</h3>
+<p>Observed contract:</p>
+<ul>
+<li>file markers use repeated <code>=</code> separators with <code>File: &lt;path&gt;</code></li>
+<li>extraction compensates for wrapper and trailing-padding quirks</li>
+<li>multi-file sections preserve deterministic file ordering</li>
+<li>packed-content comparison relies on the current separator and padding model</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts"><code>src/extract/parsers.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+</ul>
+<h2>2. Ordering Contract</h2>
+<p>The render contract requires deterministic ordering at three levels:</p>
+<ul>
+<li>file selection passed into the renderer must already be stable</li>
+<li>structured render entries are sorted lexicographically by path</li>
+<li>plan ordering validation fails if the resulting order is not deterministic</li>
+</ul>
+<p>This behavior is currently enforced through:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/structuredPlan.ts"><code>extractStructuredPlan</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/ordering.ts"><code>validatePlanOrdering</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/bundle/verify.ts"><code>src/bundle/verify.ts</code></a></li>
+</ul>
+<p>The native kernel must preserve the same stable per-entry ordering and the same
+ordering expectations for structured plans.</p>
+<h2>3. Normalization Contract</h2>
+<p>Verification and extraction compare normalized packed content, not only raw file
+bytes.</p>
+<p>Current normalization assumptions include:</p>
+<ul>
+<li>XML packed-content comparison compensates for wrapper-owned newline placement</li>
+<li>Markdown packed-content comparison strips a trailing newline before matching</li>
+<li>JSON packed-content comparison strips a trailing newline before matching</li>
+<li>Plain packed-content comparison compensates for wrapper separators and trailing
+padding</li>
+</ul>
+<p>The native kernel must preserve the exact content that is hashed for:</p>
+<ul>
+<li>per-file packed-content hashes</li>
+<li>structured render entry hashes</li>
+<li>verification against source-tree re-rendering</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts"><code>src/extract/parsers.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/extract/resolution.ts"><code>src/extract/resolution.ts</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts"><code>tests/bundle/parsers.test.ts</code></a></li>
+</ul>
+<h2>4. Span Contract</h2>
+<p>Span semantics are already frozen by integration tests.</p>
+<p>Current contract:</p>
+<ul>
+<li><code>xml</code>, <code>markdown</code>, and <code>plain</code> must emit absolute <code>outputStartLine</code> and
+<code>outputEndLine</code></li>
+<li><code>json</code> must emit <code>null</code> spans</li>
+<li>span values are absolute line coordinates within the rendered section output</li>
+<li>content start offsets depend on style-specific wrapper structure</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/spans.ts"><code>findContentStartOffset</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/tests/bundle/bundle.render-spans.contract.test.ts"><code>tests/bundle/bundle.render-spans.contract.test.ts</code></a></li>
+</ul>
+<h2>5. Aggregate Plan Hash Contract</h2>
+<p>The aggregate render-plan hash is part of verification, not implementation
+detail.</p>
+<p>Current behavior:</p>
+<ul>
+<li>each structured section yields a per-section <code>planHash</code></li>
+<li>verification collects <code>[sectionName, planHash]</code> tuples</li>
+<li>tuples are sorted by section name</li>
+<li>the sorted tuples are serialized with <code>JSON.stringify</code></li>
+<li>the aggregate hash is computed with normalized SHA-256 text hashing</li>
+<li>verification fails when the recomputed aggregate plan hash drifts</li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/planHash.ts"><code>computePlanHash</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/render/planHash.ts"><code>computeAggregatePlanHash</code></a></li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/src/bundle/verify.ts"><code>src/bundle/verify.ts</code></a></li>
+</ul>
+<h2>Acceptance Checklist</h2>
+<ul>
+<li>Every proof-path behavior is written down once here</li>
+<li>Each contract section points to code and tests as evidence</li>
+<li>No aspirational native-kernel behavior is mixed into the current contract</li>
+</ul>
+<h2>Parity Enforcement</h2>
+<p><code>cx</code> now carries a dedicated parity lane:</p>
+<ul>
+<li><code>bun run ci:test:render-parity</code></li>
+</ul>
+<p>That lane compares the kernel-facing default render engine against the explicit
+Repomix oracle for:</p>
+<ul>
+<li>output text</li>
+<li>output spans</li>
+<li>structured plans</li>
+<li>per-entry hashes</li>
+<li>section plan hashes</li>
+<li>aggregate plan hashes</li>
+</ul>
+<p>The parity lane is release-gating CI evidence. It proves migration correctness
+without turning the adapter into permanent architecture.</p>
+<p>Plain and JSON also carry a dedicated native render contract lane for
+style-specific edge cases that are easier to read as direct contract assertions
+than as parity fixtures alone.</p>
+<h2>Current Contract State</h2>
+<p>The default proof path is now split deliberately:</p>
+<ul>
+<li>all four proof styles (<code>xml</code>, <code>markdown</code>, <code>plain</code>, and <code>json</code>) now flow
+through the native kernel implementation in
+<a href="https://github.com/wstein/cx-cli/blob/main/src/render/native"><code>src/render/native/</code></a></li>
+<li>structured render plans for the native proof path are now built directly from
+source files by the kernel</li>
+<li>the shared handover is already kernel-rendered</li>
+<li>the Repomix-backed renderer remains the parity oracle seam, not the default
+proof-path implementation and not a hidden runtime fallback</li>
+</ul>
+<p>This remains one contract. The current state changes implementation beneath the
+seam, not the observable proof-path behavior frozen above.</p>
+++++

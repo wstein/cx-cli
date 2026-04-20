@@ -1,0 +1,803 @@
+= CX Configuration Reference
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/config-reference.md`
+
+++++
+<p>This document describes the knobs. For the operator workflow, read <a href="manual/">Operator Manual</a>. For the invariants behind these settings, read <a href="architecture/">Architecture</a>.</p>
+<h2>JSON Schema for Editor Tooling</h2>
+<p>A JSON Schema is available at <code>https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json</code> to enable editor autocomplete, linting, and validation for <code>cx.toml</code> files. Inherited overlays such as <code>cx-mcp.toml</code> can use <code>https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json</code>. These files are the source of truth for the public Pages endpoints, and the published npm package also ships <code>schemas/</code> for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.</p>
+<p>Pre-<code>v1.0.0</code>, published schema versions remain available on Pages under their
+versioned filenames so downstream tooling can pin explicit contract versions.
+The plan is to begin a fresh schema history baseline at <code>v1.0.0</code>.</p>
+<h3>Using the schema in VS Code with Taplo</h3>
+<p>Add the following comment directive to the top of your <code>cx.toml</code>:</p>
+<pre><code class="language-toml">#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
+schema_version = 1
+project_name = &quot;myproject&quot;
+</code></pre>
+<p>The schema directive comment is automatically included in generated <code>cx.toml</code> files by <code>cx init</code>, and the MCP overlay template points at the overlay schema. The TOML parser safely ignores these comments; they do not affect <code>cx</code>&#39;s deterministic loading pipeline.</p>
+<p>Use the published Pages URLs in checked-in repo files and external documentation so editors always resolve the same canonical schema location.</p>
+<h3>Schema validation vs. runtime validation</h3>
+<p>The JSON Schema provides <strong>structural validation</strong> for IDE and language server use. It ensures that:</p>
+<ul>
+<li>Required fields exist (<code>schema_version</code>, <code>project_name</code>, <code>source_root</code>, <code>sections</code>)</li>
+<li>Types are correct (strings, numbers, booleans, arrays)</li>
+<li>Enum constraints are enforced (e.g., <code>dedup.mode</code> must be <code>fail</code>, <code>warn</code>, or <code>first-wins</code>)</li>
+<li>Reserved section names (<code>manifest</code>, <code>assets</code>, <code>bundle</code>) are forbidden</li>
+</ul>
+<p>However, runtime validation in <a href="https://github.com/wstein/cx-cli/blob/main/src/config/load.ts">src/config/load.ts</a> is the <strong>ultimate authority</strong> and enforces relational invariants that schemas cannot easily express:</p>
+<ul>
+<li>A catch-all section must not specify <code>include</code> patterns</li>
+<li>Duplicate glob patterns are detected and handled per the configured mode</li>
+<li>Project names are filesystem-safe</li>
+<li>Pattern arrays contain no empty strings</li>
+</ul>
+<p>The schema provides a fast, helpful ergonomic layer before running <code>cx</code>, but <code>cx load</code> remains the deterministic, authoritative validator.</p>
+<h2>One-Level Inheritance for Agent Profiles</h2>
+<p>Project configs can opt into a single inheritance step by setting <code>extends</code> at the top level:</p>
+<pre><code class="language-toml">extends = &quot;cx.toml&quot;
+</code></pre>
+<p>This is intended for colocated overlays such as <code>cx-mcp.toml</code> inheriting from the local <code>cx.toml</code> baseline. The loader resolves the path relative to the file that declares <code>extends</code>, loads the base config first, and then overlays the child config on top.</p>
+<p>Inheritance is deliberately shallow:</p>
+<ul>
+<li>The base config must not declare its own <code>extends</code>.</li>
+<li>A second inheritance hop is a hard error during loading.</li>
+<li>Child values override base values for scalars and tables.</li>
+<li>Array values concatenate so baseline exclusions remain in force.</li>
+</ul>
+<p>This matters most for security-sensitive arrays such as <code>files.exclude</code>: the inherited baseline stays present, and the child can only append more entries.</p>
+<h2>File Discovery</h2>
+<p><code>cx</code> builds the master file list from the version control system. Section globs then classify files within that list; they never extend it.</p>
+<h3><code>[files]</code></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>include</code></td>
+<td><code>[]</code></td>
+<td>Additional glob patterns to add to the VCS master list.</td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td><code>[&quot;node_modules/**&quot;, &quot;dist/**&quot;, &quot;tmp/**&quot;]</code></td>
+<td>Glob patterns removed from the master list after all inclusions.</td>
+</tr>
+<tr>
+<td><code>follow_symlinks</code></td>
+<td><code>false</code></td>
+<td>Whether to follow symbolic links during filesystem fallback discovery.</td>
+</tr>
+<tr>
+<td><code>unmatched</code></td>
+<td><code>&quot;ignore&quot;</code></td>
+<td>What to do with master-list files not claimed by any section: <code>ignore</code>, <code>warn</code>, or <code>fail</code>.</td>
+</tr>
+</tbody></table>
+<p><strong><code>files.include</code></strong> extends the VCS-derived master list with files that match the provided patterns. Use it when you need to bundle generated artefacts that are intentionally not tracked by VCS. An empty list means the master list is exactly the tracked set.</p>
+<p><strong><code>files.exclude</code></strong> removes paths from the master list after all extensions have been applied. VCS-internal files are always excluded regardless of this setting. Use <code>exclude</code> to keep scratch directories, build output, or vendored trees out of planning entirely.</p>
+<h3><code>[sections.*]</code></h3>
+<p>Each section is declared as <code>[sections.&lt;name&gt;]</code> in <code>cx.toml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>include</code></td>
+<td>Yes, unless <code>catch_all = true</code></td>
+<td>—</td>
+<td>Glob patterns that select files from the master list for this section.</td>
+</tr>
+<tr>
+<td><code>exclude</code></td>
+<td>No</td>
+<td><code>[]</code></td>
+<td>Glob patterns that remove files from this section after include matching.</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>No</td>
+<td><code>0</code></td>
+<td>Numeric priority for overlap resolution. Higher values win.</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>No</td>
+<td>Inherits <code>[repomix].style</code></td>
+<td>Output style: <code>xml</code>, <code>markdown</code>, <code>json</code>, or <code>plain</code>.</td>
+</tr>
+<tr>
+<td><code>catch_all</code></td>
+<td>No</td>
+<td><code>false</code></td>
+<td>If <code>true</code>, absorbs all master-list files not claimed by any other section. Mutually exclusive with <code>include</code>.</td>
+</tr>
+</tbody></table>
+<p><strong><code>catch_all = true</code></strong> declares a sweep-up section. It runs after all normal sections have claimed their files and absorbs whatever remains in the master list. At most one catch-all section may be defined per project.</p>
+<pre><code class="language-toml">[sections.rest]
+catch_all = true
+exclude = [&quot;generated/**&quot;]
+</code></pre>
+<p><strong>Section globs are classifiers, not discoverers.</strong> An <code>include</code> pattern can only select files already present in the master list. A pattern that matches nothing does not cause an error; it simply contributes no files to the section.</p>
+<p>Example:</p>
+<pre><code class="language-toml">[sections.src]
+include = [&quot;src/**&quot;]
+exclude = [&quot;src/**/*.test.ts&quot;]
+priority = 10
+
+[sections.tests]
+include = [&quot;tests/**&quot;, &quot;src/**/*.test.ts&quot;]
+priority = 5
+</code></pre>
+<h2>Shared Handover</h2>
+<p>The shared handover is the single companion artifact that travels with the
+rendered section outputs. It can optionally include bounded repository history
+for operator and agent context.</p>
+<h3><code>[handover]</code></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>include_repo_history</code></td>
+<td><code>false</code></td>
+<td>Include recent Git, Mercurial, or Fossil commit messages in the shared handover when bundling from a supported VCS worktree.</td>
+</tr>
+<tr>
+<td><code>repo_history_count</code></td>
+<td><code>25</code></td>
+<td>Maximum number of recent commit messages to include when repository history is enabled.</td>
+</tr>
+</tbody></table>
+<p>Example:</p>
+<pre><code class="language-toml">[handover]
+include_repo_history = true
+repo_history_count = 25
+</code></pre>
+<p>When enabled, <code>cx</code> records the newest bounded commit messages in deterministic
+newest-first order for Git, Mercurial, and Fossil repositories. Multiline
+messages are preserved, diffs are never embedded in the shared handover, and
+this setting does not affect proof-path section outputs or manifest hashing
+rules.</p>
+<p>For <code>json</code> bundles, both the shared handover and JSON section output artifacts
+must satisfy their published schema-shaped contracts:</p>
+<ul>
+<li><code>https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json</code></li>
+<li><code>https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json</code></li>
+</ul>
+<p>The repo also keeps the versioned source files in <code>schemas/</code> for offline use:</p>
+<ul>
+<li><code>schemas/shared-handover-v2.schema.json</code></li>
+<li><code>schemas/json-section-output-v1.schema.json</code></li>
+</ul>
+<h2>Notes Gating</h2>
+<p>Notes remain conditional cognition, but higher-assurance pipelines can require
+bundled notes to meet a minimum effective cognition score before bundling
+proceeds.</p>
+<h3><code>[notes]</code></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>require_cognition_score</code></td>
+<td>unset</td>
+<td>Minimum effective cognition score for gated notes. Uses the same drift- and contradiction-adjusted scoring model as <code>cx notes check</code>.</td>
+</tr>
+<tr>
+<td><code>strict_notes_mode</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, every gated note must remain <code>high_signal</code> after pressure adjustments. Requires <code>require_cognition_score</code>.</td>
+</tr>
+<tr>
+<td><code>fail_on_drift_pressured_notes</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, bundling fails if any gated note carries note-to-code drift pressure.</td>
+</tr>
+<tr>
+<td><code>applies_to_sections</code></td>
+<td><code>[]</code></td>
+<td>Optional section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes.</td>
+</tr>
+</tbody></table>
+<p>Example:</p>
+<pre><code class="language-toml">[notes]
+require_cognition_score = 80
+strict_notes_mode = true
+fail_on_drift_pressured_notes = true
+applies_to_sections = [&quot;docs&quot;]
+</code></pre>
+<p><code>strict_notes_mode</code> does not create a separate scoring system. It uses the
+existing cognition labels and requires every gated note to stay
+<code>high_signal</code>. When the gate is active, <code>cx bundle</code> aborts with the same
+non-zero notes exit family used for malformed or duplicate notes.</p>
+<h3><code>[scanner]</code></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mode</code></td>
+<td><code>&quot;warn&quot;</code></td>
+<td>How the core scanner pipeline handles findings during bundling. <code>fail</code> blocks the bundle, <code>warn</code> emits warnings and continues.</td>
+</tr>
+<tr>
+<td><code>ids</code></td>
+<td><code>[&quot;reference_secrets&quot;]</code></td>
+<td>Explicit core scanner IDs enabled for bundle-time and doctor scanning.</td>
+</tr>
+<tr>
+<td><code>include_post_pack_artifacts</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, rerun the enabled scanners over rendered section outputs, the shared handover, and the manifest before the bundle is finalized.</td>
+</tr>
+</tbody></table>
+<p>Example:</p>
+<pre><code class="language-toml">[scanner]
+mode = &quot;fail&quot;
+ids = [&quot;reference_secrets&quot;]
+include_post_pack_artifacts = true
+</code></pre>
+<p>The scanner pipeline is enabled by <code>repomix.security_check = true</code>.</p>
+<ul>
+<li><code>scanner.mode</code> controls whether findings stay advisory or block proof-path bundling.</li>
+<li><code>scanner.ids</code> keeps scanner selection explicit and bounded.</li>
+<li><code>scanner.include_post_pack_artifacts = true</code> adds a second scan pass over rendered section outputs, the shared handover, and the manifest.</li>
+</ul>
+<p>Current bounded scanner set:</p>
+<ul>
+<li><code>reference_secrets</code></li>
+</ul>
+<p>This is intentionally not a plugin registry. Additional scanner IDs should be
+introduced only as deliberate core contract changes.</p>
+<h2>Behavioral Settings</h2>
+<p>Behavioral settings control how <code>cx</code> handles non-fundamental friction points. They do not change the core integrity model.</p>
+<p>Behavioral settings are Category B settings: configurable behaviors that control how <code>cx</code> handles common friction points. They are distinct from Category A invariants, which are always hard failures and cannot be configured away.</p>
+<blockquote>
+<p><strong>Category A invariants - not configurable:</strong></p>
+<ul>
+<li>Section overlap (when <code>dedup.mode = &quot;fail&quot;</code>, the compiled default)</li>
+<li>Asset collision between a section and an asset rule</li>
+<li>Missing core adapter contract (<code>mergeConfigs</code> not exported)</li>
+</ul>
+<p>No env var, TOML key, or CLI flag affects these. They always cause a non-zero exit.</p>
+</blockquote>
+<h3>Precedence chain</h3>
+<p>Settings are resolved in this order (highest priority first):</p>
+<pre><code class="language-text">CLI flag &gt; CX_* env var &gt; project cx.toml &gt; compiled default
+</code></pre>
+<p>Every resolved Category B setting is logged at <code>Info</code> level to stderr, including
+the source from which it was resolved. This provides an audit trail in CI logs.</p>
+<h3>CLI flags</h3>
+<p>The global <code>--strict</code> and <code>--lenient</code> flags sit above env vars in the
+precedence chain. They apply to every command and cannot be combined.</p>
+<pre><code class="language-bash">cx --strict bundle --config cx.toml   # all Category B -&gt; &quot;fail&quot;
+cx --lenient bundle --config cx.toml  # all Category B -&gt; &quot;warn&quot;
+</code></pre>
+<p>These are equivalent to <code>CX_STRICT=true</code> and <code>CX_LENIENT=true</code> but take
+effect within a single invocation and override any env vars or <code>cx.toml</code>
+values.</p>
+<p><code>--strict</code> and <code>--lenient</code> do not affect <code>assets.layout</code> — that setting is
+not a strictness control and has its own per-command <code>--layout</code> flag.</p>
+<pre><code class="language-bash">cx bundle --config cx.toml --layout deep   # override layout for this run
+cx inspect --config cx.toml --layout flat  # preview with flat layout
+</code></pre>
+<p><code>--layout</code> is accepted by <code>cx bundle</code> and <code>cx inspect</code>. It takes precedence
+over <code>CX_ASSETS_LAYOUT</code> and <code>cx.toml</code> for that invocation only.</p>
+<h3>CX_STRICT shorthand</h3>
+<p>Setting <code>CX_STRICT=true</code> (or <code>CX_STRICT=1</code>) forces the three strictness
+settings (<code>dedup.mode</code>, <code>repomix.missing_extension</code>, <code>config.duplicate_entry</code>)
+to <code>&quot;fail&quot;</code>, overriding any <code>cx.toml</code> values. It does not affect Category A
+invariants, and it does not affect <code>assets.layout</code>. Use it in CI pipelines for
+a single assertion point:</p>
+<pre><code class="language-dockerfile">ENV CX_STRICT=true
+</code></pre>
+<p><code>CX_STRICT</code> takes precedence over <code>CX_DEDUP_MODE</code>, <code>CX_REPOMIX_MISSING_EXTENSION</code>,
+and <code>CX_CONFIG_DUPLICATE_ENTRY</code>. <code>CX_ASSETS_LAYOUT</code> is always read from the
+environment regardless of whether <code>CX_STRICT</code> is active.</p>
+<h3>Settings table</h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>TOML key</th>
+<th>Env var</th>
+<th>CLI flag</th>
+<th>Default</th>
+<th>Allowed values</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Overlap / dedup resolution</td>
+<td><code>dedup.mode</code></td>
+<td><code>CX_DEDUP_MODE</code></td>
+<td>—</td>
+<td><code>fail</code></td>
+<td><code>fail</code>, <code>warn</code>, <code>first-wins</code></td>
+</tr>
+<tr>
+<td>Strict overlap ownership</td>
+<td><code>dedup.require_explicit_ownership</code></td>
+<td>—</td>
+<td>—</td>
+<td><code>false</code></td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td>Repomix missing cx extension</td>
+<td><code>repomix.missing_extension</code></td>
+<td><code>CX_REPOMIX_MISSING_EXTENSION</code></td>
+<td>—</td>
+<td><code>warn</code></td>
+<td><code>fail</code>, <code>warn</code></td>
+</tr>
+<tr>
+<td>Duplicate config entries</td>
+<td><code>config.duplicate_entry</code></td>
+<td><code>CX_CONFIG_DUPLICATE_ENTRY</code></td>
+<td>—</td>
+<td><code>fail</code></td>
+<td><code>fail</code>, <code>warn</code>, <code>first-wins</code></td>
+</tr>
+<tr>
+<td>Asset directory layout</td>
+<td><code>assets.layout</code></td>
+<td><code>CX_ASSETS_LAYOUT</code></td>
+<td><code>--layout</code></td>
+<td><code>flat</code></td>
+<td><code>flat</code>, <code>deep</code></td>
+</tr>
+</tbody></table>
+<p>The first three settings are affected by <code>--strict</code> / <code>--lenient</code> / <code>CX_STRICT</code>.
+<code>assets.layout</code> is not — it uses its own per-command <code>--layout</code> flag and the
+independent <code>CX_ASSETS_LAYOUT</code> env var.</p>
+<p><strong><code>dedup.mode</code></strong> controls what happens when the same source file matches more
+than one section:</p>
+<ul>
+<li><code>&quot;fail&quot;</code> — planning aborts with an actionable error. Use <code>cx doctor</code> to
+propose static <code>exclude</code> fixes, or set <code>first-wins</code> and assign a higher
+<code>priority</code> to the owning section to resolve overlaps dynamically.</li>
+<li><code>&quot;warn&quot;</code> — conflicts are reported to stderr and planning continues using
+priority order.</li>
+<li><code>&quot;first-wins&quot;</code> — conflicts are resolved silently using priority order.</li>
+</ul>
+<p><strong><code>dedup.require_explicit_ownership</code></strong> tightens the non-failing overlap modes.
+When it is <code>true</code>, <code>cx</code> refuses to resolve an overlap if the owner would only
+be chosen by the <code>dedup.order</code> tie-breaker. Exactly one matching section must
+have the highest priority.</p>
+<h3>Section priority and dynamic overlap resolution</h3>
+<p>Every section accepts an optional <code>priority</code> key (positive integer). When
+<code>dedup.mode</code> is <code>&quot;first-wins&quot;</code> or <code>&quot;warn&quot;</code>, the section with the highest
+<code>priority</code> value wins any overlap. Sections without an explicit priority are
+treated as priority 0 and their relative order is governed by <code>dedup.order</code>
+(config position or lexical) as a tie-breaker.</p>
+<pre><code class="language-toml">[sections.src]
+include = [&quot;src/**&quot;, &quot;shared/**&quot;]
+exclude = []
+priority = 10   # src owns any file matched by both src and tests
+
+[sections.tests]
+include = [&quot;tests/**&quot;, &quot;shared/**&quot;]
+exclude = []
+priority = 5
+</code></pre>
+<p>For actively developed codebases, prefer explicit <code>priority</code> over accumulating
+static <code>exclude</code> paths. Static excludes become stale as files are renamed or
+moved and produce merge conflicts when multiple developers resolve overlaps on
+separate branches at the same time.</p>
+<p><strong><code>repomix.missing_extension</code></strong> controls what happens when the cx-specific
+Repomix adapter extensions (<code>packStructured</code> / <code>renderWithMap</code>) are missing
+but the core contract (<code>mergeConfigs</code>) is met:</p>
+<ul>
+<li><code>&quot;fail&quot;</code> - rendering aborts with exit 5. Useful for strict CI environments
+that require full span capture or token-count accuracy.</li>
+<li><code>&quot;warn&quot;</code> - a warning is emitted and rendering continues using the <code>pack()</code>
+degraded path (default; existing setups are unaffected).</li>
+</ul>
+<p><strong><code>config.duplicate_entry</code></strong> controls what happens when the same glob pattern
+appears more than once in an <code>include</code> or <code>exclude</code> array:</p>
+<ul>
+<li><code>&quot;fail&quot;</code> - loading aborts and lists the offending patterns.</li>
+<li><code>&quot;warn&quot;</code> - a warning is emitted and the array is deduplicated (first
+occurrence wins).</li>
+<li><code>&quot;first-wins&quot;</code> - the array is deduplicated silently.</li>
+</ul>
+<p>Duplicate detection applies to every pattern array: per-section <code>include</code> and
+<code>exclude</code>, the global <code>files.exclude</code>, and both <code>assets.include</code> and
+<code>assets.exclude</code>.</p>
+<h3>Example: cx.toml</h3>
+<pre><code class="language-toml">[dedup]
+mode = &quot;warn&quot;                     # overlaps are warnings, not failures
+require_explicit_ownership = true # refuse tie-break ownership in strict environments
+
+[repomix]
+missing_extension = &quot;fail&quot;        # require the cx adapter extension in CI
+
+[config]
+duplicate_entry = &quot;first-wins&quot;    # silently deduplicate repeated patterns
+
+[assets]
+layout = &quot;deep&quot;                   # preserve source directory structure in the bundle
+</code></pre>
+<h3>Example: Docker environment</h3>
+<p>Env vars work standalone - no <code>cx.toml</code> mount required:</p>
+<pre><code class="language-dockerfile">ENV CX_STRICT=true
+</code></pre>
+<p>Or per-area:</p>
+<pre><code class="language-dockerfile">ENV CX_DEDUP_MODE=warn
+ENV CX_REPOMIX_MISSING_EXTENSION=fail
+ENV CX_CONFIG_DUPLICATE_ENTRY=first-wins
+ENV CX_ASSETS_LAYOUT=deep
+</code></pre>
+<h3>Inspecting effective settings</h3>
+<p>Use <code>cx config show-effective</code> to dump all Category B settings with their
+resolved values and sources. Works without a <code>cx.toml</code>:</p>
+<pre><code class="language-text">$ cx config show-effective
+Effective behavioral settings
+Config file : cx.toml
+CX_STRICT   : false
+
+Setting                    Value       Source
+-------------------------  ----------  ----------------
+dedup.mode                 fail        compiled default
+repomix.missing_extension  warn        compiled default
+config.duplicate_entry     fail        compiled default
+assets.layout              flat        compiled default
+
+Category A invariants (section overlap when dedup.mode=fail, asset
+collision, missing core adapter contract) are never configurable.
+</code></pre>
+<p>Add <code>--json</code> for machine-readable output.</p>
+<h3>Lock file and drift detection</h3>
+<p><code>cx bundle</code> writes a <code>{project}-lock.json</code> alongside the bundle, capturing
+each Category B setting and its resolution source at the time of bundling.
+The lock file is included in the checksum sidecar so tampering is detected by
+<code>cx verify</code>.</p>
+<p><code>cx verify</code> reads the lock file and compares the recorded settings against the
+current effective settings. A mismatch is advisory by default: a warning is
+emitted to stderr and the verify command still returns exit code 0. With
+<code>--strict</code>, any drift causes a non-zero exit.</p>
+<pre><code class="language-bash">cx verify dist/myproject-bundle --config cx.toml --json | jq &#39;.lockDrift&#39;
+</code></pre>
+<p>The <code>--config</code> option on <code>cx verify</code> defaults to <code>cx.toml</code> in the current
+directory. Pass an explicit path when your config lives elsewhere:</p>
+<pre><code class="language-bash">cx verify dist/myproject-bundle --config /etc/cx/cx.toml
+</code></pre>
+<p>Older bundles produced before lock-file support was added verify cleanly
+because the lock file is only required when present in the checksum sidecar.</p>
+<h3>Structured warnings in --json output</h3>
+<p><code>cx bundle --json</code> includes a <code>warnings</code> array in its output payload. This
+array combines planning warnings (e.g., dedup conflicts with <code>dedup.mode=warn</code>)
+and render warnings (e.g., degraded Repomix path). An empty array means a
+clean run.</p>
+<p><code>cx verify --json</code> includes both <code>warnings</code> (lock drift messages) and
+<code>lockDrift</code> (structured mismatch records with <code>setting</code>, <code>locked</code>,
+<code>lockedSource</code>, <code>current</code>, and <code>currentSource</code> fields).</p>
+<hr>
+<h2>Safe project names</h2>
+<p>The <code>project_name</code> field must be filesystem-safe and follow a narrow naming policy:</p>
+<ul>
+<li>Allowed characters: letters, numbers, dot (<code>.</code>), underscore (<code>_</code>), hyphen (<code>-</code>).</li>
+<li>Must start with a letter or number.</li>
+<li>Used to derive bundle artifacts such as <code>project-manifest.json</code>, <code>project.sha256</code>, and <code>project-&lt;section&gt;.&lt;ext&gt;</code>.</li>
+</ul>
+<p>Invalid values are rejected when loading <code>cx.toml</code> or when running <code>cx init --name</code>.</p>
+<h2>Output Extensions</h2>
+<p><code>cx</code> names section output files using style-specific extensions configured in <code>[output.extensions]</code>.</p>
+<p>Defaults:</p>
+<pre><code class="language-toml">[output.extensions]
+xml = &quot;.xml.txt&quot;
+json = &quot;.json.txt&quot;
+markdown = &quot;.md&quot;
+plain = &quot;.txt&quot;
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li>Each value must be a non-empty string.</li>
+<li>Each value must start with <code>.</code>.</li>
+<li>Path separators (<code>/</code> or <code>\\</code>) are not allowed.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-toml">[output.extensions]
+xml = &quot;.xml.bundle.txt&quot;
+json = &quot;.json.bundle.txt&quot;
+markdown = &quot;.md&quot;
+plain = &quot;.txt&quot;
+</code></pre>
+<h2>CLI completion internals and shell troubleshooting</h2>
+<p>The <code>cx completion</code> command emits a shell-specific script for the chosen shell. The script itself is generated at runtime and calls <code>cx --get-yargs-completions</code> to discover available subcommands and option values dynamically.</p>
+<p>Shell behavior:</p>
+<ul>
+<li><code>bash</code> uses <code>complete -F</code> and typically requires bash completion support to be enabled.</li>
+<li><code>zsh</code> installs a <code>compdef</code> handler and requires the zsh completion system to be loaded.</li>
+<li><code>fish</code> writes a completion function into <code>~/.config/fish/completions/</code> and relies on fish function discovery.</li>
+</ul>
+<p>Troubleshooting:</p>
+<ol>
+<li>Restart your shell or source the generated file explicitly after installation.</li>
+<li>Confirm the saved script contains the expected <code>cx --get-yargs-completions</code> invocation.</li>
+<li>Ensure your shell completion engine is enabled (<code>autoload -Uz compinit &amp;&amp; compinit</code> for zsh, or the appropriate bash completion source file for bash).</li>
+<li>If the shell is not using standard completion directories, install the script to a custom location and source it manually.</li>
+</ol>
+<p>The generated completion script is intentionally stateless: it defers to the installed CLI at runtime so the completion rules stay aligned with the current <code>cx</code> version.</p>
+<h2>Path expansion</h2>
+<p>The configuration supports expanding paths before they are resolved:</p>
+<ul>
+<li><code>~</code> and <code>~/...</code> are expanded to the current user home directory.</li>
+<li><code>$VAR</code> and <code>${VAR}</code> are expanded from environment variables.</li>
+<li><code>{project}</code> is replaced with the configured <code>project_name</code>.</li>
+</ul>
+<p>The resolved paths are then normalized relative to the directory containing <code>cx.toml</code>.</p>
+<p>Example:</p>
+<pre><code class="language-toml">source_root = &quot;~/projects/$WORKSPACE/src&quot;
+output_dir = &quot;dist/{project}-bundle&quot;
+</code></pre>
+<h2>Token Counting</h2>
+<p>This is a core architectural choice, not just a formatting detail. <code>cx</code> persists token counts in the manifest so downstream runners and verification tooling can reuse the recorded accounting directly.</p>
+<p>Exact token counting is configurable through the <code>[tokens]</code> table:</p>
+<pre><code class="language-toml">[tokens]
+encoding = &quot;o200k_base&quot;
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li><code>encoding</code> must be a non-empty tokenizer encoding name supported by gpt-tokenizer.</li>
+<li>Supported encodings: <code>r50k_base</code>, <code>p50k_base</code>, <code>p50k_edit</code>, <code>cl100k_base</code>, <code>o200k_base</code>, <code>o200k_harmony</code>.</li>
+<li><code>o200k_base</code> is the default and recommended for modern OpenAI models (GPT-4o, o1, etc.).</li>
+</ul>
+<p>Encoding selection guidance:</p>
+<table>
+<thead>
+<tr>
+<th>Encoding</th>
+<th>Best fit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>o200k_base</code></td>
+<td>Default choice for current OpenAI chat and reasoning models</td>
+</tr>
+<tr>
+<td><code>o200k_harmony</code></td>
+<td>Open-weight Harmony models</td>
+</tr>
+<tr>
+<td><code>cl100k_base</code></td>
+<td>GPT-3.5 and GPT-4-era models</td>
+</tr>
+<tr>
+<td><code>p50k_base</code> / <code>p50k_edit</code></td>
+<td>Legacy compatibility workflows</td>
+</tr>
+<tr>
+<td><code>r50k_base</code></td>
+<td>Older GPT-2-style corpora and compatibility checks</td>
+</tr>
+</tbody></table>
+<p><code>gpt-tokenizer</code> is the implementation detail behind these counts. The encoding name should match the tokenizer module you expect to use, and <code>o200k_base</code> is the best default when you do not have a model-specific reason to choose otherwise.</p>
+<p><code>cx bundle</code> stores the chosen <code>tokenEncoding</code> in the manifest and persists exact <code>tokenCount</code> values for every section and file. Downstream consumers such as <code>cx list</code> read those stored counts directly and never fall back to byte- or character-based guesses.</p>
+<p><code>cx inspect --token-breakdown</code> uses the same accounting model to show a per-section token histogram before you build a bundle. Use it when you want to spot an oversized section early.</p>
+<h2>User Display Settings</h2>
+<p><code>cx list</code> uses user-level display settings from <code>~/.config/cx/cx.toml</code> by default. If <code>XDG_CONFIG_HOME</code> is set, <code>cx</code> reads <code>$XDG_CONFIG_HOME/cx/cx.toml</code> instead.</p>
+<p>Example:</p>
+<pre><code class="language-toml">[display.list]
+bytes_warm = 4096
+bytes_hot = 65536
+tokens_warm = 512
+tokens_hot = 2048
+mtime_warm_minutes = 60
+mtime_hot_hours = 24
+time_palette = [255, 254, 253, 252, 251, 250, 249, 248, 247, 246]
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li>Each value must be a positive integer.</li>
+<li><code>bytes_hot</code> must be greater than <code>bytes_warm</code>.</li>
+<li><code>tokens_hot</code> must be greater than <code>tokens_warm</code>.</li>
+<li><code>mtime_hot_hours</code> must represent a later threshold than <code>mtime_warm_minutes</code>.</li>
+<li><code>time_palette</code> must contain 8 to 10 ANSI 256 grayscale codes in descending bright-to-dark order.</li>
+</ul>
+<p>These settings are user preferences only. They are not accepted in project <code>cx.toml</code>, and they are not stored in the manifest.</p>
+<h2>Asset Configuration</h2>
+<p>The <code>[assets]</code> table controls how binary files are discovered, stored, and placed in the bundle.</p>
+<h3>Settings</h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>TOML key</th>
+<th>Default</th>
+<th>Allowed values</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Discovery patterns</td>
+<td><code>include</code></td>
+<td><code>[&quot;**/*.{png,jpg,…,pdf}&quot;]</code></td>
+<td>glob patterns</td>
+</tr>
+<tr>
+<td>Exclusion patterns</td>
+<td><code>exclude</code></td>
+<td><code>[]</code></td>
+<td>glob patterns</td>
+</tr>
+<tr>
+<td>Copy mode</td>
+<td><code>mode</code></td>
+<td><code>&quot;copy&quot;</code></td>
+<td><code>copy</code>, <code>ignore</code>, <code>fail</code></td>
+</tr>
+<tr>
+<td>Output directory</td>
+<td><code>target_dir</code></td>
+<td><code>&quot;assets&quot;</code></td>
+<td>path (supports <code>{project}</code>)</td>
+</tr>
+<tr>
+<td>Directory layout</td>
+<td><code>layout</code></td>
+<td><code>&quot;flat&quot;</code></td>
+<td><code>flat</code>, <code>deep</code></td>
+</tr>
+</tbody></table>
+<p><strong><code>assets.include</code></strong> and <strong><code>assets.exclude</code></strong> work the same way as section glob arrays. Duplicate patterns are governed by <code>config.duplicate_entry</code>.</p>
+<p><strong><code>assets.mode</code></strong>:</p>
+<ul>
+<li><code>&quot;copy&quot;</code> — matched files are physically copied into the bundle (default).</li>
+<li><code>&quot;ignore&quot;</code> — matched files are skipped silently.</li>
+<li><code>&quot;fail&quot;</code> — planning aborts if any file matches an asset rule. Useful for pipelines that must contain no binary blobs.</li>
+</ul>
+<p><strong><code>assets.target_dir</code></strong> accepts the same path expansions as other path fields: <code>~</code>, <code>$VAR</code>, <code>${VAR}</code>, and <code>{project}</code>. Relative paths are resolved relative to the directory containing <code>cx.toml</code>.</p>
+<p><strong><code>assets.layout</code></strong> controls how stored paths are formed within <code>target_dir</code>.
+It participates in the full precedence chain and can be overridden without
+editing <code>cx.toml</code>:</p>
+<ul>
+<li>env var: <code>CX_ASSETS_LAYOUT=flat</code> or <code>CX_ASSETS_LAYOUT=deep</code></li>
+<li>per-command CLI flag: <code>cx bundle --layout deep</code> or <code>cx inspect --layout flat</code></li>
+</ul>
+<p>Values:</p>
+<ul>
+<li><code>&quot;flat&quot;</code> (default) — all assets are placed directly in <code>target_dir</code> with no
+subdirectories. When two source files share the same basename, a numeric
+postfix is inserted between the stem and the extension to keep every stored
+path unique. Assignment is stable: candidates are sorted lexicographically by
+relative path, the first entry keeps its original name, and subsequent ones
+receive <code>-2</code>, <code>-3</code>, and so on. For example, <code>images/logo.png</code> and
+<code>icons/logo.png</code> become <code>assets/logo.png</code> and <code>assets/logo-2.png</code>.</li>
+<li><code>&quot;deep&quot;</code> — the original relative directory structure is preserved under
+<code>target_dir</code>. <code>images/logo.png</code> becomes <code>assets/images/logo.png</code>. No
+postfixing is applied because the full path is already unique.</li>
+</ul>
+<p><code>assets.layout</code> is not affected by <code>--strict</code>, <code>--lenient</code>, or <code>CX_STRICT</code>.
+The manifest is the authoritative record of every stored path — the
+<code>storedPath</code> field in each asset record reflects the resolved layout, whether
+flat or deep, so downstream tooling never needs to reconstruct the path.</p>
+<h3>Example</h3>
+<pre><code class="language-toml">[assets]
+include = [&quot;**/*.{png,jpg,jpeg,gif,webp,svg,pdf}&quot;]
+exclude = [&quot;test/fixtures/**&quot;]
+mode = &quot;copy&quot;
+target_dir = &quot;assets&quot;
+layout = &quot;flat&quot;
+</code></pre>
+<h3>Asset collision invariant</h3>
+<p>If a file matches both an asset rule (<code>assets.include</code>) and a section rule simultaneously, planning aborts with exit code 4. This is a Category A invariant and cannot be configured away.</p>
+<h2>Extract Status Semantics</h2>
+<p>The short version is below. For the operator guidance and blast radius of <code>--allow-degraded</code>, read <a href="extraction_safety/">Extraction Safety</a>.</p>
+<p>See: <a href="mental_model/">MENTAL_MODEL.md</a> for the canonical artifact lifecycle behind these recovery states.</p>
+<p><code>cx</code> uses four production statuses for bundle-side recovery:</p>
+<ul>
+<li><code>intact</code>: reconstructed text matches the packed-content hash in the manifest.</li>
+<li><code>copied</code>: the file is restored directly from stored asset content.</li>
+<li><code>degraded</code>: the file is visible in bundle output but does not match the packed-content hash in the manifest.</li>
+<li><code>blocked</code>: the file cannot be reconstructed deterministically from bundle output.</li>
+</ul>
+<p>By default, <code>cx extract</code> restores <code>intact</code> text files and <code>copied</code> assets only. Restoring <code>degraded</code> files requires <code>--allow-degraded</code>.</p>
+<p>Why this protects you: <code>degraded</code> means the bundle can still show you approximate content, but it can no longer prove that the reconstructed file still matches the manifest&#39;s identity and coordinates.</p>
+<h2>Bundle invariants</h2>
+<p>A generated bundle must satisfy these invariants:</p>
+<ul>
+<li>Exactly one <code>*-manifest.json</code> file must exist in the bundle directory.</li>
+<li>The checksum file must list:<ul>
+<li>the manifest JSON file</li>
+<li>every section output file</li>
+<li>every stored asset file</li>
+</ul>
+</li>
+<li>Every manifest file row records the source file <code>mtime</code> used by <code>cx list</code> and restored by <code>cx extract</code>.</li>
+<li>The manifest does not store user-specific <code>cx list</code> heat-map settings.</li>
+<li><code>cx verify</code> fails if the checksum file omits any expected artifact, if a stored file hash does not match, or if <code>--against</code> detects normalized packed-content drift against the source tree.</li>
+<li>Section output names are deterministic and derived from <code>project_name</code> plus the section name.</li>
+</ul>
+<p>Why this protects you: checksum verification is what tells a later operator that the artifact set on disk is still exactly the one <code>cx bundle</code> wrote. If an expected entry is missing or a hash changes, the handoff contract is broken and <code>cx verify</code> stops there.</p>
+<p><code>manifest.include_output_spans</code> defaults to <code>true</code>. Text sections require it:
+if a bundle contains XML, Markdown, or plain sections, <code>cx bundle</code> fails
+unless exact span capture is available and enabled. When enabled, <code>cx bundle</code>
+computes per-file spans for those text sections using absolute line numbers in
+the rendered section output only when the active adapter exposes exact span
+capture through <code>renderWithMap</code>. <code>output_start_line</code> is the first bare content
+line of the file block, and <code>output_end_line</code> is the last bare content line.
+XML, Markdown, and plain wrapper lines are not part of the span itself, but
+wrapper lines that appear earlier in the output file affect the absolute start
+and end positions. JSON sections do not record span metadata because the
+packed content is already directly addressable in the JSON object and may
+omit spans entirely.</p>
+<h2>Recommended bundle layout</h2>
+<p>The strongest bundles are organized by concern, not just by file type. For this repository, a practical split is:</p>
+<ul>
+<li><code>docs</code>: human-facing documentation and root markdown</li>
+<li><code>repo</code>: repository metadata, root config files, scripts, and schemas such as <code>package.json</code>, <code>cx.toml</code>, <code>tsconfig*.json</code>, <code>scripts/**</code>, and <code>schemas/**</code></li>
+<li><code>src</code>: production implementation</li>
+<li><code>tests</code>: regression and behavior coverage</li>
+</ul>
+<p>That layout keeps the bundle readable when browsing with <code>cx list</code>, and it makes <code>cx inspect</code> useful because each section still answers a clear question without splintering the repository into tiny slices. Top-level generated output should stay under <code>dist/</code> so it can be excluded cleanly from planning.</p>
+<p>If a scratch directory such as <code>tmp/</code> is only for local experimentation, exclude it instead of letting it appear as unmatched noise.</p>
+<p>Size hint: keep the <code>repo</code> section broad enough to stay coherent, but not so large that it becomes hard to inspect. If a section starts to dominate the bundle or grows beyond a few thousand output tokens, revisit the boundary for a real design reason rather than to chase file types.</p>
+<p>Example layout:</p>
+<pre><code class="language-toml">[files]
+include = []
+exclude = [&quot;node_modules/**&quot;, &quot;dist/**&quot;, &quot;tmp/**&quot;]
+
+[sections.docs]
+include = [&quot;docs/**&quot;, &quot;notes/**&quot;, &quot;README.md&quot;, &quot;*.md&quot;]
+exclude = []
+
+[sections.repo]
+include = [
+  &quot;.gitignore&quot;,
+  &quot;.github/workflows/ci.yml&quot;,
+  &quot;biome.json&quot;,
+  &quot;bin/cx&quot;,
+  &quot;cx.toml&quot;,
+  &quot;scripts/**&quot;,
+  &quot;schemas/**&quot;,
+  &quot;package.json&quot;,
+  &quot;tsconfig.json&quot;,
+  &quot;tsconfig.test.json&quot;,
+]
+exclude = []
+
+[sections.src]
+include = [&quot;src/**&quot;]
+exclude = []
+
+[sections.tests]
+include = [&quot;tests/**&quot;]
+exclude = []
+</code></pre>
+<h2>Overlap Resolution</h2>
+<p>Section overlap remains a hard failure for planning and bundling when <code>dedup.mode = &quot;fail&quot;</code>, which is the default.</p>
+<p>Why this stops you: overlap failure protects deterministic ownership. A canonical bundle cannot treat the same file as belonging to multiple sections and still claim one manifest truth.</p>
+<p>Use the doctor commands to diagnose and resolve conflicts without weakening that invariant:</p>
+<ul>
+<li><code>cx doctor overlaps</code> lists every conflicted file, all matching sections, and the recommended owner.</li>
+<li><code>cx doctor fix-overlaps --dry-run</code> prints the exact <code>exclude</code> updates without modifying <code>cx.toml</code>.</li>
+<li><code>cx doctor fix-overlaps</code> writes the recommended <code>sections.&lt;name&gt;.exclude</code> entries to <code>cx.toml</code>.</li>
+<li><code>cx doctor fix-overlaps --interactive</code> lets you choose the owning section for each conflicted file.</li>
+<li><code>cx doctor notes</code> audits note-to-code references against the final master list after <code>files.include</code> and <code>files.exclude</code> have been applied.</li>
+</ul>
+<p>For details on how <code>cx</code> validates and verifies bundles, see <code>src/bundle/verify.ts</code> and <code>src/bundle/validate.ts</code>.</p>
+++++

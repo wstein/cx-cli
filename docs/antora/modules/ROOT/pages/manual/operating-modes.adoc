@@ -1,0 +1,32 @@
+= Operating Modes
+
+include::../../partials/track-primer.adoc[]
+
+Each operator task should start by choosing the right mode instead of forcing one tool to cover every job.
+
+== Modes
+
+[cols="1,3"]
+|===
+| Mode | Use it when
+
+| Live MCP
+| You need fast investigation on the current workspace state.
+
+| Notes
+| The reasoning should survive the current session and become repository cognition.
+
+| Bundle / verify
+| The output must become a reproducible, promotable artifact.
+|===
+
+== Rule
+
+Do not treat exploratory live state as if it were already a proof-grade handoff.
+Switch from Track B to Track A explicitly.
+
+== Where to go next
+
+- xref:workflows/friday-to-monday.adoc[Friday to Monday] for the canonical end-to-end flow
+- xref:architecture/04-solution-strategy.adoc[Solution Strategy] for why the kernel owns the proof path
+- link:../../../../docs/OPERATING_MODES.md[Legacy Markdown source]

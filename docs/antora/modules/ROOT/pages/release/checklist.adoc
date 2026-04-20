@@ -1,0 +1,10 @@
+= Release Checklist
+
+The release checklist covers:
+
+- verify and certify lanes
+- Pages publication for schemas, coverage, and curated docs
+- reference-oracle smoke checks
+- release asset integrity
+
+For the full current checklist during migration, see link:../../../../docs/RELEASE_CHECKLIST.md[docs/RELEASE_CHECKLIST.md].

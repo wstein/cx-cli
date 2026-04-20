@@ -1,0 +1,24 @@
+= 12 Glossary
+
+[cols="1,3"]
+|===
+| Term | Meaning
+
+| Track A
+| Proof-grade artifact path: bundle, manifest, verify, extract
+
+| Track B
+| Exploratory or live reasoning path: MCP, investigation, working hypotheses
+
+| Proof path
+| The kernel-owned runtime path used for production bundle operations
+
+| Oracle
+| External comparison runtime used only for parity diagnostics and reference checks
+
+| Shared handover
+| The style-aware handoff artifact that replaces bundle-index language
+
+| Cognition layer
+| The governed note graph used for durable repository memory
+|===

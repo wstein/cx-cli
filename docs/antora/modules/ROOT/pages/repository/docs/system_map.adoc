@@ -1,0 +1,89 @@
+= CX System Map
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/SYSTEM_MAP.md`
+
+++++
+<p>Use this page when you need one mental anchor before reading the deeper docs.</p>
+<pre><code class="language-text">Live Code ──cx mcp────► Notes ──cx bundle────► Bundle ──cx verify────► Trusted Handoff
+   │                     │                      │                      │
+   │                     │                      │                      │
+Hypothesis           Memory                Snapshot                 Proof
+Track B              Cognition Layer       Track A                 Trust Gate
+</code></pre>
+<h2>Read It Left To Right</h2>
+<ol>
+<li>Run <code>cx mcp</code> when you need fast interactive help on live code.</li>
+<li>Use <code>cx notes</code> to preserve reasoning that should survive the current session.</li>
+<li>Run <code>cx bundle</code> when the work must become a reproducible artifact.</li>
+<li>Run <code>cx verify</code> when later humans or CI need proof instead of trust-by-habit.</li>
+</ol>
+<h2>Choose The Entry Point</h2>
+<ul>
+<li>Start with <code>cx mcp</code> when you are still asking questions.</li>
+<li>Move to <code>cx notes</code> when the reasoning should survive the current session.</li>
+<li>Move to <code>cx bundle</code> when the work needs a frozen handoff.</li>
+<li>Finish with <code>cx verify</code> when a later reader should receive proof instead of a claim.</li>
+</ul>
+<h2>Contributor System Map</h2>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Owning commands</th>
+<th>Primary concern</th>
+<th>Canonical doc</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Live workspace surface</td>
+<td><code>cx mcp</code>, <code>cx doctor mcp</code>, <code>cx audit summary</code></td>
+<td>scoped live agent access</td>
+<td><a href="agent_operating_model/">AGENT_OPERATING_MODEL.md</a></td>
+</tr>
+<tr>
+<td>Durable reasoning surface</td>
+<td><code>cx notes</code>, <code>cx notes check</code></td>
+<td>repository memory and cognition quality</td>
+<td><a href="system_contracts/">SYSTEM_CONTRACTS.md</a></td>
+</tr>
+<tr>
+<td>Planning and artifact surface</td>
+<td><code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, <code>cx extract</code></td>
+<td>reproducible handoff and proof</td>
+<td><a href="mental_model/">MENTAL_MODEL.md</a></td>
+</tr>
+<tr>
+<td>Init and workspace bootstrap</td>
+<td><code>cx init</code></td>
+<td>repository-local setup and templates</td>
+<td><a href="manual/">MANUAL.md</a></td>
+</tr>
+<tr>
+<td>Configuration surface</td>
+<td><code>cx.toml</code>, <code>cx-mcp.toml</code></td>
+<td>selection, overlays, and behavior knobs</td>
+<td><a href="config-reference/">config-reference.md</a></td>
+</tr>
+<tr>
+<td>Operator examples</td>
+<td>workflow docs and release checklist</td>
+<td>execution over time</td>
+<td><a href="readme/">README.md</a></td>
+</tr>
+</tbody></table>
+<h2>Read It Top To Bottom</h2>
+<ul>
+<li><strong>MCP</strong> is the live investigation surface.</li>
+<li><strong>Notes</strong> are the durable cognition layer.</li>
+<li><strong>Bundle</strong> is the frozen snapshot.</li>
+<li><strong>Verify</strong> is the proof gate.</li>
+</ul>
+<h2>Learn Later</h2>
+<ul>
+<li><a href="operating_modes/">OPERATING_MODES.md</a> maps the right tool to the current job.</li>
+<li><a href="mental_model/">MENTAL_MODEL.md</a> defines the canonical semantics.</li>
+<li><a href="system_contracts/">SYSTEM_CONTRACTS.md</a> defines cognition quality, hard boundaries, and trust propagation.</li>
+</ul>
+++++

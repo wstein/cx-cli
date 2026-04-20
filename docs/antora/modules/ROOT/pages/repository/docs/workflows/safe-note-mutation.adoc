@@ -1,0 +1,128 @@
+= Safe Note Mutation Workflow
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/WORKFLOWS/safe-note-mutation.md`
+
+++++
+<p>See: <a href="../operating_modes/">../OPERATING_MODES.md</a>
+See: <a href="../agent_operating_model/">../AGENT_OPERATING_MODEL.md</a>
+See: <a href="../agent_integration/">../AGENT_INTEGRATION.md</a></p>
+<p>This workflow explains how note mutation is intentionally denied by default and
+how a trusted local developer or agent session enables it safely. The generated
+<code>cx.toml</code> baseline now includes <code>mcp.enable_mutation = true</code> so the operational
+control is primarily the MCP policy setting.</p>
+<h2>Step 1: Start In Default MCP Mode</h2>
+<p>The normal interactive starting point is an MCP session that can read, observe, and plan:</p>
+<pre><code class="language-toml">[mcp]
+policy = &quot;default&quot;
+</code></pre>
+<p>In that mode, the agent can:</p>
+<ul>
+<li>read source files</li>
+<li>inspect bundle plans</li>
+<li>search notes</li>
+<li>read existing notes</li>
+</ul>
+<p>In that mode, the agent cannot:</p>
+<ul>
+<li>create notes</li>
+<li>update notes</li>
+<li>rename notes</li>
+<li>delete notes</li>
+</ul>
+<p>Why this stops you: a default MCP session is for live reasoning, not silent repository mutation. The denial protects the boundary between &quot;the agent may inspect&quot; and &quot;the agent may change durable knowledge.&quot;</p>
+<h2>Step 2: See The Denial For What It Is</h2>
+<p>If the agent tries to call a note-mutation tool in default mode, that denial is expected:</p>
+<pre><code class="language-text">notes_update(id=&quot;20260419090000&quot;, body=&quot;Refined conclusion.&quot;)
+</code></pre>
+<p>The correct response is not to weaken policy casually. First confirm whether this session is actually trusted to change the note graph.</p>
+<h2>Step 3: Intentionally Enable Mutation In A Trusted Local Session</h2>
+<p>When a local developer explicitly wants the agent to maintain notes, enable mutation in the MCP profile:</p>
+<pre><code class="language-toml">[mcp]
+policy = &quot;unrestricted&quot;
+enable_mutation = true
+</code></pre>
+<p>Then verify the effective profile:</p>
+<pre><code class="language-bash">cx doctor mcp --config cx.toml
+</code></pre>
+<p>Why this protects you: mutation authority becomes an explicit operator decision in versioned configuration instead of an accidental side effect of starting an MCP session.</p>
+<h2>Step 4: Mutate Notes Deliberately</h2>
+<h3>Operator View</h3>
+<p>Once mutation is intentionally enabled, the operator can allow the agent to
+create or revise notes:</p>
+<pre><code class="language-text">notes_new(title=&quot;Extraction Guardrail&quot;, body=&quot;Degraded extraction must stay opt-in because coordinate trust is part of the bundle contract.&quot;, tags=[&quot;safety&quot;, &quot;workflow&quot;])
+notes_update(id=&quot;20260419090000&quot;, body=&quot;Expanded the note with Monday-morning verification guidance.&quot;, tags=[&quot;workflow&quot;, &quot;handoff&quot;])
+</code></pre>
+<h3>Agent View</h3>
+<p>From the agent point of view, the safe sequence is:</p>
+<pre><code class="language-bash">cx mcp
+</code></pre>
+<p>Then inspect live context before writing durable knowledge:</p>
+<pre><code class="language-text">doctor_mcp()
+notes_search(query=&quot;dirty state&quot;, limit=5)
+notes_read(id=&quot;20260413153522&quot;)
+read(path=&quot;src/cli/commands/bundle.ts&quot;, startLine=220, endLine=280)
+inspect()
+</code></pre>
+<p>Only after that review should the mutation happen:</p>
+<pre><code class="language-text">notes_new(
+  title=&quot;Dirty State Review Loop&quot;,
+  body=&quot;Dirty-state refusal protects the proof path by stopping Track A from claiming artifact certainty while tracked code is still moving.\n\n## What\n\nTrack A must refuse a promotable bundle when tracked files are dirty.\n\n## Why\n\nReview and CI need proof-grade source identity, not a moving target.\n\n## How\n\nUse MCP for live reasoning first, then return to a clean tree before bundling.\n\n## Links\n\n- [[Friday Night Monday Morning Provenance]] - shows the time-separated handoff case.\n- src/cli/commands/bundle.ts - dirty-state enforcement path.&quot;,
+  tags=[&quot;workflow&quot;, &quot;provenance&quot;, &quot;safety&quot;]
+)
+notes_update(
+  id=&quot;20260419153000&quot;,
+  body=&quot;The repository cognition layer depends on summary-first routing, explicit what/why/how structure, and review after mutation.\n\n## What\n\nThe notes graph is durable reasoning for humans and agents.\n\n## Why\n\nLow-signal notes degrade routing quality and CI trust.\n\n## How\n\nRequire summaries, keep notes atomic, and run governance checks after mutation.\n\n## Links\n\n- [[Safe Note Mutation Workflow]] - policy boundary and audit loop.\n- src/notes/validate.ts - governance enforcement.&quot;,
+  tags=[&quot;notes&quot;, &quot;quality&quot;, &quot;workflow&quot;]
+)
+</code></pre>
+<p>Why this protects you: the agent reads the current code, prior notes, and the
+bundle plan before proposing new durable reasoning.</p>
+<h2>Step 5: Review The Result With Graph And Audit Commands</h2>
+<p>After note mutation, review the graph instead of assuming the changes fit cleanly:</p>
+<pre><code class="language-bash">cx notes links
+cx notes backlinks --id 20260419090000
+cx notes graph --id 20260419090000 --depth 2
+cx notes orphans
+</code></pre>
+<p>Use these commands to confirm:</p>
+<ul>
+<li>the edited note still links to the right concepts</li>
+<li>related notes point back where expected</li>
+<li>no unexpected orphaning happened</li>
+<li>the change fits the existing knowledge graph instead of fragmenting it</li>
+</ul>
+<p>Trust still stays explicit after the edit:</p>
+<ul>
+<li>source tree: trusted</li>
+<li>notes: conditional</li>
+<li>agent output: untrusted until verified</li>
+<li>bundle: trusted</li>
+</ul>
+<p>Why this protects you: safe mutation is not just &quot;permission granted.&quot; It is
+permission plus review. The graph commands make durable knowledge auditable
+after the edit, not just editable during it.</p>
+<h2>Step 6: Reconfirm The Gate Locally And In CI</h2>
+<p>Once the mutation is complete, review it through the CLI instead of trusting
+the edit implicitly:</p>
+<pre><code class="language-bash">cx notes check
+cx notes graph --id 20260419153000 --depth 2
+cx notes backlinks --id 20260419153000
+</code></pre>
+<p>Use the check to verify:</p>
+<ul>
+<li>every new or changed note still has a valid summary</li>
+<li>no note exceeded the size limits</li>
+<li>duplicate IDs did not enter the graph</li>
+<li>broken links or orphaned concepts did not appear</li>
+</ul>
+<p>The same review path has a dedicated CI lane:</p>
+<pre><code class="language-bash">bun run ci:notes:governance
+</code></pre>
+<p>That lane runs <code>cx notes check</code> directly so cognition-layer quality stays
+visible as its own gate instead of being buried inside a larger test job.</p>
+<p>Why this protects you: note mutation is not finished when the write succeeds.
+It is finished when the updated cognition layer still passes governance and
+graph review locally and later in CI.</p>
+++++

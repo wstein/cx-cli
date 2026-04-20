@@ -1,0 +1,15 @@
+= 09 Decisions and History
+
+The curated docs surface may publish selected decisions and closure records, but it should not flatten the whole notes graph.
+
+== Important current decision lines
+
+- v0.4 release closure
+- Repomix decommission and oracle boundary cleanup
+- shared handover replacing bundle-index language
+- contract versioning and schema retention
+
+== Source of historical pressure
+
+Use promoted notes and release docs for durable decision history.
+Keep exploratory or transitional reasoning in `notes/`.

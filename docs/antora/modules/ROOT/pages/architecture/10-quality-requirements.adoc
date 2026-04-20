@@ -1,0 +1,13 @@
+= 10 Quality Requirements
+
+The architecture is optimized for:
+
+- determinism
+- reproducibility
+- auditability
+- extraction safety
+- trust-boundary clarity
+- documentation navigability
+
+These requirements matter more than feature count.
+A smaller but provable system is preferable to a broader system with ambiguous boundaries.

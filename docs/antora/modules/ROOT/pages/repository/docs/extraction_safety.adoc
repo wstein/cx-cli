@@ -1,0 +1,150 @@
+= Extraction Safety
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/EXTRACTION_SAFETY.md`
+
+++++
+<h2>Why This Document Exists</h2>
+<p><code>cx</code> is a deterministic bundler, not an archiver.</p>
+<p>For the broader document map and architecture context, see
+<a href="readme/">README.md</a> and <a href="architecture/">ARCHITECTURE.md</a>.</p>
+<p>See: <a href="mental_model/">MENTAL_MODEL.md</a> for the canonical artifact lifecycle that extraction sits inside.</p>
+<p>For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.</p>
+<p>Text extraction uses the manifest&#39;s <code>outputStartLine</code> and <code>outputEndLine</code> values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.</p>
+<p>Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle may exist at all, while this document explains what happens after a valid bundle has already been written.</p>
+<p>In practical terms:</p>
+<ul>
+<li><code>clean</code> and <code>safe_dirty</code> bundles are ordinary inputs to extraction.</li>
+<li><code>unsafe_dirty</code> never reaches extraction because bundling aborts first.</li>
+<li><code>forced_dirty</code> is a recorded audit state, not a relaxation of extraction rules.</li>
+</ul>
+<p>If a bundle was forced dirty, extraction still uses the manifest as written. The presence of <code>forced_dirty</code> does not weaken hash checking or span validation; it simply tells reviewers that the bundle came from an explicitly overridden working tree.</p>
+<p>If your promotion pipeline forbids operator overrides, quarantine the bundle
+before extraction by parsing the manifest <code>dirtyState</code> field in CI. The
+quarantine logic belongs upstream of extraction, not inside the extractor.</p>
+<h2>Status Meanings</h2>
+<p><code>cx</code> uses four statuses during recovery:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>intact</code></td>
+<td>Reconstructed content matches the packed-content hash in the manifest</td>
+</tr>
+<tr>
+<td><code>copied</code></td>
+<td>Asset is restored directly from stored bundle content</td>
+</tr>
+<tr>
+<td><code>degraded</code></td>
+<td>Content can be reconstructed, but the packed slice does not match the manifest hash</td>
+</tr>
+<tr>
+<td><code>blocked</code></td>
+<td>Deterministic reconstruction is not possible from the stored section output or its span metadata</td>
+</tr>
+</tbody></table>
+<h2>The Default Safety Rule</h2>
+<p>By default, <code>cx extract</code> writes:</p>
+<ul>
+<li><code>intact</code> text files</li>
+<li><code>copied</code> assets</li>
+</ul>
+<p>It refuses to write <code>degraded</code> text files unless you explicitly pass:</p>
+<pre><code class="language-bash">cx extract dist/demo-bundle --to /tmp/restore --allow-degraded
+</code></pre>
+<p>Why this stops you: once the recovered packed content no longer matches the manifest hash, the extractor can no longer guarantee that line coordinates and file identity still mean what the rest of the bundle says they mean.</p>
+<h2>What The Hash Means</h2>
+<p>The manifest <code>sha256</code> for a packed text file is the hash of the normalized packed content stored in the section output.</p>
+<p>That is deliberate:</p>
+<ul>
+<li><code>cx verify --against</code> re-renders the selected source files through the Repomix adapter and compares packed-content hashes</li>
+<li><code>cx extract</code> uses output spans to recover the packed slice and checks it against the packed-content hash recorded in the manifest</li>
+<li><code>cx bundle</code> records the same packed-content hash that later commands rely on</li>
+</ul>
+<p>If the bundle output changes, the hash changes. If the original source file bytes differ in a way that does not change the packed output, the bundle hash stays the same.</p>
+<h2>Troubleshooting Hash Mismatches</h2>
+<p>When extraction reports <code>manifest_hash_mismatch</code>, the error table shows a short checksum prefix for both the expected and actual content. Use that as the first diagnostic signal, then decide whether the file should be reviewed or the bundle should be rebuilt.</p>
+<p>Practical checks:</p>
+<ul>
+<li>compare the expected and actual checksum prefixes in the error table</li>
+<li>re-run <code>cx list --json</code> or <code>cx extract --json</code> if you need the full <code>expectedSha256</code> and <code>actualSha256</code> values</li>
+<li>confirm whether the section output changed because of a Repomix rendering option, a span mismatch, or an actual content edit</li>
+<li>rebuild the bundle if the packed content is supposed to be stable</li>
+</ul>
+<p>If the mismatch is intentional and approximate recovery is acceptable, use <code>--allow-degraded</code>. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.</p>
+<p>Why this stops you: a hash mismatch is not cosmetic drift. It is evidence that the recovered slice is no longer the same packed content the manifest promised to downstream tooling.</p>
+<p>Operational extract failures now surface the same guidance in both human and
+JSON output: a suggested command, a docs reference, and next steps under
+<code>error.remediation</code>. Treat that payload as the machine-readable recovery path
+for dashboards and CI summaries.</p>
+<h2>What &quot;Degraded&quot; Usually Means</h2>
+<p>A degraded file usually means the stored section output and the parsed recovery path no longer agree on the normalized packed content.</p>
+<p>That can happen if:</p>
+<ul>
+<li>the section wrapper no longer matches the manifest span metadata</li>
+<li>the stored output was edited after bundling</li>
+<li>the packed slice itself differs from the manifest hash</li>
+</ul>
+<p>It should not be caused by ordinary source-byte differences that do not affect the packed output.</p>
+<h2>Why <code>--allow-degraded</code> Is Dangerous</h2>
+<blockquote>
+<p>[!CAUTION]</p>
+<h3>THE DISASTER SCENARIO</h3>
+<p>Imagine your bundle is degraded by a single missing newline at the top of a file. Every line number in the manifest is now shifted by +1. </p>
+<ol>
+<li>You run an LLM agent that reads the degraded bundle.</li>
+<li>The agent identifies a vulnerability it thinks is on line 42.</li>
+<li>Because of the shift, line 42 in the agent&#39;s view is actually line 41 in the real file.</li>
+<li>The agent issues a patch to &quot;overwrite line 42&quot;.</li>
+<li><strong>Result:</strong> The agent blindly overwrites a critical database connection string on the real line 42 that it never even saw.</li>
+</ol>
+<p>Your production build breaks silently because the mechanical chain of causality was severed by a &quot;minor&quot; formatting difference.</p>
+</blockquote>
+<h3>The Mechanical Chain of Causality</h3>
+<ol>
+<li><strong>Byte Shift:</strong> A missing newline or encoding error shifts the character offsets of the entire file.</li>
+<li><strong>Integer Drift:</strong> The manifest records the <code>outputStartLine</code> based on the <em>expected</em> rendering, but the <em>actual</em> recovered slice starts one line earlier/later.</li>
+<li><strong>Hash Mismatch:</strong> <code>cx</code> detects that the recovered slice hash doesn&#39;t match the manifest and marks it <code>degraded</code>.</li>
+<li><strong>Coordinate Failure:</strong> If you bypass this with <code>--allow-degraded</code>, you are handing the LLM a map where every coordinate is off by one.</li>
+<li><strong>Silent Corruption:</strong> The LLM executes a tool (like <code>replace_repomix_span</code>) against these wrong coordinates, corrupting the file.</li>
+</ol>
+<p>In other words, <code>--allow-degraded</code> can turn one localized representation issue into a broader mapping error. Treat a <code>degraded</code> signal as a hard stop.</p>
+<h2>Safe And Unsafe Use Cases</h2>
+<p>Safe enough:</p>
+<ul>
+<li>a human wants to inspect the recovered file manually</li>
+<li>an operator needs approximate content for review, not automation</li>
+<li>the output is being treated as advisory, not authoritative</li>
+</ul>
+<p>Unsafe:</p>
+<ul>
+<li>an automated runner depends on manifest hashes</li>
+<li>downstream tooling uses <code>outputStartLine</code> and <code>outputEndLine</code></li>
+<li>another system slices code from the rendered bundle by absolute coordinates</li>
+<li>the extracted file will be treated as a source-of-truth artifact</li>
+</ul>
+<h2>Recommended Operator Decision</h2>
+<p>If extraction reports degraded text:</p>
+<ol>
+<li>stop the pipeline</li>
+<li>inspect which files are degraded</li>
+<li>decide whether you need human-readable recovery or deterministic machine-safe recovery</li>
+<li>only use <code>--allow-degraded</code> if approximate output is acceptable</li>
+</ol>
+<p>If deterministic recovery matters, rebuild the bundle from the original source tree instead of forcing degraded fallback.</p>
+<h2>Practical Examples</h2>
+<p>Human review:</p>
+<pre><code class="language-bash">cx extract dist/demo-bundle --to /tmp/review --file docs/summary.md --allow-degraded
+</code></pre>
+<p>This is acceptable only if the file is being read by a person.</p>
+<p>Automation:</p>
+<pre><code class="language-bash">cx extract dist/demo-bundle --to /tmp/runner --verify
+</code></pre>
+<p>If this reports degraded text, do not append <code>--allow-degraded</code> just to make the job pass. Rebuild or re-bundle from the trusted source instead.</p>
+++++

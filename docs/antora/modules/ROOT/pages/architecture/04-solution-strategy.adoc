@@ -1,0 +1,16 @@
+= 04 Solution Strategy
+
+The solution strategy is simple: the render kernel owns the production proof path, and every other surface either feeds it, checks it, or stays outside it.
+
+== Core strategy
+
+- kernel-owned rendering and structured plans
+- manifest and plan hashes as explicit proof material
+- verification anchored in kernel-owned ordering, hashes, and spans
+- notes as governed memory rather than implicit truth
+- scanners as bounded, explicit pipeline stages
+- adapter/oracle retained only for comparison and diagnostics
+
+== Why this protects you
+
+This avoids compatibility layers, hidden dual paths, and silent trust drift.

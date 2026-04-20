@@ -1,0 +1,12 @@
+= 06 Runtime View
+
+The core runtime story is the Friday-to-Monday transition:
+
+- Friday MCP and notes work produce hypotheses and preserved reasoning
+- Track A bundling freezes the real handoff
+- Monday validation, verification, and extraction prove the artifact rather than trusting it by habit
+
+== Canonical runtime flows
+
+- xref:workflows/friday-to-monday.adoc[Friday to Monday]
+- xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]

@@ -1,0 +1,24 @@
+site:
+  title: CX Documentation
+  start_page: cx::index.adoc
+content:
+  sources:
+    - url: .
+      branches: HEAD
+      start_path: docs/antora
+ui:
+  bundle:
+    url: ./docs/antora-ui
+asciidoc:
+  attributes:
+    page-pagination: ''
+    sectanchors: ''
+    toc: left
+    experimental: ''
+    source-highlighter: highlight.js
+  extensions:
+    - '@asciidoctor/tabs'
+urls:
+  html_extension_style: indexify
+output:
+  clean: true

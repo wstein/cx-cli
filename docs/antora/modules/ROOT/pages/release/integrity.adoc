@@ -1,0 +1,10 @@
+= Release Integrity
+
+Release integrity remains anchored in:
+
+- reproducible builds
+- manifest and handover contract stability
+- published schema versioning
+- npm package and release asset verification
+
+For the detailed current procedures, see link:../../../../docs/RELEASE_INTEGRITY.md[docs/RELEASE_INTEGRITY.md].

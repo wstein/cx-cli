@@ -1,0 +1,99 @@
+= CX Documentation Index
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/README.md`
+
+++++
+<p><code>cx</code> publishes its curated canonical documentation site from <code>docs/antora/</code>.</p>
+<p>This <code>docs/</code> directory remains the repository-local reference surface during the migration and still matters for contributors, release review, and link stability inside the repo. The published site is the primary front door; these Markdown files are the checked-in companion surface while the transition finishes.</p>
+<p><code>cx</code> is documented as four cooperating surfaces:</p>
+<ul>
+<li>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></li>
+<li>live workspace path: <code>mcp</code></li>
+<li>durable cognition path: <code>notes</code></li>
+<li>adapter/oracle path: diagnostics and parity only</li>
+</ul>
+<p>Use the published Antora site for curated navigation, breadcrumbs, architecture structure, and workflow entrypoints. Use this directory when you need the repository-local Markdown companions.</p>
+<p>Schema and coverage publishing policy lives in <a href="release_checklist/">RELEASE_CHECKLIST.md</a>, which keeps the public GitHub Pages host and release mirror aligned with the checked-in <code>schemas/</code> files and the successful <code>main</code> CI proof path.
+Developer command conventions for <code>make test</code>, <code>make verify</code>, and <code>make release</code> live in the repository notes and the operator manual.
+The MCP surface has a documented stable subset, but the broader integration layer still evolves conservatively. Use <a href="stability/">STABILITY.md</a> for the stable subset and <a href="agent_integration/">AGENT_INTEGRATION.md</a> for client-facing setup guidance.</p>
+<h2>What Changed In 0.4.0</h2>
+<p><code>cx</code> now explicitly operates as three primary cooperating surfaces:</p>
+<ul>
+<li>immutable snapshots with <code>cx bundle</code></li>
+<li>live agent protocol with <code>cx mcp</code></li>
+<li>durable knowledge with <code>cx notes</code></li>
+</ul>
+<p>Track B generates hypotheses. Track A generates proofs. Notes preserve durable reasoning between them.</p>
+<p>The adapter/oracle seam remains outside the shipped proof path. It exists for
+diagnostics, parity visibility, and reference-oracle comparison rather than
+ordinary operator workflows.</p>
+<p>0.4.0 also makes three release-level changes explicit:</p>
+<ul>
+<li>Vitest coverage is now the authoritative coverage-reporting lane for release assurance.</li>
+<li>The MCP surface has a stable subset, but the broader integration layer still evolves conservatively.</li>
+<li>Notes governance, cognition scoring, contradiction checks, and trust propagation are part of the operating contract rather than incidental implementation details.</li>
+</ul>
+<p>See:</p>
+<ul>
+<li><a href="../root/changelog/">../CHANGELOG.md</a></li>
+<li><a href="migrations/0.4.0/">MIGRATIONS/0.4.0.md</a></li>
+</ul>
+<h2>Start Here</h2>
+<p>Use the smallest core set first:</p>
+<ul>
+<li>Run <code>cx mcp</code> first if you want the shortest onboarding path: see value now, learn the model later.</li>
+<li><a href="system_map/">SYSTEM_MAP.md</a> - compressed front door plus contributor subsystem map</li>
+<li><a href="operating_modes/">OPERATING_MODES.md</a> - choose between live MCP help, reproducible bundles, and durable notes</li>
+<li><a href="mental_model/">MENTAL_MODEL.md</a> - canonical semantics, Track A vs B, MCP policy tiers, and artifact lifecycle</li>
+<li><a href="system_contracts/">SYSTEM_CONTRACTS.md</a> - cognition contract, boundary contract, and trust propagation model</li>
+<li><a href="manual/">MANUAL.md</a> - operator path, assurance ladder, and Friday-to-Monday workflow map</li>
+</ul>
+<h2>Reference By Concern</h2>
+<ul>
+<li>Agent setup and IDE integration: <a href="agent_integration/">AGENT_INTEGRATION.md</a></li>
+<li>Agent operating rules and MCP policy consequences: <a href="agent_operating_model/">AGENT_OPERATING_MODEL.md</a></li>
+<li>Configuration knobs and precedence: <a href="config-reference/">config-reference.md</a></li>
+<li>Render constitution during the native-kernel migration: <a href="render_kernel_contract/">RENDER_KERNEL_CONTRACT.md</a></li>
+<li>Release-time checks and Pages publishing: <a href="release_checklist/">RELEASE_CHECKLIST.md</a></li>
+<li>Notes system details: <a href="notes_module_spec/">NOTES_MODULE_SPEC.md</a></li>
+<li>Extraction and recovery rules: <a href="extraction_safety/">EXTRACTION_SAFETY.md</a></li>
+<li>Workflow examples over time: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a>, <a href="workflows/safe-note-mutation/">WORKFLOWS/safe-note-mutation.md</a></li>
+<li>MCP debugging cockpit: <code>bun run test:vitest:mcp:ui</code>, <code>bun run test:vitest:mcp:adversarial:ui</code></li>
+<li>Compact operator MCP audit view: <code>cx audit summary</code></li>
+</ul>
+<h2>Workflow Set</h2>
+<ul>
+<li><a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a> - the primary end-to-end workflow from live investigation to verified handoff</li>
+<li><a href="workflows/safe-note-mutation/">WORKFLOWS/safe-note-mutation.md</a> - the policy boundary plus operator and agent viewpoints for trusted local note mutation</li>
+</ul>
+<p>Read the Friday-to-Monday workflow first. The note-mutation workflow is a
+narrower special case, not a parallel onboarding path.</p>
+<h2>Historical Material</h2>
+<ul>
+<li><a href="../root/changelog/">../CHANGELOG.md</a></li>
+<li><a href="migrations/0.4.0/">MIGRATIONS/0.4.0.md</a></li>
+</ul>
+<p>Use these when upgrading or reviewing release history. They are not part of the
+core operator front door.</p>
+<p>The allowed front-door docs are intentionally small. See
+<a href="governance/">GOVERNANCE.md</a> for the docs surface budget and the
+reference-only rule for everything else.</p>
+<p>Trust shorthand for the whole docs set:</p>
+<ul>
+<li>Source tree: trusted</li>
+<li>Notes: conditional</li>
+<li>Agent output: untrusted until verified</li>
+<li>Bundle: trusted</li>
+</ul>
+<h2>Hierarchy</h2>
+<ul>
+<li><code>MENTAL_MODEL.md</code> owns semantics.</li>
+<li><code>OPERATING_MODES.md</code> maps those semantics to operator choices.</li>
+<li><code>WORKFLOWS/*</code> shows execution examples.</li>
+<li><code>AGENT_*</code> documents the integration layer.</li>
+<li><code>docs/antora/</code> publishes the curated documentation site and arc42-based architecture spine.</li>
+</ul>
+<p>Everything else should reference those layers instead of redefining them.</p>
+++++

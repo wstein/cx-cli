@@ -1,0 +1,119 @@
+= Agent Operating Model
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/AGENT_OPERATING_MODEL.md`
+
+++++
+<p>See: <a href="mental_model/">MENTAL_MODEL.md</a>
+See: <a href="operating_modes/">OPERATING_MODES.md</a></p>
+<p>This document covers the integration layer for agent operators.</p>
+<p>It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in <a href="mental_model/">MENTAL_MODEL.md</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
+<h2>Integration-Layer Responsibilities</h2>
+<p>At the agent layer, the model becomes four practical questions:</p>
+<ol>
+<li>Which tools are visible in this session?</li>
+<li>Which capabilities are allowed, denied, or mutation-gated?</li>
+<li>Which workflow should the operator invoke next?</li>
+<li>Which audit trail explains what the agent actually did?</li>
+</ol>
+<p>That is the scope of this document. Canonical semantics stay upstream in <a href="mental_model/">MENTAL_MODEL.md</a>.</p>
+<h2>Operator Decision Ladder</h2>
+<p>Use the integration layer in this order:</p>
+<ol>
+<li>Start with <a href="operating_modes/">OPERATING_MODES.md</a> to pick the right surface.</li>
+<li>Use <code>cx mcp</code> when the operator needs live agent help on the current checkout.</li>
+<li>Use <code>cx doctor mcp</code> to confirm the resolved profile, workspace boundary, and policy state.</li>
+<li>Let the agent operate inside the allowed capability set.</li>
+<li>Promote work into Track A with <code>cx bundle</code> only when the job must become a reproducible artifact.</li>
+</ol>
+<p>Why this protects you: the operator sees exactly when a live exploratory session stops being hypothesis work and starts becoming a proof path.</p>
+<p>The trust shorthand for that ladder is:</p>
+<ul>
+<li><strong>Source tree: trusted</strong></li>
+<li><strong>Notes: conditional</strong></li>
+<li><strong>Agent output: untrusted until verified</strong></li>
+<li><strong>Bundle: trusted</strong></li>
+</ul>
+<h2>Policy Consequences For Agents</h2>
+<p>The integration layer turns abstract policy into concrete tool visibility.</p>
+<h3><code>strict</code></h3>
+<ul>
+<li>Intended for CI and other untrusted automation</li>
+<li>Agent can read and observe</li>
+<li>Agent cannot plan or mutate</li>
+</ul>
+<h3><code>default</code></h3>
+<ul>
+<li>Intended for interactive operator sessions</li>
+<li>Agent can read, observe, and plan</li>
+<li>Agent cannot mutate notes or workspace files</li>
+</ul>
+<h3><code>unrestricted</code></h3>
+<ul>
+<li>Intended only for trusted local sessions</li>
+<li>Mutate-capability tools still require <code>enable_mutation = true</code></li>
+<li>Without that explicit flag, the session is still non-mutating</li>
+<li>Generated <code>cx.toml</code> now includes <code>mcp.enable_mutation = true</code> by default, so this setting is only meaningful when <code>policy = &quot;unrestricted&quot;</code></li>
+</ul>
+<h2>Capability Tiers</h2>
+<p>The MCP registration wrapper assigns every tool one capability tier. Policy enforcement, audit logging, and allow-or-deny decisions all use the same declaration.</p>
+<ul>
+<li><code>read</code>: <code>list</code>, <code>grep</code>, <code>read</code></li>
+<li><code>observe</code>: <code>doctor_*</code>, <code>notes_read</code>, <code>notes_search</code>, <code>notes_list</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>, <code>notes_code_links</code>, <code>notes_links</code></li>
+<li><code>plan</code>: <code>inspect</code>, <code>bundle</code></li>
+<li><code>mutate</code>: <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, <code>replace_repomix_span</code></li>
+</ul>
+<p>See <a href="stability/">STABILITY.md</a> for tool stability tiers and <a href="mcp_tool_intent_taxonomy/">MCP_TOOL_INTENT_TAXONOMY.md</a> for machine-oriented prompt grouping.</p>
+<h2>Why Mutation Policy Denial Stops You</h2>
+<p>When an MCP session denies <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, or <code>replace_repomix_span</code>, the denial is protecting the read/plan-versus-mutate boundary.</p>
+<p>Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. <code>cx</code> requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish &quot;the agent may inspect&quot; from &quot;the agent may edit.&quot;</p>
+<h2>Audit Trail</h2>
+<p>When MCP audit logging is enabled (<code>[mcp.auditLogging]</code> in <code>cx.toml</code>), tool calls are recorded in <code>.cx/audit.log</code> with explicit policy provenance:</p>
+<pre><code class="language-json">{
+  &quot;timestamp&quot;: &quot;2025-04-17T14:30:00Z&quot;,
+  &quot;traceId&quot;: &quot;notes_read:observe:allowed:1744900200000&quot;,
+  &quot;tool&quot;: &quot;notes_read&quot;,
+  &quot;capability&quot;: &quot;read&quot;,
+  &quot;decision&quot;: &quot;allowed&quot;,
+  &quot;reason&quot;: &quot;Tool notes_read (capability: observe) is allowed&quot;,
+  &quot;policyName&quot;: &quot;default-deny-mutate&quot;,
+  &quot;decisionBasis&quot;: [&quot;tool_catalog&quot;, &quot;policy_allow_list&quot;]
+}
+</code></pre>
+<p>Audit logging is the integration-layer answer to &quot;what did the agent really do?&quot; The <code>traceId</code>, <code>policyName</code>, and <code>decisionBasis</code> fields make the allow-or-deny path explicit instead of leaving later reviewers to infer it from timing alone.</p>
+<p><code>cx doctor mcp --json</code> now summarizes recent audit trends as well:</p>
+<ul>
+<li>total allowed versus denied MCP events</li>
+<li>policy-name counts</li>
+<li>recent <code>traceId</code> values</li>
+<li><code>toolCatalogVersion</code>, <code>toolCatalog</code>, and <code>toolCatalogSummary</code> fields that expose the machine-readable MCP stability contract for automation</li>
+</ul>
+<p>For operators who only need the audit ledger, <code>cx audit summary --json</code> exposes the same trend view without mixing it into the broader MCP profile report.</p>
+<p>For operators or external automation that need only the current MCP tool surface, prefer <code>cx mcp catalog --json</code>. It exposes the registered tool set with each tool&#39;s <code>name</code>, <code>capability</code>, and <code>stability</code>, plus a summary object for quick inspection. <code>cx doctor mcp --json</code> still includes the same catalog fields when you also need the resolved profile, policy state, and audit trend view in one report.</p>
+<p>Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.</p>
+<h2>Integration Examples</h2>
+<h3>Interactive Local Session</h3>
+<pre><code class="language-bash">cx mcp
+cx doctor mcp --config cx.toml
+</code></pre>
+<p>The operator verifies the active policy before handing control to the agent.</p>
+<h3>Trusted Local Note Mutation Session</h3>
+<pre><code class="language-toml">[mcp]
+policy = &quot;unrestricted&quot;
+enable_mutation = true
+</code></pre>
+<p>Then review the result:</p>
+<pre><code class="language-bash">cx notes check
+cx notes graph --id &lt;note-id&gt; --depth 2
+</code></pre>
+<p>See: <a href="workflows/safe-note-mutation/">WORKFLOWS/safe-note-mutation.md</a></p>
+<h2>Links</h2>
+<ul>
+<li><a href="mental_model/">MENTAL_MODEL.md</a> — canonical semantics</li>
+<li><a href="operating_modes/">OPERATING_MODES.md</a> — operator mode chooser</li>
+<li><a href="agent_integration/">AGENT_INTEGRATION.md</a> — IDE and client setup</li>
+<li><a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a> — temporal provenance example</li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/notes/Agent%20Operating%20Model.md">notes/Agent Operating Model</a> — knowledge graph entry</li>
+</ul>
+++++

@@ -1,0 +1,229 @@
+= CX Notes Module Specification
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/NOTES_MODULE_SPEC.md`
+
+++++
+<h2>Goal</h2>
+<p><code>cx</code> exists to provide tooling and standards for AI-driven projects in one unified suite. The notes module is the implementation of that standard for repository-native notes graphs. It is not a task tracker, a scratchpad, or a backlog surrogate. Its purpose is to preserve architectural intent, durable constraints, and explicit links between ideas and code in a form that both humans and downstream automation can query safely.</p>
+<p>For the document map and revision consensus, see <a href="readme/">README.md</a> and
+<a href="https://github.com/wstein/cx-cli/blob/main/docs/spec-draft.md">spec-draft.md</a>.</p>
+<h2>Scope</h2>
+<p>This phase defines native notes support in four places:</p>
+<ol>
+<li><code>cx init</code> scaffolding</li>
+<li>note file anatomy and templates</li>
+<li>note validation and metadata extraction</li>
+<li>notes integration through the default <code>docs</code> section</li>
+</ol>
+<p>It now adds note parsing, validation, duplicate-ID detection, and manifest-side note summaries. It still does not add extraction-time YAML routing or Obsidian-specific automation beyond keeping the Markdown shape compatible with Obsidian.
+It also adds graph-level link auditing so unresolved note references can be inspected explicitly.</p>
+<h2>Why Notes Exist In The Unified Suite</h2>
+<p>The notes module is part of the automation path, not a philosophical sidecar. It integrates architectural intent into the unified project suite so that both local machines and CI/CD pipelines can treat project knowledge with the same rigor as code.</p>
+<p>Before manifest-side summaries:</p>
+<ul>
+<li>an agent receives a bundle and sees that <code>notes/</code> exists</li>
+<li>it reparses raw Markdown note files one by one to discover architecture</li>
+<li>token spend rises before the agent has identified which note matters</li>
+<li>latency rises because every run repeats the same parsing work</li>
+</ul>
+<p>After manifest-side summaries:</p>
+<ul>
+<li>the agent reads <code>manifest.notes[]</code> first</li>
+<li>it filters by stable timestamp id, title, alias, or summary text</li>
+<li>it opens only the one or two note files that are actually relevant</li>
+<li>token spend and round-trip latency drop because the broad scan is already serialized into machine-readable metadata</li>
+</ul>
+<p>Concrete prompt contrast:</p>
+<ul>
+<li>before: &quot;Read every file in <code>notes/</code> and figure out which architectural decisions apply to the manifest writer&quot;</li>
+<li>after: &quot;Read the manifest note summaries, find the notes about manifest writing or dirty-state checks, then open only those note ids through the MCP server&quot;</li>
+</ul>
+<p>The second workflow is the reason the notes module exists inside <code>cx</code> instead of being left as an unstructured Markdown folder.</p>
+<h2>Notes As The Cognition Layer</h2>
+<p>The notes graph is the repository cognition layer.</p>
+<p>That means notes are not just documentation. They are the durable reasoning surface that sits between live exploration and proof-grade artifacts:</p>
+<ul>
+<li>Track B uses notes to preserve hypotheses that proved useful.</li>
+<li>Track A carries note summaries into manifests so the proof path can keep the reasoning attached.</li>
+<li>CI treats note quality as an integrity concern because low-signal notes degrade both humans and agents.</li>
+</ul>
+<p>For AI-generated notes especially, the question is not &quot;did text get produced?&quot; It is &quot;did the graph gain durable, high-signal knowledge?&quot;</p>
+<p>See: <a href="system_contracts/">SYSTEM_CONTRACTS.md</a> for the formal cognition contract and trust propagation model that sit under this module.</p>
+<h2>Governance Model: How, What, Why</h2>
+<p>Every note should answer three questions clearly, even when the author does not use literal section headings:</p>
+<ul>
+<li><strong>What</strong> is the durable fact, mechanism, or decision?</li>
+<li><strong>Why</strong> does it matter or which invariant does it protect?</li>
+<li><strong>How</strong> should an operator, reviewer, or later agent apply it?</li>
+</ul>
+<p>The opening paragraph is the summary contract. It must stand on its own because <code>manifest.notes[]</code> uses that summary as the fast routing path for later automation.</p>
+<h2>Governance Rules</h2>
+<p>The validator and CI now enforce these baseline rules:</p>
+<ul>
+<li>a note must produce a non-empty summary from its first paragraph</li>
+<li>that summary must be non-trivial</li>
+<li>untouched template boilerplate is not allowed to survive into committed notes</li>
+<li>a note body must stay at or below <code>4000</code> characters</li>
+<li>a note body must stay at or below <code>100</code> lines</li>
+</ul>
+<p>These are cognition-layer limits, not arbitrary formatting preferences.</p>
+<p>Why this protects you: high-signal repository memory depends on short, atomic notes that humans and agents can classify quickly. Once notes become oversized or summary-free, the graph stops acting like a routing layer and starts acting like an unbounded dump of prose.</p>
+<h2>Staleness and Drift Pressure</h2>
+<p>Cognition quality is not only about structure. It is also about whether a note is staying current enough to trust.</p>
+<p><code>cx notes check</code> now reports:</p>
+<ul>
+<li>note age derived from the note timestamp id</li>
+<li>staleness labels (<code>fresh</code>, <code>aging</code>, <code>stale</code>)</li>
+<li>code-drift pressure when a note points at repository paths that are missing, excluded, or outside the VCS master list</li>
+<li>contradiction pressure when a note claims code state that conflicts with the repository or with sibling notes</li>
+</ul>
+<p>These signals are diagnostic rather than blocking by themselves. They tell operators where durable memory is decaying before that decay becomes an architectural blind spot.</p>
+<p>Why this protects you: an old note with drifting code references can still parse cleanly while quietly becoming misleading. Staleness and contradiction checks make that decay visible before agents start treating stale memory as current architecture.</p>
+<h2>CI Check Path</h2>
+<p>The governance path is operational, not aspirational:</p>
+<ol>
+<li><code>validateNotes(...)</code> enforces summary and size rules during bundling, validation, note CRUD, MCP note access, and graph checks.</li>
+<li><code>cx notes check</code> surfaces governance failures directly for local review and CI logs.</li>
+<li><code>bun run ci:notes:governance</code> makes the cognition-layer gate visible as its own CI lane.</li>
+<li><code>bun run ci:test:contracts</code> keeps the canonical docs and workflow references aligned with the implemented governance model.</li>
+<li><code>bun run ci:report:observability</code> emits CI-readable markdown and JSON summaries so note quality gates and fast-lane drift stay visible over time.</li>
+<li>CI uploads those reports only after the full lane set passes, so operators do not confuse partial diagnostics with a green repository gate.</li>
+</ol>
+<p>If the note layer drifts, the project should fail loudly before that drift becomes part of a trusted artifact or a long-lived agent workflow.</p>
+<h2>Contradiction Pressure</h2>
+<p>Contradiction scoring is separate from staleness.</p>
+<ul>
+<li><strong>staleness</strong> asks whether a note is old or drifting</li>
+<li><strong>contradiction pressure</strong> asks whether a note makes claims that conflict with current code state or with sibling notes</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>a note says <code>[[src/feature.ts]]</code> is present, but the path is gone</li>
+<li>a note says <code>[[src/feature.ts]]</code> is missing, but the path exists</li>
+<li>two notes make opposite presence/absence claims about the same repository path</li>
+</ul>
+<p>Why this protects you: stale notes are risky, but contradictory notes are worse because they create false confidence. The cognition layer should expose disagreement explicitly instead of letting conflicting memory look equally valid.</p>
+<h2>Init Behavior</h2>
+<p>When <code>cx init</code> writes a project to disk, it must create:</p>
+<ul>
+<li><code>cx.toml</code></li>
+<li><code>Makefile</code></li>
+<li><code>notes/README.md</code></li>
+<li><code>notes/Templates/Atomic Note Template.md</code></li>
+</ul>
+<p>Rules:</p>
+<ul>
+<li><code>--stdout</code> prints only the starter <code>cx.toml</code>; it does not create <code>notes/</code></li>
+<li>normal init creates missing notes files</li>
+<li><code>--force</code> refreshes the generated notes files as well as <code>cx.toml</code></li>
+<li>the command never creates any starter note beyond the README and template</li>
+</ul>
+<h2>Notes Directory Layout</h2>
+<p>Required files:</p>
+<ul>
+<li><code>notes/README.md</code> — the mandatory 101 guide</li>
+<li><code>notes/Templates/Atomic Note Template.md</code> — the canonical atomic note template</li>
+</ul>
+<p>User-authored notes live beside those files in <code>notes/</code> and may use any human-readable filename.</p>
+<h2>README Requirements</h2>
+<p>The guide must explain:</p>
+<ul>
+<li>why durable repository notes are different from project-management artefacts</li>
+<li>the principle of atomicity</li>
+<li>the need for explicit links to adjacent notes and code paths</li>
+<li>the time-based ID rule (<code>YYYYMMDDHHMMSS</code>)</li>
+<li>why stable IDs and manifest-side summaries reduce token spend and latency for downstream agents</li>
+<li>one concrete before-and-after agent scenario that contrasts raw Markdown reparsing with manifest-first querying</li>
+</ul>
+<p>The guide should be instructional, measurable, and tied to operator or CI outcomes rather than philosophical terminology.</p>
+<h2>Canonical Note Anatomy</h2>
+<p>Every note must use this minimal structure:</p>
+<pre><code class="language-md">---
+id: YYYYMMDDHHMMSS
+aliases: []
+tags: []
+---
+Atomic body in the author&#39;s own words.
+
+## Links
+
+- [[Related note title]] - relationship
+- src/path/to/component.ts - relevant code component
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li><code>id</code> is mandatory and machine authoritative</li>
+<li><code>aliases</code> and <code>tags</code> are always present, even when empty</li>
+<li>the filename is the canonical human title; do not use the numeric id as the visible title</li>
+<li>the body must contain one discrete thought only</li>
+<li>the first body paragraph must work as a stand-alone summary</li>
+<li>the body should explain the note&#39;s what, why, and how clearly enough for later reuse</li>
+<li>the links section must point to other notes, code, or both</li>
+</ul>
+<h2>Bundle Integration</h2>
+<p>The default starter config must include <code>notes/**</code> inside <code>[sections.docs].include</code>.</p>
+<p>Canonical default:</p>
+<pre><code class="language-toml">[sections.docs]
+include = [&quot;docs/**&quot;, &quot;notes/**&quot;, &quot;README.md&quot;, &quot;*.md&quot;]
+exclude = []
+</code></pre>
+<p>This ensures the repository contract carries both machine state and human intent.</p>
+<h2>Implemented Behavior</h2>
+<p>This implementation now includes:</p>
+<ul>
+<li>note frontmatter parsing during validation</li>
+<li>strict <code>id</code> format checks using <code>YYYYMMDDHHMMSS</code> (with optional milliseconds)</li>
+<li>duplicate-ID detection across the notes directory</li>
+<li>aliases and tags normalization</li>
+<li>note summary extraction from the body for manifest use</li>
+<li><code>codeLinks[]</code> extraction from note bodies and propagation into <code>manifest.notes[]</code> records, enabling manifest-first querying of which notes reference specific source files</li>
+<li>a <code>cx notes ...</code> command family for note creation and graph inspection</li>
+<li>unresolved note and code-reference auditing via <code>cx notes links</code></li>
+<li>comment-scoped code reference discovery, so only intentional <code>[[Note]]</code> references in source comments count as note links</li>
+<li>cross-file anchor validation: <code>[[Note Title#Section Heading]]</code> wikilinks are checked against actual headings in the target note, reported as <code>anchor-not-found</code> broken links</li>
+<li>graph reachability queries via <code>cx notes graph --id &lt;id&gt; --depth &lt;n&gt;</code> and the <code>notes_graph</code> MCP tool, returning all notes reachable within N wikilink hops from a seed note</li>
+</ul>
+<h2>Linked-Note Enrichment Semantics</h2>
+<p>Linked-note enrichment is a post-planning orchestration step controlled by <code>manifest.includeLinkedNotes</code>.</p>
+<ul>
+<li>It is inclusion-changing, not advisory: qualifying linked notes are injected into the bundle plan.</li>
+<li>It does not alter the core VCS planning model: enrichment runs after file classification.</li>
+<li>The target section is <code>docs</code> when present, otherwise the first configured section.</li>
+<li>Notes already claimed by sections or assets are not reinjected.</li>
+<li>The target section is re-sorted after injection to preserve deterministic ordering.</li>
+</ul>
+<p>Operator inspection path:</p>
+<ol>
+<li>Run <code>cx inspect --json</code> to see the planned section file lists before rendering.</li>
+<li>Run <code>cx notes graph --id &lt;seed&gt; --depth &lt;n&gt;</code> to inspect graph reachability from the seed note.</li>
+</ol>
+<p>Inspect JSON reports inclusion provenance for each planned text file:</p>
+<ul>
+<li><code>section_match</code> for files claimed directly by a configured section</li>
+<li><code>linked_note_enrichment</code> for notes injected by the post-planning graph pass</li>
+<li><code>manifest_note_inclusion</code> when <code>manifest.includeLinkedNotes</code> is the setting that made the note appear</li>
+</ul>
+<p>Depth semantics for graph inspection:</p>
+<ul>
+<li><code>depth = 1</code> includes direct wikilink neighbors.</li>
+<li><code>depth = N</code> includes notes reachable within at most <code>N</code> wikilink hops.</li>
+</ul>
+<p>The key downstream effect is that automation can inspect the note layer through
+manifest metadata first, then open individual notes only when deeper context is
+required.</p>
+<h2>Note ID Format</h2>
+<p>IDs use the format <code>YYYYMMDDHHmmSS</code> at a minimum. <code>cx</code> also accepts and
+generates IDs with millisecond precision (<code>YYYYMMDDHHmmSSmmm</code>). The frontmatter
+parser treats the <code>id</code> field as a string — not a number — so precision is never
+lost regardless of digit count.</p>
+<h2>Future Extensions</h2>
+<p>The following candidates remain for future implementation:</p>
+<ol>
+<li>extraction-safe note parsing for downstream routing (unimplemented)</li>
+<li>manifest-side summaries beyond the first body paragraph (unimplemented)</li>
+<li>staleness and contradiction checks so note truth can be challenged explicitly</li>
+<li>agent traceability that links note changes, audit trails, and workflow review history into one provenance path</li>
+</ol>
+++++

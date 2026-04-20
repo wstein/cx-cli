@@ -47,6 +47,7 @@
     "coverage:vitest:mcp": "vitest run --config vitest.mcp.config.ts --coverage",
     "coverage:vitest:mcp:adversarial": "vitest run --config vitest.mcp.adversarial.config.ts --coverage",
     "coverage:report": "node scripts/coverage-report.js",
+    "docs:antora:build": "node scripts/build-antora-site.js",
     "pages:build": "node scripts/assemble-pages-site.js",
     "pages:smoke": "node scripts/check-pages-site.js",
     "ci:test:coverage": "vitest run --coverage && node scripts/coverage-report.js",
@@ -79,7 +80,8 @@
     "smoke:release-integrity": "bun run ci:assurance:release-integrity",
     "integrity": "node scripts/release-integrity.js",
     "verify-release": "node scripts/verify-release.js",
-    "ci:test:native-render-contract": "vitest run tests/contracts/nativeRender.contract.test.ts"
+    "ci:test:native-render-contract": "vitest run tests/contracts/nativeRender.contract.test.ts",
+    "docs:antora:sync": "node scripts/sync-antora-docs.js"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -108,6 +110,7 @@
     "@vitest/coverage-v8": "^4.1.4",
     "@vitest/ui": "^4.1.4",
     "fast-check": "^4.7.0",
+    "marked": "^18.0.2",
     "repomix": "^1.13.1",
     "vitest": "^4.1.4"
   }

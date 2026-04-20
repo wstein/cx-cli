@@ -1,0 +1,13 @@
+= 08 Cross-cutting Concepts
+
+Cross-cutting concepts that shape the whole system:
+
+- Track A vs Track B
+- trust propagation
+- shared handover
+- note governance and cognition scoring
+- scanner pipeline stages and bounded scanner IDs
+- MCP policy and mutation boundaries
+- contract versioning
+
+include::../../partials/trust-boundary-primer.adoc[]

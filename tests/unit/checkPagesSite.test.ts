@@ -65,4 +65,35 @@ describe("check-pages-site.js", () => {
       "Pages root index must link to /coverage/.",
     );
   });
+
+  test("fails when the docs surface is missing", async () => {
+    const root = await makeFixtureRoot();
+    const schemasDir = path.join(root, "schemas");
+    const coverageDir = path.join(root, "coverage", "vitest");
+    const siteRoot = path.join(root, "site");
+
+    await fs.mkdir(schemasDir, { recursive: true });
+    await fs.mkdir(coverageDir, { recursive: true });
+    await fs.writeFile(
+      path.join(schemasDir, "cx-config-v1.schema.json"),
+      '{"$id":"https://example.invalid/cx-config-v1.schema.json"}\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(coverageDir, "index.html"),
+      "<html><body>coverage</body></html>\n",
+      "utf8",
+    );
+
+    await assemblePagesSite({
+      siteRoot,
+      schemasDir,
+      coverageDir,
+    });
+    await fs.rm(path.join(siteRoot, "docs"), { recursive: true, force: true });
+
+    await expect(checkPagesSite({ siteRoot })).rejects.toThrow(
+      "Missing required Pages artifact:",
+    );
+  });
 });

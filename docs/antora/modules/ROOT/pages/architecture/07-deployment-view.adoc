@@ -1,0 +1,12 @@
+= 07 Deployment View
+
+The deployment view is CI- and release-oriented rather than service-oriented.
+
+== Main deployment surfaces
+
+- CI proof path
+- release integrity and reproducibility checks
+- Pages publishing for schemas, coverage, and curated docs
+- npm package and release assets
+
+The docs site now joins schemas and coverage as a first-class Pages publish surface.

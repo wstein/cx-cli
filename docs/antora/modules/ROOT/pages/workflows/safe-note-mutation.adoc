@@ -1,0 +1,16 @@
+= Safe Note Mutation Workflow
+
+include::../../partials/trust-boundary-primer.adoc[]
+
+Note mutation is a bounded, explicit trust decision.
+It is not part of the default exploratory workflow.
+
+== Rule
+
+- default MCP sessions should not mutate notes silently
+- trusted local sessions may opt into note mutation explicitly
+- note governance remains the review gate for durable cognition quality
+
+== Legacy reference
+
+link:../../../../docs/WORKFLOWS/safe-note-mutation.md[Legacy Markdown workflow]

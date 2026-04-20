@@ -1,0 +1,13 @@
+= v0.4 Migration Closure
+
+`v0.4` closed the main architecture line:
+
+- kernel-owned proof path is the shipped runtime
+- Repomix is no longer a runtime dependency
+- scanner pipeline and notes gating are implemented
+- shared handover is kernel-owned and style-aware
+
+Post-`v0.4` work should not reopen the architecture flip.
+It should tighten contracts, messaging, and bounded scanner growth.
+
+For the detailed migration record, see link:../../../../docs/MIGRATIONS/0.4.0.md[docs/MIGRATIONS/0.4.0.md].

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{#if page.title}}{{page.title}} | {{/if}}{{site.title}}</title>
+    <link rel="stylesheet" href="{{{uiRootPath}}}/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>{{site.title}}</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          {{#each navigation}}
+          <div class="nav-group">
+            {{#if this.content}}
+            <p class="nav-group-title">{{this.content}}</p>
+            {{/if}}
+            <ul>
+              {{#each this.items}}
+              <li>
+                <a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
+                {{#if this.items}}
+                <ul>
+                  {{#each this.items}}
+                  <li><a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a></li>
+                  {{/each}}
+                </ul>
+                {{/if}}
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+          {{/each}}
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          {{{contents}}}
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

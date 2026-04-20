@@ -1,0 +1,13 @@
+= 11 Risks
+
+Known risks and pressure points:
+
+- mutation defaults that are easy to misread
+- degraded extraction paths being misinterpreted as safe recovery
+- uncontrolled scanner growth turning into a stealth plugin system
+- docs drift between curated site pages and legacy Markdown references
+- architecture vocabulary leaking into operator pages without enough local context
+
+== Post-v0.4 focus
+
+The next line of work is polishing and scoping these boundaries, not another architecture flip.

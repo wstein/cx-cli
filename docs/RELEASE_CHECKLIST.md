@@ -16,7 +16,7 @@ Use this short checklist when cutting a release.
 - Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, the official Repomix reference-oracle smoke lane, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
 - The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
 - The Pages publish now assembles one site tree with `/schemas/` and `/coverage/`; successful `main` CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.
-- Run `bun run pages:smoke` against the staged `site/` tree whenever you need to validate the public publish surface locally.
+- Run `bun run pages:smoke` against the staged `dist/site/` tree whenever you need to validate the public publish surface locally.
 - If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.
 - The publish workflow runs the same smoke check in non-blocking mode before pushing `gh-pages`, and the separate `Pages Smoke` workflow keeps that validation visible on pull requests and `main`.
 - If the Pages branch does not exist yet, let the publish workflow create `gh-pages` on the next run.

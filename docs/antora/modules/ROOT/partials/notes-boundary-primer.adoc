@@ -1,0 +1,5 @@
+[CAUTION]
+====
+The Antora site is the curated documentation surface. The `notes/` graph remains a separate cognition surface.
+Selected notes may be promoted intentionally, but the notes corpus is not the site source of truth.
+====

@@ -1,0 +1,56 @@
+= Changelog
+:page-layout: default
+
+[.doc-origin]
+Source companion: `CHANGELOG.md`
+
+++++
+<p>This file records user-facing release changes for <code>cx</code>.</p>
+<h2>[0.4.0] - 2026-04-19</h2>
+<h3>Release framing</h3>
+<p><code>cx</code> now explicitly operates as three cooperating surfaces:</p>
+<ul>
+<li>immutable snapshots (<code>cx bundle</code>)</li>
+<li>live agent protocol (<code>cx mcp</code>)</li>
+<li>durable knowledge (<code>cx notes</code>)</li>
+</ul>
+<p>Track B generates hypotheses. Track A generates proofs. Notes preserve durable reasoning between them.</p>
+<h3>What changed in 0.4.0</h3>
+<h4>1. Coverage and release assurance</h4>
+<ul>
+<li>Added a dedicated Vitest coverage lane with HTML, LCOV, JSON summary, and Markdown reporting.</li>
+<li>Coverage now participates directly in release assurance and the public Pages surface.</li>
+</ul>
+<h4>2. MCP debugging cockpit</h4>
+<ul>
+<li>Added focused Vitest MCP lanes and UI-oriented debugging guidance for startup hangs, policy denials, and slow import chains.</li>
+<li>Exposed the MCP tool catalog through <code>cx mcp catalog --json</code> so automation can inspect tool capability and stability metadata directly.</li>
+</ul>
+<h4>3. Cognition and trust model</h4>
+<ul>
+<li>Notes governance now includes cognition scoring, staleness checks, contradiction pressure, and explicit trust propagation.</li>
+<li>Manifests and operator tooling now carry trust and traceability metadata instead of leaving those boundaries implicit.</li>
+</ul>
+<h4>4. Canonical operating model</h4>
+<ul>
+<li>The docs now explicitly define Track B as hypothesis generation and Track A as proof generation.</li>
+<li>Notes are now described consistently as the durable cognition layer between live investigation and proof-grade artifacts.</li>
+</ul>
+<h4>5. Native proof path is the shipped runtime</h4>
+<ul>
+<li>The shipped CLI now presents the native kernel as the production proof path for <code>bundle</code>, <code>validate</code>, <code>verify</code>, and <code>extract</code>.</li>
+<li>Repomix is no longer described as the primary runtime architecture.</li>
+<li>The remaining adapter/oracle seam is for diagnostics and parity visibility only.</li>
+</ul>
+<h4>6. Closed release line</h4>
+<ul>
+<li><code>v0.4.0</code> closes the render-kernel and fork-exit transition as a release line.</li>
+<li>Follow-up work after <code>v0.4.0</code> is contract tightening, documentation hardening, and bounded scanner evolution rather than another proof-path architecture flip.</li>
+</ul>
+<h3>MCP stability in 0.4.0</h3>
+<p>MCP remains an evolving integration surface in 0.4.0. Core local workflows are ready for serious use, but the MCP contract should still be treated conservatively for long-term external integrations outside the documented stable subset.</p>
+<h3>Coverage in 0.4.0</h3>
+<p>Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.</p>
+<h3>Migration notes</h3>
+<p>See <a href="../docs/migrations/0.4.0/">docs/MIGRATIONS/0.4.0.md</a>.</p>
+++++

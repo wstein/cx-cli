@@ -1,0 +1,29 @@
+= 03 Context and Scope
+
+The outer system boundary is four cooperating surfaces:
+
+- native proof path
+- live workspace path
+- durable cognition path
+- adapter/oracle diagnostics path
+
+== Context map
+
+[cols="1,3"]
+|===
+| Surface | Responsibility
+
+| Proof path
+| bundle planning, rendering, manifests, verification, extraction
+
+| Live workspace
+| MCP tools, scoped repository inspection, audit-backed mutation policy
+
+| Durable cognition
+| governed notes, backlinks, code links, cognition review
+
+| Oracle diagnostics
+| reference-oracle capability inspection, parity diagnostics, migration checks
+|===
+
+The adapter/oracle seam is intentionally outside the shipped proof path.

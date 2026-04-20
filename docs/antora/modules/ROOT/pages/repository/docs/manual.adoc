@@ -1,0 +1,383 @@
+= CX Operator Manual
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/MANUAL.md`
+
+++++
+<p><code>cx</code> is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.</p>
+<p>The curated manual is also published through the Antora site in <code>docs/antora/</code>. This Markdown file remains the repository-local companion surface for contributors, release review, and in-repo links.</p>
+<p>See: <a href="operating_modes/">OPERATING_MODES.md</a> for the main conceptual entrypoint.
+See: <a href="mental_model/">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, policy tiers, and artifact lifecycle.</p>
+<p>Use this manual when you already know you are operating <code>cx</code> and want the
+shortest route to commands, assurance levels, and workflow decisions.</p>
+<p>If you are new to the repository:</p>
+<ol>
+<li>Read the root <a href="../root/readme/">README</a></li>
+<li>Read <a href="system_map/">SYSTEM_MAP.md</a></li>
+<li>Return here once you need the operator path instead of the conceptual map</li>
+</ol>
+<hr>
+<h2>Quick Operator Path</h2>
+<p>Use the smallest operator sequence that matches the job:</p>
+<ul>
+<li>Live workspace path: <code>cx mcp</code></li>
+<li>Durable cognition path: <code>cx notes</code></li>
+<li>Native proof path: <code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, <code>cx extract</code></li>
+<li>Recovery or audit: <code>cx list</code>, <code>cx audit</code>, <code>cx doctor</code></li>
+<li>Adapter/oracle path: diagnostics and parity only, not the primary operator workflow</li>
+</ul>
+<p>Typical minimal paths:</p>
+<h3>Live Agent Path</h3>
+<ol>
+<li><code>cx mcp</code></li>
+<li><code>cx doctor mcp</code></li>
+<li><code>cx mcp catalog --json</code></li>
+<li><code>cx doctor workflow --task &quot;refactor index.ts&quot;</code></li>
+</ol>
+<h3>Artifact Path</h3>
+<ol>
+<li><code>cx init --name demo</code></li>
+<li><code>cx inspect --token-breakdown</code></li>
+<li><code>cx bundle --config cx.toml</code></li>
+<li><code>cx verify --against .</code></li>
+<li><code>cx extract dist/bundle --to ./restore</code></li>
+</ol>
+<h3>Repository Commands</h3>
+<p>Use the repository-local <code>make</code> targets for day-to-day development:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>make test</code></td>
+<td>You want the fast unit loop while iterating</td>
+</tr>
+<tr>
+<td><code>make verify</code></td>
+<td>You want the normal local gate before merging</td>
+</tr>
+<tr>
+<td><code>make certify</code></td>
+<td>You want CI-grade confidence before tagging a release</td>
+</tr>
+<tr>
+<td><code>make release VERSION=vX.Y.Z</code></td>
+<td>You are stepping through the two-phase release wizard</td>
+</tr>
+</tbody></table>
+<p><code>make certify</code> runs everything <code>make verify</code> does, then performs a clean double-build reproducibility check: the <code>dist/</code> tree is hashed, wiped, rebuilt, and hashed again. The two hash sets must match exactly. This mirrors the CI <code>reproducibility</code> job so the release gate is exercisable locally without pushing.</p>
+<h2>Assurance Ladder</h2>
+<p>Use these commands as a progressive assurance model:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it covers</th>
+<th>When to run</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>bun run verify</code></td>
+<td>lint, typecheck, build, Vitest coverage lane, Bun compatibility smoke</td>
+<td>normal pre-merge gate</td>
+</tr>
+<tr>
+<td><code>bun run ci:test:coverage</code></td>
+<td>Vitest V8 coverage lane with HTML, JSON summary, LCOV, and markdown summary output over the full shared suite</td>
+<td>CI coverage reporting</td>
+</tr>
+<tr>
+<td><code>bun run test:all</code></td>
+<td>full shared repository suite through native Vitest</td>
+<td>broad local execution proof</td>
+</tr>
+<tr>
+<td><code>bun run test:vitest:bundle</code></td>
+<td>focused bundle workflow, extraction, render-adapter, and JSON CLI lane</td>
+<td>bundle-heavy local iteration</td>
+</tr>
+<tr>
+<td><code>bun run test:vitest:notes</code></td>
+<td>focused notes graph, note commands, linked-note planning, and operator contract lane</td>
+<td>notes-heavy local iteration</td>
+</tr>
+<tr>
+<td><code>bun run test:vitest:planning</code></td>
+<td>focused planning and schema-integration lane</td>
+<td>overlap, linking, and config-shape iteration</td>
+</tr>
+<tr>
+<td><code>bun run certify</code></td>
+<td><code>verify</code> + contract lane + official Repomix reference-oracle smoke + bundle transition matrix smoke + release integrity smoke + reproducibility check</td>
+<td>pre-tag local CI-equivalent certification</td>
+</tr>
+<tr>
+<td><code>bun run integrity</code></td>
+<td>release integrity metadata generation from the packed npm tarball</td>
+<td>release artifact staging</td>
+</tr>
+<tr>
+<td><code>bun run verify-release</code></td>
+<td>release integrity metadata verification against packed tarball</td>
+<td>release verification and audit</td>
+</tr>
+</tbody></table>
+<p><code>make verify</code> and <code>make certify</code> are thin wrappers around <code>bun run verify</code> and <code>bun run certify</code>.</p>
+<p>Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.</p>
+<h3>CX Commands</h3>
+<p>Use <code>cx</code> commands for repository planning, bundle generation, verification, and live MCP work.</p>
+<pre><code class="language-bash">cx init --name demo
+cx inspect --token-breakdown
+cx bundle --config cx.toml
+cx mcp
+cx doctor mcp --config cx.toml
+cx mcp catalog --json
+cx doctor secrets --config cx.toml
+</code></pre>
+<p><code>cx init</code> now writes a generated workspace-aware <code>Makefile</code>, <code>.editorconfig</code>, <code>cx-mcp.toml</code>, <code>cx.toml</code>, <code>.mcp.json</code>, <code>.vscode/mcp.json</code>, and local agent settings in <code>.claude/settings.json</code> and <code>.codex/settings.json</code> in addition to <code>notes/</code>. The generated <code>cx-mcp.toml</code> is a minimal diff to <code>cx.toml</code> and serves as the MCP overlay for the workspace root. The Makefile selects a language-specific template when it sees common workspace markers for Rust, Go, JavaScript/TypeScript, Python, Java, Elixir, Julia, Crystal, or Zig, and otherwise falls back to the base template.</p>
+<p>For the TypeScript template, the generated <code>Makefile</code> uses lockfile-first package-manager selection (<code>bun.lock*</code>, <code>pnpm-lock.yaml</code>, <code>yarn.lock</code>, then <code>package-lock.json</code> / <code>npm-shrinkwrap.json</code>) and keeps <code>install</code> separate from <code>build</code>. The normalized local targets are <code>install</code>, <code>build</code>, <code>test</code>, <code>check</code>, <code>lint</code>, <code>verify</code>, <code>certify</code>, <code>clean</code>, and <code>notes</code>. <code>lint</code> and <code>check</code> skip with a clear message when the corresponding package scripts are absent, and <code>certify</code> falls back to <code>verify</code> unless the workspace defines a stricter package-manager <code>certify</code> script. The generated <code>cx-mcp.toml</code> is the source-oriented authoring overlay and includes <code>src/**</code>, <code>package.json</code>, <code>tsconfig*.json</code>, and <code>README.md</code> while excluding <code>node_modules/**</code>, <code>dist/**</code>, and common cache or coverage directories. A companion <code>cx-mcp-build.toml</code> is generated for compiled-output inspection. Adjust the authoring and build overlays independently if your workspace uses a different layout.</p>
+<p>The cross-template capability matrix, generated file contract, and support
+levels are documented in <a href="init_template_contract/">INIT_TEMPLATE_CONTRACT.md</a>.</p>
+<p><code>cx init</code> checks each generated target individually. It preserves existing files by default and creates any missing init artifacts; use <code>--force</code> to overwrite existing generated files.</p>
+<p>Use <code>--template</code> to explicitly choose an init template by environment:</p>
+<pre><code class="language-bash">cx init --name demo --template typescript
+</code></pre>
+<p>List supported templates with:</p>
+<pre><code class="language-bash">cx init --template-list
+</code></pre>
+<p>When <code>--template</code> is omitted, <code>cx init</code> autodetects the workspace environment from files like <code>package.json</code>, <code>go.mod</code>, <code>pyproject.toml</code>, <code>pom.xml</code>, and <code>Cargo.toml</code>.</p>
+<p><code>cx mcp</code> prefers a colocated <code>cx-mcp.toml</code> overlay. If that file is present, it is the default MCP config for the workspace; if it is missing, <code>cx</code> falls back to the baseline <code>cx.toml</code> configuration. The MCP surface now includes live bundle planning plus note reading, search, creation, update, rename, delete, and note-graph inspection tools in addition to workspace file browsing.</p>
+<p>Use <code>cx mcp catalog --json</code> when you need only the machine-readable MCP tool contract. It exposes the registered tool set with stable <code>name</code>, <code>capability</code>, and <code>stability</code> fields plus summary counts, without mixing in profile resolution or audit state.</p>
+<p>For concrete integration examples and per-IDE snippets (VS Code/Cline, Roo Code, Cursor, Claude Desktop), see the <a href="agent_integration/">Agent Integration Guide</a>.</p>
+<p>Repository-local <code>make</code> shortcuts keep the developer loop compact:</p>
+<ul>
+<li><code>make test</code> runs the fast Vitest unit suite.</li>
+<li><code>make verify</code> runs lint, typecheck, build, the Vitest coverage lane, and Bun compatibility smoke.</li>
+<li><code>bun run ci:test:coverage</code> runs the authoritative Vitest V8 coverage lane across the shared repository suite, then writes <code>coverage/vitest/</code> plus <code>.ci/coverage-summary.md</code> for CI reporting.</li>
+<li>Treat that Vitest lane as the authoritative release-assurance reporting surface. The Bun lanes still prove execution compatibility and remain part of the runtime matrix.</li>
+<li><code>bun run test:contracts</code> runs the contract suite through native Vitest.</li>
+<li><code>bun run test:all</code> runs the full shared suite through native Vitest without collecting coverage.</li>
+<li><code>bun run test:all:full</code> is the explicit Vitest coverage lane for local release-assurance checks.</li>
+<li><code>bun run test:vitest:bundle</code> isolates the slow bundle workflow, extraction, render-adapter, and JSON CLI suites.</li>
+<li><code>bun run test:vitest:notes</code> isolates the slow notes graph and command suites, plus linked-note planning and operator contracts.</li>
+<li><code>bun run test:vitest:planning</code> isolates planning and schema-integration suites for overlap, linked-note, and config-shape work.</li>
+<li><code>bun run pages:build</code> assembles the public Pages <code>dist/site/</code> tree with <code>/schemas/</code>, <code>/coverage/</code>, and the curated Antora docs site under <code>/docs/</code>.</li>
+<li><code>bun run pages:smoke</code> validates the staged <code>dist/site/</code> tree before a workflow publishes it.</li>
+<li>The latest public HTML coverage view is published at <code>https://wstein.github.io/cx-cli/coverage/</code> from successful <code>main</code> CI runs.</li>
+<li>The curated docs site is published at <code>https://wstein.github.io/cx-cli/docs/</code>.</li>
+<li><code>bun run test:vitest:mcp</code> runs the focused MCP cockpit lane for MCP-heavy tests without starting the full repository coverage surface.</li>
+<li><code>bun run test:vitest:mcp:ui</code> opens the same MCP-focused lane in Vitest UI so operators can rerun failures, inspect coverage, and review the import graph for slow MCP startup or registration paths.</li>
+<li><code>bun run test:vitest:mcp:adversarial</code> keeps startup failures, malformed runtime responses, and other hostile-boundary MCP cases isolated in a smaller cockpit.</li>
+<li><code>make certify</code> runs everything <code>verify</code> does plus contract tests, smoke lanes, release integrity smoke, and reproducibility checks - the CI-grade local gate to use before tagging.</li>
+<li><code>make release VERSION=vX.Y.Z</code> is a wizard: first call starts the release candidate on <code>develop</code>, second call with that same tagged version finalizes the release after CI is green.</li>
+</ul>
+<p>The <code>make</code> targets are wrappers around the corresponding Bun scripts. Use them
+for local ergonomics; use <code>cx</code> when you are working with bundle planning,
+verification, extraction, or MCP sessions.</p>
+<p>The native MCP server exposes file-based <code>list</code>, <code>grep</code>, and <code>read</code> tools over
+the workspace scope. It also exposes <code>inspect</code>, <code>bundle</code>, <code>doctor_mcp</code>, and
+<code>doctor_workflow</code> tools for live planning, plus note-native <code>notes_read</code>,
+<code>notes_search</code>, <code>notes_new</code>, <code>notes_update</code>, <code>notes_rename</code>, <code>notes_delete</code>,
+<code>notes_list</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>, <code>notes_code_links</code>, and
+<code>notes_links</code> tools over the notes corpus. Use <code>list</code> to enumerate visible
+files, <code>grep</code> to search their contents, and <code>read</code> to inspect a specific file
+with optional line anchors without switching back to the packaging workflow.</p>
+<p>Example note search:</p>
+<pre><code class="language-json">{
+  &quot;tool&quot;: &quot;notes_search&quot;,
+  &quot;arguments&quot;: {
+    &quot;query&quot;: &quot;workflow&quot;,
+    &quot;tags&quot;: [&quot;agent&quot;],
+    &quot;limit&quot;: 5
+  }
+}
+</code></pre>
+<p>CLI and MCP note commands side by side:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>CLI</th>
+<th>MCP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create a note</td>
+<td><code>cx notes new --title &quot;Research Note&quot; --body &quot;Initial observation.&quot;</code></td>
+<td><code>notes_new(title=&quot;Research Note&quot;, body=&quot;Initial observation.&quot;)</code></td>
+</tr>
+<tr>
+<td>Read a note</td>
+<td><code>cx notes read --id 20260414120000</code></td>
+<td><code>notes_read(id=&quot;20260414120000&quot;)</code></td>
+</tr>
+<tr>
+<td>Update a note</td>
+<td><code>cx notes update --id 20260414120000 --body &quot;Refined observation.&quot;</code></td>
+<td><code>notes_update(id=&quot;20260414120000&quot;, body=&quot;Refined observation.&quot;)</code></td>
+</tr>
+<tr>
+<td>Rename a note</td>
+<td><code>cx notes rename --id 20260414120000 --title &quot;Research Note v2&quot;</code></td>
+<td><code>notes_rename(id=&quot;20260414120000&quot;, title=&quot;Research Note v2&quot;)</code></td>
+</tr>
+<tr>
+<td>Delete a note</td>
+<td><code>cx notes delete --id 20260414120000</code></td>
+<td><code>notes_delete(id=&quot;20260414120000&quot;)</code></td>
+</tr>
+<tr>
+<td>Inspect the graph</td>
+<td><code>cx notes links</code> / <code>cx notes backlinks --id ...</code> / <code>cx notes orphans</code> / <code>cx notes code-links --id ...</code></td>
+<td><code>notes_search(...)</code> / <code>notes_links(...)</code> / <code>notes_backlinks(...)</code> / <code>notes_orphans(...)</code> / <code>notes_code_links(...)</code></td>
+</tr>
+</tbody></table>
+<p>Use the CLI for direct on-disk note lifecycle operations. Use MCP when the agent needs live search, reads, updates, or graph inspection inside an active workspace session.</p>
+<h2>Who This Manual Is For</h2>
+<p>This guide is for engineers running <code>cx</code> as an operational tool: local bundle authors, CI maintainers, and remote-runner owners.</p>
+<p>If you are new to the project, read the README first. If you need the detailed
+knobs, read <a href="config-reference/">Configuration Reference</a>. If you need the full
+documentation map, read <a href="readme/">docs/README.md</a>.</p>
+<h2>Friday To Monday Map</h2>
+<p>Read the rest of this manual with one concrete timeline in mind:</p>
+<ul>
+<li>SHA-256 sidecars prove the emitted artifacts were not silently edited after bundling.</li>
+<li>The manifest records the exact file inventory, token counts, note summaries, and dirty-state provenance that downstream automation relies on.</li>
+<li><code>verify</code> exists so Monday&#39;s runner can compare the bundle back to a source tree instead of trusting a stale directory by habit.</li>
+<li>Dirty-state gating stops tracked-file drift from becoming an unreviewable production input.</li>
+</ul>
+<p>The invariants are the mechanisms that keep Friday&#39;s intent queryable and safe on Monday.</p>
+<p>See: <a href="workflows/friday-to-monday/">WORKFLOWS/friday-to-monday.md</a></p>
+<h2>Static Bundle Versus Live MCP</h2>
+<p>See: <a href="mental_model/">MENTAL_MODEL.md</a></p>
+<p>The two main CX workflows are intentionally different:</p>
+<ul>
+<li><code>cx bundle</code> produces a static, immutable snapshot for CI, review, verification, and handoff.</li>
+<li><code>cx mcp</code> exposes the live workspace through scoped file, search, and note tools for active investigation.</li>
+</ul>
+<p>They share the same repository boundary rules, but they answer different questions. Use the bundle when you need something you can verify later. Use MCP when you need the model to explore, search, or update the workspace during an ongoing task.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Best for</th>
+<th>Typical output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cx inspect</code></td>
+<td>Reviewing the planned bundle before writing files</td>
+<td>A deterministic plan, token totals, overlap signals, and extractability hints</td>
+</tr>
+<tr>
+<td><code>cx bundle</code></td>
+<td>Producing an immutable artifact for review, CI, or handoff</td>
+<td>Bundle files, manifest, lock file, and checksum sidecar</td>
+</tr>
+<tr>
+<td><code>cx mcp</code></td>
+<td>Exploring the live workspace and maintaining notes during active work</td>
+<td>Scoped file search, reads, and note tools over the current workspace</td>
+</tr>
+</tbody></table>
+<h2>Native Path Versus Adapter Path</h2>
+<p>The shipped operator workflow is kernel-first:</p>
+<ul>
+<li><code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, and <code>cx extract</code> operate on the native proof path</li>
+<li><code>cx mcp</code> operates on the live workspace path</li>
+<li><code>cx notes</code> operates on the durable cognition path</li>
+</ul>
+<p>The adapter/oracle surface is separate and expert-facing:</p>
+<ul>
+<li>used for parity diagnostics</li>
+<li>used for oracle capability inspection</li>
+<li>used for migration and reference testing</li>
+<li>not required for ordinary bundle, validate, verify, or extract flows</li>
+<li>not the primary operator story</li>
+</ul>
+<h2>Core Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cx init</code></td>
+<td>You need a starter config</td>
+</tr>
+<tr>
+<td><code>cx inspect</code></td>
+<td>You want to preview the plan before building</td>
+</tr>
+<tr>
+<td><code>cx bundle</code></td>
+<td>You want to produce the bundle artifacts</td>
+</tr>
+<tr>
+<td><code>cx validate</code></td>
+<td>You want schema and structure validation</td>
+</tr>
+<tr>
+<td><code>cx verify</code></td>
+<td>You want checksum and source-tree verification</td>
+</tr>
+<tr>
+<td><code>cx list</code></td>
+<td>You want to browse stored files and statuses</td>
+</tr>
+<tr>
+<td><code>cx extract</code></td>
+<td>You want to restore selected files from the bundle</td>
+</tr>
+<tr>
+<td><code>cx mcp</code></td>
+<td>You want to start the MCP server with the agent profile</td>
+</tr>
+<tr>
+<td><code>cx notes</code></td>
+<td>You want to manage notes or inspect note graph relationships</td>
+</tr>
+<tr>
+<td><code>cx doctor overlaps</code></td>
+<td>A plan fails because one file matches multiple sections</td>
+</tr>
+<tr>
+<td><code>cx doctor fix-overlaps</code></td>
+<td>You want exact exclude entries generated or applied</td>
+</tr>
+<tr>
+<td><code>cx doctor mcp</code></td>
+<td>You want to review the effective MCP profile, inherited scopes, and recent audit trends</td>
+</tr>
+<tr>
+<td><code>cx mcp catalog --json</code></td>
+<td>You want the narrow machine-readable MCP tool catalog for automation</td>
+</tr>
+<tr>
+<td><code>cx doctor notes</code></td>
+<td>You want to audit note-to-code references against the VCS-backed planning master list</td>
+</tr>
+<tr>
+<td><code>cx doctor secrets</code></td>
+<td>You want to scan the master list for suspicious secret patterns</td>
+</tr>
+<tr>
+<td><code>cx doctor workflow</code></td>
+<td>You want a quick recommendation for bundle, inspect, or MCP, including mixed-task paths</td>
+</tr>
+<tr>
+<td><code>cx audit summary</code></td>
+<td>You want recent <code>traceId</code>, policy, and capability trends from <code>.cx/audit.log</code> without the full MCP profile report</td>
+</tr>
+<tr>
+<td><code>cx completion</code></td>
+<td>You want shell-native command and flag completion</td>
+</tr>
+</tbody></table>
+++++

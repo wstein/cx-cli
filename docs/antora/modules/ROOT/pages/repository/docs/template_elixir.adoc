@@ -1,0 +1,29 @@
+= Elixir Template
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/TEMPLATE_ELIXIR.md`
+
+++++
+<p>The Elixir <code>cx init</code> template is optimized for Mix-based applications with a
+source-first MCP overlay.</p>
+<h2>Generated Targets</h2>
+<ul>
+<li><code>make build</code> → <code>mix compile</code></li>
+<li><code>make test</code> → <code>mix test</code></li>
+<li><code>make check</code> → <code>mix format --check-formatted</code></li>
+<li><code>make verify</code> → <code>check + test + build</code></li>
+<li><code>make certify</code> → <code>verify</code></li>
+</ul>
+<h2>MCP Overlay</h2>
+<p>The generated <code>cx-mcp.toml</code> exposes:</p>
+<ul>
+<li><code>lib/**</code></li>
+<li><code>test/**</code></li>
+<li><code>mix.exs</code></li>
+<li><code>mix.lock</code></li>
+<li><code>README.md</code></li>
+</ul>
+<p>It excludes <code>_build/**</code>, <code>deps/**</code>, and coverage output so MCP stays focused on
+authoring files by default.</p>
+++++

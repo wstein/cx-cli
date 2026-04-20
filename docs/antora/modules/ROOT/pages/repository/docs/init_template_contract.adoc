@@ -1,0 +1,132 @@
+= Init Template Contract
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/INIT_TEMPLATE_CONTRACT.md`
+
+++++
+<p><code>cx init</code> always generates the shared workspace bootstrap files plus a
+language-aware <code>Makefile</code>. Some templates also specialize the default
+authoring-oriented <code>cx-mcp.toml</code> overlay, and TypeScript currently adds a
+second build-artifact overlay.</p>
+<p>The universal generated files are:</p>
+<ul>
+<li><code>cx.toml</code></li>
+<li><code>.editorconfig</code></li>
+<li><code>Makefile</code></li>
+<li><code>cx-mcp.toml</code></li>
+<li><code>.mcp.json</code></li>
+<li><code>.vscode/mcp.json</code></li>
+<li><code>.claude/settings.json</code></li>
+<li><code>.codex/settings.json</code></li>
+<li><code>notes/</code> scaffolding</li>
+</ul>
+<h2>Capability Levels</h2>
+<ul>
+<li><code>basic</code>: workspace-aware <code>Makefile</code> plus the shared MCP overlay contract.</li>
+<li><code>enhanced</code>: specialized authoring overlay and richer local quality targets.</li>
+<li><code>advanced</code>: enhanced template plus separate MCP overlays for authoring and
+build-artifact inspection.</li>
+</ul>
+<h2>Template Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Level</th>
+<th>Detection markers</th>
+<th>Optional generated files</th>
+<th>Targets</th>
+<th>Separate MCP overlays</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>base</code></td>
+<td>basic</td>
+<td>none</td>
+<td>none</td>
+<td><code>build</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>rust</code></td>
+<td>enhanced</td>
+<td><code>Cargo.toml</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code>, <code>check</code>, <code>verify</code>, <code>certify</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>go</code></td>
+<td>enhanced</td>
+<td><code>go.mod</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code>, <code>check</code>, <code>verify</code>, <code>certify</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>typescript</code></td>
+<td>advanced</td>
+<td><code>package.json</code></td>
+<td><code>cx-mcp-build.toml</code></td>
+<td><code>build</code>, <code>test</code>, <code>check</code>, <code>verify</code>, <code>certify</code></td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>python</code></td>
+<td>basic</td>
+<td><code>pyproject.toml</code>, <code>requirements.txt</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>java</code></td>
+<td>basic</td>
+<td><code>pom.xml</code>, <code>build.gradle</code>, <code>build.gradle.kts</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>elixir</code></td>
+<td>enhanced</td>
+<td><code>mix.exs</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code>, <code>check</code>, <code>verify</code>, <code>certify</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>julia</code></td>
+<td>basic</td>
+<td><code>Project.toml</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>crystal</code></td>
+<td>enhanced</td>
+<td><code>shard.yml</code>, <code>shard.lock</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code>, <code>verify</code>, <code>certify</code></td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>zig</code></td>
+<td>enhanced</td>
+<td><code>build.zig</code>, <code>build.zig.zon</code></td>
+<td>none</td>
+<td><code>build</code>, <code>test</code>, <code>verify</code>, <code>certify</code></td>
+<td>no</td>
+</tr>
+</tbody></table>
+<h2>Overlay Intent</h2>
+<ul>
+<li>Authoring overlay: live source exploration and editing in MCP sessions.</li>
+<li>Build overlay: compiled or emitted artifacts that should stay separate from
+the default authoring surface.</li>
+</ul>
+<p>If a repository uses nonstandard source or output layouts, edit the overlays
+independently instead of broadening the default authoring view.</p>
+++++

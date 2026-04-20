@@ -1,0 +1,94 @@
+= Friday To Monday Workflow
+:page-layout: default
+
+[.doc-origin]
+Source companion: `docs/WORKFLOWS/friday-to-monday.md`
+
+++++
+<p>See: <a href="../mental_model/">../MENTAL_MODEL.md</a></p>
+<p>This is the canonical end-to-end workflow for a team that investigates with MCP on Friday night and trusts a promotable artifact on Monday morning.</p>
+<h2>Friday Night: Dirty Local Code, Fast AI Help</h2>
+<p>It is late on Friday. The developer has local tracked changes that are not ready to commit, but still needs fast AI help on the live code.</p>
+<p>That is a Track B problem, not a clean promotion problem.</p>
+<ol>
+<li>Confirm the recommended mode:</li>
+</ol>
+<pre><code class="language-bash">cx doctor workflow --task &quot;understand the change, update notes, and prepare a handoff bundle&quot;
+</code></pre>
+<ol start="2">
+<li>Start the live MCP server:</li>
+</ol>
+<pre><code class="language-bash">cx mcp
+</code></pre>
+<ol start="3">
+<li>Typical MCP call sequence:</li>
+</ol>
+<pre><code class="language-text">doctor_mcp()
+inspect()
+notes_search(query=&quot;dirty state&quot;, limit=5)
+notes_read(id=&quot;20260413153522&quot;)
+read(path=&quot;src/cli/commands/bundle.ts&quot;, startLine=230, endLine=320)
+bundle()
+</code></pre>
+<p>What happens here:</p>
+<ul>
+<li><code>doctor_mcp</code> confirms the live workspace boundary.</li>
+<li><code>inspect</code> and <code>bundle()</code> preview the plan without writing artifact files.</li>
+<li><code>notes_search</code> and <code>notes_read</code> reuse durable reasoning before the agent broad-scans the workspace.</li>
+<li><code>read</code> and search tools keep the work grounded in the current repository state.</li>
+</ul>
+<p>If the developer intentionally enables note mutation in a trusted local session, that workflow belongs in <a href="safe-note-mutation/">safe-note-mutation.md</a>, not in the default Friday-night exploratory flow.</p>
+<p>Why this protects you: the developer gets live reasoning help without pretending the current checkout is already a clean, promotable artifact.</p>
+<h2>Friday Night Closeout: Optional Local Review Bundle</h2>
+<p>Sometimes the developer still wants a temporary local snapshot for review, even though the checkout is dirty.</p>
+<p>That is the exceptional case for a local override:</p>
+<pre><code class="language-bash">cx bundle --config cx.toml --force
+</code></pre>
+<p>This is acceptable only as a local review aid. The manifest records <code>forced_dirty</code> so nobody has to guess later whether the bundle came from a clean source state.</p>
+<p>Why this protects you: the override does not erase the provenance problem. It records it. A local operator can still inspect the snapshot, but Monday automation does not have to mistake it for a clean promotion artifact.</p>
+<h2>Friday Closeout: Freeze The Real Handoff</h2>
+<p>Once the code is committed or the working tree is otherwise returned to a promotable state, switch to Track A and write the actual handoff:</p>
+<pre><code class="language-bash">cx inspect --config cx.toml --token-breakdown
+cx bundle --config cx.toml
+cx verify dist/demo-bundle --against . --config cx.toml
+</code></pre>
+<p>Why this protects you: Friday&#39;s live workspace is still moving. The bundle is the moment where <code>cx</code> freezes that state into something Monday can verify instead of merely trust.</p>
+<h2>What Travels Across The Weekend</h2>
+<p>The handoff is the bundle directory, not the MCP session:</p>
+<ul>
+<li>section outputs</li>
+<li>manifest</li>
+<li>lock file</li>
+<li>checksum sidecar</li>
+<li>copied assets</li>
+</ul>
+<p>The notes you updated on Friday can also be included in the bundle plan, which keeps reasoning and artifact together.</p>
+<p>Trust still stays asymmetric across the weekend:</p>
+<ul>
+<li>source tree: trusted</li>
+<li>notes: conditional</li>
+<li>agent output: untrusted until verified</li>
+<li>bundle: trusted</li>
+</ul>
+<h2>Monday Morning: CI Trusts Only The Clean Path</h2>
+<p>On Monday, CI should trust only the clean, promotable path. It should validate or verify the artifact built from committed source state, not a <code>forced_dirty</code> local convenience bundle.</p>
+<p>Start with structure and integrity:</p>
+<pre><code class="language-bash">cx validate dist/demo-bundle
+cx verify dist/demo-bundle --config cx.toml
+</code></pre>
+<p>If you have the expected source tree available, compare against it directly:</p>
+<pre><code class="language-bash">cx verify dist/demo-bundle --against /path/to/checkout --config cx.toml
+</code></pre>
+<p>If you need files back out for review or downstream work:</p>
+<pre><code class="language-bash">cx extract dist/demo-bundle --to /tmp/review --verify
+</code></pre>
+<p>Why this protects you: Monday&#39;s runner should prove that the artifact still matches Friday&#39;s bundle contract. Validation checks that the structure exists. Verification checks that the artifact set and, optionally, the source tree still agree. Extraction stays behind the same manifest and hash guardrails.</p>
+<h2>Failure Interpretation</h2>
+<ul>
+<li>Dirty-state refusal on Friday means the workspace was not stable enough to freeze as a promotable artifact.</li>
+<li><code>forced_dirty</code> on Friday means the bundle was only suitable for explicit local review, not for clean CI trust.</li>
+<li>Checksum failure on Monday means the artifact set in hand is no longer provably the one written on Friday.</li>
+<li>Degraded extraction means the bundle can no longer reconstruct text deterministically enough for safe automation.</li>
+</ul>
+<p>Those failures are not friction for its own sake. They are the mechanisms that keep Friday intent queryable and safe on Monday.</p>
+++++

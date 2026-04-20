@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-export const DEFAULT_SITE_ROOT = "site";
+export const DEFAULT_SITE_ROOT = "dist/site";
 
 async function readRequiredFile(filePath) {
   try {
@@ -19,28 +19,21 @@ function assertContains(source, needle, message) {
   }
 }
 
-export async function checkPagesSite({
-  siteRoot = DEFAULT_SITE_ROOT,
-} = {}) {
+export async function checkPagesSite({ siteRoot = DEFAULT_SITE_ROOT } = {}) {
   const rootIndexPath = path.join(siteRoot, "index.html");
+  const docsIndexPath = path.join(siteRoot, "docs", "index.html");
   const schemasIndexPath = path.join(siteRoot, "schemas", "index.html");
   const noJekyllPath = path.join(siteRoot, ".nojekyll");
   const coverageIndexPath = path.join(siteRoot, "coverage", "index.html");
 
   const rootIndex = await readRequiredFile(rootIndexPath);
+  await readRequiredFile(docsIndexPath);
   const schemasIndex = await readRequiredFile(schemasIndexPath);
   await readRequiredFile(noJekyllPath);
 
-  assertContains(
-    rootIndex,
-    'href="schemas/"',
-    "Pages root index must link to /schemas/.",
-  );
-  assertContains(
-    rootIndex,
-    'href="coverage/"',
-    "Pages root index must link to /coverage/.",
-  );
+  assertContains(rootIndex, 'href="docs/"', 'Pages root index must link to /docs/.');
+  assertContains(rootIndex, 'href="schemas/"', 'Pages root index must link to /schemas/.');
+  assertContains(rootIndex, 'href="coverage/"', 'Pages root index must link to /coverage/.');
   assertContains(
     schemasIndex,
     "Back to CX publish surface",

@@ -1,0 +1,21 @@
+= Friday to Monday Workflow
+
+include::../../partials/track-primer.adoc[]
+
+This is the canonical end-to-end flow from live investigation to trusted handoff.
+
+== Flow
+
+. Start with `cx mcp` when the work is still moving.
+. Preserve durable reasoning with `cx notes`.
+. Freeze the real handoff with `cx bundle`.
+. Prove it later with `cx validate`, `cx verify`, and `cx extract`.
+
+== Why it matters
+
+Friday intent should still be queryable and safe on Monday.
+That requires a switch from hypothesis to proof, not a longer live session.
+
+== Legacy reference
+
+link:../../../../docs/WORKFLOWS/friday-to-monday.md[Legacy Markdown workflow]
