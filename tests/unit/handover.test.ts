@@ -76,12 +76,10 @@ describe("handover text", () => {
       assetPaths: [],
       repoHistory: [
         {
-          hash: "aaaaaaaaaaaa1111111111111111111111111111",
           shortHash: "aaaaaaaaaaaa",
           subject: "Add native shared handover history",
         },
         {
-          hash: "bbbbbbbbbbbb2222222222222222222222222222",
           shortHash: "bbbbbbbbbbbb",
           subject: "Tighten contract tests for manifest v8",
         },
@@ -104,7 +102,6 @@ describe("handover text", () => {
       assetPaths: [],
       repoHistory: [
         {
-          hash: "aaaaaaaaaaaa1111111111111111111111111111",
           shortHash: "aaaaaaaaaaaa",
           subject: "Add native shared handover history",
         },
@@ -116,5 +113,79 @@ describe("handover text", () => {
       "- aaaaaaaaaaaa Add native shared handover history",
     );
     expect(indexText).not.toContain("- \naaaaaaaaaaaa");
+  });
+
+  test("renders markdown handover with direct section and history headings", () => {
+    const indexText = renderSharedHandover({
+      style: "markdown",
+      projectName: "demo",
+      sectionOutputs: [
+        {
+          name: "docs",
+          style: "markdown",
+          outputFile: "demo-repomix-docs.md",
+          fileCount: 1,
+          tokenCount: 4,
+          outputTokenCount: 9,
+        },
+      ],
+      assetPaths: [],
+      repoHistory: [
+        {
+          shortHash: "aaaaaaaaaaaa",
+          subject: "Add markdown handover coverage",
+        },
+      ],
+    });
+
+    expect(indexText).toContain("# cx shared handover");
+    expect(indexText).toContain("## Sections");
+    expect(indexText).toContain("## Recent repository history");
+    expect(indexText).toContain(
+      "- docs: demo-repomix-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
+    );
+    expect(indexText).toContain(
+      "- aaaaaaaaaaaa Add markdown handover coverage",
+    );
+  });
+
+  test("renders json handover with a schema-shaped payload", () => {
+    const indexText = renderSharedHandover({
+      style: "json",
+      projectName: "demo",
+      sectionOutputs: [
+        {
+          name: "src",
+          style: "json",
+          outputFile: "demo-repomix-src.json.txt",
+          fileCount: 2,
+          tokenCount: 5,
+          outputTokenCount: 8,
+        },
+      ],
+      assetPaths: [{ sourcePath: "logo.png", storedPath: "assets/logo.png" }],
+      provenanceSummary: [{ marker: "section_match", count: 2 }],
+      repoHistory: [
+        {
+          shortHash: "bbbbbbbbbbbb",
+          subject: "Add json handover coverage",
+        },
+      ],
+    });
+
+    const parsed = JSON.parse(indexText) as {
+      kind: string;
+      sections: Array<{ outputFile: string; packedTokens: number }>;
+      assets?: Array<{ sourcePath: string }>;
+      inclusionProvenance?: Array<{ marker: string }>;
+      recentRepositoryHistory?: Array<{ shortHash: string }>;
+    };
+
+    expect(parsed.kind).toBe("cx_shared_handover");
+    expect(parsed.sections[0]?.outputFile).toBe("demo-repomix-src.json.txt");
+    expect(parsed.sections[0]?.packedTokens).toBe(5);
+    expect(parsed.assets?.[0]?.sourcePath).toBe("logo.png");
+    expect(parsed.inclusionProvenance?.[0]?.marker).toBe("section_match");
+    expect(parsed.recentRepositoryHistory?.[0]?.shortHash).toBe("bbbbbbbbbbbb");
   });
 });

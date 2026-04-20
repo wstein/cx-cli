@@ -1,7 +1,11 @@
 // test-lane: unit
 import { describe, expect, test } from "vitest";
 
-import { detectHg, getHgState } from "../../src/vcs/mercurial.js";
+import {
+  detectHg,
+  getHgState,
+  getRecentHgHistory,
+} from "../../src/vcs/mercurial.js";
 
 describe("Mercurial VCS helpers", () => {
   test("detectHg returns true when identify succeeds", async () => {
@@ -71,5 +75,34 @@ describe("Mercurial VCS helpers", () => {
     expect(state.trackedFiles).toEqual(["tracked.txt"]);
     expect(state.modifiedFiles).toEqual([]);
     expect(state.untrackedFiles).toEqual([]);
+  });
+
+  test("getRecentHgHistory parses bounded subject-only history", async () => {
+    const run = async (args: string[]) => {
+      if (args[0] === "log") {
+        return {
+          stdout: [
+            "aaaaaaaaaaaa1111111111111111111111111111\tAdd handover history",
+            "bbbbbbbbbbbb2222222222222222222222222222\tTighten contract tests",
+          ].join("\n"),
+        };
+      }
+      throw new Error(`unexpected hg command: ${args.join(" ")}`);
+    };
+
+    const history = await getRecentHgHistory("/repo", 2, run);
+
+    expect(history).toEqual([
+      {
+        hash: "aaaaaaaaaaaa1111111111111111111111111111",
+        shortHash: "aaaaaaaaaaaa",
+        subject: "Add handover history",
+      },
+      {
+        hash: "bbbbbbbbbbbb2222222222222222222222222222",
+        shortHash: "bbbbbbbbbbbb",
+        subject: "Tighten contract tests",
+      },
+    ]);
   });
 });

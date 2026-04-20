@@ -109,4 +109,50 @@ describe("bundle validation", () => {
       `Bundle is missing checksum file ${manifest.checksumFile}.`,
     );
   });
+
+  test("rejects invalid json section outputs in json bundles", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          style: "json",
+        },
+      },
+    });
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
+
+    await fs.writeFile(
+      path.join(project.bundleDir, "demo-repomix-src.json.txt"),
+      '{"broken":true}\n',
+      "utf8",
+    );
+
+    await expect(validateBundle(project.bundleDir)).rejects.toThrow(
+      "Bundle contains invalid JSON section output demo-repomix-src.json.txt:",
+    );
+  });
+
+  test("rejects invalid json shared handovers in json bundles", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          style: "json",
+        },
+      },
+    });
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    await fs.writeFile(
+      path.join(
+        project.bundleDir,
+        manifest.handoverFile ?? "demo-handover.json.txt",
+      ),
+      '{"broken":true}\n',
+      "utf8",
+    );
+
+    await expect(validateBundle(project.bundleDir)).rejects.toThrow(
+      "Bundle contains invalid JSON shared handover",
+    );
+  });
 });

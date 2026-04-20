@@ -24,6 +24,7 @@ import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
+import type { RepositoryHistoryEntry } from "../../render/handover.js";
 import { renderSharedHandover } from "../../render/handover.js";
 import { CxError } from "../../shared/errors.js";
 import {
@@ -50,7 +51,9 @@ import {
 } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
 import { CX_VERSION } from "../../shared/version.js";
+import { getRecentFossilHistory } from "../../vcs/fossil.js";
 import { getRecentGitHistory } from "../../vcs/git.js";
+import { getRecentHgHistory } from "../../vcs/mercurial.js";
 import type { DirtyState, VCSKind } from "../../vcs/provider.js";
 import { BundleCommandJsonSchema } from "../jsonContracts.js";
 
@@ -107,11 +110,26 @@ export async function collectSharedHandoverRepoHistory(params: {
   vcsKind: VCSKind;
   sourceRoot: string;
   emitWarning: (message: string) => void;
-  historyLoader?: typeof getRecentGitHistory;
-}) {
-  const historyLoader = params.historyLoader ?? getRecentGitHistory;
+  historyLoaders?: Partial<
+    Record<
+      Exclude<VCSKind, "none">,
+      (sourceRoot: string, count: number) => Promise<RepositoryHistoryEntry[]>
+    >
+  >;
+}): Promise<RepositoryHistoryEntry[]> {
+  const historyLoaders = {
+    git: getRecentGitHistory,
+    hg: getRecentHgHistory,
+    fossil: getRecentFossilHistory,
+    ...(params.historyLoaders ?? {}),
+  };
 
-  if (!params.includeRepoHistory || params.vcsKind !== "git") {
+  if (!params.includeRepoHistory || params.vcsKind === "none") {
+    return [];
+  }
+
+  const historyLoader = historyLoaders[params.vcsKind];
+  if (!historyLoader) {
     return [];
   }
 

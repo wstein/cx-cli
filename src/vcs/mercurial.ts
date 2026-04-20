@@ -1,12 +1,25 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-
+import type { RepositoryHistoryEntry } from "../render/handover.js";
 import { sortLexically } from "../shared/fs.js";
 import type { VCSState } from "./provider.js";
 
 const execFileAsync = promisify(execFile);
 
 type HgRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
+const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
+
+export interface HgHistoryEntry extends RepositoryHistoryEntry {
+  hash: string;
+}
+
+function truncateHistorySubject(subject: string, limit: number): string {
+  const normalized = subject.trim();
+  if (normalized.length <= limit) {
+    return normalized;
+  }
+  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
+}
 
 /**
  * Execute a hg (Mercurial) command with consistent options.
@@ -90,4 +103,37 @@ export async function getHgState(
     modifiedFiles: sortLexically(modifiedFiles),
     untrackedFiles: sortLexically(untrackedFiles),
   };
+}
+
+export async function getRecentHgHistory(
+  sourceRoot: string,
+  count: number,
+  run: HgRunner = runHg,
+): Promise<HgHistoryEntry[]> {
+  if (count <= 0) {
+    return [];
+  }
+
+  const template = "{node}\\t{desc|firstline}\\n";
+  const { stdout } = await run(
+    ["log", "-l", String(count), "--template", template],
+    sourceRoot,
+  );
+
+  return stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [hash, subject] = line.split("\t");
+      if (!hash || !subject) {
+        return null;
+      }
+      return {
+        hash,
+        shortHash: hash.slice(0, 12),
+        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+      } satisfies HgHistoryEntry;
+    })
+    .filter((entry): entry is HgHistoryEntry => entry !== null);
 }

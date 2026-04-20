@@ -201,4 +201,73 @@ describe("validateBundle failure classes", () => {
       }),
     ).rejects.toThrow("Invalid checksum line: invalid checksum line");
   });
+
+  test("rejects invalid json section outputs", async () => {
+    const baseManifest = createManifest();
+    const firstSection = baseManifest.sections[0];
+    if (!firstSection) {
+      throw new Error("Expected base manifest section");
+    }
+
+    await expect(
+      validateBundle("/bundle", {
+        loadManifestFromBundle: async () => ({
+          manifest: createManifest({
+            settings: {
+              ...baseManifest.settings,
+              globalStyle: "json",
+            },
+            sections: [
+              {
+                ...firstSection,
+                style: "json",
+                outputFile: "demo-repomix-src.json.txt",
+              },
+            ],
+          }),
+          manifestName: "demo-manifest.json",
+        }),
+        pathExists: async () => true,
+        readFile: async (filePath) => {
+          if (filePath.endsWith("demo-repomix-src.json.txt")) {
+            return '{"broken":true}';
+          }
+          return `${"a".repeat(64)}  demo-manifest.json`;
+        },
+      }),
+    ).rejects.toThrow(
+      "Bundle contains invalid JSON section output demo-repomix-src.json.txt:",
+    );
+  });
+
+  test("rejects invalid json shared handovers", async () => {
+    const manifest = createManifest({
+      settings: {
+        ...createManifest().settings,
+        globalStyle: "json",
+      },
+      handoverFile: "demo-handover.json.txt",
+    });
+
+    await expect(
+      validateBundle("/bundle", {
+        loadManifestFromBundle: async () => ({
+          manifest,
+          manifestName: "demo-manifest.json",
+        }),
+        pathExists: async () => true,
+        readFile: async (filePath) => {
+          if (filePath.endsWith("demo-handover.json.txt")) {
+            return '{"broken":true}';
+          }
+          if (filePath.endsWith("demo-repomix-src.xml.txt")) {
+            return "section output";
+          }
+          return `${"a".repeat(64)}  demo-manifest.json`;
+        },
+      }),
+    ).rejects.toThrow(
+      "Bundle contains invalid JSON shared handover demo-handover.json.txt:",
+    );
+  });
 });

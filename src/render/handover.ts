@@ -1,6 +1,6 @@
 import type { CxStyle } from "../config/types.js";
 import type { InclusionProvenanceSummary } from "../planning/provenance.js";
-import type { GitHistoryEntry } from "../vcs/git.js";
+import { buildJsonSharedHandover } from "./jsonArtifacts.js";
 
 export interface SharedHandoverSectionSummary {
   name: string;
@@ -11,13 +11,18 @@ export interface SharedHandoverSectionSummary {
   outputTokenCount: number;
 }
 
+export interface RepositoryHistoryEntry {
+  shortHash: string;
+  subject: string;
+}
+
 interface SharedHandoverRenderParams {
   style: CxStyle;
   projectName: string;
   sectionOutputs: SharedHandoverSectionSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
   provenanceSummary?: InclusionProvenanceSummary[] | undefined;
-  repoHistory?: GitHistoryEntry[] | undefined;
+  repoHistory?: RepositoryHistoryEntry[] | undefined;
 }
 
 function escapeXmlText(value: string): string {
@@ -150,50 +155,13 @@ function renderSharedHandoverJson(
   params: Omit<SharedHandoverRenderParams, "style">,
 ): string {
   return `${JSON.stringify(
-    {
-      kind: "cx_shared_handover",
-      project: params.projectName,
-      purpose:
-        "shared handover companion for the rendered section outputs below.",
-      sections: params.sectionOutputs.map((section) => ({
-        name: section.name,
-        style: section.style,
-        outputFile: section.outputFile,
-        fileCount: section.fileCount,
-        packedTokens: section.tokenCount,
-        outputTokens: section.outputTokenCount,
-      })),
-      ...(params.assetPaths.length > 0
-        ? {
-            assets: params.assetPaths.map((asset) => ({
-              sourcePath: asset.sourcePath,
-              storedPath: asset.storedPath,
-            })),
-          }
-        : {}),
-      ...((params.provenanceSummary?.length ?? 0) > 0
-        ? {
-            inclusionProvenance: (params.provenanceSummary ?? []).map(
-              (entry) => ({
-                marker: entry.marker,
-                count: entry.count,
-              }),
-            ),
-          }
-        : {}),
-      ...((params.repoHistory?.length ?? 0) > 0
-        ? {
-            recentRepositoryHistory: (params.repoHistory ?? []).map(
-              (entry) => ({
-                shortHash: entry.shortHash,
-                subject: entry.subject,
-              }),
-            ),
-          }
-        : {}),
-      usage:
-        "use this shared handover with the section files; each section output remains self-contained.",
-    },
+    buildJsonSharedHandover({
+      projectName: params.projectName,
+      sectionOutputs: params.sectionOutputs,
+      assetPaths: params.assetPaths,
+      provenanceSummary: params.provenanceSummary,
+      repoHistory: params.repoHistory,
+    }),
     null,
     2,
   )}\n`;

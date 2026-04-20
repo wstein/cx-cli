@@ -3,6 +3,10 @@ import path from "node:path";
 
 import { parseChecksumFile } from "../manifest/checksums.js";
 import { parseManifestJson } from "../manifest/json.js";
+import {
+  parseJsonSectionOutput,
+  parseJsonSharedHandover,
+} from "../render/jsonArtifacts.js";
 import { CxError } from "../shared/errors.js";
 import { pathExists } from "../shared/fs.js";
 
@@ -62,22 +66,45 @@ export async function validateBundle(
   }
 
   for (const section of manifest.sections) {
-    if (!(await pathExistsFn(path.join(bundleDir, section.outputFile)))) {
+    const outputPath = path.join(bundleDir, section.outputFile);
+    if (!(await pathExistsFn(outputPath))) {
       throw new CxError(
         `Bundle is missing section output ${section.outputFile}.`,
         2,
       );
     }
+    if (section.style === "json") {
+      try {
+        parseJsonSectionOutput(await readFile(outputPath, "utf8"));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new CxError(
+          `Bundle contains invalid JSON section output ${section.outputFile}: ${message}`,
+          2,
+        );
+      }
+    }
   }
 
-  if (
-    manifest.handoverFile &&
-    !(await pathExistsFn(path.join(bundleDir, manifest.handoverFile)))
-  ) {
-    throw new CxError(
-      `Bundle is missing shared handover ${manifest.handoverFile}.`,
-      2,
-    );
+  if (manifest.handoverFile) {
+    const handoverPath = path.join(bundleDir, manifest.handoverFile);
+    if (!(await pathExistsFn(handoverPath))) {
+      throw new CxError(
+        `Bundle is missing shared handover ${manifest.handoverFile}.`,
+        2,
+      );
+    }
+    if (manifest.settings.globalStyle === "json") {
+      try {
+        parseJsonSharedHandover(await readFile(handoverPath, "utf8"));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new CxError(
+          `Bundle contains invalid JSON shared handover ${manifest.handoverFile}: ${message}`,
+          2,
+        );
+      }
+    }
   }
 
   for (const asset of manifest.assets) {

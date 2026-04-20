@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-
+import type { RepositoryHistoryEntry } from "../render/handover.js";
 import { sortLexically } from "../shared/fs.js";
 import type { VCSState } from "./provider.js";
 
@@ -10,6 +10,19 @@ type FossilRunner = (
   args: string[],
   cwd: string,
 ) => Promise<{ stdout: string }>;
+const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
+
+export interface FossilHistoryEntry extends RepositoryHistoryEntry {
+  hash: string;
+}
+
+function truncateHistorySubject(subject: string, limit: number): string {
+  const normalized = subject.trim();
+  if (normalized.length <= limit) {
+    return normalized;
+  }
+  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
+}
 
 /**
  * Execute a fossil command with consistent options.
@@ -85,4 +98,37 @@ export async function getFossilState(
     modifiedFiles: sortLexically(modifiedFiles),
     untrackedFiles: sortLexically(untrackedFiles),
   };
+}
+
+export async function getRecentFossilHistory(
+  sourceRoot: string,
+  count: number,
+  run: FossilRunner = runFossil,
+): Promise<FossilHistoryEntry[]> {
+  if (count <= 0) {
+    return [];
+  }
+
+  const { stdout } = await run(
+    ["timeline", "-t", "ci", "-n", String(count), "-F", "%H\t%s"],
+    sourceRoot,
+  );
+
+  return stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [hash, ...subjectParts] = line.split("\t");
+      const subject = subjectParts.join("\t");
+      if (!hash || !subject) {
+        return null;
+      }
+      return {
+        hash,
+        shortHash: hash.slice(0, 12),
+        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+      } satisfies FossilHistoryEntry;
+    })
+    .filter((entry): entry is FossilHistoryEntry => entry !== null);
 }

@@ -89,7 +89,7 @@
     },
     "vcsProvider": {
       "description": "Version-control system detected at bundle time. 'none' indicates the filesystem fallback was used (no .git or Fossil repository found).",
-      "enum": ["git", "fossil", "none"]
+      "enum": ["git", "fossil", "hg", "none"]
     },
     "dirtyState": {
       "description": "Source-tree dirty-state at bundle time.\n\nclean — no working-tree modifications; standard verified bundle.\nsafe_dirty — only untracked files were present; bundle integrity is unaffected.\nforced_dirty — tracked files with uncommitted changes were bundled because the operator passed --force. The LLM must treat this bundle as containing uncommitted work.",

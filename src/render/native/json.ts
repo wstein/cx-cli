@@ -1,3 +1,4 @@
+import { JsonSectionOutputSchema } from "../jsonArtifacts.js";
 import type { RenderFileSpan, StructuredRenderPlan } from "../types.js";
 import { buildJsonSummary } from "./common.js";
 
@@ -12,15 +13,13 @@ export function renderNativeJsonSection(params: {
     files[entry.path] = entry.content;
   }
 
+  const payload = JsonSectionOutputSchema.parse({
+    ...summary,
+    files,
+  });
+
   return {
-    outputText: JSON.stringify(
-      {
-        ...summary,
-        files,
-      },
-      null,
-      2,
-    ),
+    outputText: JSON.stringify(payload, null, 2),
     fileSpans: new Map(),
   };
 }

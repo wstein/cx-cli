@@ -330,7 +330,12 @@ repo_history_count = 30
 ```
 
 When enabled, `cx` records the newest bounded commit subjects in deterministic
-newest-first order. Diffs are never embedded in the handover.
+newest-first order for Git, Mercurial, and Fossil repositories. Diffs are never
+embedded in the handover.
+
+For `json` bundles, `cx` also validates the shared handover and JSON section
+outputs against the published JSON artifact contracts before the bundle is
+accepted.
 
 Then verify graph reachability from a seed note:
 

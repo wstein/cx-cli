@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-
+import type { RepositoryHistoryEntry } from "../render/handover.js";
 import { sortLexically } from "../shared/fs.js";
 import type { VCSState } from "./provider.js";
 
@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile);
 
 type GitRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
 
-export interface GitHistoryEntry {
+export interface GitHistoryEntry extends RepositoryHistoryEntry {
   hash: string;
   shortHash: string;
   subject: string;
