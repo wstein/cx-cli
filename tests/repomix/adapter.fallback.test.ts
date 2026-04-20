@@ -167,14 +167,14 @@ describe("Repomix adapter fallback behavior", () => {
     expect(exitCode).toBe(1);
     expect(thrown).toBeInstanceOf(Error);
     expect((thrown as Error).message).toContain(
-      "packStructured() is required for normalized content hashing",
+      "packStructured() is required for native proof-path rendering",
     );
 
     const capabilities = await getRepomixCapabilities();
     expect(capabilities.contractValid).toBe(true);
     expect(capabilities.capabilities.supportsPackStructured).toBe(false);
     expect(capabilities.spanCapability).toBe("unsupported");
-    expect(capture.stderr()).toContain("missing the cx extension");
+    expect(capture.stderr()).toBe("");
   });
 
   test("renderSectionWithRepomix falls back to pack when structured rendering is unavailable", async () => {

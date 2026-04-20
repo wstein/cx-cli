@@ -6,11 +6,11 @@ import {
   planToMaps,
   validateEntryHashes,
 } from "../../src/render/planHash.js";
+import { extractStructuredPlan } from "../../src/render/structuredPlan.js";
 import type {
   StructuredRenderEntry,
   StructuredRenderPlan,
 } from "../../src/render/types.js";
-import { extractStructuredPlan } from "../../src/repomix/structured.js";
 import { sha256Text } from "../../src/shared/hashing.js";
 
 describe("render constitution invariants", () => {

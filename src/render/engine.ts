@@ -23,8 +23,7 @@ export function createRepomixRenderEngine(): RenderEngine {
 }
 
 export function createNativeRenderEngine(): RenderEngine {
-  const fallback = createRepomixRenderEngine();
-  return new AdapterBackedRenderEngine(createNativeRenderSectionFn(fallback));
+  return new AdapterBackedRenderEngine(createNativeRenderSectionFn());
 }
 
 export const defaultRenderEngine = createNativeRenderEngine();

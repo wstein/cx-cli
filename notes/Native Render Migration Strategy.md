@@ -4,7 +4,7 @@ title: Native Render Migration Strategy
 tags: ["migration", "render", "repomix"]
 target: v0.4
 ---
-The render engine must transition from Repomix to a native kernel without changing proof behavior, because migration is only safe when the proof path stays identical while ownership moves inward. XML, Markdown, Plain, JSON, and the shared handover now run through kernel-owned paths; the remaining work is shrinking the oracle boundary until it no longer defines the runtime proof path at all.
+The render engine must transition from Repomix to a native kernel without changing proof behavior, because migration is only safe when the proof path stays identical while ownership moves inward. XML, Markdown, Plain, JSON, and the shared handover now run through kernel-owned paths, structured-plan extraction now belongs to the kernel, and the Repomix path is now parity-only rather than a hidden runtime fallback; the remaining work is shrinking the oracle boundary until it no longer defines the runtime proof path at all.
 
 ## Phases
 

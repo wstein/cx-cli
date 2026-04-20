@@ -2,20 +2,16 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-
 import {
   getAdapterModulePath,
   validateRepomixContract,
 } from "../../repomix/capabilities.js";
 import { buildSectionHeaderText } from "../../repomix/handover.js";
-import { extractStructuredPlan } from "../../repomix/structured.js";
+import { CxError } from "../../shared/errors.js";
 import { computePlanHash, planToMaps } from "../planHash.js";
 import { buildRepomixCliConfig } from "../repomixConfig.js";
-import type {
-  RenderEngine,
-  RenderSectionInput,
-  RenderSectionResult,
-} from "../types.js";
+import { extractStructuredPlan } from "../structuredPlan.js";
+import type { RenderSectionInput, RenderSectionResult } from "../types.js";
 import { renderNativeJsonSection } from "./json.js";
 import { renderNativeMarkdownSection } from "./markdown.js";
 import { renderNativePlainSection } from "./plain.js";
@@ -25,9 +21,9 @@ async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
   return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
 }
 
-export function createNativeRenderSectionFn(
-  fallbackEngine: RenderEngine,
-): (input: RenderSectionInput) => Promise<RenderSectionResult> {
+export function createNativeRenderSectionFn(): (
+  input: RenderSectionInput,
+) => Promise<RenderSectionResult> {
   return async (input) => {
     if (input.explicitFiles.length === 0) {
       await fs.writeFile(input.outputPath, "", "utf8");
@@ -43,12 +39,18 @@ export function createNativeRenderSectionFn(
 
     const validation = await validateRepomixContract();
     if (!validation.valid) {
-      return fallbackEngine.renderSection(input);
+      throw new CxError(
+        `Incompatible Repomix adapter contract:\n${validation.errors.join("\n")}`,
+        5,
+      );
     }
 
     const adapter = await loadRepomixAdapter();
     if (typeof adapter.packStructured !== "function") {
-      return fallbackEngine.renderSection(input);
+      throw new CxError(
+        "Incompatible Repomix adapter: packStructured() is required for native proof-path rendering.",
+        5,
+      );
     }
 
     const mergedConfig = adapter.mergeConfigs(
@@ -72,9 +74,9 @@ export function createNativeRenderSectionFn(
         : { outputFile: path.basename(input.outputPath) }),
       fileCount: input.explicitFiles.length,
       style: input.style,
-      ...(input.bundleIndexFile === undefined
+      ...(input.handoverFile === undefined
         ? {}
-        : { bundleIndexFile: input.bundleIndexFile }),
+        : { handoverFile: input.handoverFile }),
     });
 
     const nativeResult =

@@ -2,12 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
+import { computePlanHash, planToMaps } from "../render/planHash.js";
 import { buildRepomixCliConfig } from "../render/repomixConfig.js";
 import {
   countLogicalLines,
   countNewlines,
   findContentStartOffset,
 } from "../render/spans.js";
+import { extractStructuredPlan } from "../render/structuredPlan.js";
 import type {
   RenderSectionInput,
   RenderSectionResult,
@@ -21,11 +23,6 @@ import {
   getRepomixCapabilities as getRepomixCapabilitiesImpl,
   validateRepomixContract,
 } from "./capabilities.js";
-import {
-  computePlanHash,
-  extractStructuredPlan,
-  planToMaps,
-} from "./structured.js";
 
 /** Load the configured Repomix adapter module at runtime. */
 async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
