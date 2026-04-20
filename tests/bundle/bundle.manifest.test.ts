@@ -162,7 +162,7 @@ This note explains a real file path so the summary stays non-trivial.
       },
     });
     const scannerPipeline: ScannerPipeline = {
-      scanFiles: async () => ({
+      scanStage: async () => ({
         mode: "fail",
         warningCount: 0,
         blockingCount: 1,
@@ -204,7 +204,7 @@ This note explains a real file path so the summary stays non-trivial.
       },
     });
     const scannerPipeline: ScannerPipeline = {
-      scanFiles: async () => ({
+      scanStage: async () => ({
         mode: "warn",
         warningCount: 1,
         blockingCount: 0,
@@ -231,7 +231,59 @@ This note explains a real file path so the summary stays non-trivial.
 
     const payload = JSON.parse(capture.stdout()) as { warnings: string[] };
     expect(payload.warnings).toContain(
-      "Scanner warning: src/index.ts (test_scanner, warning): contains simulated secret",
+      "Scanner warning: src/index.ts (pre_pack_source, test_scanner, warning): contains simulated secret",
+    );
+  });
+
+  test("surfaces post-pack scanner warnings in bundle json output when enabled", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          securityCheck: true,
+        },
+        scanner: {
+          mode: "warn",
+          includePostPackArtifacts: true,
+        },
+      },
+    });
+    const scannerPipeline: ScannerPipeline = {
+      scanStage: async (stage) =>
+        stage === "post_pack_artifact"
+          ? {
+              mode: "warn",
+              warningCount: 1,
+              blockingCount: 0,
+              findings: [
+                {
+                  scannerId: "test_scanner",
+                  profile: "core",
+                  stage: "post_pack_artifact",
+                  severity: "warning",
+                  blocksProof: false,
+                  filePath: "demo-handover.xml.txt",
+                  messages: ["contains simulated post-pack secret"],
+                },
+              ],
+            }
+          : {
+              mode: "warn",
+              warningCount: 0,
+              blockingCount: 0,
+              findings: [],
+            },
+    };
+    const capture = createBufferedCommandIo();
+
+    await expect(
+      runBundleCommand({ config: project.configPath, json: true }, capture.io, {
+        scannerPipeline,
+      }),
+    ).resolves.toBe(0);
+
+    const payload = JSON.parse(capture.stdout()) as { warnings: string[] };
+    expect(payload.warnings).toContain(
+      "Scanner warning: demo-handover.xml.txt (post_pack_artifact, test_scanner, warning): contains simulated post-pack secret",
     );
   });
 

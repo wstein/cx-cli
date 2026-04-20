@@ -74,9 +74,14 @@ export async function collectDoctorSecretsReport(
     masterList,
     readFile,
   );
-  const scanReport = await scannerPipeline.scanFiles(rawFiles, {
-    mode: config.scanner.mode,
-  });
+  const scanReport = await scannerPipeline.scanStage(
+    "pre_pack_source",
+    rawFiles,
+    {
+      mode: config.scanner.mode,
+      enabledScannerIds: config.scanner.ids,
+    },
+  );
 
   return {
     resolvedConfigPath,

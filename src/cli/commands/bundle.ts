@@ -284,21 +284,16 @@ async function collectScannerSourceFiles(params: {
 async function enforceScannerPipeline(params: {
   config: {
     repomix: { securityCheck: boolean };
-    scanner: { mode: "fail" | "warn" };
-  };
-  plan: {
-    sourceRoot: string;
-    sections: Array<{
-      files: Array<{
-        relativePath: string;
-        absolutePath: string;
-        kind: string;
-      }>;
-    }>;
+    scanner: {
+      mode: "fail" | "warn";
+      ids: "reference_secrets"[];
+      includePostPackArtifacts: boolean;
+    };
   };
   io: Partial<CommandIo>;
   scannerPipeline: ScannerPipeline | undefined;
-  readFile: typeof fs.readFile;
+  stage: "pre_pack_source" | "post_pack_artifact";
+  files: Array<{ path: string; content: string }>;
 }): Promise<string[]> {
   if (!params.config.repomix.securityCheck) {
     return [];
@@ -306,14 +301,14 @@ async function enforceScannerPipeline(params: {
 
   const scannerPipeline =
     params.scannerPipeline ?? (await loadReferenceScannerPipeline());
-  const scannerFiles = await collectScannerSourceFiles({
-    sourceRoot: params.plan.sourceRoot,
-    plan: params.plan,
-    readFile: params.readFile,
-  });
-  const scanReport = await scannerPipeline.scanFiles(scannerFiles, {
-    mode: params.config.scanner.mode,
-  });
+  const scanReport = await scannerPipeline.scanStage(
+    params.stage,
+    params.files,
+    {
+      mode: params.config.scanner.mode,
+      enabledScannerIds: params.config.scanner.ids,
+    },
+  );
 
   if (scanReport.findings.length === 0) {
     return [];
@@ -321,7 +316,7 @@ async function enforceScannerPipeline(params: {
 
   const findingSummaries = scanReport.findings.map(
     (finding) =>
-      `${finding.filePath} (${finding.scannerId}, ${finding.severity}): ${finding.messages.join("; ")}`,
+      `${finding.filePath} (${finding.stage}, ${finding.scannerId}, ${finding.severity}): ${finding.messages.join("; ")}`,
   );
 
   if (scanReport.blockingCount > 0) {
@@ -348,6 +343,30 @@ async function enforceScannerPipeline(params: {
     writeStderr(`Warning: ${warning}\n`, params.io);
   }
   return warnings;
+}
+
+async function collectScannerArtifactFiles(params: {
+  bundleDir: string;
+  sectionOutputFiles: string[];
+  handoverFile: string;
+  manifestName: string;
+  readFile: typeof fs.readFile;
+}): Promise<Array<{ path: string; content: string }>> {
+  const artifactPaths = [
+    ...params.sectionOutputFiles,
+    params.handoverFile,
+    params.manifestName,
+  ];
+
+  return Promise.all(
+    artifactPaths.map(async (artifactPath) => ({
+      path: artifactPath,
+      content: await params.readFile(
+        path.join(params.bundleDir, artifactPath),
+        "utf8",
+      ),
+    })),
+  );
 }
 
 export async function collectSharedHandoverRepoHistory(params: {
@@ -535,10 +554,14 @@ export async function runBundleCommand(
   await enforceNotesGate({ config, plan });
   const scannerWarnings = await enforceScannerPipeline({
     config,
-    plan,
     io,
+    stage: "pre_pack_source",
+    files: await collectScannerSourceFiles({
+      sourceRoot: plan.sourceRoot,
+      plan,
+      readFile: deps.readFile ?? fs.readFile,
+    }),
     scannerPipeline: deps.scannerPipeline,
-    readFile: deps.readFile ?? fs.readFile,
   });
 
   const ciMode = args.ci ?? false;
@@ -782,6 +805,24 @@ export async function runBundleCommand(
       "utf8",
     );
 
+    const postPackScannerWarnings = config.scanner.includePostPackArtifacts
+      ? await enforceScannerPipeline({
+          config,
+          io,
+          stage: "post_pack_artifact",
+          files: await collectScannerArtifactFiles({
+            bundleDir: activeBundleDir,
+            sectionOutputFiles: plan.sections.map(
+              (section) => section.outputFile,
+            ),
+            handoverFile,
+            manifestName,
+            readFile: deps.readFile ?? fs.readFile,
+          }),
+          scannerPipeline: deps.scannerPipeline,
+        })
+      : [];
+
     // Write the lock file capturing the effective behavioral settings used
     // during this bundle run. cx verify reads it and warns on drift.
     const lockFile: CxLockFile = {
@@ -962,7 +1003,12 @@ export async function runBundleCommand(
             totalPackedTokens: totalTokens,
             totalOutputTokens,
           },
-          warnings: [...plan.warnings, ...scannerWarnings, ...renderWarnings],
+          warnings: [
+            ...plan.warnings,
+            ...scannerWarnings,
+            ...postPackScannerWarnings,
+            ...renderWarnings,
+          ],
         },
         io,
       );

@@ -3,6 +3,8 @@ export type CxDedupMode = "fail" | "warn" | "first-wins";
 export type CxRepomixMissingExtensionMode = "fail" | "warn";
 export type CxConfigDuplicateEntryMode = "fail" | "warn" | "first-wins";
 export type CxScannerMode = "fail" | "warn";
+export type CxScannerStage = "pre_pack_source" | "post_pack_artifact";
+export type CxScannerId = "reference_secrets";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
@@ -113,6 +115,8 @@ export interface CxNotesConfig {
 
 export interface CxScannerConfig {
   mode: CxScannerMode;
+  ids: CxScannerId[];
+  includePostPackArtifacts: boolean;
 }
 
 export interface CxChecksumsConfig {

@@ -62,6 +62,8 @@ fail_on_drift_pressured_notes = false
 
 [scanner]
 mode = "warn"
+ids = ["reference_secrets"]
+include_post_pack_artifacts = false
 
 [checksums]
 algorithm = "sha256"
@@ -159,6 +161,8 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   },
   scanner: {
     mode: "warn",
+    ids: ["reference_secrets"],
+    includePostPackArtifacts: false,
   },
   checksums: {
     algorithm: "sha256",

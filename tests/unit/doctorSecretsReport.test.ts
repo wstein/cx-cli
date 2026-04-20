@@ -113,7 +113,11 @@ describe("collectDoctorSecretsReport", () => {
           ({
             sourceRoot: "/tmp",
             repomix: { securityCheck: true },
-            scanner: { mode: "warn" },
+            scanner: {
+              mode: "warn",
+              ids: ["reference_secrets"],
+              includePostPackArtifacts: false,
+            },
           }) as unknown as Awaited<
             ReturnType<typeof import("../../src/config/load.js").loadCxConfig>
           >,
@@ -123,7 +127,7 @@ describe("collectDoctorSecretsReport", () => {
           >,
         getMasterList: async () => [] as unknown as string[],
         scannerPipeline: {
-          scanFiles: async () => ({
+          scanStage: async () => ({
             mode: "warn",
             findings: [],
             warningCount: 0,

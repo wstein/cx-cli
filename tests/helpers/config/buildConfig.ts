@@ -149,6 +149,8 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
     },
     scanner: {
       mode: "warn",
+      ids: ["reference_secrets"],
+      includePostPackArtifacts: false,
       ...options.scanner,
     },
     checksums: {

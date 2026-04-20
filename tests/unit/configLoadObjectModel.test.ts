@@ -74,12 +74,18 @@ describe("loadCxConfig object model", () => {
     expect(config.notes.appliesToSections).toEqual(["docs"]);
   });
 
-  test("loads scanner mode from config", async () => {
+  test("loads scanner settings from config", async () => {
     const config = await loadConfig({
-      scanner: { mode: "fail" },
+      scanner: {
+        mode: "fail",
+        ids: ["reference_secrets"],
+        includePostPackArtifacts: true,
+      },
     });
 
     expect(config.scanner.mode).toBe("fail");
+    expect(config.scanner.ids).toEqual(["reference_secrets"]);
+    expect(config.scanner.includePostPackArtifacts).toBe(true);
   });
 
   test("loads custom output extension overrides", async () => {

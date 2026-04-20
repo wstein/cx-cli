@@ -92,6 +92,10 @@ describe("config defaults", () => {
 
     it("includes scanner settings", () => {
       expect(DEFAULT_CONFIG_VALUES.scanner.mode).toBe("warn");
+      expect(DEFAULT_CONFIG_VALUES.scanner.ids).toEqual(["reference_secrets"]);
+      expect(DEFAULT_CONFIG_VALUES.scanner.includePostPackArtifacts).toBe(
+        false,
+      );
     });
 
     it("includes checksum settings", () => {

@@ -3,11 +3,12 @@ import type { AdapterModule } from "../adapter/types.js";
 import { CxError } from "../shared/errors.js";
 
 export type ScannerSeverity = "warning" | "error";
-export type ScannerStage = "pre_pack_source";
+export type ScannerStage = "pre_pack_source" | "post_pack_artifact";
 export type ScannerProfile = "core";
 export type ScannerMode = "fail" | "warn";
+export type ScannerId = "reference_secrets";
 
-export interface ScannerSourceFile {
+export interface ScannerInputFile {
   path: string;
   content: string;
 }
@@ -31,10 +32,12 @@ export interface ScannerPipelineReport {
 }
 
 export interface ScannerPipeline {
-  scanFiles(
-    files: ScannerSourceFile[],
+  scanStage(
+    stage: ScannerStage,
+    files: ScannerInputFile[],
     options?: {
       mode?: ScannerMode;
+      enabledScannerIds?: ScannerId[];
     },
   ): Promise<ScannerPipelineReport>;
 }
@@ -45,18 +48,33 @@ export function createScannerPipelineFromRunner(
   runSecurityCheck: ScannerRunner,
 ): ScannerPipeline {
   return {
-    async scanFiles(
-      files: ScannerSourceFile[],
+    async scanStage(
+      stage: ScannerStage,
+      files: ScannerInputFile[],
       options?: {
         mode?: ScannerMode;
+        enabledScannerIds?: ScannerId[];
       },
     ): Promise<ScannerPipelineReport> {
       const mode = options?.mode ?? "warn";
+      const enabledScannerIds = new Set(
+        options?.enabledScannerIds ?? ["reference_secrets"],
+      );
+
+      if (!enabledScannerIds.has("reference_secrets")) {
+        return {
+          mode,
+          findings: [],
+          warningCount: 0,
+          blockingCount: 0,
+        };
+      }
+
       const findings = await runSecurityCheck(files);
       const normalizedFindings = findings.map((finding) => ({
-        scannerId: "reference_secrets",
+        scannerId: "reference_secrets" as const,
         profile: "core" as const,
-        stage: "pre_pack_source" as const,
+        stage,
         severity: mode === "fail" ? ("error" as const) : ("warning" as const),
         blocksProof: mode === "fail",
         ...(finding.type === undefined ? {} : { type: finding.type }),

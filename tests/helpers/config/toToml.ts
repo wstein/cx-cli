@@ -202,6 +202,8 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
     },
     scanner: {
       mode: config.scanner.mode,
+      ids: config.scanner.ids,
+      include_post_pack_artifacts: config.scanner.includePostPackArtifacts,
     },
     checksums: {
       algorithm: config.checksums.algorithm,

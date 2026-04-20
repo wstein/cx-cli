@@ -24,6 +24,7 @@ import type {
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxScannerConfig,
+  CxScannerId,
   CxScannerMode,
   CxSectionConfig,
   CxStyle,
@@ -49,6 +50,7 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
 ]);
 const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
 const VALID_SCANNER_MODES = new Set<CxScannerMode>(["fail", "warn"]);
+const VALID_SCANNER_IDS = new Set<CxScannerId>(["reference_secrets"]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -359,12 +361,32 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
 }
 
 function parseScannerConfig(scanner: Record<string, unknown>): CxScannerConfig {
+  const ids = expectStringArray(
+    scanner.ids,
+    "scanner.ids",
+    DEFAULT_CONFIG_VALUES.scanner.ids,
+  );
+  const invalidIds = ids.filter(
+    (id): id is string => !VALID_SCANNER_IDS.has(id as CxScannerId),
+  );
+  if (invalidIds.length > 0) {
+    throw new CxError(
+      `scanner.ids contains unsupported scanner IDs: ${invalidIds.join(", ")}.`,
+    );
+  }
+
   return {
     mode: expectEnum(
       scanner.mode,
       "scanner.mode",
       VALID_SCANNER_MODES,
       DEFAULT_CONFIG_VALUES.scanner.mode,
+    ),
+    ids: ids as CxScannerId[],
+    includePostPackArtifacts: expectBoolean(
+      scanner.include_post_pack_artifacts,
+      "scanner.include_post_pack_artifacts",
+      DEFAULT_CONFIG_VALUES.scanner.includePostPackArtifacts,
     ),
   };
 }

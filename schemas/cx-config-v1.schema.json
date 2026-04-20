@@ -214,7 +214,19 @@
         "mode": {
           "type": "string",
           "enum": ["fail", "warn"],
-          "description": "How the core source-stage scanner pipeline handles findings during bundling. 'fail' blocks the bundle; 'warn' emits warnings and continues."
+          "description": "How the core scanner pipeline handles findings during bundling. 'fail' blocks the bundle; 'warn' emits warnings and continues."
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["reference_secrets"]
+          },
+          "description": "Explicit core scanner IDs enabled for bundle-time and doctor scanning."
+        },
+        "include_post_pack_artifacts": {
+          "type": "boolean",
+          "description": "When true, rerun the enabled scanners over rendered section outputs, the shared handover, and the manifest before the bundle is finalized."
         }
       }
     },
