@@ -75,7 +75,7 @@ export async function validateBundle(
     !(await pathExistsFn(path.join(bundleDir, manifest.bundleIndexFile)))
   ) {
     throw new CxError(
-      `Bundle is missing bundle index ${manifest.bundleIndexFile}.`,
+      `Bundle is missing shared handover ${manifest.bundleIndexFile}.`,
       2,
     );
   }

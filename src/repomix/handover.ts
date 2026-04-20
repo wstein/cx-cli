@@ -22,7 +22,7 @@ export function buildSectionHeaderText(params: {
   }
 
   if (params.bundleIndexFile) {
-    lines.push(`bundle index: ${params.bundleIndexFile}`);
+    lines.push(`shared handover: ${params.bundleIndexFile}`);
   }
 
   lines.push(

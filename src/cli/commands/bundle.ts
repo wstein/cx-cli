@@ -331,7 +331,7 @@ export async function runBundleCommand(
       }),
     );
 
-    const bundleIndexFile = `${plan.projectName}-bundle-index.txt`;
+    const bundleIndexFile = `${plan.projectName}-handover.txt`;
     const renderedSections: RenderedSectionArtifacts[] = await Promise.all(
       plan.sections.map(async (section) => {
         const outputPath = path.join(activeBundleDir, section.outputFile);
@@ -560,7 +560,7 @@ export async function runBundleCommand(
         [
           ["Project", plan.projectName],
           ["Location", plan.bundleDir],
-          ["Handover index", bundleIndexFile],
+          ["Shared handover", bundleIndexFile],
         ],
         io,
       );

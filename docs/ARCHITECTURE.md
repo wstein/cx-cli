@@ -208,9 +208,8 @@ directory that exposes a `renderSection` function with the same signature as
 
 The proof path now uses a native-first default engine:
 
-- XML and Markdown sections are rendered through the native kernel path in
-  `src/render/native/`
-- Plain and JSON sections still delegate to the Repomix-backed oracle path
+- XML, Markdown, Plain, and JSON sections are rendered through the native
+  kernel path in `src/render/native/`
 - `tests/render/nativeParity.test.ts` is the release-gating evidence that both
   paths still satisfy the same proof contract
 

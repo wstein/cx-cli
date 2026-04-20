@@ -16,27 +16,19 @@ import type {
   RenderSectionInput,
   RenderSectionResult,
 } from "../types.js";
+import { renderNativeJsonSection } from "./json.js";
 import { renderNativeMarkdownSection } from "./markdown.js";
+import { renderNativePlainSection } from "./plain.js";
 import { renderNativeXmlSection } from "./xml.js";
 
 async function loadRepomixAdapter(): Promise<typeof RepomixTypes> {
   return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
 }
 
-function supportsNativeStyle(
-  style: RenderSectionInput["style"],
-): style is "xml" | "markdown" {
-  return style === "xml" || style === "markdown";
-}
-
 export function createNativeRenderSectionFn(
   fallbackEngine: RenderEngine,
 ): (input: RenderSectionInput) => Promise<RenderSectionResult> {
   return async (input) => {
-    if (!supportsNativeStyle(input.style)) {
-      return fallbackEngine.renderSection(input);
-    }
-
     if (input.explicitFiles.length === 0) {
       await fs.writeFile(input.outputPath, "", "utf8");
       return {
@@ -92,11 +84,21 @@ export function createNativeRenderSectionFn(
             headerText,
             securityCheck: input.config.repomix.securityCheck,
           })
-        : renderNativeMarkdownSection({
-            plan,
-            headerText,
-            securityCheck: input.config.repomix.securityCheck,
-          });
+        : input.style === "markdown"
+          ? renderNativeMarkdownSection({
+              plan,
+              headerText,
+              securityCheck: input.config.repomix.securityCheck,
+            })
+          : input.style === "plain"
+            ? renderNativePlainSection({
+                plan,
+                headerText,
+              })
+            : renderNativeJsonSection({
+                plan,
+                headerText,
+              });
 
     await fs.writeFile(input.outputPath, nativeResult.outputText, "utf8");
 
@@ -108,9 +110,10 @@ export function createNativeRenderSectionFn(
       ),
       fileTokenCounts,
       fileContentHashes,
-      fileSpans: input.config.manifest.includeOutputSpans
-        ? nativeResult.fileSpans
-        : new Map(),
+      fileSpans:
+        input.style !== "json" && input.config.manifest.includeOutputSpans
+          ? nativeResult.fileSpans
+          : new Map(),
       structuredPlan: plan,
       planHash,
       warnings: [],

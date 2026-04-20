@@ -194,11 +194,12 @@ without turning the adapter into permanent architecture.
 
 The current default proof path is split deliberately:
 
-- `xml` and `markdown` section rendering now flow through the native kernel
-  implementation in [`src/render/native/`](../src/render/native/)
-- `plain` and `json` still use the Repomix-backed adapter path as the oracle
-  implementation
+- all four proof styles (`xml`, `markdown`, `plain`, and `json`) now flow
+  through the native kernel implementation in
+  [`src/render/native/`](../src/render/native/)
 - the shared handover is already kernel-rendered
+- the Repomix-backed renderer remains the parity oracle and migration fallback
+  seam, not the default proof-path implementation
 
 This is still one contract. The migration state changes the implementation
 underneath the seam, not the observable proof-path behavior frozen above.

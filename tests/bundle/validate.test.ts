@@ -63,20 +63,20 @@ describe("bundle validation", () => {
     );
   });
 
-  test("rejects missing bundle index files", async () => {
+  test("rejects missing shared handover files", async () => {
     const project = await createProject();
     expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
     expect(manifest.bundleIndexFile).toBeDefined();
     if (manifest.bundleIndexFile === undefined) {
-      throw new Error("Expected bundle index file in manifest");
+      throw new Error("Expected shared handover file in manifest");
     }
 
     await fs.rm(path.join(project.bundleDir, manifest.bundleIndexFile));
 
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
-      `Bundle is missing bundle index ${manifest.bundleIndexFile}.`,
+      `Bundle is missing shared handover ${manifest.bundleIndexFile}.`,
     );
   });
 

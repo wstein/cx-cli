@@ -4,8 +4,12 @@ import { describe, expect, test } from "vitest";
 
 import {
   buildDirectoryStructureText,
+  buildJsonSummary,
+  buildPlainBlockHeading,
+  buildPlainSummaryText,
   chooseMarkdownFence,
   normalizedLogicalLineCount,
+  PLAIN_LONG_SEPARATOR,
   renderMarkdownFileBlock,
 } from "../../src/render/native/common.js";
 
@@ -61,5 +65,27 @@ describe("native render helpers", () => {
         "````",
       ].join("\n"),
     );
+  });
+
+  test("renders the plain summary with the current adapter wording", () => {
+    expect(buildPlainSummaryText()).toContain(
+      "The content has been processed where security check has been disabled.",
+    );
+    expect(buildPlainBlockHeading("Files")).toBe(
+      [PLAIN_LONG_SEPARATOR, "Files", PLAIN_LONG_SEPARATOR].join("\n"),
+    );
+  });
+
+  test("renders the json summary with deterministic field text", () => {
+    const summary = buildJsonSummary("cx section handover", [
+      "src/index.ts",
+      "src/util.ts",
+    ]);
+
+    expect(summary.fileSummary.notes).toContain(
+      "Content has been formatted for parsing in json style",
+    );
+    expect(summary.directoryStructure).toBe("src/\n  index.ts\n  util.ts");
+    expect(summary.userProvidedHeader).toBe("cx section handover");
   });
 });
