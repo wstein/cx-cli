@@ -1,0 +1,6 @@
+* xref:manual/index.adoc[Manual]
+** xref:manual/operator-manual.adoc[Operator Manual]
+** xref:manual/operating-modes.adoc[Operating Modes]
+** xref:manual/config-reference.adoc[Configuration Reference]
+** xref:manual/workflows.adoc[Operator Workflows]
+** xref:manual/release-and-integrity.adoc[Release and Integrity]

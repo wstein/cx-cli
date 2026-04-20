@@ -40,3 +40,4 @@ Those chapters live under `docs/modules/ROOT/pages/architecture/`.
 
 - Source front door: [docs/modules/ROOT/pages/index.adoc](modules/ROOT/pages/index.adoc)
 - Published docs: https://wstein.github.io/cx-cli/docs/
+- Single-file exports are emitted at `dist/antora/cx/0.4/_exports/manual.html` and `dist/antora/cx/0.4/_exports/architecture.html`.

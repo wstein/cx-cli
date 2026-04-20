@@ -21,5 +21,8 @@ describe("build-antora-site.js", () => {
     const index = await fs.readFile(result.indexPath, "utf8");
     expect(index).toContain("CX Documentation");
     expect(index).toContain("Curated Documentation Surface");
+    expect(result.singleHtmlExports).toHaveLength(2);
+    expect(result.singleHtmlExports[0]).toContain("manual.html");
+    expect(result.singleHtmlExports[1]).toContain("architecture.html");
   });
 });

@@ -1,4 +1,5 @@
 = Operator Manual Overview
+:assembly-slug: manual
 
 include::../../partials/track-primer.adoc[]
 include::../../partials/trust-boundary-primer.adoc[]
