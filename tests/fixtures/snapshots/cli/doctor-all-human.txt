@@ -2,7 +2,7 @@ No section overlaps detected in <ROOT>/cx.toml.
 Resolved MCP profile: <ROOT>/cx.toml
 Active profile: cx.toml
 Policy: default
-Mutation enabled: no
+Mutation enabled: yes
 Audit events: 0 (allowed 0, denied 0)
 Tool catalog: v1, 22 tools (17 stable, 5 beta, 0 experimental, 0 internal)
 Recent policy trends:
