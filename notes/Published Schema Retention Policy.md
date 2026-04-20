@@ -15,6 +15,7 @@ Examples:
 - `manifest-v5.schema.json`
 - `manifest-v7.schema.json`
 - `manifest-v8.schema.json`
+- `manifest-v9.schema.json`
 
 ## Why
 

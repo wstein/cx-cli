@@ -114,8 +114,8 @@ describe("render command", () => {
     ).toBe(0);
 
     const files = await fs.readdir(outputDir);
-    expect(files).toContain("demo-repomix-docs.xml.txt");
-    expect(files).toContain("demo-repomix-src.xml.txt");
+    expect(files).toContain("demo-docs.xml.txt");
+    expect(files).toContain("demo-src.xml.txt");
   });
 
   test("renders with style override", async () => {

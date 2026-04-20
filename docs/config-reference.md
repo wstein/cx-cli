@@ -390,7 +390,7 @@ The `project_name` field must be filesystem-safe and follow a narrow naming poli
 
 - Allowed characters: letters, numbers, dot (`.`), underscore (`_`), hyphen (`-`).
 - Must start with a letter or number.
-- Used to derive bundle artifacts such as `project-manifest.json`, `project.sha256`, and `project-repomix-<section>.<ext>`.
+- Used to derive bundle artifacts such as `project-manifest.json`, `project.sha256`, and `project-<section>.<ext>`.
 
 Invalid values are rejected when loading `cx.toml` or when running `cx init --name`.
 

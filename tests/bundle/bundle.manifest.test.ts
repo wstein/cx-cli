@@ -183,7 +183,6 @@ It should become the manifest summary.
       checksumFile: "demo.sha256",
       createdAt: new Date().toISOString(),
       cxVersion: "0.1.0",
-      adapterVersion: "1.13.1",
       checksumAlgorithm: "sha256",
       settings: {
         globalStyle: "xml",
@@ -220,7 +219,7 @@ It should become the manifest summary.
         {
           name: "docs",
           style: "xml",
-          outputFile: "myproject-repomix-docs.xml.txt",
+          outputFile: "myproject-docs.xml.txt",
           outputSha256: "aaa",
           fileCount: 2,
           tokenCount: 7,
@@ -258,7 +257,7 @@ It should become the manifest summary.
         {
           name: "src",
           style: "xml",
-          outputFile: "myproject-repomix-src.xml.txt",
+          outputFile: "myproject-src.xml.txt",
           outputSha256: "bbb",
           fileCount: 1,
           tokenCount: 5,
@@ -296,13 +295,13 @@ It should become the manifest summary.
 
     const rendered = renderManifestJson(manifest);
     expect(rendered.indexOf("docs")).toBeLessThan(rendered.indexOf("src"));
-    expect(rendered.indexOf("myproject-repomix-docs.xml.txt")).toBeLessThan(
+    expect(rendered.indexOf("myproject-docs.xml.txt")).toBeLessThan(
       rendered.indexOf("docs/a.md"),
     );
     expect(rendered.indexOf("docs/a.md")).toBeLessThan(
       rendered.indexOf("docs/b.md"),
     );
-    expect(rendered.indexOf("myproject-repomix-src.xml.txt")).toBeLessThan(
+    expect(rendered.indexOf("myproject-src.xml.txt")).toBeLessThan(
       rendered.indexOf("src/c.ts"),
     );
 

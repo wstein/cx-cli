@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -511,8 +510,6 @@ export async function runBundleCommand(
       sectionOutputs,
       handoverFile,
       cxVersion: CX_VERSION,
-      adapterVersion: (await getAdapterCapabilities()).oracleAdapter
-        .packageVersion,
       sectionSpanMaps,
       sectionTokenMaps,
       sectionHashMaps,

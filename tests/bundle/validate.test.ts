@@ -56,10 +56,10 @@ describe("bundle validation", () => {
     const project = await createProject();
     expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
-    await fs.rm(path.join(project.bundleDir, "demo-repomix-src.xml.txt"));
+    await fs.rm(path.join(project.bundleDir, "demo-src.xml.txt"));
 
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
-      "Bundle is missing section output demo-repomix-src.xml.txt.",
+      "Bundle is missing section output demo-src.xml.txt.",
     );
   });
 
@@ -121,13 +121,13 @@ describe("bundle validation", () => {
     expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     await fs.writeFile(
-      path.join(project.bundleDir, "demo-repomix-src.json.txt"),
+      path.join(project.bundleDir, "demo-src.json.txt"),
       '{"broken":true}\n',
       "utf8",
     );
 
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
-      "Bundle contains invalid JSON section output demo-repomix-src.json.txt:",
+      "Bundle contains invalid JSON section output demo-src.json.txt:",
     );
   });
 

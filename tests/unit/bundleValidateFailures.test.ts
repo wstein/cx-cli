@@ -10,7 +10,7 @@ const HASH_B = "b".repeat(64);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 8,
+    schemaVersion: 9,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
@@ -19,7 +19,6 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
     handoverFile: "demo-handover.xml.txt",
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
-    adapterVersion: "0.0.0-test",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",
@@ -53,7 +52,7 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
       {
         name: "src",
         style: "xml",
-        outputFile: "demo-repomix-src.xml.txt",
+        outputFile: "demo-src.xml.txt",
         outputSha256: HASH_A,
         fileCount: 1,
         tokenCount: 8,
@@ -145,7 +144,7 @@ describe("validateBundle failure classes", () => {
 
   test("rejects missing section outputs", async () => {
     const bundleDir = "/bundle";
-    const missingOutput = path.join(bundleDir, "demo-repomix-src.xml.txt");
+    const missingOutput = path.join(bundleDir, "demo-src.xml.txt");
     await expect(
       validateBundle(bundleDir, {
         loadManifestFromBundle: async () => ({
@@ -154,9 +153,7 @@ describe("validateBundle failure classes", () => {
         }),
         pathExists: async (targetPath) => targetPath !== missingOutput,
       }),
-    ).rejects.toThrow(
-      "Bundle is missing section output demo-repomix-src.xml.txt.",
-    );
+    ).rejects.toThrow("Bundle is missing section output demo-src.xml.txt.");
   });
 
   test("rejects missing shared handover files", async () => {
@@ -221,7 +218,7 @@ describe("validateBundle failure classes", () => {
               {
                 ...firstSection,
                 style: "json",
-                outputFile: "demo-repomix-src.json.txt",
+                outputFile: "demo-src.json.txt",
               },
             ],
           }),
@@ -229,14 +226,14 @@ describe("validateBundle failure classes", () => {
         }),
         pathExists: async () => true,
         readFile: async (filePath) => {
-          if (filePath.endsWith("demo-repomix-src.json.txt")) {
+          if (filePath.endsWith("demo-src.json.txt")) {
             return '{"broken":true}';
           }
           return `${"a".repeat(64)}  demo-manifest.json`;
         },
       }),
     ).rejects.toThrow(
-      "Bundle contains invalid JSON section output demo-repomix-src.json.txt:",
+      "Bundle contains invalid JSON section output demo-src.json.txt:",
     );
   });
 
@@ -260,7 +257,7 @@ describe("validateBundle failure classes", () => {
           if (filePath.endsWith("demo-handover.json.txt")) {
             return '{"broken":true}';
           }
-          if (filePath.endsWith("demo-repomix-src.xml.txt")) {
+          if (filePath.endsWith("demo-src.xml.txt")) {
             return "section output";
           }
           return `${"a".repeat(64)}  demo-manifest.json`;

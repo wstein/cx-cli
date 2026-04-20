@@ -138,7 +138,7 @@ export async function runRenderCommand(
     outputs.push({
       section: sectionName,
       style,
-      outputFile: `${config.projectName}-repomix-${sectionName}${config.output.extensions[style]}`,
+      outputFile: `${config.projectName}-${sectionName}${config.output.extensions[style]}`,
       fileCount: selectedFiles.length,
       sizeBytes: totalSizeBytes,
       tokenCount: result.tokenCount,
@@ -150,7 +150,7 @@ export async function runRenderCommand(
       const outputPath = path.resolve(
         io.cwd,
         args.outputDir,
-        `${config.projectName}-repomix-${sectionName}${config.output.extensions[style]}`,
+        `${config.projectName}-${sectionName}${config.output.extensions[style]}`,
       );
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
       await fs.writeFile(outputPath, result.content, "utf8");

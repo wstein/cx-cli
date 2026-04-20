@@ -9,7 +9,7 @@ describe("handover text", () => {
     const header = buildSectionHandoverText({
       projectName: "demo",
       sectionName: "docs",
-      outputFile: "demo-repomix-docs.xml.txt",
+      outputFile: "demo-docs.xml.txt",
       fileCount: 3,
       style: "xml",
       handoverFile: "demo-handover.xml.txt",
@@ -41,7 +41,7 @@ describe("handover text", () => {
         {
           name: "docs",
           style: "xml",
-          outputFile: "demo-repomix-docs.xml.txt",
+          outputFile: "demo-docs.xml.txt",
           fileCount: 2,
           tokenCount: 12,
           outputTokenCount: 16,
@@ -61,7 +61,7 @@ describe("handover text", () => {
     );
     expect(indexText).toContain("<section_inventory>");
     expect(indexText).toContain(
-      "- docs: demo-repomix-docs.xml.txt | xml | 2 files | packed tokens 12 | output tokens 16",
+      "- docs: demo-docs.xml.txt | xml | 2 files | packed tokens 12 | output tokens 16",
     );
   });
 
@@ -121,7 +121,7 @@ describe("handover text", () => {
         {
           name: "docs",
           style: "markdown",
-          outputFile: "demo-repomix-docs.md",
+          outputFile: "demo-docs.md",
           fileCount: 1,
           tokenCount: 4,
           outputTokenCount: 9,
@@ -140,7 +140,7 @@ describe("handover text", () => {
     expect(indexText).toContain("## Sections");
     expect(indexText).toContain("## Recent repository history");
     expect(indexText).toContain(
-      "- docs: demo-repomix-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
+      "- docs: demo-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
     );
     expect(indexText).toContain(
       "- aaaaaaaaaaaa\n  Add markdown handover coverage\n  \n  Body line",
@@ -155,7 +155,7 @@ describe("handover text", () => {
         {
           name: "src",
           style: "json",
-          outputFile: "demo-repomix-src.json.txt",
+          outputFile: "demo-src.json.txt",
           fileCount: 2,
           tokenCount: 5,
           outputTokenCount: 8,
@@ -180,7 +180,7 @@ describe("handover text", () => {
     };
 
     expect(parsed.kind).toBe("cx_shared_handover");
-    expect(parsed.sections[0]?.outputFile).toBe("demo-repomix-src.json.txt");
+    expect(parsed.sections[0]?.outputFile).toBe("demo-src.json.txt");
     expect(parsed.sections[0]?.packedTokens).toBe(5);
     expect(parsed.assets?.[0]?.sourcePath).toBe("logo.png");
     expect(parsed.inclusionProvenance?.[0]?.marker).toBe("section_match");

@@ -17,7 +17,6 @@ function sampleManifest(): CxManifest {
     checksumFile: "demo.sha256",
     createdAt: "2026-04-17T00:00:00.000Z",
     cxVersion: "0.3.16",
-    adapterVersion: "1.13.1-cx.4",
     checksumAlgorithm: "sha256",
     renderPlanHash: "abc123",
     settings: {
@@ -52,7 +51,7 @@ function sampleManifest(): CxManifest {
       {
         name: "docs",
         style: "xml",
-        outputFile: "demo-repomix-docs.xml.txt",
+        outputFile: "demo-docs.xml.txt",
         outputSha256: "sha-docs",
         fileCount: 1,
         tokenCount: 5,
@@ -75,7 +74,7 @@ function sampleManifest(): CxManifest {
       {
         name: "src",
         style: "xml",
-        outputFile: "demo-repomix-src.xml.txt",
+        outputFile: "demo-src.xml.txt",
         outputSha256: "sha-src",
         fileCount: 1,
         tokenCount: 7,

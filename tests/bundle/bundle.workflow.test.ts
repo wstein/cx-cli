@@ -113,10 +113,10 @@ describe("bundle workflow", () => {
     const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
     expect(bundleIndex).toContain("cx shared handover");
     expect(bundleIndex).toContain("<section_inventory>");
-    expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
-    expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
+    expect(bundleIndex).toContain("demo-docs.xml.txt");
+    expect(bundleIndex).toContain("demo-src.xml.txt");
     const docsOutput = await fs.readFile(
-      path.join(project.bundleDir, "demo-repomix-docs.xml.txt"),
+      path.join(project.bundleDir, "demo-docs.xml.txt"),
       "utf8",
     );
     expect(docsOutput).toContain(
@@ -511,7 +511,7 @@ describe("bundle workflow", () => {
 
     const preservedSectionPath = path.join(
       project.bundleDir,
-      "demo-repomix-src.xml.txt",
+      "demo-src.xml.txt",
     );
     const preservedBefore = await sha256File(preservedSectionPath);
     const orphanedAssetPath = path.join(

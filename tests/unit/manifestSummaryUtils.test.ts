@@ -10,7 +10,7 @@ import {
 // Helper to create test manifest
 function createTestManifest(): CxManifest {
   return {
-    schemaVersion: 8,
+    schemaVersion: 9,
     bundleVersion: 1,
     projectName: "test-project",
     sourceRoot: ".",
@@ -18,7 +18,6 @@ function createTestManifest(): CxManifest {
     checksumFile: "test.sha256",
     createdAt: "2025-01-13T14:30:15Z",
     cxVersion: "1.0.0",
-    adapterVersion: "2.0.0",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",

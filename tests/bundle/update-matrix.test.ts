@@ -38,10 +38,7 @@ describe("bundle update matrix", () => {
   }, async () => {
     const project = await createUpdateMatrixProject();
     expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
-    const originalXml = path.join(
-      project.bundleDir,
-      "demo-repomix-src.xml.txt",
-    );
+    const originalXml = path.join(project.bundleDir, "demo-src.xml.txt");
     expect(await fs.stat(originalXml)).toBeDefined();
 
     const config = (await readConfig(project.configPath)).replace(
@@ -55,7 +52,7 @@ describe("bundle update matrix", () => {
     ).toBe(0);
     await expect(fs.stat(originalXml)).rejects.toThrow();
     expect(
-      await fs.stat(path.join(project.bundleDir, "demo-repomix-src.md")),
+      await fs.stat(path.join(project.bundleDir, "demo-src.md")),
     ).toBeDefined();
   });
 

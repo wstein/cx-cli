@@ -353,7 +353,7 @@ export async function buildBundlePlan(
     return {
       name,
       style,
-      outputFile: `${config.projectName}-repomix-${name}${config.output.extensions[style]}`,
+      outputFile: `${config.projectName}-${name}${config.output.extensions[style]}`,
       files: getRequiredSectionFiles(sectionFiles, name).sort((left, right) =>
         left.relativePath.localeCompare(right.relativePath, "en"),
       ),

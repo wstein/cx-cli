@@ -1,13 +1,14 @@
 // test-lane: unit
 import { describe, expect, it } from "vitest";
 import {
+  MANIFEST_SCHEMA_VERSION,
   parseManifestJson,
   renderManifestJson,
 } from "../../src/manifest/json.js";
 import type { CxManifest } from "../../src/manifest/types.js";
 
 const VALID_MINIMAL_MANIFEST: CxManifest = {
-  schemaVersion: 8,
+  schemaVersion: MANIFEST_SCHEMA_VERSION,
   bundleVersion: 1,
   projectName: "test-project",
   sourceRoot: ".",
@@ -15,7 +16,6 @@ const VALID_MINIMAL_MANIFEST: CxManifest = {
   checksumFile: "test.sha256",
   createdAt: "2025-01-13T14:30:15Z",
   cxVersion: "1.0.0",
-  adapterVersion: "2.0.0",
   checksumAlgorithm: "sha256",
   settings: {
     globalStyle: "xml",
@@ -118,7 +118,7 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
       const parsed = JSON.parse(json);
       expect(parsed).toBeDefined();
-      expect(parsed.schemaVersion).toBe(8);
+      expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
     });
 
     it("ends with newline", () => {
@@ -258,7 +258,7 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
       const parsed = parseManifestJson(json);
       expect(parsed.projectName).toBe(VALID_MINIMAL_MANIFEST.projectName);
-      expect(parsed.schemaVersion).toBe(8);
+      expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
     });
 
     it("throws error for invalid JSON", () => {

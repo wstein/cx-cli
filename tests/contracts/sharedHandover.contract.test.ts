@@ -13,7 +13,7 @@ describe("shared handover contract", () => {
         {
           name: "docs",
           style: "xml",
-          outputFile: "demo-repomix-docs.xml.txt",
+          outputFile: "demo-docs.xml.txt",
           fileCount: 1,
           tokenCount: 4,
           outputTokenCount: 9,
@@ -39,7 +39,7 @@ describe("shared handover contract", () => {
     expect(rendered).toContain("<usage>");
     expect(rendered).toContain("</usage>");
     expect(rendered).toContain(
-      "- docs: demo-repomix-docs.xml.txt | xml | 1 files | packed tokens 4 | output tokens 9",
+      "- docs: demo-docs.xml.txt | xml | 1 files | packed tokens 4 | output tokens 9",
     );
     expect(rendered).toContain(
       "- cccccccccccc\n  Add xml handover contract\n  \n  Body context",
@@ -56,7 +56,7 @@ describe("shared handover contract", () => {
         {
           name: "docs",
           style: "markdown",
-          outputFile: "demo-repomix-docs.md",
+          outputFile: "demo-docs.md",
           fileCount: 1,
           tokenCount: 4,
           outputTokenCount: 9,
@@ -79,7 +79,7 @@ describe("shared handover contract", () => {
         "purpose: shared handover companion for the rendered section outputs below.",
         "",
         "## Sections",
-        "- docs: demo-repomix-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
+        "- docs: demo-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
         "",
         "## Recent repository history",
         "- aaaaaaaaaaaa",
@@ -101,7 +101,7 @@ describe("shared handover contract", () => {
         {
           name: "src",
           style: "json",
-          outputFile: "demo-repomix-src.json.txt",
+          outputFile: "demo-src.json.txt",
           fileCount: 2,
           tokenCount: 5,
           outputTokenCount: 8,
@@ -128,7 +128,7 @@ describe("shared handover contract", () => {
             {
               name: "src",
               style: "json",
-              outputFile: "demo-repomix-src.json.txt",
+              outputFile: "demo-src.json.txt",
               fileCount: 2,
               packedTokens: 5,
               outputTokens: 8,

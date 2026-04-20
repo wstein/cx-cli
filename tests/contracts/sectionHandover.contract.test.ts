@@ -9,7 +9,7 @@ describe("section handover contract", () => {
     const rendered = buildSectionHandoverText({
       projectName: "demo",
       sectionName: "docs",
-      outputFile: "demo-repomix-docs.xml.txt",
+      outputFile: "demo-docs.xml.txt",
       fileCount: 2,
       style: "xml",
       handoverFile: "demo-handover.xml.txt",

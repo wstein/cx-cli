@@ -23,7 +23,7 @@ const AGGREGATE_PLAN_HASH_B = sha256NormalizedText(
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 8,
+    schemaVersion: 9,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
@@ -31,7 +31,6 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
     checksumFile: "demo.sha256",
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
-    adapterVersion: "0.0.0-test",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",
@@ -65,7 +64,7 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
       {
         name: "src",
         style: "xml",
-        outputFile: "demo-repomix-src.xml.txt",
+        outputFile: "demo-src.xml.txt",
         outputSha256: HASH_B,
         fileCount: 1,
         tokenCount: 8,
@@ -131,7 +130,7 @@ const BASE_CONFIG: CxConfig = buildConfig({
 function passingChecksumRows() {
   return [
     { hash: HASH_A, relativePath: "demo-manifest.json" },
-    { hash: HASH_B, relativePath: "demo-repomix-src.xml.txt" },
+    { hash: HASH_B, relativePath: "demo-src.xml.txt" },
   ];
 }
 

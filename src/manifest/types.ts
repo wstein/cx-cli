@@ -104,7 +104,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 8;
+  schemaVersion: 9;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
@@ -113,7 +113,6 @@ export interface CxManifest {
   handoverFile?: string;
   createdAt: string;
   cxVersion: string;
-  adapterVersion: string;
   checksumAlgorithm: "sha256";
   /**
    * Hash of the render plan (if structured rendering was used).

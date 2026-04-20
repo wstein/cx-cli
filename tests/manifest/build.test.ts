@@ -126,7 +126,6 @@ describe("manifest build", () => {
         sectionOutputs,
         handoverFile: "demo-handover.xml.txt",
         cxVersion: "0.1.0",
-        adapterVersion: "0.1.0",
         sectionSpanMaps: new Map(),
         sectionTokenMaps: new Map(),
         sectionHashMaps: new Map().set("src", new Map()),
