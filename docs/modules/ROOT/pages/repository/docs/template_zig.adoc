@@ -2,24 +2,24 @@
 :page-layout: default
 
 
-++++
-<p>The Zig <code>cx init</code> template is aimed at <code>build.zig</code>-driven repositories and is
-the newest language-specific environment supported by <code>cx init</code>.</p>
-<h2>Generated Targets</h2>
-<ul>
-<li><code>make build</code> → <code>zig build</code></li>
-<li><code>make test</code> → <code>zig build test</code></li>
-<li><code>make verify</code> → <code>test + build</code></li>
-<li><code>make certify</code> → <code>verify</code></li>
-</ul>
-<h2>MCP Overlay</h2>
-<p>The generated <code>cx-mcp.toml</code> exposes:</p>
-<ul>
-<li><code>src/**</code></li>
-<li><code>build.zig</code></li>
-<li><code>build.zig.zon</code></li>
-<li><code>README.md</code></li>
-</ul>
-<p>It excludes <code>zig-cache/**</code>, <code>.zig-cache/**</code>, and <code>zig-out/**</code> to keep the
-default MCP surface source-first.</p>
-++++
+The Zig `cx init` template is aimed at `build.zig`-driven repositories
+and is the newest language-specific environment supported by `cx init`.
+
+=== Generated Targets
+
+* `make build` → `zig build`
+* `make test` → `zig build test`
+* `make verify` → `test {plus} build`
+* `make certify` → `verify`
+
+=== MCP Overlay
+
+The generated `cx-mcp.toml` exposes:
+
+* `src/**`
+* `build.zig`
+* `build.zig.zon`
+* `README.md`
+
+It excludes `zig-cache/**`, `.zig-cache/**`, and
+`zig-out/**` to keep the default MCP surface source-first.

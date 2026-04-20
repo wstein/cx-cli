@@ -2,27 +2,27 @@
 :page-layout: default
 
 
-++++
-<p>The Go <code>cx init</code> template is intended for module-aware repositories using
-<code>go.mod</code>.</p>
-<h2>Generated Targets</h2>
-<ul>
-<li><code>make build</code> → <code>go build ./...</code></li>
-<li><code>make test</code> → <code>go test ./...</code></li>
-<li><code>make check</code> → <code>go vet ./...</code></li>
-<li><code>make verify</code> → <code>check + test + build</code></li>
-<li><code>make certify</code> → <code>verify</code></li>
-</ul>
-<h2>MCP Overlay</h2>
-<p>The generated <code>cx-mcp.toml</code> exposes:</p>
-<ul>
-<li><code>cmd/**</code></li>
-<li><code>internal/**</code></li>
-<li><code>pkg/**</code></li>
-<li><code>go.mod</code></li>
-<li><code>go.sum</code></li>
-<li><code>README.md</code></li>
-</ul>
-<p>Adjust the overlay if your project keeps important source outside those
-conventional directories.</p>
-++++
+The Go `cx init` template is intended for module-aware repositories
+using `go.mod`.
+
+=== Generated Targets
+
+* `make build` → `go build ./...`
+* `make test` → `go test ./...`
+* `make check` → `go vet ./...`
+* `make verify` → `check {plus} test {plus} build`
+* `make certify` → `verify`
+
+=== MCP Overlay
+
+The generated `cx-mcp.toml` exposes:
+
+* `cmd/**`
+* `internal/**`
+* `pkg/**`
+* `go.mod`
+* `go.sum`
+* `README.md`
+
+Adjust the overlay if your project keeps important source outside those
+conventional directories.

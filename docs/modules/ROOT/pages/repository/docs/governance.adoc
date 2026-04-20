@@ -2,288 +2,292 @@
 :page-layout: default
 
 
-++++
-<p>This guide explains how documentation is organized, maintained, and marked for authority and stability.</p>
-<h2>Source-of-Truth Markers</h2>
-<p>Every documentation file includes an HTML comment at the top declaring its source, status, and stability:</p>
-<pre><code>&lt;!-- Source: FILENAME.md | Status: CANONICAL | Stability: STABLE --&gt;
-</code></pre>
-<h3>Status Values</h3>
-<ul>
-<li><strong>CANONICAL</strong>: Authoritative source of truth. Changes here are binding. Other docs derive from this.</li>
-<li><strong>DERIVED</strong>: Auto-generated or synced from another source. Do not edit directly; update the source instead.</li>
-<li><strong>EDITORIAL</strong>: Explanatory or tutorial content. May lag the canonical source. Lower priority for consistency.</li>
-</ul>
-<h3>Stability Values</h3>
-<ul>
-<li><strong>STABLE</strong>: Semver-protected contract. Breaking changes require major version bump (documented in release notes).</li>
-<li><strong>BETA</strong>: Functional but subject to change in minor versions. Operators should pin versions if depending on this doc.</li>
-<li><strong>EXPERIMENTAL</strong>: Actively developed. May be removed or substantially rewritten without notice.</li>
-</ul>
-<hr>
-<h2>Canonical Documentation Map</h2>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Status</th>
-<th>Stability</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Implementation Reference</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>System architecture and layer design</td>
-</tr>
-<tr>
-<td>MANUAL.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Complete feature reference and CLI usage</td>
-</tr>
-<tr>
-<td>STABILITY.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Tool stability contracts and versioning</td>
-</tr>
-<tr>
-<td>Mental Model</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Canonical semantics for the CX triad, Track A vs Track B, policy tiers, and artifact lifecycle</td>
-</tr>
-<tr>
-<td>Operating Modes</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Operator-facing mode chooser and onboarding map</td>
-</tr>
-<tr>
-<td>Agent Operating Model</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Integration-layer policy consequences for agent operators</td>
-</tr>
-<tr>
-<td>Agent Integration Guide</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>IDE and client integration guide</td>
-</tr>
-<tr>
-<td>MCP Tool Intent Taxonomy</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Tool categorization and intent</td>
-</tr>
-<tr>
-<td>RELEASE_INTEGRITY.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Release SBOM format and verification</td>
-</tr>
-<tr>
-<td>EXTRACTION_SAFETY.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Content filtering and safe extraction</td>
-</tr>
-<tr>
-<td>NOTES_MODULE_SPEC.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Notes schema and structure</td>
-</tr>
-<tr>
-<td>GOVERNANCE.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Documentation governance and doc map</td>
-</tr>
-<tr>
-<td>config-reference.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>All cx.toml options and semantics</td>
-</tr>
-<tr>
-<td>RELEASE_CHECKLIST.md</td>
-<td>CANONICAL</td>
-<td>STABLE</td>
-<td>Release process and validation steps</td>
-</tr>
-</tbody></table>
-<h3>Derived Documentation</h3>
-<p>Some files are generated or synced:</p>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Source</th>
-<th>How Updated</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Documentation Index</td>
-<td>MANUAL.md</td>
-<td>Manual excerpt during release</td>
-</tr>
-<tr>
-<td>API docs (if published)</td>
-<td>Source code</td>
-<td>Generated from JSDoc comments</td>
-</tr>
-</tbody></table>
-<h3>Editorial Documentation</h3>
-<p>Tutorial and explanation docs:</p>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>WORKFLOWS/*</td>
-<td>Execution examples that show the model over time without redefining the canonical semantics</td>
-</tr>
-<tr>
-<td>Getting Started (if added)</td>
-<td>Introduction and quick-start tutorial</td>
-</tr>
-<tr>
-<td>Troubleshooting (if added)</td>
-<td>Common issues and solutions</td>
-</tr>
-<tr>
-<td>FAQ (if added)</td>
-<td>Frequently asked questions</td>
-</tr>
-</tbody></table>
-<h2>Docs Surface Budget</h2>
-<p><code>cx</code> intentionally keeps a small front-door docs surface.</p>
-<h3>Front-Door Docs</h3>
-<p>These are the only documents that should behave like primary entrypoints:</p>
-<ul>
-<li><code>Documentation Index</code></li>
-<li><code>docs/Documentation Index</code></li>
-<li><code>docs/modules/ROOT/pages/architecture/system-map.adoc</code></li>
-<li><code>docs/modules/ROOT/pages/manual/operating-modes.adoc</code></li>
-<li><code>docs/modules/ROOT/pages/manual/operator-manual.adoc</code></li>
-</ul>
-<h3>Canonical Core Docs</h3>
-<p>These own stable meaning and contracts, but they are not additional onboarding
-doors:</p>
-<ul>
-<li><code>docs/modules/ROOT/pages/architecture/mental-model.adoc</code></li>
-<li><code>docs/modules/ROOT/pages/architecture/system-contracts.adoc</code></li>
-<li><code>docs/modules/ROOT/pages/repository/docs/governance.adoc</code></li>
-</ul>
-<h3>Reference-Only Docs</h3>
-<p>Everything else should be written as reference, integration detail, workflow
-example, or historical material.</p>
-<p>That means:</p>
-<ul>
-<li><code>Implementation Reference</code> is an implementation reference for contributors, not a
-first-read overview.</li>
-<li><code>WORKFLOWS/*</code> are special-case execution examples, not parallel onboarding
-paths.</li>
-<li><code>MIGRATIONS/*</code> and release-history material are historical references, not
-part of the operator front door.</li>
-<li>Agent integration and configuration docs should be linked by concern, not
-treated as general entrypoints.</li>
-</ul>
-<h3>Default Rule</h3>
-<p>If a new document would introduce another plausible place to start, it should
-usually become a section inside an existing front-door doc instead.</p>
-<hr>
-<h2>Hard Hierarchy Contract</h2>
-<p><code>cx</code> intentionally uses a hard documentation hierarchy so semantics have one canonical home.</p>
-<h3>Canonical Roles</h3>
-<ul>
-<li><code>Mental Model</code> owns canonical semantics.</li>
-<li><code>Operating Modes</code> maps those semantics to operator choices and progressive onboarding.</li>
-<li><code>WORKFLOWS/*</code> shows concrete execution examples across time.</li>
-<li><code>AGENT_*</code> documents the integration layer: policy consequences, tool sequences, client setup, and review loops.</li>
-</ul>
-<h3>Non-Negotiable Rule</h3>
-<p>Everything outside <code>Mental Model</code> must reference canonical semantics instead of redefining them.</p>
-<p>That means:</p>
-<ul>
-<li><code>Operating Modes</code> should say which mode to choose, not restate the full semantics of the CX triad.</li>
-<li><code>WORKFLOWS/*</code> should show commands, decisions, and outcomes, not redefine Track A vs Track B.</li>
-<li><code>AGENT_*</code> docs should explain how agents consume the model through MCP and integration boundaries, not fork the semantics into a second source of truth.</li>
-<li>General docs such as <code>Documentation Index</code>, <code>MANUAL.md</code>, and <code>Implementation Reference</code> should point back to the canonical layer with <code>See: Mental Model</code> where deeper semantics would otherwise be repeated.</li>
-</ul>
-<p>Why this protects you: once multiple docs compete to define the same concept, semantic drift becomes invisible until operators make the wrong decision from stale text. The hierarchy keeps one semantic source of truth and pushes every other doc toward mapping, execution, or integration.</p>
-<hr>
-<h2>Update Procedures</h2>
-<h3>Updating Canonical Docs</h3>
-<ol>
-<li>Make changes directly in the canonical file</li>
-<li>Ensure the change doesn&#39;t break the semver contract</li>
-<li>Update the git log message to reference the doc change</li>
-<li>If a derived doc depends on this content, update it too</li>
-</ol>
-<h3>Updating Derived Docs</h3>
-<p><strong>Do not edit directly.</strong> Instead:</p>
-<ol>
-<li>Identify the canonical source</li>
-<li>Make the change in the source</li>
-<li>Re-run the generation/sync process</li>
-</ol>
-<h3>Updating Editorial Docs</h3>
-<p>Changes are welcome. Update the file, no special approval needed.</p>
-<hr>
-<h2>Stability Policy</h2>
-<h3>STABLE Documents</h3>
-<p><strong>What it means:</strong></p>
-<ul>
-<li>Output schema and option names are locked</li>
-<li>Deprecations are announced 2+ releases in advance with migration guidance</li>
-<li>Breaking changes require major version bump</li>
-</ul>
-<p><strong>Example:</strong> If STABILITY.md says tool <code>list</code> is STABLE, we cannot remove the tool or rename its output fields without releasing v1.0.</p>
-<h3>BETA Documents</h3>
-<p><strong>What it means:</strong></p>
-<ul>
-<li>Functional but may evolve in minor releases</li>
-<li>Field names, structure, or guidance may change</li>
-<li>Deprecation notice given 1 release in advance</li>
-</ul>
-<p><strong>Example:</strong> If Agent Operating Model policy tier system were BETA, operators should not depend on exact policy names across versions.</p>
-<h3>EXPERIMENTAL Documents</h3>
-<p><strong>What it means:</strong></p>
-<ul>
-<li>Subject to removal or major rewrite</li>
-<li>No advance notice required</li>
-<li>Do not build long-term dependencies on content</li>
-</ul>
-<hr>
-<h2>Links to Governance</h2>
-<p>When updating or referencing governance decisions:</p>
-<ul>
-<li><strong>&quot;What&#39;s the contract?&quot;</strong> → <a href="stability/">STABILITY.md</a></li>
-<li><strong>&quot;What do the concepts mean?&quot;</strong> → <a href="../../architecture/mental-model/">Mental Model</a></li>
-<li><strong>&quot;Which mode should I choose first?&quot;</strong> → <a href="../../manual/operating-modes/">Operating Modes</a></li>
-<li><strong>&quot;How do tools work in an agent integration?&quot;</strong> → <a href="agent_operating_model/">Agent Operating Model</a></li>
-<li><strong>&quot;What are all the options?&quot;</strong> → <a href="../../manual/config-reference/">config-reference.md</a> (CANONICAL)</li>
-<li><strong>&quot;When do I use each workflow?&quot;</strong> → <a href="../../manual/operating-modes/">Operating Modes</a></li>
-<li><strong>&quot;Where can I see the model play out over time?&quot;</strong> → <a href="../../manual/workflows/#friday-to-monday-workflow">Friday to Monday</a></li>
-<li><strong>&quot;Is this doc authoritative?&quot;</strong> → Check the source-of-truth marker at the top</li>
-</ul>
-<hr>
-<h2>Why This System?</h2>
-<p>Without explicit governance, docs drift: some become outdated, some contradict each other, and operators don&#39;t know what to trust.</p>
-<p>By marking every doc:</p>
-<ul>
-<li>Operators know which docs are safe to depend on (CANONICAL + STABLE)</li>
-<li>We can deprecate docs intentionally (moving from STABLE to EXPERIMENTAL)</li>
-<li>Derived docs stay in sync with their sources</li>
-<li>Tutorial content can be approximate (EDITORIAL) without breaking guarantees</li>
-</ul>
-<p>This is lightweight (one-line comments) but removes ambiguity.</p>
-++++
+This guide explains how documentation is organized, maintained, and
+marked for authority and stability.
+
+=== Source-of-Truth Markers
+
+Every documentation file includes an HTML comment at the top declaring
+its source, status, and stability:
+
+....
+<!-- Source: FILENAME.md | Status: CANONICAL | Stability: STABLE -->
+....
+
+==== Status Values
+
+* *CANONICAL*: Authoritative source of truth. Changes here are binding.
+Other docs derive from this.
+* *DERIVED*: Auto-generated or synced from another source. Do not edit
+directly; update the source instead.
+* *EDITORIAL*: Explanatory or tutorial content. May lag the canonical
+source. Lower priority for consistency.
+
+==== Stability Values
+
+* *STABLE*: Semver-protected contract. Breaking changes require major
+version bump (documented in release notes).
+* *BETA*: Functional but subject to change in minor versions. Operators
+should pin versions if depending on this doc.
+* *EXPERIMENTAL*: Actively developed. May be removed or substantially
+rewritten without notice.
+
+'''''
+
+=== Canonical Documentation Map
+
+[cols=",,,",options="header",]
+|===
+|File |Status |Stability |Purpose
+|Implementation Reference |CANONICAL |STABLE |System architecture and
+layer design
+
+|Operator Manual |CANONICAL |STABLE |Complete feature reference and CLI usage
+
+|Stability Tiers |CANONICAL |STABLE |Tool stability contracts and
+versioning
+
+|Mental Model |CANONICAL |STABLE |Canonical semantics for the CX triad,
+Track A vs Track B, policy tiers, and artifact lifecycle
+
+|Operating Modes |CANONICAL |STABLE |Operator-facing mode chooser and
+onboarding map
+
+|Agent Operating Model |CANONICAL |STABLE |Integration-layer policy
+consequences for agent operators
+
+|Agent Integration Guide |CANONICAL |STABLE |IDE and client integration
+guide
+
+|MCP Tool Intent Taxonomy |CANONICAL |STABLE |Tool categorization and
+intent
+
+|Release and Integrity |CANONICAL |STABLE |Release SBOM format and
+verification
+
+|Extraction Safety |CANONICAL |STABLE |Content filtering and safe
+extraction
+
+|Notes Module Specification |CANONICAL |STABLE |Notes schema and
+structure
+
+|Documentation Governance |CANONICAL |STABLE |Documentation governance and doc map
+
+|Configuration Reference |CANONICAL |STABLE |All cx.toml options and
+semantics
+
+|Release Checklist |CANONICAL |STABLE |Release process and
+validation steps
+|===
+
+==== Derived Documentation
+
+Some files are generated or synced:
+
+[cols=",,",options="header",]
+|===
+|File |Source |How Updated
+|Documentation Index |Operator Manual |Manual excerpt during release
+|API docs (if published) |Source code |Generated from JSDoc comments
+|===
+
+==== Editorial Documentation
+
+Tutorial and explanation docs:
+
+[cols=",",options="header",]
+|===
+|File |Purpose
+|Operator workflows |Execution examples that show the model over time
+without redefining the canonical semantics
+
+|Getting Started (if added) |Introduction and quick-start tutorial
+
+|Troubleshooting (if added) |Common issues and solutions
+
+|FAQ (if added) |Frequently asked questions
+|===
+
+=== Docs Surface Budget
+
+`cx` intentionally keeps a small front-door docs surface.
+
+==== Front-Door Docs
+
+These are the only documents that should behave like primary
+entrypoints:
+
+* `Documentation Index`
+* `System Map`
+* `Operating Modes`
+* `Operator Manual`
+
+==== Canonical Core Docs
+
+These own stable meaning and contracts, but they are not additional
+onboarding doors:
+
+* `Mental Model`
+* `System Contracts`
+* `Documentation Governance`
+
+==== Reference-Only Docs
+
+Everything else should be written as reference, integration detail,
+workflow example, or historical material.
+
+That means:
+
+* `Implementation Reference` is an implementation reference for
+contributors, not a first-read overview.
+* `Operator Workflows` is a special-case execution guide, not a
+parallel onboarding path.
+* Migration and release-history material are historical
+references, not part of the operator front door.
+* Agent integration and configuration docs should be linked by concern,
+not treated as general entrypoints.
+
+==== Default Rule
+
+If a new document would introduce another plausible place to start, it
+should usually become a section inside an existing front-door doc
+instead.
+
+'''''
+
+=== Hard Hierarchy Contract
+
+`cx` intentionally uses a hard documentation hierarchy so semantics have
+one canonical home.
+
+==== Canonical Roles
+
+* `Mental Model` owns canonical semantics.
+* `Operating Modes` maps those semantics to operator choices and
+progressive onboarding.
+* `Operator Workflows` shows concrete execution examples across time.
+* Agent integration docs document the integration layer: policy consequences,
+tool sequences, client setup, and review loops.
+
+==== Non-Negotiable Rule
+
+Everything outside `Mental Model` must reference canonical semantics
+instead of redefining them.
+
+That means:
+
+* `Operating Modes` should say which mode to choose, not restate the
+full semantics of the CX triad.
+* `Operator workflows` should show commands, decisions, and outcomes, not
+redefine Track A vs Track B.
+* Agent integration docs should explain how agents consume the model through
+MCP and integration boundaries, not fork the semantics into a second
+source of truth.
+* General docs such as `Documentation Index`, `Operator Manual`, and
+`Implementation Reference` should point back to the canonical layer with
+`See: Mental Model` where deeper semantics would otherwise be repeated.
+
+Why this protects you: once multiple docs compete to define the same
+concept, semantic drift becomes invisible until operators make the wrong
+decision from stale text. The hierarchy keeps one semantic source of
+truth and pushes every other doc toward mapping, execution, or
+integration.
+
+'''''
+
+=== Update Procedures
+
+==== Updating Canonical Docs
+
+. Make changes directly in the canonical file
+. Ensure the change doesn't break the semver contract
+. Update the git log message to reference the doc change
+. If a derived doc depends on this content, update it too
+
+==== Updating Derived Docs
+
+*Do not edit directly.* Instead:
+
+. Identify the canonical source
+. Make the change in the source
+. Re-run the generation/sync process
+
+==== Updating Editorial Docs
+
+Changes are welcome. Update the file, no special approval needed.
+
+'''''
+
+=== Stability Policy
+
+==== STABLE Documents
+
+*What it means:*
+
+* Output schema and option names are locked
+* Deprecations are announced 2{plus} releases in advance with migration
+guidance
+* Breaking changes require major version bump
+
+*Example:* If `Stability Tiers` says tool `list` is STABLE, we cannot remove
+the tool or rename its output fields without releasing v1.0.
+
+==== BETA Documents
+
+*What it means:*
+
+* Functional but may evolve in minor releases
+* Field names, structure, or guidance may change
+* Deprecation notice given 1 release in advance
+
+*Example:* If Agent Operating Model policy tier system were BETA,
+operators should not depend on exact policy names across versions.
+
+==== EXPERIMENTAL Documents
+
+*What it means:*
+
+* Subject to removal or major rewrite
+* No advance notice required
+* Do not build long-term dependencies on content
+
+'''''
+
+=== Links to Governance
+
+When updating or referencing governance decisions:
+
+* *"What's the contract?"* → xref:page$repository/docs/stability.adoc[Stability Tiers]
+* *"What do the concepts mean?"* →
+xref:architecture/mental-model.adoc[Mental Model]
+* *"Which mode should I choose first?"* →
+xref:manual/operating-modes.adoc[Operating Modes]
+* *"How do tools work in an agent integration?"* →
+xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
+* *"What are all the options?"* →
+xref:manual/config-reference.adoc[Configuration Reference]
+* *"When do I use each workflow?"* →
+xref:manual/operating-modes.adoc[Operating Modes]
+* *"Where can I see the model play out over time?"* →
+xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]
+* *"Is this doc authoritative?"* → Check the source-of-truth marker at
+the top
+
+'''''
+
+=== Why This System?
+
+Without explicit governance, docs drift: some become outdated, some
+contradict each other, and operators don't know what to trust.
+
+By marking every doc:
+
+* Operators know which docs are safe to depend on (CANONICAL {plus}
+STABLE)
+* We can deprecate docs intentionally (moving from STABLE to
+EXPERIMENTAL)
+* Derived docs stay in sync with their sources
+* Tutorial content can be approximate (EDITORIAL) without breaking
+guarantees
+
+This is lightweight (one-line comments) but removes ambiguity.

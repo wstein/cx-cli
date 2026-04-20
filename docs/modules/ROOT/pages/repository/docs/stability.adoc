@@ -2,232 +2,153 @@
 :page-layout: default
 
 
-++++
-<p>cx-cli tools are classified into four stability tiers, each with distinct guarantees and expected usage patterns. The tier of each tool appears in its MCP description with the format <code>[TIER_NAME]</code> (e.g., <code>[STABLE]</code>). For machine-readable inspection, prefer <code>cx mcp catalog --json</code>; <code>cx doctor mcp --json</code> also includes the same registered tool catalog when you need broader MCP diagnostics.</p>
-<h2>Tier Definitions</h2>
-<h2>Current Reliability Focus</h2>
-<p>The current stability push is intentionally scoped to global-state reduction,
-not broad toolchain replacement. <code>cx</code> continues to standardize on <code>yargs</code>,
-<code>bun:test</code>, Bun-first CI execution, and the Repomix fork while reliability work
-targets command I/O boundaries, workspace context injection, and clearer test
-separation between pure behavior and integration seams.
-CI now declares a minimum supported Bun runtime (<code>1.3.11</code>) and continuously
-tests both the minimum and <code>latest</code> Bun lanes to detect regressions across the
-supported runtime envelope.
+cx-cli tools are classified into four stability tiers, each with
+distinct guarantees and expected usage patterns. The tier of each tool
+appears in its MCP description with the format `[TIER_NAME]`
+(e.g., `[STABLE]`). For machine-readable inspection, prefer
+`cx mcp catalog --json`; `cx doctor mcp --json` also includes the same
+registered tool catalog when you need broader MCP diagnostics.
+
+=== Tier Definitions
+
+=== Current Reliability Focus
+
+The current stability push is intentionally scoped to global-state
+reduction, not broad toolchain replacement. `cx` continues to
+standardize on `yargs`, `bun:test`, Bun-first CI execution, and the
+native proof path while reliability work targets command I/O boundaries,
+workspace context injection, and clearer test separation between pure
+behavior and integration seams. CI now declares a minimum supported Bun
+runtime (`1.3.11`) and continuously tests both the minimum and `latest`
+Bun lanes to detect regressions across the supported runtime envelope.
 The fast CI lane is intentionally unit-only and guarded by
-<code>bun run ci:guard:fast-lane</code> so integration suites do not silently leak into
-the low-latency feedback path.
-Fast-lane runtime is also monitored with warning-first regression policy:
-<code>bun run ci:test:fast:monitored</code> records timing drift and fails only on
-sustained significant regressions.
-The workflow graph is gated behind <code>test-fast</code>: downstream CI lanes do not
-start if the fast gate is red, and CI artifacts are uploaded only after the
-full lane set passes.</p>
-<h3>STABLE</h3>
-<p><strong>Guarantee:</strong> Tools in this tier have a documented, semver-protected API contract. Breaking changes require a major version bump of cx-cli.</p>
-<p><strong>Output Schema:</strong> The JSON output structure is locked. Field names, types, and presence are guaranteed to remain consistent across minor and patch releases.</p>
-<p><strong>Deprecation:</strong> Deprecated features will be signaled 2+ releases in advance with clear migration guidance.</p>
-<p><strong>Examples:</strong> <code>list</code>, <code>grep</code>, <code>read</code>, <code>inspect</code>, <code>bundle</code>, <code>notes_new</code>, <code>notes_read</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, <code>notes_search</code>, <code>notes_list</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>, <code>notes_code_links</code>, <code>notes_links</code>, <code>notes_graph</code></p>
-<p><strong>Use in:</strong> Production CI/CD pipelines, long-lived scripts, documented integrations.</p>
-<h3>BETA</h3>
-<p><strong>Guarantee:</strong> Tools in this tier are functional and actively used, but their schema and behavior may evolve in minor releases (e.g., output fields added, removed, or renamed).</p>
-<p><strong>Output Schema:</strong> The core functionality is stable, but the JSON structure may change between minor versions. Operators should write defensive parsers or pin to a specific version.</p>
-<p><strong>Deprecation:</strong> Planned breaking changes will be announced 1 release in advance.</p>
-<p><strong>Examples:</strong> <code>doctor_mcp</code>, <code>doctor_workflow</code>, <code>doctor_overlaps</code>, <code>doctor_secrets</code>, <code>replace_repomix_span</code></p>
-<p><strong>Use in:</strong> Scripts that can tolerate schema changes, exploratory automation, diagnostic/observability workflows.</p>
-<h3>EXPERIMENTAL</h3>
-<p><strong>Guarantee:</strong> Tools in this tier are under active development. APIs and behavior are subject to change or removal without notice.</p>
-<p><strong>Deprecation:</strong> No advance notice is provided; experimentals may be removed in any release.</p>
-<p><strong>Use in:</strong> Testing, proof-of-concept code, internal tooling only.</p>
-<h3>INTERNAL</h3>
-<p><strong>Guarantee:</strong> Tools in this tier are not advertised publicly via MCP. They are used internally by cx-cli tests or development workflows.</p>
-<p><strong>Use in:</strong> Tests and internal development only; external tooling should not depend on these.</p>
-<hr>
-<h2>Versioning Policy</h2>
-<table>
-<thead>
-<tr>
-<th>Scenario</th>
-<th>Tier</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Add a new field to a STABLE tool&#39;s output</td>
-<td>STABLE</td>
-<td>Requires major version bump</td>
-</tr>
-<tr>
-<td>Rename a field in a BETA tool&#39;s output</td>
-<td>BETA</td>
-<td>Allowed in minor version bump</td>
-</tr>
-<tr>
-<td>Remove a BETA tool entirely</td>
-<td>BETA</td>
-<td>Requires minor version bump with 1-release deprecation notice</td>
-</tr>
-<tr>
-<td>Remove a STABLE tool</td>
-<td>STABLE</td>
-<td>Requires major version bump with 2+ release deprecation notice</td>
-</tr>
-<tr>
-<td>Add a new tool</td>
-<td>N/A</td>
-<td>Launched at current tier; increment minor version</td>
-</tr>
-</tbody></table>
-<hr>
-<h2>Migration Guide</h2>
-<p>If a tool transitions from BETA to STABLE or is deprecated, the release notes will include:</p>
-<ol>
-<li>The change (e.g., &quot;doctor_workflow output schema is now stable&quot;)</li>
-<li>Any schema changes in that version</li>
-<li>Guidance for operators updating automation</li>
-</ol>
-<hr>
-<h2>Tool Stability Matrix</h2>
-<table>
-<thead>
-<tr>
-<th>Tool</th>
-<th>Tier</th>
-<th>Category</th>
-<th>Stability Since</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>list</td>
-<td>STABLE</td>
-<td>Workspace</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>grep</td>
-<td>STABLE</td>
-<td>Workspace</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>read</td>
-<td>STABLE</td>
-<td>Workspace</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>replace_repomix_span</td>
-<td>BETA</td>
-<td>Workspace</td>
-<td>v0.2.0</td>
-</tr>
-<tr>
-<td>inspect</td>
-<td>STABLE</td>
-<td>Planning</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>bundle</td>
-<td>STABLE</td>
-<td>Planning</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>doctor_mcp</td>
-<td>BETA</td>
-<td>Doctor</td>
-<td>v0.2.0</td>
-</tr>
-<tr>
-<td>doctor_workflow</td>
-<td>BETA</td>
-<td>Doctor</td>
-<td>v0.2.0</td>
-</tr>
-<tr>
-<td>doctor_overlaps</td>
-<td>BETA</td>
-<td>Doctor</td>
-<td>v0.2.0</td>
-</tr>
-<tr>
-<td>doctor_secrets</td>
-<td>BETA</td>
-<td>Doctor</td>
-<td>v0.2.0</td>
-</tr>
-<tr>
-<td>notes_new</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_read</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_update</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_delete</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_rename</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_search</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_list</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_backlinks</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_orphans</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_code_links</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_links</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-<tr>
-<td>notes_graph</td>
-<td>STABLE</td>
-<td>Notes</td>
-<td>v0.1.0</td>
-</tr>
-</tbody></table>
-++++
+`bun run ci:guard:fast-lane` so integration suites do not silently leak
+into the low-latency feedback path. Fast-lane runtime is also monitored
+with warning-first regression policy: `bun run ci:test:fast:monitored`
+records timing drift and fails only on sustained significant
+regressions. The workflow graph is gated behind `test-fast`: downstream
+CI lanes do not start if the fast gate is red, and CI artifacts are
+uploaded only after the full lane set passes.
+
+==== STABLE
+
+*Guarantee:* Tools in this tier have a documented, semver-protected API
+contract. Breaking changes require a major version bump of cx-cli.
+
+*Output Schema:* The JSON output structure is locked. Field names,
+types, and presence are guaranteed to remain consistent across minor and
+patch releases.
+
+*Deprecation:* Deprecated features will be signaled 2{plus} releases in
+advance with clear migration guidance.
+
+*Examples:* `list`, `grep`, `read`, `inspect`, `bundle`,
+`notes_new`, `notes_read`, `notes_update`,
+`notes_delete`, `notes_rename`, `notes_search`,
+`notes_list`, `notes_backlinks`, `notes_orphans`,
+`notes_code_links`, `notes_links`, `notes_graph`
+
+*Use in:* Production CI/CD pipelines, long-lived scripts, documented
+integrations.
+
+==== BETA
+
+*Guarantee:* Tools in this tier are functional and actively used, but
+their schema and behavior may evolve in minor releases (e.g., output
+fields added, removed, or renamed).
+
+*Output Schema:* The core functionality is stable, but the JSON
+structure may change between minor versions. Operators should write
+defensive parsers or pin to a specific version.
+
+*Deprecation:* Planned breaking changes will be announced 1 release in
+advance.
+
+*Examples:* `doctor_mcp`, `doctor_workflow`,
+`doctor_overlaps`, `doctor_secrets`,
+`replace_repomix_span`
+
+*Use in:* Scripts that can tolerate schema changes, exploratory
+automation, diagnostic/observability workflows.
+
+==== EXPERIMENTAL
+
+*Guarantee:* Tools in this tier are under active development. APIs and
+behavior are subject to change or removal without notice.
+
+*Deprecation:* No advance notice is provided; experimentals may be
+removed in any release.
+
+*Use in:* Testing, proof-of-concept code, internal tooling only.
+
+==== INTERNAL
+
+*Guarantee:* Tools in this tier are not advertised publicly via MCP.
+They are used internally by cx-cli tests or development workflows.
+
+*Use in:* Tests and internal development only; external tooling should
+not depend on these.
+
+'''''
+
+=== Versioning Policy
+
+[cols=",,",options="header",]
+|===
+|Scenario |Tier |Action
+|Add a new field to a STABLE tool's output |STABLE |Requires major
+version bump
+
+|Rename a field in a BETA tool's output |BETA |Allowed in minor version
+bump
+
+|Remove a BETA tool entirely |BETA |Requires minor version bump with
+1-release deprecation notice
+
+|Remove a STABLE tool |STABLE |Requires major version bump with 2{plus}
+release deprecation notice
+
+|Add a new tool |N/A |Launched at current tier; increment minor version
+|===
+
+'''''
+
+=== Migration Guide
+
+If a tool transitions from BETA to STABLE or is deprecated, the release
+notes will include:
+
+. The change (e.g., "doctor_workflow output schema is now stable")
+. Any schema changes in that version
+. Guidance for operators updating automation
+
+'''''
+
+=== Tool Stability Matrix
+
+[cols=",,,",options="header",]
+|===
+|Tool |Tier |Category |Stability Since
+|list |STABLE |Workspace |v0.1.0
+|grep |STABLE |Workspace |v0.1.0
+|read |STABLE |Workspace |v0.1.0
+|replace_repomix_span |BETA |Workspace |v0.2.0
+|inspect |STABLE |Planning |v0.1.0
+|bundle |STABLE |Planning |v0.1.0
+|doctor_mcp |BETA |Doctor |v0.2.0
+|doctor_workflow |BETA |Doctor |v0.2.0
+|doctor_overlaps |BETA |Doctor |v0.2.0
+|doctor_secrets |BETA |Doctor |v0.2.0
+|notes_new |STABLE |Notes |v0.1.0
+|notes_read |STABLE |Notes |v0.1.0
+|notes_update |STABLE |Notes |v0.1.0
+|notes_delete |STABLE |Notes |v0.1.0
+|notes_rename |STABLE |Notes |v0.1.0
+|notes_search |STABLE |Notes |v0.1.0
+|notes_list |STABLE |Notes |v0.1.0
+|notes_backlinks |STABLE |Notes |v0.1.0
+|notes_orphans |STABLE |Notes |v0.1.0
+|notes_code_links |STABLE |Notes |v0.1.0
+|notes_links |STABLE |Notes |v0.1.0
+|notes_graph |STABLE |Notes |v0.1.0
+|===

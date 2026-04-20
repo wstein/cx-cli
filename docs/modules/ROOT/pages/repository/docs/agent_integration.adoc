@@ -2,367 +2,642 @@
 :page-layout: default
 
 
-++++
-<p><code>cx mcp</code> now has a documented stable subset, but MCP remains an evolving integration surface in 0.4.0.</p>
-<ul>
-<li>The semver-protected subset lives in <a href="stability/">STABILITY.md</a>: core workspace reads (<code>list</code>, <code>grep</code>, <code>read</code>), bundle planning (<code>inspect</code>, <code>bundle</code>), and the stable notes graph and note lifecycle/read tools.</li>
-<li>Beta MCP tools still exist and remain intentionally flexible: diagnostic <code>doctor_*</code> tools and live workspace span replacement can evolve in minor releases.</li>
-<li>Core local workflows are ready for serious use, but external integrators should still pin versions when they depend on beta tools or client-specific transport behavior.</li>
-</ul>
-<p>For production bundles and verification, use <code>cx bundle</code> for artifact proof and <code>cx mcp</code> for live workspace exploration within the documented stability tiers.</p>
-<hr>
-<p>This document explains how to integrate the <code>cx mcp</code> server with common AI agents and IDE integrations. It shows recommended, production-ready configuration patterns, security and safety notes, and troubleshooting tips. Where integrations differ across vendors, examples show the common pattern; verify the final keys with the specific client documentation before deploying.</p>
-<p>Use <a href="../../manual/operating-modes/">Operating Modes</a> as the main conceptual entrypoint, the <a href="../../architecture/mental-model/">Mental Model</a> for canonical semantics, <a href="agent_operating_model/">Agent Operating Model</a> for the policy-facing integration layer, and <a href="../../manual/workflows/#safe-note-mutation-workflow">Safe Note Mutation</a> for the trusted note review loop.</p>
-<p>This document is an integration guide. It should describe client setup, tool flow, and agent-facing metadata, not redefine the canonical semantics already owned by the <a href="../../architecture/mental-model/">Mental Model</a>.</p>
-<h2>Overview</h2>
-<p><code>cx mcp</code> exposes a deterministic, file-scoped Model Context Protocol (MCP) server over standard input/output (stdio). When started from a workspace directory it prefers a colocated <code>cx-mcp.toml</code> profile and will fall back to <code>cx.toml</code> if the MCP profile is absent. In addition to file browsing, the native server also exposes live bundle planning tools plus note reading, search, authoring, renaming, deletion, and note-graph inspection tools so agents can create, inspect, and maintain durable repository knowledge without leaving MCP.</p>
-<p>Use <code>cx bundle</code> for immutable snapshots and verification. Use <code>cx mcp</code> for live workspace exploration, targeted reads, bundle planning, and note maintenance. Both modes obey the same workspace boundary, but they serve different phases of an agent workflow.</p>
-<p>Track B = hypothesis generation. Track A = proof generation. Notes are the durable cognition layer between them.</p>
-<p>By default, MCP sessions are not mutation sessions. Stable read and plan tools are available under the active policy, but note writes and other mutate-capability tools stay denied unless the local operator intentionally enables mutation in the MCP profile.</p>
-<h2>Progressive Onboarding For Operators</h2>
-<p>Start with the smallest possible proof of value:</p>
-<ol>
-<li>Run <code>cx mcp</code>.</li>
-<li>Let the agent call <code>doctor_mcp</code>, <code>notes_search</code>, <code>read</code>, and <code>inspect</code>.</li>
-<li>Only then send the operator to <a href="../../manual/operating-modes/">Operating Modes</a> and the <a href="../../architecture/mental-model/">Mental Model</a> for the deeper model.</li>
-</ol>
-<p>Why this protects you: operators learn the abstraction after they have seen the system move, which lowers confusion without creating a second semantic source of truth inside the integration guide.</p>
-<h2>MCP Test And Debug Cockpit</h2>
-<p>For MCP-specific debugging, use the focused Vitest cockpit instead of the broad repository coverage lane:</p>
-<pre><code class="language-bash">bun run test:vitest:mcp
+`cx mcp` now has a documented stable subset, but MCP remains an evolving
+integration surface in 0.4.0.
+
+* The semver-protected subset lives in
+  xref:page$repository/docs/stability.adoc[Stability Tiers]:
+core workspace reads (`list`, `grep`, `read`), bundle planning
+(`inspect`, `bundle`), and the stable notes graph and note
+lifecycle/read tools.
+* Beta MCP tools still exist and remain intentionally flexible:
+diagnostic `doctor_*` tools and live workspace span replacement can
+evolve in minor releases.
+* Core local workflows are ready for serious use, but external
+integrators should still pin versions when they depend on beta tools or
+client-specific transport behavior.
+
+For production bundles and verification, use `cx bundle` for artifact
+proof and `cx mcp` for live workspace exploration within the documented
+stability tiers.
+
+'''''
+
+This document explains how to integrate the `cx mcp` server with common
+AI agents and IDE integrations. It shows recommended, production-ready
+configuration patterns, security and safety notes, and troubleshooting
+tips. Where integrations differ across vendors, examples show the common
+pattern; verify the final keys with the specific client documentation
+before deploying.
+
+Use the xref:manual/operator-manual.adoc[Operator Manual] for the
+everyday operator path. This page stays focused on client-specific
+configuration, transport behavior, and integration troubleshooting.
+
+Use xref:manual/operating-modes.adoc[Operating Modes] as the main
+conceptual entrypoint, xref:architecture/mental-model.adoc[Mental
+Model] for canonical semantics, xref:page$repository/docs/agent_operating_model.adoc[Agent
+Operating Model] for the policy-facing integration layer, and
+xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note
+Mutation] for the trusted note review loop.
+
+This document is an integration guide. It should describe client setup,
+tool flow, and agent-facing metadata, not redefine the canonical
+semantics already owned by the
+xref:architecture/mental-model.adoc[Mental Model].
+
+=== Overview
+
+`cx mcp` exposes a deterministic, file-scoped Model Context Protocol
+(MCP) server over standard input/output (stdio). When started from a
+workspace directory it prefers a colocated `cx-mcp.toml` profile and
+will fall back to `cx.toml` if the MCP profile is absent. In addition to
+file browsing, the native server also exposes live bundle planning tools
+plus note reading, search, authoring, renaming, deletion, and note-graph
+inspection tools so agents can create, inspect, and maintain durable
+repository knowledge without leaving MCP.
+
+Use `cx bundle` for immutable snapshots and verification. Use `cx mcp`
+for live workspace exploration, targeted reads, bundle planning, and
+note maintenance. Both modes obey the same workspace boundary, but they
+serve different phases of an agent workflow.
+
+Track B = hypothesis generation. Track A = proof generation. Notes are
+the durable cognition layer between them.
+
+By default, MCP sessions are not mutation sessions. Stable read and plan
+tools are available under the active policy, but note writes and other
+mutate-capability tools stay denied unless the local operator
+intentionally enables mutation in the MCP profile.
+
+=== Progressive Onboarding For Operators
+
+Start with the smallest possible proof of value:
+
+. Run `cx mcp`.
+. Let the agent call `doctor_mcp`, `notes_search`, `read`, and
+`inspect`.
+. Only then send the operator to
+xref:manual/operating-modes.adoc[Operating Modes] and
+xref:architecture/mental-model.adoc[Mental Model] for the deeper
+model.
+
+Why this protects you: operators learn the abstraction after they have
+seen the system move, which lowers confusion without creating a second
+semantic source of truth inside the integration guide.
+
+=== MCP Test And Debug Cockpit
+
+For MCP-specific debugging, use the focused Vitest cockpit instead of
+the broad repository coverage lane:
+
+[source,bash]
+----
+bun run test:vitest:mcp
 bun run test:vitest:mcp:ui
 bun run test:vitest:mcp:adversarial
 bun run test:vitest:mcp:adversarial:ui
-</code></pre>
-<p>This cockpit is intentionally narrow. It keeps the run centered on:</p>
-<ul>
-<li>MCP server lifecycle tests under <code>tests/mcp/**</code></li>
-<li>CLI-facing MCP registration and denial tests</li>
-<li>unit-level MCP policy, audit, and doctor report helpers</li>
-</ul>
-<p>Why this matters: policy gating bugs, startup hangs, adversarial tool-runtime failures, and slow import chains usually live inside the MCP boundary, not across the whole repository test surface. The focused UI run makes those failures easier to rerun and easier to localize.</p>
-<p>Use the UI view when you need:</p>
-<ul>
-<li>interactive reruns of a failing MCP slice</li>
-<li>per-file coverage visibility while debugging MCP behavior</li>
-<li>import-graph and module-cost inspection for <code>src/mcp/**</code> and <code>src/cli/commands/mcp.ts</code></li>
-</ul>
-<p>This is still a Track B debugging surface. Promote any fix through the normal Bun verification and CI proof lanes once the MCP issue is understood.</p>
-<h3>MCP Vitest UI Troubleshooting</h3>
-<ul>
-<li>Startup hangs or server boot failures:
-Use <code>bun run test:vitest:mcp:adversarial</code> or <code>bun run test:vitest:mcp:adversarial:ui</code> first. Those lanes stay focused on hostile or degraded startup behavior instead of the whole MCP surface.</li>
-<li>Policy denials or capability surprises:
-Use <code>bun run test:vitest:mcp</code>, then compare the failing case against <code>cx doctor mcp --json</code> and <code>cx mcp catalog --json</code> so the active policy, tool catalog, and the denial-facing tests are looking at the same boundary.</li>
-<li>Slow imports or suspicious startup cost:
-Use <code>bun run test:vitest:mcp:ui</code> and inspect the import graph around <code>src/mcp/**</code> and <code>src/cli/commands/mcp.ts</code>. That is usually faster than treating a startup slowdown like a generic runtime failure.</li>
-</ul>
-<p>Why this helps: the operator can match the failure class to the right cockpit instead of rerunning a broad test surface while guessing whether the problem is startup, policy, or import cost.</p>
-<h2>Agent Point Of View</h2>
-<p>From the agent&#39;s perspective, the MCP session is not a vague &quot;chat with the repo.&quot; It is a structured loop over scoped tools, manifest metadata, and durable notes.</p>
-<h3>Typical MCP Tool Sequence</h3>
-<pre><code class="language-text">doctor_mcp()
-notes_search(query=&quot;dirty state&quot;, limit=5)
-read(path=&quot;src/cli/commands/bundle.ts&quot;, startLine=230, endLine=320)
+----
+
+This cockpit is intentionally narrow. It keeps the run centered on:
+
+* MCP server lifecycle tests under `tests/mcp/**`
+* CLI-facing MCP registration and denial tests
+* unit-level MCP policy, audit, and doctor report helpers
+
+Why this matters: policy gating bugs, startup hangs, adversarial
+tool-runtime failures, and slow import chains usually live inside the
+MCP boundary, not across the whole repository test surface. The focused
+UI run makes those failures easier to rerun and easier to localize.
+
+Use the UI view when you need:
+
+* interactive reruns of a failing MCP slice
+* per-file coverage visibility while debugging MCP behavior
+* import-graph and module-cost inspection for `src/mcp/**` and
+`src/cli/commands/mcp.ts`
+
+This is still a Track B debugging surface. Promote any fix through the
+normal Bun verification and CI proof lanes once the MCP issue is
+understood.
+
+==== MCP Vitest UI Troubleshooting
+
+* Startup hangs or server boot failures: Use
+`bun run test:vitest:mcp:adversarial` or
+`bun run test:vitest:mcp:adversarial:ui` first. Those lanes stay focused
+on hostile or degraded startup behavior instead of the whole MCP
+surface.
+* Policy denials or capability surprises: Use `bun run test:vitest:mcp`,
+then compare the failing case against `cx doctor mcp --json` and
+`cx mcp catalog --json` so the active policy, tool catalog, and the
+denial-facing tests are looking at the same boundary.
+* Slow imports or suspicious startup cost: Use
+`bun run test:vitest:mcp:ui` and inspect the import graph around
+`src/mcp/**` and `src/cli/commands/mcp.ts`. That is usually faster
+than treating a startup slowdown like a generic runtime failure.
+
+Why this helps: the operator can match the failure class to the right
+cockpit instead of rerunning a broad test surface while guessing whether
+the problem is startup, policy, or import cost.
+
+=== Agent Point Of View
+
+From the agent's perspective, the MCP session is not a vague "chat with
+the repo." It is a structured loop over scoped tools, manifest metadata,
+and durable notes.
+
+==== Typical MCP Tool Sequence
+
+[source,text]
+----
+doctor_mcp()
+notes_search(query="dirty state", limit=5)
+read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
 inspect()
-notes_read(id=&quot;20260413153522&quot;)
+notes_read(id="20260413153522")
 bundle()
-</code></pre>
-<p>What the sequence means:</p>
-<ul>
-<li><code>doctor_mcp()</code> confirms the workspace boundary and active policy.</li>
-<li><code>notes_search(...)</code> finds durable prior reasoning before the agent broad-scans files.</li>
-<li><code>read(...)</code> opens only the code span that matters.</li>
-<li><code>inspect()</code> previews the Track A proof path without writing artifacts.</li>
-<li><code>bundle()</code> over MCP is still planning metadata, not an immutable handoff.</li>
-</ul>
-<p>Why this protects you: the agent sees enough structured state to form and test hypotheses without confusing live exploration with artifact proof.</p>
-<h3>Manifest Example From The Agent&#39;s Point Of View</h3>
-<p>When a bundle exists, the agent should consume the manifest as a structured index before reopening raw files:</p>
-<pre><code class="language-json">{
-  &quot;notes&quot;: [
+----
+
+What the sequence means:
+
+* `doctor_mcp()` confirms the workspace boundary and active policy.
+* `notes_search(...)` finds durable prior reasoning before the agent
+broad-scans files.
+* `read(...)` opens only the code span that matters.
+* `inspect()` previews the Track A proof path without writing artifacts.
+* `bundle()` over MCP is still planning metadata, not an immutable
+handoff.
+
+Why this protects you: the agent sees enough structured state to form
+and test hypotheses without confusing live exploration with artifact
+proof.
+
+==== Manifest Example From The Agent's Point Of View
+
+When a bundle exists, the agent should consume the manifest as a
+structured index before reopening raw files:
+
+[source,json]
+----
+{
+  "notes": [
     {
-      &quot;id&quot;: &quot;20260413153522&quot;,
-      &quot;title&quot;: &quot;Manifest-Side Note Summaries&quot;,
-      &quot;summary&quot;: &quot;cx stores high-level note summaries in the manifest JSON so downstream agents can route to the right note before reparsing the full graph.&quot;,
-      &quot;codeLinks&quot;: [&quot;src/manifest/build.ts&quot;]
+      "id": "20260413153522",
+      "title": "Manifest-Side Note Summaries",
+      "summary": "cx stores high-level note summaries in the manifest JSON so downstream agents can route to the right note before reparsing the full graph.",
+      "codeLinks": ["src/manifest/build.ts"]
     }
   ],
-  &quot;sections&quot;: [
+  "sections": [
     {
-      &quot;name&quot;: &quot;docs&quot;,
-      &quot;files&quot;: [
+      "name": "docs",
+      "files": [
         {
-          &quot;path&quot;: &quot;docs/modules/ROOT/pages/architecture/mental-model.adoc&quot;,
-          &quot;tokenCount&quot;: 287,
-          &quot;outputStartLine&quot;: 41,
-          &quot;outputEndLine&quot;: 132
+          "path": "docs/modules/ROOT/pages/architecture/mental-model.adoc",
+          "tokenCount": 287,
+          "outputStartLine": 41,
+          "outputEndLine": 132
         }
       ]
     }
   ]
 }
-</code></pre>
-<p>Why these fields matter to the agent:</p>
-<ul>
-<li><code>summary</code> is the cognition-layer routing hint.</li>
-<li><code>tokenCount</code> tells the agent how much context a file is likely to cost before reopening it.</li>
-<li><code>outputStartLine</code> and <code>outputEndLine</code> tell extraction and downstream review exactly where the packed text lives.</li>
-</ul>
-<p>The agent does not need to guess where the evidence is. The manifest carries routing, size, and coordinate metadata forward explicitly.</p>
-<p>Local init support</p>
-<ul>
-<li><code>cx init</code> now generates additional local agent configuration files to simplify common editor and desktop integration workflows:<ul>
-<li><code>.mcp.json</code> — workspace-local MCP server declaration</li>
-<li><code>.vscode/mcp.json</code> — VS Code MCP server settings</li>
-<li><code>.claude/settings.json</code> — Claude Desktop MCP server enablement</li>
-<li><code>.codex/settings.json</code> — Codex-compatible MCP server enablement</li>
-</ul>
-</li>
-<li>These generated files use <code>cwd = &quot;${workspaceFolder}&quot;</code> so the agent starts from the repository root and resolves <code>cx-mcp.toml</code> or <code>cx.toml</code> correctly.</li>
-</ul>
-<p>TypeScript note:</p>
-<ul>
-<li>The generated TypeScript <code>cx-mcp.toml</code> is the source-oriented authoring overlay by default. It exposes source files and key workspace metadata rather than compiled output only.</li>
-<li><code>cx init --template typescript</code> also generates <code>cx-mcp-build.toml</code> as a separate build-artifact inspection overlay without replacing the default authoring overlay.</li>
-<li>If your repository uses a non-standard source or build layout, adjust the authoring and build overlays independently rather than collapsing them into one profile.</li>
-</ul>
-<p>Template contract note:</p>
-<ul>
-<li><code>cx init</code> now uses a descriptor-backed template contract across supported languages. The current matrix and per-template capability levels live in <code>docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc</code>.</li>
-<li>Enhanced templates such as Elixir, Crystal, Go, Rust, and Zig keep their default MCP overlays source-first rather than exposing build caches by default.</li>
-</ul>
-<p>Key behavior to remember</p>
-<ul>
-<li>The server is started by running <code>cx mcp</code> in the repository root.</li>
-<li>Transport: stdio (stdin/stdout)</li>
-</ul>
-<h3>Tool Taxonomy: The Three Pillars</h3>
-<p>The <code>cx mcp</code> server exposes three distinct tool groups to the agent. This grouping teaches the agent the boundaries of the system subsystems:</p>
-<h4>1. Core OS Neutral Tools</h4>
-<p>Provides basic workspace visibility and content retrieval.</p>
-<ul>
-<li><code>list</code>: Enumerate the workspace file inventory.</li>
-<li><code>grep</code>: Perform high-speed content search.</li>
-<li><code>read</code>: Fetch file content with optional line anchors.</li>
-<li><code>replace_repomix_span</code>: Perform exact, line-based file edits.</li>
-</ul>
-<h4>2. Notes Management Commands</h4>
-<p>Enables the maintenance of a durable repository knowledge graph.</p>
-<ul>
-<li><code>notes_new</code> / <code>notes_read</code> / <code>notes_update</code> / <code>notes_delete</code>: CRUD operations for atomic notes.</li>
-<li><code>notes_list</code> / <code>notes_search</code>: Discovery of existing knowledge.</li>
-<li><code>notes_backlinks</code> / <code>notes_links</code> / <code>notes_orphans</code>: Graph relationship auditing.</li>
-</ul>
-<h4>3. CX Bundler Diagnostics</h4>
-<p>Tools for interacting with the <code>cx</code> planning and safety engine.</p>
-<ul>
-<li><code>inspect</code>: Preview the live bundle plan without writing files.</li>
-<li><code>bundle</code>: Preview the live bundle snapshot (metadata only).</li>
-<li><code>doctor_mcp</code>: Inspect the resolved MCP profile and file scopes.</li>
-<li><code>doctor_workflow</code>: Get a recommended tool sequence for specific tasks.</li>
-<li><code>doctor_overlaps</code>: Diagnose duplicate section ownership.</li>
-<li><code>doctor_secrets</code>: Pre-flight the workspace against the secret scanner.</li>
-</ul>
-<p><em>For prompt engineering and strict machine-tooling policies (e.g., separating safe operations from destructive edits), refer to the <a href="mcp_tool_intent_taxonomy/">MCP Tool Intent Taxonomy</a>.</em></p>
-<p>Security boundary: <code>cx-mcp.toml</code> is the intended MCP-specific profile; <code>cx doctor mcp</code> shows the resolved profile and effective <code>files.include</code> / <code>files.exclude</code> that determine tool visibility.</p>
-<ul>
-<li>Intentional boundary: MCP is for live workspace inspection and editing only. Artifact generation, verification, and extraction stay with the CLI and CI handoff path.</li>
-</ul>
-<p>Because the server communicates over stdio, clients simply need to launch <code>cx mcp</code> as a subprocess and bind to its stdin/stdout. The examples below follow that pattern.</p>
-<p>Example note lifecycle with MCP tools:</p>
-<pre><code class="language-text">notes_new(title=&quot;Research Note&quot;, body=&quot;Initial observation.&quot;, tags=[&quot;research&quot;])
-notes_read(id=&quot;20260414120000&quot;)
-notes_update(id=&quot;20260414120000&quot;, body=&quot;Refined observation after review.&quot;, tags=[&quot;research&quot;, &quot;updated&quot;])
-notes_rename(id=&quot;20260414120000&quot;, title=&quot;Research Note v2&quot;)
-notes_delete(id=&quot;20260414120000&quot;)
-</code></pre>
-<p>Example live edit loop with span replacement:</p>
-<pre><code class="language-text">read(path=&quot;src/index.ts&quot;, startLine=1, endLine=12)
-replace_repomix_span(path=&quot;src/index.ts&quot;, startLine=4, endLine=4, replacement=&quot;export const target = &#39;universe&#39;;&quot;)
-read(path=&quot;src/index.ts&quot;, startLine=1, endLine=12)
-</code></pre>
-<h2>Supported integration patterns</h2>
-<ul>
-<li>Local IDE agent extensions that support MCP over stdio (VS Code extensions such as Cline / Roo Code / other MCP-capable extensions)</li>
-<li>Desktop agents that support configuring stdio MCP servers (Claude Desktop and similar)</li>
-<li>Custom agent frameworks (LangChain-style adapters or direct MCP clients using the upstream <code>@modelcontextprotocol</code> SDK)</li>
-</ul>
-<h2>Examples</h2>
-<p>Note: these examples document the common, production-ready patterns. They are intentionally conservative about absolute configuration keys (different extensions use different keys). When in doubt, prefer providing the full command (<code>/absolute/path/to/cx</code>) and an explicit <code>cwd</code> set to the repository root.</p>
-<ol>
-<li>Claude Desktop (example)</li>
-</ol>
-<p>Many desktop agent apps allow a JSON configuration block to declare external MCP servers. A typical config snippet (example only — verify file path and exact key names for your Claude Desktop install) looks like:</p>
-<pre><code class="language-json">{
-  &quot;mcpServers&quot;: {
-    &quot;cx-workspace&quot;: {
-      &quot;command&quot;: &quot;cx&quot;,
-      &quot;args&quot;: [&quot;mcp&quot;],
-      &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,
-      &quot;env&quot;: {
-        &quot;CX_STRICT&quot;: &quot;true&quot;
+----
+
+Why these fields matter to the agent:
+
+* `summary` is the cognition-layer routing hint.
+* `tokenCount` tells the agent how much context a file is likely to cost
+before reopening it.
+* `outputStartLine` and `outputEndLine` tell extraction and downstream
+review exactly where the packed text lives.
+
+The agent does not need to guess where the evidence is. The manifest
+carries routing, size, and coordinate metadata forward explicitly.
+
+Local init support
+
+* `cx init` now generates additional local agent configuration files to
+simplify common editor and desktop integration workflows:
+** `.mcp.json` — workspace-local MCP server declaration
+** `.vscode/mcp.json` — VS Code MCP server settings
+** `.claude/settings.json` — Claude Desktop MCP server enablement
+** `.codex/settings.json` — Codex-compatible MCP server enablement
+* These generated files use `cwd = "${workspaceFolder}"` so the
+agent starts from the repository root and resolves `cx-mcp.toml` or
+`cx.toml` correctly.
+
+TypeScript note:
+
+* The generated TypeScript `cx-mcp.toml` is the source-oriented
+authoring overlay by default. It exposes source files and key workspace
+metadata rather than compiled output only.
+* `cx init --template typescript` also generates `cx-mcp-build.toml` as
+a separate build-artifact inspection overlay without replacing the
+default authoring overlay.
+* If your repository uses a non-standard source or build layout, adjust
+the authoring and build overlays independently rather than collapsing
+them into one profile.
+
+Template contract note:
+
+* `cx init` now uses a descriptor-backed template contract across
+supported languages. The current matrix and per-template capability
+levels live in
+xref:page$repository/docs/init_template_contract.adoc[Init Template Contract].
+* Enhanced templates such as Elixir, Crystal, Go, Rust, and Zig keep
+their default MCP overlays source-first rather than exposing build
+caches by default.
+
+Key behavior to remember
+
+* The server is started by running `cx mcp` in the repository root.
+* Transport: stdio (stdin/stdout)
+
+==== Tool Taxonomy: The Three Pillars
+
+The `cx mcp` server exposes three distinct tool groups to the agent.
+This grouping teaches the agent the boundaries of the system subsystems:
+
+===== 1. Core OS Neutral Tools
+
+Provides basic workspace visibility and content retrieval.
+
+* `list`: Enumerate the workspace file inventory.
+* `grep`: Perform high-speed content search.
+* `read`: Fetch file content with optional line anchors.
+* `replace_repomix_span`: Perform exact, line-based file edits.
+
+===== 2. Notes Management Commands
+
+Enables the maintenance of a durable repository knowledge graph.
+
+* `notes_new` / `notes_read` / `notes_update` /
+`notes_delete`: CRUD operations for atomic notes.
+* `notes_list` / `notes_search`: Discovery of existing
+knowledge.
+* `notes_backlinks` / `notes_links` / `notes_orphans`: Graph
+relationship auditing.
+
+===== 3. CX Bundler Diagnostics
+
+Tools for interacting with the `cx` planning and safety engine.
+
+* `inspect`: Preview the live bundle plan without writing files.
+* `bundle`: Preview the live bundle snapshot (metadata only).
+* `doctor_mcp`: Inspect the resolved MCP profile and file scopes.
+* `doctor_workflow`: Get a recommended tool sequence for specific
+tasks.
+* `doctor_overlaps`: Diagnose duplicate section ownership.
+* `doctor_secrets`: Pre-flight the workspace against the secret
+scanner.
+
+_For prompt engineering and strict machine-tooling policies (e.g.,
+separating safe operations from destructive edits), refer to the
+xref:page$repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy].
+
+Security boundary: `cx-mcp.toml` is the intended MCP-specific profile;
+`cx doctor mcp` shows the resolved profile and effective `files.include`
+/ `files.exclude` that determine tool visibility.
+
+* Intentional boundary: MCP is for live workspace inspection and editing
+only. Artifact generation, verification, and extraction stay with the
+CLI and CI handoff path.
+
+Because the server communicates over stdio, clients simply need to
+launch `cx mcp` as a subprocess and bind to its stdin/stdout. The
+examples below follow that pattern.
+
+Example note lifecycle with MCP tools:
+
+[source,text]
+----
+notes_new(title="Research Note", body="Initial observation.", tags=["research"])
+notes_read(id="20260414120000")
+notes_update(id="20260414120000", body="Refined observation after review.", tags=["research", "updated"])
+notes_rename(id="20260414120000", title="Research Note v2")
+notes_delete(id="20260414120000")
+----
+
+Example live edit loop with span replacement:
+
+[source,text]
+----
+read(path="src/index.ts", startLine=1, endLine=12)
+replace_repomix_span(path="src/index.ts", startLine=4, endLine=4, replacement="export const target = 'universe';")
+read(path="src/index.ts", startLine=1, endLine=12)
+----
+
+=== Supported integration patterns
+
+* Local IDE agent extensions that support MCP over stdio (VS Code
+extensions such as Cline / Roo Code / other MCP-capable extensions)
+* Desktop agents that support configuring stdio MCP servers (Claude
+Desktop and similar)
+* Custom agent frameworks (LangChain-style adapters or direct MCP
+clients using the upstream `@modelcontextprotocol` SDK)
+
+=== Examples
+
+Note: these examples document the common, production-ready patterns.
+They are intentionally conservative about absolute configuration keys
+(different extensions use different keys). When in doubt, prefer
+providing the full command (`/absolute/path/to/cx`) and an explicit
+`cwd` set to the repository root.
+
+. Claude Desktop (example)
+
+Many desktop agent apps allow a JSON configuration block to declare
+external MCP servers. A typical config snippet (example only — verify
+file path and exact key names for your Claude Desktop install) looks
+like:
+
+[source,json]
+----
+{
+  "mcpServers": {
+    "cx-workspace": {
+      "command": "cx",
+      "args": ["mcp"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "CX_STRICT": "true"
       }
     }
   }
 }
-</code></pre>
-<p>Notes:</p>
-<ul>
-<li>Use an absolute path for <code>command</code> if the app runs in an environment where <code>PATH</code> differs from your interactive shell (e.g. <code>/usr/local/bin/cx</code>).</li>
-<li><code>cwd</code> should point to the repository root so <code>cx</code> can find <code>cx-mcp.toml</code> or <code>cx.toml</code>.</li>
-</ul>
-<ol start="2">
-<li>VS Code and AI-centric VS Code extensions (Cline, Roo Code, Cursor adapters)</li>
-</ol>
-<p>VS Code extensions vary in the JSON schema they expose for MCP servers. Many follow the same logical structure: a server name, a transport type (<code>stdio</code>), the command to run, args, and an optional <code>cwd</code> and <code>env</code>. Example (pseudoconfig for an MCP-capable extension):</p>
-<pre><code class="language-json">{
-  &quot;mcp.servers&quot;: {
-    &quot;cx-workspace&quot;: {
-      &quot;transport&quot;: &quot;stdio&quot;,
-      &quot;command&quot;: &quot;cx&quot;,
-      &quot;args&quot;: [&quot;mcp&quot;],
-      &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,
-      &quot;env&quot;: {
-        &quot;CX_STRICT&quot;: &quot;true&quot;
+----
+
+Notes:
+
+* Use an absolute path for `command` if the app runs in an environment
+where `PATH` differs from your interactive shell (e.g.
+`/usr/local/bin/cx`).
+* `cwd` should point to the repository root so `cx` can find
+`cx-mcp.toml` or `cx.toml`.
+
+[start=2]
+. VS Code and AI-centric VS Code extensions (Cline, Roo Code, Cursor
+adapters)
+
+VS Code extensions vary in the JSON schema they expose for MCP servers.
+Many follow the same logical structure: a server name, a transport type
+(`stdio`), the command to run, args, and an optional `cwd` and `env`.
+Example (pseudoconfig for an MCP-capable extension):
+
+[source,json]
+----
+{
+  "mcp.servers": {
+    "cx-workspace": {
+      "transport": "stdio",
+      "command": "cx",
+      "args": ["mcp"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "CX_STRICT": "true"
       }
     }
   }
 }
-</code></pre>
-<p>How to apply in VS Code:</p>
-<ul>
-<li>Install the MCP-capable AI extension you want (Cline, Roo Code, Cursor-style plugin, etc.).</li>
-<li>Open the extension&#39;s settings or its JSON settings file and add an MCP server block using the pattern above.</li>
-<li>Start the extension agent; it will spawn <code>cx mcp</code> and bind to its stdio.</li>
-</ul>
-<ol start="3">
-<li>Cursor / Codex / other AI-first IDEs</li>
-</ol>
-<p>Cursor and other AI-first IDEs expose either a direct MCP configuration pane or accept extension-provided MCP server declarations. Use the same <code>stdio</code> pattern: <code>cx mcp</code> as the command and the repository root as <code>cwd</code>.</p>
-<ol start="4">
-<li>JetBrains IDEs (IntelliJ, WebStorm, Rider) and AI plugins</li>
-</ol>
-<p>JetBrains IDEs typically rely on plugin-specific configuration. If the plugin supports registering an external MCP server, register a stdio server using the <code>cx mcp</code> command. Otherwise, many JetBrains AI plugins allow a local agent to be configured via an executable path — point that to your <code>cx</code> wrapper.</p>
-<ol start="5">
-<li>Agent frameworks and custom adapters (LangChain, LangGraph, custom MCP client)</li>
-</ol>
-<p>If you are building or adapting an agent framework to talk to <code>cx mcp</code>, prefer using the official Model Context Protocol SDKs (where available) or implement a robust stdio client that:</p>
-<ul>
-<li>spawns <code>cx mcp</code> with the correct <code>cwd</code> and <code>env</code></li>
-<li>forwards stdin and reads stdout/stderr reliably</li>
-<li>responds to SIGINT/SIGTERM and closes the server gracefully</li>
-</ul>
-<p>Example (pseudocode, conceptual):</p>
-<pre><code class="language-text">spawnProcess(command: &quot;/usr/local/bin/cx&quot;, args: [&quot;mcp&quot;], cwd: &quot;/path/to/repo&quot;, env: { CX_STRICT: &quot;true&quot; })
+----
+
+How to apply in VS Code:
+
+* Install the MCP-capable AI extension you want (Cline, Roo Code,
+Cursor-style plugin, etc.).
+* Open the extension's settings or its JSON settings file and add an MCP
+server block using the pattern above.
+* Start the extension agent; it will spawn `cx mcp` and bind to its
+stdio.
+
+[start=3]
+. Cursor / Codex / other AI-first IDEs
+
+Cursor and other AI-first IDEs expose either a direct MCP configuration
+pane or accept extension-provided MCP server declarations. Use the same
+`stdio` pattern: `cx mcp` as the command and the repository root as
+`cwd`.
+
+[start=4]
+. JetBrains IDEs (IntelliJ, WebStorm, Rider) and AI plugins
+
+JetBrains IDEs typically rely on plugin-specific configuration. If the
+plugin supports registering an external MCP server, register a stdio
+server using the `cx mcp` command. Otherwise, many JetBrains AI plugins
+allow a local agent to be configured via an executable path — point that
+to your `cx` wrapper.
+
+[start=5]
+. Agent frameworks and custom adapters (LangChain, LangGraph, custom MCP
+client)
+
+If you are building or adapting an agent framework to talk to `cx mcp`,
+prefer using the official Model Context Protocol SDKs (where available)
+or implement a robust stdio client that:
+
+* spawns `cx mcp` with the correct `cwd` and `env`
+* forwards stdin and reads stdout/stderr reliably
+* responds to SIGINT/SIGTERM and closes the server gracefully
+
+Example (pseudocode, conceptual):
+
+[source,text]
+----
+spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
 bindStdioToMcpClient(process.stdin, process.stdout)
-discoverTools() -&gt; [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
-</code></pre>
-<ol start="6">
-<li>Neovim / Emacs / Terminal-based workflows</li>
-</ol>
-<p>The same stdio pattern works for editor integrations that can spawn a subprocess. Ensure the working directory and environment are correct, and the editor plugin is able to manage a long-running subprocess.</p>
-<h2>Security and safety</h2>
-<ul>
-<li>Limit the agent&#39;s working directory: run <code>cx mcp</code> in the repository root so <code>cx</code> can apply the intended <code>files.include</code> / <code>files.exclude</code> scope. Do not run it from a higher-level directory that would broaden the agent&#39;s visibility.</li>
-<li>Use a colocated <code>cx-mcp.toml</code> to create a deliberate, scoped agent profile when exposing the server to 3rd-party tools.</li>
-<li>Expect note writes and other mutate-capability tools to be denied unless <code>[mcp] policy = &quot;unrestricted&quot;</code> and <code>enable_mutation = true</code> are both set in the active profile.</li>
-<li>Prefer <code>CX_STRICT=true</code> in CI or shared environments if you want the server to treat Category B warnings as failures.</li>
-<li>Audit the effective MCP profile with <code>cx doctor mcp --config cx.toml</code> before allowing production agents to connect.</li>
-</ul>
-<h2>Troubleshooting</h2>
-<ul>
-<li>Agent cannot find <code>cx</code>: use an absolute path to the <code>cx</code> binary.</li>
-<li>Agent cannot find <code>cx-mcp.toml</code> or <code>cx.toml</code>: ensure <code>cwd</code> points to the repository root and the config file exists. Use <code>cx doctor mcp</code> to see the resolved profile.</li>
-<li>Tools missing: confirm the running server advertises <code>list</code>, <code>grep</code>, <code>read</code>, and the note tools above (these are provided by the native MCP implementation). If you need additional capabilities, build a wrapper MCP server that composes other tools, or extend <code>cx</code> itself.</li>
-</ul>
-<h2>Reference &amp; crosslinks</h2>
-<ul>
-<li>Operator manual: <code>docs/modules/ROOT/pages/manual/operator-manual.adoc</code> — quick operator flows and MCP usage notes.</li>
-<li>Configuration reference: <code>docs/modules/ROOT/pages/manual/config-reference.adoc</code> — config precedence, <code>cx-mcp.toml</code> vs <code>cx.toml</code>, and <code>files.include</code>/<code>files.exclude</code> behavior.</li>
-<li>Extraction safety: <code>docs/modules/ROOT/pages/repository/docs/extraction_safety.adoc</code> — safe extraction and recovery rules.</li>
-<li>MCP server implementation: <code>src/mcp/server.ts</code> (server lifecycle and stdio transport) and <code>src/mcp/tools.ts</code> (registered tools and behavior).</li>
-</ul>
-<h2>Recommended quickstart (one-page)</h2>
-<p>This quickstart is intended for non-expert operators who need a minimal, repeatable setup to connect an IDE or local agent to <code>cx mcp</code>.</p>
-<ol>
-<li>Verify <code>cx</code> is runnable</li>
-</ol>
-<ul>
-<li>Open a terminal in your workspace root and run:</li>
-</ul>
-<pre><code class="language-bash">cx --version
-</code></pre>
-<p>If the command is not found, either add the <code>cx</code> binary to your <code>PATH</code> or use its absolute path (e.g. <code>/usr/local/bin/cx</code> or the <code>bin/cx</code> file in a local checkout).</p>
-<ol start="2">
-<li>Ensure an MCP profile exists</li>
-</ol>
-<ul>
-<li>Prefer a colocated <code>cx-mcp.toml</code>. If you do not need a separate MCP profile, a <code>cx.toml</code> in the workspace root is sufficient.</li>
-</ul>
-<ol start="3">
-<li>Start a test server manually</li>
-</ol>
-<p>From the workspace root, start the server to confirm it launches and advertises tools:</p>
-<pre><code class="language-bash">cx mcp
-</code></pre>
-<p>You should see no interactive output (the process binds to stdio). Open another terminal and run diagnostics:</p>
-<pre><code class="language-bash">cx doctor mcp --config cx.toml
-</code></pre>
-<p>This prints the resolved profile and the effective <code>files.include</code> / <code>files.exclude</code> that govern what the agent can see.</p>
-<ol start="4">
-<li>Configure your client</li>
-</ol>
-<ul>
-<li>When configuring the client, use the <code>cx mcp</code> command as the executable and set its <code>cwd</code> to the repository root.</li>
-<li>Prefer an absolute <code>command</code> path if the client runs in a different environment (CI, GUI app sandbox).</li>
-</ul>
-<ol start="5">
-<li>Validate from the client</li>
-</ol>
-<ul>
-<li>Once the client has started the MCP connection, verify the agent can call the <code>list</code> and <code>read</code> tools for a small, permitted file. If the agent cannot see files you expect, re-run <code>cx doctor mcp</code> and check your <code>cwd</code> and config file placement.</li>
-</ul>
-<h2>Exact integration snippet: Claude Desktop (macOS example)</h2>
-<p>On macOS the user config for Claude Desktop often lives under <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>. A practical production-ready snippet follows — use an absolute path to the <code>cx</code> binary to avoid PATH differences between GUI apps and shells:</p>
-<pre><code class="language-json">{
-  &quot;mcpServers&quot;: {
-    &quot;cx-workspace&quot;: {
-      &quot;command&quot;: &quot;/usr/local/bin/cx&quot;,
-      &quot;args&quot;: [&quot;mcp&quot;],
-      &quot;cwd&quot;: &quot;/Users/&lt;your-username&gt;/path/to/repo&quot;,
-      &quot;env&quot;: {
-        &quot;CX_STRICT&quot;: &quot;true&quot;
+discoverTools() -> [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
+----
+
+[start=6]
+. Neovim / Emacs / Terminal-based workflows
+
+The same stdio pattern works for editor integrations that can spawn a
+subprocess. Ensure the working directory and environment are correct,
+and the editor plugin is able to manage a long-running subprocess.
+
+=== Security and safety
+
+* Limit the agent's working directory: run `cx mcp` in the repository
+root so `cx` can apply the intended `files.include` / `files.exclude`
+scope. Do not run it from a higher-level directory that would broaden
+the agent's visibility.
+* Use a colocated `cx-mcp.toml` to create a deliberate, scoped agent
+profile when exposing the server to 3rd-party tools.
+* Expect note writes and other mutate-capability tools to be denied
+unless `[mcp] policy = "unrestricted"` and
+`enable_mutation = true` are both set in the active profile.
+* Prefer `CX_STRICT=true` in CI or shared environments if you want
+the server to treat Category B warnings as failures.
+* Audit the effective MCP profile with `cx doctor mcp --config cx.toml`
+before allowing production agents to connect.
+
+=== Troubleshooting
+
+* Agent cannot find `cx`: use an absolute path to the `cx` binary.
+* Agent cannot find `cx-mcp.toml` or `cx.toml`: ensure `cwd` points to
+the repository root and the config file exists. Use `cx doctor mcp` to
+see the resolved profile.
+* Tools missing: confirm the running server advertises `list`, `grep`,
+`read`, and the note tools above (these are provided by the native MCP
+implementation). If you need additional capabilities, build a wrapper
+MCP server that composes other tools, or extend `cx` itself.
+
+=== Reference & crosslinks
+
+* Operator manual:
+  xref:manual/operator-manual.adoc[Operator Manual] — quick operator
+  flows and MCP usage notes.
+* Configuration reference:
+  xref:manual/config-reference.adoc[Configuration Reference] —
+  config precedence, `cx-mcp.toml` vs `cx.toml`, and
+  `files.include` / `files.exclude` behavior.
+* Extraction safety:
+  xref:page$repository/docs/extraction_safety.adoc[Extraction Safety] —
+  safe extraction and recovery rules.
+* MCP server implementation: `src/mcp/server.ts` (server lifecycle and
+stdio transport) and `src/mcp/tools.ts` (registered tools and behavior).
+
+=== Recommended quickstart (one-page)
+
+This quickstart is intended for non-expert operators who need a minimal,
+repeatable setup to connect an IDE or local agent to `cx mcp`.
+
+. Verify `cx` is runnable
+
+* Open a terminal in your workspace root and run:
+
+[source,bash]
+----
+cx --version
+----
+
+If the command is not found, either add the `cx` binary to your `PATH`
+or use its absolute path (e.g. `/usr/local/bin/cx` or the `bin/cx` file
+in a local checkout).
+
+[start=2]
+. Ensure an MCP profile exists
+
+* Prefer a colocated `cx-mcp.toml`. If you do not need a separate MCP
+profile, a `cx.toml` in the workspace root is sufficient.
+
+[start=3]
+. Start a test server manually
+
+From the workspace root, start the server to confirm it launches and
+advertises tools:
+
+[source,bash]
+----
+cx mcp
+----
+
+You should see no interactive output (the process binds to stdio). Open
+another terminal and run diagnostics:
+
+[source,bash]
+----
+cx doctor mcp --config cx.toml
+----
+
+This prints the resolved profile and the effective `files.include` /
+`files.exclude` that govern what the agent can see.
+
+[start=4]
+. Configure your client
+
+* When configuring the client, use the `cx mcp` command as the
+executable and set its `cwd` to the repository root.
+* Prefer an absolute `command` path if the client runs in a different
+environment (CI, GUI app sandbox).
+
+[start=5]
+. Validate from the client
+
+* Once the client has started the MCP connection, verify the agent can
+call the `list` and `read` tools for a small, permitted file. If the
+agent cannot see files you expect, re-run `cx doctor mcp` and check your
+`cwd` and config file placement.
+
+=== Exact integration snippet: Claude Desktop (macOS example)
+
+On macOS the user config for Claude Desktop often lives under
+`~/Library/Application Support/Claude/claude_desktop_config.json`.
+A practical production-ready snippet follows — use an absolute path to
+the `cx` binary to avoid PATH differences between GUI apps and shells:
+
+[source,json]
+----
+{
+  "mcpServers": {
+    "cx-workspace": {
+      "command": "/usr/local/bin/cx",
+      "args": ["mcp"],
+      "cwd": "/Users/<your-username>/path/to/repo",
+      "env": {
+        "CX_STRICT": "true"
       }
     }
   }
 }
-</code></pre>
-<ul>
-<li>Replace <code>/usr/local/bin/cx</code> with the absolute path to your <code>cx</code> binary.</li>
-<li>Replace the <code>cwd</code> value with the repository root. This keeps the agent scoped to the intended config file and file visibility rules.</li>
-</ul>
-<h2>Troubleshooting FAQ (short)</h2>
-<p>Q: The agent reports it cannot find the server executable.
-A: Use an absolute path for <code>command</code> in your client config. GUI apps often have a different PATH than an interactive shell.</p>
-<p>Q: The agent can connect but cannot see files I expect.
-A: Confirm <code>cwd</code> is the repository root. Run <code>cx doctor mcp --config cx.toml</code> from that same directory to inspect the effective MCP profile. Verify <code>files.include</code> / <code>files.exclude</code> and section rules.</p>
-<p>Q: The agent shows missing tools (<code>list</code>, <code>grep</code>, <code>read</code>).
-A: Ensure you started the native <code>cx mcp</code> server (not a wrapper that omits tools). The native server registers these tools in <code>src/mcp/tools.ts</code>. If you need other tools, implement them as an MCP tool extension and register them with the server.</p>
-<p>Q: The agent process terminates immediately with no output.
-A: The MCP server uses stdio and typically runs as a background subprocess. Confirm you started it with the correct command and <code>cwd</code>. Check the client logs and the subprocess stderr for errors. Running <code>cx mcp</code> manually from a terminal helps identify initialization errors.</p>
-<p>Q: I want a more restricted view for the agent — how do I scope it?
-A: Create a <code>cx-mcp.toml</code> in the workspace root that narrows <code>files.include</code> and <code>files.exclude</code>. Use <code>cx doctor mcp</code> to validate the effective scope before onboarding an external agent.</p>
-<p>Q: How do I make agents treat warnings as errors in shared environments?
-A: Set <code>CX_STRICT=true</code> in the agent&#39;s environment block (or use <code>cx --strict</code> when starting the server). This forces Category B behaviors into failure mode.</p>
-<p>Q: Any recommendations for CI or automated QA?
-A: Use <code>cx doctor mcp</code> as a pre-flight check and include <code>cx verify</code> in downstream validation. Consider adding a link-checker job for docs and an automated <code>cx doctor</code> run for agent onboarding verification.</p>
-<p>Appendix: Example <code>claude_desktop_config.json</code> fragment</p>
-<pre><code class="language-json">{
-  &quot;mcpServers&quot;: {
-    &quot;cx-workspace&quot;: { &quot;command&quot;: &quot;cx&quot;, &quot;args&quot;: [&quot;mcp&quot;] }
+----
+
+* Replace `/usr/local/bin/cx` with the absolute path to your `cx`
+binary.
+* Replace the `cwd` value with the repository root. This keeps the agent
+scoped to the intended config file and file visibility rules.
+
+=== Troubleshooting FAQ (short)
+
+Q: The agent reports it cannot find the server executable. A: Use an
+absolute path for `command` in your client config. GUI apps often have a
+different PATH than an interactive shell.
+
+Q: The agent can connect but cannot see files I expect. A: Confirm `cwd`
+is the repository root. Run `cx doctor mcp --config cx.toml` from that
+same directory to inspect the effective MCP profile. Verify
+`files.include` / `files.exclude` and section rules.
+
+Q: The agent shows missing tools (`list`, `grep`, `read`). A: Ensure you
+started the native `cx mcp` server (not a wrapper that omits tools). The
+native server registers these tools in `src/mcp/tools.ts`. If you need
+other tools, implement them as an MCP tool extension and register them
+with the server.
+
+Q: The agent process terminates immediately with no output. A: The MCP
+server uses stdio and typically runs as a background subprocess. Confirm
+you started it with the correct command and `cwd`. Check the client logs
+and the subprocess stderr for errors. Running `cx mcp` manually from a
+terminal helps identify initialization errors.
+
+Q: I want a more restricted view for the agent — how do I scope it? A:
+Create a `cx-mcp.toml` in the workspace root that narrows
+`files.include` and `files.exclude`. Use `cx doctor mcp` to validate the
+effective scope before onboarding an external agent.
+
+Q: How do I make agents treat warnings as errors in shared environments?
+A: Set `CX_STRICT=true` in the agent's environment block (or use
+`cx --strict` when starting the server). This forces Category B
+behaviors into failure mode.
+
+Q: Any recommendations for CI or automated QA? A: Use `cx doctor mcp` as
+a pre-flight check and include `cx verify` in downstream validation.
+Consider adding a link-checker job for docs and an automated `cx doctor`
+run for agent onboarding verification.
+
+Appendix: Example `claude_desktop_config.json` fragment
+
+[source,json]
+----
+{
+  "mcpServers": {
+    "cx-workspace": { "command": "cx", "args": ["mcp"] }
   }
 }
-</code></pre>
-<p>Note: the example above is intentionally minimal and mirrors a common pattern in several desktop clients. Always verify the file and key names with the client you are configuring.</p>
-++++
+----
+
+Note: the example above is intentionally minimal and mirrors a common
+pattern in several desktop clients. Always verify the file and key names
+with the client you are configuring.

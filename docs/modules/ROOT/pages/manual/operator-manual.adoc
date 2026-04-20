@@ -168,7 +168,7 @@ JavaScript/TypeScript, Python, Java, Elixir, Julia, Crystal, or Zig, and
 otherwise falls back to the base template.
 
 For the TypeScript template, the generated `Makefile` uses
-lockfile-first package-manager selection (`bun.lock++*++`,
+lockfile-first package-manager selection (`bun.lock*`,
 `pnpm-lock.yaml`, `yarn.lock`, then `package-lock.json` /
 `npm-shrinkwrap.json`) and keeps `install` separate from `build`. The
 normalized local targets are `install`, `build`, `test`, `check`,
@@ -177,14 +177,15 @@ skip with a clear message when the corresponding package scripts are
 absent, and `certify` falls back to `verify` unless the workspace
 defines a stricter package-manager `certify` script. The generated
 `cx-mcp.toml` is the source-oriented authoring overlay and includes
-`src/++**++`, `package.json`, `tsconfig++*++.json`, and `README.md`
-while excluding `node++_++modules/++**++`, `dist/++**++`, and common
+`src/**`, `package.json`, `tsconfig*.json`, and `README.md`
+while excluding `node_modules/**`, `dist/**`, and common
 cache or coverage directories. A companion `cx-mcp-build.toml` is
 generated for compiled-output inspection. Adjust the authoring and build
 overlays independently if your workspace uses a different layout.
 
 The cross-template capability matrix, generated file contract, and
-support levels are documented in INIT_TEMPLATE_CONTRACT.md.
+support levels are documented in
+xref:page$repository/docs/init_template_contract.adoc[Init Template Contract].
 
 `cx init` checks each generated target individually. It preserves
 existing files by default and creates any missing init artifacts; use
@@ -223,6 +224,36 @@ in profile resolution or audit state.
 For concrete integration examples and per-IDE snippets (VS Code/Cline,
 Roo Code, Cursor, Claude Desktop), see the
 xref:page$repository/docs/agent_integration.adoc[Agent Integration Guide].
+
+=== MCP Setup And Daily Operator Use
+
+Use this sequence when you are connecting an agent or IDE to a live
+workspace:
+
+[arabic]
+. Run `cx mcp` from the repository root.
+. Confirm the resolved profile and file boundary with `cx doctor mcp`.
+. Inspect the machine-readable tool contract with `cx mcp catalog --json`.
+. Use `cx-mcp.toml` when you need an MCP-specific overlay; otherwise
+  `cx` falls back to `cx.toml`.
+
+Keep the everyday operator rule simple:
+
+* use `cx mcp` for live reads, searches, planning, and note work
+* use `cx bundle`, `cx validate`, `cx verify`, and `cx extract` for
+  proof-path artifacts
+* keep client-specific setup details in the repository reference guide,
+  not in the front-door operator path
+
+If an agent cannot see the right files, verify these before debugging
+anything deeper:
+
+* `cwd` points at the repository root
+* the active profile is the one you expect
+* `files.include` and `files.exclude` match the intended workspace
+  scope
+* mutation is enabled only when you intentionally want a mutate-capable
+  session
 
 Repository-local `make` shortcuts keep the developer loop compact:
 
@@ -279,11 +310,11 @@ planning, verification, extraction, or MCP sessions.
 
 The native MCP server exposes file-based `list`, `grep`, and `read`
 tools over the workspace scope. It also exposes `inspect`, `bundle`,
-`doctor++_++mcp`, and `doctor++_++workflow` tools for live planning,
-plus note-native `notes++_++read`, `notes++_++search`, `notes++_++new`,
-`notes++_++update`, `notes++_++rename`, `notes++_++delete`,
-`notes++_++list`, `notes++_++backlinks`, `notes++_++orphans`,
-`notes++_++code++_++links`, and `notes++_++links` tools over the notes
+`doctor_mcp`, and `doctor_workflow` tools for live planning,
+plus note-native `notes_read`, `notes_search`, `notes_new`,
+`notes_update`, `notes_rename`, `notes_delete`,
+`notes_list`, `notes_backlinks`, `notes_orphans`,
+`notes_code_links`, and `notes_links` tools over the notes
 corpus. Use `list` to enumerate visible files, `grep` to search their
 contents, and `read` to inspect a specific file with optional line
 anchors without switching back to the packaging workflow.
@@ -309,27 +340,27 @@ CLI and MCP note commands side by side:
 |Task |CLI |MCP
 |Create a note
 |`cx notes new --title "Research Note" --body "Initial observation."`
-|`notes++_++new(title="Research Note", body="Initial observation.")`
+|`notes_new(title="Research Note", body="Initial observation.")`
 
 |Read a note |`cx notes read --id 20260414120000`
-|`notes++_++read(id="20260414120000")`
+|`notes_read(id="20260414120000")`
 
 |Update a note
 |`cx notes update --id 20260414120000 --body "Refined observation."`
-|`notes++_++update(id="20260414120000", body="Refined observation.")`
+|`notes_update(id="20260414120000", body="Refined observation.")`
 
 |Rename a note
 |`cx notes rename --id 20260414120000 --title "Research Note v2"`
-|`notes++_++rename(id="20260414120000", title="Research Note v2")`
+|`notes_rename(id="20260414120000", title="Research Note v2")`
 
 |Delete a note |`cx notes delete --id 20260414120000`
-|`notes++_++delete(id="20260414120000")`
+|`notes_delete(id="20260414120000")`
 
 |Inspect the graph |`cx notes links` / `cx notes backlinks --id ...` /
 `cx notes orphans` / `cx notes code-links --id ...`
-|`notes++_++search(...)` / `notes++_++links(...)` /
-`notes++_++backlinks(...)` / `notes++_++orphans(...)` /
-`notes++_++code++_++links(...)`
+|`notes_search(...)` / `notes_links(...)` /
+`notes_backlinks(...)` / `notes_orphans(...)` /
+`notes_code_links(...)`
 |===
 
 Use the CLI for direct on-disk note lifecycle operations. Use MCP when
@@ -344,7 +375,7 @@ bundle authors, CI maintainers, and remote-runner owners.
 If you are new to the project, read the README first. If you need the
 detailed knobs, read xref:manual/config-reference.adoc[Configuration Reference].
 If you need the full documentation map, read
-xref:start-here/docs-index.adoc[docs/README.md].
+xref:start-here/docs-index.adoc[Documentation Index].
 
 == Friday To Monday Map
 
@@ -363,11 +394,11 @@ unreviewable production input.
 The invariants are the mechanisms that keep Friday's intent queryable
 and safe on Monday.
 
-See: WORKFLOWS/friday-to-monday.md
+See xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday].
 
 == Static Bundle Versus Live MCP
 
-See: MENTAL_MODEL.md
+See xref:architecture/mental-model.adoc[Mental Model].
 
 The two main CX workflows are intentionally different:
 

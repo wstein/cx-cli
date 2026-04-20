@@ -2,55 +2,60 @@
 :page-layout: default
 
 
-++++
-<p>The TypeScript <code>cx init</code> template is designed to be source-first for authoring
-workflows and lockfile-first for package-manager selection.</p>
-<h2>Package Manager Detection</h2>
-<p>The generated <code>Makefile</code> chooses a package manager in this order:</p>
-<ol>
-<li><code>bun.lockb</code> or <code>bun.lock</code></li>
-<li><code>pnpm-lock.yaml</code></li>
-<li><code>yarn.lock</code></li>
-<li><code>package-lock.json</code> or <code>npm-shrinkwrap.json</code></li>
-<li><code>npm</code> when no lockfile exists</li>
-</ol>
-<p>This avoids choosing Bun only because it happens to be installed on the local
-machine.</p>
-<h2>Generated Targets</h2>
-<p>The TypeScript <code>Makefile</code> normalizes these targets:</p>
-<ul>
-<li><code>make install</code></li>
-<li><code>make build</code></li>
-<li><code>make test</code></li>
-<li><code>make check</code></li>
-<li><code>make lint</code></li>
-<li><code>make verify</code></li>
-<li><code>make certify</code></li>
-</ul>
-<p><code>install</code> is intentionally separate from <code>build</code>. Build commands should not
-implicitly mutate dependency state. <code>make lint</code> and <code>make check</code> skip with an
-explicit message when the corresponding package scripts are not present.
-<code>make certify</code> runs the package-manager <code>certify</code> script when one exists and
-otherwise falls back to <code>make verify</code>.</p>
-<h2>MCP Overlays</h2>
-<p><code>cx init --template typescript</code> generates two MCP overlays:</p>
-<ul>
-<li><code>cx-mcp.toml</code>
-Source-oriented authoring overlay for <code>src/**</code>, workspace metadata, and key
-TypeScript config files.</li>
-<li><code>cx-mcp-build.toml</code>
-Build-artifact overlay for <code>dist/**</code> plus minimal package metadata.</li>
-</ul>
-<p>Use the source-oriented overlay for live editing and code understanding. Use the
-build overlay when you want to inspect emitted artifacts without broadening the
-default authoring surface. Edit the authoring and build overlays independently
-when your repository uses nonstandard source or output layouts.</p>
-<h2>When To Customize</h2>
-<p>Adjust the generated overlays if your repository:</p>
-<ul>
-<li>uses a source root other than <code>src/</code></li>
-<li>emits artifacts outside <code>dist/</code></li>
-<li>stores important workspace metadata in additional files</li>
-<li>needs stricter excludes for framework-specific caches</li>
-</ul>
-++++
+The TypeScript `cx init` template is designed to be source-first for
+authoring workflows and lockfile-first for package-manager selection.
+
+=== Package Manager Detection
+
+The generated `Makefile` chooses a package manager in this order:
+
+. `bun.lockb` or `bun.lock`
+. `pnpm-lock.yaml`
+. `yarn.lock`
+. `package-lock.json` or `npm-shrinkwrap.json`
+. `npm` when no lockfile exists
+
+This avoids choosing Bun only because it happens to be installed on the
+local machine.
+
+=== Generated Targets
+
+The TypeScript `Makefile` normalizes these targets:
+
+* `make install`
+* `make build`
+* `make test`
+* `make check`
+* `make lint`
+* `make verify`
+* `make certify`
+
+`install` is intentionally separate from `build`. Build commands should
+not implicitly mutate dependency state. `make lint` and `make check`
+skip with an explicit message when the corresponding package scripts are
+not present. `make certify` runs the package-manager `certify` script
+when one exists and otherwise falls back to `make verify`.
+
+=== MCP Overlays
+
+`cx init --template typescript` generates two MCP overlays:
+
+* `cx-mcp.toml` Source-oriented authoring overlay for `src/**`,
+workspace metadata, and key TypeScript config files.
+* `cx-mcp-build.toml` Build-artifact overlay for `dist/**` plus
+minimal package metadata.
+
+Use the source-oriented overlay for live editing and code understanding.
+Use the build overlay when you want to inspect emitted artifacts without
+broadening the default authoring surface. Edit the authoring and build
+overlays independently when your repository uses nonstandard source or
+output layouts.
+
+=== When To Customize
+
+Adjust the generated overlays if your repository:
+
+* uses a source root other than `src/`
+* emits artifacts outside `dist/`
+* stores important workspace metadata in additional files
+* needs stricter excludes for framework-specific caches
