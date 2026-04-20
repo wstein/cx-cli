@@ -42,6 +42,9 @@ export function extractStructuredPlan(
       content: entry.content,
       sha256: sha256Text(entry.content),
       tokenCount: entry.metadata.tokenCount ?? 0,
+      ...(entry.metadata.language === undefined
+        ? {}
+        : { language: entry.metadata.language }),
     });
   }
 

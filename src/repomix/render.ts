@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-
+import { buildRepomixCliConfig } from "../render/repomixConfig.js";
 import {
   countLogicalLines,
   countNewlines,
@@ -21,7 +21,6 @@ import {
   getRepomixCapabilities as getRepomixCapabilitiesImpl,
   validateRepomixContract,
 } from "./capabilities.js";
-import { buildSectionHeaderText } from "./handover.js";
 import {
   computePlanHash,
   extractStructuredPlan,
@@ -105,63 +104,11 @@ export async function renderSectionWithRepomix(
   const capabilities = await detectRepomixCapabilities();
   const needsOutputSpans = params.requireOutputSpans ?? false;
 
-  const cliConfig: Parameters<typeof mergeConfigs>[2] = {
-    output: {
-      filePath: params.outputPath,
-      style: params.style,
-      parsableStyle: params.style === "json",
-      headerText: buildSectionHeaderText({
-        projectName: params.config.projectName,
-        sectionName: params.sectionName,
-        ...(path.basename(params.outputPath) === "output"
-          ? {}
-          : { outputFile: path.basename(params.outputPath) }),
-        fileCount: params.explicitFiles.length,
-        style: params.style,
-        ...(params.bundleIndexFile === undefined
-          ? {}
-          : { bundleIndexFile: params.bundleIndexFile }),
-      }),
-      fileSummary: true,
-      directoryStructure: true,
-      files: true,
-      // Compression transforms must never be delegated to Repomix: they alter line
-      // coordinates, violate cryptographic invariants, and would overwrite source
-      // files with minified content on extraction. These are unconditionally false.
-      removeComments: false,
-      removeEmptyLines: false,
-      compress: false,
-      showLineNumbers: params.config.repomix.showLineNumbers,
-      copyToClipboard: false,
-      includeEmptyDirectories: params.config.repomix.includeEmptyDirectories,
-      includeFullDirectoryStructure: false,
-      git: {
-        includeDiffs: false,
-        includeLogs: false,
-        includeLogsCount: 50,
-        sortByChanges: false,
-        sortByChangesMaxCommits: 100,
-      },
-      topFilesLength: 5,
-      truncateBase64: true,
-      tokenCountTree: false,
-    },
-    include: [],
-    ignore: {
-      useGitignore: false,
-      useDotIgnore: false,
-      useDefaultPatterns: false,
-      customPatterns: [],
-    },
-    security: {
-      enableSecurityCheck: params.config.repomix.securityCheck,
-    },
-    tokenCount: {
-      encoding: params.config.tokens.encoding,
-    },
-  };
-
-  const mergedConfig = mergeConfigs(params.sourceRoot, {}, cliConfig);
+  const mergedConfig = mergeConfigs(
+    params.sourceRoot,
+    {},
+    buildRepomixCliConfig(params),
+  );
   const warnings: string[] = [];
 
   if (!capabilities.supportsPackStructured) {

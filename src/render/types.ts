@@ -6,6 +6,7 @@ export interface StructuredRenderEntry {
   content: string;
   sha256: string;
   tokenCount: number;
+  language?: string;
 }
 
 export interface StructuredRenderPlan {

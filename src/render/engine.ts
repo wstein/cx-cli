@@ -1,4 +1,5 @@
 import { renderSectionWithRepomix } from "../repomix/render.js";
+import { createNativeRenderSectionFn } from "./native/section.js";
 import type {
   RenderEngine,
   RenderSectionInput,
@@ -21,4 +22,9 @@ export function createRepomixRenderEngine(): RenderEngine {
   return new AdapterBackedRenderEngine(renderSectionWithRepomix);
 }
 
-export const defaultRenderEngine = createRepomixRenderEngine();
+export function createNativeRenderEngine(): RenderEngine {
+  const fallback = createRepomixRenderEngine();
+  return new AdapterBackedRenderEngine(createNativeRenderSectionFn(fallback));
+}
+
+export const defaultRenderEngine = createNativeRenderEngine();

@@ -110,11 +110,15 @@ interface StructuredRenderPlan {
 ### Files
 
 - `src/render/types.ts`: kernel-owned proof-path types
-- `src/render/engine.ts`: render engine interface plus current adapter-backed implementation
+- `src/render/engine.ts`: render engine interface plus the current native-first
+  default implementation
+- `src/render/native/`: native XML and Markdown section renderers plus shared
+  render helpers
 - `src/render/ordering.ts`: deterministic ordering invariant checks
 - `src/render/planHash.ts`: section and aggregate render-plan hashing
 - `src/render/spans.ts`: style-aware output span helpers
-- `src/repomix/render.ts`: current adapter-backed renderer implementing the kernel interface
+- `src/repomix/render.ts`: Repomix-backed renderer retained as the migration
+  oracle and fallback path
 - `src/manifest/types.ts`: Added `renderPlanHash` field
 - `src/manifest/build.ts`: Computes aggregate plan hash from sections
 - `src/bundle/verify.ts`: Validates plan integrity during verification
@@ -199,6 +203,19 @@ determine output file extensions and by `render.ts` to configure the adapter.
 Future rendering backends should follow the same pattern: a new `src/<backend>/`
 directory that exposes a `renderSection` function with the same signature as
 `renderSectionWithRepomix`, keeping core modules unaware of adapter internals.
+
+### Current Migration State
+
+The proof path now uses a native-first default engine:
+
+- XML and Markdown sections are rendered through the native kernel path in
+  `src/render/native/`
+- Plain and JSON sections still delegate to the Repomix-backed oracle path
+- `tests/render/nativeParity.test.ts` is the release-gating evidence that both
+  paths still satisfy the same proof contract
+
+This split is intentional. It lets the kernel take ownership incrementally
+without weakening extraction, verification, or manifest trust.
 
 ## Pipeline
 

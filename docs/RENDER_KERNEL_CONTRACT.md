@@ -189,3 +189,16 @@ Repomix oracle for:
 
 The parity lane is release-gating CI evidence. It proves migration correctness
 without turning the adapter into permanent architecture.
+
+## Current Migration State
+
+The current default proof path is split deliberately:
+
+- `xml` and `markdown` section rendering now flow through the native kernel
+  implementation in [`src/render/native/`](../src/render/native/)
+- `plain` and `json` still use the Repomix-backed adapter path as the oracle
+  implementation
+- the shared handover is already kernel-rendered
+
+This is still one contract. The migration state changes the implementation
+underneath the seam, not the observable proof-path behavior frozen above.
