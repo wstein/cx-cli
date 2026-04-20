@@ -4,7 +4,10 @@ import type { AdapterStructuredPack } from "../adapter/types.js";
 import { relativePosix } from "../shared/fs.js";
 import { normalizeText, sha256Text } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
-import { countTokens } from "../shared/tokens.js";
+import {
+  defaultTokenizerProvider,
+  type TokenizerProvider,
+} from "../shared/tokenizer.js";
 import type { StructuredRenderEntry, StructuredRenderPlan } from "./types.js";
 
 function detectLanguage(relativePath: string): string | undefined {
@@ -51,7 +54,9 @@ export async function buildStructuredPlanFromFiles(params: {
   sourceRoot: string;
   explicitFiles: string[];
   encoding: string;
+  tokenizer?: TokenizerProvider;
 }): Promise<StructuredRenderPlan> {
+  const tokenizer = params.tokenizer ?? defaultTokenizerProvider;
   const entries: StructuredRenderEntry[] = [];
 
   for (const absolutePath of params.explicitFiles) {
@@ -65,7 +70,7 @@ export async function buildStructuredPlanFromFiles(params: {
       path: relativePath,
       content,
       sha256: sha256Text(content),
-      tokenCount: countTokens(content, params.encoding),
+      tokenCount: tokenizer.countTokens(content, params.encoding),
       ...(language === undefined ? {} : { language }),
     });
   }

@@ -1,5 +1,6 @@
 // test-lane: unit
 import { describe, expect, test } from "vitest";
+import type { ScannerPipeline } from "../../src/doctor/scanner.js";
 import type { DoctorSecretsReport } from "../../src/doctor/secrets.js";
 import {
   collectDoctorSecretsReport,
@@ -93,7 +94,9 @@ describe("collectDoctorSecretsReport", () => {
             ReturnType<typeof import("../../src/vcs/provider.js").getVCSState>
           >,
         getMasterList: async () => [] as unknown as string[],
-        runScan: async () => [],
+        scannerPipeline: {
+          scanFiles: async () => [],
+        } satisfies ScannerPipeline,
         readFile: (async () =>
           "") as unknown as typeof import("node:fs/promises").readFile,
       },

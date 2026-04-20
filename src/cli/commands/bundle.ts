@@ -49,7 +49,7 @@ import {
   writeStderr,
   writeValidatedJson,
 } from "../../shared/output.js";
-import { countTokens } from "../../shared/tokens.js";
+import { defaultTokenizerProvider } from "../../shared/tokenizer.js";
 import { CX_VERSION } from "../../shared/version.js";
 import { getRecentFossilHistory } from "../../vcs/fossil.js";
 import { getRecentGitHistory } from "../../vcs/git.js";
@@ -409,6 +409,7 @@ export async function runBundleCommand(
 
   const ciMode = args.ci ?? false;
   const forceMode = args.force ?? false;
+  const tokenizer = defaultTokenizerProvider;
 
   // Dirty-state enforcement: abort on unsafe working trees unless the operator
   // explicitly passes --force (local) or --ci (pipeline) to acknowledge the
@@ -524,7 +525,7 @@ export async function runBundleCommand(
           (sum, file) => sum + file.sizeBytes,
           0,
         );
-        const outputTokenCount = countTokens(
+        const outputTokenCount = tokenizer.countTokens(
           renderResult.outputText,
           config.tokens.encoding,
         );

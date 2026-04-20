@@ -118,6 +118,10 @@ interface StructuredRenderPlan {
 - `src/render/structuredPlan.ts`: kernel-owned structured plan construction for
   native rendering plus adapter-plan extraction for parity/oracle use
 - `src/render/ordering.ts`: deterministic ordering invariant checks
+- `src/shared/tokenizer.ts`: `TokenizerProvider` interface plus the default
+  tokenizer implementation used by bundle, inspect, and render planning
+- `src/doctor/scanner.ts`: `ScannerPipeline` interface plus the reference
+  scanner bridge used by `cx doctor secrets`
 - `src/render/planHash.ts`: section and aggregate render-plan hashing
 - `src/render/spans.ts`: style-aware output span helpers
 - `src/adapter/oracleRender.ts`: reference-oracle renderer retained for parity

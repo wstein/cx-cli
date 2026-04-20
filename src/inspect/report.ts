@@ -4,7 +4,7 @@ import { resolveExtractability } from "../extract/resolution.js";
 import { enrichPlanWithLinkedNotes } from "../notes/planner.js";
 import { buildBundlePlan } from "../planning/buildPlan.js";
 import type { InclusionProvenance } from "../planning/types.js";
-import { countTokensForFiles } from "../shared/tokens.js";
+import { defaultTokenizerProvider } from "../shared/tokenizer.js";
 
 export interface InspectExtractability {
   status: string;
@@ -95,9 +95,10 @@ async function buildTokenBreakdown(
   plan: Awaited<ReturnType<typeof buildBundlePlan>>,
   encoding: string,
 ): Promise<TokenBreakdown> {
+  const tokenizer = defaultTokenizerProvider;
   const sectionTotals = await Promise.all(
     plan.sections.map(async (section) => {
-      const counts = await countTokensForFiles(
+      const counts = await tokenizer.countTokensForFiles(
         section.files.map((file) => file.absolutePath),
         encoding,
       );

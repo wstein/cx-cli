@@ -2,7 +2,7 @@
 id: 20260420120400
 title: Internal API Stabilization
 tags: ["architecture", "api", "refactor"]
-target: v0.4
+target: current
 ---
 The system must stabilize internal interfaces before adding plugins.
 
@@ -32,3 +32,5 @@ All new subsystems must implement defined interfaces.
 ## Links
 
 - [[Render Kernel Constitution]]
+- `src/shared/tokenizer.ts`
+- `src/doctor/scanner.ts`

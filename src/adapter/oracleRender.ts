@@ -14,7 +14,7 @@ import type {
 } from "../render/types.js";
 import { CxError } from "../shared/errors.js";
 import { type CommandIo, writeStderr } from "../shared/output.js";
-import { countTokensForFiles } from "../shared/tokens.js";
+import { defaultTokenizerProvider } from "../shared/tokenizer.js";
 import { buildAdapterRenderConfig } from "./adapterRenderConfig.js";
 import {
   detectAdapterCapabilities,
@@ -228,10 +228,11 @@ export async function renderSectionWithAdapterOracle(
     params.explicitFiles,
   );
   const outputText = await fs.readFile(params.outputPath, "utf8");
-  const countsByAbsolutePath = await countTokensForFiles(
-    params.explicitFiles,
-    params.config.tokens.encoding,
-  );
+  const countsByAbsolutePath =
+    await defaultTokenizerProvider.countTokensForFiles(
+      params.explicitFiles,
+      params.config.tokens.encoding,
+    );
   const fileTokenCounts = new Map<string, number>();
   for (const absolutePath of params.explicitFiles) {
     const relativePath = path

@@ -343,7 +343,7 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
   }
 
   return {
-    requireCognitionScore,
+    ...(requireCognitionScore !== undefined && { requireCognitionScore }),
     strictNotesMode,
     appliesToSections,
   };
