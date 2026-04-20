@@ -192,10 +192,6 @@ exclude = []
                 strictNotesMode: false,
                 appliesToSections: [],
               },
-              notes: {
-                strictNotesMode: false,
-                appliesToSections: [],
-              },
               handover: {
                 includeRepoHistory: false,
                 repoHistoryCount: 25,

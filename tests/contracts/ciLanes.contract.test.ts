@@ -274,8 +274,8 @@ describe("CI lanes contract", () => {
       packageManager?: string;
     };
 
-    expect(pkg.engines?.bun).toBe(">=1.3.11");
-    expect(pkg.packageManager).toBe("bun@1.3.11");
+    expect(pkg.engines?.bun).toBe(">=1.3.12");
+    expect(pkg.packageManager).toBe("bun@1.3.12");
   });
 
   test("fast lane test discovery includes bundle failure-class unit suites", () => {
