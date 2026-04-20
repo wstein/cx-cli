@@ -17,7 +17,7 @@ on:
       - "tests/contracts/pagesPublish.contract.test.ts"
       - "tests/integration/buildAntoraSite.integration.test.ts"
       - "tests/unit/syncAntoraDocs.test.ts"
-      - "tests/unit/assemblePagesSite.test.ts"
+      - "tests/integration/assemblePagesSite.integration.test.ts"
       - "tests/integration/checkPagesSite.integration.test.ts"
   push:
     branches: [main]
@@ -36,7 +36,7 @@ on:
       - "tests/contracts/pagesPublish.contract.test.ts"
       - "tests/integration/buildAntoraSite.integration.test.ts"
       - "tests/unit/syncAntoraDocs.test.ts"
-      - "tests/unit/assemblePagesSite.test.ts"
+      - "tests/integration/assemblePagesSite.integration.test.ts"
       - "tests/integration/checkPagesSite.integration.test.ts"
   workflow_dispatch:
 
