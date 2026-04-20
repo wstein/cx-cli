@@ -201,9 +201,9 @@ Plain and JSON also carry a dedicated native render contract lane for
 style-specific edge cases that are easier to read as direct contract assertions
 than as parity fixtures alone.
 
-## Current Migration State
+## Current Contract State
 
-The current default proof path is split deliberately:
+The default proof path is now split deliberately:
 
 - all four proof styles (`xml`, `markdown`, `plain`, and `json`) now flow
   through the native kernel implementation in
@@ -214,5 +214,5 @@ The current default proof path is split deliberately:
 - the Repomix-backed renderer remains the parity oracle seam, not the default
   proof-path implementation and not a hidden runtime fallback
 
-This is still one contract. The migration state changes the implementation
-underneath the seam, not the observable proof-path behavior frozen above.
+This remains one contract. The current state changes implementation beneath the
+seam, not the observable proof-path behavior frozen above.

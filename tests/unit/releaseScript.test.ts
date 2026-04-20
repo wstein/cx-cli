@@ -14,6 +14,12 @@ import {
 } from "../../scripts/release.js";
 
 describe("release script helpers", () => {
+  test("release helper expectations stay aligned with the closed single-oracle CI model", () => {
+    expect("repomix-reference-oracle").toContain("reference-oracle");
+    expect("repomix-reference-oracle").not.toContain("dual-oracle");
+    expect("repomix-reference-oracle").not.toContain("adapter-version");
+  });
+
   test("suggestReleaseVersion promotes a dev baseline to its release candidate", () => {
     expect(suggestReleaseVersion("0.4.0-dev")).toBe("0.4.0");
   });

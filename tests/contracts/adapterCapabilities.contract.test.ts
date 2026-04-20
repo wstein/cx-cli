@@ -50,10 +50,32 @@ describe("adapter capability contract", () => {
 
     expect(payload.oracleAdapter?.adapterContract).toBe("repomix-pack-v1");
     expect(typeof payload.oracleAdapter?.packageVersion).toBe("string");
+    expect(payload.oracleAdapter?.packageName).toBeDefined();
     expect(payload.referenceAdapter?.packageName).toBe("repomix");
     expect(typeof payload.referenceAdapter?.installed).toBe("boolean");
     expect(payload).not.toHaveProperty("adapter");
     expect(payload).not.toHaveProperty("repomix");
+  });
+
+  test("adapter capability roles stay semantically distinct without fork-era assumptions", async () => {
+    const result = await captureCli({
+      run: () => main(["adapter", "capabilities", "--json"]),
+    });
+    expect(result.exitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      oracleAdapter?: { modulePath?: string; compatibilityStrategy?: string };
+      referenceAdapter?: { modulePath?: string; usage?: string };
+    }>(result.stdout);
+
+    expect(payload.oracleAdapter?.modulePath).toBeDefined();
+    expect(payload.oracleAdapter?.compatibilityStrategy).toContain(
+      "optional parity oracle",
+    );
+    expect(payload.referenceAdapter?.modulePath).toBe("repomix");
+    expect(payload.referenceAdapter?.usage).toBe(
+      "reference-only parity target",
+    );
   });
 
   test("non-adapter JSON surfaces do not leak adapter metadata", async () => {

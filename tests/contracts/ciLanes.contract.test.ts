@@ -135,6 +135,8 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:smoke:repomix-reference-oracle"]).toBe(
       "node scripts/repomix-reference-oracle-smoke.js",
     );
+    expect(scripts["ci:smoke:adapter-version"]).toBeUndefined();
+    expect(scripts["ci:smoke:adapter-dual-oracle"]).toBeUndefined();
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
     );
@@ -184,6 +186,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
+    expect(workflow).not.toContain("adapter-matrix:");
+    expect(workflow).not.toContain("adapter-dual-oracle");
   });
 
   test("CI trials only the official repomix reference oracle", async () => {
@@ -192,6 +196,8 @@ describe("CI lanes contract", () => {
     expect(workflow).not.toContain("@wsmy/repomix-cx-fork");
     expect(workflow).toContain("repomix-reference-oracle:");
     expect(workflow).toContain("bun run ci:smoke:repomix-reference-oracle");
+    expect(workflow).not.toContain("adapter-matrix:");
+    expect(workflow).not.toContain("dual-oracle");
   });
 
   test("downstream CI lanes are gated behind test-fast", async () => {
@@ -265,6 +271,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-compat-smoke");
     expect(workflow).toContain("      - reproducibility");
+    expect(workflow).not.toContain("      - adapter-matrix");
+    expect(workflow).not.toContain("      - adapter-dual-oracle");
   });
 
   test("package metadata declares a minimum supported Bun runtime", async () => {

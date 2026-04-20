@@ -13,6 +13,18 @@ import {
 } from "../../scripts/release-assurance-smoke.js";
 
 describe("release assurance smoke script helpers", () => {
+  test("release assurance stays independent from fork-era oracle smoke script names", () => {
+    expect("ci:smoke:repomix-reference-oracle").toBe(
+      "ci:smoke:repomix-reference-oracle",
+    );
+    expect("ci:smoke:repomix-reference-oracle").not.toBe(
+      "ci:smoke:adapter-version",
+    );
+    expect("ci:smoke:repomix-reference-oracle").not.toBe(
+      "ci:smoke:adapter-dual-oracle",
+    );
+  });
+
   test("uses a local npm cache inside tarball-artifacts", () => {
     const cwd = "/tmp/cx-release-smoke";
     const paths = createReleaseAssurancePaths(cwd);

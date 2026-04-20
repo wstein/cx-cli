@@ -54,6 +54,8 @@ describe("release assurance contract", () => {
     expect(scripts["ci:smoke:repomix-reference-oracle"]).toBe(
       "node scripts/repomix-reference-oracle-smoke.js",
     );
+    expect(scripts["ci:smoke:adapter-version"]).toBeUndefined();
+    expect(scripts["ci:smoke:adapter-dual-oracle"]).toBeUndefined();
     expect(scripts["ci:smoke:bundle-transition"]).toBe(
       "node scripts/bundle-transition-smoke.js",
     );
@@ -84,6 +86,8 @@ describe("release assurance contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("bun run ci:smoke:repomix-reference-oracle");
+    expect(workflow).not.toContain("ci:smoke:adapter-version");
+    expect(workflow).not.toContain("ci:smoke:adapter-dual-oracle");
     expect(workflow).toContain("bun run ci:notes:governance");
     expect(workflow).toContain(
       'bun run ci:smoke:bundle-transition -- --transition "$' +
@@ -123,5 +127,13 @@ describe("release assurance contract", () => {
     expect(workflow).toContain('git merge --ff-only "');
     expect(workflow).toContain("needs.gate.outputs.release_sha");
     expect(workflow).toContain("git push origin main");
+  });
+
+  test("release checklist names the reference-oracle smoke lane instead of fork-era smoke lanes", async () => {
+    const checklist = await readText("docs/RELEASE_CHECKLIST.md");
+
+    expect(checklist).toContain("official Repomix reference-oracle smoke lane");
+    expect(checklist).not.toContain("Repomix fork compatibility smoke");
+    expect(checklist).not.toContain("dual-oracle");
   });
 });
