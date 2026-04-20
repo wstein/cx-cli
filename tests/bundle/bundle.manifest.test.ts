@@ -117,6 +117,28 @@ It should become the manifest summary.
     expect(handover).toMatch(/- [a-f0-9]{12} init/);
   });
 
+  test("omits repository history from the shared handover outside git worktrees", async () => {
+    const project = await createProject({
+      config: {
+        handover: {
+          includeRepoHistory: true,
+          repoHistoryCount: 30,
+        },
+      },
+    });
+
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const handoverPath = path.join(
+      project.bundleDir,
+      manifest.handoverFile ?? "demo-handover.xml.txt",
+    );
+    const handover = await fs.readFile(handoverPath, "utf8");
+
+    expect(handover).not.toContain("recent repository history:");
+  });
+
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,

@@ -8,6 +8,10 @@ This document describes the knobs. For the operator workflow, read [Operator Man
 
 A JSON Schema is available at `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json` to enable editor autocomplete, linting, and validation for `cx.toml` files. Inherited overlays such as `cx-mcp.toml` can use `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`. These files are the source of truth for the public Pages endpoints, and the published npm package also ships `schemas/` for offline use. GitHub Releases mirror the same files as immutable snapshots. These schemas validate structural shape and enforce enum constraints.
 
+Pre-`v1.0.0`, published schema versions remain available on Pages under their
+versioned filenames so downstream tooling can pin explicit contract versions.
+The plan is to begin a fresh schema history baseline at `v1.0.0`.
+
 ### Using the schema in VS Code with Taplo
 
 Add the following comment directive to the top of your `cx.toml`:

@@ -51,7 +51,7 @@ import {
 import { countTokens } from "../../shared/tokens.js";
 import { CX_VERSION } from "../../shared/version.js";
 import { getRecentGitHistory } from "../../vcs/git.js";
-import type { DirtyState } from "../../vcs/provider.js";
+import type { DirtyState, VCSKind } from "../../vcs/provider.js";
 import { BundleCommandJsonSchema } from "../jsonContracts.js";
 
 export interface BundleArgs {
@@ -99,6 +99,31 @@ interface RenderedSectionArtifacts {
   fileContentHashes: Map<string, string>;
   fileSpans?: Map<string, { outputStartLine: number; outputEndLine: number }>;
   planHash?: string;
+}
+
+export async function collectSharedHandoverRepoHistory(params: {
+  includeRepoHistory: boolean;
+  repoHistoryCount: number;
+  vcsKind: VCSKind;
+  sourceRoot: string;
+  emitWarning: (message: string) => void;
+  historyLoader?: typeof getRecentGitHistory;
+}) {
+  const historyLoader = params.historyLoader ?? getRecentGitHistory;
+
+  if (!params.includeRepoHistory || params.vcsKind !== "git") {
+    return [];
+  }
+
+  try {
+    return await historyLoader(params.sourceRoot, params.repoHistoryCount);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    params.emitWarning(
+      `failed to collect recent repository history for shared handover: ${message}`,
+    );
+    return [];
+  }
 }
 
 function assertSafeBundleRelativePath(value: string): void {
@@ -323,21 +348,13 @@ export async function runBundleCommand(
       ...plan.sections.flatMap((section) => section.files),
       ...plan.assets,
     ]);
-    const repoHistory =
-      config.handover.includeRepoHistory && plan.vcsKind === "git"
-        ? await getRecentGitHistory(
-            plan.sourceRoot,
-            config.handover.repoHistoryCount,
-          ).catch((error: unknown) => {
-            const message =
-              error instanceof Error ? error.message : String(error);
-            writeStderr(
-              `Warning: failed to collect recent repository history for shared handover: ${message}\n`,
-              io,
-            );
-            return [];
-          })
-        : [];
+    const repoHistory = await collectSharedHandoverRepoHistory({
+      includeRepoHistory: config.handover.includeRepoHistory,
+      repoHistoryCount: config.handover.repoHistoryCount,
+      vcsKind: plan.vcsKind,
+      sourceRoot: plan.sourceRoot,
+      emitWarning: (message) => writeStderr(`Warning: ${message}\n`, io),
+    });
 
     await Promise.all(
       plan.assets.map(async (asset) => {
