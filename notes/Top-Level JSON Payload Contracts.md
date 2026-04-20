@@ -32,7 +32,8 @@ Current example:
 - `cx adapter capabilities --json` exposes `oracleAdapter` and
   `referenceAdapter` as explicit contract roles
 - JSON shared handovers expose `recentRepositoryHistory[].message` for full
-  multiline commit content rather than a misleading subject-only field name
+  multiline commit content rather than a misleading subject-only field name,
+  and that shape is now published under `shared-handover-v2.schema.json`
 
 ## Rule
 

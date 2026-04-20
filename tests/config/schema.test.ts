@@ -280,10 +280,18 @@ describe("published manifest schemas", async () => {
 });
 
 describe("published json artifact schemas", async () => {
-  const sharedHandoverSchema = JSON.parse(
+  const sharedHandoverV1Schema = JSON.parse(
     await fs.readFile(
       path.resolve(
         path.join(HERE, "../../schemas/shared-handover-v1.schema.json"),
+      ),
+      "utf8",
+    ),
+  ) as JsonSchema;
+  const sharedHandoverV2Schema = JSON.parse(
+    await fs.readFile(
+      path.resolve(
+        path.join(HERE, "../../schemas/shared-handover-v2.schema.json"),
       ),
       "utf8",
     ),
@@ -298,8 +306,11 @@ describe("published json artifact schemas", async () => {
   ) as JsonSchema;
 
   test("use the GitHub Pages host", () => {
-    expect(sharedHandoverSchema.$id).toBe(
+    expect(sharedHandoverV1Schema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json",
+    );
+    expect(sharedHandoverV2Schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json",
     );
     expect(jsonSectionOutputSchema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json",

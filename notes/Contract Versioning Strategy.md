@@ -15,6 +15,7 @@ Semver alone is not enough for the system's most important contracts. The major 
 - plugin API version
 - workflow contract version when behavior changes would break operators
 - machine-readable CLI payload naming when migration metadata changes shape
+- JSON artifact schemas when field semantics change for downstream consumers
 
 ## Why
 
@@ -28,6 +29,13 @@ Treat contract versioning as a first-class design rule:
 - document the owned surface for each contract
 - gate breaking changes with tests and release criteria
 - refuse silent behavior drift across version boundaries
+
+Recent example:
+
+- shared-handover JSON schema `v2` publishes the
+  `recentRepositoryHistory[].message` contract explicitly after the runtime
+  moved from a subject-oriented history shape to full multiline commit
+  messages
 
 ## Rule
 

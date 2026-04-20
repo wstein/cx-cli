@@ -36,6 +36,8 @@ The current implementation keeps the surface intentionally narrow:
 - `include_repo_history` enables or disables repository-history inclusion
 - `repo_history_count` bounds the newest-first history window
 - multiline messages are preserved, but diffs are never included
+- JSON handovers publish that multiline history shape through the versioned
+  `shared-handover-v2.schema.json` contract
 
 ## Rule
 

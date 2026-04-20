@@ -38,8 +38,9 @@ Default policy:
 - keep newest/oldest ordering fixed and documented
 
 For JSON handovers, the history payload is carried as
-`recentRepositoryHistory[].message` so downstream tooling does not mistake
-multiline commit content for a short subject-only field.
+`recentRepositoryHistory[].message`. That field shape is now explicitly
+published in `shared-handover-v2.schema.json` so downstream tooling does not
+mistake multiline commit content for a short subject-only field.
 
 ## Rule
 

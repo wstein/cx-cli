@@ -343,7 +343,7 @@ accepted.
 
 Published Pages URLs:
 
-- `https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json`
+- `https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json`
 - `https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json`
 
 Then verify graph reachability from a seed note:
