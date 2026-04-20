@@ -15,7 +15,7 @@ not before them.
 
 For the documentation map, see [README.md](README.md).
 
-The project deliberately wraps Repomix in a stricter system because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics.
+The project now centers a native render kernel because rendering alone is not enough for CI/CD. A pipeline also needs deterministic planning, exact metadata, verification, and explicit recovery semantics. The remaining adapter/oracle seam exists for diagnostics and parity visibility, not as the shipped proof path.
 
 ## Canonical Model
 
@@ -26,9 +26,7 @@ This document starts where the shared mental model stops. The mental model defin
 
 ## Philosophy
 
-Repomix is a strong exploratory packager.
-
-`cx` is an operational bundler.
+`cx` is an operational bundler with a kernel-owned proof path.
 
 That distinction explains most of the architecture:
 
@@ -57,7 +55,7 @@ not about swapping frameworks for their own sake.
 
 ## System Boundary
 
-`cx` does not shell out to Repomix. It uses a narrow adapter boundary and only relies on public exports it actually needs.
+`cx` does not shell out to the adapter/oracle runtime. It uses a narrow boundary and only relies on the small public surface it actually needs for diagnostics and parity work.
 
 Core responsibility split:
 
@@ -80,9 +78,10 @@ The stabilized internal seams that sit beneath that contract are recorded in
 [`INTERNAL_API_CONTRACT.md`](./INTERNAL_API_CONTRACT.md).
 
 `cx` enforces a deterministic structured render contract instead of relying on
-heuristic span parsing.
+heuristic span parsing. The native kernel owns the production proof model; the
+adapter/oracle seam is comparison-only.
 
-The repomix adapter provides `packStructured()`, which returns:
+The structured render contract is represented as:
 
 ```ts
 interface StructuredRenderEntry {
@@ -192,8 +191,8 @@ cli/commands/                    ← presentation layer (thin shells)
 
 ## Adapter Boundary
 
-The `src/adapter/` directory is the explicit adapter boundary between `cx` core
-logic and the rendering backend.
+The `src/adapter/` directory is the explicit boundary between `cx` core logic
+and the external oracle/reference runtime.
 
 - `oracleRender.ts` owns parity-only calls into the adapter. Nothing outside
   this module invokes adapter render functions directly.
@@ -205,14 +204,15 @@ logic and the rendering backend.
 
 The `[repomix]` section in `cx.toml` is adapter-specific configuration.
 `cx.toml` keys like `show_line_numbers`, `include_empty_directories`, and
-`security_check` are passed through exclusively within `oracleRender.ts` and are never
-interpreted by the planner, manifest builder, or any other core module. `style`
-is the single key shared between the two layers: it is used by the planner to
-determine output file extensions and by `oracleRender.ts` to configure the adapter.
+`security_check` are passed through exclusively within adapter/scanner bridge
+code and are never interpreted by the planner, manifest builder, or any other
+core proof-path module. `style` is the single key shared between the two
+layers: it is used by the planner to determine output file extensions and by
+adapter/oracle code only when comparison tooling needs it.
 
-Future rendering backends should follow the same pattern: a new `src/<backend>/`
-directory that exposes a `renderSection` function with the same signature as
-`renderSectionWithAdapterOracle`, keeping core modules unaware of adapter internals.
+Future external comparison backends should follow the same pattern: a new
+`src/<backend>/` directory that exposes the same comparison seam while keeping
+core modules unaware of adapter internals.
 
 ### Current Migration State
 
@@ -223,10 +223,10 @@ The proof path now uses a native-only production engine:
 - `tests/render/nativeParity.test.ts` is the release-gating evidence that the
   reference oracle and native kernel still satisfy the same proof contract
 
-This split is intentional. It lets the kernel take ownership incrementally
+This split is intentional. It lets the kernel own the production proof path
 without weakening extraction, verification, or manifest trust. Official
-`repomix` now remains only as an optional reference oracle for parity/testing
-work; the older fork is historical.
+`repomix` remains only as an optional reference oracle for parity/testing work;
+the older fork is historical.
 
 ## Pipeline
 
