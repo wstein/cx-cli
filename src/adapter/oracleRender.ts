@@ -15,22 +15,22 @@ import type {
 import { CxError } from "../shared/errors.js";
 import { type CommandIo, writeStderr } from "../shared/output.js";
 import { defaultTokenizerProvider } from "../shared/tokenizer.js";
-import { buildAdapterRenderConfig } from "./adapterRenderConfig.js";
 import {
   detectOracleAdapterCapabilities,
-  getAdapterModulePath,
+  getOracleAdapterModulePath,
   validateOracleAdapterContract,
 } from "./capabilities.js";
-import type { AdapterModule } from "./types.js";
+import { buildOracleAdapterRenderConfig } from "./oracleAdapterRenderConfig.js";
+import type { OracleAdapterModule } from "./types.js";
 
 /**
  * Load the configured adapter module at runtime for parity/oracle rendering.
  * Ordinary kernel-owned proof-path bundling does not pass through this seam.
  */
-async function loadAdapterModule(): Promise<AdapterModule> {
+async function loadOracleAdapterModule(): Promise<OracleAdapterModule> {
   // Dynamic import honours any --adapter-path override set before command dispatch.
   // The cast is safe: the adapter is expected to satisfy the local adapter contract.
-  return import(getAdapterModulePath()) as Promise<AdapterModule>;
+  return import(getOracleAdapterModulePath()) as Promise<OracleAdapterModule>;
 }
 
 function emitWarning(
@@ -67,7 +67,7 @@ export async function renderSectionWithAdapterOracle(
     };
   }
 
-  const adapter = await loadAdapterModule();
+  const adapter = await loadOracleAdapterModule();
   const { mergeConfigs, pack, packStructured } = adapter;
   const capabilities = await detectOracleAdapterCapabilities();
   const needsOutputSpans = params.requireOutputSpans ?? false;
@@ -82,7 +82,7 @@ export async function renderSectionWithAdapterOracle(
   const mergedConfig = mergeConfigs(
     params.sourceRoot,
     {},
-    buildAdapterRenderConfig(params),
+    buildOracleAdapterRenderConfig(params),
   );
   const warnings: string[] = [];
 

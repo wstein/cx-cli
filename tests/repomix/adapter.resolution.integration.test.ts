@@ -5,16 +5,16 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
-  getAdapterModulePath,
-  setAdapterPath,
+  getOracleAdapterModulePath,
+  setOracleAdapterPath,
 } from "../../src/adapter/capabilities.js";
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
 
-const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
+const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
 
 afterEach(() => {
-  setAdapterPath(DEFAULT_ADAPTER_PATH);
+  setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
 });
 
 describe("Repomix adapter filesystem resolution (integration)", () => {
@@ -27,7 +27,7 @@ describe("Repomix adapter filesystem resolution (integration)", () => {
       withRenderWithMap: true,
       withPack: false,
     });
-    setAdapterPath(adapterDir);
+    setOracleAdapterPath(adapterDir);
 
     const result = await renderSectionWithAdapterOracle({
       config: fixture.config,

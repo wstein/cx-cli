@@ -1,10 +1,10 @@
 import path from "node:path";
 import {
   detectOracleAdapterCapabilities,
-  getAdapterModulePath,
   getOracleAdapterCapabilities,
+  getOracleAdapterModulePath,
   getOracleAdapterRuntimeInfo,
-  getReferenceAdapterModulePath,
+  getReferenceOracleAdapterModulePath,
 } from "../../adapter/capabilities.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -245,8 +245,8 @@ async function runAdapterDoctor(
   ioArg: Partial<CommandIo>,
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const adapterPath = getAdapterModulePath();
-  const referenceAdapterPath = getReferenceAdapterModulePath();
+  const adapterPath = getOracleAdapterModulePath();
+  const referenceAdapterPath = getReferenceOracleAdapterModulePath();
   const checks: Array<{
     name: string;
     passed: boolean;

@@ -1,5 +1,5 @@
-import { getReferenceAdapterModulePath } from "../adapter/capabilities.js";
-import type { AdapterModule } from "../adapter/types.js";
+import { getReferenceOracleAdapterModulePath } from "../adapter/capabilities.js";
+import type { OracleAdapterModule } from "../adapter/types.js";
 import { CxError } from "../shared/errors.js";
 
 export type ScannerSeverity = "warning" | "error";
@@ -42,7 +42,9 @@ export interface ScannerPipeline {
   ): Promise<ScannerPipelineReport>;
 }
 
-export type ScannerRunner = NonNullable<AdapterModule["runSecurityCheck"]>;
+export type ScannerRunner = NonNullable<
+  OracleAdapterModule["runSecurityCheck"]
+>;
 
 export function createScannerPipelineFromRunner(
   runSecurityCheck: ScannerRunner,
@@ -97,10 +99,12 @@ export function createScannerPipelineFromRunner(
 }
 
 export async function loadReferenceScannerPipeline(
-  loadModule: () => Promise<AdapterModule> = async () =>
-    (await import(getReferenceAdapterModulePath())) as AdapterModule,
+  loadModule: () => Promise<OracleAdapterModule> = async () =>
+    (await import(
+      getReferenceOracleAdapterModulePath()
+    )) as OracleAdapterModule,
 ): Promise<ScannerPipeline> {
-  const adapterPath = getReferenceAdapterModulePath();
+  const adapterPath = getReferenceOracleAdapterModulePath();
   const adapter = await loadModule();
 
   if (typeof adapter.runSecurityCheck !== "function") {

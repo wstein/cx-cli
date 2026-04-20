@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 
-import type { AdapterStructuredPack } from "../adapter/types.js";
+import type { OracleAdapterStructuredPack } from "../adapter/types.js";
 import { relativePosix } from "../shared/fs.js";
 import { normalizeText, sha256Text } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
@@ -90,7 +90,7 @@ export async function buildStructuredPlanFromFiles(params: {
  * verify against belongs to the render kernel.
  */
 export function extractStructuredPlan(
-  structuredPack: AdapterStructuredPack,
+  structuredPack: OracleAdapterStructuredPack,
 ): StructuredRenderPlan {
   const entries: StructuredRenderEntry[] = [];
 

@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve as resolvePath } from "node:path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { setAdapterPath } from "../adapter/capabilities.js";
+import { setOracleAdapterPath } from "../adapter/capabilities.js";
 import { setCLIOverrides } from "../config/env.js";
 import { asError, CxError, formatErrorRemediation } from "../shared/errors.js";
 import {
@@ -151,7 +151,7 @@ export async function main(
     })
     .middleware((args) => {
       if (typeof args["adapter-path"] === "string") {
-        setAdapterPath(args["adapter-path"]);
+        setOracleAdapterPath(args["adapter-path"]);
       }
 
       if (args.strict === true) {

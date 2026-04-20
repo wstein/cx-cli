@@ -6,8 +6,8 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
-  getAdapterModulePath,
-  setAdapterPath,
+  getOracleAdapterModulePath,
+  setOracleAdapterPath,
 } from "../../src/adapter/capabilities.js";
 import { renderSection } from "../../src/adapter/section.js";
 import {
@@ -15,11 +15,11 @@ import {
   writeMockRepomixAdapter,
 } from "../repomix/helpers.js";
 
-const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
+const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
 const TEMP_PATHS: string[] = [];
 
 afterEach(async () => {
-  setAdapterPath(DEFAULT_ADAPTER_PATH);
+  setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
   await Promise.all(
     TEMP_PATHS.splice(0).map((tmpPath) =>
       fs.rm(tmpPath, { recursive: true, force: true }),
@@ -38,7 +38,7 @@ describe("renderSection", () => {
       withRenderWithMap: true,
       withPack: false,
     });
-    setAdapterPath(adapterDir);
+    setOracleAdapterPath(adapterDir);
 
     const fixture = await createRenderFixture();
     TEMP_PATHS.push(fixture.rootDir);

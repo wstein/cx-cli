@@ -38,7 +38,7 @@ const require = createRequire(import.meta.url);
  * Override the adapter module path.
  * Must be called before any adapter operation (e.g. from CLI middleware).
  */
-export function setAdapterPath(p: string): void {
+export function setOracleAdapterPath(p: string): void {
   _adapterPath = p;
 }
 
@@ -46,7 +46,7 @@ export function setAdapterPath(p: string): void {
  * The effective oracle module path for expert adapter diagnostics and parity
  * rendering. Ordinary kernel-owned proof-path execution does not consult it.
  */
-export function getAdapterModulePath(): string {
+export function getOracleAdapterModulePath(): string {
   return _adapterPath ?? DEFAULT_ORACLE_ADAPTER;
 }
 
@@ -103,7 +103,7 @@ async function getOracleRuntimeInfoForPath(
 }
 
 export async function getOracleAdapterRuntimeInfo(): Promise<OracleAdapterRuntimeInfo> {
-  const adapterPath = getAdapterModulePath();
+  const adapterPath = getOracleAdapterModulePath();
   const pathsToTry =
     adapterPath !== DEFAULT_ORACLE_ADAPTER
       ? [adapterPath, DEFAULT_ORACLE_ADAPTER]
@@ -122,13 +122,13 @@ export async function getOracleAdapterRuntimeInfo(): Promise<OracleAdapterRuntim
   };
 }
 
-export function getReferenceAdapterModulePath(): string {
+export function getReferenceOracleAdapterModulePath(): string {
   return DEFAULT_REFERENCE_ADAPTER;
 }
 
 export async function getReferenceOracleRuntimeInfo(): Promise<ReferenceOracleRuntimeInfo> {
   const runtimeInfo = await getOracleRuntimeInfoForPath(
-    getReferenceAdapterModulePath(),
+    getReferenceOracleAdapterModulePath(),
   );
   if (runtimeInfo) {
     return {
@@ -138,7 +138,7 @@ export async function getReferenceOracleRuntimeInfo(): Promise<ReferenceOracleRu
   }
 
   return {
-    packageName: getReferenceAdapterModulePath(),
+    packageName: getReferenceOracleAdapterModulePath(),
     packageVersion: "unavailable",
     installed: false,
   };
@@ -151,7 +151,7 @@ export async function getReferenceOracleRuntimeInfo(): Promise<ReferenceOracleRu
  */
 export async function detectOracleAdapterCapabilities(): Promise<OracleAdapterCapabilities> {
   try {
-    const mod = (await import(getAdapterModulePath())) as Record<
+    const mod = (await import(getOracleAdapterModulePath())) as Record<
       string,
       unknown
     >;
@@ -179,7 +179,7 @@ export async function validateOracleAdapterContract(): Promise<
   { valid: true } | { valid: false; errors: string[] }
 > {
   const capabilities = await detectOracleAdapterCapabilities();
-  const adapterPath = getAdapterModulePath();
+  const adapterPath = getOracleAdapterModulePath();
   const errors: string[] = [];
 
   const runtimeInfo = await getOracleRuntimeInfoForPath(adapterPath);
@@ -226,7 +226,7 @@ export async function getOracleAdapterCapabilities() {
 
   return {
     oracleAdapter: {
-      modulePath: getAdapterModulePath(),
+      modulePath: getOracleAdapterModulePath(),
       packageName: runtimeInfo.packageName,
       packageVersion: runtimeInfo.packageVersion,
       adapterContract: ADAPTER_CONTRACT,
@@ -237,7 +237,7 @@ export async function getOracleAdapterCapabilities() {
         contractValidation.valid === false ? contractValidation.errors : [],
     },
     referenceAdapter: {
-      modulePath: getReferenceAdapterModulePath(),
+      modulePath: getReferenceOracleAdapterModulePath(),
       packageName: referenceRuntimeInfo.packageName,
       packageVersion: referenceRuntimeInfo.packageVersion,
       installed: referenceRuntimeInfo.installed,

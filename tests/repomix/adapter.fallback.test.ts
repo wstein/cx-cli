@@ -6,16 +6,16 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
-  getAdapterModulePath,
   getOracleAdapterCapabilities,
-  setAdapterPath,
+  getOracleAdapterModulePath,
+  setOracleAdapterPath,
 } from "../../src/adapter/capabilities.js";
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
 
-const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
+const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
 const mockAdapterDirs: string[] = [];
 
 async function installMockAdapter(options: {
@@ -28,7 +28,7 @@ async function installMockAdapter(options: {
   );
   mockAdapterDirs.push(adapterDir);
   await writeMockRepomixAdapter(adapterDir, options);
-  setAdapterPath(pathToFileURL(path.join(adapterDir, "index.js")).href);
+  setOracleAdapterPath(pathToFileURL(path.join(adapterDir, "index.js")).href);
 }
 
 afterEach(async () => {
@@ -37,7 +37,7 @@ afterEach(async () => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.resetModules();
-  setAdapterPath(DEFAULT_ADAPTER_PATH);
+  setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
   await Promise.all(
     mockAdapterDirs
       .splice(0)

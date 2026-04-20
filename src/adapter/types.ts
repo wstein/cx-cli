@@ -4,7 +4,7 @@
  * The native proof path does not depend on these runtime adapter types during
  * ordinary bundle, validate, verify, or extract execution.
  */
-export interface AdapterRenderConfig {
+export interface OracleAdapterRenderConfig {
   output: {
     filePath: string;
     style: "xml" | "markdown" | "json" | "plain";
@@ -46,7 +46,7 @@ export interface AdapterRenderConfig {
   };
 }
 
-export interface AdapterStructuredEntry {
+export interface OracleAdapterStructuredEntry {
   path: string;
   content: string;
   metadata: {
@@ -55,49 +55,49 @@ export interface AdapterStructuredEntry {
   };
 }
 
-export interface AdapterRenderedFileSpan {
+export interface OracleAdapterRenderedFileSpan {
   path: string;
   startOffset: number;
   endOffset: number;
   startLine: number;
 }
 
-export interface AdapterStructuredPack {
-  entries: AdapterStructuredEntry[];
+export interface OracleAdapterStructuredPack {
+  entries: OracleAdapterStructuredEntry[];
   render(style: "xml" | "markdown" | "json" | "plain"): Promise<string>;
   renderWithMap?: (style: "xml" | "markdown" | "json" | "plain") => Promise<{
     output: string;
-    files: AdapterRenderedFileSpan[];
+    files: OracleAdapterRenderedFileSpan[];
   }>;
 }
 
-export interface SuspiciousFileResult {
+export interface OracleSuspiciousFileResult {
   type?: string;
   filePath: string;
   messages: string[];
 }
 
-export interface AdapterModule {
+export interface OracleAdapterModule {
   mergeConfigs?: (
     rootDir: string,
     fileConfig: Record<string, unknown>,
-    cliConfig: AdapterRenderConfig,
-  ) => AdapterRenderConfig;
+    cliConfig: OracleAdapterRenderConfig,
+  ) => OracleAdapterRenderConfig;
   pack?: (
     rootDirs: string[],
-    config: AdapterRenderConfig,
+    config: OracleAdapterRenderConfig,
     progress: (...args: unknown[]) => void,
     options: Record<string, unknown>,
     explicitFiles: string[],
   ) => Promise<void>;
   packStructured?: (
     rootDirs: string[],
-    config: AdapterRenderConfig,
+    config: OracleAdapterRenderConfig,
     options: {
       explicitFiles: string[];
     },
-  ) => Promise<AdapterStructuredPack>;
+  ) => Promise<OracleAdapterStructuredPack>;
   runSecurityCheck?: (
     files: Array<{ path: string; content: string }>,
-  ) => Promise<SuspiciousFileResult[]>;
+  ) => Promise<OracleSuspiciousFileResult[]>;
 }
