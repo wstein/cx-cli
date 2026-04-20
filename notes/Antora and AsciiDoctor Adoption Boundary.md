@@ -3,9 +3,9 @@ id: 20260420183000
 title: Antora and AsciiDoctor Adoption Boundary
 aliases: []
 tags: ["docs", "antora", "asciidoctor", "architecture"]
-target: v0.4
+target: current
 ---
-Antora and AsciiDoctor should be adopted for the curated documentation surface, not for every text artifact in the repository.
+Antora and AsciiDoctor now define the curated documentation surface through `docs/antora/`, not every text artifact in the repository.
 
 ## Why
 
@@ -15,7 +15,7 @@ The current docs also still force readers to traverse multiple files before they
 
 ## Boundary
 
-Adopt Antora and AsciiDoctor for:
+Use Antora and AsciiDoctor for:
 
 - canonical docs
 - operator manuals

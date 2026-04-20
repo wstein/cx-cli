@@ -3,7 +3,7 @@ id: 20260420183300
 title: Local Semantic Primers in Canonical Docs
 aliases: []
 tags: ["docs", "writing", "antora", "adoc"]
-target: v0.4
+target: current
 ---
 Antora alone will not solve the reader-treated-like-a-compiler problem. Canonical docs need short local semantic primers.
 

@@ -5,7 +5,7 @@ aliases: []
 tags: [ci, pages, validation]
 target: current
 ---
-The Pages publish path should validate the staged `site/` tree with a small smoke checker before the workflow pushes `gh-pages`. That validation should stay non-blocking inside the publish path while also existing as a dedicated workflow, so operators get fast feedback without turning a deploy warning into a hidden blind spot.
+The Pages publish path should validate the staged `dist/site/` tree with a small smoke checker before the workflow pushes `gh-pages`. That validation should stay non-blocking inside the publish path while also existing as a dedicated workflow, so operators get fast feedback without turning a deploy warning into a hidden blind spot.
 
 This matters because Pages assembly and Pages publication are different contracts. A smoke check proves the staged tree still contains the expected root links, schema index, coverage entrypoint, and `.nojekyll` marker even when workflow logic changes.
 

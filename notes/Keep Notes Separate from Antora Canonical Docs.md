@@ -3,9 +3,9 @@ id: 20260420183400
 title: Keep Notes Separate from Antora Canonical Docs
 aliases: []
 tags: ["docs", "notes", "antora", "governance"]
-target: v0.4
+target: current
 ---
-The notes graph should remain a distinct knowledge surface even if the canonical docs move to Antora and AsciiDoctor.
+The notes graph remains a distinct knowledge surface even after the canonical docs moved to Antora and AsciiDoctor.
 
 ## Why
 
@@ -17,7 +17,7 @@ Notes are durable cognition artifacts: atomic, historical, exploratory, and some
 
 ## Policy
 
-- `docs/` may move to Antora and AsciiDoctor
+- `docs/` now publish through Antora and AsciiDoctor from `docs/antora/`
 - `notes/` should remain note-native
 - selected notes may be promoted into:
   - decision records

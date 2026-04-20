@@ -3,7 +3,7 @@ id: 20260420183100
 title: arc42 as Architecture Spine
 aliases: []
 tags: ["docs", "arc42", "architecture", "adoc"]
-target: v0.4
+target: current
 ---
 arc42 fits the architecture and contract layer of `cx` well, but it should be used as the spine of the curated architecture corpus rather than as the structure for the whole repository.
 

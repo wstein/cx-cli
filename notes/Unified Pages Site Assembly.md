@@ -5,7 +5,7 @@ aliases: []
 tags: [docs, ci, release]
 target: current
 ---
-The public Pages publish should assemble one coherent `site/` tree instead of letting schema publishing and coverage publishing behave like competing deployers. The shared tree now owns the root index, `/schemas/`, and the optional `/coverage/` subtree so later workflow changes can decide when to publish without re-implementing site structure.
+The public Pages publish should assemble one coherent `dist/site/` tree instead of letting schema publishing and coverage publishing behave like competing deployers. The shared tree now owns the root index, `/schemas/`, and the optional `/coverage/` subtree so later workflow changes can decide when to publish without re-implementing site structure.
 
 This matters because publishing logic and site structure are different contracts. A reusable assembler keeps the staged output deterministic, testable, and easy to reason about before the workflow decides whether a given CI run is eligible to publish.
 
@@ -14,7 +14,7 @@ How to apply it:
 - build Pages content through the shared assembly script, not inline workflow shell
 - treat `/schemas/` as required and `/coverage/` as conditional on coverage assets being present
 - keep the public root page responsible for linking the available surfaces
-- validate the staged `site/` tree with a smoke checker before any workflow pushes `gh-pages`
+- validate the staged `dist/site/` tree with a smoke checker before any workflow pushes `gh-pages`
 
 ## Links
 
