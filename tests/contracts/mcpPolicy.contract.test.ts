@@ -105,7 +105,7 @@ describe("MCP policy contract", () => {
 
   test("taxonomy docs classify bundle as plan", async () => {
     const docsTaxonomy = await readText(
-      "docs/modules/ROOT/pages/repository/docs/mcp_tool_intent_taxonomy.adoc",
+      "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
     );
     const notesTaxonomy = await readText("notes/MCP Tool Intent Taxonomy.md");
     const docsPlan = sectionBody(docsTaxonomy, "Plan / Preview");

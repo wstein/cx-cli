@@ -69,9 +69,59 @@ The MCP registration wrapper assigns every tool one capability tier. Policy enfo
 * `mutate`: `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
 
 See xref:repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
-for tool stability tiers and
-xref:repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy]
-for machine-oriented prompt grouping.
+for tool stability tiers.
+
+== Intent Taxonomy For Agents
+
+The integration layer also groups tools by intent so prompts, policy
+checks, and agent orchestration can enforce predictable behavior.
+
+=== Read / Observe Tools
+
+These tools are for safe inspection, search, and non-mutating note
+reads. Use them when the task is exploratory, investigative, or
+review-only.
+
+* `list`
+* `grep`
+* `read`
+* `doctor_mcp`
+* `doctor_workflow`
+* `doctor_overlaps`
+* `doctor_secrets`
+* `notes_read`
+* `notes_search`
+* `notes_list`
+* `notes_backlinks`
+* `notes_orphans`
+* `notes_code_links`
+* `notes_links`
+
+=== Plan / Preview
+
+These tools produce deterministic plans or bundle metadata without
+mutating the workspace.
+
+* `inspect`
+* `bundle`
+
+Use them after gathering enough context from the read/observe group, and
+treat their outputs as review artifacts rather than repository changes.
+
+=== Write / Mutate Tools
+
+These tools change repository state, notes, or bundle planning
+metadata. Expose them only when the agent is explicitly authorized to
+modify content.
+
+* `replace_repomix_span`
+* `notes_new`
+* `notes_update`
+* `notes_rename`
+* `notes_delete`
+
+Use the read/observe group first to gather context and confirm the
+target location before allowing mutations.
 
 == Why Mutation Policy Denial Stops You
 

@@ -4,7 +4,6 @@
 *** xref:page$repository/docs/extraction_safety.adoc[Extraction Safety]
 *** xref:page$repository/docs/governance.adoc[Governance]
 *** xref:page$repository/docs/init_template_contract.adoc[Init Template Contract]
-*** xref:page$repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy]
 ** Root Repository Companions
 *** xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 *** xref:page$repository/root/readme.adoc[README.md]

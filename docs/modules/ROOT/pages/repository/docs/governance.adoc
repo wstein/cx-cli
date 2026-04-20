@@ -64,9 +64,6 @@ consequences for agent operators
 |Agent Integration Guide |CANONICAL |STABLE |IDE and client integration
 guide
 
-|MCP Tool Intent Taxonomy |CANONICAL |STABLE |Tool categorization and
-intent
-
 |Release and Integrity |CANONICAL |STABLE |Release SBOM format and
 verification
 
