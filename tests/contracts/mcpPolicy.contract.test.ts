@@ -26,6 +26,8 @@ async function readText(relativePath: string): Promise<string> {
 
 function sectionBody(document: string, heading: string): string {
   const htmlMarker = `<h2>${heading}</h2>`;
+  const asciidocMarker = `== ${heading}`;
+  const asciidocSubMarker = `=== ${heading}`;
   const markdownMarker = `## ${heading}`;
   const htmlStart = document.indexOf(htmlMarker);
   if (htmlStart !== -1) {
@@ -33,6 +35,18 @@ function sectionBody(document: string, heading: string): string {
     return document.slice(
       htmlStart,
       nextHeading === -1 ? undefined : nextHeading,
+    );
+  }
+
+  const asciidocStart =
+    document.indexOf(asciidocMarker) !== -1
+      ? document.indexOf(asciidocMarker)
+      : document.indexOf(asciidocSubMarker);
+  if (asciidocStart !== -1) {
+    const nextSection = document.indexOf("\n== ", asciidocStart + 1);
+    return document.slice(
+      asciidocStart,
+      nextSection === -1 ? undefined : nextSection,
     );
   }
 
@@ -101,8 +115,8 @@ describe("MCP policy contract", () => {
     const notesWrite = sectionBody(notesTaxonomy, "Write / Mutate");
     const notesRead = sectionBody(notesTaxonomy, "Read / Observe");
 
-    expect(docsPlan).toContain("<li><code>bundle</code></li>");
-    expect(docsPlan).toContain("<li><code>inspect</code></li>");
+    expect(docsPlan).toContain("* `bundle`");
+    expect(docsPlan).toContain("* `inspect`");
     expect(docsWrite).not.toContain("<code>bundle</code>");
     expect(docsWrite).not.toContain("<code>inspect</code>");
     expect(docsRead).not.toContain("<code>inspect</code>");
