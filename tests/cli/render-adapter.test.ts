@@ -90,8 +90,9 @@ describe("render command", () => {
     expect(output).toContain(
       "artifact: deterministic section snapshot for human and AI review.",
     );
+    expect(output).toContain("<usage>");
     expect(output).toContain(
-      "usage: review and cite the logical paths in this snapshot, but make repository edits in the original source tree.",
+      "review and cite the logical paths in this snapshot, but make repository edits in the original source tree.",
     );
     expect(output).toContain("<file");
     expect(output).toContain("index.ts");

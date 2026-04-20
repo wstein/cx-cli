@@ -144,6 +144,11 @@ section outputs or manifest hashing rules.
 For `json` bundles, both the shared handover and JSON section output artifacts
 must satisfy their published schema-shaped contracts:
 
+- `https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json`
+- `https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json`
+
+The repo also keeps the versioned source files in `schemas/` for offline use:
+
 - `schemas/shared-handover-v1.schema.json`
 - `schemas/json-section-output-v1.schema.json`
 

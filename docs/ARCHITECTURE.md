@@ -365,6 +365,11 @@ outputs. The handover is meant to travel with the section files when multiple
 outputs are handed over together, so the shared context is externalized without
 breaking the self-contained section files.
 
+For XML-style bundles, that handover intentionally stays mostly plain text.
+Rare tags such as `<section_inventory>` and `<recent_repository_history>` act
+as semantic anchors for LLMs and operators rather than as a full XML document
+contract.
+
 ### 5. Manifest build
 
 `cx` writes a canonical manifest that records:

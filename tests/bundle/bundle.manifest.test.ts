@@ -11,7 +11,11 @@ import {
   renderManifestJson,
 } from "../../src/manifest/json.js";
 import type { CxManifest } from "../../src/manifest/types.js";
-import { createProject, runQuietBundleCommand } from "./helpers.js";
+import {
+  commandAvailable,
+  createProject,
+  runQuietBundleCommand,
+} from "./helpers.js";
 
 describe("bundle manifest", () => {
   test("records note summaries in the manifest", async () => {
@@ -137,6 +141,36 @@ It should become the manifest summary.
     const handover = await fs.readFile(handoverPath, "utf8");
 
     expect(handover).not.toContain("<recent_repository_history>");
+  });
+
+  test("includes recent repository history from mercurial worktrees when available", async () => {
+    if (!(await commandAvailable("hg"))) {
+      return;
+    }
+
+    const project = await createProject({
+      initializeHg: true,
+      config: {
+        handover: {
+          includeRepoHistory: true,
+          repoHistoryCount: 30,
+        },
+      },
+    });
+
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const handover = await fs.readFile(
+      path.join(
+        project.bundleDir,
+        manifest.handoverFile ?? "demo-handover.xml.txt",
+      ),
+      "utf8",
+    );
+
+    expect(handover).toContain("<recent_repository_history>");
+    expect(handover).toMatch(/- [a-f0-9]{12} init/);
   });
 
   test("nests files inside their section in the JSON manifest", () => {

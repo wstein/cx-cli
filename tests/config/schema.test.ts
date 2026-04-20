@@ -278,3 +278,31 @@ describe("published manifest schemas", async () => {
     );
   });
 });
+
+describe("published json artifact schemas", async () => {
+  const sharedHandoverSchema = JSON.parse(
+    await fs.readFile(
+      path.resolve(
+        path.join(HERE, "../../schemas/shared-handover-v1.schema.json"),
+      ),
+      "utf8",
+    ),
+  ) as JsonSchema;
+  const jsonSectionOutputSchema = JSON.parse(
+    await fs.readFile(
+      path.resolve(
+        path.join(HERE, "../../schemas/json-section-output-v1.schema.json"),
+      ),
+      "utf8",
+    ),
+  ) as JsonSchema;
+
+  test("use the GitHub Pages host", () => {
+    expect(sharedHandoverSchema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json",
+    );
+    expect(jsonSectionOutputSchema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json",
+    );
+  });
+});

@@ -109,10 +109,17 @@ export async function getRecentFossilHistory(
     return [];
   }
 
-  const { stdout } = await run(
-    ["timeline", "-t", "ci", "-n", String(count), "-F", "%H\t%s"],
-    sourceRoot,
-  );
+  const query = [
+    "select b.uuid || char(9) ||",
+    "trim(substr(coalesce(e.comment,''), 1,",
+    "instr(coalesce(e.comment,'') || char(10), char(10)) - 1))",
+    "from event e",
+    "join blob b on b.rid=e.objid",
+    "where e.type='ci'",
+    "order by e.mtime desc",
+    `limit ${count};`,
+  ].join(" ");
+  const { stdout } = await run(["sql", query], sourceRoot);
 
   return stdout
     .split("\n")

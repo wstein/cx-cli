@@ -79,7 +79,7 @@ describe("Fossil VCS helpers", () => {
 
   test("getRecentFossilHistory parses bounded subject-only history", async () => {
     const run = async (args: string[]) => {
-      if (args[0] === "timeline") {
+      if (args[0] === "sql") {
         return {
           stdout: [
             "aaaaaaaaaaaa1111111111111111111111111111\tAdd handover history",

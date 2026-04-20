@@ -5,6 +5,47 @@ import { describe, expect, test } from "vitest";
 import { renderSharedHandover } from "../../src/render/handover.js";
 
 describe("shared handover contract", () => {
+  test("xml handover keeps sparse llm-anchor tags instead of a full xml document", () => {
+    const rendered = renderSharedHandover({
+      style: "xml",
+      projectName: "demo",
+      sectionOutputs: [
+        {
+          name: "docs",
+          style: "xml",
+          outputFile: "demo-repomix-docs.xml.txt",
+          fileCount: 1,
+          tokenCount: 4,
+          outputTokenCount: 9,
+        },
+      ],
+      assetPaths: [],
+      provenanceSummary: [{ marker: "section_match", count: 1 }],
+      repoHistory: [
+        {
+          shortHash: "cccccccccccc",
+          subject: "Add xml handover contract",
+        },
+      ],
+    });
+
+    expect(rendered).toContain("cx shared handover\nproject: demo");
+    expect(rendered).toContain("<section_inventory>");
+    expect(rendered).toContain("</section_inventory>");
+    expect(rendered).toContain("<inclusion_provenance>");
+    expect(rendered).toContain("</inclusion_provenance>");
+    expect(rendered).toContain("<recent_repository_history>");
+    expect(rendered).toContain("</recent_repository_history>");
+    expect(rendered).toContain("<usage>");
+    expect(rendered).toContain("</usage>");
+    expect(rendered).toContain(
+      "- docs: demo-repomix-docs.xml.txt | xml | 1 files | packed tokens 4 | output tokens 9",
+    );
+    expect(rendered).toContain("- cccccccccccc Add xml handover contract");
+    expect(rendered).not.toContain("<?xml");
+    expect(rendered).not.toContain("<cx_shared_handover>");
+  });
+
   test("markdown handover keeps the current heading and bullet contract", () => {
     const rendered = renderSharedHandover({
       style: "markdown",

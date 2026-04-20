@@ -122,8 +122,9 @@ describe("bundle workflow", () => {
     expect(docsOutput).toContain(
       "artifact: deterministic section snapshot for human and AI review.",
     );
+    expect(docsOutput).toContain("<authoritative_semantics>");
     expect(docsOutput).toContain(
-      "authoritative semantics: cx-meta, cx-policy, archive markers, manifests, and validation rules remain canonical.",
+      "cx-meta, cx-policy, archive markers, manifests, and validation rules remain canonical.",
     );
     expect(
       await fs.stat(path.join(project.bundleDir, "demo-manifest.json")),

@@ -333,9 +333,18 @@ When enabled, `cx` records the newest bounded commit subjects in deterministic
 newest-first order for Git, Mercurial, and Fossil repositories. Diffs are never
 embedded in the handover.
 
+For XML-style bundles, the shared handover stays mostly plain text and uses a
+small set of rare XML tags as semantic anchors for LLMs and operators. It is
+not a full XML serialization contract.
+
 For `json` bundles, `cx` also validates the shared handover and JSON section
 outputs against the published JSON artifact contracts before the bundle is
 accepted.
+
+Published Pages URLs:
+
+- `https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json`
+- `https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json`
 
 Then verify graph reachability from a seed note:
 

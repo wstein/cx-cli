@@ -19,22 +19,18 @@ describe("handover text", () => {
     expect(header).toContain(
       "artifact: deterministic section snapshot for human and AI review.",
     );
+    expect(header).toContain("<section_identity>");
+    expect(header).toContain("<usage>");
     expect(header).toContain(
-      "usage: review and cite the logical paths in this snapshot, but make repository edits in the original source tree.",
+      "review and cite the logical paths in this snapshot, but make repository edits in the original source tree.",
     );
-    expect(header).toContain(
-      "path semantics: each logical path points to the original repository location for that file.",
-    );
-    expect(header).toContain(
-      "authoritative semantics: cx-meta, cx-policy, archive markers, manifests, and validation rules remain canonical.",
-    );
+    expect(header).toContain("<path_semantics>");
     expect(header).toContain("project: demo");
     expect(header).toContain("section: docs");
     expect(header).toContain("files: 3");
     expect(header).toContain("shared handover: demo-handover.xml.txt");
-    expect(header).toContain(
-      "shared context: keep this file together with the shared handover when handing off multiple sections.",
-    );
+    expect(header).toContain("<authoritative_semantics>");
+    expect(header).toContain("<shared_context>");
   });
 
   test("keeps the shared handover focused on shared handoff context", () => {

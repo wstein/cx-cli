@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { expect } from "vitest";
@@ -26,6 +27,50 @@ import {
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 const execFileAsync = promisify(execFile);
+
+export async function commandAvailable(binary: string): Promise<boolean> {
+  try {
+    await execFileAsync("which", [binary]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function initializeHgRepository(rootDir: string): Promise<void> {
+  await execFileAsync("hg", ["init"], { cwd: rootDir });
+  await execFileAsync("hg", ["add"], { cwd: rootDir });
+  await execFileAsync("hg", ["commit", "-u", "cx", "-m", "init"], {
+    cwd: rootDir,
+  });
+}
+
+async function initializeFossilRepository(rootDir: string): Promise<void> {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cx-fossil-home-"));
+  const home = path.join(tempRoot, "home");
+  const config = path.join(tempRoot, "config");
+  const repoPath = path.join(rootDir, ".fossil-repo.fossil");
+  await fs.mkdir(home, { recursive: true });
+  await fs.mkdir(config, { recursive: true });
+  const env = {
+    ...process.env,
+    HOME: home,
+    XDG_CONFIG_HOME: config,
+    FOSSIL_HOME: home,
+  };
+
+  await execFileAsync("fossil", ["init", repoPath], { cwd: rootDir, env });
+  await execFileAsync("fossil", ["open", repoPath, "--force"], {
+    cwd: rootDir,
+    env,
+  });
+  await execFileAsync("fossil", ["addremove"], { cwd: rootDir, env });
+  await execFileAsync(
+    "fossil",
+    ["commit", "-m", "init", "--user-override", "cx"],
+    { cwd: rootDir, env },
+  );
+}
 
 function countLogicalLines(content: string): number {
   if (content === "") {
@@ -111,6 +156,8 @@ export async function createProject(options?: {
   includeSpecialChecksumFile?: boolean;
   includeLinkedNotes?: boolean;
   initializeGit?: boolean;
+  initializeHg?: boolean;
+  initializeFossil?: boolean;
   fixture?: string;
   config?: BuildConfigOptions;
   files?: Record<string, string | Uint8Array>;
@@ -180,6 +227,14 @@ This note is linked from source code.
     await execFileAsync("git", ["commit", "-q", "-m", "init"], {
       cwd: workspace.rootDir,
     });
+  }
+
+  if (options?.initializeHg === true) {
+    await initializeHgRepository(workspace.rootDir);
+  }
+
+  if (options?.initializeFossil === true) {
+    await initializeFossilRepository(workspace.rootDir);
   }
 
   return {
