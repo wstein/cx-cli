@@ -55,6 +55,7 @@
     "ci:report:observability": "node scripts/ci-observability-report.js",
     "ci:test:fast": "bun run test:unit",
     "ci:test:fast:monitored": "node scripts/ci-test-fast-monitored.js",
+    "ci:test:render-parity": "node scripts/render-parity-check.js",
     "ci:test:compat": "node scripts/bun-runtime-compat-smoke.js",
     "ci:test:contracts": "bun run test:contracts",
     "ci:notes:governance": "node scripts/notes-governance.js",

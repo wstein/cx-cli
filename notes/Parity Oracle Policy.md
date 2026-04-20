@@ -2,9 +2,9 @@
 id: 20260420121400
 title: Parity Oracle Policy
 tags: ["migration", "testing", "oracle"]
-target: v0.4
+target: current
 ---
-A temporary oracle is used to prove migration correctness without becoming architecture.
+A temporary oracle is used to prove migration correctness without becoming architecture, and `ci:test:render-parity` is the enforcement lane for that rule.
 
 ## What
 

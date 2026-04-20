@@ -44,6 +44,8 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("Save fast-lane timing state");
     expect(workflow).toContain(".ci/fast-lane-monitor-state.json");
     expect(workflow).toContain("run: bun run ci:test:compat");
+    expect(workflow).toContain("render-parity:");
+    expect(workflow).toContain("run: bun run ci:test:render-parity");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
@@ -111,6 +113,9 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:test:fast:monitored"]).toBe(
       "node scripts/ci-test-fast-monitored.js",
     );
+    expect(scripts["ci:test:render-parity"]).toBe(
+      "node scripts/render-parity-check.js",
+    );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
     );
@@ -152,6 +157,7 @@ describe("CI lanes contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("notes-governance:");
+    expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
@@ -175,6 +181,7 @@ describe("CI lanes contract", () => {
 
     expect(workflow).toContain("test-contracts:");
     expect(workflow).toContain("notes-governance:");
+    expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
@@ -186,6 +193,9 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain(
       "  repomix-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  render-parity:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
@@ -222,6 +232,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - test-fast");
     expect(workflow).toContain("      - test-contracts");
     expect(workflow).toContain("      - notes-governance");
+    expect(workflow).toContain("      - render-parity");
     expect(workflow).toContain("      - coverage-vitest");
     expect(workflow).toContain("      - repomix-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");

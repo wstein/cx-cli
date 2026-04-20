@@ -170,3 +170,22 @@ Evidence:
 - Every proof-path behavior is written down once here
 - Each contract section points to code and tests as evidence
 - No aspirational native-kernel behavior is mixed into the current contract
+
+## Parity Enforcement
+
+`cx` now carries a dedicated parity lane:
+
+- `bun run ci:test:render-parity`
+
+That lane compares the kernel-facing default render engine against the explicit
+Repomix oracle for:
+
+- output text
+- output spans
+- structured plans
+- per-entry hashes
+- section plan hashes
+- aggregate plan hashes
+
+The parity lane is release-gating CI evidence. It proves migration correctness
+without turning the adapter into permanent architecture.
