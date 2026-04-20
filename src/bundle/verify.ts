@@ -98,7 +98,7 @@ function buildVerifyRemediation(
     case "source_tree_drift":
       return {
         recommendedCommand: "cx bundle --config cx.toml",
-        docsRef: "docs/MENTAL_MODEL.md",
+        docsRef: "docs/modules/ROOT/pages/architecture/mental-model.adoc",
         whyThisProtectsYou:
           "Source-tree drift means the live checkout no longer produces the same packed content as the bundle, so the artifact can no longer serve as a verified handoff.",
         nextSteps: [
@@ -113,7 +113,7 @@ function buildVerifyRemediation(
     case "unexpected_checksum_reference":
       return {
         recommendedCommand: "cx validate dist/demo-bundle",
-        docsRef: "docs/MENTAL_MODEL.md",
+        docsRef: "docs/modules/ROOT/pages/architecture/mental-model.adoc",
         whyThisProtectsYou:
           "A checksum failure means the artifact set in hand is no longer provably the exact bundle cx wrote, so verification stops before edited, missing, or substituted files are trusted.",
         nextSteps: [
@@ -126,7 +126,8 @@ function buildVerifyRemediation(
     case "render_plan_drift":
       return {
         recommendedCommand: "cx inspect --config cx.toml --token-breakdown",
-        docsRef: "docs/ARCHITECTURE.md",
+        docsRef:
+          "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
         whyThisProtectsYou:
           "Structured render drift breaks the deterministic mapping between source files, packed outputs, and manifest metadata.",
         nextSteps: [
@@ -451,7 +452,7 @@ export async function verifyBundle(
           remediation: {
             recommendedCommand:
               "cx verify dist/demo-bundle --against . --config cx.toml",
-            docsRef: "docs/MANUAL.md",
+            docsRef: "docs/modules/ROOT/pages/manual/operator-manual.adoc",
             nextSteps: [
               "Provide the same cx.toml that was used when the bundle was built.",
             ],

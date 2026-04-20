@@ -211,7 +211,8 @@ function buildPolicyRemediation(
 ): ErrorRemediation {
   return {
     recommendedCommand: "cx doctor mcp --config cx.toml",
-    docsRef: "docs/AGENT_OPERATING_MODEL.md",
+    docsRef:
+      "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
     whyThisProtectsYou:
       "Mutation-capability tools stay denied until a trusted local operator explicitly enables them, so exploratory MCP sessions cannot silently turn into editing sessions.",
     nextSteps: [

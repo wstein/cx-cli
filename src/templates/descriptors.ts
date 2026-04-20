@@ -55,7 +55,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "base",
     description: "Generic fallback template for unknown environments.",
-    docsPath: "docs/INIT_TEMPLATE_CONTRACT.md",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc",
     detectionMarkers: [],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -75,7 +76,7 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "rust",
     description: "Rust workspaces using Cargo.",
-    docsPath: "docs/TEMPLATE_RUST.md",
+    docsPath: "docs/modules/ROOT/pages/repository/docs/template_rust.adoc",
     detectionMarkers: ["Cargo.toml"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -95,7 +96,7 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "go",
     description: "Go workspaces using go.mod.",
-    docsPath: "docs/TEMPLATE_GO.md",
+    docsPath: "docs/modules/ROOT/pages/repository/docs/template_go.adoc",
     detectionMarkers: ["go.mod"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -115,7 +116,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "typescript",
     description: "TypeScript/Node.js workspaces using package.json.",
-    docsPath: "docs/TEMPLATE_TYPESCRIPT.md",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/template_typescript.adoc",
     detectionMarkers: ["package.json"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [
@@ -141,7 +143,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "python",
     description: "Python workspaces using pyproject.toml or requirements.txt.",
-    docsPath: "docs/INIT_TEMPLATE_CONTRACT.md",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc",
     detectionMarkers: ["pyproject.toml", "requirements.txt"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -161,7 +164,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "java",
     description: "Java workspaces using Maven or Gradle.",
-    docsPath: "docs/INIT_TEMPLATE_CONTRACT.md",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc",
     detectionMarkers: ["pom.xml", "build.gradle", "build.gradle.kts"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -181,7 +185,7 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "elixir",
     description: "Elixir workspaces using mix.exs.",
-    docsPath: "docs/TEMPLATE_ELIXIR.md",
+    docsPath: "docs/modules/ROOT/pages/repository/docs/template_elixir.adoc",
     detectionMarkers: ["mix.exs"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -201,7 +205,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "julia",
     description: "Julia workspaces using Project.toml.",
-    docsPath: "docs/INIT_TEMPLATE_CONTRACT.md",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc",
     detectionMarkers: ["Project.toml"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -221,7 +226,7 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "crystal",
     description: "Crystal workspaces using shard.yml or shard.lock.",
-    docsPath: "docs/TEMPLATE_CRYSTAL.md",
+    docsPath: "docs/modules/ROOT/pages/repository/docs/template_crystal.adoc",
     detectionMarkers: ["shard.yml", "shard.lock"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -241,7 +246,7 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "zig",
     description: "Zig workspaces using build.zig or build.zig.zon.",
-    docsPath: "docs/TEMPLATE_ZIG.md",
+    docsPath: "docs/modules/ROOT/pages/repository/docs/template_zig.adoc",
     detectionMarkers: ["build.zig", "build.zig.zon"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],

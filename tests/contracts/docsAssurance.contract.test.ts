@@ -24,7 +24,9 @@ describe("docs assurance contract", () => {
     const docsIndex = await readText(
       "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );
-    const governance = await readText("docs/GOVERNANCE.md");
+    const governance = await readText(
+      "docs/modules/ROOT/pages/repository/docs/governance.adoc",
+    );
     const mentalModel = await readText(
       "docs/modules/ROOT/pages/architecture/mental-model.adoc",
     );
@@ -37,8 +39,12 @@ describe("docs assurance contract", () => {
     const systemContracts = await readText(
       "docs/modules/ROOT/pages/architecture/system-contracts.adoc",
     );
-    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
-    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+    const agentModel = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
+    );
+    const agentIntegration = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
+    );
     const manual = await readText(
       "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
@@ -76,21 +82,27 @@ describe("docs assurance contract", () => {
     );
     expect(docsIndex).toContain("== Historical Material");
     expect(docsIndexNormalized).toContain("docs surface budget");
-    expect(governance).toContain("## Hard Hierarchy Contract");
-    expect(governance).toContain("## Docs Surface Budget");
-    expect(governance).toContain("### Front-Door Docs");
-    expect(governance).toContain("### Reference-Only Docs");
+    expect(governance).toContain("<h2>Hard Hierarchy Contract</h2>");
+    expect(governance).toContain("<h2>Docs Surface Budget</h2>");
+    expect(governance).toContain("<h3>Front-Door Docs</h3>");
+    expect(governance).toContain("<h3>Reference-Only Docs</h3>");
     expect(governance).toContain(
       "If a new document would introduce another plausible place to start",
     );
-    expect(governance).toContain("`MENTAL_MODEL.md` owns canonical semantics.");
-    expect(governance).toContain("`OPERATING_MODES.md` maps those semantics");
     expect(governance).toContain(
-      "`WORKFLOWS/*` shows concrete execution examples",
+      "<code>MENTAL_MODEL.md</code> owns canonical semantics.",
     );
-    expect(governance).toContain("`AGENT_*` documents the integration layer");
     expect(governance).toContain(
-      "Everything outside `MENTAL_MODEL.md` must reference canonical semantics instead of redefining them.",
+      "<code>OPERATING_MODES.md</code> maps those semantics",
+    );
+    expect(governance).toContain(
+      "<code>WORKFLOWS/*</code> shows concrete execution examples",
+    );
+    expect(governance).toContain(
+      "<code>AGENT_*</code> documents the integration layer",
+    );
+    expect(governance).toContain(
+      "Everything outside <code>MENTAL_MODEL.md</code> must reference canonical semantics instead of redefining them.",
     );
     expect(mentalModelNormalized).toContain("canonical semantics");
     expect(mentalModelNormalized).toContain(
@@ -135,10 +147,10 @@ describe("docs assurance contract", () => {
     expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
     expect(notesGuide).toContain("## Notes And Docs Boundary");
     expect(notesGuide).toContain(
-      "`docs/MENTAL_MODEL.md` owns canonical semantics.",
+      "`docs/modules/ROOT/pages/architecture/mental-model.adoc` owns canonical semantics.",
     );
     expect(notesGuide).toContain(
-      "`docs/SYSTEM_CONTRACTS.md` owns cognition, boundary, and trust contracts.",
+      "`docs/modules/ROOT/pages/architecture/system-contracts.adoc` owns cognition, boundary, and trust contracts.",
     );
     expect(notesGuide).toContain("Notes should support those documents");
     expect(operatingModesNormalized).toContain(
@@ -249,37 +261,37 @@ describe("docs assurance contract", () => {
     expect(migration).not.toContain("shipped runtime dependency");
   });
 
-  test("repository-local markdown docs are explicit redirect stubs", async () => {
-    const docsIndexStub = await readText("docs/README.md");
-    const manualStub = await readText("docs/MANUAL.md");
-    const architectureStub = await readText("docs/ARCHITECTURE.md");
+  test("docs folder keeps only the Antora guide as markdown", async () => {
+    const docsGuide = await readText("docs/README.md");
+    const topLevelEntries = await fs.readdir(path.join(ROOT, "docs"));
+    const markdownEntries = topLevelEntries.filter((entry) =>
+      entry.endsWith(".md"),
+    );
 
-    expect(docsIndexStub).toContain("redirect stub");
-    expect(docsIndexStub).toContain(
-      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
-    );
-    expect(manualStub).toContain(
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
-    );
-    expect(architectureStub).toContain(
-      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
-    );
+    expect(markdownEntries).toEqual(["README.md"]);
+    expect(docsGuide).toContain("canonical Antora component");
+    expect(docsGuide).toContain("arc42 as its spine");
+    expect(docsGuide).toContain("docs/modules/ROOT/pages/index.adoc");
   });
 
   test("notes module spec documents linked-note enrichment semantics", async () => {
-    const notesSpec = await readText("docs/NOTES_MODULE_SPEC.md");
+    const notesSpec = await readText(
+      "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
+    );
 
-    expect(notesSpec).toContain("## Notes As The Cognition Layer");
+    expect(notesSpec).toContain("<h2>Notes As The Cognition Layer</h2>");
     expect(notesSpec).toContain("formal cognition contract");
-    expect(notesSpec).toContain("## Governance Model: How, What, Why");
+    expect(notesSpec).toContain("<h2>Governance Model: How, What, Why</h2>");
     expect(notesSpec).toContain("4000");
     expect(notesSpec).toContain("100");
     expect(notesSpec).toContain("cx notes check");
     expect(notesSpec).toContain("ci:report:observability");
-    expect(notesSpec).toContain("## Linked-Note Enrichment Semantics");
+    expect(notesSpec).toContain("<h2>Linked-Note Enrichment Semantics</h2>");
     expect(notesSpec).toContain("inclusion-changing, not advisory");
-    expect(notesSpec).toContain("Run `cx inspect --json`");
-    expect(notesSpec).toContain("`cx notes graph --id <seed> --depth <n>`");
+    expect(notesSpec).toContain("Run <code>cx inspect --json</code>");
+    expect(notesSpec).toContain(
+      "<code>cx notes graph --id &lt;seed&gt; --depth &lt;n&gt;</code>",
+    );
     expect(notesSpec).toContain("Depth semantics for graph inspection");
     expect(notesSpec).toContain("agent traceability");
     expect(notesSpec).toContain("staleness and contradiction checks");
@@ -289,8 +301,12 @@ describe("docs assurance contract", () => {
     const manual = await readText(
       "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
-    const extractionSafety = await readText("docs/EXTRACTION_SAFETY.md");
-    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
+    const extractionSafety = await readText(
+      "docs/modules/ROOT/pages/repository/docs/extraction_safety.adoc",
+    );
+    const agentModel = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
+    );
 
     const manualNormalized = squashWhitespace(manual);
 
@@ -335,8 +351,12 @@ describe("docs assurance contract", () => {
     const mentalModel = await readText(
       "docs/modules/ROOT/pages/architecture/mental-model.adoc",
     );
-    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
-    const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
+    const agentIntegration = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
+    );
+    const agentModel = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
+    );
     const architecture = await readText(
       "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
     );
@@ -345,12 +365,12 @@ describe("docs assurance contract", () => {
     expect(mentalModel).toContain("Track A = proof generation");
     expect(mentalModel).toContain("durable cognition layer");
     expect(mentalModel).toContain("Source tree: trusted");
-    expect(agentModel).toContain("## Operator Decision Ladder");
-    expect(agentModel).toContain("## Capability Tiers");
-    expect(agentIntegration).toContain("## Agent Point Of View");
+    expect(agentModel).toContain("<h2>Operator Decision Ladder</h2>");
+    expect(agentModel).toContain("<h2>Capability Tiers</h2>");
+    expect(agentIntegration).toContain("<h2>Agent Point Of View</h2>");
     expect(agentIntegration).toContain("doctor_mcp()");
-    expect(agentIntegration).toContain('"tokenCount": 287');
-    expect(agentIntegration).toContain('"outputStartLine": 41');
+    expect(agentIntegration).toContain("&quot;tokenCount&quot;: 287");
+    expect(agentIntegration).toContain("&quot;outputStartLine&quot;: 41");
     const architectureNormalized = squashWhitespace(architecture);
 
     expect(architectureNormalized).toContain(

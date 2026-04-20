@@ -57,4 +57,4 @@ Vitest coverage is now the authoritative coverage-reporting lane for release ass
 
 ### Migration notes
 
-See [docs/MIGRATIONS/0.4.0.md](docs/MIGRATIONS/0.4.0.md).
+See [Migration Notes For 0.4.0](https://wstein.github.io/cx-cli/docs/cx/0.4/release/migration-v0.4/).

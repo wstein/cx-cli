@@ -1,8 +1,6 @@
 = Elixir Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_ELIXIR.md`
 
 ++++
 <p>The Elixir <code>cx init</code> template is optimized for Mix-based applications with a

@@ -1,8 +1,6 @@
 = Rust Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_RUST.md`
 
 ++++
 <p>The Rust <code>cx init</code> template is designed for Cargo workspaces with a richer

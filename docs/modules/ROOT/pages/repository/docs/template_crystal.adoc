@@ -1,8 +1,6 @@
 = Crystal Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_CRYSTAL.md`
 
 ++++
 <p>The Crystal <code>cx init</code> template is designed for <code>shard.yml</code> workspaces with a

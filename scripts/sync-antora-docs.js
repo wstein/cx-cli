@@ -9,28 +9,7 @@ export const DEFAULT_ANTORA_PAGES_ROOT = path.join(
   DEFAULT_ANTORA_ROOT,
   "modules/ROOT/pages/repository",
 );
-export const DEFAULT_ANTORA_NAV_PARTIAL = path.join(
-  DEFAULT_ANTORA_ROOT,
-  "modules/ROOT/partials/repository-nav.adoc",
-);
 export const REPOSITORY_BLOB_BASE = "https://github.com/wstein/cx-cli/blob/main/";
-export const CURATED_SOURCE_PATHS = new Set([
-  "docs/README.md",
-  "docs/MANUAL.md",
-  "docs/OPERATING_MODES.md",
-  "docs/MENTAL_MODEL.md",
-  "docs/ARCHITECTURE.md",
-  "docs/SYSTEM_MAP.md",
-  "docs/SYSTEM_CONTRACTS.md",
-  "docs/INTERNAL_API_CONTRACT.md",
-  "docs/RENDER_KERNEL_CONTRACT.md",
-  "docs/config-reference.md",
-  "docs/RELEASE_CHECKLIST.md",
-  "docs/RELEASE_INTEGRITY.md",
-  "docs/MIGRATIONS/0.4.0.md",
-  "docs/WORKFLOWS/friday-to-monday.md",
-  "docs/WORKFLOWS/safe-note-mutation.md",
-]);
 
 const EXTRA_SOURCE_FILES = ["README.md", "CHANGELOG.md"];
 const DEFAULT_LOCK_DIR = ".antora/locks/sync.lock";
@@ -62,36 +41,7 @@ function extractTitle(markdown, fallbackTitle) {
   return { title, body };
 }
 
-async function discoverMarkdownFiles(rootDir, currentDir = rootDir, results = []) {
-  const entries = await fs.readdir(currentDir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const absolutePath = path.join(currentDir, entry.name);
-    const relativePath = path.relative(rootDir, absolutePath);
-    const posixRelativePath = toPosix(relativePath);
-
-    if (entry.isDirectory()) {
-      if (
-        posixRelativePath.startsWith("antora") ||
-        posixRelativePath.startsWith("antora-ui")
-      ) {
-        continue;
-      }
-      await discoverMarkdownFiles(rootDir, absolutePath, results);
-      continue;
-    }
-
-    if (entry.isFile() && entry.name.endsWith(".md")) {
-      results.push(absolutePath);
-    }
-  }
-
-  return results;
-}
-
 async function buildSourceCatalog(repoRoot) {
-  const docsRoot = path.join(repoRoot, "docs");
-  const docsFiles = await discoverMarkdownFiles(docsRoot);
   const extraFiles = [];
 
   for (const relativePath of EXTRA_SOURCE_FILES) {
@@ -104,12 +54,7 @@ async function buildSourceCatalog(repoRoot) {
     }
   }
 
-  return [...docsFiles, ...extraFiles]
-    .filter((absolutePath) => {
-      const relativePath = toPosix(path.relative(repoRoot, absolutePath));
-      return !CURATED_SOURCE_PATHS.has(relativePath);
-    })
-    .sort();
+  return extraFiles.sort();
 }
 
 function sourceToOutputPath(repoRoot, sourcePath) {
@@ -217,36 +162,9 @@ async function withLock(lockDir, work) {
   }
 }
 
-function buildNavTree(sourceToOutput, repoRoot) {
-  const docsEntries = [];
-  const rootEntries = [];
-  const pagesRoot = path.join(repoRoot, DEFAULT_ANTORA_ROOT, "modules/ROOT/pages");
-
-  for (const [sourcePath, outputPath] of [...sourceToOutput.entries()].sort()) {
-    const repoRelativeSource = toPosix(path.relative(repoRoot, sourcePath));
-    const outputRelative = toPosix(path.relative(pagesRoot, outputPath));
-    const line = `*** xref:page$${outputRelative}[${repoRelativeSource}]`;
-
-    if (repoRelativeSource.startsWith("docs/")) {
-      docsEntries.push(line);
-    } else {
-      rootEntries.push(line);
-    }
-  }
-
-  return [
-    "** Repository Markdown Companions",
-    ...docsEntries,
-    "** Root Repository Companions",
-    ...rootEntries,
-    "",
-  ].join("\n");
-}
-
 export async function syncAntoraDocs({
   repoRoot = DEFAULT_REPO_ROOT,
   pagesRoot = DEFAULT_ANTORA_PAGES_ROOT,
-  navPartialPath = DEFAULT_ANTORA_NAV_PARTIAL,
   lockDir = DEFAULT_LOCK_DIR,
 } = {}) {
   return withLock(path.join(repoRoot, lockDir), async () => {
@@ -258,11 +176,7 @@ export async function syncAntoraDocs({
       ]),
     );
 
-    await fs.rm(path.join(repoRoot, pagesRoot), { recursive: true, force: true });
     await fs.mkdir(path.join(repoRoot, pagesRoot), { recursive: true });
-    await fs.mkdir(path.dirname(path.join(repoRoot, navPartialPath)), {
-      recursive: true,
-    });
 
     marked.setOptions({ gfm: true, breaks: false });
 
@@ -278,6 +192,7 @@ export async function syncAntoraDocs({
       });
       const outputPath = sourceToOutput.get(sourcePath);
       await fs.mkdir(path.dirname(outputPath), { recursive: true });
+      await fs.rm(outputPath, { force: true });
       await fs.writeFile(
         outputPath,
         renderAdocPage({
@@ -289,13 +204,9 @@ export async function syncAntoraDocs({
       );
     }
 
-    const navPartial = buildNavTree(sourceToOutput, repoRoot);
-    await fs.writeFile(path.join(repoRoot, navPartialPath), navPartial, "utf8");
-
     return {
       pageCount: sourcePaths.length,
       pagesRoot: path.join(repoRoot, pagesRoot),
-      navPartialPath: path.join(repoRoot, navPartialPath),
     };
   });
 }

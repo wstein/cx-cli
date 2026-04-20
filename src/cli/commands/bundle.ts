@@ -541,7 +541,8 @@ export async function runBundleCommand(
     }
     throw new CxError("Note validation failed", 10, {
       remediation: {
-        docsRef: "docs/NOTES_MODULE_SPEC.md",
+        docsRef:
+          "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
         whyThisProtectsYou:
           "The notes graph is the repository cognition layer. Refusing low-signal or malformed notes keeps bundles and agent workflows anchored to durable knowledge instead of noisy context.",
         nextSteps: [
@@ -584,7 +585,7 @@ export async function runBundleCommand(
         7,
         {
           remediation: {
-            docsRef: "docs/MENTAL_MODEL.md",
+            docsRef: "docs/modules/ROOT/pages/architecture/mental-model.adoc",
             whyThisProtectsYou:
               "A bundle built from tracked-file drift cannot later be verified against a committed source tree, which breaks the artifact contract for reviewers, CI, and handoff automation.",
             nextSteps: [

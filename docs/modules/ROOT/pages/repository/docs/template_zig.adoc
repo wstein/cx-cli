@@ -1,8 +1,6 @@
 = Zig Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_ZIG.md`
 
 ++++
 <p>The Zig <code>cx init</code> template is aimed at <code>build.zig</code>-driven repositories and is

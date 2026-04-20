@@ -1,8 +1,6 @@
 = TypeScript Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_TYPESCRIPT.md`
 
 ++++
 <p>The TypeScript <code>cx init</code> template is designed to be source-first for authoring

@@ -1,8 +1,6 @@
 = Stability Tiers
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/STABILITY.md`
 
 ++++
 <p>cx-cli tools are classified into four stability tiers, each with distinct guarantees and expected usage patterns. The tier of each tool appears in its MCP description with the format <code>[TIER_NAME]</code> (e.g., <code>[STABLE]</code>). For machine-readable inspection, prefer <code>cx mcp catalog --json</code>; <code>cx doctor mcp --json</code> also includes the same registered tool catalog when you need broader MCP diagnostics.</p>

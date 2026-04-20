@@ -1,14 +1,12 @@
 = Agent Operating Model
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/AGENT_OPERATING_MODEL.md`
 
 ++++
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a>
-See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md">OPERATING_MODES.md</a></p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>
+See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a></p>
 <p>This document covers the integration layer for agent operators.</p>
-<p>It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
+<p>It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
 <h2>Integration-Layer Responsibilities</h2>
 <p>At the agent layer, the model becomes four practical questions:</p>
 <ol>
@@ -17,11 +15,11 @@ See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md
 <li>Which workflow should the operator invoke next?</li>
 <li>Which audit trail explains what the agent actually did?</li>
 </ol>
-<p>That is the scope of this document. Canonical semantics stay upstream in <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a>.</p>
+<p>That is the scope of this document. Canonical semantics stay upstream in <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a>.</p>
 <h2>Operator Decision Ladder</h2>
 <p>Use the integration layer in this order:</p>
 <ol>
-<li>Start with <a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md">OPERATING_MODES.md</a> to pick the right surface.</li>
+<li>Start with <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> to pick the right surface.</li>
 <li>Use <code>cx mcp</code> when the operator needs live agent help on the current checkout.</li>
 <li>Use <code>cx doctor mcp</code> to confirm the resolved profile, workspace boundary, and policy state.</li>
 <li>Let the agent operate inside the allowed capability set.</li>
@@ -107,13 +105,13 @@ enable_mutation = true
 <pre><code class="language-bash">cx notes check
 cx notes graph --id &lt;note-id&gt; --depth 2
 </code></pre>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/WORKFLOWS/safe-note-mutation.md">WORKFLOWS/safe-note-mutation.md</a></p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc">WORKFLOWS/safe-note-mutation.md</a></p>
 <h2>Links</h2>
 <ul>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a> — canonical semantics</li>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/OPERATING_MODES.md">OPERATING_MODES.md</a> — operator mode chooser</li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> — canonical semantics</li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/manual/operating-modes.adoc">OPERATING_MODES.md</a> — operator mode chooser</li>
 <li><a href="agent_integration/">AGENT_INTEGRATION.md</a> — IDE and client setup</li>
-<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/WORKFLOWS/friday-to-monday.md">WORKFLOWS/friday-to-monday.md</a> — temporal provenance example</li>
+<li><a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/workflows/friday-to-monday.adoc">WORKFLOWS/friday-to-monday.md</a> — temporal provenance example</li>
 <li><a href="https://github.com/wstein/cx-cli/blob/main/notes/Agent%20Operating%20Model.md">notes/Agent Operating Model</a> — knowledge graph entry</li>
 </ul>
 ++++

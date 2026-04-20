@@ -1,8 +1,6 @@
 = Go Template
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/TEMPLATE_GO.md`
 
 ++++
 <p>The Go <code>cx init</code> template is intended for module-aware repositories using

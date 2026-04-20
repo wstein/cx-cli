@@ -30,7 +30,7 @@ describe("shared error handling", () => {
     const err = new CxError("Needs guidance", 2, {
       remediation: {
         recommendedCommand: "cx inspect --config cx.toml",
-        docsRef: "docs/MANUAL.md",
+        docsRef: "docs/modules/ROOT/pages/manual/operator-manual.adoc",
         whyThisProtectsYou:
           "The current plan has to be understood before a new artifact can be trusted.",
         nextSteps: ["Review the current plan before rebuilding."],
@@ -42,7 +42,7 @@ describe("shared error handling", () => {
     );
     expect(formatErrorRemediation(err.remediation)).toEqual([
       "Suggested command: cx inspect --config cx.toml",
-      "Docs: docs/MANUAL.md",
+      "Docs: docs/modules/ROOT/pages/manual/operator-manual.adoc",
       "Why this protects you: The current plan has to be understood before a new artifact can be trusted.",
       "Next step: Review the current plan before rebuilding.",
     ]);

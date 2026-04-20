@@ -129,38 +129,17 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain("scripts/sync-antora-docs.js");
   });
 
-  test("highest-traffic markdown stubs stay aligned with canonical source and published URLs", async () => {
-    const docsIndexStub = await readText("docs/README.md");
-    const manualStub = await readText("docs/MANUAL.md");
-    const architectureStub = await readText("docs/ARCHITECTURE.md");
-    const operatingModesStub = await readText("docs/OPERATING_MODES.md");
+  test("docs folder keeps a single markdown guide and points readers to the Antora front door", async () => {
+    const docsFiles = await fs.readdir(path.join(ROOT, "docs"));
+    const markdownFiles = docsFiles.filter((entry) => entry.endsWith(".md"));
+    const docsGuide = await readText("docs/README.md");
 
-    expect(docsIndexStub).toContain(
-      "[docs/modules/ROOT/pages/start-here/docs-index.adoc](modules/ROOT/pages/start-here/docs-index.adoc)",
+    expect(markdownFiles).toEqual(["README.md"]);
+    expect(docsGuide).toContain(
+      "`docs/` now holds the canonical Antora component",
     );
-    expect(docsIndexStub).toContain(
-      "https://wstein.github.io/cx-cli/docs/cx/0.4/start-here/docs-index/",
-    );
-
-    expect(manualStub).toContain(
-      "[docs/modules/ROOT/pages/manual/operator-manual.adoc](modules/ROOT/pages/manual/operator-manual.adoc)",
-    );
-    expect(manualStub).toContain(
-      "https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operator-manual/",
-    );
-
-    expect(architectureStub).toContain(
-      "[docs/modules/ROOT/pages/architecture/implementation-reference.adoc](modules/ROOT/pages/architecture/implementation-reference.adoc)",
-    );
-    expect(architectureStub).toContain(
-      "https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/implementation-reference/",
-    );
-
-    expect(operatingModesStub).toContain(
-      "[docs/modules/ROOT/pages/manual/operating-modes.adoc](modules/ROOT/pages/manual/operating-modes.adoc)",
-    );
-    expect(operatingModesStub).toContain(
-      "https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operating-modes/",
-    );
+    expect(docsGuide).toContain("arc42 as its spine");
+    expect(docsGuide).toContain("docs/modules/ROOT/pages/index.adoc");
+    expect(docsGuide).toContain("https://wstein.github.io/cx-cli/docs/");
   });
 });

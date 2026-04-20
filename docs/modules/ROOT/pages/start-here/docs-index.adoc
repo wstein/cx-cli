@@ -6,9 +6,8 @@ include::../../partials/track-primer.adoc[]
 include::../../partials/trust-boundary-primer.adoc[]
 
 This is the curated front door for the `cx` documentation surface.
-The repository-local `docs/*.md` files remain as redirect stubs so
-stable in-repo links continue to resolve, but the canonical docs now
-live here.
+The canonical docs live here in the Antora component under
+`docs/modules/ROOT/pages/`.
 
 Use the published Antora site for curated navigation, breadcrumbs,
 architecture structure, and workflow entrypoints. Use this directory

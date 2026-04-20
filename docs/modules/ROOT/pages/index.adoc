@@ -11,7 +11,7 @@ include::../partials/track-primer.adoc[]
 - adapter/oracle path: expert diagnostics and parity only
 
 This Antora site is the front door for the curated documentation surface.
-The repository-local Markdown files in `docs/` now act as stable redirect stubs that point back here.
+The canonical curated source now lives entirely under `docs/modules/ROOT/`.
 
 == Start Here
 
@@ -30,4 +30,7 @@ include::../partials/notes-boundary-primer.adoc[]
 
 == Repository-local compatibility
 
-The `docs/*.md` files still exist so older repository links, code references, and notes keep working. They now point readers to the canonical Antora pages instead of trying to remain a second full prose surface.
+`docs/README.md` is the only Markdown guide left in `docs/`.
+It explains the Antora component layout, the arc42 architecture spine,
+and the boundary between curated docs and the separate `notes/`
+cognition layer.

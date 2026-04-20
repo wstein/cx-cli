@@ -58,7 +58,7 @@ function buildExtractResolutionRemediation(
     recommendedCommand: firstPath
       ? `cx extract dist/demo-bundle --file ${firstPath} --allow-degraded`
       : "cx extract dist/demo-bundle --allow-degraded",
-    docsRef: "docs/EXTRACTION_SAFETY.md",
+    docsRef: "docs/modules/ROOT/pages/repository/docs/extraction_safety.adoc",
     whyThisProtectsYou:
       "Degraded extraction means the packed content no longer matches the manifest hash, so line coordinates and reconstruction identity are no longer trustworthy for automation.",
     nextSteps: [

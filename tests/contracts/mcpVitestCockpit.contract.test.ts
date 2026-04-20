@@ -72,7 +72,9 @@ describe("MCP Vitest cockpit contract", () => {
     const manual = await readText(
       "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     );
-    const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
+    const agentIntegration = await readText(
+      "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
+    );
     const docsIndex = await readText(
       "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     );

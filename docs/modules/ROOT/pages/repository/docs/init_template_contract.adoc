@@ -1,8 +1,6 @@
 = Init Template Contract
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/INIT_TEMPLATE_CONTRACT.md`
 
 ++++
 <p><code>cx init</code> always generates the shared workspace bootstrap files plus a

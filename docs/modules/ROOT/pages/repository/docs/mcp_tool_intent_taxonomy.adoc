@@ -1,12 +1,10 @@
 = MCP Tool Intent Taxonomy
 :page-layout: default
 
-[.doc-origin]
-Source companion: `docs/MCP_TOOL_INTENT_TAXONOMY.md`
 
 ++++
 <p>This document is machine-oriented. It is intended for prompt engineering and agent policy guidance, not for primary human documentation.</p>
-<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/MENTAL_MODEL.md">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
+<p>See: <a href="https://github.com/wstein/cx-cli/blob/main/docs/modules/ROOT/pages/architecture/mental-model.adoc">MENTAL_MODEL.md</a> for the canonical CX triad, Track A vs Track B, and policy-tier model that this taxonomy sits underneath.</p>
 <p><code>cx mcp</code> exposes tools in three intent-focused groups:</p>
 <ul>
 <li><code>Read / Observe</code> tools: safe inspection, search, and non-mutating note reads.</li>
@@ -82,5 +80,5 @@ Start by using Read / Observe tools to locate the relevant file, section, or not
 <li>Prefer <code>notes_new</code>, <code>notes_update</code>, and <code>replace_repomix_span</code> only after a successful <code>read</code> or <code>inspect</code> operation.</li>
 </ul>
 <h2>Why This Doc Exists</h2>
-<p>The human-facing <code>docs/AGENT_INTEGRATION.md</code> uses the origin-based three-pillar taxonomy for readability and subsystem teaching. This separate machine-oriented doc exists to translate that human structure into a strict intent-based policy layer that agents can use reliably.</p>
+<p>The human-facing <code>docs/modules/ROOT/pages/repository/docs/agent_integration.adoc</code> uses the origin-based three-pillar taxonomy for readability and subsystem teaching. This separate machine-oriented doc exists to translate that human structure into a strict intent-based policy layer that agents can use reliably.</p>
 ++++

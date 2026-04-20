@@ -25,13 +25,29 @@ async function readText(relativePath: string): Promise<string> {
 }
 
 function sectionBody(document: string, heading: string): string {
-  const marker = `## ${heading}`;
-  const start = document.indexOf(marker);
-  if (start === -1) {
+  const htmlMarker = `<h2>${heading}</h2>`;
+  const markdownMarker = `## ${heading}`;
+  const htmlStart = document.indexOf(htmlMarker);
+  if (htmlStart !== -1) {
+    const nextHeading = document.indexOf("<h2>", htmlStart + htmlMarker.length);
+    return document.slice(
+      htmlStart,
+      nextHeading === -1 ? undefined : nextHeading,
+    );
+  }
+
+  const markdownStart = document.indexOf(markdownMarker);
+  if (markdownStart === -1) {
     return "";
   }
-  const nextHeading = document.indexOf("\n## ", start + marker.length);
-  return document.slice(start, nextHeading === -1 ? undefined : nextHeading);
+  const nextHeading = document.indexOf(
+    "\n## ",
+    markdownStart + markdownMarker.length,
+  );
+  return document.slice(
+    markdownStart,
+    nextHeading === -1 ? undefined : nextHeading,
+  );
 }
 
 describe("MCP policy contract", () => {
@@ -74,7 +90,9 @@ describe("MCP policy contract", () => {
   });
 
   test("taxonomy docs classify bundle as plan", async () => {
-    const docsTaxonomy = await readText("docs/MCP_TOOL_INTENT_TAXONOMY.md");
+    const docsTaxonomy = await readText(
+      "docs/modules/ROOT/pages/repository/docs/mcp_tool_intent_taxonomy.adoc",
+    );
     const notesTaxonomy = await readText("notes/MCP Tool Intent Taxonomy.md");
     const docsPlan = sectionBody(docsTaxonomy, "Plan / Preview");
     const docsWrite = sectionBody(docsTaxonomy, "Write / Mutate Tools");
@@ -83,11 +101,11 @@ describe("MCP policy contract", () => {
     const notesWrite = sectionBody(notesTaxonomy, "Write / Mutate");
     const notesRead = sectionBody(notesTaxonomy, "Read / Observe");
 
-    expect(docsPlan).toContain("- `bundle`");
-    expect(docsPlan).toContain("- `inspect`");
-    expect(docsWrite).not.toContain("- `bundle`");
-    expect(docsWrite).not.toContain("- `inspect`");
-    expect(docsRead).not.toContain("- `inspect`");
+    expect(docsPlan).toContain("<li><code>bundle</code></li>");
+    expect(docsPlan).toContain("<li><code>inspect</code></li>");
+    expect(docsWrite).not.toContain("<code>bundle</code>");
+    expect(docsWrite).not.toContain("<code>inspect</code>");
+    expect(docsRead).not.toContain("<code>inspect</code>");
 
     expect(notesPlan).toContain("- `bundle`");
     expect(notesPlan).toContain("- `inspect`");

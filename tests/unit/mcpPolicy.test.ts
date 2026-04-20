@@ -233,7 +233,9 @@ describe("MCP Policy System", () => {
       expect(error.remediation?.recommendedCommand).toBe(
         "cx doctor mcp --config cx.toml",
       );
-      expect(error.remediation?.docsRef).toBe("docs/AGENT_OPERATING_MODEL.md");
+      expect(error.remediation?.docsRef).toBe(
+        "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
+      );
       expect(error.remediation?.whyThisProtectsYou).toContain(
         "Mutation-capability tools stay denied",
       );

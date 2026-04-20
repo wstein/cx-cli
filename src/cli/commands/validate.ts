@@ -48,7 +48,8 @@ export async function runValidateCommand(
 
     throw new CxError("Note validation failed", 10, {
       remediation: {
-        docsRef: "docs/NOTES_MODULE_SPEC.md",
+        docsRef:
+          "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
         whyThisProtectsYou:
           "The notes graph is the repository cognition layer. Validation stops when durable knowledge loses summary quality, atomicity, or identifier integrity.",
         nextSteps: [
