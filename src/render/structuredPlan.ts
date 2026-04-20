@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 
-import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-
+import type { AdapterStructuredPack } from "../adapter/types.js";
 import { relativePosix } from "../shared/fs.js";
 import { normalizeText, sha256Text } from "../shared/hashing.js";
 import { detectMediaType } from "../shared/mime.js";
@@ -86,7 +85,7 @@ export async function buildStructuredPlanFromFiles(params: {
  * verify against belongs to the render kernel.
  */
 export function extractStructuredPlan(
-  structuredPack: Awaited<ReturnType<typeof RepomixTypes.packStructured>>,
+  structuredPack: AdapterStructuredPack,
 ): StructuredRenderPlan {
   const entries: StructuredRenderEntry[] = [];
 

@@ -30,6 +30,13 @@ Phases:
 4. default switched to native
 5. dependency removed
 
+Current state:
+
+- the native kernel owns production rendering
+- the fork is no longer a shipped runtime dependency
+- official `repomix` remains an optional reference oracle in parity/testing
+  flows
+
 ## Rule
 
 Compatibility is preserved through tests, not adapter presence.

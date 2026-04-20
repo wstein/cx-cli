@@ -6,12 +6,17 @@ target: current
 ---
 # Repomix CX Fork
 
-`https://github.com/wstein/repomix-cx-fork` is the federated Repomix adapter used by this repo.
-The published `@wsmy/cx-cli` package depends on the forked adapter for deterministic bundle planning and render integration.
+`https://github.com/wstein/repomix-cx-fork` was the temporary compatibility fork
+used during the native-render migration.
+
+It is no longer part of the shipped `cx-cli` runtime. The production proof path
+is kernel-owned, and compatibility is now preserved through parity tests rather
+than by shipping the fork.
 
 ## Links
 
 - `package.json`
+- `.github/workflows/ci.yml`
 - `README.md`
 - [[Repomix Adapter Boundary]]
 - [[Structured Render Contract]]

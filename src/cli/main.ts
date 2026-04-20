@@ -132,7 +132,7 @@ export async function main(
     .option("adapter-path", {
       type: "string",
       description:
-        "Path to a custom adapter oracle module (overrides the default @wsmy/repomix-cx-fork).",
+        "Path to a custom adapter oracle module (overrides the default repomix reference oracle when installed).",
       global: true,
     })
     .option("strict", {

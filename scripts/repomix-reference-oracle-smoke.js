@@ -1,6 +1,7 @@
 import {
   detectAdapterCapabilities,
   getAdapterCapabilities,
+  getReferenceAdapterRuntimeInfo,
   setAdapterPath,
 } from "../dist/src/adapter/capabilities.js";
 
@@ -9,6 +10,7 @@ async function main() {
 
   const capabilities = await getAdapterCapabilities();
   const detected = await detectAdapterCapabilities();
+  const reference = await getReferenceAdapterRuntimeInfo();
 
   if (capabilities.oracleAdapter.modulePath !== "repomix") {
     throw new Error(
@@ -20,6 +22,10 @@ async function main() {
     throw new Error(
       `Expected selected oracle adapter package to be repomix, got ${capabilities.oracleAdapter.packageName}.`,
     );
+  }
+
+  if (!reference.installed) {
+    throw new Error("Official repomix is not installed for reference smoke.");
   }
 
   if (typeof capabilities.oracleAdapter.contractValid !== "boolean") {

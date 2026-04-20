@@ -2,7 +2,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { mergeConfigs, packStructured } from "@wsmy/repomix-cx-fork";
+import { mergeConfigs, runSecurityCheck } from "repomix";
 import { describe, expect, test } from "vitest";
 import {
   ADAPTER_CONTRACT,
@@ -11,18 +11,21 @@ import {
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture } from "./helpers.js";
 
-describe("Repomix adapter capabilities", () => {
-  test("exports the public mergeConfigs and packStructured functions", () => {
+describe("Repomix reference oracle capabilities", () => {
+  test("exports the public mergeConfigs and security-check functions", () => {
     expect(typeof mergeConfigs).toBe("function");
-    expect(typeof packStructured).toBe("function");
+    expect(typeof runSecurityCheck).toBe("function");
   });
 
-  test("packStructured supports the public call shape used by cx", async () => {
+  test("reference oracle does not expose the cx-only packStructured extension", () => {
+    expect("packStructured" in { mergeConfigs, runSecurityCheck }).toBe(false);
+  });
+
+  test("runSecurityCheck supports the public call shape used by cx diagnostics", async () => {
     const fixture = await createRenderFixture();
-    const outputPath = path.join(fixture.rootDir, "repomix-output.xml.txt");
     const cliConfig: Parameters<typeof mergeConfigs>[2] = {
       output: {
-        filePath: outputPath,
+        filePath: path.join(fixture.rootDir, "repomix-output.xml.txt"),
         style: "xml",
         parsableStyle: true,
         fileSummary: true,
@@ -59,16 +62,21 @@ describe("Repomix adapter capabilities", () => {
     };
 
     const merged = mergeConfigs(fixture.rootDir, {}, cliConfig);
-    const plan = await packStructured([fixture.rootDir], merged, {
-      explicitFiles: [path.join(fixture.rootDir, "src", "index.ts")],
-    });
-    const rendered = await plan.renderWithMap("xml");
-    await fs.writeFile(outputPath, rendered.output, "utf8");
+    expect(merged.output.filePath).toContain("repomix-output.xml.txt");
+    const suspiciousFiles = await runSecurityCheck([
+      {
+        path: "src/index.ts",
+        content: await fs.readFile(
+          path.join(fixture.rootDir, "src", "index.ts"),
+          "utf8",
+        ),
+      },
+    ]);
 
     expect((await getAdapterCapabilities()).oracleAdapter.adapterContract).toBe(
       ADAPTER_CONTRACT,
     );
-    expect(await fs.stat(outputPath)).toBeDefined();
+    expect(Array.isArray(suspiciousFiles)).toBe(true);
   });
 
   test("renderSectionWithAdapterOracle returns an empty render for zero files", async () => {

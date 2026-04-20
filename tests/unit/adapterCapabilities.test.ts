@@ -49,7 +49,7 @@ describe("validateAdapterContract", () => {
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors[0]).toContain("mergeConfigs");
+      expect(result.errors.join("\n")).toContain(BAD_PATH);
     }
   });
 });

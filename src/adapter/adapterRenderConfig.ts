@@ -1,13 +1,12 @@
 import path from "node:path";
 
-import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-
 import { buildSectionHandoverText } from "../render/sectionHandover.js";
 import type { RenderSectionInput } from "../render/types.js";
+import type { AdapterRenderConfig } from "./types.js";
 
 export function buildAdapterRenderConfig(
   params: RenderSectionInput,
-): Parameters<typeof RepomixTypes.mergeConfigs>[2] {
+): AdapterRenderConfig {
   return {
     output: {
       filePath: params.outputPath,

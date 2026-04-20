@@ -26,7 +26,7 @@ async function createFixture(): Promise<string> {
   );
   await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
   await fs.writeFile(
-    path.join(root, "scripts", "adapter-version-smoke.ts"),
+    path.join(root, "scripts", "repomix-reference-oracle-smoke.ts"),
     "export const smoke = true;\n",
     "utf8",
   );
@@ -185,7 +185,7 @@ describe("buildBundlePlan", () => {
       "cx.toml",
       "package.json",
       "schemas/manifest-v5.schema.json",
-      "scripts/adapter-version-smoke.ts",
+      "scripts/repomix-reference-oracle-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",
     ]);
@@ -276,7 +276,7 @@ describe("buildBundlePlan", () => {
       "cx.toml",
       "package.json",
       "schemas/manifest-v5.schema.json",
-      "scripts/adapter-version-smoke.ts",
+      "scripts/repomix-reference-oracle-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",
     ]);

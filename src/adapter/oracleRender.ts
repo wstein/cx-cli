@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 import { computePlanHash, planToMaps } from "../render/planHash.js";
 import {
   countLogicalLines,
@@ -22,12 +21,13 @@ import {
   getAdapterModulePath,
   validateAdapterContract,
 } from "./capabilities.js";
+import type { AdapterModule } from "./types.js";
 
 /** Load the configured adapter module at runtime for parity/oracle rendering. */
-async function loadAdapterModule(): Promise<typeof RepomixTypes> {
+async function loadAdapterModule(): Promise<AdapterModule> {
   // Dynamic import honours any --adapter-path override set before command dispatch.
-  // The cast is safe: the adapter is expected to satisfy the RepomixTypes interface.
-  return import(getAdapterModulePath()) as Promise<typeof RepomixTypes>;
+  // The cast is safe: the adapter is expected to satisfy the local adapter contract.
+  return import(getAdapterModulePath()) as Promise<AdapterModule>;
 }
 
 function emitWarning(
@@ -41,7 +41,7 @@ async function assertCompatibleAdapter(): Promise<void> {
   const validation = await validateAdapterContract();
   if (!validation.valid) {
     throw new CxError(
-      `Incompatible Repomix adapter contract:\n${validation.errors.join("\n")}`,
+      `Incompatible adapter oracle contract:\n${validation.errors.join("\n")}`,
       5,
     );
   }
@@ -69,6 +69,13 @@ export async function renderSectionWithAdapterOracle(
   const capabilities = await detectAdapterCapabilities();
   const needsOutputSpans = params.requireOutputSpans ?? false;
 
+  if (typeof mergeConfigs !== "function") {
+    throw new CxError(
+      "Incompatible adapter oracle: mergeConfigs() is unavailable for parity rendering.",
+      5,
+    );
+  }
+
   const mergedConfig = mergeConfigs(
     params.sourceRoot,
     {},
@@ -78,7 +85,7 @@ export async function renderSectionWithAdapterOracle(
 
   if (!capabilities.supportsPackStructured) {
     const message =
-      "Repomix adapter is missing the cx extension (packStructured). Install @wsmy/repomix-cx-fork or set repomix.missing_extension=warn to degrade gracefully.";
+      "Selected adapter oracle is missing the cx extension (packStructured). Install a compatible oracle package or set repomix.missing_extension=warn to degrade gracefully.";
 
     if (params.config.behavior.repomixMissingExtension === "fail") {
       throw new CxError(message, 5);
@@ -156,7 +163,7 @@ export async function renderSectionWithAdapterOracle(
     if (params.config.manifest.includeOutputSpans && params.style !== "json") {
       if (needsOutputSpans) {
         throw new CxError(
-          "Text sections require exact output spans, but the Repomix adapter cannot capture them.",
+          "Text sections require exact output spans, but the adapter oracle cannot capture them.",
           5,
         );
       }
@@ -187,14 +194,14 @@ export async function renderSectionWithAdapterOracle(
 
   if (params.requireStructured) {
     throw new CxError(
-      "Incompatible Repomix adapter: packStructured() is required for normalized content hashing.",
+      "Incompatible adapter oracle: packStructured() is required for normalized content hashing.",
       5,
     );
   }
 
   if (!pack) {
     throw new CxError(
-      "Incompatible Repomix adapter: neither packStructured() nor pack() is available for rendering.",
+      "Incompatible adapter oracle: neither packStructured() nor pack() is available for rendering.",
       5,
     );
   }
@@ -202,7 +209,7 @@ export async function renderSectionWithAdapterOracle(
   if (params.config.manifest.includeOutputSpans && params.style !== "json") {
     if (needsOutputSpans) {
       throw new CxError(
-        "Text sections require exact output spans, but the Repomix adapter cannot capture them.",
+        "Text sections require exact output spans, but the adapter oracle cannot capture them.",
         5,
       );
     }

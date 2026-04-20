@@ -52,13 +52,10 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(
       "run: bun run ci:test:adapter-capabilities-contract",
     );
-    expect(workflow).toContain("adapter-dual-oracle-trial:");
-    expect(workflow).toContain("run: bun run ci:smoke:adapter-dual-oracle");
-    expect(workflow).toContain("adapter-reference-oracle-trial:");
+    expect(workflow).toContain("repomix-reference-oracle:");
     expect(workflow).toContain(
-      "run: bun run ci:smoke:adapter-reference-oracle",
+      "run: bun run ci:smoke:repomix-reference-oracle",
     );
-    expect(workflow).toContain("run: bun add --dev --exact repomix@1.13.1");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
@@ -135,8 +132,8 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:test:adapter-capabilities-contract"]).toBe(
       "vitest run tests/contracts/adapterCapabilities.contract.test.ts",
     );
-    expect(scripts["ci:smoke:adapter-reference-oracle"]).toBe(
-      "node scripts/adapter-reference-oracle-smoke.js",
+    expect(scripts["ci:smoke:repomix-reference-oracle"]).toBe(
+      "node scripts/repomix-reference-oracle-smoke.js",
     );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
@@ -182,24 +179,19 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
-    expect(workflow).toContain("adapter-dual-oracle-trial:");
-    expect(workflow).toContain("adapter-reference-oracle-trial:");
+    expect(workflow).toContain("repomix-reference-oracle:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
   });
 
-  test("adapter matrix installs known-good fork versions", async () => {
+  test("CI trials only the official repomix reference oracle", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain(
-      `@wsmy/repomix-cx-fork@\${{ matrix.adapter-version }}`,
-    );
-    expect(workflow).toContain(
-      'adapter-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
-    );
-    expect(workflow).not.toContain("bun add --exact repomix@");
+    expect(workflow).not.toContain("@wsmy/repomix-cx-fork");
+    expect(workflow).toContain("repomix-reference-oracle:");
+    expect(workflow).toContain("bun run ci:smoke:repomix-reference-oracle");
   });
 
   test("downstream CI lanes are gated behind test-fast", async () => {
@@ -210,9 +202,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
-    expect(workflow).toContain("adapter-matrix:");
-    expect(workflow).toContain("adapter-dual-oracle-trial:");
-    expect(workflow).toContain("adapter-reference-oracle-trial:");
+    expect(workflow).toContain("repomix-reference-oracle:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
@@ -220,9 +210,6 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain(
       "  notes-governance:\n    runs-on: ubuntu-latest\n    needs:",
-    );
-    expect(workflow).toContain(
-      "  adapter-matrix:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  render-parity:\n    runs-on: ubuntu-latest\n    needs:",
@@ -234,7 +221,7 @@ describe("CI lanes contract", () => {
       "  adapter-capabilities-contract:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
-      "  adapter-dual-oracle-trial:\n    runs-on: ubuntu-latest\n    needs:",
+      "  repomix-reference-oracle:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
@@ -274,8 +261,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - render-parity");
     expect(workflow).toContain("      - adapter-capabilities-contract");
     expect(workflow).toContain("      - coverage-vitest");
-    expect(workflow).toContain("      - adapter-matrix");
-    expect(workflow).toContain("      - adapter-dual-oracle-trial");
+    expect(workflow).toContain("      - repomix-reference-oracle");
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-compat-smoke");
     expect(workflow).toContain("      - reproducibility");

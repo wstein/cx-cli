@@ -50,7 +50,7 @@ The active modernization targets are:
 - keeping workspace context explicit instead of ambient
 - keeping Vitest as the authoritative shared-suite test runner and coverage lane
 - keeping Bun limited to explicit runtime compatibility smoke
-- preserving the in-process Repomix fork boundary as a narrow adapter layer
+- keeping the adapter seam parity-only and out of the shipped proof path
 
 That means the main architectural work is still about deterministic boundaries,
 not about swapping frameworks for their own sake.
@@ -120,8 +120,8 @@ interface StructuredRenderPlan {
 - `src/render/ordering.ts`: deterministic ordering invariant checks
 - `src/render/planHash.ts`: section and aggregate render-plan hashing
 - `src/render/spans.ts`: style-aware output span helpers
-- `src/adapter/oracleRender.ts`: Repomix-backed renderer retained as the migration
-  oracle and compatibility surface
+- `src/adapter/oracleRender.ts`: reference-oracle renderer retained for parity
+  checks and compatibility diagnostics
 - `src/manifest/types.ts`: Added `renderPlanHash` field
 - `src/manifest/build.ts`: Computes aggregate plan hash from sections
 - `src/bundle/verify.ts`: Validates plan integrity during verification
@@ -209,15 +209,17 @@ directory that exposes a `renderSection` function with the same signature as
 
 ### Current Migration State
 
-The proof path now uses a native-first default engine:
+The proof path now uses a native-only production engine:
 
 - XML, Markdown, Plain, and JSON sections are rendered through the native
   kernel path in `src/render/native/`
-- `tests/render/nativeParity.test.ts` is the release-gating evidence that both
-  paths still satisfy the same proof contract
+- `tests/render/nativeParity.test.ts` is the release-gating evidence that the
+  reference oracle and native kernel still satisfy the same proof contract
 
 This split is intentional. It lets the kernel take ownership incrementally
-without weakening extraction, verification, or manifest trust.
+without weakening extraction, verification, or manifest trust. Official
+`repomix` now remains only as an optional reference oracle for parity/testing
+work; the older fork is historical.
 
 ## Pipeline
 

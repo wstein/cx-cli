@@ -51,14 +51,8 @@ describe("release assurance contract", () => {
     const pkg = await readPackageJson();
     const scripts = pkg.scripts ?? {};
 
-    expect(scripts["ci:smoke:adapter-version"]).toBe(
-      "node scripts/adapter-version-smoke.js",
-    );
-    expect(scripts["ci:smoke:adapter-dual-oracle"]).toBe(
-      "node scripts/adapter-dual-oracle-smoke.js",
-    );
-    expect(scripts["ci:smoke:adapter-reference-oracle"]).toBe(
-      "node scripts/adapter-reference-oracle-smoke.js",
+    expect(scripts["ci:smoke:repomix-reference-oracle"]).toBe(
+      "node scripts/repomix-reference-oracle-smoke.js",
     );
     expect(scripts["ci:smoke:bundle-transition"]).toBe(
       "node scripts/bundle-transition-smoke.js",
@@ -80,7 +74,7 @@ describe("release assurance contract", () => {
 
     expect(certify).toContain("bun run ci:notes:governance");
     expect(certify).toContain("bun run ci:test:contracts");
-    expect(certify).toContain("bun run ci:smoke:adapter-version");
+    expect(certify).toContain("bun run ci:smoke:repomix-reference-oracle");
     expect(certify).toContain("bun run ci:smoke:bundle-transition");
     expect(certify).toContain("bun run ci:assurance:release-integrity");
     expect(certify).toContain("bun run ci:assurance:reproducibility");
@@ -89,9 +83,7 @@ describe("release assurance contract", () => {
   test("workflow calls the delegated ci assurance scripts", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain("bun run ci:smoke:adapter-version");
-    expect(workflow).toContain("bun run ci:smoke:adapter-dual-oracle");
-    expect(workflow).toContain("bun run ci:smoke:adapter-reference-oracle");
+    expect(workflow).toContain("bun run ci:smoke:repomix-reference-oracle");
     expect(workflow).toContain("bun run ci:notes:governance");
     expect(workflow).toContain(
       'bun run ci:smoke:bundle-transition -- --transition "$' +
