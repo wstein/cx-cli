@@ -13,6 +13,12 @@ const ROOT = path.resolve(
   "../..",
 );
 
+async function createFixtureTarball(tempRoot: string): Promise<string> {
+  const tarballPath = path.join(tempRoot, "cx-cli-fixture.tgz");
+  await fs.writeFile(tarballPath, "fixture tarball contents\n", "utf8");
+  return tarballPath;
+}
+
 describe("generate-homebrew-formula.js", () => {
   const taggedPackageVersion = `v${packageJson.version}`;
 
@@ -21,11 +27,14 @@ describe("generate-homebrew-formula.js", () => {
       path.join(os.tmpdir(), "cx-homebrew-formula-"),
     );
     const outputPath = path.join(tempRoot, "cx-cli.rb");
+    const tarballPath = await createFixtureTarball(tempRoot);
 
     const result = spawnSync(
       "node",
       [
         path.join(ROOT, "scripts", "generate-homebrew-formula.js"),
+        "--tarball",
+        tarballPath,
         "--output",
         outputPath,
       ],
@@ -56,19 +65,22 @@ describe("generate-homebrew-formula.js", () => {
     expect(formula).not.toContain('Dir["#{libexec}/bin/*"]');
     expect(formula).not.toContain("Language::Node");
     expect(formula).not.toContain("std_npm_install_args");
-  }, 15_000);
+  });
 
   test("accepts a v-prefixed version argument", async () => {
     const tempRoot = await fs.mkdtemp(
       path.join(os.tmpdir(), "cx-homebrew-formula-versioned-"),
     );
     const outputPath = path.join(tempRoot, "cx-cli.rb");
+    const tarballPath = await createFixtureTarball(tempRoot);
 
     const result = spawnSync(
       "node",
       [
         path.join(ROOT, "scripts", "generate-homebrew-formula.js"),
         taggedPackageVersion,
+        "--tarball",
+        tarballPath,
         "--output",
         outputPath,
       ],
