@@ -85,7 +85,7 @@ xref:architecture/render-kernel-contract.adoc[Render Kernel Contract]
 * Release-time checks and Pages publishing:
 xref:manual/release-and-integrity.adoc#release-checklist[Release Checklist]
 * Notes system details:
-xref:page$repository/docs/notes_module_spec.adoc[Notes Module Spec]
+xref:page$repository/docs/governance.adoc#notes-governance[Notes Governance]
 * Extraction and recovery rules:
 xref:page$repository/docs/extraction_safety.adoc[Extraction Safety]
 * Workflow examples over time:

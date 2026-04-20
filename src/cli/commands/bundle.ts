@@ -542,7 +542,7 @@ export async function runBundleCommand(
     throw new CxError("Note validation failed", 10, {
       remediation: {
         docsRef:
-          "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
+          "docs/modules/ROOT/pages/repository/docs/governance.adoc#notes-governance",
         whyThisProtectsYou:
           "The notes graph is the repository cognition layer. Refusing low-signal or malformed notes keeps bundles and agent workflows anchored to durable knowledge instead of noisy context.",
         nextSteps: [

@@ -277,12 +277,13 @@ describe("docs assurance contract", () => {
     expect(docsGuide).toContain("docs/modules/ROOT/pages/index.adoc");
   });
 
-  test("notes module spec documents linked-note enrichment semantics", async () => {
+  test("governance documents notes-layer enrichment semantics", async () => {
     const notesSpec = await readText(
-      "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
+      "docs/modules/ROOT/pages/repository/docs/governance.adoc",
     );
 
-    expect(notesSpec).toContain("=== Notes As The Cognition Layer");
+    expect(notesSpec).toContain("[[notes-governance]]");
+    expect(notesSpec).toContain("=== Notes Governance");
     expect(notesSpec).toContain("formal cognition contract");
     expect(notesSpec).toContain("=== Governance Model: How, What, Why");
     expect(notesSpec).toContain("4000");
@@ -295,7 +296,7 @@ describe("docs assurance contract", () => {
     expect(notesSpec).toContain("`cx notes graph --id <seed> --depth <n>`");
     expect(notesSpec).toContain("Depth semantics for graph inspection");
     expect(notesSpec).toContain("agent traceability");
-    expect(notesSpec).toContain("staleness and contradiction checks");
+    expect(notesSpec).toContain("contradiction pressure");
   });
 
   test("stop conditions explain the invariant they protect", async () => {

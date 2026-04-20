@@ -1,9 +1,10 @@
-= Documentation Governance
+= Documentation and Notes Governance
 :page-layout: default
 
 
-This guide explains how documentation is organized, maintained, and
-marked for authority and stability.
+This guide explains how curated documentation and the notes cognition
+layer are organized, maintained, and marked for authority and
+stability.
 
 === Source-of-Truth Markers
 
@@ -68,8 +69,8 @@ verification
 |Extraction Safety |CANONICAL |STABLE |Content filtering and safe
 extraction
 
-|Notes Module Specification |CANONICAL |STABLE |Notes schema and
-structure
+|Notes governance |CANONICAL |STABLE |Notes schema, routing, and
+cognition-layer rules
 
 |Documentation Governance |CANONICAL |STABLE |Documentation governance and doc map
 
@@ -291,3 +292,201 @@ EXPERIMENTAL)
 guarantees
 
 This is lightweight (one-line comments) but removes ambiguity.
+
+'''''
+
+[[notes-governance]]
+=== Notes Governance
+
+The notes graph is the repository cognition layer.
+
+That means notes are not just documentation. They preserve
+architectural intent, durable constraints, and explicit links between
+ideas and code in a form that both humans and downstream automation can
+query safely.
+
+Why this matters:
+
+* Track B uses notes to preserve hypotheses that proved useful.
+* Track A carries note summaries into manifests so the proof path can
+  keep the reasoning attached.
+* CI treats note quality as an integrity concern because low-signal
+  notes degrade both humans and agents.
+
+For AI-generated notes especially, the question is not "did text get
+produced?" It is "did the graph gain durable, high-signal knowledge?"
+
+See xref:architecture/system-contracts.adoc[System Contracts] for the
+formal cognition contract and trust propagation model that sit under
+this layer.
+
+==== Governance Model: How, What, Why
+
+Every note should answer three questions clearly, even when the author
+does not use literal section headings:
+
+* *What* is the durable fact, mechanism, or decision?
+* *Why* does it matter or which invariant does it protect?
+* *How* should an operator, reviewer, or later agent apply it?
+
+The opening paragraph is the summary contract. It must stand on its own
+because `manifest.notes[]` uses that summary as the fast routing path
+for later automation.
+
+==== Governance Rules
+
+The validator and CI enforce these baseline rules:
+
+* a note must produce a non-empty summary from its first paragraph
+* that summary must be non-trivial
+* untouched template boilerplate is not allowed to survive into
+  committed notes
+* a note body must stay at or below `4000` characters
+* a note body must stay at or below `100` lines
+
+These are cognition-layer limits, not arbitrary formatting preferences.
+
+==== Canonical Note Anatomy
+
+Every note must use this minimal structure:
+
+[source,md]
+----
+---
+id: YYYYMMDDHHMMSS
+aliases: []
+tags: []
+---
+Atomic body in the author's own words.
+
+## Links
+
+- [[Related note title]] - relationship
+- src/path/to/component.ts - relevant code component
+----
+
+Rules:
+
+* `id` is mandatory and machine authoritative
+* `aliases` and `tags` are always present, even when empty
+* the filename is the canonical human title; do not use the numeric id
+  as the visible title
+* the body must contain one discrete thought only
+* the first body paragraph must work as a stand-alone summary
+* the body should explain the note's what, why, and how clearly enough
+  for later reuse
+* the links section must point to other notes, code, or both
+
+==== Bundle Integration
+
+The default starter config must include `notes/**` inside
+`[sections.docs].include`.
+
+Canonical default:
+
+[source,toml]
+----
+[sections.docs]
+include = ["docs/**", "notes/**", "Documentation Index", "*.md"]
+exclude = []
+----
+
+This ensures the repository contract carries both machine state and
+human intent.
+
+==== Implemented Behavior
+
+This implementation includes:
+
+* note frontmatter parsing during validation
+* strict `id` format checks using `YYYYMMDDHHMMSS` with optional
+  milliseconds
+* duplicate-ID detection across the notes directory
+* aliases and tags normalization
+* note summary extraction from the body for manifest use
+* `codeLinks[]` extraction from note bodies and propagation into
+  `manifest.notes[]` records
+* a `cx notes ...` command family for note creation and graph
+  inspection
+* unresolved note and code-reference auditing via `cx notes links`
+* comment-scoped code reference discovery, so only intentional
+  `[[Note]]` references in source comments count as note links
+* cross-file anchor validation for `[[Note Title#Section Heading]]`
+  wikilinks
+* graph reachability queries via `cx notes graph --id <id> --depth <n>`
+  and the `notes_graph` MCP tool
+
+==== Linked-Note Enrichment Semantics
+
+Linked-note enrichment is a post-planning orchestration step controlled
+by `manifest.includeLinkedNotes`.
+
+* It is inclusion-changing, not advisory.
+* It does not alter the core VCS planning model; enrichment runs after
+  file classification.
+* The target section is `docs` when present, otherwise the first
+  configured section.
+* Notes already claimed by sections or assets are not reinjected.
+* The target section is re-sorted after injection to preserve
+  deterministic ordering.
+
+Operator inspection path:
+
+. Run `cx inspect --json` to see the planned section file lists before
+  rendering.
+. Run `cx notes graph --id <seed> --depth <n>` to inspect graph
+  reachability from the seed note.
+
+Inspect JSON reports inclusion provenance for each planned text file:
+
+* `section_match` for files claimed directly by a configured section
+* `linked_note_enrichment` for notes injected by the post-planning
+  graph pass
+* `manifest_note_inclusion` when `manifest.includeLinkedNotes` is the
+  setting that made the note appear
+
+Depth semantics for graph inspection:
+
+* `depth = 1` includes direct wikilink neighbors.
+* `depth = N` includes notes reachable within at most `N` wikilink
+  hops.
+
+==== Staleness and Contradiction Pressure
+
+`cx notes check` reports:
+
+* note age derived from the note timestamp id
+* staleness labels (`fresh`, `aging`, `stale`)
+* code-drift pressure when a note points at repository paths that are
+  missing, excluded, or outside the VCS master list
+* contradiction pressure when a note claims code state that conflicts
+  with the repository or with sibling notes
+
+These signals are diagnostic rather than blocking by themselves. They
+make durable-memory decay visible before agents start treating stale
+memory as current architecture.
+
+==== CI Check Path
+
+The governance path is operational, not aspirational:
+
+. `validateNotes(...)` enforces summary and size rules during bundling,
+  validation, note CRUD, MCP note access, and graph checks.
+. `cx notes check` surfaces governance failures directly for local
+  review and CI logs.
+. `bun run ci:notes:governance` makes the cognition-layer gate visible
+  as its own CI lane.
+. `bun run ci:test:contracts` keeps the canonical docs and workflow
+  references aligned with the implemented governance model.
+. `bun run ci:report:observability` emits CI-readable markdown and JSON
+  summaries so note quality gates and fast-lane drift stay visible over
+  time.
+
+==== Future Extensions
+
+The following candidates remain for future implementation:
+
+. extraction-safe note parsing for downstream routing
+. manifest-side summaries beyond the first body paragraph
+. stronger agent traceability that links note changes, audit trails, and
+   workflow review history into one provenance path

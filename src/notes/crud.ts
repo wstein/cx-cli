@@ -273,7 +273,7 @@ function assertRenderedNoteValid(filePath: string, content: string): void {
     {
       remediation: {
         docsRef:
-          "docs/modules/ROOT/pages/repository/docs/notes_module_spec.adoc",
+          "docs/modules/ROOT/pages/repository/docs/governance.adoc#notes-governance",
         whyThisProtectsYou:
           "The notes graph is the repository cognition layer. Rejecting invalid note writes keeps low-signal or malformed memory from becoming durable project context.",
         nextSteps: [
