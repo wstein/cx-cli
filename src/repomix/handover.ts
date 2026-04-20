@@ -6,7 +6,7 @@ export function buildSectionHeaderText(params: {
   outputFile?: string;
   fileCount: number;
   style: CxStyle;
-  bundleIndexFile?: string;
+  handoverFile?: string;
 }): string {
   const lines = [
     "cx section handover",
@@ -21,8 +21,8 @@ export function buildSectionHeaderText(params: {
     lines.push(`output: ${params.outputFile}`);
   }
 
-  if (params.bundleIndexFile) {
-    lines.push(`shared handover: ${params.bundleIndexFile}`);
+  if (params.handoverFile) {
+    lines.push(`shared handover: ${params.handoverFile}`);
   }
 
   lines.push(

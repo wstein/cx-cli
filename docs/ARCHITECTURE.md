@@ -372,7 +372,7 @@ breaking the self-contained section files.
 - dirty state at bundle time (`clean`, `safe_dirty`, or `forced_dirty`)
 - list of uncommitted modified files when `forced_dirty`
 - checksum algorithm
-- the shared handover filename (currently stored in the manifest `bundleIndexFile` field)
+- the shared handover filename (currently stored in the manifest `handoverFile` field)
 - section outputs
 - copied assets
 - repository note metadata, including extracted summaries when notes are present

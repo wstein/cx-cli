@@ -68,15 +68,15 @@ describe("bundle validation", () => {
     expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
 
     const { manifest } = await loadManifestFromBundle(project.bundleDir);
-    expect(manifest.bundleIndexFile).toBeDefined();
-    if (manifest.bundleIndexFile === undefined) {
+    expect(manifest.handoverFile).toBeDefined();
+    if (manifest.handoverFile === undefined) {
       throw new Error("Expected shared handover file in manifest");
     }
 
-    await fs.rm(path.join(project.bundleDir, manifest.bundleIndexFile));
+    await fs.rm(path.join(project.bundleDir, manifest.handoverFile));
 
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
-      `Bundle is missing shared handover ${manifest.bundleIndexFile}.`,
+      `Bundle is missing shared handover ${manifest.handoverFile}.`,
     );
   });
 

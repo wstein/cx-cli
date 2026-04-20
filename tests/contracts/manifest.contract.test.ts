@@ -136,10 +136,10 @@ describe("manifest contract", () => {
     expect(parsed.sections[1]?.files[0]?.outputEndLine).toBe(4);
   });
 
-  test("retains optional bundle index metadata when present", () => {
+  test("retains optional shared handover metadata when present", () => {
     const manifest = sampleManifest();
-    manifest.bundleIndexFile = "demo-bundle-index.txt";
+    manifest.handoverFile = "demo-handover.xml.txt";
     const parsed = parseManifestJson(renderManifestJson(manifest));
-    expect(parsed.bundleIndexFile).toBe("demo-bundle-index.txt");
+    expect(parsed.handoverFile).toBe("demo-handover.xml.txt");
   });
 });

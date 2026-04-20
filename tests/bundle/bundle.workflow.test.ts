@@ -105,7 +105,10 @@ describe("bundle workflow", () => {
     expect(listCapture.stdout()).toContain("status");
     expect(listCapture.stdout()).not.toContain("kind\tsection\tstored_in");
 
-    const bundleIndexPath = path.join(project.bundleDir, "demo-handover.txt");
+    const bundleIndexPath = path.join(
+      project.bundleDir,
+      "demo-handover.xml.txt",
+    );
     expect(await fs.stat(bundleIndexPath)).toBeDefined();
     const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
     expect(bundleIndex).toContain("cx shared handover");
@@ -305,7 +308,7 @@ describe("bundle workflow", () => {
     expect(summary).toContain("manifest_note_inclusion");
 
     const bundleIndex = await fs.readFile(
-      path.join(project.bundleDir, "demo-handover.txt"),
+      path.join(project.bundleDir, "demo-handover.xml.txt"),
       "utf8",
     );
     expect(bundleIndex).toContain("inclusion provenance:");

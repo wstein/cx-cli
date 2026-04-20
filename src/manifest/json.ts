@@ -16,7 +16,7 @@ import type {
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 6 as const;
+export const MANIFEST_SCHEMA_VERSION = 7 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -25,7 +25,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v6.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v7.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -40,7 +40,7 @@ interface ManifestDto {
   sourceRoot: string;
   bundleDir: string;
   checksumFile: string;
-  bundleIndexFile?: string;
+  handoverFile?: string;
   createdAt: string;
   cxVersion: string;
   repomixVersion: string;
@@ -414,8 +414,8 @@ function parseManifestDto(raw: unknown): {
     notes: notesRaw.map((note, index) => parseNoteDto(note, index)),
   };
 
-  if (obj.bundleIndexFile !== undefined) {
-    dto.bundleIndexFile = requireString(obj.bundleIndexFile, "bundleIndexFile");
+  if (obj.handoverFile !== undefined) {
+    dto.handoverFile = requireString(obj.handoverFile, "handoverFile");
   }
 
   return { dto, sectionRows };
@@ -477,8 +477,8 @@ export function renderManifestJson(
         : {}),
     })),
     ...(manifest.notes !== undefined ? { notes: manifest.notes } : {}),
-    ...(manifest.bundleIndexFile !== undefined
-      ? { bundleIndexFile: manifest.bundleIndexFile }
+    ...(manifest.handoverFile !== undefined
+      ? { handoverFile: manifest.handoverFile }
       : {}),
   };
 
@@ -555,8 +555,8 @@ export function parseManifestJson(source: string): CxManifest {
     ),
   };
 
-  if (dto.bundleIndexFile !== undefined) {
-    manifest.bundleIndexFile = dto.bundleIndexFile;
+  if (dto.handoverFile !== undefined) {
+    manifest.handoverFile = dto.handoverFile;
   }
 
   return manifest;

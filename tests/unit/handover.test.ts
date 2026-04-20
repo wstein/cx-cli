@@ -12,7 +12,7 @@ describe("handover text", () => {
       outputFile: "demo-repomix-docs.xml.txt",
       fileCount: 3,
       style: "xml",
-      bundleIndexFile: "demo-handover.txt",
+      handoverFile: "demo-handover.xml.txt",
     });
 
     expect(header).toContain("cx section handover");
@@ -31,7 +31,7 @@ describe("handover text", () => {
     expect(header).toContain("project: demo");
     expect(header).toContain("section: docs");
     expect(header).toContain("files: 3");
-    expect(header).toContain("shared handover: demo-handover.txt");
+    expect(header).toContain("shared handover: demo-handover.xml.txt");
     expect(header).toContain(
       "shared context: keep this file together with the shared handover when handing off multiple sections.",
     );

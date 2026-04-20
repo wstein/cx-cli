@@ -24,7 +24,7 @@ export async function buildManifest(params: {
   config: CxConfig;
   plan: BundlePlan;
   sectionOutputs: SectionOutputRecord[];
-  bundleIndexFile?: string | undefined;
+  handoverFile?: string | undefined;
   cxVersion: string;
   repomixVersion: string;
   sectionSpanMaps?: SectionSpanMaps | undefined;
@@ -181,8 +181,8 @@ export async function buildManifest(params: {
     ),
   };
 
-  if (params.bundleIndexFile !== undefined) {
-    manifest.bundleIndexFile = params.bundleIndexFile;
+  if (params.handoverFile !== undefined) {
+    manifest.handoverFile = params.handoverFile;
   }
 
   if (params.notes !== undefined && params.notes.length > 0) {

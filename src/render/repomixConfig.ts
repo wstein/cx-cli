@@ -20,9 +20,9 @@ export function buildRepomixCliConfig(
           : { outputFile: path.basename(params.outputPath) }),
         fileCount: params.explicitFiles.length,
         style: params.style,
-        ...(params.bundleIndexFile === undefined
+        ...(params.handoverFile === undefined
           ? {}
-          : { bundleIndexFile: params.bundleIndexFile }),
+          : { handoverFile: params.handoverFile }),
       }),
       fileSummary: true,
       directoryStructure: true,

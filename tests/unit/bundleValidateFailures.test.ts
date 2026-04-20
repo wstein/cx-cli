@@ -10,13 +10,13 @@ const HASH_B = "b".repeat(64);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 6,
+    schemaVersion: 7,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
     bundleDir: "dist/demo-bundle",
     checksumFile: "demo.sha256",
-    bundleIndexFile: "demo-handover.txt",
+    handoverFile: "demo-handover.xml.txt",
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
     repomixVersion: "0.0.0-test",
@@ -161,7 +161,7 @@ describe("validateBundle failure classes", () => {
 
   test("rejects missing shared handover files", async () => {
     const bundleDir = "/bundle";
-    const missingIndex = path.join(bundleDir, "demo-handover.txt");
+    const missingIndex = path.join(bundleDir, "demo-handover.xml.txt");
     await expect(
       validateBundle(bundleDir, {
         loadManifestFromBundle: async () => ({
@@ -170,7 +170,9 @@ describe("validateBundle failure classes", () => {
         }),
         pathExists: async (targetPath) => targetPath !== missingIndex,
       }),
-    ).rejects.toThrow("Bundle is missing shared handover demo-handover.txt.");
+    ).rejects.toThrow(
+      "Bundle is missing shared handover demo-handover.xml.txt.",
+    );
   });
 
   test("rejects missing assets", async () => {

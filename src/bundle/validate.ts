@@ -71,11 +71,11 @@ export async function validateBundle(
   }
 
   if (
-    manifest.bundleIndexFile &&
-    !(await pathExistsFn(path.join(bundleDir, manifest.bundleIndexFile)))
+    manifest.handoverFile &&
+    !(await pathExistsFn(path.join(bundleDir, manifest.handoverFile)))
   ) {
     throw new CxError(
-      `Bundle is missing shared handover ${manifest.bundleIndexFile}.`,
+      `Bundle is missing shared handover ${manifest.handoverFile}.`,
       2,
     );
   }

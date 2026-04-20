@@ -120,7 +120,7 @@ describe("manifest build", () => {
         config,
         plan,
         sectionOutputs,
-        bundleIndexFile: "demo-bundle-index.txt",
+        handoverFile: "demo-handover.xml.txt",
         cxVersion: "0.1.0",
         repomixVersion: "0.1.0",
         sectionSpanMaps: new Map(),

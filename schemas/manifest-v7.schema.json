@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wstein.github.io/cx-cli/schemas/manifest-v6.schema.json",
-  "title": "cx Manifest v6",
-  "description": "On-disk format for a cx bundle manifest (schemaVersion 6). Adds VCS provider, dirty-state, and file inclusion provenance fields so downstream consumers and LLMs know the canonical state of the source tree at bundle time.",
+  "$id": "https://wstein.github.io/cx-cli/schemas/manifest-v7.schema.json",
+  "title": "cx Manifest v7",
+  "description": "On-disk format for a cx bundle manifest (schemaVersion 7). Renames the shared handover field to handoverFile while preserving the current proof-path bundle contract for downstream consumers and LLMs.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -55,8 +55,8 @@
       "type": "string",
       "minLength": 1
     },
-    "bundleIndexFile": {
-      "description": "Filename of the shared bundle index artifact (relative to bundleDir).",
+    "handoverFile": {
+      "description": "Filename of the shared handover artifact (relative to bundleDir).",
       "type": "string",
       "minLength": 1
     },

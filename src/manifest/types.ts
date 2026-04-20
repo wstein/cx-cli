@@ -104,13 +104,13 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 6;
+  schemaVersion: 7;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
   bundleDir: string;
   checksumFile: string;
-  bundleIndexFile?: string;
+  handoverFile?: string;
   createdAt: string;
   cxVersion: string;
   repomixVersion: string;

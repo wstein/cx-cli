@@ -253,9 +253,9 @@ describe("published manifest schemas", async () => {
       "utf8",
     ),
   ) as JsonSchema;
-  const v6Schema = JSON.parse(
+  const v7Schema = JSON.parse(
     await fs.readFile(
-      path.resolve(path.join(HERE, "../../schemas/manifest-v6.schema.json")),
+      path.resolve(path.join(HERE, "../../schemas/manifest-v7.schema.json")),
       "utf8",
     ),
   ) as JsonSchema;
@@ -264,8 +264,8 @@ describe("published manifest schemas", async () => {
     expect(v5Schema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/manifest-v5.schema.json",
     );
-    expect(v6Schema.$id).toBe(
-      "https://wstein.github.io/cx-cli/schemas/manifest-v6.schema.json",
+    expect(v7Schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/manifest-v7.schema.json",
     );
   });
 });

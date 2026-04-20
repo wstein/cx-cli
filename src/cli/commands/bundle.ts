@@ -331,7 +331,7 @@ export async function runBundleCommand(
       }),
     );
 
-    const bundleIndexFile = `${plan.projectName}-handover.txt`;
+    const handoverFile = `${plan.projectName}-handover${config.output.extensions[config.repomix.style]}`;
     const renderedSections: RenderedSectionArtifacts[] = await Promise.all(
       plan.sections.map(async (section) => {
         const outputPath = path.join(activeBundleDir, section.outputFile);
@@ -342,7 +342,7 @@ export async function runBundleCommand(
           outputPath,
           sectionName: section.name,
           explicitFiles: section.files.map((file) => file.absolutePath),
-          bundleIndexFile,
+          handoverFile,
           requireStructured: true,
           requireOutputSpans: requiresOutputSpans,
           io,
@@ -421,7 +421,7 @@ export async function runBundleCommand(
     }
 
     await fs.writeFile(
-      path.join(activeBundleDir, bundleIndexFile),
+      path.join(activeBundleDir, handoverFile),
       renderSharedHandoverText({
         projectName: plan.projectName,
         sectionOutputs,
@@ -456,7 +456,7 @@ export async function runBundleCommand(
       config,
       plan,
       sectionOutputs,
-      bundleIndexFile,
+      handoverFile,
       cxVersion: CX_VERSION,
       repomixVersion: (await getRepomixCapabilities()).packageVersion,
       sectionSpanMaps,
@@ -509,7 +509,7 @@ export async function runBundleCommand(
     const expectedFiles = [
       manifestName,
       lockFileName(plan.projectName),
-      bundleIndexFile,
+      handoverFile,
       ...plan.sections.map((section) => section.outputFile),
       ...plan.assets.map((asset) => asset.storedPath),
       plan.checksumFile,
@@ -518,7 +518,7 @@ export async function runBundleCommand(
     await writeChecksumFile(activeBundleDir, plan.checksumFile, [
       manifestName,
       lockFileName(plan.projectName),
-      bundleIndexFile,
+      handoverFile,
       ...plan.sections.map((section) => section.outputFile),
       ...plan.assets.map((asset) => asset.storedPath),
     ]);
@@ -560,7 +560,7 @@ export async function runBundleCommand(
         [
           ["Project", plan.projectName],
           ["Location", plan.bundleDir],
-          ["Shared handover", bundleIndexFile],
+          ["Shared handover", handoverFile],
         ],
         io,
       );
@@ -640,7 +640,7 @@ export async function runBundleCommand(
           bundleDir: plan.bundleDir,
           manifestName: `${plan.projectName}-manifest.json`,
           checksumFile: plan.checksumFile,
-          bundleIndexFile,
+          handoverFile,
           sections: sectionOutputs,
           sectionCount: plan.sections.length,
           assetCount: plan.assets.length,

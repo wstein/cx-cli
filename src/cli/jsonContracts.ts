@@ -116,7 +116,7 @@ export const BundleCommandJsonSchema = z.object({
   bundleDir: z.string(),
   manifestName: z.string(),
   checksumFile: z.string(),
-  bundleIndexFile: z.string(),
+  handoverFile: z.string(),
   sections: z.array(
     z.object({
       name: z.string(),

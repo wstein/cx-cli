@@ -26,7 +26,7 @@ export interface RenderSectionInput {
   outputPath: string;
   sectionName: string;
   explicitFiles: string[];
-  bundleIndexFile?: string;
+  handoverFile?: string;
   requireStructured?: boolean;
   requireOutputSpans?: boolean;
   io?: Partial<CommandIo>;

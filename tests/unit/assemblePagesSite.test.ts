@@ -25,8 +25,8 @@ describe("assemble-pages-site.js", () => {
       "utf8",
     );
     await fs.writeFile(
-      path.join(schemasDir, "manifest-v6.schema.json"),
-      '{"$id":"https://example.invalid/manifest-v6.schema.json"}\n',
+      path.join(schemasDir, "manifest-v7.schema.json"),
+      '{"$id":"https://example.invalid/manifest-v7.schema.json"}\n',
       "utf8",
     );
     await fs.writeFile(
@@ -43,7 +43,7 @@ describe("assemble-pages-site.js", () => {
 
     expect(result.schemaNames).toEqual([
       "cx-config-v1.schema.json",
-      "manifest-v6.schema.json",
+      "manifest-v7.schema.json",
     ]);
     expect(result.hasCoverage).toBe(true);
     expect(result.coverageDir).toBe(path.join(siteRoot, "coverage"));
@@ -64,7 +64,7 @@ describe("assemble-pages-site.js", () => {
     expect(rootIndex).toContain('href="schemas/"');
     expect(rootIndex).toContain('href="coverage/"');
     expect(schemasIndex).toContain("cx-config-v1.schema.json");
-    expect(schemasIndex).toContain("manifest-v6.schema.json");
+    expect(schemasIndex).toContain("manifest-v7.schema.json");
     expect(coverageIndex).toContain("coverage");
   });
 

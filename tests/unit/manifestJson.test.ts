@@ -7,7 +7,7 @@ import {
 import type { CxManifest } from "../../src/manifest/types.js";
 
 const VALID_MINIMAL_MANIFEST: CxManifest = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   bundleVersion: 1,
   projectName: "test-project",
   sourceRoot: ".",
@@ -73,21 +73,21 @@ describe("manifest JSON parsing and rendering", () => {
       expect(json).toContain("settings");
     });
 
-    it("includes optional bundleIndexFile when present", () => {
+    it("includes optional handoverFile when present", () => {
       const manifestWithIndex = {
         ...VALID_MINIMAL_MANIFEST,
-        bundleIndexFile: "index.json",
+        handoverFile: "index.json",
       };
       const json = renderManifestJson(manifestWithIndex);
-      expect(json).toContain("bundleIndexFile");
+      expect(json).toContain("handoverFile");
       expect(json).toContain("index.json");
     });
 
-    it("omits optional bundleIndexFile when absent", () => {
+    it("omits optional handoverFile when absent", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
-      // Should not have bundleIndexFile in output
+      // Should not have handoverFile in output
       const parsed = JSON.parse(json);
-      expect(parsed.bundleIndexFile).toBeUndefined();
+      expect(parsed.handoverFile).toBeUndefined();
     });
 
     it("includes notes array when present", () => {
@@ -118,7 +118,7 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
       const parsed = JSON.parse(json);
       expect(parsed).toBeDefined();
-      expect(parsed.schemaVersion).toBe(6);
+      expect(parsed.schemaVersion).toBe(7);
     });
 
     it("ends with newline", () => {
@@ -258,7 +258,7 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
       const parsed = parseManifestJson(json);
       expect(parsed.projectName).toBe(VALID_MINIMAL_MANIFEST.projectName);
-      expect(parsed.schemaVersion).toBe(6);
+      expect(parsed.schemaVersion).toBe(7);
     });
 
     it("throws error for invalid JSON", () => {
@@ -574,19 +574,19 @@ describe("manifest JSON parsing and rendering", () => {
       expect(parsed.files[1]?.path).toBe("z.ts");
     });
 
-    it("preserves bundleIndexFile when present", () => {
+    it("preserves handoverFile when present", () => {
       const json = renderManifestJson({
         ...VALID_MINIMAL_MANIFEST,
-        bundleIndexFile: "index.json",
+        handoverFile: "index.json",
       });
       const parsed = parseManifestJson(json);
-      expect(parsed.bundleIndexFile).toBe("index.json");
+      expect(parsed.handoverFile).toBe("index.json");
     });
 
-    it("omits bundleIndexFile when absent", () => {
+    it("omits handoverFile when absent", () => {
       const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
       const parsed = parseManifestJson(json);
-      expect(parsed.bundleIndexFile).toBeUndefined();
+      expect(parsed.handoverFile).toBeUndefined();
     });
   });
 
