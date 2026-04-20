@@ -13,19 +13,7 @@ const REPOSITORY_DOCS_ROOT = path.join(
   ROOT,
   "docs/modules/ROOT/pages/repository/docs",
 );
-const ALLOWED_PASSTHROUGH_FILES = [
-  "agent_integration.adoc",
-  "governance.adoc",
-  "init_template_contract.adoc",
-  "notes_module_spec.adoc",
-  "stability.adoc",
-  "template_crystal.adoc",
-  "template_elixir.adoc",
-  "template_go.adoc",
-  "template_rust.adoc",
-  "template_typescript.adoc",
-  "template_zig.adoc",
-];
+const ALLOWED_PASSTHROUGH_FILES: string[] = [];
 
 async function collectRepositoryDocFiles(dir: string): Promise<string[]> {
   const entries = await fs.readdir(dir, { withFileTypes: true });
