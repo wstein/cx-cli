@@ -1,7 +1,7 @@
 // test-lane: unit
 import { describe, expect, test } from "vitest";
 
-import { renderSharedHandoverText } from "../../src/render/handover.js";
+import { renderSharedHandover } from "../../src/render/handover.js";
 import { buildSectionHandoverText } from "../../src/render/sectionHandover.js";
 
 describe("handover text", () => {
@@ -38,7 +38,8 @@ describe("handover text", () => {
   });
 
   test("keeps the shared handover focused on shared handoff context", () => {
-    const indexText = renderSharedHandoverText({
+    const indexText = renderSharedHandover({
+      style: "xml",
       projectName: "demo",
       sectionOutputs: [
         {
@@ -54,17 +55,22 @@ describe("handover text", () => {
       provenanceSummary: [{ marker: "section_match", count: 2 }],
     });
 
-    expect(indexText).toContain("cx shared handover");
+    expect(indexText).toContain("<cx_shared_handover>");
+    expect(indexText).toContain("<project>demo</project>");
     expect(indexText).toContain(
-      "purpose: shared handover companion for the rendered section outputs below.",
+      "<purpose>shared handover companion for the rendered section outputs below.</purpose>",
     );
     expect(indexText).toContain(
-      "use this shared handover with the section files; each section output remains self-contained.",
+      "<usage>use this shared handover with the section files; each section output remains self-contained.</usage>",
+    );
+    expect(indexText).toContain(
+      "<output_file>demo-repomix-docs.xml.txt</output_file>",
     );
   });
 
-  test("renders bounded recent repository history when present", () => {
-    const indexText = renderSharedHandoverText({
+  test("renders bounded recent repository history in xml when present", () => {
+    const indexText = renderSharedHandover({
+      style: "xml",
       projectName: "demo",
       sectionOutputs: [],
       assetPaths: [],
@@ -82,12 +88,33 @@ describe("handover text", () => {
       ],
     });
 
+    expect(indexText).toContain("<recent_repository_history>");
+    expect(indexText).toContain("<short_hash>aaaaaaaaaaaa</short_hash>");
+    expect(indexText).toContain(
+      "<subject>Add native shared handover history</subject>",
+    );
+    expect(indexText).toContain("<short_hash>bbbbbbbbbbbb</short_hash>");
+  });
+
+  test("renders plain handover history without broken bullets", () => {
+    const indexText = renderSharedHandover({
+      style: "plain",
+      projectName: "demo",
+      sectionOutputs: [],
+      assetPaths: [],
+      repoHistory: [
+        {
+          hash: "aaaaaaaaaaaa1111111111111111111111111111",
+          shortHash: "aaaaaaaaaaaa",
+          subject: "Add native shared handover history",
+        },
+      ],
+    });
+
     expect(indexText).toContain("recent repository history:");
     expect(indexText).toContain(
       "- aaaaaaaaaaaa Add native shared handover history",
     );
-    expect(indexText).toContain(
-      "- bbbbbbbbbbbb Tighten contract tests for manifest v8",
-    );
+    expect(indexText).not.toContain("- \naaaaaaaaaaaa");
   });
 });

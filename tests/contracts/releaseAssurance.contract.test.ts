@@ -57,6 +57,9 @@ describe("release assurance contract", () => {
     expect(scripts["ci:smoke:adapter-dual-oracle"]).toBe(
       "node scripts/adapter-dual-oracle-smoke.js",
     );
+    expect(scripts["ci:smoke:adapter-reference-oracle"]).toBe(
+      "node scripts/adapter-reference-oracle-smoke.js",
+    );
     expect(scripts["ci:smoke:bundle-transition"]).toBe(
       "node scripts/bundle-transition-smoke.js",
     );
@@ -88,6 +91,7 @@ describe("release assurance contract", () => {
 
     expect(workflow).toContain("bun run ci:smoke:adapter-version");
     expect(workflow).toContain("bun run ci:smoke:adapter-dual-oracle");
+    expect(workflow).toContain("bun run ci:smoke:adapter-reference-oracle");
     expect(workflow).toContain("bun run ci:notes:governance");
     expect(workflow).toContain(
       'bun run ci:smoke:bundle-transition -- --transition "$' +

@@ -111,9 +111,13 @@ describe("bundle workflow", () => {
     );
     expect(await fs.stat(bundleIndexPath)).toBeDefined();
     const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
-    expect(bundleIndex).toContain("cx shared handover");
-    expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
-    expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
+    expect(bundleIndex).toContain("<cx_shared_handover>");
+    expect(bundleIndex).toContain(
+      "<output_file>demo-repomix-docs.xml.txt</output_file>",
+    );
+    expect(bundleIndex).toContain(
+      "<output_file>demo-repomix-src.xml.txt</output_file>",
+    );
     const docsOutput = await fs.readFile(
       path.join(project.bundleDir, "demo-repomix-docs.xml.txt"),
       "utf8",
@@ -309,11 +313,11 @@ describe("bundle workflow", () => {
       path.join(project.bundleDir, "demo-handover.xml.txt"),
       "utf8",
     );
-    expect(bundleIndex).toContain("inclusion provenance:");
-    expect(bundleIndex).toContain("section_match:");
-    expect(bundleIndex).toContain("asset_rule_match:");
-    expect(bundleIndex).toContain("linked_note_enrichment:");
-    expect(bundleIndex).toContain("manifest_note_inclusion:");
+    expect(bundleIndex).toContain("<inclusion_provenance>");
+    expect(bundleIndex).toContain("<marker>section_match</marker>");
+    expect(bundleIndex).toContain("<marker>asset_rule_match</marker>");
+    expect(bundleIndex).toContain("<marker>linked_note_enrichment</marker>");
+    expect(bundleIndex).toContain("<marker>manifest_note_inclusion</marker>");
   });
 
   test("surfaces provenance suffixes in human list output", async () => {

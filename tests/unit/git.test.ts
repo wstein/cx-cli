@@ -1,7 +1,11 @@
 // test-lane: unit
 import { describe, expect, test } from "vitest";
 
-import { detectGit, getGitState } from "../../src/vcs/git.js";
+import {
+  detectGit,
+  getGitState,
+  getRecentGitHistory,
+} from "../../src/vcs/git.js";
 
 describe("Git VCS helpers", () => {
   test("detectGit returns true when rev-parse succeeds", async () => {
@@ -54,5 +58,30 @@ describe("Git VCS helpers", () => {
     ]);
     expect(state.modifiedFiles).toEqual(["modified.txt", "nested/path.md"]);
     expect(state.untrackedFiles).toEqual(["stray.txt"]);
+  });
+
+  test("getRecentGitHistory trims record separator newlines cleanly", async () => {
+    const run = async (args: string[]) => {
+      expect(args[0]).toBe("log");
+      return {
+        stdout:
+          "aaaaaaaaaaaa1111111111111111111111111111\u001fFirst commit\u001e\nbbbbbbbbbbbb2222222222222222222222222222\u001fSecond commit\u001e\n",
+      };
+    };
+
+    const history = await getRecentGitHistory("/repo", 2, run);
+
+    expect(history).toEqual([
+      {
+        hash: "aaaaaaaaaaaa1111111111111111111111111111",
+        shortHash: "aaaaaaaaaaaa",
+        subject: "First commit",
+      },
+      {
+        hash: "bbbbbbbbbbbb2222222222222222222222222222",
+        shortHash: "bbbbbbbbbbbb",
+        subject: "Second commit",
+      },
+    ]);
   });
 });

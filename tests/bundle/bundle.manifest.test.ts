@@ -113,8 +113,9 @@ It should become the manifest summary.
     );
     const handover = await fs.readFile(handoverPath, "utf8");
 
-    expect(handover).toContain("recent repository history:");
-    expect(handover).toMatch(/- [a-f0-9]{12} init/);
+    expect(handover).toContain("<recent_repository_history>");
+    expect(handover).toMatch(/<short_hash>[a-f0-9]{12}<\/short_hash>/);
+    expect(handover).toContain("<subject>init</subject>");
   });
 
   test("omits repository history from the shared handover outside git worktrees", async () => {
@@ -136,7 +137,7 @@ It should become the manifest summary.
     );
     const handover = await fs.readFile(handoverPath, "utf8");
 
-    expect(handover).not.toContain("recent repository history:");
+    expect(handover).not.toContain("<recent_repository_history>");
   });
 
   test("nests files inside their section in the JSON manifest", () => {

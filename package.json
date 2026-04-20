@@ -62,6 +62,7 @@
     "ci:notes:governance": "node scripts/notes-governance.js",
     "ci:smoke:adapter-version": "node scripts/adapter-version-smoke.js",
     "ci:smoke:adapter-dual-oracle": "node scripts/adapter-dual-oracle-smoke.js",
+    "ci:smoke:adapter-reference-oracle": "node scripts/adapter-reference-oracle-smoke.js",
     "ci:smoke:bundle-transition": "node scripts/bundle-transition-smoke.js",
     "ci:assurance:release-integrity": "node scripts/release-assurance-smoke.js",
     "ci:assurance:reproducibility": "node scripts/reproducibility-check.js",

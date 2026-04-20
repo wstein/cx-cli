@@ -131,6 +131,7 @@ export async function getRecentGitHistory(
 
   return stdout
     .split(HISTORY_RECORD_SEPARATOR)
+    .map((entry) => entry.trim())
     .filter(Boolean)
     .map((entry) => {
       const [hash, subject] = entry.split(HISTORY_FIELD_SEPARATOR);
@@ -138,8 +139,8 @@ export async function getRecentGitHistory(
         return null;
       }
       return {
-        hash,
-        shortHash: hash.slice(0, 12),
+        hash: hash.trim(),
+        shortHash: hash.trim().slice(0, 12),
         subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
       } satisfies GitHistoryEntry;
     })

@@ -38,6 +38,7 @@ Top-level JSON payload names must never drift silently.
 
 ## Links
 
+- [[Adapter Oracle And Reference Roles]]
 - [[Contract Versioning Strategy]]
 - [[Release Proof Criteria]]
 - `tests/contracts/adapterCapabilities.contract.test.ts`

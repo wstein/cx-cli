@@ -24,7 +24,7 @@ import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
-import { renderSharedHandoverText } from "../../render/handover.js";
+import { renderSharedHandover } from "../../render/handover.js";
 import { CxError } from "../../shared/errors.js";
 import {
   formatBytes,
@@ -455,7 +455,8 @@ export async function runBundleCommand(
 
     await fs.writeFile(
       path.join(activeBundleDir, handoverFile),
-      renderSharedHandoverText({
+      renderSharedHandover({
+        style: config.repomix.style,
         projectName: plan.projectName,
         sectionOutputs,
         assetPaths: plan.assets.map((asset) => ({

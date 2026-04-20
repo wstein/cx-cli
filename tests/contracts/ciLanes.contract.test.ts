@@ -54,6 +54,10 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain("adapter-dual-oracle-trial:");
     expect(workflow).toContain("run: bun run ci:smoke:adapter-dual-oracle");
+    expect(workflow).toContain("adapter-reference-oracle-trial:");
+    expect(workflow).toContain(
+      "run: bun run ci:smoke:adapter-reference-oracle",
+    );
     expect(workflow).toContain("run: bun add --dev --exact repomix@1.13.1");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
@@ -131,6 +135,9 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:test:adapter-capabilities-contract"]).toBe(
       "vitest run tests/contracts/adapterCapabilities.contract.test.ts",
     );
+    expect(scripts["ci:smoke:adapter-reference-oracle"]).toBe(
+      "node scripts/adapter-reference-oracle-smoke.js",
+    );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
     );
@@ -176,6 +183,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
     expect(workflow).toContain("adapter-dual-oracle-trial:");
+    expect(workflow).toContain("adapter-reference-oracle-trial:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
@@ -204,6 +212,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("adapter-capabilities-contract:");
     expect(workflow).toContain("adapter-matrix:");
     expect(workflow).toContain("adapter-dual-oracle-trial:");
+    expect(workflow).toContain("adapter-reference-oracle-trial:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
