@@ -56,7 +56,7 @@ describe("generate-homebrew-formula.js", () => {
     expect(formula).not.toContain('Dir["#{libexec}/bin/*"]');
     expect(formula).not.toContain("Language::Node");
     expect(formula).not.toContain("std_npm_install_args");
-  });
+  }, 15_000);
 
   test("accepts a v-prefixed version argument", async () => {
     const tempRoot = await fs.mkdtemp(

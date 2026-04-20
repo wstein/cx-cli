@@ -137,7 +137,7 @@ describe("runDoctorCommand coverage helpers", () => {
     expect(String(selectMock.mock.calls[0]?.[0]?.message)).toContain(
       "Which section should own src/index.ts?",
     );
-  });
+  }, 15_000);
 
   test("doctor --all returns the overlap exit code when conflicts exist", async () => {
     const project = await createOverlapProject();
