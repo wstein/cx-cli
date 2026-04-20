@@ -1,4 +1,4 @@
-// test-lane: adversarial
+// test-lane: integration
 
 import fs from "node:fs/promises";
 import os from "node:os";
