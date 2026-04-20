@@ -224,7 +224,7 @@ describe("adapter command", () => {
     const output = capture.stdout();
     expect(output).toContain("cx version");
     expect(output).toContain(CX_DISPLAY_VERSION);
-    expect(output).toContain("Repomix version");
+    expect(output).toContain("Adapter version");
     expect(output).toContain("xml");
   });
 

@@ -80,11 +80,11 @@ async function runAdapterCapabilities(
   } else {
     writeStdout(`cx version:                ${CX_DISPLAY_VERSION}\n`, io);
     writeStdout(
-      `Repomix package:           ${payload.adapter.packageName}\n`,
+      `Adapter package:           ${payload.adapter.packageName}\n`,
       io,
     );
     writeStdout(
-      `Repomix version:           ${payload.adapter.packageVersion}\n`,
+      `Adapter version:           ${payload.adapter.packageVersion}\n`,
       io,
     );
     writeStdout(
@@ -187,7 +187,7 @@ async function runAdapterInspect(
       fileCount: section.files.length,
       files: section.files.map((f) => f.relativePath),
     })),
-    repomixOptions: {
+    adapterOptions: {
       showLineNumbers: config.repomix.showLineNumbers,
       includeEmptyDirectories: config.repomix.includeEmptyDirectories,
       securityCheck: config.repomix.securityCheck,
@@ -207,8 +207,8 @@ async function runAdapterInspect(
         writeStdout(`    - ${file}\n`, io);
       }
     }
-    writeStdout(`\nRepomix options:\n`, io);
-    for (const [key, value] of Object.entries(payload.repomixOptions)) {
+    writeStdout(`\nAdapter options:\n`, io);
+    for (const [key, value] of Object.entries(payload.adapterOptions)) {
       writeStdout(`  ${key}: ${value}\n`, io);
     }
   }
@@ -227,7 +227,7 @@ async function runAdapterDoctor(
     message: string;
   }> = [];
 
-  // Check 1: Repomix package is available with required exports
+  // Check 1: adapter package is available with required exports
   const adapterPath = getAdapterModulePath();
   try {
     const adapterCapabilities = await detectAdapterCapabilities();

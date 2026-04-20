@@ -1,5 +1,4 @@
 import path from "node:path";
-import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import {
   loadManifestFromBundle,
   validateBundle,
@@ -71,7 +70,6 @@ export async function runValidateCommand(
         sourceRoot: manifest.sourceRoot,
         bundleVersion: manifest.bundleVersion,
         schemaVersion: manifest.schemaVersion,
-        adapter: await getAdapterCapabilities(),
         valid: true,
         notes: {
           count: notesResult.notes.length,

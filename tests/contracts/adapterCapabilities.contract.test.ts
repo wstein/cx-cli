@@ -51,7 +51,7 @@ describe("adapter capability contract", () => {
     expect(payload).not.toHaveProperty("repomix");
   });
 
-  test("bundle, inspect, list, verify, and validate JSON surfaces expose adapter metadata", async () => {
+  test("non-adapter JSON surfaces do not leak adapter metadata", async () => {
     const project = await createProject();
     const cwd = process.cwd();
     process.chdir(project.root);
@@ -62,10 +62,10 @@ describe("adapter capability contract", () => {
       });
       expect(bundleResult.exitCode).toBe(0);
       const bundlePayload = parseJsonOutput<{
-        adapter?: { adapterContract?: string };
+        adapter?: unknown;
         repomix?: unknown;
       }>(bundleResult.stdout);
-      expect(bundlePayload.adapter?.adapterContract).toBe("repomix-pack-v1");
+      expect(bundlePayload).not.toHaveProperty("adapter");
       expect(bundlePayload).not.toHaveProperty("repomix");
 
       const inspectResult = await captureCli({
@@ -73,10 +73,10 @@ describe("adapter capability contract", () => {
       });
       expect(inspectResult.exitCode).toBe(0);
       const inspectPayload = parseJsonOutput<{
-        adapter?: { spanCapability?: string };
+        adapter?: unknown;
         repomix?: unknown;
       }>(inspectResult.stdout);
-      expect(inspectPayload.adapter?.spanCapability).toBeDefined();
+      expect(inspectPayload).not.toHaveProperty("adapter");
       expect(inspectPayload).not.toHaveProperty("repomix");
 
       const listResult = await captureCli({
@@ -84,12 +84,10 @@ describe("adapter capability contract", () => {
       });
       expect(listResult.exitCode).toBe(0);
       const listPayload = parseJsonOutput<{
-        adapter?: { spanCapability?: string };
+        adapter?: unknown;
         repomix?: unknown;
       }>(listResult.stdout);
-      expect(inspectPayload.adapter?.spanCapability).toBe(
-        listPayload.adapter?.spanCapability,
-      );
+      expect(listPayload).not.toHaveProperty("adapter");
       expect(listPayload).not.toHaveProperty("repomix");
 
       const verifyResult = await captureCli({
@@ -97,12 +95,10 @@ describe("adapter capability contract", () => {
       });
       expect(verifyResult.exitCode).toBe(0);
       const verifyPayload = parseJsonOutput<{
-        adapter?: { spanCapabilityReason?: string };
+        adapter?: unknown;
         repomix?: unknown;
       }>(verifyResult.stdout);
-      expect(verifyPayload.adapter?.spanCapabilityReason).toContain(
-        "renderWithMap",
-      );
+      expect(verifyPayload).not.toHaveProperty("adapter");
       expect(verifyPayload).not.toHaveProperty("repomix");
 
       const validateResult = await captureCli({
@@ -110,10 +106,10 @@ describe("adapter capability contract", () => {
       });
       expect(validateResult.exitCode).toBe(0);
       const validatePayload = parseJsonOutput<{
-        adapter?: { adapterContract?: string };
+        adapter?: unknown;
         repomix?: unknown;
       }>(validateResult.stdout);
-      expect(validatePayload.adapter?.adapterContract).toBe("repomix-pack-v1");
+      expect(validatePayload).not.toHaveProperty("adapter");
       expect(validatePayload).not.toHaveProperty("repomix");
     } finally {
       process.chdir(cwd);

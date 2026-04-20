@@ -655,7 +655,6 @@ export async function runBundleCommand(
             totalOutputTokens,
           },
           warnings: [...plan.warnings, ...renderWarnings],
-          adapter: await getAdapterCapabilities(),
         },
         io,
       );

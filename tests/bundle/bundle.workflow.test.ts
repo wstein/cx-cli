@@ -160,7 +160,6 @@ describe("bundle workflow", () => {
     ).toBe(0);
     const listPayload = parseJsonOutput<{
       summary?: { fileCount?: number; textFileCount?: number };
-      adapter?: { spanCapability?: string };
       sections?: Array<{ name: string }>;
       files?: Array<{
         path?: string;
@@ -180,7 +179,6 @@ describe("bundle workflow", () => {
     ).toBe("intact");
     expect(listPayload.summary?.fileCount).toBe(4);
     expect(listPayload.summary?.textFileCount).toBe(3);
-    expect(listPayload.adapter?.spanCapability).toBe("supported");
     expect(listPayload.sections?.map((section) => section.name)).toEqual([
       "docs",
       "src",
@@ -349,11 +347,6 @@ describe("bundle workflow", () => {
     ).toBe(0);
     const bundlePayload = parseJsonOutput<{
       checksumFile?: string;
-      adapter?: {
-        adapterContract?: string;
-        compatibilityStrategy?: string;
-        packageVersion?: string;
-      };
     }>(bundleCapture.stdout());
 
     const verifyCapture = createBufferedCommandIo();
@@ -372,22 +365,11 @@ describe("bundle workflow", () => {
     const verifyPayload = parseJsonOutput<{
       valid?: boolean;
       files?: string[];
-      adapter?: { spanCapabilityReason?: string };
     }>(verifyCapture.stdout());
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
-    expect(bundlePayload.adapter?.adapterContract).toBe("repomix-pack-v1");
-    expect(bundlePayload.adapter?.compatibilityStrategy).toBe(
-      "core contract with optional structured rendering and span capture",
-    );
-    expect(bundlePayload.adapter?.packageVersion).toMatch(
-      /^[0-9]+\.[0-9]+\.[0-9]+-cx\.[0-9]+$/,
-    );
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
-    expect(verifyPayload.adapter?.spanCapabilityReason).toContain(
-      "renderWithMap",
-    );
   });
 
   test("emits structured JSON failure payload for checksum omission", async () => {

@@ -1,7 +1,6 @@
 import path from "node:path";
 
 import kleur from "kleur";
-import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import type { CxListDisplayConfig } from "../../config/types.js";
 import { loadCxUserConfig } from "../../config/user.js";
@@ -388,7 +387,6 @@ export async function runListCommand(
       ListCommandJsonSchema,
       {
         summary: summarizeManifest(manifestName, manifest, rows),
-        adapter: await getAdapterCapabilities(),
         settings: manifest.settings,
         display: userConfig.display,
         selection: {

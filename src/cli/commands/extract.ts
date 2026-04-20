@@ -1,5 +1,4 @@
 import path from "node:path";
-import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { extractBundle } from "../../extract/extract.js";
 import {
@@ -190,7 +189,6 @@ export async function runExtractCommand(
           allowDegraded: args.allowDegraded ?? false,
           summary: summarizeManifest(manifestName, manifest, rows),
           verify: args.verify,
-          adapter: await getAdapterCapabilities(),
           extractedSections: [],
           extractedAssets: [],
           extractedFiles: [],
