@@ -4,14 +4,14 @@ import path from "node:path";
 
 import { runBundleCommand } from "../dist/src/cli/commands/bundle.js";
 import {
-  getRepomixCapabilities,
-  REPOMIX_ADAPTER_CONTRACT,
-} from "../dist/src/repomix/render.js";
+  ADAPTER_CONTRACT,
+  getAdapterCapabilities,
+} from "../dist/src/adapter/capabilities.js";
 
 async function main() {
-  const capabilities = await getRepomixCapabilities();
-  if (capabilities.adapterContract !== REPOMIX_ADAPTER_CONTRACT) {
-    throw new Error("Repomix adapter contract metadata is inconsistent.");
+  const capabilities = await getAdapterCapabilities();
+  if (capabilities.adapterContract !== ADAPTER_CONTRACT) {
+    throw new Error("Adapter contract metadata is inconsistent.");
   }
 
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-repomix-smoke-"));
