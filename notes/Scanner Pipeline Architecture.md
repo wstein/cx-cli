@@ -2,7 +2,7 @@
 id: 20260420110300
 title: Scanner Pipeline Architecture
 tags: ["security", "scanner", "pipeline"]
-target: backlog
+target: v0.4
 ---
 `security_check` evolves into a pluggable scanner pipeline.
 

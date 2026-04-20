@@ -2,7 +2,7 @@
 id: 20260420120400
 title: Internal API Stabilization
 tags: ["architecture", "api", "refactor"]
-target: backlog
+target: v0.4
 ---
 The system must stabilize internal interfaces before adding plugins.
 
