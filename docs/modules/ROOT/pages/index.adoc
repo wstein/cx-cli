@@ -19,7 +19,7 @@ The canonical curated source now lives entirely under `docs/modules/ROOT/`.
 - xref:manual/operator-manual.adoc[Operator Manual] for the shortest route to commands and workflows.
 - xref:manual/operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
 - xref:architecture/index.adoc[Architecture Overview] for the arc42-based architecture spine.
-- xref:release/index.adoc[Release Overview] for release assurance, schema publishing, and v0.4 closure.
+- xref:manual/release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.
 
 == Why this site exists
 

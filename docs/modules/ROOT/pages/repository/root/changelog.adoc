@@ -52,5 +52,5 @@ Source companion: `CHANGELOG.md`
 <h3>Coverage in 0.4.0</h3>
 <p>Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.</p>
 <h3>Migration notes</h3>
-<p>See <a href="https://wstein.github.io/cx-cli/docs/cx/0.4/release/migration-v0.4/">Migration Notes For 0.4.0</a>.</p>
+<p>See <a href="https://wstein.github.io/cx-cli/docs/cx/0.4/manual/release-and-integrity/#v0-4-release-closure">Migration Notes For 0.4.0</a>.</p>
 ++++

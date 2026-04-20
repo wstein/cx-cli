@@ -21,7 +21,7 @@ How to apply it:
 - [.github/workflows/publish-schemas.yml](../.github/workflows/publish-schemas.yml)
 - [scripts/assemble-pages-site.js](../scripts/assemble-pages-site.js)
 - [scripts/check-pages-site.js](../scripts/check-pages-site.js)
-- [docs/modules/ROOT/pages/release/checklist.adoc](../docs/modules/ROOT/pages/release/checklist.adoc)
+- [docs/modules/ROOT/pages/manual/release-and-integrity.adoc](../docs/modules/ROOT/pages/manual/release-and-integrity.adoc)
 - [[GitHub Actions Triggers]]
 - [[Pages Smoke Validation Workflow]]
 - [[MCP Stable Contract Boundary]]

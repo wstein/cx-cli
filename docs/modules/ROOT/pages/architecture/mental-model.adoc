@@ -151,4 +151,4 @@ plan.
 * *Monday*: validate or verify the handed-off artifact before trusting
 it.
 
-See xref:workflows/friday-to-monday.adoc[Friday to Monday].
+See xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday].

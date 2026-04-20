@@ -9,7 +9,7 @@ The `package.json` version bump on `develop` should be the start of the release,
 
 ## Links
 
-- [docs/modules/ROOT/pages/release/checklist.adoc](../docs/modules/ROOT/pages/release/checklist.adoc)
+- [docs/modules/ROOT/pages/manual/release-and-integrity.adoc](../docs/modules/ROOT/pages/manual/release-and-integrity.adoc)
 - [package.json](../package.json)
 - [.github/workflows/ci.yml](../.github/workflows/ci.yml)
 - [[Two-Phase Release Protocol]]

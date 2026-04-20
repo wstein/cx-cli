@@ -1,0 +1,259 @@
+= Release and Integrity
+:page-layout: default
+
+include::../../partials/trust-boundary-primer.adoc[]
+
+Use this page when cutting a release, validating the public publish surface, or auditing shipped release artifacts.
+
+[[release-checklist]]
+== Release Checklist
+
+Use this short checklist when cutting a release.
+
+* Two-phase release protocol:
++
+[arabic]
+. Prepare the release candidate on `develop`.
+. Finalize the release with a `vX.Y.Z` tag from the exact green candidate commit.
+* Bumping `package.json` on `develop` starts the release candidate. Use `chore(release): start vX.Y.Z` for that commit and treat later commits on the candidate path as release-fix follow-ups only.
+* Keep fixing forward on `develop` until the required CI lanes are green. Do not tag early and do not publish from an ordinary `develop` success alone.
+* Create and push the release tag from the exact certified `develop` commit. The release workflow is the finalization step; the version bump is not.
+* The release workflow must verify that the tag matches `package.json`, that the tagged commit already passed the required CI gates, and that the published artifacts come from that same certified commit.
+* Promote `main` only after successful publishing, and do it with a fast-forward update to the released commit. Do not rebase `main` onto the release tag.
+* The release workflow should own that final `main` fast-forward so the shipped commit and the branch tip stay identical without a manual replay step.
+* Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, the official Repomix reference-oracle smoke lane, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
+* The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
+* The Pages publish now assembles one site tree with `/schemas/` and `/coverage/`; successful `main` CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.
+* Run `bun run pages:smoke` against the staged `dist/site/` tree whenever you need to validate the public publish surface locally.
+* If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.
+* The publish workflow runs the same smoke check in non-blocking mode before pushing `gh-pages`, and the separate `Pages Smoke` workflow keeps that validation visible on pull requests and `main`.
+* If the Pages branch does not exist yet, let the publish workflow create `gh-pages` on the next run.
+* GitHub Pages must be configured in repository settings to serve from the `gh-pages` branch.
+* If a new schema version is added, refresh the public `$id` values in the JSON Schema files and keep the docs pointing at the GitHub Pages host.
+* Mirror the same schema files into the GitHub Release assets for the tagged release.
+* Tagged releases also publish the npm tarball, `release-integrity.json`, and the generated `cx-cli.rb` formula into GitHub release assets so the public release payload matches the documented integrity story.
+* Use `make release VERSION=vX.Y.Z` as the local release wizard. The first call with a new version starts the candidate on `develop`; the second call with that same tagged version finalizes the release from the certified commit.
+* Ensure `package.json` version matches the git tag before publishing release artifacts.
+* The release workflow runs on `vX.Y.Z` tag pushes, plus a manual re-finalization path for an existing tag when needed.
+* The release workflow only finalizes when the tagged commit already has a successful `develop` CI run; tag presence without certified CI is not enough.
+* `v0.4` is now a closed release line. Further work should tighten contracts, docs, or scanner scope on top of that line rather than reopening the architecture transition itself.
+* The release workflow in `.github/workflows/release.yml` requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
+* Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
+* Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.
+* Scope that token to the `wstein/homebrew-tap` repository only, and grant `Contents: Read and write` so the release workflow can commit and push `Formula/cx-cli.rb`.
+* Store the token in the `homebrew` environment of the source repo under the name `HOMEBREW_TAP_PUSH_TOKEN`.
+* Release order:
++
+[arabic]
+. Build the package once.
+. Publish the packed tarball to npm.
+. Generate `Formula/cx-cli.rb` from the same tarball.
+. Commit the formula into `wstein/homebrew-tap`.
+* Final release promotion order:
++
+[arabic]
+. `develop` prepares the candidate.
+. The `vX.Y.Z` tag finalizes the certified candidate.
+. The release workflow verifies integrity and publishes from that tagged commit.
+. `main` fast-forwards to mirror the shipped commit.
+* Verify the external tap repo `wstein/homebrew-tap` accepts direct formula updates from the single release workflow, and remember that the tap repo owns formula validation on push.
+
+[[release-integrity]]
+== Release Integrity
+
+cx-cli releases include cryptographic integrity verification to detect unintended changes and ensure builds are reproducible.
+
+=== What's Verified
+
+Each release publishes a *Software Bill of Materials (SBOM)* with:
+
+* *Release version* - semantic version from `package.json`
+* *Timestamp* - UTC ISO-8601 timestamp of build
+* *Node version* - Node.js version used to build
+* *Bun version* - Bun runtime version used to build
+* *Tarball name* - published npm tarball filename
+* *Tarball hash* - SHA-256 digest of the tarball
+
+The SBOM is generated at build time, staged as `tarball-artifacts/release-integrity.json`, and published into the GitHub release assets as `release-integrity.json`.
+
+=== Verification Steps
+
+==== 1. Obtain the SBOM
+
+Download `release-integrity.json` from the GitHub release assets page.
+
+==== 2. Run Local Verification
+
+[source,bash]
+----
+bun run verify-release
+----
+
+This command:
+
+* reads the SBOM from `dist/release-integrity.json`
+* locates the tarball in `tarball-artifacts/`
+* computes its SHA-256 hash
+* compares against the SBOM hash
+* reports success or failure with details
+
+==== 3. Manual Verification
+
+[source,bash]
+----
+# Compute tarball hash
+sha256sum cx-cli-X.Y.Z.tgz
+
+# Compare against SBOM
+cat dist/release-integrity.json | jq '.tarballHash'
+----
+
+=== Design
+
+==== Reproducibility
+
+The integrity system depends on *reproducible builds*: the same source, dependencies, and compiler versions produce byte-identical output.
+
+The CI/CD pipeline includes a `reproducibility` job that:
+
+* builds `dist/` twice in sequence
+* captures SHA-256 of all `dist/*.js` files
+* fails if any file differs between runs
+
+This catches timestamp injection, non-deterministic compilation, or other drift.
+
+==== Trust Model
+
+The SBOM is released alongside the npm tarball and generated Homebrew formula as GitHub release assets. Operators can:
+
+[arabic]
+. verify the tarball's SHA-256 matches the SBOM
+. confirm build environment (Node, Bun versions)
+. audit the release timestamp
+
+The SBOM itself is *not signed*. For full cryptographic verification, operators should validate the GitHub release against the repository's public keys or use GitHub's own release verification.
+
+=== Interpreting Failures
+
+*Hash mismatch* -> tarball has been modified or corrupted. Do not use; re-download from the official GitHub release.
+
+*Tarball not found* -> missing or renamed tarball. Verify you have the correct artifact.
+
+*SBOM missing or corrupt* -> release metadata is missing. Contact the maintainers.
+
+=== Release Integrity Artifact Retention
+
+The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. Schema files are mirrored into the same release through the tagged Pages/schema workflow. GitHub retains these assets for the lifetime of the release.
+
+=== Future Enhancements
+
+Planned improvements:
+
+* GPG signing of release tarballs
+* signed attestation of reproducible builds
+* supply chain integrity proofs (SLSA provenance)
+
+[[v0-4-release-closure]]
+== v0.4 Release Closure
+
+Use this section when upgrading to `cx` `0.4.0` or reviewing what the closed `v0.4` line established.
+
+=== Migration Notes For 0.4.0
+
+=== Release contract
+
+`cx` now explicitly operates as three primary cooperating surfaces:
+
+* immutable snapshots with `cx bundle`
+* live agent protocol with `cx mcp`
+* durable knowledge with `cx notes`
+
+Track B generates hypotheses. Track A generates proofs. Notes are the durable cognition layer between them.
+
+The shipped proof path is kernel-owned. The remaining adapter/oracle seam is for diagnostics, parity visibility, and reference comparison only.
+
+=== What changed in 0.4.0
+
+==== 1. Coverage and release assurance
+
+* Added a dedicated Vitest coverage lane with HTML and Markdown reporting.
+* Coverage now participates in release assurance and the public Pages surface.
+
+==== 2. MCP debugging cockpit
+
+* Added focused Vitest MCP lanes and UI-oriented debugging guidance.
+* Added `cx mcp catalog --json` as the narrow machine-readable MCP contract view.
+
+==== 3. Cognition and trust model
+
+* Notes governance, contradiction checks, cognition scoring, and trust propagation are now part of the operating model.
+
+==== 4. Canonical operating model
+
+* The docs now explicitly define Track B as hypothesis generation and Track A as proof generation.
+
+==== 5. Adapter JSON contract naming
+
+* The dedicated `cx adapter` command owns adapter metadata for machine-readable automation.
+* Top-level JSON payload names are treated as versioned contract surfaces and must not drift silently.
+* `cx adapter capabilities --json` now exposes explicit `oracleAdapter` and `referenceAdapter` fields instead of the older `repomix` naming.
+* CI now includes a single official-`repomix` reference-oracle smoke lane.
+* The older `@wsmy/repomix-cx-fork` package is no longer a shipped runtime dependency.
+* The native kernel is now the production proof path for `bundle`, `validate`, `verify`, and `extract`.
+* Other JSON command surfaces such as `cx bundle --json`, `cx inspect --json`, `cx list --json`, `cx validate --json`, and `cx verify --json` no longer embed adapter metadata.
+* The config namespace remains `[repomix]` in `cx.toml` for this release.
+
+=== If you use MCP
+
+MCP remains an evolving integration surface. Re-check local integration settings, capability expectations, and policy boundaries. For machine-readable inspection, prefer `cx mcp catalog --json`; for broader MCP diagnostics, use `cx doctor mcp --json`.
+
+=== Operator surface summary
+
+Use `0.4.0` with these explicit surfaces in mind:
+
+* native proof path: `bundle`, `validate`, `verify`, `extract`
+* live workspace path: `mcp`
+* durable cognition path: `notes`
+* adapter/oracle path: diagnostics and parity only
+
+=== If you rely on coverage
+
+Use the Vitest coverage lane and HTML artifact as the primary reporting surface:
+
+[source,bash]
+----
+bun run ci:test:coverage
+----
+
+Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.
+
+=== If you maintain notes
+
+Run the governance path as part of normal review:
+
+[source,bash]
+----
+cx notes check
+bun run ci:notes:governance
+----
+
+Notes are still conditional knowledge, not proof-grade artifacts. Governance now surfaces cognition, staleness, contradiction, and trust signals more explicitly.
+
+=== If you consume schemas
+
+Verify current schema references and Pages-hosted `$id` values:
+
+* `https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json`
+* `https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json`
+* `https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json`
+* `https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json`
+
+If you depend on manifest schemas, confirm which manifest version your downstream tooling expects before upgrading.
+
+For the closed `v0.4` native-render contract state, the manifest schema is now `v9`. The shared handover filename is recorded in `handoverFile`, and adapter runtime metadata has been removed from the manifest entirely. Shared-handover JSON schema `v2` is the explicit contract version for `recentRepositoryHistory[].message`, which preserves full multiline commit messages instead of a subject-only field shape. Older manifest schemas still record `repomixVersion` or `adapterVersion` in their own versioned history. Pre-`v1.0.0`, older published manifest schemas remain available on Pages under their versioned filenames. The schema history will be reset deliberately when `cx` reaches `v1.0.0`.
+
+=== Related release material
+
+* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
+* xref:architecture/mental-model.adoc[Mental Model]
+* xref:page$repository/docs/stability.adoc[Stability]

@@ -30,4 +30,4 @@ Contract consumers need stable references while the system is still converging o
 
 - [[Contract Versioning Strategy]]
 - [[Top-Level JSON Payload Contracts]]
-- `docs/modules/ROOT/pages/release/migration-v0.4.adoc`
+- `docs/modules/ROOT/pages/manual/release-and-integrity.adoc`

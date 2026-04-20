@@ -70,7 +70,7 @@ Use it when you need:
 This is the right choice when the workspace is still moving and you need
 the agent to understand what is true right now.
 
-Workflow example: xref:workflows/friday-to-monday.adoc[Friday to Monday]
+Workflow example: xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]
 
 == Use `cx bundle`
 
@@ -86,7 +86,7 @@ Use it when you need:
 This is the right choice when the work must stop being exploratory and
 become an artifact contract.
 
-Workflow example: xref:workflows/friday-to-monday.adoc[Friday to Monday]
+Workflow example: xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]
 
 == Use `cx notes`
 
@@ -102,7 +102,7 @@ Use it when you need:
 This is the right choice when the reasoning itself needs to persist, not
 just the current task result.
 
-Workflow example: xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
+Workflow example: xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
 
 == How The Modes Fit Together
 
@@ -123,5 +123,5 @@ memory.
 * `cx bundle` is where proof is generated for review, CI, and handoff.
 
 See xref:architecture/mental-model.adoc[Mental Model],
-xref:workflows/friday-to-monday.adoc[Friday to Monday], and
-xref:workflows/safe-note-mutation.adoc[Safe Note Mutation].
+xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday], and
+xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation].

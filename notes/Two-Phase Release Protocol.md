@@ -9,7 +9,7 @@ target: current
 
 ## Links
 
-- [docs/modules/ROOT/pages/release/checklist.adoc](../docs/modules/ROOT/pages/release/checklist.adoc)
+- [docs/modules/ROOT/pages/manual/release-and-integrity.adoc](../docs/modules/ROOT/pages/manual/release-and-integrity.adoc)
 - [notes/Developer Command Workflow.md](./Developer%20Command%20Workflow.md)
 - [notes/GitHub Actions Triggers.md](./GitHub%20Actions%20Triggers.md)
 - [[Homebrew Tap Automation]]

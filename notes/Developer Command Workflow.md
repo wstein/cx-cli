@@ -47,7 +47,7 @@ quick while making the release path explicit and repeatable.
 - `package.json`
 - `README.md`
 - `docs/modules/ROOT/pages/manual/operator-manual.adoc`
-- `docs/modules/ROOT/pages/release/checklist.adoc`
+- `docs/modules/ROOT/pages/manual/release-and-integrity.adoc`
 - [[CLI Command Lifecycle]]
 - [[Release Candidate on Develop]]
 - [[Tag Finalization and Main Promotion]]

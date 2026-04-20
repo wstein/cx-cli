@@ -120,7 +120,7 @@ Source companion: `README.md`
 <pre><code class="language-bash">brew install wstein/tap/cx-cli
 </code></pre>
 <h3>Release Flow</h3>
-<p>See <a href="https://wstein.github.io/cx-cli/docs/cx/0.4/release/checklist/">Release Checklist</a> for the release order, environment secrets, and Homebrew tap handoff.</p>
+<p>See <a href="https://wstein.github.io/cx-cli/docs/cx/0.4/manual/release-and-integrity/#release-checklist">Release Checklist</a> for the release order, environment secrets, and Homebrew tap handoff.</p>
 <p>Run from source:</p>
 <pre><code class="language-bash">bun install
 bun run build

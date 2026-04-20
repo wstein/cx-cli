@@ -154,10 +154,10 @@ describe("docs assurance contract", () => {
     );
     expect(notesGuide).toContain("Notes should support those documents");
     expect(operatingModesNormalized).toContain(
-      "xref:workflows/friday-to-monday.adoc[Friday to Monday]",
+      "xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]",
     );
     expect(operatingModesNormalized).toContain(
-      "xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]",
+      "xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]",
     );
     expect(agentModel).toContain("This document covers the integration layer");
     expect(agentModel).toContain(
@@ -199,7 +199,7 @@ describe("docs assurance contract", () => {
 
   test("release checklist states certify as CI-equivalent gate", async () => {
     const checklist = await readText(
-      "docs/modules/ROOT/pages/release/checklist.adoc",
+      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
     );
 
     const normalized = squashWhitespace(checklist);
@@ -214,7 +214,7 @@ describe("docs assurance contract", () => {
 
   test("release docs lock the two-phase candidate and finalization model", async () => {
     const checklist = await readText(
-      "docs/modules/ROOT/pages/release/checklist.adoc",
+      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
     );
     const developerWorkflow = await readText(
       "notes/Developer Command Workflow.md",
@@ -244,7 +244,7 @@ describe("docs assurance contract", () => {
       "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
     );
     const migration = await readText(
-      "docs/modules/ROOT/pages/release/migration-v0.4.adoc",
+      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
     );
     const changelog = await readText("CHANGELOG.md");
 
@@ -258,7 +258,7 @@ describe("docs assurance contract", () => {
     expect(readme).not.toContain("built on top of Repomix");
     expect(architecture).not.toContain("wraps Repomix in a stricter system");
     expect(changelog).not.toContain("fork compatibility smoke");
-    expect(migration).not.toContain("shipped runtime dependency");
+    expect(migration).not.toContain("built on top of Repomix");
   });
 
   test("docs folder keeps only the Antora guide as markdown", async () => {
@@ -326,10 +326,10 @@ describe("docs assurance contract", () => {
 
   test("workflow docs include temporal provenance and safe note mutation scenarios", async () => {
     const fridayToMonday = await readText(
-      "docs/modules/ROOT/pages/workflows/friday-to-monday.adoc",
+      "docs/modules/ROOT/pages/manual/workflows.adoc",
     );
     const safeNoteMutation = await readText(
-      "docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc",
+      "docs/modules/ROOT/pages/manual/workflows.adoc",
     );
 
     expect(fridayToMonday).toContain("The developer has local tracked changes");

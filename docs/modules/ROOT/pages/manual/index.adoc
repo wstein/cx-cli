@@ -10,5 +10,5 @@ Use this section when you need the operator-facing command model, assurance ladd
 - xref:manual/operator-manual.adoc[Operator Manual]
 - xref:manual/operating-modes.adoc[Operating Modes]
 - xref:manual/config-reference.adoc[Configuration Reference]
-- xref:workflows/friday-to-monday.adoc[Friday to Monday]
-- xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
+- xref:manual/workflows.adoc[Operator Workflows]
+- xref:manual/release-and-integrity.adoc[Release and Integrity]

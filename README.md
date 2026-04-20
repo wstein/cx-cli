@@ -138,7 +138,7 @@ brew install wstein/tap/cx-cli
 
 ### Release Flow
 
-See [Release Checklist](https://wstein.github.io/cx-cli/docs/cx/0.4/release/checklist/) for the release order, environment secrets, and Homebrew tap handoff.
+See [Release Checklist](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/release-and-integrity/#release-checklist) for the release order, environment secrets, and Homebrew tap handoff.
 
 Run from source:
 

@@ -23,7 +23,7 @@ describe("release readiness docs contract", () => {
   test("changelog and migration docs explain the v0.4.0 operating contract", async () => {
     const changelog = await readText("CHANGELOG.md");
     const migration = await readText(
-      "docs/modules/ROOT/pages/release/migration-v0.4.adoc",
+      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
     );
     const docsIndex = await readText(
       "docs/modules/ROOT/pages/start-here/docs-index.adoc",
@@ -49,7 +49,7 @@ describe("release readiness docs contract", () => {
       "xref:page$repository/root/changelog.adoc[CHANGELOG.md]",
     );
     expect(docsIndex).toContain(
-      "xref:release/migration-v0.4.adoc[MIGRATIONS/0.4.0.md]",
+      "xref:manual/release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]",
     );
   });
 });
