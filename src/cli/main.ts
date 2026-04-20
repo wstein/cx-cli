@@ -676,12 +676,12 @@ export async function main(
     )
     .command(
       "adapter <subcommand>",
-      "Inspect adapter oracle/reference capabilities and runtime state.",
+      "Expert oracle diagnostics for parity, capability inspection, and migration checks.",
       (command) =>
         command
           .example(
             "$0 adapter capabilities",
-            "Show oracle and reference adapter runtime info.",
+            "Show expert oracle and reference adapter diagnostic info.",
           )
           .positional("subcommand", {
             type: "string",

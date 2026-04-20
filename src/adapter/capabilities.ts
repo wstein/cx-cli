@@ -167,7 +167,8 @@ export async function detectAdapterCapabilities(): Promise<AdapterCapabilities> 
 }
 
 /**
- * Validate that the installed adapter meets the minimum contract: `mergeConfigs`.
+ * Validate that the configured oracle adapter meets the minimum comparison
+ * contract needed by adapter diagnostics and oracle rendering.
  */
 export async function validateAdapterContract(): Promise<
   { valid: true } | { valid: false; errors: string[] }
@@ -185,7 +186,7 @@ export async function validateAdapterContract(): Promise<
 
   if (!capabilities.hasMergeConfigs) {
     errors.push(
-      `${adapterPath} does not export mergeConfigs(); this is required by cx-cli.`,
+      `${adapterPath} does not export mergeConfigs(); this is required for cx adapter diagnostics and oracle operations.`,
     );
   }
 
@@ -198,7 +199,7 @@ export async function validateAdapterContract(): Promise<
 
 /**
  * Get runtime version info including capabilities.
- * Used by adapter commands to display environment details.
+ * Used by expert adapter/oracle commands to display environment details.
  */
 export async function getAdapterCapabilities() {
   const runtimeInfo = await getAdapterRuntimeInfo();
@@ -244,7 +245,7 @@ export async function getAdapterCapabilities() {
 }
 
 /**
- * Throw CxError if contract validation fails.
+ * Throw CxError if the oracle diagnostics contract validation fails.
  */
 export async function requireAdapterContract(): Promise<void> {
   const validation = await validateAdapterContract();

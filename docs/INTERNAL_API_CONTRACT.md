@@ -104,6 +104,20 @@ Rule:
 
 - scanning behavior belongs to the pipeline contract, not to renderer helpers
 
+## Adapter-Oriented Expert Surfaces
+
+The adapter/oracle seam and the `cx adapter` command family are expert
+diagnostic surfaces.
+
+They exist for:
+
+- parity diagnostics
+- oracle capability inspection
+- migration and reference testing
+
+They are not part of ordinary proof-path execution, and production bundle or
+verification flows must not depend on them.
+
 ## Stability Rules
 
 - Add new internal interfaces only when they create a durable ownership

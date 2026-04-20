@@ -62,7 +62,7 @@ Core responsibility split:
 - Render kernel (`src/render/`): proof-path interfaces, ordering, spans, and
   plan hashing
 - Adapter/oracle seam (`src/adapter/`): parity-only adapter integration and
-  runtime capability reporting during migration
+  runtime capability reporting for expert oracle diagnostics during migration
 - `cx` planner: decide which files belong where
 - `cx` manifest layer: describe the bundle in stable JSON
 - `cx` verification layer: confirm artifacts and source-tree alignment
@@ -193,6 +193,14 @@ cli/commands/                    ← presentation layer (thin shells)
 
 The `src/adapter/` directory is the explicit boundary between `cx` core logic
 and the external oracle/reference runtime.
+
+This is an expert surface:
+
+- parity diagnostics
+- oracle capability inspection
+- migration and reference testing
+
+It is not required for ordinary bundle, verify, validate, or extract flows.
 
 - `oracleRender.ts` owns parity-only calls into the adapter. Nothing outside
   this module invokes adapter render functions directly.

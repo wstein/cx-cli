@@ -227,11 +227,12 @@ The shipped operator workflow is kernel-first:
 - `cx mcp` operates on the live workspace path
 - `cx notes` operates on the durable cognition path
 
-The adapter/oracle surface is separate:
+The adapter/oracle surface is separate and expert-facing:
 
-- used for diagnostics
-- used for parity visibility
-- not part of ordinary proof-path execution
+- used for parity diagnostics
+- used for oracle capability inspection
+- used for migration and reference testing
+- not required for ordinary bundle, validate, verify, or extract flows
 - not the primary operator story
 
 ## Core Commands

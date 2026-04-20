@@ -22,6 +22,13 @@ And it is already enforced by tests such as:
 - [`tests/unit/structuredRender.test.ts`](../tests/unit/structuredRender.test.ts)
 - [`tests/contracts/structuredRender.contract.test.ts`](../tests/contracts/structuredRender.contract.test.ts)
 
+The adapter/oracle seam remains comparison-only:
+
+- useful for parity diagnostics
+- useful for oracle capability inspection
+- useful for migration/reference testing
+- not required for ordinary proof-path execution
+
 ## 1. Output Contract
 
 The proof path currently supports four styles: `xml`, `markdown`, `json`, and

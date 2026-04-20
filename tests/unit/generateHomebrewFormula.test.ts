@@ -48,10 +48,10 @@ describe("generate-homebrew-formula.js", () => {
 
     const formula = await fs.readFile(outputPath, "utf8");
     expect(formula).toContain(
-      'desc "Deterministic context bundler built on top of Repomix"',
+      'desc "Kernel-owned context bundler for deterministic AI handoff and verification"',
     );
     expect(formula).not.toContain(
-      'desc "Deterministic context bundler built on top of Repomix."',
+      'desc "Kernel-owned context bundler for deterministic AI handoff and verification."',
     );
     expect(formula).toContain('depends_on "node"');
     expect(formula).toContain('system "npm",');

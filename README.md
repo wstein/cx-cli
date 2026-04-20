@@ -308,7 +308,7 @@ includes ready-to-use `jq` and Node.js examples.
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
 | `cx completion` | Generate shell completion scripts |
 | `cx notes` | Manage notes and inspect note graph relationships |
-| `cx adapter ...` | Inspect adapter capabilities and compatibility |
+| `cx adapter ...` | Inspect expert oracle diagnostics and compatibility |
 
 Every command supports `--json` for machine consumption.
 

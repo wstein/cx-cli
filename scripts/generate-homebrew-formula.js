@@ -59,7 +59,7 @@ if (!tarballPath && requestedVersion !== packageVersion) {
 
 const description =
   packageJson.description ??
-  "Deterministic context bundler built on top of Repomix.";
+  "Kernel-owned context bundler for deterministic AI handoff and verification.";
 const normalizedDescription = description.replace(/\.\s*$/, "");
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";

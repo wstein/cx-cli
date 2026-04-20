@@ -13,7 +13,7 @@ Commands:
   cx doctor [subcommand]   Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.
   cx render                Render planned sections as standard Repomix output.
   cx config <subcommand>   Inspect effective configuration.
-  cx adapter <subcommand>  Inspect adapter oracle/reference capabilities and runtime state.
+  cx adapter <subcommand>  Expert oracle diagnostics for parity, capability inspection, and migration checks.
   cx notes [subcommand]    Manage repository notes.
   cx mcp [subcommand]      [EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.
 

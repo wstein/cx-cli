@@ -74,6 +74,10 @@ async function runAdapterCapabilities(
   if (args.json ?? false) {
     writeValidatedJson(AdapterCapabilitiesJsonSchema, payload, io);
   } else {
+    writeStdout(
+      "Adapter diagnostics surface: expert oracle tooling for parity, capability inspection, and migration checks.\n\n",
+      io,
+    );
     writeStdout(`cx version:                ${CX_DISPLAY_VERSION}\n`, io);
     writeStdout(
       `Oracle adapter package:    ${payload.oracleAdapter.packageName}\n`,
@@ -181,7 +185,7 @@ async function runAdapterInspect(
   const requestedSections = args.sections ?? [];
   if (requestedSections.length === 0) {
     throw new CxError(
-      "Adapter inspect requires --section to specify which section to inspect.",
+      "Adapter inspect requires --section to specify which section to inspect for oracle diagnostics.",
       2,
     );
   }
@@ -214,6 +218,10 @@ async function runAdapterInspect(
   if (args.json ?? false) {
     writeValidatedJson(AdapterInspectJsonSchema, payload, io);
   } else {
+    writeStdout(
+      "Adapter inspect is an expert oracle-diagnostics view. It is not required for ordinary bundle or verify flows.\n",
+      io,
+    );
     for (const section of payload.sections) {
       writeStdout(`\nSection: ${section.name}\n`, io);
       writeStdout(`  style:  ${section.style}\n`, io);
@@ -223,7 +231,7 @@ async function runAdapterInspect(
         writeStdout(`    - ${file}\n`, io);
       }
     }
-    writeStdout(`\nAdapter options:\n`, io);
+    writeStdout(`\nAdapter oracle options:\n`, io);
     for (const [key, value] of Object.entries(payload.adapterOptions)) {
       writeStdout(`  ${key}: ${value}\n`, io);
     }
@@ -332,6 +340,10 @@ async function runAdapterDoctor(
   if (_args.json ?? false) {
     writeValidatedJson(AdapterDoctorJsonSchema, payload, io);
   } else {
+    writeStdout(
+      "Adapter doctor is expert oracle diagnostics for parity and migration checks. Ordinary proof-path execution does not require this surface.\n\n",
+      io,
+    );
     for (const check of checks) {
       const mark = check.passed ? "✓" : "✗";
       writeStdout(`${mark} ${check.name}: ${check.message}\n`, io);
