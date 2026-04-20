@@ -190,6 +190,10 @@ Repomix oracle for:
 The parity lane is release-gating CI evidence. It proves migration correctness
 without turning the adapter into permanent architecture.
 
+Plain and JSON also carry a dedicated native render contract lane for
+style-specific edge cases that are easier to read as direct contract assertions
+than as parity fixtures alone.
+
 ## Current Migration State
 
 The current default proof path is split deliberately:
@@ -198,8 +202,8 @@ The current default proof path is split deliberately:
   through the native kernel implementation in
   [`src/render/native/`](../src/render/native/)
 - the shared handover is already kernel-rendered
-- the Repomix-backed renderer remains the parity oracle and migration fallback
-  seam, not the default proof-path implementation
+- the Repomix-backed renderer remains the parity oracle seam, not the default
+  proof-path implementation and not a hidden runtime fallback
 
 This is still one contract. The migration state changes the implementation
 underneath the seam, not the observable proof-path behavior frozen above.

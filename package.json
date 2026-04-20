@@ -77,7 +77,8 @@
     "smoke:bundle-transition": "bun run ci:smoke:bundle-transition",
     "smoke:release-integrity": "bun run ci:assurance:release-integrity",
     "integrity": "node scripts/release-integrity.js",
-    "verify-release": "node scripts/verify-release.js"
+    "verify-release": "node scripts/verify-release.js",
+    "ci:test:native-render-contract": "vitest run tests/contracts/nativeRender.contract.test.ts"
   },
   "engines": {
     "node": ">=20.0.0",
