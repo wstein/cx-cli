@@ -31,6 +31,10 @@ function createConfig(): CxConfig {
       includeOutputSpans: false,
       includeSourceMetadata: false,
     },
+    handover: {
+      includeRepoHistory: false,
+      repoHistoryCount: 30,
+    },
     files: {
       include: [],
       exclude: [],
@@ -122,7 +126,7 @@ describe("manifest build", () => {
         sectionOutputs,
         handoverFile: "demo-handover.xml.txt",
         cxVersion: "0.1.0",
-        repomixVersion: "0.1.0",
+        adapterVersion: "0.1.0",
         sectionSpanMaps: new Map(),
         sectionTokenMaps: new Map(),
         sectionHashMaps: new Map().set("src", new Map()),

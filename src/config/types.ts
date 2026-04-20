@@ -97,6 +97,11 @@ export interface CxManifestConfig {
   includeLinkedNotes?: boolean;
 }
 
+export interface CxHandoverConfig {
+  includeRepoHistory: boolean;
+  repoHistoryCount: number;
+}
+
 export interface CxChecksumsConfig {
   algorithm: "sha256";
   fileName: string;
@@ -224,6 +229,7 @@ export interface CxConfig {
   files: CxFilesConfig;
   dedup: CxDedupConfig;
   manifest: CxManifestConfig;
+  handover: CxHandoverConfig;
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
@@ -244,6 +250,7 @@ export interface CxConfigInput {
   files?: Record<string, unknown>;
   dedup?: Record<string, unknown>;
   manifest?: Record<string, unknown>;
+  handover?: Record<string, unknown>;
   checksums?: Record<string, unknown>;
   tokens?: Record<string, unknown>;
   display?: unknown;

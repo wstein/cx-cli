@@ -49,6 +49,10 @@ include_linked_notes = false
 
 # Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
 
+[handover]
+include_repo_history = false
+repo_history_count = 30
+
 [checksums]
 algorithm = "sha256"
 file_name = "{project}.sha256"
@@ -132,6 +136,10 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     includeOutputSpans: true,
     includeSourceMetadata: true,
     includeLinkedNotes: false,
+  },
+  handover: {
+    includeRepoHistory: false,
+    repoHistoryCount: 30,
   },
   checksums: {
     algorithm: "sha256",

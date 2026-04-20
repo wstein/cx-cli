@@ -16,7 +16,7 @@ import type {
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 7 as const;
+export const MANIFEST_SCHEMA_VERSION = 8 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -25,7 +25,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v7.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v8.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -43,7 +43,7 @@ interface ManifestDto {
   handoverFile?: string;
   createdAt: string;
   cxVersion: string;
-  repomixVersion: string;
+  adapterVersion: string;
   checksumAlgorithm: string;
   settings: ManifestSettings;
   totalTokenCount: number;
@@ -342,7 +342,7 @@ function parseManifestDto(raw: unknown): {
     checksumFile: requireString(obj.checksumFile, "checksumFile"),
     createdAt: requireString(obj.createdAt, "createdAt"),
     cxVersion: requireString(obj.cxVersion, "cxVersion"),
-    repomixVersion: requireString(obj.repomixVersion, "repomixVersion"),
+    adapterVersion: requireString(obj.adapterVersion, "adapterVersion"),
     checksumAlgorithm: requireString(
       obj.checksumAlgorithm,
       "checksumAlgorithm",
@@ -435,7 +435,7 @@ export function renderManifestJson(
     checksumFile: manifest.checksumFile,
     createdAt: manifest.createdAt,
     cxVersion: manifest.cxVersion,
-    repomixVersion: manifest.repomixVersion,
+    adapterVersion: manifest.adapterVersion,
     checksumAlgorithm: manifest.checksumAlgorithm,
     settings: manifest.settings,
     totalTokenCount: manifest.totalTokenCount,
@@ -538,7 +538,7 @@ export function parseManifestJson(source: string): CxManifest {
     checksumFile: dto.checksumFile,
     createdAt: dto.createdAt,
     cxVersion: dto.cxVersion,
-    repomixVersion: dto.repomixVersion,
+    adapterVersion: dto.adapterVersion,
     checksumAlgorithm: "sha256",
     settings: dto.settings,
     totalTokenCount: dto.totalTokenCount,

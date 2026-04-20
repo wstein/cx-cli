@@ -31,6 +31,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "files",
     "dedup",
     "manifest",
+    "handover",
     "checksums",
     "tokens",
     "assets",
@@ -62,6 +63,8 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "include_output_spans",
     "include_source_metadata",
     "include_linked_notes",
+    "include_repo_history",
+    "repo_history_count",
     "algorithm",
     "file_name",
     "encoding",
@@ -173,6 +176,10 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
       include_output_spans: config.manifest.includeOutputSpans,
       include_source_metadata: config.manifest.includeSourceMetadata,
       include_linked_notes: config.manifest.includeLinkedNotes,
+    },
+    handover: {
+      include_repo_history: config.handover.includeRepoHistory,
+      repo_history_count: config.handover.repoHistoryCount,
     },
     checksums: {
       algorithm: config.checksums.algorithm,

@@ -320,6 +320,18 @@ Human-facing `cx bundle` output and the generated shared handover also include a
 provenance rollup so operators can confirm inclusion reasons without switching
 to JSON inspection first.
 
+Shared handover content can optionally include recent repository history through
+`[handover]` config:
+
+```toml
+[handover]
+include_repo_history = true
+repo_history_count = 30
+```
+
+When enabled, `cx` records the newest bounded commit subjects in deterministic
+newest-first order. Diffs are never embedded in the handover.
+
 Then verify graph reachability from a seed note:
 
 ```bash

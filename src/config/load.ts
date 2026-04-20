@@ -19,6 +19,7 @@ import type {
   CxConfigDuplicateEntryMode,
   CxConfigInput,
   CxDedupMode,
+  CxHandoverConfig,
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxSectionConfig,
@@ -271,6 +272,25 @@ function parseOutputExtensions(
       extensions.plain ?? defaults.plain,
       "output.extensions.plain",
     ),
+  };
+}
+
+function parseHandoverConfig(
+  handover: Record<string, unknown>,
+): CxHandoverConfig {
+  return {
+    includeRepoHistory: expectBoolean(
+      handover.include_repo_history,
+      "handover.include_repo_history",
+      DEFAULT_CONFIG_VALUES.handover.includeRepoHistory,
+    ),
+    repoHistoryCount:
+      handover.repo_history_count === undefined
+        ? DEFAULT_CONFIG_VALUES.handover.repoHistoryCount
+        : expectPositiveInteger(
+            handover.repo_history_count,
+            "handover.repo_history_count",
+          ),
   };
 }
 
@@ -561,6 +581,7 @@ function buildCxConfigFromParsedInput(
   const files = parsed.files ?? {};
   const dedup = parsed.dedup ?? {};
   const manifest = parsed.manifest ?? {};
+  const handover = parsed.handover ?? {};
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
@@ -833,6 +854,7 @@ function buildCxConfigFromParsedInput(
         false,
       ),
     },
+    handover: parseHandoverConfig(handover),
     checksums: {
       algorithm: "sha256",
       fileName: resolveTemplate(

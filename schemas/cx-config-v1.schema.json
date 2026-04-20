@@ -163,6 +163,20 @@
         }
       }
     },
+    "handover": {
+      "type": "object",
+      "properties": {
+        "include_repo_history": {
+          "type": "boolean",
+          "description": "When true, include bounded recent repository history in the shared handover artifact."
+        },
+        "repo_history_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of recent commits to include in the shared handover when repository history is enabled."
+        }
+      }
+    },
     "checksums": {
       "type": "object",
       "properties": {

@@ -17,7 +17,7 @@ function sampleManifest(): CxManifest {
     checksumFile: "demo.sha256",
     createdAt: "2026-04-17T00:00:00.000Z",
     cxVersion: "0.3.16",
-    repomixVersion: "1.13.1-cx.4",
+    adapterVersion: "1.13.1-cx.4",
     checksumAlgorithm: "sha256",
     renderPlanHash: "abc123",
     settings: {

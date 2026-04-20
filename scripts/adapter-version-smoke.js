@@ -14,7 +14,7 @@ async function main() {
     throw new Error("Adapter contract metadata is inconsistent.");
   }
 
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-repomix-smoke-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-adapter-smoke-"));
   const configPath = path.join(root, "cx.toml");
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.writeFile(

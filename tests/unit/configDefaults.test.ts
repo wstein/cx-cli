@@ -79,6 +79,11 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_VALUES.manifest.includeLinkedNotes).toBe(false);
     });
 
+    it("includes shared handover settings", () => {
+      expect(DEFAULT_CONFIG_VALUES.handover.includeRepoHistory).toBe(false);
+      expect(DEFAULT_CONFIG_VALUES.handover.repoHistoryCount).toBe(30);
+    });
+
     it("includes checksum settings", () => {
       expect(DEFAULT_CONFIG_VALUES.checksums.algorithm).toBe("sha256");
       expect(DEFAULT_CONFIG_VALUES.checksums.fileName).toBe("{project}.sha256");

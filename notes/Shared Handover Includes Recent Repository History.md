@@ -10,7 +10,7 @@ The shared handover artifact should carry a short bounded repository history so 
 
 Include a recent repository history block in the shared handover artifact:
 
-- last 20 commits
+- last 30 commits
 - no diffs
 - bounded message length
 - deterministic ordering
@@ -32,7 +32,7 @@ This context is often more useful than broad repository scans.
 
 Default policy:
 
-- include last 20 commits
+- include last 30 commits
 - subject line only by default
 - truncate deterministically
 - omit diffs

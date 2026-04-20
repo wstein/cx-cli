@@ -111,6 +111,31 @@ include = ["tests/**", "src/**/*.test.ts"]
 priority = 5
 ```
 
+## Shared Handover
+
+The shared handover is the single companion artifact that travels with the
+rendered section outputs. It can optionally include bounded repository history
+for operator and agent context.
+
+### `[handover]`
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `include_repo_history` | `false` | Include recent Git commit subjects in the shared handover when bundling from a Git worktree. |
+| `repo_history_count` | `30` | Maximum number of recent commit subjects to include when repository history is enabled. |
+
+Example:
+
+```toml
+[handover]
+include_repo_history = true
+repo_history_count = 30
+```
+
+When enabled, `cx` records the newest bounded commit subjects in deterministic
+newest-first order. Diffs are never embedded in the shared handover, and this
+setting does not affect proof-path section outputs or manifest hashing rules.
+
 ## Behavioral Settings
 
 Behavioral settings control how `cx` handles non-fundamental friction points. They do not change the core integrity model.

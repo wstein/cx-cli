@@ -10,7 +10,7 @@ const HASH_B = "b".repeat(64);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 7,
+    schemaVersion: 8,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
@@ -19,7 +19,7 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
     handoverFile: "demo-handover.xml.txt",
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
-    repomixVersion: "0.0.0-test",
+    adapterVersion: "0.0.0-test",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",

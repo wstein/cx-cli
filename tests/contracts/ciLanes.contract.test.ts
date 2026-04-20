@@ -178,14 +178,14 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("run: bun run ci:assurance:release-integrity");
   });
 
-  test("repomix matrix installs known-good fork versions", async () => {
+  test("adapter matrix installs known-good fork versions", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain(
-      `@wsmy/repomix-cx-fork@\${{ matrix.repomix-version }}`,
+      `@wsmy/repomix-cx-fork@\${{ matrix.adapter-version }}`,
     );
     expect(workflow).toContain(
-      'repomix-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
+      'adapter-version: ["1.13.1-cx.1", "1.13.1-cx.3", "1.13.1-cx.4"]',
     );
     expect(workflow).not.toContain("bun add --exact repomix@");
   });
@@ -198,7 +198,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
-    expect(workflow).toContain("repomix-matrix:");
+    expect(workflow).toContain("adapter-matrix:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
@@ -208,7 +208,7 @@ describe("CI lanes contract", () => {
       "  notes-governance:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
-      "  repomix-matrix:\n    runs-on: ubuntu-latest\n    needs:",
+      "  adapter-matrix:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  render-parity:\n    runs-on: ubuntu-latest\n    needs:",
@@ -257,7 +257,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - render-parity");
     expect(workflow).toContain("      - adapter-capabilities-contract");
     expect(workflow).toContain("      - coverage-vitest");
-    expect(workflow).toContain("      - repomix-matrix");
+    expect(workflow).toContain("      - adapter-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-compat-smoke");
     expect(workflow).toContain("      - reproducibility");

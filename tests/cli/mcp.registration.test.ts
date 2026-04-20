@@ -187,6 +187,10 @@ exclude = []
                 includeOutputSpans: false,
                 includeSourceMetadata: false,
               },
+              handover: {
+                includeRepoHistory: false,
+                repoHistoryCount: 30,
+              },
               checksums: {
                 algorithm: "sha256",
                 fileName: "demo.sha256",

@@ -26,7 +26,7 @@ describe("assurance ladder contract", () => {
     expect(certify).toContain("bun run verify");
     expect(certify).toContain("bun run ci:test:coverage");
     expect(certify).toContain("bun run ci:test:contracts");
-    expect(certify).toContain("bun run ci:smoke:repomix-version");
+    expect(certify).toContain("bun run ci:smoke:adapter-version");
     expect(certify).toContain("bun run ci:smoke:bundle-transition");
     expect(certify).toContain("bun run ci:assurance:release-integrity");
     expect(certify).toContain("bun run ci:assurance:reproducibility");
@@ -39,7 +39,7 @@ describe("assurance ladder contract", () => {
     expect(typeof scripts["ci:test:coverage"]).toBe("string");
     expect(typeof scripts["test:contracts"]).toBe("string");
     expect(scripts["test:integration"]).toBeUndefined();
-    expect(typeof scripts["smoke:repomix-version"]).toBe("string");
+    expect(typeof scripts["smoke:adapter-version"]).toBe("string");
     expect(typeof scripts["smoke:bundle-transition"]).toBe("string");
     expect(typeof scripts["smoke:release-integrity"]).toBe("string");
     expect(typeof scripts.integrity).toBe("string");

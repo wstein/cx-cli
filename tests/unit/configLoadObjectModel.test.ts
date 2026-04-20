@@ -41,7 +41,21 @@ describe("loadCxConfig object model", () => {
       markdown: ".md",
       plain: ".txt",
     });
+    expect(config.handover.includeRepoHistory).toBe(false);
+    expect(config.handover.repoHistoryCount).toBe(30);
     expect(config.sections.src?.include).toEqual(["src/**"]);
+  });
+
+  test("loads shared handover history settings from config", async () => {
+    const config = await loadConfig({
+      handover: {
+        includeRepoHistory: true,
+        repoHistoryCount: 12,
+      },
+    });
+
+    expect(config.handover.includeRepoHistory).toBe(true);
+    expect(config.handover.repoHistoryCount).toBe(12);
   });
 
   test("loads custom output extension overrides", async () => {

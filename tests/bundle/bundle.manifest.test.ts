@@ -93,6 +93,30 @@ It should become the manifest summary.
     expect(assetRow?.provenance).toEqual(["asset_rule_match"]);
   });
 
+  test("includes recent repository history in the shared handover when enabled", async () => {
+    const project = await createProject({
+      initializeGit: true,
+      config: {
+        handover: {
+          includeRepoHistory: true,
+          repoHistoryCount: 30,
+        },
+      },
+    });
+
+    expect(await runQuietBundleCommand({ config: project.configPath })).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const handoverPath = path.join(
+      project.bundleDir,
+      manifest.handoverFile ?? "demo-handover.xml.txt",
+    );
+    const handover = await fs.readFile(handoverPath, "utf8");
+
+    expect(handover).toContain("recent repository history:");
+    expect(handover).toMatch(/- [a-f0-9]{12} init/);
+  });
+
   test("nests files inside their section in the JSON manifest", () => {
     const manifest: CxManifest = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -103,7 +127,7 @@ It should become the manifest summary.
       checksumFile: "demo.sha256",
       createdAt: new Date().toISOString(),
       cxVersion: "0.1.0",
-      repomixVersion: "1.13.1",
+      adapterVersion: "1.13.1",
       checksumAlgorithm: "sha256",
       settings: {
         globalStyle: "xml",

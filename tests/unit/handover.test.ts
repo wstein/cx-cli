@@ -62,4 +62,32 @@ describe("handover text", () => {
       "use this shared handover with the section files; each section output remains self-contained.",
     );
   });
+
+  test("renders bounded recent repository history when present", () => {
+    const indexText = renderSharedHandoverText({
+      projectName: "demo",
+      sectionOutputs: [],
+      assetPaths: [],
+      repoHistory: [
+        {
+          hash: "aaaaaaaaaaaa1111111111111111111111111111",
+          shortHash: "aaaaaaaaaaaa",
+          subject: "Add native shared handover history",
+        },
+        {
+          hash: "bbbbbbbbbbbb2222222222222222222222222222",
+          shortHash: "bbbbbbbbbbbb",
+          subject: "Tighten contract tests for manifest v8",
+        },
+      ],
+    });
+
+    expect(indexText).toContain("recent repository history:");
+    expect(indexText).toContain(
+      "- aaaaaaaaaaaa Add native shared handover history",
+    );
+    expect(indexText).toContain(
+      "- bbbbbbbbbbbb Tighten contract tests for manifest v8",
+    );
+  });
 });

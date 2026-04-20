@@ -26,7 +26,7 @@ export async function buildManifest(params: {
   sectionOutputs: SectionOutputRecord[];
   handoverFile?: string | undefined;
   cxVersion: string;
-  repomixVersion: string;
+  adapterVersion: string;
   sectionSpanMaps?: SectionSpanMaps | undefined;
   sectionTokenMaps?: SectionTokenMaps | undefined;
   sectionHashMaps?: SectionHashMaps | undefined;
@@ -129,7 +129,7 @@ export async function buildManifest(params: {
     checksumFile: params.plan.checksumFile,
     createdAt: new Date().toISOString(),
     cxVersion: params.cxVersion,
-    repomixVersion: params.repomixVersion,
+    adapterVersion: params.adapterVersion,
     checksumAlgorithm: "sha256",
     ...(aggregatePlanHash ? { renderPlanHash: aggregatePlanHash } : {}),
     settings: {

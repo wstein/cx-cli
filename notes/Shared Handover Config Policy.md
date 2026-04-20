@@ -11,7 +11,7 @@ The shared handover should have a small, explicit configuration surface so opera
 Reasonable first controls:
 
 - include_repo_history = true|false
-- repo_history_count = 20
+- repo_history_count = 30
 
 Optional later controls:
 

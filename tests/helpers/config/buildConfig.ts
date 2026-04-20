@@ -4,6 +4,7 @@ import type {
   CxChecksumsConfig,
   CxConfig,
   CxFilesConfig,
+  CxHandoverConfig,
   CxManifestConfig,
   CxMcpConfig,
   CxOutputConfig,
@@ -28,6 +29,7 @@ export interface BuildConfigOptions {
   repomix?: Partial<CxRepomixConfig>;
   files?: Partial<CxFilesConfig>;
   manifest?: Partial<CxManifestConfig>;
+  handover?: Partial<CxHandoverConfig>;
   checksums?: Partial<CxChecksumsConfig>;
   tokens?: Partial<CxTokensConfig>;
   assets?: Partial<CxAssetsConfig>;
@@ -126,6 +128,11 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
       includeSourceMetadata: true,
       includeLinkedNotes: false,
       ...options.manifest,
+    },
+    handover: {
+      includeRepoHistory: false,
+      repoHistoryCount: 30,
+      ...options.handover,
     },
     checksums: {
       algorithm: "sha256",

@@ -72,6 +72,10 @@ function baseConfig(root: string): CxConfig {
       includeOutputSpans: true,
       includeSourceMetadata: true,
     },
+    handover: {
+      includeRepoHistory: false,
+      repoHistoryCount: 30,
+    },
     checksums: {
       algorithm: "sha256",
       fileName: "demo.sha256",

@@ -11,7 +11,7 @@ import {
 
 describe("shared manifest summary utilities", () => {
   const manifest: CxManifest = {
-    schemaVersion: 7,
+    schemaVersion: 8,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: "/tmp/demo",
@@ -19,7 +19,7 @@ describe("shared manifest summary utilities", () => {
     checksumFile: "demo.sha256",
     createdAt: "2025-01-01T00:00:00Z",
     cxVersion: "0.0.0",
-    repomixVersion: "0.0.0",
+    adapterVersion: "0.0.0",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",

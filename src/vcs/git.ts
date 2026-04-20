@@ -8,6 +8,12 @@ const execFileAsync = promisify(execFile);
 
 type GitRunner = (args: string[], cwd: string) => Promise<{ stdout: string }>;
 
+export interface GitHistoryEntry {
+  hash: string;
+  shortHash: string;
+  subject: string;
+}
+
 /**
  * Execute a git command with consistent options.
  */
@@ -90,4 +96,52 @@ export async function getGitState(
     modifiedFiles: sortLexically(modifiedFiles),
     untrackedFiles: sortLexically(untrackedFiles),
   };
+}
+
+const HISTORY_RECORD_SEPARATOR = "\u001e";
+const HISTORY_FIELD_SEPARATOR = "\u001f";
+const DEFAULT_HISTORY_SUBJECT_LIMIT = 120;
+
+function truncateHistorySubject(subject: string, limit: number): string {
+  const normalized = subject.trim();
+  if (normalized.length <= limit) {
+    return normalized;
+  }
+  return `${normalized.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
+}
+
+export async function getRecentGitHistory(
+  sourceRoot: string,
+  count: number,
+  run: GitRunner = runGit,
+): Promise<GitHistoryEntry[]> {
+  if (count <= 0) {
+    return [];
+  }
+
+  const { stdout } = await run(
+    [
+      "log",
+      `--max-count=${count}`,
+      `--format=%H${HISTORY_FIELD_SEPARATOR}%s${HISTORY_RECORD_SEPARATOR}`,
+      "--no-show-signature",
+    ],
+    sourceRoot,
+  );
+
+  return stdout
+    .split(HISTORY_RECORD_SEPARATOR)
+    .filter(Boolean)
+    .map((entry) => {
+      const [hash, subject] = entry.split(HISTORY_FIELD_SEPARATOR);
+      if (!hash || !subject) {
+        return null;
+      }
+      return {
+        hash,
+        shortHash: hash.slice(0, 12),
+        subject: truncateHistorySubject(subject, DEFAULT_HISTORY_SUBJECT_LIMIT),
+      } satisfies GitHistoryEntry;
+    })
+    .filter((entry): entry is GitHistoryEntry => entry !== null);
 }

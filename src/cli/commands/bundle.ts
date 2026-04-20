@@ -50,6 +50,7 @@ import {
 } from "../../shared/output.js";
 import { countTokens } from "../../shared/tokens.js";
 import { CX_VERSION } from "../../shared/version.js";
+import { getRecentGitHistory } from "../../vcs/git.js";
 import type { DirtyState } from "../../vcs/provider.js";
 import { BundleCommandJsonSchema } from "../jsonContracts.js";
 
@@ -322,6 +323,21 @@ export async function runBundleCommand(
       ...plan.sections.flatMap((section) => section.files),
       ...plan.assets,
     ]);
+    const repoHistory =
+      config.handover.includeRepoHistory && plan.vcsKind === "git"
+        ? await getRecentGitHistory(
+            plan.sourceRoot,
+            config.handover.repoHistoryCount,
+          ).catch((error: unknown) => {
+            const message =
+              error instanceof Error ? error.message : String(error);
+            writeStderr(
+              `Warning: failed to collect recent repository history for shared handover: ${message}\n`,
+              io,
+            );
+            return [];
+          })
+        : [];
 
     await Promise.all(
       plan.assets.map(async (asset) => {
@@ -430,6 +446,7 @@ export async function runBundleCommand(
           storedPath: asset.storedPath,
         })),
         provenanceSummary,
+        repoHistory,
       }),
       "utf8",
     );
@@ -458,7 +475,7 @@ export async function runBundleCommand(
       sectionOutputs,
       handoverFile,
       cxVersion: CX_VERSION,
-      repomixVersion: (await getAdapterCapabilities()).packageVersion,
+      adapterVersion: (await getAdapterCapabilities()).packageVersion,
       sectionSpanMaps,
       sectionTokenMaps,
       sectionHashMaps,

@@ -1,5 +1,6 @@
 import type { CxStyle } from "../config/types.js";
 import type { InclusionProvenanceSummary } from "../planning/provenance.js";
+import type { GitHistoryEntry } from "../vcs/git.js";
 
 export interface SharedHandoverSectionSummary {
   name: string;
@@ -15,6 +16,7 @@ export function renderSharedHandoverText(params: {
   sectionOutputs: SharedHandoverSectionSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
   provenanceSummary?: InclusionProvenanceSummary[] | undefined;
+  repoHistory?: GitHistoryEntry[] | undefined;
 }): string {
   const lines = [
     "cx shared handover",
@@ -43,6 +45,13 @@ export function renderSharedHandoverText(params: {
       lines.push(
         `- ${entry.marker}: ${entry.count} path${entry.count === 1 ? "" : "s"}`,
       );
+    }
+  }
+
+  if ((params.repoHistory?.length ?? 0) > 0) {
+    lines.push("", "recent repository history:");
+    for (const entry of params.repoHistory ?? []) {
+      lines.push(`- ${entry.shortHash} ${entry.subject}`);
     }
   }
 

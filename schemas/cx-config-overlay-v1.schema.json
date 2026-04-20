@@ -38,6 +38,9 @@
     "manifest": {
       "$ref": "./cx-config-v1.schema.json#/properties/manifest"
     },
+    "handover": {
+      "$ref": "./cx-config-v1.schema.json#/properties/handover"
+    },
     "checksums": {
       "$ref": "./cx-config-v1.schema.json#/properties/checksums"
     },

@@ -26,7 +26,7 @@ async function createFixture(): Promise<string> {
   );
   await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
   await fs.writeFile(
-    path.join(root, "scripts", "repomix-version-smoke.ts"),
+    path.join(root, "scripts", "adapter-version-smoke.ts"),
     "export const smoke = true;\n",
     "utf8",
   );
@@ -101,6 +101,10 @@ function baseConfig(root: string): CxConfig {
       includeOutputSha256: true,
       includeOutputSpans: true,
       includeSourceMetadata: true,
+    },
+    handover: {
+      includeRepoHistory: false,
+      repoHistoryCount: 30,
     },
     checksums: {
       algorithm: "sha256",
@@ -181,7 +185,7 @@ describe("buildBundlePlan", () => {
       "cx.toml",
       "package.json",
       "schemas/manifest-v5.schema.json",
-      "scripts/repomix-version-smoke.ts",
+      "scripts/adapter-version-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",
     ]);
@@ -272,7 +276,7 @@ describe("buildBundlePlan", () => {
       "cx.toml",
       "package.json",
       "schemas/manifest-v5.schema.json",
-      "scripts/repomix-version-smoke.ts",
+      "scripts/adapter-version-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",
     ]);

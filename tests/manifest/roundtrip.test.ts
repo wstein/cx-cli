@@ -179,7 +179,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
     handoverFile: fc.option(nonEmptyString).map((value) => value ?? undefined),
     createdAt: isoTimestamp,
     cxVersion: nonEmptyString,
-    repomixVersion: nonEmptyString,
+    adapterVersion: nonEmptyString,
     settings: settingsArb,
     sections: fc.array(sectionArb(), { minLength: 0, maxLength: 4 }),
     assets: fc.array(assetArb, { minLength: 0, maxLength: 4 }),
@@ -212,7 +212,7 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       checksumFile: fields.checksumFile,
       createdAt: fields.createdAt,
       cxVersion: fields.cxVersion,
-      repomixVersion: fields.repomixVersion,
+      adapterVersion: fields.adapterVersion,
       checksumAlgorithm: "sha256" as const,
       settings: fields.settings,
       sections: fields.sections,
@@ -292,7 +292,7 @@ describe("manifest round-trip (property-based)", () => {
         expect(recovered.handoverFile).toBe(manifest.handoverFile);
         expect(recovered.createdAt).toBe(manifest.createdAt);
         expect(recovered.cxVersion).toBe(manifest.cxVersion);
-        expect(recovered.repomixVersion).toBe(manifest.repomixVersion);
+        expect(recovered.adapterVersion).toBe(manifest.adapterVersion);
         expect(recovered.checksumAlgorithm).toBe(manifest.checksumAlgorithm);
 
         // Settings (deep equal)

@@ -23,7 +23,7 @@ const AGGREGATE_PLAN_HASH_B = sha256NormalizedText(
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 7,
+    schemaVersion: 8,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
@@ -31,7 +31,7 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
     checksumFile: "demo.sha256",
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
-    repomixVersion: "0.0.0-test",
+    adapterVersion: "0.0.0-test",
     checksumAlgorithm: "sha256",
     settings: {
       globalStyle: "xml",
