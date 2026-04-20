@@ -119,7 +119,7 @@ export const TEMPLATE_DESCRIPTORS = [
     name: "typescript",
     description: "TypeScript/Node.js workspaces using package.json.",
     docsPath:
-      "docs/modules/ROOT/pages/repository/docs/template_typescript.adoc",
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#typescript-template",
     detectionMarkers: ["package.json"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [
