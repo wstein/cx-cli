@@ -5,16 +5,13 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, test, vi } from "vitest";
-
-import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import {
+  getAdapterCapabilities,
   getAdapterModulePath,
   setAdapterPath,
-} from "../../src/repomix/capabilities.js";
-import {
-  getRepomixCapabilities,
-  renderSectionWithRepomix,
-} from "../../src/repomix/render.js";
+} from "../../src/adapter/capabilities.js";
+import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
+import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
 
@@ -57,7 +54,7 @@ describe("Repomix adapter fallback behavior", () => {
       withPack: false,
     });
 
-    const markdownResult = await renderSectionWithRepomix({
+    const markdownResult = await renderSectionWithAdapterOracle({
       config: fixture.config,
       style: "markdown",
       sourceRoot: fixture.rootDir,
@@ -71,7 +68,7 @@ describe("Repomix adapter fallback behavior", () => {
       outputEndLine: 4,
     });
 
-    const plainResult = await renderSectionWithRepomix({
+    const plainResult = await renderSectionWithAdapterOracle({
       config: fixture.config,
       style: "plain",
       sourceRoot: fixture.rootDir,
@@ -96,7 +93,7 @@ describe("Repomix adapter fallback behavior", () => {
 
     const capture = createBufferedCommandIo();
     const renderExitCode = await (async () => {
-      const result = await renderSectionWithRepomix({
+      const result = await renderSectionWithAdapterOracle({
         config: fixture.config,
         style: "markdown",
         sourceRoot: fixture.rootDir,
@@ -112,7 +109,7 @@ describe("Repomix adapter fallback behavior", () => {
     expect(capture.stderr()).toContain("Exact output spans are unavailable");
 
     await expect(
-      renderSectionWithRepomix({
+      renderSectionWithAdapterOracle({
         config: fixture.config,
         style: "markdown",
         sourceRoot: fixture.rootDir,
@@ -133,7 +130,7 @@ describe("Repomix adapter fallback behavior", () => {
     });
 
     await expect(
-      renderSectionWithRepomix({
+      renderSectionWithAdapterOracle({
         config: fixture.config,
         style: "xml",
         sourceRoot: fixture.rootDir,
@@ -162,14 +159,14 @@ describe("Repomix adapter fallback behavior", () => {
 
     expect(exitCode).toBe(0);
 
-    const capabilities = await getRepomixCapabilities();
+    const capabilities = await getAdapterCapabilities();
     expect(capabilities.contractValid).toBe(true);
     expect(capabilities.capabilities.supportsPackStructured).toBe(false);
     expect(capabilities.spanCapability).toBe("unsupported");
     expect(capture.stderr()).toBe("");
   });
 
-  test("renderSectionWithRepomix falls back to pack when structured rendering is unavailable", async () => {
+  test("renderSectionWithAdapterOracle falls back to pack when structured rendering is unavailable", async () => {
     const fixture = await createRenderFixture({
       config: {
         manifest: {
@@ -183,7 +180,7 @@ describe("Repomix adapter fallback behavior", () => {
       withPack: true,
     });
 
-    const result = await renderSectionWithRepomix({
+    const result = await renderSectionWithAdapterOracle({
       config: fixture.config,
       style: "xml",
       sourceRoot: fixture.rootDir,

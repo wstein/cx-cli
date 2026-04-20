@@ -47,4 +47,4 @@ Scanner interface:
 
 - [[Bundle Extraction Safety Invariants]]
 - [[System Trust Contract]]
-- `src/repomix/render.ts`
+- `src/adapter/oracleRender.ts`

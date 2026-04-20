@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -24,7 +25,6 @@ import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
 import { renderSharedHandoverText } from "../../render/handover.js";
-import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import {
   formatBytes,
@@ -458,7 +458,7 @@ export async function runBundleCommand(
       sectionOutputs,
       handoverFile,
       cxVersion: CX_VERSION,
-      repomixVersion: (await getRepomixCapabilities()).packageVersion,
+      repomixVersion: (await getAdapterCapabilities()).packageVersion,
       sectionSpanMaps,
       sectionTokenMaps,
       sectionHashMaps,
@@ -655,7 +655,7 @@ export async function runBundleCommand(
             totalOutputTokens,
           },
           warnings: [...plan.warnings, ...renderWarnings],
-          repomix: await getRepomixCapabilities(),
+          repomix: await getAdapterCapabilities(),
         },
         io,
       );

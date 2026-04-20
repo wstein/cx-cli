@@ -63,7 +63,8 @@ Core responsibility split:
 
 - Render kernel (`src/render/`): proof-path interfaces, ordering, spans, and
   plan hashing
-- Repomix adapter (`src/repomix/`): current backing renderer during migration
+- Adapter/oracle seam (`src/adapter/`): parity-only adapter integration and
+  runtime capability reporting during migration
 - `cx` planner: decide which files belong where
 - `cx` manifest layer: describe the bundle in stable JSON
 - `cx` verification layer: confirm artifacts and source-tree alignment
@@ -119,7 +120,7 @@ interface StructuredRenderPlan {
 - `src/render/ordering.ts`: deterministic ordering invariant checks
 - `src/render/planHash.ts`: section and aggregate render-plan hashing
 - `src/render/spans.ts`: style-aware output span helpers
-- `src/repomix/render.ts`: Repomix-backed renderer retained as the migration
+- `src/adapter/oracleRender.ts`: Repomix-backed renderer retained as the migration
   oracle and compatibility surface
 - `src/manifest/types.ts`: Added `renderPlanHash` field
 - `src/manifest/build.ts`: Computes aggregate plan hash from sections
@@ -135,7 +136,7 @@ config/  shared/  vcs/           ← foundation (no domain imports)
     ↓
 notes/   planning/  manifest/    ← domain modules
     ↓
-inspect/  doctor/   repomix/     ← cross-domain orchestration
+inspect/  doctor/   adapter/     ← cross-domain orchestration
     ↓
 mcp/                             ← transport layer (imports domain only)
     ↓
@@ -184,27 +185,27 @@ cli/commands/                    ← presentation layer (thin shells)
 
 ## Adapter Boundary
 
-The `src/repomix/` directory is the explicit adapter boundary between `cx` core
+The `src/adapter/` directory is the explicit adapter boundary between `cx` core
 logic and the rendering backend.
 
-- `render.ts` owns all calls into the Repomix adapter. Nothing outside this
- module invokes Repomix functions directly.
+- `oracleRender.ts` owns parity-only calls into the adapter. Nothing outside
+  this module invokes adapter render functions directly.
 - `capabilities.ts` performs runtime feature detection (is `packStructured`
  available? is `renderWithMap` available?) so the planner and manifest builder
  never need to know which rendering path was taken.
-- `handover.ts` constructs bundle-level metadata that is injected into section
- outputs without post-processing the rendered content.
+- `section.ts` provides the render-command wrapper for explicit section output
+  without letting the CLI reach into render internals directly.
 
 The `[repomix]` section in `cx.toml` is adapter-specific configuration.
 `cx.toml` keys like `show_line_numbers`, `include_empty_directories`, and
-`security_check` are passed through exclusively within `render.ts` and are never
+`security_check` are passed through exclusively within `oracleRender.ts` and are never
 interpreted by the planner, manifest builder, or any other core module. `style`
 is the single key shared between the two layers: it is used by the planner to
-determine output file extensions and by `render.ts` to configure the adapter.
+determine output file extensions and by `oracleRender.ts` to configure the adapter.
 
 Future rendering backends should follow the same pattern: a new `src/<backend>/`
 directory that exposes a `renderSection` function with the same signature as
-`renderSectionWithRepomix`, keeping core modules unaware of adapter internals.
+`renderSectionWithAdapterOracle`, keeping core modules unaware of adapter internals.
 
 ### Current Migration State
 

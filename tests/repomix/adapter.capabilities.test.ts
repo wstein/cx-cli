@@ -5,10 +5,10 @@ import path from "node:path";
 import { mergeConfigs, packStructured } from "@wsmy/repomix-cx-fork";
 import { describe, expect, test } from "vitest";
 import {
-  getRepomixCapabilities,
-  REPOMIX_ADAPTER_CONTRACT,
-  renderSectionWithRepomix,
-} from "../../src/repomix/render.js";
+  ADAPTER_CONTRACT,
+  getAdapterCapabilities,
+} from "../../src/adapter/capabilities.js";
+import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture } from "./helpers.js";
 
 describe("Repomix adapter capabilities", () => {
@@ -65,15 +65,15 @@ describe("Repomix adapter capabilities", () => {
     const rendered = await plan.renderWithMap("xml");
     await fs.writeFile(outputPath, rendered.output, "utf8");
 
-    expect((await getRepomixCapabilities()).adapterContract).toBe(
-      REPOMIX_ADAPTER_CONTRACT,
+    expect((await getAdapterCapabilities()).adapterContract).toBe(
+      ADAPTER_CONTRACT,
     );
     expect(await fs.stat(outputPath)).toBeDefined();
   });
 
-  test("renderSectionWithRepomix returns an empty render for zero files", async () => {
+  test("renderSectionWithAdapterOracle returns an empty render for zero files", async () => {
     const fixture = await createRenderFixture();
-    const result = await renderSectionWithRepomix({
+    const result = await renderSectionWithAdapterOracle({
       config: fixture.config,
       style: "xml",
       sourceRoot: fixture.rootDir,

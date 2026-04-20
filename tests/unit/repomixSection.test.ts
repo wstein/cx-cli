@@ -8,8 +8,8 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   getAdapterModulePath,
   setAdapterPath,
-} from "../../src/repomix/capabilities.js";
-import { renderSection } from "../../src/repomix/section.js";
+} from "../../src/adapter/capabilities.js";
+import { renderSection } from "../../src/adapter/section.js";
 import {
   createRenderFixture,
   writeMockRepomixAdapter,

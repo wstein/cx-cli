@@ -1,10 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { renderSection } from "../../adapter/section.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxStyle } from "../../config/types.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
-import { renderSection } from "../../repomix/section.js";
 import { CxError } from "../../shared/errors.js";
 import {
   formatBytes,

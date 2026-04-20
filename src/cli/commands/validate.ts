@@ -1,10 +1,10 @@
 import path from "node:path";
+import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import {
   loadManifestFromBundle,
   validateBundle,
 } from "../../bundle/validate.js";
 import { validateNotes } from "../../notes/validate.js";
-import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import { printError, printInfo, printWarning } from "../../shared/format.js";
 import { summarizeManifest } from "../../shared/manifestSummary.js";
@@ -71,7 +71,7 @@ export async function runValidateCommand(
         sourceRoot: manifest.sourceRoot,
         bundleVersion: manifest.bundleVersion,
         schemaVersion: manifest.schemaVersion,
-        repomix: await getRepomixCapabilities(),
+        repomix: await getAdapterCapabilities(),
         valid: true,
         notes: {
           count: notesResult.notes.length,

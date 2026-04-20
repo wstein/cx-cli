@@ -1,10 +1,10 @@
+import { getAdapterCapabilities } from "../adapter/capabilities.js";
 import { loadManifestFromBundle, validateBundle } from "../bundle/validate.js";
 import type { CxConfig } from "../config/types.js";
 import { resolveExtractability } from "../extract/resolution.js";
 import { enrichPlanWithLinkedNotes } from "../notes/planner.js";
 import { buildBundlePlan } from "../planning/buildPlan.js";
 import type { InclusionProvenance } from "../planning/types.js";
-import { getRepomixCapabilities } from "../repomix/render.js";
 import { countTokensForFiles } from "../shared/tokens.js";
 
 export interface InspectExtractability {
@@ -38,7 +38,7 @@ export interface InspectReport {
     unmatchedCount: number;
     textFileCount: number;
   };
-  repomix: Awaited<ReturnType<typeof getRepomixCapabilities>>;
+  repomix: Awaited<ReturnType<typeof getAdapterCapabilities>>;
   bundleComparison:
     | {
         available: true;
@@ -209,7 +209,7 @@ export async function collectInspectReport(params: {
 
   return {
     summary: buildInspectSummary(plan),
-    repomix: await getRepomixCapabilities(),
+    repomix: await getAdapterCapabilities(),
     bundleComparison,
     tokenBreakdown,
     sections: plan.sections.map((section) => ({

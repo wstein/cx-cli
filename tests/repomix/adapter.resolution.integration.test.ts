@@ -7,8 +7,8 @@ import { afterEach, describe, expect, test } from "vitest";
 import {
   getAdapterModulePath,
   setAdapterPath,
-} from "../../src/repomix/capabilities.js";
-import { renderSectionWithRepomix } from "../../src/repomix/render.js";
+} from "../../src/adapter/capabilities.js";
+import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getAdapterModulePath();
@@ -29,7 +29,7 @@ describe("Repomix adapter filesystem resolution (integration)", () => {
     });
     setAdapterPath(adapterDir);
 
-    const result = await renderSectionWithRepomix({
+    const result = await renderSectionWithAdapterOracle({
       config: fixture.config,
       style: "markdown",
       sourceRoot: fixture.rootDir,

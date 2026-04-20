@@ -67,7 +67,7 @@ interface StructuredRenderPlan {
   2. All entry hashes are consistent
   3. Source tree render is reproducible
 
-### API (src/repomix/render.ts)
+### API (src/adapter/oracleRender.ts)
 - `RenderSectionResult` now includes:
   - `structuredPlan?: StructuredRenderPlan`
   - `planHash?: string`

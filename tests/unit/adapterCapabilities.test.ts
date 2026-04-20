@@ -1,14 +1,14 @@
 // test-lane: unit
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
-  detectRepomixCapabilities,
+  detectAdapterCapabilities,
+  getAdapterCapabilities,
   getAdapterModulePath,
   getAdapterRuntimeInfo,
-  getRepomixCapabilities,
-  requireRepomixContract,
+  requireAdapterContract,
   setAdapterPath,
-  validateRepomixContract,
-} from "../../src/repomix/capabilities.js";
+  validateAdapterContract,
+} from "../../src/adapter/capabilities.js";
 
 const REAL_PATH = getAdapterModulePath();
 const BAD_PATH = "__nonexistent_repomix_pkg_xyz__";
@@ -21,10 +21,10 @@ afterEach(() => {
   setAdapterPath(REAL_PATH);
 });
 
-describe("detectRepomixCapabilities", () => {
+describe("detectAdapterCapabilities", () => {
   test("returns all false when adapter module cannot be loaded", async () => {
     setAdapterPath(BAD_PATH);
-    const caps = await detectRepomixCapabilities();
+    const caps = await detectAdapterCapabilities();
     expect(caps.hasMergeConfigs).toBe(false);
     expect(caps.hasPack).toBe(false);
     expect(caps.supportsPackStructured).toBe(false);
@@ -41,10 +41,10 @@ describe("getAdapterRuntimeInfo", () => {
   });
 });
 
-describe("validateRepomixContract", () => {
+describe("validateAdapterContract", () => {
   test("returns invalid contract when mergeConfigs is absent", async () => {
     setAdapterPath(BAD_PATH);
-    const result = await validateRepomixContract();
+    const result = await validateAdapterContract();
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors.length).toBeGreaterThan(0);
@@ -53,16 +53,16 @@ describe("validateRepomixContract", () => {
   });
 });
 
-describe("requireRepomixContract", () => {
+describe("requireAdapterContract", () => {
   test("throws when contract is invalid", async () => {
     setAdapterPath(BAD_PATH);
-    await expect(requireRepomixContract()).rejects.toThrow();
+    await expect(requireAdapterContract()).rejects.toThrow();
   });
 });
 
-describe("getRepomixCapabilities", () => {
+describe("getAdapterCapabilities", () => {
   test("returns combined runtime info, capabilities, and contract state", async () => {
-    const result = await getRepomixCapabilities();
+    const result = await getAdapterCapabilities();
     expect(typeof result.packageName).toBe("string");
     expect(typeof result.packageVersion).toBe("string");
     expect(typeof result.contractValid).toBe("boolean");
@@ -72,7 +72,7 @@ describe("getRepomixCapabilities", () => {
 
   test("contractErrors is non-empty when adapter is missing", async () => {
     setAdapterPath(BAD_PATH);
-    const result = await getRepomixCapabilities();
+    const result = await getAdapterCapabilities();
     expect(result.contractValid).toBe(false);
     expect(result.contractErrors.length).toBeGreaterThan(0);
   });

@@ -38,4 +38,4 @@ Do not add a second companion file. Rename and evolve the existing one.
 - [[Render Kernel Constitution]]
 - [[Kernel vs Extension Boundary]]
 - [[Native Render Migration Strategy]]
-- `src/repomix/handover.ts`
+- `src/render/sectionHandover.ts`

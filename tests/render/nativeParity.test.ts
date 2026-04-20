@@ -7,7 +7,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { loadCxConfig } from "../../src/config/load.js";
 import type { CxConfig, CxStyle } from "../../src/config/types.js";
 import {
-  createRepomixRenderEngine,
+  createAdapterOracleRenderEngine,
   defaultRenderEngine,
 } from "../../src/render/engine.js";
 import { computeAggregatePlanHash } from "../../src/render/planHash.js";
@@ -42,7 +42,7 @@ async function compareSectionParity(params: {
     `.candidate-${params.style}`,
     "section-output.txt",
   );
-  const oracle = createRepomixRenderEngine();
+  const oracle = createAdapterOracleRenderEngine();
   const candidate = defaultRenderEngine;
 
   await fs.mkdir(path.dirname(oracleOutputPath), { recursive: true });
@@ -140,7 +140,7 @@ describe("native render parity", () => {
       },
     );
 
-    const oracle = createRepomixRenderEngine();
+    const oracle = createAdapterOracleRenderEngine();
     const candidate = defaultRenderEngine;
 
     const sectionInputs = [

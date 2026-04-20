@@ -38,4 +38,4 @@ Compatibility is preserved through tests, not adapter presence.
 
 - [[Structured Render Contract]]
 - [[Release Candidate on Develop]]
-- `src/repomix/*`
+- `src/adapter/*`

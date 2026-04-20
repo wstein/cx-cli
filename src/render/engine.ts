@@ -1,4 +1,4 @@
-import { renderSectionWithRepomix } from "../repomix/render.js";
+import { renderSectionWithAdapterOracle } from "../adapter/oracleRender.js";
 import { createNativeRenderSectionFn } from "./native/section.js";
 import type {
   RenderEngine,
@@ -18,8 +18,8 @@ export class AdapterBackedRenderEngine implements RenderEngine {
   }
 }
 
-export function createRepomixRenderEngine(): RenderEngine {
-  return new AdapterBackedRenderEngine(renderSectionWithRepomix);
+export function createAdapterOracleRenderEngine(): RenderEngine {
+  return new AdapterBackedRenderEngine(renderSectionWithAdapterOracle);
 }
 
 export function createNativeRenderEngine(): RenderEngine {

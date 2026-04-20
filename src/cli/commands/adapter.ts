@@ -1,13 +1,13 @@
 import path from "node:path";
+import {
+  detectAdapterCapabilities,
+  getAdapterCapabilities,
+  getAdapterModulePath,
+  getAdapterRuntimeInfo,
+} from "../../adapter/capabilities.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
-import {
-  detectRepomixCapabilities,
-  getAdapterModulePath,
-  getAdapterRuntimeInfo,
-} from "../../repomix/capabilities.js";
-import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import {
   type CommandIo,
@@ -51,32 +51,16 @@ async function runAdapterCapabilities(
   ioArg: Partial<CommandIo>,
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const capabilities = await getRepomixCapabilities();
-  const runtimeInfo = await getAdapterRuntimeInfo();
-  const detectedCapabilities = await detectRepomixCapabilities();
-
-  // Determine span capability state
-  let spanCapabilityState: "supported" | "unsupported" | "partial" =
-    "unsupported";
-  let spanCapabilityReason =
-    "Structured span capture is unavailable in the installed adapter.";
-
-  if (detectedCapabilities.supportsRenderWithMap) {
-    spanCapabilityState = "supported";
-    spanCapabilityReason = "renderWithMap available and used";
-  } else if (detectedCapabilities.supportsPackStructured) {
-    spanCapabilityState = "partial";
-    spanCapabilityReason =
-      "packStructured is available, but renderWithMap is unavailable.";
-  }
+  const capabilities = await getAdapterCapabilities();
+  const detectedCapabilities = await detectAdapterCapabilities();
 
   const payload = {
     cx: {
       version: CX_VERSION,
     },
     repomix: {
-      packageName: runtimeInfo.packageName,
-      packageVersion: runtimeInfo.packageVersion,
+      packageName: capabilities.packageName,
+      packageVersion: capabilities.packageVersion,
       adapterContract: capabilities.adapterContract,
       compatibilityStrategy: capabilities.compatibilityStrategy,
       contractValid: capabilities.contractValid,
@@ -84,8 +68,8 @@ async function runAdapterCapabilities(
     detectedCapabilities: detectedCapabilities,
     capabilities: {
       styles: ["xml", "markdown", "json", "plain"],
-      spanCapability: spanCapabilityState,
-      spanCapabilityReason: spanCapabilityReason,
+      spanCapability: capabilities.spanCapability,
+      spanCapabilityReason: capabilities.spanCapabilityReason,
       exactFileSelection: true,
       sectionPlanning: true,
     },
@@ -246,7 +230,7 @@ async function runAdapterDoctor(
   // Check 1: Repomix package is available with required exports
   const adapterPath = getAdapterModulePath();
   try {
-    const adapterCapabilities = await detectRepomixCapabilities();
+    const adapterCapabilities = await detectAdapterCapabilities();
     const hasRequired = adapterCapabilities.hasMergeConfigs;
     checks.push({
       name: `${adapterPath} available`,
@@ -280,7 +264,7 @@ async function runAdapterDoctor(
   }
 
   // Check 3: Capabilities detection
-  const capabilities = await getRepomixCapabilities();
+  const capabilities = await getAdapterCapabilities();
   checks.push({
     name: "Adapter contract",
     passed: capabilities.adapterContract === "repomix-pack-v1",

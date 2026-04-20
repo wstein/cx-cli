@@ -1,4 +1,5 @@
 import path from "node:path";
+import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { extractBundle } from "../../extract/extract.js";
 import {
@@ -6,7 +7,6 @@ import {
   ExtractResolutionError,
   resolveExtractability,
 } from "../../extract/resolution.js";
-import { getRepomixCapabilities } from "../../repomix/render.js";
 import {
   CxError,
   formatErrorRemediation,
@@ -190,7 +190,7 @@ export async function runExtractCommand(
           allowDegraded: args.allowDegraded ?? false,
           summary: summarizeManifest(manifestName, manifest, rows),
           verify: args.verify,
-          repomix: await getRepomixCapabilities(),
+          repomix: await getAdapterCapabilities(),
           extractedSections: [],
           extractedAssets: [],
           extractedFiles: [],

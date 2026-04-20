@@ -10,8 +10,8 @@ The contract is derived from the currently implemented proof path in:
 - [`src/render/ordering.ts`](../src/render/ordering.ts)
 - [`src/render/planHash.ts`](../src/render/planHash.ts)
 - [`src/render/spans.ts`](../src/render/spans.ts)
-- [`src/repomix/render.ts`](../src/repomix/render.ts)
-- [`src/repomix/structured.ts`](../src/repomix/structured.ts)
+- [`src/adapter/oracleRender.ts`](../src/adapter/oracleRender.ts)
+- [`src/render/structuredPlan.ts`](../src/render/structuredPlan.ts)
 - [`src/bundle/verify.ts`](../src/bundle/verify.ts)
 - [`src/extract/parsers.ts`](../src/extract/parsers.ts)
 
@@ -41,7 +41,7 @@ Observed contract:
 
 Evidence:
 
-- [`src/repomix/render.ts`](../src/repomix/render.ts)
+- [`src/adapter/oracleRender.ts`](../src/adapter/oracleRender.ts)
 - [`tests/bundle/parsers.test.ts`](../tests/bundle/parsers.test.ts)
 
 ### Markdown
@@ -96,7 +96,7 @@ The render contract requires deterministic ordering at three levels:
 
 This behavior is currently enforced through:
 
-- [`extractStructuredPlan`](../src/repomix/structured.ts)
+- [`extractStructuredPlan`](../src/render/structuredPlan.ts)
 - [`validatePlanOrdering`](../src/render/ordering.ts)
 - [`src/bundle/verify.ts`](../src/bundle/verify.ts)
 

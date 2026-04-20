@@ -1,13 +1,13 @@
 import path from "node:path";
 
 import kleur from "kleur";
+import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import type { CxListDisplayConfig } from "../../config/types.js";
 import { loadCxUserConfig } from "../../config/user.js";
 import { resolveExtractability } from "../../extract/resolution.js";
 import type { ManifestFileRow } from "../../manifest/types.js";
 import { sortInclusionProvenance } from "../../planning/provenance.js";
-import { getRepomixCapabilities } from "../../repomix/render.js";
 import { formatBytes, formatNumber } from "../../shared/format.js";
 import {
   selectManifestAssets,
@@ -388,7 +388,7 @@ export async function runListCommand(
       ListCommandJsonSchema,
       {
         summary: summarizeManifest(manifestName, manifest, rows),
-        repomix: await getRepomixCapabilities(),
+        repomix: await getAdapterCapabilities(),
         settings: manifest.settings,
         display: userConfig.display,
         selection: {
