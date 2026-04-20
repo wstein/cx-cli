@@ -164,7 +164,7 @@ describe("docs assurance contract", () => {
       "It does not redefine the canonical semantics",
     );
     expect(agentModel).toContain("cx mcp catalog --json");
-    expect(agentModel).toContain("Source tree: trusted");
+    expect(agentModel).toContain("*Source tree:* trusted");
     expect(agentIntegration).toContain(
       "This document is an integration guide.",
     );
@@ -365,8 +365,8 @@ describe("docs assurance contract", () => {
     expect(mentalModel).toContain("Track A = proof generation");
     expect(mentalModel).toContain("durable cognition layer");
     expect(mentalModel).toContain("Source tree: trusted");
-    expect(agentModel).toContain("<h2>Operator Decision Ladder</h2>");
-    expect(agentModel).toContain("<h2>Capability Tiers</h2>");
+    expect(agentModel).toContain("== Operator Decision Ladder");
+    expect(agentModel).toContain("== Capability Tiers");
     expect(agentIntegration).toContain("<h2>Agent Point Of View</h2>");
     expect(agentIntegration).toContain("doctor_mcp()");
     expect(agentIntegration).toContain("&quot;tokenCount&quot;: 287");
