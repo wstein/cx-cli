@@ -6,12 +6,7 @@
 *** xref:page$repository/docs/init_template_contract.adoc[Init Template Contract]
 *** xref:page$repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy]
 *** xref:page$repository/docs/stability.adoc[Stability]
-*** xref:page$repository/docs/template_crystal.adoc[Crystal Template]
-*** xref:page$repository/docs/template_elixir.adoc[Elixir Template]
-*** xref:page$repository/docs/template_go.adoc[Go Template]
-*** xref:page$repository/docs/template_rust.adoc[Rust Template]
 *** xref:page$repository/docs/template_typescript.adoc[TypeScript Template]
-*** xref:page$repository/docs/template_zig.adoc[Zig Template]
 ** Root Repository Companions
 *** xref:page$repository/root/changelog.adoc[CHANGELOG.md]
 *** xref:page$repository/root/readme.adoc[README.md]

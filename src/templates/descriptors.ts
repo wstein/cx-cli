@@ -76,7 +76,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "rust",
     description: "Rust workspaces using Cargo.",
-    docsPath: "docs/modules/ROOT/pages/repository/docs/template_rust.adoc",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#rust-template",
     detectionMarkers: ["Cargo.toml"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -96,7 +97,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "go",
     description: "Go workspaces using go.mod.",
-    docsPath: "docs/modules/ROOT/pages/repository/docs/template_go.adoc",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#go-template",
     detectionMarkers: ["go.mod"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -185,7 +187,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "elixir",
     description: "Elixir workspaces using mix.exs.",
-    docsPath: "docs/modules/ROOT/pages/repository/docs/template_elixir.adoc",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#elixir-template",
     detectionMarkers: ["mix.exs"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -226,7 +229,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "crystal",
     description: "Crystal workspaces using shard.yml or shard.lock.",
-    docsPath: "docs/modules/ROOT/pages/repository/docs/template_crystal.adoc",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#crystal-template",
     detectionMarkers: ["shard.yml", "shard.lock"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],
@@ -246,7 +250,8 @@ export const TEMPLATE_DESCRIPTORS = [
   defineDescriptor({
     name: "zig",
     description: "Zig workspaces using build.zig or build.zig.zon.",
-    docsPath: "docs/modules/ROOT/pages/repository/docs/template_zig.adoc",
+    docsPath:
+      "docs/modules/ROOT/pages/repository/docs/init_template_contract.adoc#zig-template",
     detectionMarkers: ["build.zig", "build.zig.zon"],
     requiredGeneratedFiles: COMMON_REQUIRED_FILES,
     optionalGeneratedFiles: [],

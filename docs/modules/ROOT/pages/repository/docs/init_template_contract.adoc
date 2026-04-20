@@ -72,3 +72,105 @@ from the default authoring surface.
 
 If a repository uses nonstandard source or output layouts, edit the
 overlays independently instead of broadening the default authoring view.
+
+=== Enhanced Templates
+
+[[rust-template]]
+==== Rust
+
+The Rust template is designed for Cargo workspaces with a richer local
+verification gate than the basic templates.
+
+Generated targets:
+
+* `make build` -> `cargo build --release`
+* `make test` -> `cargo test`
+* `make check` -> `cargo check`
+* `make verify` -> `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo build --release`
+* `make certify` -> `verify`
+
+The generated `cx-mcp.toml` exposes `src/**`, `tests/**`, `benches/**`,
+`Cargo.toml`, `Cargo.lock`, and `README.md`. It excludes `target/**` so
+build artifacts do not leak into the default authoring view.
+
+[[go-template]]
+==== Go
+
+The Go template is intended for module-aware repositories using
+`go.mod`.
+
+Generated targets:
+
+* `make build` -> `go build ./...`
+* `make test` -> `go test ./...`
+* `make check` -> `go vet ./...`
+* `make verify` -> `check + test + build`
+* `make certify` -> `verify`
+
+The generated `cx-mcp.toml` exposes `cmd/**`, `internal/**`, `pkg/**`,
+`go.mod`, `go.sum`, and `README.md`. Adjust the overlay if your project
+keeps important source outside those conventional directories.
+
+[[elixir-template]]
+==== Elixir
+
+The Elixir template is optimized for Mix-based applications with a
+source-first MCP overlay.
+
+Generated targets:
+
+* `make build` -> `mix compile`
+* `make test` -> `mix test`
+* `make check` -> `mix format --check-formatted`
+* `make verify` -> `check + test + build`
+* `make certify` -> `verify`
+
+The generated `cx-mcp.toml` exposes `lib/**`, `test/**`, `mix.exs`,
+`mix.lock`, and `README.md`. It excludes `_build/**`, `deps/**`, and
+coverage output so MCP stays focused on authoring files by default.
+
+[[crystal-template]]
+==== Crystal
+
+The Crystal template is designed for `shard.yml` workspaces with a
+small, source-oriented MCP surface.
+
+Generated targets:
+
+* `make build` -> `shards build` when shard metadata exists, otherwise `crystal build src/main.cr --release`
+* `make test` -> `crystal spec`
+* `make verify` -> `test + build`
+* `make certify` -> `verify`
+
+The generated `cx-mcp.toml` exposes `src/**`, `spec/**`, `shard.yml`,
+`shard.lock`, and `README.md`. It excludes dependency and build caches
+such as `.shards/**`, `lib/**`, and `bin/**`.
+
+[[zig-template]]
+==== Zig
+
+The Zig template is aimed at `build.zig`-driven repositories.
+
+Generated targets:
+
+* `make build` -> `zig build`
+* `make test` -> `zig build test`
+* `make verify` -> `test + build`
+* `make certify` -> `verify`
+
+The generated `cx-mcp.toml` exposes `src/**`, `build.zig`,
+`build.zig.zon`, and `README.md`. It excludes `zig-cache/**`,
+`.zig-cache/**`, and `zig-out/**` to keep the default MCP surface
+source-first.
+
+=== Advanced Template
+
+[[typescript-template]]
+==== TypeScript
+
+The TypeScript template remains separate in the repository reference
+surface because it carries the most operational detail.
+
+See xref:page$repository/docs/template_typescript.adoc[TypeScript Template]
+for package-manager detection, dual MCP overlays, and customization
+guidance.
