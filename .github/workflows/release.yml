@@ -56,7 +56,7 @@ jobs:
           fi
 
           if ! printf '%s' "$tag_name" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$'; then
-            echo "Release finalization requires a semantic version tag like v0.4.0."
+            echo "Release finalization requires a semantic version tag like v0.4.0 from the closed candidate line."
             exit 1
           fi
 

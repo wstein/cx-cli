@@ -28,6 +28,7 @@ Use this short checklist when cutting a release.
 - Ensure `package.json` version matches the git tag before publishing release artifacts.
 - The release workflow runs on `vX.Y.Z` tag pushes, plus a manual re-finalization path for an existing tag when needed.
 - The release workflow only finalizes when the tagged commit already has a successful `develop` CI run; tag presence without certified CI is not enough.
+- `v0.4` is now a closed release line. Further work should tighten contracts, docs, or scanner scope on top of that line rather than reopening the architecture transition itself.
 - The release workflow in `.github/workflows/release.yml` requires `NPM_TOKEN` in the `node` environment so `npm publish` can authenticate to the npm registry, and `HOMEBREW_TAP_PUSH_TOKEN` in the `homebrew` environment so it can authenticate the cross-repo push to `wstein/homebrew-tap`.
 - Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.
 - Create `HOMEBREW_TAP_PUSH_TOKEN` as a fine-grained personal access token in GitHub Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate new token.

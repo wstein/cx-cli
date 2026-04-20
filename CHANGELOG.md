@@ -42,6 +42,11 @@ Track B generates hypotheses. Track A generates proofs. Notes preserve durable r
 - Repomix is no longer described as the primary runtime architecture.
 - The remaining adapter/oracle seam is for diagnostics and parity visibility only.
 
+#### 6. Closed release line
+
+- `v0.4.0` closes the render-kernel and fork-exit transition as a release line.
+- Follow-up work after `v0.4.0` is contract tightening, documentation hardening, and bounded scanner evolution rather than another proof-path architecture flip.
+
 ### MCP stability in 0.4.0
 
 MCP remains an evolving integration surface in 0.4.0. Core local workflows are ready for serious use, but the MCP contract should still be treated conservatively for long-term external integrations outside the documented stable subset.

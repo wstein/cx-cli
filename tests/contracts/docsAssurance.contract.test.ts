@@ -121,6 +121,15 @@ describe("docs assurance contract", () => {
     expect(agentIntegration).toContain("MCP remains an evolving integration");
     expect(manual).toContain("cx mcp catalog --json");
     expect(manual).toContain("Vitest coverage is now the authoritative");
+    expect(rootReadme).toContain("kernel-owned proof path");
+    expect(rootReadme).toContain(
+      "adapter/oracle path: diagnostics and parity only",
+    );
+    expect(rootReadme).not.toContain("built on top of Repomix");
+    expect(manual).toContain(
+      "not required for ordinary bundle, validate, verify, or extract flows",
+    );
+    expect(manual).not.toContain("built on top of Repomix");
   });
 
   test("manual defines an assurance ladder", async () => {
@@ -161,6 +170,26 @@ describe("docs assurance contract", () => {
     expect(ghaTriggers).toContain(
       "release workflow should fast-forward `main`",
     );
+    expect(checklist).toContain("closed release line");
+  });
+
+  test("public docs keep the native-proof-path story and reject fork-backed runtime language", async () => {
+    const readme = await readText("README.md");
+    const architecture = await readText("docs/ARCHITECTURE.md");
+    const migration = await readText("docs/MIGRATIONS/0.4.0.md");
+    const changelog = await readText("CHANGELOG.md");
+
+    expect(readme).toContain("kernel-owned proof path");
+    expect(architecture).toContain(
+      "adapter/oracle seam exists for diagnostics and parity visibility",
+    );
+    expect(migration).toContain("The shipped proof path is kernel-owned.");
+    expect(changelog).toContain("Native proof path is the shipped runtime");
+
+    expect(readme).not.toContain("built on top of Repomix");
+    expect(architecture).not.toContain("wraps Repomix in a stricter system");
+    expect(changelog).not.toContain("fork compatibility smoke");
+    expect(migration).not.toContain("shipped runtime dependency");
   });
 
   test("notes module spec documents linked-note enrichment semantics", async () => {
