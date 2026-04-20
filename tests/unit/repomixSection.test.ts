@@ -13,7 +13,7 @@ import { renderSection } from "../../src/adapter/section.js";
 import {
   createRenderFixture,
   writeMockReferenceOracleAdapter,
-} from "../repomix/helpers.js";
+} from "../oracle/helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
 const TEMP_PATHS: string[] = [];

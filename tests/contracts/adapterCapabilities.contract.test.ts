@@ -42,7 +42,11 @@ describe("adapter capability contract", () => {
     expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
-      oracleAdapter?: { adapterContract?: string; packageVersion?: string };
+      oracleAdapter?: {
+        adapterContract?: string;
+        packageName?: string;
+        packageVersion?: string;
+      };
       referenceAdapter?: { packageName?: string; installed?: boolean };
       adapter?: unknown;
       repomix?: unknown;
