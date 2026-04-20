@@ -1,6 +1,7 @@
 = 02 Constraints
 
 This architecture is shaped by a small set of hard constraints.
+They are intentionally more important than short-term convenience.
 
 == Hard constraints
 

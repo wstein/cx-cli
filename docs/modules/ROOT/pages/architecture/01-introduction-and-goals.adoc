@@ -1,6 +1,7 @@
 = 01 Introduction and Goals
 
 The goal of `cx` is to turn repository context into something reproducible enough for automation, not merely convenient enough for prompting.
+It is a toolchain for handoff, verification, and durable project memory rather than a prompt-packaging shortcut.
 
 == Primary goals
 
@@ -12,4 +13,4 @@ The goal of `cx` is to turn repository context into something reproducible enoug
 == Why this matters
 
 The system is designed for real handoff over time.
-That means a later operator must be able to inspect, validate, verify, and extract without inheriting hidden assumptions from the original session.
+A later operator should be able to inspect, validate, verify, and extract without inheriting hidden assumptions from the original session.

@@ -10,3 +10,5 @@ The core runtime story is the Friday-to-Monday transition:
 
 - xref:workflows/friday-to-monday.adoc[Friday to Monday]
 - xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]
+
+These workflows show how live exploration, durable notes, and proof artifacts hand work to each other over time.

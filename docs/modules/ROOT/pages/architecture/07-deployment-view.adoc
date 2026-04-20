@@ -1,6 +1,7 @@
 = 07 Deployment View
 
 The deployment view is CI- and release-oriented rather than service-oriented.
+`cx` ships as a toolchain with release gates, published schemas, coverage, and curated documentation rather than as a long-running network service.
 
 == Main deployment surfaces
 

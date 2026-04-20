@@ -27,3 +27,4 @@ The outer system boundary is four cooperating surfaces:
 |===
 
 The adapter/oracle seam is intentionally outside the shipped proof path.
+It exists to compare, inspect, and diagnose, not to carry routine operator workflows.

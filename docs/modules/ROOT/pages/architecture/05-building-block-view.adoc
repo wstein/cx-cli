@@ -13,3 +13,4 @@ Key building blocks in the shipped architecture:
 == Rule
 
 Ordinary bundle, validate, verify, and extract flows do not rely on the oracle seam.
+That separation is a runtime rule, not just a documentation preference.
