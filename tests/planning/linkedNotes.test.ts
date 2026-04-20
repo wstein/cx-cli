@@ -84,6 +84,8 @@ function baseConfig(root: string): CxConfig {
     },
     scanner: {
       mode: "warn",
+      ids: ["reference_secrets"],
+      includePostPackArtifacts: false,
     },
     checksums: {
       algorithm: "sha256",

@@ -187,18 +187,24 @@ non-zero notes exit family used for malformed or duplicate notes.
 
 | Key | Default | Description |
 | --- | --- | --- |
-| `mode` | `"warn"` | How the core source-stage scanner pipeline handles findings during bundling. `fail` blocks the bundle, `warn` emits warnings and continues. |
+| `mode` | `"warn"` | How the core scanner pipeline handles findings during bundling. `fail` blocks the bundle, `warn` emits warnings and continues. |
+| `ids` | `["reference_secrets"]` | Explicit core scanner IDs enabled for bundle-time and doctor scanning. |
+| `include_post_pack_artifacts` | `false` | When `true`, rerun the enabled scanners over rendered section outputs, the shared handover, and the manifest before the bundle is finalized. |
 
 Example:
 
 ```toml
 [scanner]
 mode = "fail"
+ids = ["reference_secrets"]
+include_post_pack_artifacts = true
 ```
 
-The scanner pipeline is currently source-stage only and is enabled by
-`repomix.security_check = true`. `scanner.mode` controls whether findings stay
-advisory or block proof-path bundling.
+The scanner pipeline is enabled by `repomix.security_check = true`.
+
+- `scanner.mode` controls whether findings stay advisory or block proof-path bundling.
+- `scanner.ids` keeps scanner selection explicit and bounded.
+- `scanner.include_post_pack_artifacts = true` adds a second scan pass over rendered section outputs, the shared handover, and the manifest.
 
 ## Behavioral Settings
 

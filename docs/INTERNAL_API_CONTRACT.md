@@ -69,17 +69,19 @@ Rule:
 
 Defined in [src/doctor/scanner.ts](../src/doctor/scanner.ts).
 
-`ScannerPipeline` owns source-stage security scanning.
+`ScannerPipeline` owns bundle-stage security scanning.
 
 Responsibilities:
 
 - scan source files before proof artifacts are finalized
+- optionally scan rendered bundle artifacts before finalization
 - return structured findings with:
   - scanner id
   - profile
   - stage
   - severity
   - proof-blocking status
+- keep scanner selection explicit through known scanner IDs
 - enforce explicit fail/warn handling
 
 Current default implementation:

@@ -35,7 +35,9 @@ Scanner interface:
 Current implementation:
 
 - source-stage scanning before proof artifacts are finalized
+- optional post-pack scanning over rendered section outputs, shared handover, and manifest
 - doctor diagnostics and bundle enforcement share the same pipeline seam
+- scanner selection is explicit through bounded scanner IDs
 
 ## Trust rule
 
@@ -44,7 +46,6 @@ Current implementation:
 
 ## Future
 
-- multi-stage scanning (pre-pack, post-pack)
 - CI gating integration
 - policy-based activation
 

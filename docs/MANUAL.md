@@ -284,11 +284,21 @@ Bundle-time scanner enforcement is controlled separately:
 ```toml
 [scanner]
 mode = "warn"  # or "fail"
+ids = ["reference_secrets"]
+include_post_pack_artifacts = false
 ```
 
 With `scanner.mode = "warn"`, `cx bundle` emits scanner findings as warnings and
 continues. With `scanner.mode = "fail"`, the same core findings block the
 bundle before proof artifacts are finalized.
+
+`scanner.ids` keeps scanner selection explicit instead of implicit. Today the
+core scanner set contains only `reference_secrets`, but the config is already
+bounded around known scanner IDs rather than open-ended names.
+
+When `scanner.include_post_pack_artifacts = true`, `cx bundle` reruns the
+enabled scanners over rendered section outputs, the shared handover, and the
+manifest before finalizing the bundle.
 
 `cx mcp catalog --json` is the preferred narrow machine-readable endpoint for MCP tool metadata. `cx doctor mcp --json` also exposes the same catalog fields when you need them alongside profile resolution and audit trends.
 

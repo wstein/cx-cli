@@ -195,6 +195,8 @@ exclude = []
               },
               scanner: {
                 mode: "warn",
+                ids: ["reference_secrets"],
+                includePostPackArtifacts: false,
               },
               handover: {
                 includeRepoHistory: false,

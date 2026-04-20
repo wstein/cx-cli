@@ -17,9 +17,11 @@ Scanners evaluate:
 ## Output
 
 - structured findings
+- scanner id
+- stage
 - severity
 - optional gating
-- source-stage enforcement via `fail` or `warn`
+- pre-pack and optional post-pack enforcement via `fail` or `warn`
 
 ## Rule
 
@@ -34,4 +36,5 @@ Security must be extensible but deterministic.
 
 - [[Plugin Capability Tiers]]
 - [[Bundle Extraction Safety Invariants]]
+- [[Internal API Stabilization]]
 - `src/doctor/scanner.ts`
