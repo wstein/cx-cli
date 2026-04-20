@@ -1,16 +1,16 @@
 import {
-  detectAdapterCapabilities,
-  getAdapterCapabilities,
-  getReferenceAdapterRuntimeInfo,
-  setAdapterPath,
+  detectOracleAdapterCapabilities,
+  getOracleAdapterCapabilities,
+  getReferenceOracleRuntimeInfo,
+  setOracleAdapterPath,
 } from "../dist/src/adapter/capabilities.js";
 
 async function main() {
-  setAdapterPath("repomix");
+  setOracleAdapterPath("repomix");
 
-  const capabilities = await getAdapterCapabilities();
-  const detected = await detectAdapterCapabilities();
-  const reference = await getReferenceAdapterRuntimeInfo();
+  const capabilities = await getOracleAdapterCapabilities();
+  const detected = await detectOracleAdapterCapabilities();
+  const reference = await getReferenceOracleRuntimeInfo();
 
   if (capabilities.oracleAdapter.modulePath !== "repomix") {
     throw new Error(
