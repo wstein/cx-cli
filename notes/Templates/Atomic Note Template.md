@@ -21,3 +21,4 @@ Describe how an operator, reviewer, or later agent should apply it.
 ## Links
 
 - [[Related note title]] - Explain the relationship
+- [External reference](https://example.com/spec) - Cite a relevant web page when the note depends on external standards or guidance
