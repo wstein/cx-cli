@@ -9,7 +9,10 @@ import {
   setOracleAdapterPath,
 } from "../../src/adapter/capabilities.js";
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
-import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
+import {
+  createRenderFixture,
+  writeMockReferenceOracleAdapter,
+} from "./helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
 
@@ -17,17 +20,17 @@ afterEach(() => {
   setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
 });
 
-describe("Repomix adapter filesystem resolution (integration)", () => {
-  test("resolves a directory-backed adapter module and captures output spans", async () => {
+describe("reference-oracle filesystem resolution (integration)", () => {
+  test("resolves a directory-backed oracle module and captures output spans", async () => {
     const fixture = await createRenderFixture();
-    const adapterDir = path.join(fixture.rootDir, "mock-adapter");
-    await fs.mkdir(adapterDir, { recursive: true });
-    await writeMockRepomixAdapter(adapterDir, {
+    const oracleDir = path.join(fixture.rootDir, "mock-reference-oracle");
+    await fs.mkdir(oracleDir, { recursive: true });
+    await writeMockReferenceOracleAdapter(oracleDir, {
       withPackStructured: true,
       withRenderWithMap: true,
       withPack: false,
     });
-    setOracleAdapterPath(adapterDir);
+    setOracleAdapterPath(oracleDir);
 
     const result = await renderSectionWithAdapterOracle({
       config: fixture.config,

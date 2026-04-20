@@ -13,22 +13,25 @@ import {
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
-import { createRenderFixture, writeMockRepomixAdapter } from "./helpers.js";
+import {
+  createRenderFixture,
+  writeMockReferenceOracleAdapter,
+} from "./helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
-const mockAdapterDirs: string[] = [];
+const mockOracleDirs: string[] = [];
 
-async function installMockAdapter(options: {
+async function installMockReferenceOracle(options: {
   withPackStructured: boolean;
   withRenderWithMap: boolean;
   withPack: boolean;
 }): Promise<void> {
-  const adapterDir = await fs.mkdtemp(
-    path.join(os.tmpdir(), "cx-repomix-adapter-"),
+  const oracleDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), "cx-reference-oracle-"),
   );
-  mockAdapterDirs.push(adapterDir);
-  await writeMockRepomixAdapter(adapterDir, options);
-  setOracleAdapterPath(pathToFileURL(path.join(adapterDir, "index.js")).href);
+  mockOracleDirs.push(oracleDir);
+  await writeMockReferenceOracleAdapter(oracleDir, options);
+  setOracleAdapterPath(pathToFileURL(path.join(oracleDir, "index.js")).href);
 }
 
 afterEach(async () => {
@@ -39,16 +42,16 @@ afterEach(async () => {
   vi.resetModules();
   setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
   await Promise.all(
-    mockAdapterDirs
+    mockOracleDirs
       .splice(0)
       .map((dir) => fs.rm(dir, { recursive: true, force: true })),
   );
 });
 
-describe("Repomix adapter fallback behavior", () => {
-  test("captures output spans for markdown and plain styles when renderWithMap is available", async () => {
+describe("reference-oracle fallback behavior", () => {
+  test("captures output spans for markdown and plain styles when oracle renderWithMap is available", async () => {
     const fixture = await createRenderFixture();
-    await installMockAdapter({
+    await installMockReferenceOracle({
       withPackStructured: true,
       withRenderWithMap: true,
       withPack: false,
@@ -83,9 +86,9 @@ describe("Repomix adapter fallback behavior", () => {
     });
   });
 
-  test("warns when output spans are unavailable and fails when they are required", async () => {
+  test("warns when oracle output spans are unavailable and fails when they are required", async () => {
     const fixture = await createRenderFixture();
-    await installMockAdapter({
+    await installMockReferenceOracle({
       withPackStructured: true,
       withRenderWithMap: false,
       withPack: false,
@@ -121,9 +124,9 @@ describe("Repomix adapter fallback behavior", () => {
     ).rejects.toThrow("Text sections require exact output spans");
   });
 
-  test("throws when neither packStructured nor pack is available", async () => {
+  test("throws when the oracle exports neither packStructured nor pack", async () => {
     const fixture = await createRenderFixture();
-    await installMockAdapter({
+    await installMockReferenceOracle({
       withPackStructured: false,
       withRenderWithMap: false,
       withPack: false,
@@ -143,9 +146,9 @@ describe("Repomix adapter fallback behavior", () => {
     );
   });
 
-  test("bundling stays native when structured adapter support is unavailable", async () => {
+  test("bundling stays native when structured oracle support is unavailable", async () => {
     const fixture = await createRenderFixture();
-    await installMockAdapter({
+    await installMockReferenceOracle({
       withPackStructured: false,
       withRenderWithMap: false,
       withPack: true,
@@ -166,7 +169,7 @@ describe("Repomix adapter fallback behavior", () => {
     expect(capture.stderr()).toBe("");
   });
 
-  test("renderSectionWithAdapterOracle falls back to pack when structured rendering is unavailable", async () => {
+  test("renderSectionWithAdapterOracle falls back to pack when structured oracle rendering is unavailable", async () => {
     const fixture = await createRenderFixture({
       config: {
         manifest: {
@@ -174,7 +177,7 @@ describe("Repomix adapter fallback behavior", () => {
         },
       },
     });
-    await installMockAdapter({
+    await installMockReferenceOracle({
       withPackStructured: false,
       withRenderWithMap: false,
       withPack: true,

@@ -57,8 +57,8 @@ export async function createRenderFixture(
   };
 }
 
-export async function writeMockRepomixAdapter(
-  adapterDir: string,
+export async function writeMockReferenceOracleAdapter(
+  oracleDir: string,
   options: {
     withPackStructured: boolean;
     withRenderWithMap: boolean;
@@ -66,9 +66,9 @@ export async function writeMockRepomixAdapter(
   },
 ): Promise<void> {
   await fs.writeFile(
-    path.join(adapterDir, "package.json"),
+    path.join(oracleDir, "package.json"),
     JSON.stringify({
-      name: "mock-repomix-adapter",
+      name: "mock-reference-oracle",
       type: "module",
       exports: "./index.js",
     }),
@@ -157,7 +157,7 @@ export async function pack(rootDirs, config, _progress, _options, explicitFiles)
   }
 
   await fs.writeFile(
-    path.join(adapterDir, "index.js"),
+    path.join(oracleDir, "index.js"),
     pieces.join("\n"),
     "utf8",
   );

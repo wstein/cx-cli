@@ -11,7 +11,7 @@ import {
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture } from "./helpers.js";
 
-describe("Repomix reference oracle capabilities", () => {
+describe("official reference-oracle capabilities", () => {
   test("exports the public mergeConfigs and security-check functions", () => {
     expect(typeof mergeConfigs).toBe("function");
     expect(typeof runSecurityCheck).toBe("function");
@@ -21,7 +21,7 @@ describe("Repomix reference oracle capabilities", () => {
     expect("packStructured" in { mergeConfigs, runSecurityCheck }).toBe(false);
   });
 
-  test("runSecurityCheck supports the public call shape used by cx diagnostics", async () => {
+  test("runSecurityCheck supports the public call shape used by cx oracle diagnostics", async () => {
     const fixture = await createRenderFixture();
     const cliConfig: Parameters<typeof mergeConfigs>[2] = {
       output: {

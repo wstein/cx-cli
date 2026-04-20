@@ -12,7 +12,7 @@ import {
 import { renderSection } from "../../src/adapter/section.js";
 import {
   createRenderFixture,
-  writeMockRepomixAdapter,
+  writeMockReferenceOracleAdapter,
 } from "../repomix/helpers.js";
 
 const DEFAULT_ADAPTER_PATH = getOracleAdapterModulePath();
@@ -33,7 +33,7 @@ describe("renderSection", () => {
       path.join(os.tmpdir(), "cx-render-adapter-"),
     );
     TEMP_PATHS.push(adapterDir);
-    await writeMockRepomixAdapter(adapterDir, {
+    await writeMockReferenceOracleAdapter(adapterDir, {
       withPackStructured: true,
       withRenderWithMap: true,
       withPack: false,
