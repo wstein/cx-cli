@@ -1,4 +1,3 @@
-import { getAdapterCapabilities } from "../adapter/capabilities.js";
 import { loadManifestFromBundle, validateBundle } from "../bundle/validate.js";
 import type { CxConfig } from "../config/types.js";
 import { resolveExtractability } from "../extract/resolution.js";
@@ -38,7 +37,6 @@ export interface InspectReport {
     unmatchedCount: number;
     textFileCount: number;
   };
-  repomix: Awaited<ReturnType<typeof getAdapterCapabilities>>;
   bundleComparison:
     | {
         available: true;
@@ -209,7 +207,6 @@ export async function collectInspectReport(params: {
 
   return {
     summary: buildInspectSummary(plan),
-    repomix: await getAdapterCapabilities(),
     bundleComparison,
     tokenBreakdown,
     sections: plan.sections.map((section) => ({

@@ -388,7 +388,7 @@ export async function runListCommand(
       ListCommandJsonSchema,
       {
         summary: summarizeManifest(manifestName, manifest, rows),
-        repomix: await getAdapterCapabilities(),
+        adapter: await getAdapterCapabilities(),
         settings: manifest.settings,
         display: userConfig.display,
         selection: {

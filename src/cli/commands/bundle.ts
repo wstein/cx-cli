@@ -655,7 +655,7 @@ export async function runBundleCommand(
             totalOutputTokens,
           },
           warnings: [...plan.warnings, ...renderWarnings],
-          repomix: await getAdapterCapabilities(),
+          adapter: await getAdapterCapabilities(),
         },
         io,
       );

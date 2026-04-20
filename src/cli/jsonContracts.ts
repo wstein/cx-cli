@@ -8,7 +8,7 @@ const ProvenanceSchema = z.enum([
   "manifest_note_inclusion",
 ]);
 
-const RepomixCapabilitiesSchema = z.object({
+const AdapterCapabilitiesSchema = z.object({
   packageName: z.string(),
   packageVersion: z.string(),
   capabilities: z.object({
@@ -71,7 +71,7 @@ export const InspectReportJsonSchema = z.object({
     unmatchedCount: z.number().int().nonnegative(),
     textFileCount: z.number().int().nonnegative(),
   }),
-  repomix: RepomixCapabilitiesSchema,
+  adapter: AdapterCapabilitiesSchema,
   bundleComparison: z.union([
     z.object({
       available: z.literal(true),
@@ -142,12 +142,12 @@ export const BundleCommandJsonSchema = z.object({
     totalOutputTokens: z.number().int().nonnegative(),
   }),
   warnings: z.array(z.string()),
-  repomix: RepomixCapabilitiesSchema,
+  adapter: AdapterCapabilitiesSchema,
 });
 
 export const ListCommandJsonSchema = z.object({
   summary: ManifestSummarySchema,
-  repomix: RepomixCapabilitiesSchema,
+  adapter: AdapterCapabilitiesSchema,
   settings: z.record(z.string(), z.unknown()),
   display: z.record(z.string(), z.unknown()),
   selection: z.object({
@@ -226,7 +226,7 @@ export const VerifyCommandJsonSchema = z.union([
     againstDir: z.string().nullable(),
     sections: z.array(z.string()),
     files: z.array(z.string()),
-    repomix: RepomixCapabilitiesSchema,
+    adapter: AdapterCapabilitiesSchema,
     valid: z.literal(true),
     dirtyState: z
       .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
@@ -240,7 +240,7 @@ export const VerifyCommandJsonSchema = z.union([
     againstDir: z.string().nullable(),
     sections: z.array(z.string()),
     files: z.array(z.string()),
-    repomix: RepomixCapabilitiesSchema,
+    adapter: AdapterCapabilitiesSchema,
     valid: z.literal(false),
     dirtyState: z
       .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
@@ -290,7 +290,7 @@ export const AdapterCapabilitiesJsonSchema = z.object({
   cx: z.object({
     version: z.string(),
   }),
-  repomix: z.object({
+  adapter: z.object({
     packageName: z.string(),
     packageVersion: z.string(),
     adapterContract: z.string(),
@@ -349,7 +349,7 @@ export const ValidateCommandJsonSchema = z.object({
   sourceRoot: z.string(),
   bundleVersion: z.number().int().nonnegative(),
   schemaVersion: z.number().int().nonnegative(),
-  repomix: RepomixCapabilitiesSchema,
+  adapter: AdapterCapabilitiesSchema,
   valid: z.literal(true),
   notes: z.object({
     count: z.number().int().nonnegative(),
@@ -378,7 +378,7 @@ export const ExtractCommandJsonSchema = z.union([
     valid: z.literal(true),
   }),
   ExtractBaseJsonSchema.extend({
-    repomix: RepomixCapabilitiesSchema,
+    adapter: AdapterCapabilitiesSchema,
     extractedSections: z.array(z.string()),
     extractedAssets: z.array(z.string()),
     extractedFiles: z.array(z.string()),

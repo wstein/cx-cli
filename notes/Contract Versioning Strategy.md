@@ -14,6 +14,7 @@ Semver alone is not enough for the system's most important contracts. The major 
 - manifest schema version
 - plugin API version
 - workflow contract version when behavior changes would break operators
+- machine-readable CLI payload naming when migration metadata changes shape
 
 ## Why
 

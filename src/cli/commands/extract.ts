@@ -190,7 +190,7 @@ export async function runExtractCommand(
           allowDegraded: args.allowDegraded ?? false,
           summary: summarizeManifest(manifestName, manifest, rows),
           verify: args.verify,
-          repomix: await getAdapterCapabilities(),
+          adapter: await getAdapterCapabilities(),
           extractedSections: [],
           extractedAssets: [],
           extractedFiles: [],

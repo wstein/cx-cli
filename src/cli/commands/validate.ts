@@ -71,7 +71,7 @@ export async function runValidateCommand(
         sourceRoot: manifest.sourceRoot,
         bundleVersion: manifest.bundleVersion,
         schemaVersion: manifest.schemaVersion,
-        repomix: await getAdapterCapabilities(),
+        adapter: await getAdapterCapabilities(),
         valid: true,
         notes: {
           count: notesResult.notes.length,

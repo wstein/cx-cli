@@ -1,3 +1,4 @@
+import { getAdapterCapabilities } from "../../adapter/capabilities.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout } from "../../config/types.js";
@@ -76,7 +77,14 @@ export async function runInspectCommand(
   });
 
   if (args.json) {
-    writeValidatedJson(InspectReportJsonSchema, report, io);
+    writeValidatedJson(
+      InspectReportJsonSchema,
+      {
+        ...report,
+        adapter: await getAdapterCapabilities(),
+      },
+      io,
+    );
     return 0;
   }
 

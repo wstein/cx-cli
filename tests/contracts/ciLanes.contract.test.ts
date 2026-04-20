@@ -48,6 +48,10 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("run: bun run ci:test:render-parity");
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("run: bun run ci:test:native-render-contract");
+    expect(workflow).toContain("adapter-capabilities-contract:");
+    expect(workflow).toContain(
+      "run: bun run ci:test:adapter-capabilities-contract",
+    );
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
@@ -121,6 +125,9 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:test:native-render-contract"]).toBe(
       "vitest run tests/contracts/nativeRender.contract.test.ts",
     );
+    expect(scripts["ci:test:adapter-capabilities-contract"]).toBe(
+      "vitest run tests/contracts/adapterCapabilities.contract.test.ts",
+    );
     expect(scripts["ci:guard:fast-lane"]).toBe(
       "node scripts/check-fast-lane.js",
     );
@@ -164,6 +171,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
+    expect(workflow).toContain("adapter-capabilities-contract:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
@@ -189,6 +197,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("notes-governance:");
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
+    expect(workflow).toContain("adapter-capabilities-contract:");
     expect(workflow).toContain("repomix-matrix:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
@@ -206,6 +215,9 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain(
       "  native-render-contract:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  adapter-capabilities-contract:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
@@ -243,6 +255,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - test-contracts");
     expect(workflow).toContain("      - notes-governance");
     expect(workflow).toContain("      - render-parity");
+    expect(workflow).toContain("      - adapter-capabilities-contract");
     expect(workflow).toContain("      - coverage-vitest");
     expect(workflow).toContain("      - repomix-matrix");
     expect(workflow).toContain("      - bundle-update-matrix");

@@ -188,7 +188,7 @@ export async function runVerifyCommand(
           againstDir: againstDir ?? null,
           sections: args.sections ?? [],
           files: args.files ?? [],
-          repomix: await getAdapterCapabilities(),
+          adapter: await getAdapterCapabilities(),
           valid: true,
           dirtyState: manifestDirtyState,
           bundleMode: bundleMode,
@@ -208,7 +208,7 @@ export async function runVerifyCommand(
         againstDir: string | null;
         sections: string[];
         files: string[];
-        repomix: Awaited<ReturnType<typeof getAdapterCapabilities>>;
+        adapter: Awaited<ReturnType<typeof getAdapterCapabilities>>;
         valid: false;
         dirtyState: DirtyState | null;
         bundleMode: string | null;
@@ -225,7 +225,7 @@ export async function runVerifyCommand(
         againstDir: againstDir ?? null,
         sections: args.sections ?? [],
         files: args.files ?? [],
-        repomix: await getAdapterCapabilities(),
+        adapter: await getAdapterCapabilities(),
         valid: false,
         dirtyState: manifestDirtyState,
         bundleMode: bundleMode,

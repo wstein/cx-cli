@@ -58,7 +58,7 @@ async function runAdapterCapabilities(
     cx: {
       version: CX_VERSION,
     },
-    repomix: {
+    adapter: {
       packageName: capabilities.packageName,
       packageVersion: capabilities.packageVersion,
       adapterContract: capabilities.adapterContract,
@@ -80,23 +80,23 @@ async function runAdapterCapabilities(
   } else {
     writeStdout(`cx version:                ${CX_DISPLAY_VERSION}\n`, io);
     writeStdout(
-      `Repomix package:           ${payload.repomix.packageName}\n`,
+      `Repomix package:           ${payload.adapter.packageName}\n`,
       io,
     );
     writeStdout(
-      `Repomix version:           ${payload.repomix.packageVersion}\n`,
+      `Repomix version:           ${payload.adapter.packageVersion}\n`,
       io,
     );
     writeStdout(
-      `adapter contract:          ${payload.repomix.adapterContract}\n`,
+      `adapter contract:          ${payload.adapter.adapterContract}\n`,
       io,
     );
     writeStdout(
-      `compatibility strategy:    ${payload.repomix.compatibilityStrategy}\n`,
+      `compatibility strategy:    ${payload.adapter.compatibilityStrategy}\n`,
       io,
     );
     writeStdout(
-      `contract valid:            ${payload.repomix.contractValid ? "YES" : "NO"}\n`,
+      `contract valid:            ${payload.adapter.contractValid ? "YES" : "NO"}\n`,
       io,
     );
     writeStdout(`\nDetected capabilities:\n`, io);

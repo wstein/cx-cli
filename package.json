@@ -58,6 +58,7 @@
     "ci:test:render-parity": "node scripts/render-parity-check.js",
     "ci:test:compat": "node scripts/bun-runtime-compat-smoke.js",
     "ci:test:contracts": "bun run test:contracts",
+    "ci:test:adapter-capabilities-contract": "vitest run tests/contracts/adapterCapabilities.contract.test.ts",
     "ci:notes:governance": "node scripts/notes-governance.js",
     "ci:smoke:repomix-version": "node scripts/repomix-version-smoke.js",
     "ci:smoke:bundle-transition": "node scripts/bundle-transition-smoke.js",

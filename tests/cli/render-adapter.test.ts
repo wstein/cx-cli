@@ -241,10 +241,13 @@ describe("adapter command", () => {
 
     const payload = parseJsonOutput<{
       cx?: { version?: string };
+      adapter?: { packageName?: string; adapterContract?: string };
       capabilities?: { styles?: string[] };
     }>(capture.stdout());
 
     expect(payload.cx?.version).toBe(CX_VERSION);
+    expect(typeof payload.adapter?.packageName).toBe("string");
+    expect(payload.adapter?.adapterContract).toBe("repomix-pack-v1");
     expect(payload.capabilities?.styles).toContain("xml");
   });
 
