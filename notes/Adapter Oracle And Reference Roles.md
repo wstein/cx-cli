@@ -26,6 +26,10 @@ Without explicit roles, the transition from the forked adapter to the official p
 
 The selected oracle and the installed reference must be surfaced separately in CLI and CI. They must not silently collapse into one unnamed adapter concept.
 
+The selected oracle may equal the installed reference package in current CI, but
+the roles remain semantically distinct and must stay separately named in
+contracts and docs.
+
 ## Links
 
 - [[Top-Level JSON Payload Contracts]]

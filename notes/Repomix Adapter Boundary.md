@@ -13,6 +13,17 @@ The boundary now exists only as a parity-oracle seam.
 - compatibility is preserved through contract tests, not by shipping a runtime
   adapter dependency
 
+## Non-goal
+
+The adapter boundary is not part of ordinary proof-path execution.
+
+- bundling does not depend on it
+- verification does not depend on it
+- extraction does not depend on it
+
+It exists only for oracle diagnostics, compatibility visibility, and external
+comparison signals.
+
 ## Links
 * [[Structured Render Contract]]
 * [[Adapter Oracle And Reference Roles]]

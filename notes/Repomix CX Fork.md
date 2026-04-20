@@ -13,6 +13,12 @@ It is no longer part of the shipped `cx-cli` runtime. The production proof path
 is kernel-owned, and compatibility is now preserved through parity tests rather
 than by shipping the fork.
 
+## Removal consequences
+
+- lower runtime supply-chain surface
+- CI simplified to an official reference oracle instead of a shipped fork
+- no runtime fork dependency inside the published CLI package
+
 ## Links
 
 - `package.json`

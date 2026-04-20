@@ -25,6 +25,7 @@ The runtime proof path is now kernel-first:
 
 - XML, Markdown, Plain, and JSON section outputs render through the kernel
 - shared handover rendering is kernel-owned
+- verification is anchored in kernel-owned structured plans and hashes
 - adapter/oracle code remains only for parity, migration visibility, and compatibility checks
 
 ## Links

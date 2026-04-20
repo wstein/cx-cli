@@ -32,6 +32,8 @@ If rendering changes, verification and extraction break.
 - kernel owns all proof-path formats
 - kernel behavior is locked by tests
 - kernel is not plugin-controlled
+- verification is anchored in kernel-owned structured plans and hashes
+- oracle machinery is comparison-only and never proof-defining
 
 ## Non-goals
 
