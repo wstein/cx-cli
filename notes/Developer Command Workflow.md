@@ -46,8 +46,8 @@ quick while making the release path explicit and repeatable.
 - `Makefile`
 - `package.json`
 - `README.md`
-- `docs/MANUAL.md`
-- `docs/RELEASE_CHECKLIST.md`
+- `docs/modules/ROOT/pages/manual/operator-manual.adoc`
+- `docs/modules/ROOT/pages/release/checklist.adoc`
 - [[CLI Command Lifecycle]]
 - [[Release Candidate on Develop]]
 - [[Tag Finalization and Main Promotion]]

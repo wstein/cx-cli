@@ -18,4 +18,4 @@ After mutation, graph and audit commands are part of the workflow, not optional 
 ## Links
 * [[Agent Operating Model]]
 * [[MCP Tool Intent Taxonomy]]
-* [docs/WORKFLOWS/safe-note-mutation.md](../docs/WORKFLOWS/safe-note-mutation.md)
+* [docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc](../docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc)

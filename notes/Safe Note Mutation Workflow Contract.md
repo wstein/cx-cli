@@ -32,4 +32,4 @@ Changing notes must remain an explicit, reviewable workflow rather than a side e
 - [[Safe Note Mutation Workflow]]
 - [[Repository Cognition Layer]]
 - [[Adversarial Cognition Testing]]
-- `docs/WORKFLOWS/safe-note-mutation.md`
+- `docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc`

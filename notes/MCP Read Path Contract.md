@@ -39,4 +39,4 @@ MCP must remain the primary path for live exploration, not a degraded shadow of 
 - [[Operational Bifurcation]]
 - [[MCP Stable Contract Boundary]]
 - [[System Trust Contract]]
-- `docs/AGENT_INTEGRATION.md`
+- `docs/modules/ROOT/pages/repository/docs/agent_integration.adoc`

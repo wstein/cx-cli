@@ -93,7 +93,7 @@ The source repo owns packaging and formula generation. The release workflow shou
 ## Links
 
 - `.github/workflows/release.yml`
-- `docs/RELEASE_CHECKLIST.md`
+- `docs/modules/ROOT/pages/release/checklist.adoc`
 - `notes/Homebrew Tap.md`
 - [[Homebrew Tap]]
 - [[npm Package Tarball]]

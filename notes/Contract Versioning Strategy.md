@@ -46,4 +46,4 @@ Hard breaks require explicit contract boundaries, not only a new package version
 - [[CX Constitution]]
 - [[Deprecation and Removal Policy]]
 - [[Release Proof Criteria]]
-- `docs/SYSTEM_CONTRACTS.md`
+- `docs/modules/ROOT/pages/architecture/system-contracts.adoc`

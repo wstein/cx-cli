@@ -25,11 +25,11 @@ This means arc42 can provide stronger structure without forcing a reinvention of
 
 Possible mapping:
 
-- Introduction and Goals -> `docs/README.md`, `docs/MENTAL_MODEL.md`
-- Constraints -> `docs/SYSTEM_CONTRACTS.md`
-- Context and Scope -> `docs/SYSTEM_MAP.md`
-- Solution Strategy -> `docs/OPERATING_MODES.md`
-- Building Block View -> `docs/ARCHITECTURE.md`
+- Introduction and Goals -> `docs/README.md`, `docs/modules/ROOT/pages/architecture/mental-model.adoc`
+- Constraints -> `docs/modules/ROOT/pages/architecture/system-contracts.adoc`
+- Context and Scope -> `docs/modules/ROOT/pages/architecture/system-map.adoc`
+- Solution Strategy -> `docs/modules/ROOT/pages/manual/operating-modes.adoc`
+- Building Block View -> `docs/modules/ROOT/pages/architecture/implementation-reference.adoc`
 - Runtime View -> workflow docs
 - Deployment View -> CI and release docs
 - Cross-cutting Concepts -> trust model, notes model, scanner model
@@ -52,7 +52,7 @@ Using arc42 only for the architecture spine keeps the repository from over-norma
 
 - [arc42 template](https://arc42.org/)
 - [arc42 template EN with help](https://github.com/arc42/arc42-template/raw/master/dist/arc42-template-EN-withhelp-asciidoc.zip)
-- [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
-- [docs/SYSTEM_MAP.md](../docs/SYSTEM_MAP.md)
-- [docs/SYSTEM_CONTRACTS.md](../docs/SYSTEM_CONTRACTS.md)
+- [docs/modules/ROOT/pages/architecture/implementation-reference.adoc](../docs/modules/ROOT/pages/architecture/implementation-reference.adoc)
+- [docs/modules/ROOT/pages/architecture/system-map.adoc](../docs/modules/ROOT/pages/architecture/system-map.adoc)
+- [docs/modules/ROOT/pages/architecture/system-contracts.adoc](../docs/modules/ROOT/pages/architecture/system-contracts.adoc)
 - [[Render Kernel Constitution]]

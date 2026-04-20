@@ -22,7 +22,7 @@ cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EX
 
 ## Links
 
-- [docs/STABILITY.md](../docs/STABILITY.md) — Full tier definitions, versioning policy, matrix
+- [docs/modules/ROOT/pages/repository/docs/stability.adoc](../docs/modules/ROOT/pages/repository/docs/stability.adoc) — Full tier definitions, versioning policy, matrix
 - [[MCP Stable Contract Boundary]] — which MCP tools are now explicitly non-experimental
 - [[MCP Tool Intent Taxonomy]] — Tool capability model (read, observe, plan, mutate)
 - [[Agent Operating Model]] — When each tool is used (MCP interactive vs bundle CI/CD)

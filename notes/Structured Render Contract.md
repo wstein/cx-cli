@@ -91,7 +91,7 @@ interface StructuredRenderPlan {
 
 ## References
 
-- [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
-- [docs/SYSTEM_CONTRACTS.md](../docs/SYSTEM_CONTRACTS.md)
+- [docs/modules/ROOT/pages/architecture/implementation-reference.adoc](../docs/modules/ROOT/pages/architecture/implementation-reference.adoc)
+- [docs/modules/ROOT/pages/architecture/system-contracts.adoc](../docs/modules/ROOT/pages/architecture/system-contracts.adoc)
 - [src/render/structuredPlan.ts](../src/render/structuredPlan.ts)
 - [[src/bundle/verify.ts]]

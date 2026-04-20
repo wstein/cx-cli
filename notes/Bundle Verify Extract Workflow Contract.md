@@ -38,4 +38,4 @@ Do not loosen verification or extraction guardrails to preserve convenience.
 - [[Bundle Extraction Safety Invariants]]
 - [[Bundle Sidecar Integrity]]
 - [[Proof Path Ownership]]
-- `docs/MANUAL.md`
+- `docs/modules/ROOT/pages/manual/operator-manual.adoc`

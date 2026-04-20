@@ -27,5 +27,5 @@ Complex systems fail from uncontrolled contributions.
 
 - [[System Trust Contract]]
 - [[Developer Command Workflow]]
-- `docs/GOVERNANCE.md`
+- `docs/modules/ROOT/pages/repository/docs/governance.adoc`
 - [[Test Strategy Hardening]]

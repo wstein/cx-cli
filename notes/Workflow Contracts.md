@@ -38,5 +38,5 @@ Do not silently change a primary workflow that downstream humans or automation a
 - [[Bundle Verify Extract Workflow Contract]]
 - [[MCP Read Path Contract]]
 - [[Safe Note Mutation Workflow Contract]]
-- `docs/WORKFLOWS/friday-to-monday.md`
-- `docs/WORKFLOWS/safe-note-mutation.md`
+- `docs/modules/ROOT/pages/workflows/friday-to-monday.adoc`
+- `docs/modules/ROOT/pages/workflows/safe-note-mutation.adoc`

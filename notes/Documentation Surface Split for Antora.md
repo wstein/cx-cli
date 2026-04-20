@@ -66,11 +66,11 @@ This reduces cognitive dependency chains without abandoning canonical ownership.
 
 The docs can remain precise while becoming easier to traverse.
 
-The repository-local Markdown files should remain redirect stubs and compatibility anchors, not a second canonical prose surface, while the canonical hierarchy lives in the Antora component layout under `docs/antora.yml` and `docs/modules/`.
+`docs/README.md` should remain the only Markdown guide in `docs/`, while the canonical hierarchy lives in the Antora component layout under `docs/antora.yml` and `docs/modules/`.
 
 ## Links
 
 - [docs/README.md](../docs/README.md)
-- [docs/MANUAL.md](../docs/MANUAL.md)
-- [docs/OPERATING_MODES.md](../docs/OPERATING_MODES.md)
+- [docs/modules/ROOT/pages/manual/operator-manual.adoc](../docs/modules/ROOT/pages/manual/operator-manual.adoc)
+- [docs/modules/ROOT/pages/manual/operating-modes.adoc](../docs/modules/ROOT/pages/manual/operating-modes.adoc)
 - [[CLI Command Lifecycle]]

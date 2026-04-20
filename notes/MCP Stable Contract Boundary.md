@@ -17,8 +17,8 @@ How to apply it:
 
 ## Links
 
-- [docs/STABILITY.md](../docs/STABILITY.md)
-- [docs/AGENT_INTEGRATION.md](../docs/AGENT_INTEGRATION.md)
+- [docs/modules/ROOT/pages/repository/docs/stability.adoc](../docs/modules/ROOT/pages/repository/docs/stability.adoc)
+- [docs/modules/ROOT/pages/repository/docs/agent_integration.adoc](../docs/modules/ROOT/pages/repository/docs/agent_integration.adoc)
 - [src/mcp/tools/catalog.ts](../src/mcp/tools/catalog.ts)
 - [[Product Tiering Model]]
 - [[Agent Operating Model]]

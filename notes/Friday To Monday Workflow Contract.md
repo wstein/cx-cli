@@ -36,4 +36,4 @@ Friday investigation may be flexible, but Monday trust must stay strict.
 - [[Friday Night Monday Morning Provenance]]
 - [[Dirty State Taxonomy]]
 - [[Proof Path Ownership]]
-- `docs/WORKFLOWS/friday-to-monday.md`
+- `docs/modules/ROOT/pages/workflows/friday-to-monday.adoc`

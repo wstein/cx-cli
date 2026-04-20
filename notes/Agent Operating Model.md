@@ -28,7 +28,7 @@ The operational point is that an exploratory MCP session is not automatically a 
 
 ## Links
 
-- [docs/AGENT_OPERATING_MODEL.md](../docs/AGENT_OPERATING_MODEL.md) — Full operating model with decision matrix and examples
-- [docs/GOVERNANCE.md](../docs/GOVERNANCE.md) — Documentation governance and source-of-truth markers
+- [docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc](../docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc) — Full operating model with decision matrix and examples
+- [docs/modules/ROOT/pages/repository/docs/governance.adoc](../docs/modules/ROOT/pages/repository/docs/governance.adoc) — Documentation governance and source-of-truth markers
 - [[MCP Tool Intent Taxonomy]] — Tool categorization and intent (read, observe, plan, mutate)
 - [[Product Tiering Model]] — Stability contracts (STABLE, BETA, EXPERIMENTAL, INTERNAL)

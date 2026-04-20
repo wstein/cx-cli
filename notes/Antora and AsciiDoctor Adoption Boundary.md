@@ -39,11 +39,11 @@ A selective boundary avoids turning the documentation migration into a format wa
 
 The goal is not to upgrade all prose. The goal is to improve the information architecture of the official docs without flattening the distinction between curated documentation and durable cognition notes.
 
-The repository-local `docs/*.md` files now serve as redirect stubs for stable in-repo links rather than as the canonical source of the curated docs surface.
+`docs/README.md` is now the only Markdown guide left in `docs/`. The rest of the curated surface lives directly under the Antora component tree.
 
 ## Links
 
 - [README.md](../README.md)
-- [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
-- [docs/MANUAL.md](../docs/MANUAL.md)
+- [docs/modules/ROOT/pages/architecture/implementation-reference.adoc](../docs/modules/ROOT/pages/architecture/implementation-reference.adoc)
+- [docs/modules/ROOT/pages/manual/operator-manual.adoc](../docs/modules/ROOT/pages/manual/operator-manual.adoc)
 - [[Repository Cognition Layer]]

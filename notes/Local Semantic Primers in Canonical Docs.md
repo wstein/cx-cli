@@ -43,7 +43,7 @@ AsciiDoctor and Antora make this easier because the primer can be implemented wi
 
 That means the repo can preserve a single semantic source of truth while still giving readers just-in-time context.
 
-Now that the curated docs live as first-class `.adoc` sources, those primers belong in the canonical Antora pages rather than in the repository-local Markdown redirect stubs.
+Now that the curated docs live as first-class `.adoc` sources, those primers belong in the canonical Antora pages rather than in a secondary Markdown compatibility layer.
 
 ## Why this protects you
 
@@ -51,7 +51,7 @@ This lowers navigation cost without reintroducing uncontrolled prose duplication
 
 ## Links
 
-- [docs/MENTAL_MODEL.md](../docs/MENTAL_MODEL.md)
-- [docs/AGENT_INTEGRATION.md](../docs/AGENT_INTEGRATION.md)
-- [docs/AGENT_OPERATING_MODEL.md](../docs/AGENT_OPERATING_MODEL.md)
+- [docs/modules/ROOT/pages/architecture/mental-model.adoc](../docs/modules/ROOT/pages/architecture/mental-model.adoc)
+- [docs/modules/ROOT/pages/repository/docs/agent_integration.adoc](../docs/modules/ROOT/pages/repository/docs/agent_integration.adoc)
+- [docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc](../docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc)
 - [[Agent Operating Model]]

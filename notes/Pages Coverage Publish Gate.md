@@ -19,7 +19,7 @@ How to apply it:
 ## Links
 
 - [.github/workflows/publish-schemas.yml](../.github/workflows/publish-schemas.yml)
-- [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md)
+- [docs/modules/ROOT/pages/release/checklist.adoc](../docs/modules/ROOT/pages/release/checklist.adoc)
 - [README.md](../README.md)
 - [[Unified Pages Site Assembly]]
 - [[Pages Smoke Validation Workflow]]

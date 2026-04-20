@@ -9,7 +9,7 @@ The release tag should finalize the certified candidate commit rather than start
 
 ## Links
 
-- [docs/RELEASE_CHECKLIST.md](../docs/RELEASE_CHECKLIST.md)
+- [docs/modules/ROOT/pages/release/checklist.adoc](../docs/modules/ROOT/pages/release/checklist.adoc)
 - [.github/workflows/release.yml](../.github/workflows/release.yml)
 - [[Two-Phase Release Protocol]]
 - [[GitHub Actions Triggers]]
