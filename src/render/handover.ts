@@ -25,13 +25,6 @@ interface SharedHandoverRenderParams {
   repoHistory?: RepositoryHistoryEntry[] | undefined;
 }
 
-function escapeXmlText(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
 function renderSharedHandoverPlainText(
   params: Omit<SharedHandoverRenderParams, "style">,
 ): string {
@@ -84,68 +77,51 @@ function renderSharedHandoverXml(
   params: Omit<SharedHandoverRenderParams, "style">,
 ): string {
   const lines = [
-    "<cx_shared_handover>",
-    `  <project>${escapeXmlText(params.projectName)}</project>`,
-    "  <purpose>shared handover companion for the rendered section outputs below.</purpose>",
-    "  <sections>",
+    "cx shared handover",
+    `project: ${params.projectName}`,
+    "purpose: shared handover companion for the rendered section outputs below.",
+    "",
+    "<section_inventory>",
   ];
 
   for (const section of params.sectionOutputs) {
-    lines.push("    <section>");
-    lines.push(`      <name>${escapeXmlText(section.name)}</name>`);
-    lines.push(`      <style>${section.style}</style>`);
     lines.push(
-      `      <output_file>${escapeXmlText(section.outputFile)}</output_file>`,
+      `- ${section.name}: ${section.outputFile} | ${section.style} | ${section.fileCount} files | packed tokens ${section.tokenCount} | output tokens ${section.outputTokenCount}`,
     );
-    lines.push(`      <file_count>${section.fileCount}</file_count>`);
-    lines.push(`      <packed_tokens>${section.tokenCount}</packed_tokens>`);
-    lines.push(
-      `      <output_tokens>${section.outputTokenCount}</output_tokens>`,
-    );
-    lines.push("    </section>");
   }
-  lines.push("  </sections>");
+  lines.push("</section_inventory>");
 
   if (params.assetPaths.length > 0) {
-    lines.push("  <assets>");
+    lines.push("", "<asset_inventory>");
     for (const asset of params.assetPaths) {
-      lines.push("    <asset>");
-      lines.push(
-        `      <source_path>${escapeXmlText(asset.sourcePath)}</source_path>`,
-      );
-      lines.push(
-        `      <stored_path>${escapeXmlText(asset.storedPath)}</stored_path>`,
-      );
-      lines.push("    </asset>");
+      lines.push(`- ${asset.sourcePath} -> ${asset.storedPath}`);
     }
-    lines.push("  </assets>");
+    lines.push("</asset_inventory>");
   }
 
   if ((params.provenanceSummary?.length ?? 0) > 0) {
-    lines.push("  <inclusion_provenance>");
+    lines.push("", "<inclusion_provenance>");
     for (const entry of params.provenanceSummary ?? []) {
-      lines.push("    <marker_summary>");
-      lines.push(`      <marker>${escapeXmlText(entry.marker)}</marker>`);
-      lines.push(`      <count>${entry.count}</count>`);
-      lines.push("    </marker_summary>");
+      lines.push(
+        `- ${entry.marker}: ${entry.count} path${entry.count === 1 ? "" : "s"}`,
+      );
     }
-    lines.push("  </inclusion_provenance>");
+    lines.push("</inclusion_provenance>");
   }
 
   if ((params.repoHistory?.length ?? 0) > 0) {
-    lines.push("  <recent_repository_history>");
+    lines.push("", "<recent_repository_history>");
     for (const entry of params.repoHistory ?? []) {
-      lines.push("    <commit>");
-      lines.push(`      <short_hash>${entry.shortHash}</short_hash>`);
-      lines.push(`      <subject>${escapeXmlText(entry.subject)}</subject>`);
-      lines.push("    </commit>");
+      lines.push(`- ${entry.shortHash} ${entry.subject}`);
     }
-    lines.push("  </recent_repository_history>");
+    lines.push("</recent_repository_history>");
   }
 
   lines.push(
-    "  <usage>use this shared handover with the section files; each section output remains self-contained.</usage>",
-    "</cx_shared_handover>",
+    "",
+    "<usage>",
+    "use this shared handover with the section files; each section output remains self-contained.",
+    "</usage>",
   );
 
   return `${lines.join("\n")}\n`;

@@ -55,16 +55,17 @@ describe("handover text", () => {
       provenanceSummary: [{ marker: "section_match", count: 2 }],
     });
 
-    expect(indexText).toContain("<cx_shared_handover>");
-    expect(indexText).toContain("<project>demo</project>");
+    expect(indexText).toContain("cx shared handover");
+    expect(indexText).toContain("project: demo");
     expect(indexText).toContain(
-      "<purpose>shared handover companion for the rendered section outputs below.</purpose>",
+      "purpose: shared handover companion for the rendered section outputs below.",
     );
     expect(indexText).toContain(
-      "<usage>use this shared handover with the section files; each section output remains self-contained.</usage>",
+      "use this shared handover with the section files; each section output remains self-contained.",
     );
+    expect(indexText).toContain("<section_inventory>");
     expect(indexText).toContain(
-      "<output_file>demo-repomix-docs.xml.txt</output_file>",
+      "- docs: demo-repomix-docs.xml.txt | xml | 2 files | packed tokens 12 | output tokens 16",
     );
   });
 
@@ -87,11 +88,12 @@ describe("handover text", () => {
     });
 
     expect(indexText).toContain("<recent_repository_history>");
-    expect(indexText).toContain("<short_hash>aaaaaaaaaaaa</short_hash>");
     expect(indexText).toContain(
-      "<subject>Add native shared handover history</subject>",
+      "- aaaaaaaaaaaa Add native shared handover history",
     );
-    expect(indexText).toContain("<short_hash>bbbbbbbbbbbb</short_hash>");
+    expect(indexText).toContain(
+      "- bbbbbbbbbbbb Tighten contract tests for manifest v8",
+    );
   });
 
   test("renders plain handover history without broken bullets", () => {

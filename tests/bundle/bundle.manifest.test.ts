@@ -114,8 +114,7 @@ It should become the manifest summary.
     const handover = await fs.readFile(handoverPath, "utf8");
 
     expect(handover).toContain("<recent_repository_history>");
-    expect(handover).toMatch(/<short_hash>[a-f0-9]{12}<\/short_hash>/);
-    expect(handover).toContain("<subject>init</subject>");
+    expect(handover).toMatch(/- [a-f0-9]{12} init/);
   });
 
   test("omits repository history from the shared handover outside git worktrees", async () => {
