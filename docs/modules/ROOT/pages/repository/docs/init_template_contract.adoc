@@ -78,7 +78,7 @@ overlays independently instead of broadening the default authoring view.
 [[rust-template]]
 ==== Rust
 
-The Rust template is designed for Cargo workspaces with a richer local
+Use the Rust template for Cargo workspaces that need a richer local
 verification gate than the basic templates.
 
 Generated targets:
@@ -89,14 +89,17 @@ Generated targets:
 * `make verify` -> `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, `cargo build --release`
 * `make certify` -> `verify`
 
-The generated `cx-mcp.toml` exposes `src/**`, `tests/**`, `benches/**`,
-`Cargo.toml`, `Cargo.lock`, and `README.md`. It excludes `target/**` so
-build artifacts do not leak into the default authoring view.
+Default MCP view:
+
+* includes `src/**`, `tests/**`, `benches/**`, `Cargo.toml`,
+  `Cargo.lock`, and `README.md`
+* excludes `target/**` so build artifacts do not leak into the default
+  authoring view
 
 [[go-template]]
 ==== Go
 
-The Go template is intended for module-aware repositories using
+Use the Go template for module-aware repositories that already center on
 `go.mod`.
 
 Generated targets:
@@ -107,14 +110,17 @@ Generated targets:
 * `make verify` -> `check + test + build`
 * `make certify` -> `verify`
 
-The generated `cx-mcp.toml` exposes `cmd/**`, `internal/**`, `pkg/**`,
-`go.mod`, `go.sum`, and `README.md`. Adjust the overlay if your project
-keeps important source outside those conventional directories.
+Default MCP view:
+
+* includes `cmd/**`, `internal/**`, `pkg/**`, `go.mod`, `go.sum`, and
+  `README.md`
+* should be widened deliberately if your project keeps important source
+  outside those conventional directories
 
 [[elixir-template]]
 ==== Elixir
 
-The Elixir template is optimized for Mix-based applications with a
+Use the Elixir template for Mix-based applications that benefit from a
 source-first MCP overlay.
 
 Generated targets:
@@ -125,15 +131,17 @@ Generated targets:
 * `make verify` -> `check + test + build`
 * `make certify` -> `verify`
 
-The generated `cx-mcp.toml` exposes `lib/**`, `test/**`, `mix.exs`,
-`mix.lock`, and `README.md`. It excludes `_build/**`, `deps/**`, and
-coverage output so MCP stays focused on authoring files by default.
+Default MCP view:
+
+* includes `lib/**`, `test/**`, `mix.exs`, `mix.lock`, and `README.md`
+* excludes `_build/**`, `deps/**`, and coverage output so MCP stays
+  focused on authoring files by default
 
 [[crystal-template]]
 ==== Crystal
 
-The Crystal template is designed for `shard.yml` workspaces with a
-small, source-oriented MCP surface.
+Use the Crystal template for `shard.yml` workspaces that want a small,
+source-oriented MCP surface.
 
 Generated targets:
 
@@ -142,14 +150,17 @@ Generated targets:
 * `make verify` -> `test + build`
 * `make certify` -> `verify`
 
-The generated `cx-mcp.toml` exposes `src/**`, `spec/**`, `shard.yml`,
-`shard.lock`, and `README.md`. It excludes dependency and build caches
-such as `.shards/**`, `lib/**`, and `bin/**`.
+Default MCP view:
+
+* includes `src/**`, `spec/**`, `shard.yml`, `shard.lock`, and
+  `README.md`
+* excludes dependency and build caches such as `.shards/**`, `lib/**`,
+  and `bin/**`
 
 [[zig-template]]
 ==== Zig
 
-The Zig template is aimed at `build.zig`-driven repositories.
+Use the Zig template for repositories centered on `build.zig`.
 
 Generated targets:
 
@@ -158,18 +169,20 @@ Generated targets:
 * `make verify` -> `test + build`
 * `make certify` -> `verify`
 
-The generated `cx-mcp.toml` exposes `src/**`, `build.zig`,
-`build.zig.zon`, and `README.md`. It excludes `zig-cache/**`,
-`.zig-cache/**`, and `zig-out/**` to keep the default MCP surface
-source-first.
+Default MCP view:
+
+* includes `src/**`, `build.zig`, `build.zig.zon`, and `README.md`
+* excludes `zig-cache/**`, `.zig-cache/**`, and `zig-out/**` to keep
+  the default MCP surface source-first
 
 === Advanced Template
 
 [[typescript-template]]
 ==== TypeScript
 
-The TypeScript template remains separate in the repository reference
-surface because it carries the most operational detail.
+Use the TypeScript template when you need the most operationally rich
+template profile, including package-manager detection and separate MCP
+overlays for authoring and build artifacts.
 
 See xref:page$repository/docs/template_typescript.adoc[TypeScript Template]
 for package-manager detection, dual MCP overlays, and customization
