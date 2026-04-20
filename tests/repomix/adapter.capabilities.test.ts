@@ -6,7 +6,7 @@ import { mergeConfigs, runSecurityCheck } from "repomix";
 import { describe, expect, test } from "vitest";
 import {
   ADAPTER_CONTRACT,
-  getAdapterCapabilities,
+  getOracleAdapterCapabilities,
 } from "../../src/adapter/capabilities.js";
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
 import { createRenderFixture } from "./helpers.js";
@@ -73,9 +73,9 @@ describe("Repomix reference oracle capabilities", () => {
       },
     ]);
 
-    expect((await getAdapterCapabilities()).oracleAdapter.adapterContract).toBe(
-      ADAPTER_CONTRACT,
-    );
+    expect(
+      (await getOracleAdapterCapabilities()).oracleAdapter.adapterContract,
+    ).toBe(ADAPTER_CONTRACT);
     expect(Array.isArray(suspiciousFiles)).toBe(true);
   });
 

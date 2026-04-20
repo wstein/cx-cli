@@ -6,8 +6,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
-  getAdapterCapabilities,
   getAdapterModulePath,
+  getOracleAdapterCapabilities,
   setAdapterPath,
 } from "../../src/adapter/capabilities.js";
 import { renderSectionWithAdapterOracle } from "../../src/adapter/oracleRender.js";
@@ -159,7 +159,7 @@ describe("Repomix adapter fallback behavior", () => {
 
     expect(exitCode).toBe(0);
 
-    const capabilities = await getAdapterCapabilities();
+    const capabilities = await getOracleAdapterCapabilities();
     expect(capabilities.oracleAdapter.contractValid).toBe(true);
     expect(capabilities.capabilities.supportsPackStructured).toBe(false);
     expect(capabilities.spanCapability).toBe("unsupported");

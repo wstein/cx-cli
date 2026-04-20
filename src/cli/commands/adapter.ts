@@ -1,9 +1,9 @@
 import path from "node:path";
 import {
-  detectAdapterCapabilities,
-  getAdapterCapabilities,
+  detectOracleAdapterCapabilities,
   getAdapterModulePath,
-  getAdapterRuntimeInfo,
+  getOracleAdapterCapabilities,
+  getOracleAdapterRuntimeInfo,
   getReferenceAdapterModulePath,
 } from "../../adapter/capabilities.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
@@ -52,8 +52,8 @@ async function runAdapterCapabilities(
   ioArg: Partial<CommandIo>,
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
-  const capabilities = await getAdapterCapabilities();
-  const detectedCapabilities = await detectAdapterCapabilities();
+  const capabilities = await getOracleAdapterCapabilities();
+  const detectedCapabilities = await detectOracleAdapterCapabilities();
 
   const payload = {
     cx: {
@@ -255,7 +255,7 @@ async function runAdapterDoctor(
 
   // Check 1: adapter package is available with required exports
   try {
-    const adapterCapabilities = await detectAdapterCapabilities();
+    const adapterCapabilities = await detectOracleAdapterCapabilities();
     const hasRequired = adapterCapabilities.hasMergeConfigs;
     checks.push({
       name: `${adapterPath} available`,
@@ -274,7 +274,7 @@ async function runAdapterDoctor(
 
   // Check 2: Runtime info
   try {
-    const runtimeInfo = await getAdapterRuntimeInfo();
+    const runtimeInfo = await getOracleAdapterRuntimeInfo();
     checks.push({
       name: "Package identification",
       passed: Boolean(runtimeInfo.packageName && runtimeInfo.packageVersion),
@@ -295,7 +295,7 @@ async function runAdapterDoctor(
   });
 
   // Check 3: Capabilities detection
-  const capabilities = await getAdapterCapabilities();
+  const capabilities = await getOracleAdapterCapabilities();
   checks.push({
     name: "Adapter contract",
     passed: capabilities.oracleAdapter.adapterContract === "repomix-pack-v1",

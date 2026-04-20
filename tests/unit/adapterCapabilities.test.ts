@@ -1,14 +1,14 @@
 // test-lane: unit
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
-  detectAdapterCapabilities,
-  getAdapterCapabilities,
+  detectOracleAdapterCapabilities,
   getAdapterModulePath,
-  getAdapterRuntimeInfo,
-  getReferenceAdapterRuntimeInfo,
-  requireAdapterContract,
+  getOracleAdapterCapabilities,
+  getOracleAdapterRuntimeInfo,
+  getReferenceOracleRuntimeInfo,
+  requireOracleAdapterContract,
   setAdapterPath,
-  validateAdapterContract,
+  validateOracleAdapterContract,
 } from "../../src/adapter/capabilities.js";
 
 const REAL_PATH = getAdapterModulePath();
@@ -22,10 +22,10 @@ afterEach(() => {
   setAdapterPath(REAL_PATH);
 });
 
-describe("detectAdapterCapabilities", () => {
+describe("detectOracleAdapterCapabilities", () => {
   test("returns all false when adapter module cannot be loaded", async () => {
     setAdapterPath(BAD_PATH);
-    const caps = await detectAdapterCapabilities();
+    const caps = await detectOracleAdapterCapabilities();
     expect(caps.hasMergeConfigs).toBe(false);
     expect(caps.hasPack).toBe(false);
     expect(caps.supportsPackStructured).toBe(false);
@@ -33,19 +33,19 @@ describe("detectAdapterCapabilities", () => {
   });
 });
 
-describe("getAdapterRuntimeInfo", () => {
+describe("getOracleAdapterRuntimeInfo", () => {
   test("tries default adapter fallback when custom path fails", async () => {
     setAdapterPath(BAD_PATH);
-    const info = await getAdapterRuntimeInfo();
+    const info = await getOracleAdapterRuntimeInfo();
     expect(info.packageVersion).toBeDefined();
     expect(typeof info.packageName).toBe("string");
   });
 });
 
-describe("validateAdapterContract", () => {
+describe("validateOracleAdapterContract", () => {
   test("returns invalid contract when mergeConfigs is absent", async () => {
     setAdapterPath(BAD_PATH);
-    const result = await validateAdapterContract();
+    const result = await validateOracleAdapterContract();
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors.length).toBeGreaterThan(0);
@@ -54,16 +54,16 @@ describe("validateAdapterContract", () => {
   });
 });
 
-describe("requireAdapterContract", () => {
+describe("requireOracleAdapterContract", () => {
   test("throws when contract is invalid", async () => {
     setAdapterPath(BAD_PATH);
-    await expect(requireAdapterContract()).rejects.toThrow();
+    await expect(requireOracleAdapterContract()).rejects.toThrow();
   });
 });
 
-describe("getAdapterCapabilities", () => {
+describe("getOracleAdapterCapabilities", () => {
   test("returns combined runtime info, capabilities, and contract state", async () => {
-    const result = await getAdapterCapabilities();
+    const result = await getOracleAdapterCapabilities();
     expect(typeof result.oracleAdapter.packageName).toBe("string");
     expect(typeof result.oracleAdapter.packageVersion).toBe("string");
     expect(typeof result.oracleAdapter.contractValid).toBe("boolean");
@@ -75,15 +75,15 @@ describe("getAdapterCapabilities", () => {
 
   test("contractErrors is non-empty when adapter is missing", async () => {
     setAdapterPath(BAD_PATH);
-    const result = await getAdapterCapabilities();
+    const result = await getOracleAdapterCapabilities();
     expect(result.oracleAdapter.contractValid).toBe(false);
     expect(result.oracleAdapter.contractErrors.length).toBeGreaterThan(0);
   });
 });
 
-describe("getReferenceAdapterRuntimeInfo", () => {
+describe("getReferenceOracleRuntimeInfo", () => {
   test("returns a stable reference adapter target", async () => {
-    const result = await getReferenceAdapterRuntimeInfo();
+    const result = await getReferenceOracleRuntimeInfo();
     expect(result.packageName).toBe("repomix");
     expect(typeof result.installed).toBe("boolean");
   });

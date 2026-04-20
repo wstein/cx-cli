@@ -17,13 +17,16 @@ import { type CommandIo, writeStderr } from "../shared/output.js";
 import { defaultTokenizerProvider } from "../shared/tokenizer.js";
 import { buildAdapterRenderConfig } from "./adapterRenderConfig.js";
 import {
-  detectAdapterCapabilities,
+  detectOracleAdapterCapabilities,
   getAdapterModulePath,
-  validateAdapterContract,
+  validateOracleAdapterContract,
 } from "./capabilities.js";
 import type { AdapterModule } from "./types.js";
 
-/** Load the configured adapter module at runtime for parity/oracle rendering. */
+/**
+ * Load the configured adapter module at runtime for parity/oracle rendering.
+ * Ordinary kernel-owned proof-path bundling does not pass through this seam.
+ */
 async function loadAdapterModule(): Promise<AdapterModule> {
   // Dynamic import honours any --adapter-path override set before command dispatch.
   // The cast is safe: the adapter is expected to satisfy the local adapter contract.
@@ -38,7 +41,7 @@ function emitWarning(
 }
 
 async function assertCompatibleAdapter(): Promise<void> {
-  const validation = await validateAdapterContract();
+  const validation = await validateOracleAdapterContract();
   if (!validation.valid) {
     throw new CxError(
       `Incompatible adapter oracle contract:\n${validation.errors.join("\n")}`,
@@ -66,7 +69,7 @@ export async function renderSectionWithAdapterOracle(
 
   const adapter = await loadAdapterModule();
   const { mergeConfigs, pack, packStructured } = adapter;
-  const capabilities = await detectAdapterCapabilities();
+  const capabilities = await detectOracleAdapterCapabilities();
   const needsOutputSpans = params.requireOutputSpans ?? false;
 
   if (typeof mergeConfigs !== "function") {

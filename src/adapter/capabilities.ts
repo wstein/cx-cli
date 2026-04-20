@@ -4,19 +4,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * Adapter capability detection via runtime feature checks instead of semver gating.
+ * Oracle-adapter capability detection via runtime feature checks instead of
+ * semver gating.
+ *
+ * The native proof path does not pass through this seam during ordinary bundle,
+ * verify, validate, or extract operations.
  */
 
-export interface AdapterRuntimeInfo {
+export interface OracleAdapterRuntimeInfo {
   packageName: string;
   packageVersion: string;
 }
 
-export interface ReferenceAdapterRuntimeInfo extends AdapterRuntimeInfo {
+export interface ReferenceOracleRuntimeInfo extends OracleAdapterRuntimeInfo {
   installed: boolean;
 }
 
-export interface AdapterCapabilities {
+export interface OracleAdapterCapabilities {
   hasMergeConfigs: boolean;
   hasPack: boolean;
   supportsPackStructured: boolean;
@@ -38,14 +42,17 @@ export function setAdapterPath(p: string): void {
   _adapterPath = p;
 }
 
-/** The effective adapter module path: the override if set, or the default reference oracle. */
+/**
+ * The effective oracle module path for expert adapter diagnostics and parity
+ * rendering. Ordinary kernel-owned proof-path execution does not consult it.
+ */
 export function getAdapterModulePath(): string {
   return _adapterPath ?? DEFAULT_ORACLE_ADAPTER;
 }
 
 async function findPackageJsonNearAdapter(
   adapterPath: string,
-): Promise<AdapterRuntimeInfo | undefined> {
+): Promise<OracleAdapterRuntimeInfo | undefined> {
   try {
     let entryPath: string;
     if (adapterPath.startsWith("file:")) {
@@ -77,9 +84,9 @@ async function findPackageJsonNearAdapter(
   return undefined;
 }
 
-async function getAdapterRuntimeInfoForPath(
+async function getOracleRuntimeInfoForPath(
   adapterPath: string,
-): Promise<AdapterRuntimeInfo | undefined> {
+): Promise<OracleAdapterRuntimeInfo | undefined> {
   try {
     const pkg = (await import(`${adapterPath}/package.json`, {
       with: { type: "json" },
@@ -95,11 +102,7 @@ async function getAdapterRuntimeInfoForPath(
   }
 }
 
-/**
- * Get runtime info about the selected adapter oracle package.
- * Tries the configured adapter path first, then falls back to the default oracle target.
- */
-export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
+export async function getOracleAdapterRuntimeInfo(): Promise<OracleAdapterRuntimeInfo> {
   const adapterPath = getAdapterModulePath();
   const pathsToTry =
     adapterPath !== DEFAULT_ORACLE_ADAPTER
@@ -107,7 +110,7 @@ export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
       : [DEFAULT_ORACLE_ADAPTER];
 
   for (const p of pathsToTry) {
-    const runtimeInfo = await getAdapterRuntimeInfoForPath(p);
+    const runtimeInfo = await getOracleRuntimeInfoForPath(p);
     if (runtimeInfo) {
       return runtimeInfo;
     }
@@ -123,8 +126,8 @@ export function getReferenceAdapterModulePath(): string {
   return DEFAULT_REFERENCE_ADAPTER;
 }
 
-export async function getReferenceAdapterRuntimeInfo(): Promise<ReferenceAdapterRuntimeInfo> {
-  const runtimeInfo = await getAdapterRuntimeInfoForPath(
+export async function getReferenceOracleRuntimeInfo(): Promise<ReferenceOracleRuntimeInfo> {
+  const runtimeInfo = await getOracleRuntimeInfoForPath(
     getReferenceAdapterModulePath(),
   );
   if (runtimeInfo) {
@@ -142,9 +145,11 @@ export async function getReferenceAdapterRuntimeInfo(): Promise<ReferenceAdapter
 }
 
 /**
- * Detect which capabilities are available in the configured adapter module.
+ * Detect which capabilities are available in the configured oracle adapter
+ * module. The native proof path does not consult this during ordinary bundle
+ * or verify flows.
  */
-export async function detectAdapterCapabilities(): Promise<AdapterCapabilities> {
+export async function detectOracleAdapterCapabilities(): Promise<OracleAdapterCapabilities> {
   try {
     const mod = (await import(getAdapterModulePath())) as Record<
       string,
@@ -170,14 +175,14 @@ export async function detectAdapterCapabilities(): Promise<AdapterCapabilities> 
  * Validate that the configured oracle adapter meets the minimum comparison
  * contract needed by adapter diagnostics and oracle rendering.
  */
-export async function validateAdapterContract(): Promise<
+export async function validateOracleAdapterContract(): Promise<
   { valid: true } | { valid: false; errors: string[] }
 > {
-  const capabilities = await detectAdapterCapabilities();
+  const capabilities = await detectOracleAdapterCapabilities();
   const adapterPath = getAdapterModulePath();
   const errors: string[] = [];
 
-  const runtimeInfo = await getAdapterRuntimeInfoForPath(adapterPath);
+  const runtimeInfo = await getOracleRuntimeInfoForPath(adapterPath);
   if (!runtimeInfo) {
     errors.push(
       `${adapterPath} could not be loaded; install the reference oracle or pass --adapter-path to a compatible module.`,
@@ -201,14 +206,14 @@ export async function validateAdapterContract(): Promise<
  * Get runtime version info including capabilities.
  * Used by expert adapter/oracle commands to display environment details.
  */
-export async function getAdapterCapabilities() {
-  const runtimeInfo = await getAdapterRuntimeInfo();
-  const referenceRuntimeInfo = await getReferenceAdapterRuntimeInfo();
-  const capabilities = await detectAdapterCapabilities();
-  const contractValidation = await validateAdapterContract();
+export async function getOracleAdapterCapabilities() {
+  const runtimeInfo = await getOracleAdapterRuntimeInfo();
+  const referenceRuntimeInfo = await getReferenceOracleRuntimeInfo();
+  const capabilities = await detectOracleAdapterCapabilities();
+  const contractValidation = await validateOracleAdapterContract();
   let spanCapability: "supported" | "unsupported" | "partial" = "unsupported";
   let spanCapabilityReason =
-    "Structured span capture is unavailable in the installed adapter.";
+    "Structured span capture is unavailable in the selected oracle adapter.";
 
   if (capabilities.supportsRenderWithMap) {
     spanCapability = "supported";
@@ -247,8 +252,8 @@ export async function getAdapterCapabilities() {
 /**
  * Throw CxError if the oracle diagnostics contract validation fails.
  */
-export async function requireAdapterContract(): Promise<void> {
-  const validation = await validateAdapterContract();
+export async function requireOracleAdapterContract(): Promise<void> {
+  const validation = await validateOracleAdapterContract();
   if (!validation.valid) {
     const { CxError } = await import("../shared/errors.js");
     throw new CxError(validation.errors.join("\n"), 2);

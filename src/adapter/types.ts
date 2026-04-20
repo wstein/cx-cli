@@ -1,3 +1,9 @@
+/**
+ * Types for the external oracle/reference seam only.
+ *
+ * The native proof path does not depend on these runtime adapter types during
+ * ordinary bundle, validate, verify, or extract execution.
+ */
 export interface AdapterRenderConfig {
   output: {
     filePath: string;
