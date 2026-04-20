@@ -37,6 +37,10 @@ Default policy:
 - omit diffs
 - keep newest/oldest ordering fixed and documented
 
+For JSON handovers, the history payload is carried as
+`recentRepositoryHistory[].message` so downstream tooling does not mistake
+multiline commit content for a short subject-only field.
+
 ## Rule
 
 Repository history must stay small and deterministic. It is context, not a changelog replacement.

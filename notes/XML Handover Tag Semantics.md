@@ -8,7 +8,7 @@ XML-style shared handover tags are semantic LLM anchors, not a full XML serializ
 
 ## What
 
-The XML-flavored shared handover stays primarily plain text. It uses a small set of rare XML tag sections such as `<section_inventory>` and `<recent_repository_history>` to mark important semantic regions for human and model readers.
+The XML-flavored shared handover stays primarily plain text. It uses a small set of rare XML tag sections such as `<section_inventory>` and `<recent_repository_history>` to mark important semantic regions for human and model readers. Section handover prologs follow the same sparse-anchor philosophy with tags such as `<section_identity>` and `<authoritative_semantics>`.
 
 ## Why
 
@@ -21,5 +21,6 @@ Keep XML handover output readable as plain text first. Add only stable, high-sig
 ## Links
 
 - [[Shared Handover Uses Same Output Family As Section Outputs]] - The handover follows the output family while keeping guidance-first semantics.
+- [[Shared Handover Includes Recent Repository History]] - History blocks are sparse semantic anchors rather than full XML serialization.
 - [[Top-Level JSON Payload Contracts]] - JSON artifacts use schema contracts where machine-readable structure is the actual surface.
 - [[Render Kernel Constitution]] - The kernel owns the deterministic artifact contract and presentation boundaries.
