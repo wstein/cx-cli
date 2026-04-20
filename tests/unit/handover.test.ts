@@ -1,10 +1,8 @@
 // test-lane: unit
 import { describe, expect, test } from "vitest";
 
-import {
-  buildBundleIndexText,
-  buildSectionHeaderText,
-} from "../../src/repomix/handover.js";
+import { renderSharedHandoverText } from "../../src/render/handover.js";
+import { buildSectionHeaderText } from "../../src/repomix/handover.js";
 
 describe("handover text", () => {
   test("builds a self-explaining section header without changing canonical fields", () => {
@@ -34,10 +32,13 @@ describe("handover text", () => {
     expect(header).toContain("section: docs");
     expect(header).toContain("files: 3");
     expect(header).toContain("bundle index: demo-bundle-index.txt");
+    expect(header).toContain(
+      "shared context: keep this file together with the shared handover when handing off multiple sections.",
+    );
   });
 
-  test("keeps the bundle index focused on shared handoff context", () => {
-    const indexText = buildBundleIndexText({
+  test("keeps the shared handover focused on shared handoff context", () => {
+    const indexText = renderSharedHandoverText({
       projectName: "demo",
       sectionOutputs: [
         {
@@ -53,12 +54,12 @@ describe("handover text", () => {
       provenanceSummary: [{ marker: "section_match", count: 2 }],
     });
 
-    expect(indexText).toContain("cx bundle index");
+    expect(indexText).toContain("cx shared handover");
     expect(indexText).toContain(
       "purpose: shared handover companion for the rendered section outputs below.",
     );
     expect(indexText).toContain(
-      "use this index with the section files; each section output remains self-contained.",
+      "use this shared handover with the section files; each section output remains self-contained.",
     );
   });
 });

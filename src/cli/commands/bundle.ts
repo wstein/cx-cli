@@ -23,7 +23,7 @@ import { validateNotes } from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
-import { buildBundleIndexText } from "../../repomix/handover.js";
+import { renderSharedHandoverText } from "../../render/handover.js";
 import { getRepomixCapabilities } from "../../repomix/render.js";
 import { CxError } from "../../shared/errors.js";
 import {
@@ -422,7 +422,7 @@ export async function runBundleCommand(
 
     await fs.writeFile(
       path.join(activeBundleDir, bundleIndexFile),
-      buildBundleIndexText({
+      renderSharedHandoverText({
         projectName: plan.projectName,
         sectionOutputs,
         assetPaths: plan.assets.map((asset) => ({

@@ -334,14 +334,17 @@ That header is intentionally a presentation-layer prolog rather than part of the
 This yields more semantic fluency for humans and AI consumers without relaxing the deterministic contract:
 
 - rigid core semantics for markers, directives, manifests, and validation
-- expressive consumer guidance in the generated prolog and bundle index
+- expressive consumer guidance in the generated prolog and shared handover
 - optional narrative cues that never override canonical bundle data
 
 The renderer also reports output token counts. If the adapter supports exact span capture, `cx` records absolute `outputStartLine` and `outputEndLine` values for each packed text file in XML, Markdown, and plain sections. Those spans are the primary lookup path for those text formats. JSON uses direct object lookup instead of span metadata, and JSON-only bundles may omit spans entirely.
 
-### 4. Shared handover index
+### 4. Shared handover
 
-`cx bundle` writes a bundle-level index file alongside the section outputs. The index is meant to travel with the section files when multiple outputs are handed over together, so the shared context is externalized without breaking the self-contained section files.
+`cx bundle` writes a kernel-rendered shared handover file alongside the section
+outputs. The handover is meant to travel with the section files when multiple
+outputs are handed over together, so the shared context is externalized without
+breaking the self-contained section files.
 
 ### 5. Manifest build
 
@@ -353,7 +356,7 @@ The renderer also reports output token counts. If the adapter supports exact spa
 - dirty state at bundle time (`clean`, `safe_dirty`, or `forced_dirty`)
 - list of uncommitted modified files when `forced_dirty`
 - checksum algorithm
-- the shared bundle index filename
+- the shared handover filename (currently stored in the manifest `bundleIndexFile` field)
 - section outputs
 - copied assets
 - repository note metadata, including extracted summaries when notes are present

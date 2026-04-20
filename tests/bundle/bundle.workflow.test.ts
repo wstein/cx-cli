@@ -111,7 +111,7 @@ describe("bundle workflow", () => {
     );
     expect(await fs.stat(bundleIndexPath)).toBeDefined();
     const bundleIndex = await fs.readFile(bundleIndexPath, "utf8");
-    expect(bundleIndex).toContain("cx bundle index");
+    expect(bundleIndex).toContain("cx shared handover");
     expect(bundleIndex).toContain("demo-repomix-docs.xml.txt");
     expect(bundleIndex).toContain("demo-repomix-src.xml.txt");
     const docsOutput = await fs.readFile(
