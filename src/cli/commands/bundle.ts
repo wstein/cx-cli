@@ -297,7 +297,7 @@ async function enforceScannerPipeline(params: {
     }>;
   };
   io: Partial<CommandIo>;
-  scannerPipeline?: ScannerPipeline;
+  scannerPipeline: ScannerPipeline | undefined;
   readFile: typeof fs.readFile;
 }): Promise<string[]> {
   if (!params.config.repomix.securityCheck) {

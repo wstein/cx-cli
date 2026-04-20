@@ -86,7 +86,11 @@ function baseConfig(root: string): CxConfig {
     },
     notes: {
       strictNotesMode: false,
+      failOnDriftPressuredNotes: false,
       appliesToSections: [],
+    },
+    scanner: {
+      mode: "warn",
     },
     checksums: {
       algorithm: "sha256",

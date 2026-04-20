@@ -190,7 +190,11 @@ exclude = []
               },
               notes: {
                 strictNotesMode: false,
+                failOnDriftPressuredNotes: false,
                 appliesToSections: [],
+              },
+              scanner: {
+                mode: "warn",
               },
               handover: {
                 includeRepoHistory: false,
