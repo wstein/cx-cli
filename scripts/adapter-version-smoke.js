@@ -10,7 +10,7 @@ import {
 
 async function main() {
   const capabilities = await getAdapterCapabilities();
-  if (capabilities.adapterContract !== ADAPTER_CONTRACT) {
+  if (capabilities.oracleAdapter.adapterContract !== ADAPTER_CONTRACT) {
     throw new Error("Adapter contract metadata is inconsistent.");
   }
 

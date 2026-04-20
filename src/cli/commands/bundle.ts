@@ -492,7 +492,8 @@ export async function runBundleCommand(
       sectionOutputs,
       handoverFile,
       cxVersion: CX_VERSION,
-      adapterVersion: (await getAdapterCapabilities()).packageVersion,
+      adapterVersion: (await getAdapterCapabilities()).oracleAdapter
+        .packageVersion,
       sectionSpanMaps,
       sectionTokenMaps,
       sectionHashMaps,

@@ -52,6 +52,9 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain(
       "run: bun run ci:test:adapter-capabilities-contract",
     );
+    expect(workflow).toContain("adapter-dual-oracle-trial:");
+    expect(workflow).toContain("run: bun run ci:smoke:adapter-dual-oracle");
+    expect(workflow).toContain("run: bun add --dev --exact repomix@1.13.1");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("hashFiles('.ci/coverage-summary.md') != ''");
@@ -172,6 +175,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("render-parity:");
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
+    expect(workflow).toContain("adapter-dual-oracle-trial:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain("release-assurance:");
     expect(workflow).toContain("ci-artifacts:");
@@ -199,6 +203,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("native-render-contract:");
     expect(workflow).toContain("adapter-capabilities-contract:");
     expect(workflow).toContain("adapter-matrix:");
+    expect(workflow).toContain("adapter-dual-oracle-trial:");
     expect(workflow).toContain("bun-compat-smoke:");
     expect(workflow).toContain("coverage-vitest:");
     expect(workflow).toContain(
@@ -218,6 +223,9 @@ describe("CI lanes contract", () => {
     );
     expect(workflow).toContain(
       "  adapter-capabilities-contract:\n    runs-on: ubuntu-latest\n    needs:",
+    );
+    expect(workflow).toContain(
+      "  adapter-dual-oracle-trial:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain(
       "  coverage-vitest:\n    runs-on: ubuntu-latest\n    needs:",
@@ -258,6 +266,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("      - adapter-capabilities-contract");
     expect(workflow).toContain("      - coverage-vitest");
     expect(workflow).toContain("      - adapter-matrix");
+    expect(workflow).toContain("      - adapter-dual-oracle-trial");
     expect(workflow).toContain("      - bundle-update-matrix");
     expect(workflow).toContain("      - bun-compat-smoke");
     expect(workflow).toContain("      - reproducibility");

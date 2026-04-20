@@ -268,12 +268,21 @@ export const AdapterCapabilitiesJsonSchema = z.object({
   cx: z.object({
     version: z.string(),
   }),
-  adapter: z.object({
+  oracleAdapter: z.object({
+    modulePath: z.string(),
     packageName: z.string(),
     packageVersion: z.string(),
     adapterContract: z.string(),
     compatibilityStrategy: z.string(),
     contractValid: z.boolean(),
+    contractErrors: z.array(z.string()),
+  }),
+  referenceAdapter: z.object({
+    modulePath: z.string(),
+    packageName: z.string(),
+    packageVersion: z.string(),
+    installed: z.boolean(),
+    usage: z.string(),
   }),
   detectedCapabilities: z.object({
     hasMergeConfigs: z.boolean(),

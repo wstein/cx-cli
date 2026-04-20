@@ -42,12 +42,17 @@ describe("adapter capability contract", () => {
     expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
-      adapter?: { adapterContract?: string; packageVersion?: string };
+      oracleAdapter?: { adapterContract?: string; packageVersion?: string };
+      referenceAdapter?: { packageName?: string; installed?: boolean };
+      adapter?: unknown;
       repomix?: unknown;
     }>(result.stdout);
 
-    expect(payload.adapter?.adapterContract).toBe("repomix-pack-v1");
-    expect(typeof payload.adapter?.packageVersion).toBe("string");
+    expect(payload.oracleAdapter?.adapterContract).toBe("repomix-pack-v1");
+    expect(typeof payload.oracleAdapter?.packageVersion).toBe("string");
+    expect(payload.referenceAdapter?.packageName).toBe("repomix");
+    expect(typeof payload.referenceAdapter?.installed).toBe("boolean");
+    expect(payload).not.toHaveProperty("adapter");
     expect(payload).not.toHaveProperty("repomix");
   });
 

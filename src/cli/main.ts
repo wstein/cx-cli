@@ -132,7 +132,7 @@ export async function main(
     .option("adapter-path", {
       type: "string",
       description:
-        "Path to a custom Repomix adapter module (overrides the default @wsmy/repomix-cx-fork).",
+        "Path to a custom adapter oracle module (overrides the default @wsmy/repomix-cx-fork).",
       global: true,
     })
     .option("strict", {
@@ -676,12 +676,12 @@ export async function main(
     )
     .command(
       "adapter <subcommand>",
-      "Inspect Repomix adapter capabilities and runtime state.",
+      "Inspect adapter oracle/reference capabilities and runtime state.",
       (command) =>
         command
           .example(
             "$0 adapter capabilities",
-            "Show adapter and Repomix runtime info.",
+            "Show oracle and reference adapter runtime info.",
           )
           .positional("subcommand", {
             type: "string",

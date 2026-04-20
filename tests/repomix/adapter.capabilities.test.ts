@@ -65,7 +65,7 @@ describe("Repomix adapter capabilities", () => {
     const rendered = await plan.renderWithMap("xml");
     await fs.writeFile(outputPath, rendered.output, "utf8");
 
-    expect((await getAdapterCapabilities()).adapterContract).toBe(
+    expect((await getAdapterCapabilities()).oracleAdapter.adapterContract).toBe(
       ADAPTER_CONTRACT,
     );
     expect(await fs.stat(outputPath)).toBeDefined();

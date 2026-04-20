@@ -27,6 +27,11 @@ When a top-level JSON field changes:
 - update contract tests
 - gate the change in release assurance
 
+Current example:
+
+- `cx adapter capabilities --json` exposes `oracleAdapter` and
+  `referenceAdapter` as explicit contract roles
+
 ## Rule
 
 Top-level JSON payload names must never drift silently.

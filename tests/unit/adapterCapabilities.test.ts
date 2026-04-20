@@ -5,6 +5,7 @@ import {
   getAdapterCapabilities,
   getAdapterModulePath,
   getAdapterRuntimeInfo,
+  getReferenceAdapterRuntimeInfo,
   requireAdapterContract,
   setAdapterPath,
   validateAdapterContract,
@@ -63,17 +64,27 @@ describe("requireAdapterContract", () => {
 describe("getAdapterCapabilities", () => {
   test("returns combined runtime info, capabilities, and contract state", async () => {
     const result = await getAdapterCapabilities();
-    expect(typeof result.packageName).toBe("string");
-    expect(typeof result.packageVersion).toBe("string");
-    expect(typeof result.contractValid).toBe("boolean");
-    expect(Array.isArray(result.contractErrors)).toBe(true);
+    expect(typeof result.oracleAdapter.packageName).toBe("string");
+    expect(typeof result.oracleAdapter.packageVersion).toBe("string");
+    expect(typeof result.oracleAdapter.contractValid).toBe("boolean");
+    expect(Array.isArray(result.oracleAdapter.contractErrors)).toBe(true);
+    expect(result.referenceAdapter.packageName).toBe("repomix");
+    expect(typeof result.referenceAdapter.installed).toBe("boolean");
     expect(typeof result.capabilities.hasMergeConfigs).toBe("boolean");
   });
 
   test("contractErrors is non-empty when adapter is missing", async () => {
     setAdapterPath(BAD_PATH);
     const result = await getAdapterCapabilities();
-    expect(result.contractValid).toBe(false);
-    expect(result.contractErrors.length).toBeGreaterThan(0);
+    expect(result.oracleAdapter.contractValid).toBe(false);
+    expect(result.oracleAdapter.contractErrors.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getReferenceAdapterRuntimeInfo", () => {
+  test("returns a stable reference adapter target", async () => {
+    const result = await getReferenceAdapterRuntimeInfo();
+    expect(result.packageName).toBe("repomix");
+    expect(typeof result.installed).toBe("boolean");
   });
 });

@@ -4,6 +4,7 @@ import {
   getAdapterCapabilities,
   getAdapterModulePath,
   getAdapterRuntimeInfo,
+  getReferenceAdapterModulePath,
 } from "../../adapter/capabilities.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
@@ -58,13 +59,8 @@ async function runAdapterCapabilities(
     cx: {
       version: CX_VERSION,
     },
-    adapter: {
-      packageName: capabilities.packageName,
-      packageVersion: capabilities.packageVersion,
-      adapterContract: capabilities.adapterContract,
-      compatibilityStrategy: capabilities.compatibilityStrategy,
-      contractValid: capabilities.contractValid,
-    },
+    oracleAdapter: capabilities.oracleAdapter,
+    referenceAdapter: capabilities.referenceAdapter,
     detectedCapabilities: detectedCapabilities,
     capabilities: {
       styles: ["xml", "markdown", "json", "plain"],
@@ -80,23 +76,43 @@ async function runAdapterCapabilities(
   } else {
     writeStdout(`cx version:                ${CX_DISPLAY_VERSION}\n`, io);
     writeStdout(
-      `Adapter package:           ${payload.adapter.packageName}\n`,
+      `Oracle adapter package:    ${payload.oracleAdapter.packageName}\n`,
       io,
     );
     writeStdout(
-      `Adapter version:           ${payload.adapter.packageVersion}\n`,
+      `Oracle adapter version:    ${payload.oracleAdapter.packageVersion}\n`,
       io,
     );
     writeStdout(
-      `adapter contract:          ${payload.adapter.adapterContract}\n`,
+      `Oracle adapter path:       ${payload.oracleAdapter.modulePath}\n`,
       io,
     );
     writeStdout(
-      `compatibility strategy:    ${payload.adapter.compatibilityStrategy}\n`,
+      `Reference adapter package: ${payload.referenceAdapter.packageName}\n`,
       io,
     );
     writeStdout(
-      `contract valid:            ${payload.adapter.contractValid ? "YES" : "NO"}\n`,
+      `Reference adapter version: ${payload.referenceAdapter.packageVersion}\n`,
+      io,
+    );
+    writeStdout(
+      `Reference adapter path:    ${payload.referenceAdapter.modulePath}\n`,
+      io,
+    );
+    writeStdout(
+      `Reference adapter status:  ${payload.referenceAdapter.installed ? "installed" : "unavailable"}\n`,
+      io,
+    );
+    writeStdout(
+      `adapter contract:          ${payload.oracleAdapter.adapterContract}\n`,
+      io,
+    );
+    writeStdout(
+      `compatibility strategy:    ${payload.oracleAdapter.compatibilityStrategy}\n`,
+      io,
+    );
+    writeStdout(
+      `contract valid:            ${payload.oracleAdapter.contractValid ? "YES" : "NO"}\n`,
       io,
     );
     writeStdout(`\nDetected capabilities:\n`, io);
@@ -221,6 +237,8 @@ async function runAdapterDoctor(
   ioArg: Partial<CommandIo>,
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
+  const adapterPath = getAdapterModulePath();
+  const referenceAdapterPath = getReferenceAdapterModulePath();
   const checks: Array<{
     name: string;
     passed: boolean;
@@ -228,7 +246,6 @@ async function runAdapterDoctor(
   }> = [];
 
   // Check 1: adapter package is available with required exports
-  const adapterPath = getAdapterModulePath();
   try {
     const adapterCapabilities = await detectAdapterCapabilities();
     const hasRequired = adapterCapabilities.hasMergeConfigs;
@@ -263,19 +280,25 @@ async function runAdapterDoctor(
     });
   }
 
+  checks.push({
+    name: "Reference adapter target",
+    passed: referenceAdapterPath.length > 0,
+    message: referenceAdapterPath,
+  });
+
   // Check 3: Capabilities detection
   const capabilities = await getAdapterCapabilities();
   checks.push({
     name: "Adapter contract",
-    passed: capabilities.adapterContract === "repomix-pack-v1",
-    message: `Contract: ${capabilities.adapterContract}`,
+    passed: capabilities.oracleAdapter.adapterContract === "repomix-pack-v1",
+    message: `Contract: ${capabilities.oracleAdapter.adapterContract}`,
   });
 
   // Check 4: Contract validation
   checks.push({
     name: "Contract validation",
-    passed: capabilities.contractValid,
-    message: capabilities.contractValid
+    passed: capabilities.oracleAdapter.contractValid,
+    message: capabilities.oracleAdapter.contractValid
       ? "Contract is valid"
       : "Contract validation failed",
   });

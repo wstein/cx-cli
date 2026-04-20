@@ -241,7 +241,7 @@ const GLOBAL_OPTIONS: CommandOption[] = [
   { name: "lenient", description: "Set all Category B behaviors to warn" },
   {
     name: "adapter-path",
-    description: "Path to custom Repomix adapter module",
+    description: "Path to custom adapter oracle module",
     takesValue: true,
   },
 ];
@@ -381,7 +381,7 @@ _cx() {
     '(-v --version)'{-v,--version}'[Show version]' \
     '--strict[Force all Category B behaviors to fail fast (CI mode)]' \
     '--lenient[Set all Category B behaviors to warn]' \
-    '--adapter-path[Path to custom Repomix adapter module]:path:_files' \
+    '--adapter-path[Path to custom adapter oracle module]:path:_files' \
     '1: :_cx_commands' \
     '*:: :->subcmd'
 

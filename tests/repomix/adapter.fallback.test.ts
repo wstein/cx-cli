@@ -160,7 +160,7 @@ describe("Repomix adapter fallback behavior", () => {
     expect(exitCode).toBe(0);
 
     const capabilities = await getAdapterCapabilities();
-    expect(capabilities.contractValid).toBe(true);
+    expect(capabilities.oracleAdapter.contractValid).toBe(true);
     expect(capabilities.capabilities.supportsPackStructured).toBe(false);
     expect(capabilities.spanCapability).toBe("unsupported");
     expect(capture.stderr()).toBe("");

@@ -224,7 +224,8 @@ describe("adapter command", () => {
     const output = capture.stdout();
     expect(output).toContain("cx version");
     expect(output).toContain(CX_DISPLAY_VERSION);
-    expect(output).toContain("Adapter version");
+    expect(output).toContain("Oracle adapter version");
+    expect(output).toContain("Reference adapter version");
     expect(output).toContain("xml");
   });
 
@@ -241,13 +242,16 @@ describe("adapter command", () => {
 
     const payload = parseJsonOutput<{
       cx?: { version?: string };
-      adapter?: { packageName?: string; adapterContract?: string };
+      oracleAdapter?: { packageName?: string; adapterContract?: string };
+      referenceAdapter?: { packageName?: string; installed?: boolean };
       capabilities?: { styles?: string[] };
     }>(capture.stdout());
 
     expect(payload.cx?.version).toBe(CX_VERSION);
-    expect(typeof payload.adapter?.packageName).toBe("string");
-    expect(payload.adapter?.adapterContract).toBe("repomix-pack-v1");
+    expect(typeof payload.oracleAdapter?.packageName).toBe("string");
+    expect(payload.oracleAdapter?.adapterContract).toBe("repomix-pack-v1");
+    expect(payload.referenceAdapter?.packageName).toBe("repomix");
+    expect(typeof payload.referenceAdapter?.installed).toBe("boolean");
     expect(payload.capabilities?.styles).toContain("xml");
   });
 

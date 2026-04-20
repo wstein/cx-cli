@@ -12,6 +12,10 @@ export interface AdapterRuntimeInfo {
   packageVersion: string;
 }
 
+export interface ReferenceAdapterRuntimeInfo extends AdapterRuntimeInfo {
+  installed: boolean;
+}
+
 export interface AdapterCapabilities {
   hasMergeConfigs: boolean;
   hasPack: boolean;
@@ -22,6 +26,7 @@ export interface AdapterCapabilities {
 export const ADAPTER_CONTRACT = "repomix-pack-v1";
 
 const DEFAULT_ADAPTER = "@wsmy/repomix-cx-fork";
+const DEFAULT_REFERENCE_ADAPTER = "repomix";
 let _adapterPath: string | undefined;
 const require = createRequire(import.meta.url);
 
@@ -72,6 +77,24 @@ async function findPackageJsonNearAdapter(
   return undefined;
 }
 
+async function getAdapterRuntimeInfoForPath(
+  adapterPath: string,
+): Promise<AdapterRuntimeInfo | undefined> {
+  try {
+    const pkg = (await import(`${adapterPath}/package.json`, {
+      with: { type: "json" },
+    })) as {
+      default: { name?: string; version?: string };
+    };
+    return {
+      packageName: pkg.default.name ?? adapterPath,
+      packageVersion: pkg.default.version ?? "unknown",
+    };
+  } catch {
+    return findPackageJsonNearAdapter(adapterPath);
+  }
+}
+
 /**
  * Get runtime info about the installed adapter package.
  * Tries the configured adapter path first, then falls back to the default.
@@ -84,27 +107,37 @@ export async function getAdapterRuntimeInfo(): Promise<AdapterRuntimeInfo> {
       : [DEFAULT_ADAPTER];
 
   for (const p of pathsToTry) {
-    try {
-      const pkg = (await import(`${p}/package.json`, {
-        with: { type: "json" },
-      })) as {
-        default: { name?: string; version?: string };
-      };
-      return {
-        packageName: pkg.default.name ?? p,
-        packageVersion: pkg.default.version ?? "unknown",
-      };
-    } catch {
-      const nearbyPackage = await findPackageJsonNearAdapter(p);
-      if (nearbyPackage) {
-        return nearbyPackage;
-      }
+    const runtimeInfo = await getAdapterRuntimeInfoForPath(p);
+    if (runtimeInfo) {
+      return runtimeInfo;
     }
   }
 
   return {
     packageName: adapterPath,
     packageVersion: "unknown",
+  };
+}
+
+export function getReferenceAdapterModulePath(): string {
+  return DEFAULT_REFERENCE_ADAPTER;
+}
+
+export async function getReferenceAdapterRuntimeInfo(): Promise<ReferenceAdapterRuntimeInfo> {
+  const runtimeInfo = await getAdapterRuntimeInfoForPath(
+    getReferenceAdapterModulePath(),
+  );
+  if (runtimeInfo) {
+    return {
+      ...runtimeInfo,
+      installed: true,
+    };
+  }
+
+  return {
+    packageName: getReferenceAdapterModulePath(),
+    packageVersion: "unavailable",
+    installed: false,
   };
 }
 
@@ -162,6 +195,7 @@ export async function validateAdapterContract(): Promise<
  */
 export async function getAdapterCapabilities() {
   const runtimeInfo = await getAdapterRuntimeInfo();
+  const referenceRuntimeInfo = await getReferenceAdapterRuntimeInfo();
   const capabilities = await detectAdapterCapabilities();
   const contractValidation = await validateAdapterContract();
   let spanCapability: "supported" | "unsupported" | "partial" = "unsupported";
@@ -178,14 +212,25 @@ export async function getAdapterCapabilities() {
   }
 
   return {
-    ...runtimeInfo,
+    oracleAdapter: {
+      modulePath: getAdapterModulePath(),
+      packageName: runtimeInfo.packageName,
+      packageVersion: runtimeInfo.packageVersion,
+      adapterContract: ADAPTER_CONTRACT,
+      compatibilityStrategy:
+        "core contract with optional structured rendering and span capture",
+      contractValid: contractValidation.valid,
+      contractErrors:
+        contractValidation.valid === false ? contractValidation.errors : [],
+    },
+    referenceAdapter: {
+      modulePath: getReferenceAdapterModulePath(),
+      packageName: referenceRuntimeInfo.packageName,
+      packageVersion: referenceRuntimeInfo.packageVersion,
+      installed: referenceRuntimeInfo.installed,
+      usage: "reference-only parity target",
+    },
     capabilities,
-    adapterContract: ADAPTER_CONTRACT,
-    compatibilityStrategy:
-      "core contract with optional structured rendering and span capture",
-    contractValid: contractValidation.valid,
-    contractErrors:
-      contractValidation.valid === false ? contractValidation.errors : [],
     spanCapability,
     spanCapabilityReason,
   };
