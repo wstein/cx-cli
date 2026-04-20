@@ -185,6 +185,13 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_TEMPLATE).toContain(".xml.txt");
       expect(DEFAULT_CONFIG_TEMPLATE).toContain(".json.txt");
     });
+
+    it("includes a default mcp section with mutation enabled", () => {
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[mcp]");
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain('policy = "default"');
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain("audit_logging = true");
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain("enable_mutation = true");
+    });
   });
 
   describe("DEFAULT_USER_CONFIG_VALUES", () => {
@@ -262,6 +269,10 @@ describe("config defaults", () => {
 
     it("behavior values are included in config values", () => {
       expect(DEFAULT_CONFIG_VALUES.behavior).toEqual(DEFAULT_BEHAVIOR_VALUES);
+    });
+
+    it("defaults mcp.enableMutation to true", () => {
+      expect(DEFAULT_CONFIG_VALUES.mcp.enableMutation).toBe(true);
     });
 
     it("user config defaults have sensible values", () => {

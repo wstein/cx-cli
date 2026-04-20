@@ -54,6 +54,11 @@ include_linked_notes = false
 include_repo_history = false
 repo_history_count = 25
 
+[mcp]
+policy = "default"
+audit_logging = true
+enable_mutation = true
+
 [notes]
 strict_notes_mode = false
 fail_on_drift_pressured_notes = false
@@ -184,7 +189,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   mcp: {
     policy: "default",
     auditLogging: true,
-    enableMutation: false,
+    enableMutation: true,
   },
 };
 

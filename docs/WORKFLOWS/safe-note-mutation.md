@@ -7,7 +7,9 @@ See: [../AGENT_OPERATING_MODEL.md](../AGENT_OPERATING_MODEL.md)
 See: [../AGENT_INTEGRATION.md](../AGENT_INTEGRATION.md)
 
 This workflow explains how note mutation is intentionally denied by default and
-how a trusted local developer or agent session enables it safely.
+how a trusted local developer or agent session enables it safely. The generated
+`cx.toml` baseline now includes `mcp.enable_mutation = true` so the operational
+control is primarily the MCP policy setting.
 
 ## Step 1: Start In Default MCP Mode
 

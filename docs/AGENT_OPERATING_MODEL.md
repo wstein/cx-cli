@@ -60,6 +60,7 @@ The integration layer turns abstract policy into concrete tool visibility.
 - Intended only for trusted local sessions
 - Mutate-capability tools still require `enable_mutation = true`
 - Without that explicit flag, the session is still non-mutating
+- Generated `cx.toml` now includes `mcp.enable_mutation = true` by default, so this setting is only meaningful when `policy = "unrestricted"`
 
 ## Capability Tiers
 
