@@ -244,47 +244,16 @@ Key behavior to remember:
 * The server is started by running `cx mcp` in the repository root.
 * Transport: stdio (stdin/stdout)
 
-==== Tool Taxonomy: The Three Pillars
+==== Tool Boundary Reminder
 
-The `cx mcp` server exposes three distinct tool groups to the agent.
-This grouping teaches the agent the boundaries of the system subsystems:
+Keep the everyday operator path in
+xref:manual/operator-manual.adoc[Operator Manual] and the policy-facing
+tool grouping in
+xref:page$repository/docs/agent_operating_model.adoc#intent-taxonomy-for-agents[Intent Taxonomy For Agents].
 
-===== 1. Core OS Neutral Tools
-
-Provides basic workspace visibility and content retrieval.
-
-* `list`: Enumerate the workspace file inventory.
-* `grep`: Perform high-speed content search.
-* `read`: Fetch file content with optional line anchors.
-* `replace_repomix_span`: Perform exact, line-based file edits.
-
-===== 2. Notes Management Commands
-
-Enables the maintenance of a durable repository knowledge graph.
-
-* `notes_new` / `notes_read` / `notes_update` /
-`notes_delete`: CRUD operations for atomic notes.
-* `notes_list` / `notes_search`: Discovery of existing
-knowledge.
-* `notes_backlinks` / `notes_links` / `notes_orphans`: Graph
-relationship auditing.
-
-===== 3. CX Bundler Diagnostics
-
-Tools for interacting with the `cx` planning and safety engine.
-
-* `inspect`: Preview the live bundle plan without writing files.
-* `bundle`: Preview the live bundle snapshot (metadata only).
-* `doctor_mcp`: Inspect the resolved MCP profile and file scopes.
-* `doctor_workflow`: Get a recommended tool sequence for specific
-tasks.
-* `doctor_overlaps`: Diagnose duplicate section ownership.
-* `doctor_secrets`: Pre-flight the workspace against the secret
-scanner.
-
-_For prompt engineering and strict machine-tooling policies (e.g.,
-separating safe operations from destructive edits), refer to the
-xref:page$repository/docs/mcp_tool_intent_taxonomy.adoc[MCP Tool Intent Taxonomy].
+This integration guide should stay focused on client wiring,
+transport behavior, and troubleshooting. It is not the canonical home
+for full MCP tool taxonomy or policy grouping.
 
 Security boundary: `cx-mcp.toml` is the intended MCP-specific profile;
 `cx doctor mcp` shows the resolved profile and effective `files.include`
