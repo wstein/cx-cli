@@ -1,5 +1,12 @@
 # CX Documentation Index
 
+`cx` is documented as four cooperating surfaces:
+
+- native proof path: `bundle`, `validate`, `verify`, `extract`
+- live workspace path: `mcp`
+- durable cognition path: `notes`
+- adapter/oracle path: diagnostics and parity only
+
 Use this directory as the map for the documentation set.
 
 Schema and coverage publishing policy lives in [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md), which keeps the public GitHub Pages host and release mirror aligned with the checked-in `schemas/` files and the successful `main` CI proof path.
@@ -8,13 +15,17 @@ The MCP surface has a documented stable subset, but the broader integration laye
 
 ## What Changed In 0.4.0
 
-`cx` now explicitly operates as three cooperating surfaces:
+`cx` now explicitly operates as three primary cooperating surfaces:
 
 - immutable snapshots with `cx bundle`
 - live agent protocol with `cx mcp`
 - durable knowledge with `cx notes`
 
 Track B generates hypotheses. Track A generates proofs. Notes preserve durable reasoning between them.
+
+The adapter/oracle seam remains outside the shipped proof path. It exists for
+diagnostics, parity visibility, and reference-oracle comparison rather than
+ordinary operator workflows.
 
 0.4.0 also makes three release-level changes explicit:
 

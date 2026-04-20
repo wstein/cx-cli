@@ -2,7 +2,7 @@
 
 # CX Operator Manual
 
-`cx` standardizes AI project context, notes, and MCP workflows in one repository-native toolchain.
+`cx` is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.
 
 See: [OPERATING_MODES.md](OPERATING_MODES.md) for the main conceptual entrypoint.
 See: [MENTAL_MODEL.md](MENTAL_MODEL.md) for the canonical CX triad, Track A vs Track B, policy tiers, and artifact lifecycle.
@@ -22,10 +22,11 @@ If you are new to the repository:
 
 Use the smallest operator sequence that matches the job:
 
-- Live investigation: `cx mcp`
-- Durable reasoning: `cx notes`
-- Frozen handoff: `cx inspect`, `cx bundle`, `cx verify`
-- Recovery or audit: `cx validate`, `cx list`, `cx extract`
+- Live workspace path: `cx mcp`
+- Durable cognition path: `cx notes`
+- Native proof path: `cx inspect`, `cx bundle`, `cx validate`, `cx verify`, `cx extract`
+- Recovery or audit: `cx list`, `cx audit`, `cx doctor`
+- Adapter/oracle path: diagnostics and parity only, not the primary operator workflow
 
 Typical minimal paths:
 
@@ -217,6 +218,21 @@ They share the same repository boundary rules, but they answer different questio
 | `cx inspect` | Reviewing the planned bundle before writing files | A deterministic plan, token totals, overlap signals, and extractability hints |
 | `cx bundle` | Producing an immutable artifact for review, CI, or handoff | Bundle files, manifest, lock file, and checksum sidecar |
 | `cx mcp` | Exploring the live workspace and maintaining notes during active work | Scoped file search, reads, and note tools over the current workspace |
+
+## Native Path Versus Adapter Path
+
+The shipped operator workflow is kernel-first:
+
+- `cx bundle`, `cx validate`, `cx verify`, and `cx extract` operate on the native proof path
+- `cx mcp` operates on the live workspace path
+- `cx notes` operates on the durable cognition path
+
+The adapter/oracle surface is separate:
+
+- used for diagnostics
+- used for parity visibility
+- not part of ordinary proof-path execution
+- not the primary operator story
 
 ## Core Commands
 

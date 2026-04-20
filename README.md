@@ -6,7 +6,7 @@
 [![GitHub tag](https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag)](https://github.com/wstein/cx-cli/tags)
 [![License](https://img.shields.io/github/license/wstein/cx-cli)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
 
-`cx` standardizes AI project context, notes, and agent workflows in one repository-native toolchain.
+`cx` is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.
 
 Mode chooser: [docs/OPERATING_MODES.md](docs/OPERATING_MODES.md)
 
@@ -48,16 +48,15 @@ Use this path when the work needs deterministic bundles, artifact integrity, and
 
 ## Why The Split Exists
 
-Repomix is great for exploratory work: grab a snapshot, feed a prompt, move on.
-
 `cx` solves the harder follow-through problem. It is for repositories where interactive agent help, durable notes, and reproducible handoffs all need to agree about what was trusted, what was observed, and what was proven.
 
 That changes the design:
 
-- Repomix optimizes for flexible packing. `cx` optimizes for deterministic planning.
+- the native kernel owns proof-path rendering, manifests, spans, and verification
 - `cx mcp` helps agents inspect live code now.
 - `cx notes` preserves reasoning that should survive the session.
 - `cx bundle` and `cx verify` freeze and prove the exact handoff later.
+- the adapter/oracle seam remains only for diagnostics and parity visibility, not the shipped proof path
 
 The strictness is the feature. If a file lands in two sections, if a checksum drifts, or if extraction becomes approximate instead of deterministic, `cx` makes that visible instead of quietly proceeding.
 
@@ -74,6 +73,15 @@ The strictness is the feature. If a file lands in two sections, if a checksum dr
 - Guided overlap diagnosis and repair with `cx doctor`
 - `cx notes` commands for note lifecycle, graph inspection, backlinks, and orphans
 - Structured `--json` output for CI and automation
+
+## Operator Surfaces
+
+`cx` now exposes four distinct operator surfaces:
+
+- native proof path: `cx bundle`, `cx validate`, `cx verify`, `cx extract`
+- live workspace path: `cx mcp`
+- durable cognition path: `cx notes`
+- adapter/oracle path: diagnostics and parity only, not the primary operator workflow
 
 ## Quick Start
 

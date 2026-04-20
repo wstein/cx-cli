@@ -36,6 +36,12 @@ Track B generates hypotheses. Track A generates proofs. Notes preserve durable r
 - The docs now explicitly define Track B as hypothesis generation and Track A as proof generation.
 - Notes are now described consistently as the durable cognition layer between live investigation and proof-grade artifacts.
 
+#### 5. Native proof path is the shipped runtime
+
+- The shipped CLI now presents the native kernel as the production proof path for `bundle`, `validate`, `verify`, and `extract`.
+- Repomix is no longer described as the primary runtime architecture.
+- The remaining adapter/oracle seam is for diagnostics and parity visibility only.
+
 ### MCP stability in 0.4.0
 
 MCP remains an evolving integration surface in 0.4.0. Core local workflows are ready for serious use, but the MCP contract should still be treated conservatively for long-term external integrations outside the documented stable subset.
