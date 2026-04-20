@@ -188,9 +188,17 @@ exclude = []
                 includeOutputSpans: false,
                 includeSourceMetadata: false,
               },
+              notes: {
+                strictNotesMode: false,
+                appliesToSections: [],
+              },
               handover: {
                 includeRepoHistory: false,
                 repoHistoryCount: 25,
+              },
+              notes: {
+                strictNotesMode: false,
+                appliesToSections: [],
               },
               checksums: {
                 algorithm: "sha256",

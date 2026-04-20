@@ -107,6 +107,10 @@ function baseConfig(root: string): CxConfig {
       includeRepoHistory: false,
       repoHistoryCount: 25,
     },
+    notes: {
+      strictNotesMode: false,
+      appliesToSections: [],
+    },
     checksums: {
       algorithm: "sha256",
       fileName: "demo.sha256",
