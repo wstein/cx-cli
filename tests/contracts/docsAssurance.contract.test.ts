@@ -14,19 +14,40 @@ async function readText(relativePath: string): Promise<string> {
   return fs.readFile(path.join(ROOT, relativePath), "utf8");
 }
 
+function squashWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
 describe("docs assurance contract", () => {
   test("doc hierarchy keeps semantics, mapping, workflows, and integration separate", async () => {
     const rootReadme = await readText("README.md");
-    const docsIndex = await readText("docs/README.md");
+    const docsIndex = await readText(
+      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+    );
     const governance = await readText("docs/GOVERNANCE.md");
-    const mentalModel = await readText("docs/MENTAL_MODEL.md");
-    const operatingModes = await readText("docs/OPERATING_MODES.md");
-    const systemMap = await readText("docs/SYSTEM_MAP.md");
-    const systemContracts = await readText("docs/SYSTEM_CONTRACTS.md");
+    const mentalModel = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/mental-model.adoc",
+    );
+    const operatingModes = await readText(
+      "docs/antora/modules/ROOT/pages/manual/operating-modes.adoc",
+    );
+    const systemMap = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/system-map.adoc",
+    );
+    const systemContracts = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/system-contracts.adoc",
+    );
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
-    const manual = await readText("docs/MANUAL.md");
+    const manual = await readText(
+      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+    );
     const notesGuide = await readText("notes/README.md");
+    const docsIndexNormalized = squashWhitespace(docsIndex);
+    const mentalModelNormalized = squashWhitespace(mentalModel);
+    const systemContractsNormalized = squashWhitespace(systemContracts);
+    const operatingModesNormalized = squashWhitespace(operatingModes);
+    const manualNormalized = squashWhitespace(manual);
 
     expect(rootReadme).toContain("bun run ci:notes:governance");
     expect(rootReadme).toContain("Run `cx mcp`");
@@ -35,18 +56,26 @@ describe("docs assurance contract", () => {
     expect(rootReadme).toContain("Notes: conditional");
     expect(rootReadme).toContain("Agent output: untrusted until verified");
     expect(rootReadme).toContain("Bundle: trusted");
-    expect(docsIndex).toContain("[OPERATING_MODES.md](./OPERATING_MODES.md)");
-    expect(docsIndex).toContain("[SYSTEM_MAP.md](./SYSTEM_MAP.md)");
-    expect(docsIndex).toContain("[SYSTEM_CONTRACTS.md](./SYSTEM_CONTRACTS.md)");
+    expect(docsIndex).toContain(
+      "xref:manual/operating-modes.adoc[Operating Modes]",
+    );
+    expect(docsIndex).toContain(
+      "xref:architecture/system-map.adoc[System Map]",
+    );
+    expect(docsIndex).toContain(
+      "xref:architecture/system-contracts.adoc[System Contracts]",
+    );
     expect(docsIndex).toContain("Everything else should reference");
     expect(docsIndex).toContain("Source tree: trusted");
     expect(docsIndex).toContain("Notes: conditional");
     expect(docsIndex).toContain("Agent output: untrusted until verified");
     expect(docsIndex).toContain("Bundle: trusted");
-    expect(docsIndex).toContain("## Workflow Set");
-    expect(docsIndex).toContain("Read the Friday-to-Monday workflow first.");
-    expect(docsIndex).toContain("## Historical Material");
-    expect(docsIndex).toContain("docs surface budget");
+    expect(docsIndex).toContain("== Workflow Set");
+    expect(docsIndexNormalized).toContain(
+      "Read the Friday-to-Monday workflow first.",
+    );
+    expect(docsIndex).toContain("== Historical Material");
+    expect(docsIndexNormalized).toContain("docs surface budget");
     expect(governance).toContain("## Hard Hierarchy Contract");
     expect(governance).toContain("## Docs Surface Budget");
     expect(governance).toContain("### Front-Door Docs");
@@ -63,36 +92,46 @@ describe("docs assurance contract", () => {
     expect(governance).toContain(
       "Everything outside `MENTAL_MODEL.md` must reference canonical semantics instead of redefining them.",
     );
-    expect(mentalModel).toContain("canonical semantics");
-    expect(mentalModel).toContain("See: [SYSTEM_MAP.md](SYSTEM_MAP.md)");
-    expect(mentalModel).toContain(
-      "See: [SYSTEM_CONTRACTS.md](SYSTEM_CONTRACTS.md)",
+    expect(mentalModelNormalized).toContain("canonical semantics");
+    expect(mentalModelNormalized).toContain(
+      "xref:architecture/system-map.adoc[System Map]",
+    );
+    expect(mentalModelNormalized).toContain(
+      "xref:architecture/system-contracts.adoc[System Contracts]",
     );
     expect(systemMap).toContain("Hypothesis");
     expect(systemMap).toContain("Memory");
     expect(systemMap).toContain("Snapshot");
     expect(systemMap).toContain("Proof");
-    expect(systemContracts).toContain("## Cognition Contract V1");
-    expect(systemContracts).toContain("## Boundary Contract");
-    expect(systemContracts).toContain("## Trust Propagation Model");
-    expect(systemContracts).toContain("valid note != good note");
-    expect(operatingModes).toContain(
+    expect(systemContracts).toContain("== Cognition Contract V1");
+    expect(systemContracts).toContain("== Boundary Contract");
+    expect(systemContracts).toContain("== Trust Propagation Model");
+    expect(systemContractsNormalized).toContain("valid note != good note");
+    expect(operatingModesNormalized).toContain(
       "Need fast interactive AI help on live code? Use `cx mcp`.",
     );
-    expect(operatingModes).toContain("## Ultra-Minimal Onboarding");
-    expect(operatingModes).toContain("Run `cx mcp`.");
-    expect(operatingModes).toContain("See the agent work on live code.");
-    expect(operatingModes).toContain("Learn later:");
-    expect(operatingModes).toContain("Track B = hypothesis generation");
-    expect(operatingModes).toContain("Track A = proof generation");
-    expect(operatingModes).toContain("Notes are the durable cognition layer");
-    expect(operatingModes).toContain(
+    expect(operatingModes).toContain("== Ultra-Minimal Onboarding");
+    expect(operatingModesNormalized).toContain("Run `cx mcp`.");
+    expect(operatingModesNormalized).toContain(
+      "See the agent work on live code.",
+    );
+    expect(operatingModesNormalized).toContain("Learn later:");
+    expect(operatingModesNormalized).toContain(
+      "Track B = hypothesis generation",
+    );
+    expect(operatingModesNormalized).toContain("Track A = proof generation");
+    expect(operatingModesNormalized).toContain(
+      "Notes are the durable cognition layer",
+    );
+    expect(operatingModesNormalized).toContain(
       "Need a reproducible, promotable artifact? Use `cx bundle`.",
     );
-    expect(operatingModes).toContain(
+    expect(operatingModesNormalized).toContain(
       "Need durable design memory? Use `cx notes`.",
     );
-    expect(manual).toContain("See: [OPERATING_MODES.md](OPERATING_MODES.md)");
+    expect(manualNormalized).toContain(
+      "xref:manual/operating-modes.adoc[Operating Modes]",
+    );
     expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
     expect(notesGuide).toContain("## Notes And Docs Boundary");
     expect(notesGuide).toContain(
@@ -102,11 +141,11 @@ describe("docs assurance contract", () => {
       "`docs/SYSTEM_CONTRACTS.md` owns cognition, boundary, and trust contracts.",
     );
     expect(notesGuide).toContain("Notes should support those documents");
-    expect(operatingModes).toContain(
-      "See: [WORKFLOWS/friday-to-monday.md](WORKFLOWS/friday-to-monday.md)",
+    expect(operatingModesNormalized).toContain(
+      "xref:workflows/friday-to-monday.adoc[Friday to Monday]",
     );
-    expect(operatingModes).toContain(
-      "See: [WORKFLOWS/safe-note-mutation.md](WORKFLOWS/safe-note-mutation.md)",
+    expect(operatingModesNormalized).toContain(
+      "xref:workflows/safe-note-mutation.adoc[Safe Note Mutation]",
     );
     expect(agentModel).toContain("This document covers the integration layer");
     expect(agentModel).toContain(
@@ -119,23 +158,27 @@ describe("docs assurance contract", () => {
     );
     expect(agentIntegration).toContain("documented stable subset");
     expect(agentIntegration).toContain("MCP remains an evolving integration");
-    expect(manual).toContain("cx mcp catalog --json");
-    expect(manual).toContain("Vitest coverage is now the authoritative");
+    expect(manualNormalized).toContain("cx mcp catalog --json");
+    expect(manualNormalized).toContain(
+      "Vitest coverage is now the authoritative",
+    );
     expect(rootReadme).toContain("kernel-owned proof path");
     expect(rootReadme).toContain(
       "adapter/oracle path: diagnostics and parity only",
     );
     expect(rootReadme).not.toContain("built on top of Repomix");
-    expect(manual).toContain(
-      "not required for ordinary bundle, validate, verify, or extract flows",
+    expect(manualNormalized).toContain(
+      "Adapter/oracle path: diagnostics and parity only",
     );
     expect(manual).not.toContain("built on top of Repomix");
   });
 
   test("manual defines an assurance ladder", async () => {
-    const manual = await readText("docs/MANUAL.md");
+    const manual = await readText(
+      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+    );
 
-    expect(manual).toContain("## Assurance Ladder");
+    expect(manual).toContain("== Assurance Ladder");
     expect(manual).toContain("`bun run verify`");
     expect(manual).toContain("`bun run certify`");
     expect(manual).toContain("`bun run integrity`");
@@ -143,24 +186,34 @@ describe("docs assurance contract", () => {
   });
 
   test("release checklist states certify as CI-equivalent gate", async () => {
-    const checklist = await readText("docs/RELEASE_CHECKLIST.md");
+    const checklist = await readText(
+      "docs/antora/modules/ROOT/pages/release/checklist.adoc",
+    );
 
-    expect(checklist).toContain("pre-tag CI-equivalent gate");
-    expect(checklist).toContain("official Repomix reference-oracle smoke lane");
-    expect(checklist).toContain("bundle transition matrix smoke");
-    expect(checklist).toContain("release integrity smoke");
+    const normalized = squashWhitespace(checklist);
+
+    expect(normalized).toContain("pre-tag CI-equivalent gate");
+    expect(normalized).toContain(
+      "official Repomix reference-oracle smoke lane",
+    );
+    expect(normalized).toContain("bundle transition matrix smoke");
+    expect(normalized).toContain("release integrity smoke");
   });
 
   test("release docs lock the two-phase candidate and finalization model", async () => {
-    const checklist = await readText("docs/RELEASE_CHECKLIST.md");
+    const checklist = await readText(
+      "docs/antora/modules/ROOT/pages/release/checklist.adoc",
+    );
     const developerWorkflow = await readText(
       "notes/Developer Command Workflow.md",
     );
     const ghaTriggers = await readText("notes/GitHub Actions Triggers.md");
 
-    expect(checklist).toContain("Prepare the release candidate on `develop`");
-    expect(checklist).toContain("Finaliz");
-    expect(checklist).toContain("fast-forward update to the released commit");
+    const normalized = squashWhitespace(checklist);
+
+    expect(normalized).toContain("Prepare the release candidate on `develop`");
+    expect(normalized).toContain("Finalize the release");
+    expect(normalized).toContain("fast-forward update to the released commit");
     expect(developerWorkflow).toContain("Releases are prepared on `develop`.");
     expect(developerWorkflow).toContain(
       "The `vX.Y.Z` tag is the finalization action.",
@@ -170,17 +223,21 @@ describe("docs assurance contract", () => {
     expect(ghaTriggers).toContain(
       "release workflow should fast-forward `main`",
     );
-    expect(checklist).toContain("closed release line");
+    expect(normalized).toContain("closed release line");
   });
 
   test("public docs keep the native-proof-path story and reject fork-backed runtime language", async () => {
     const readme = await readText("README.md");
-    const architecture = await readText("docs/ARCHITECTURE.md");
-    const migration = await readText("docs/MIGRATIONS/0.4.0.md");
+    const architecture = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+    );
+    const migration = await readText(
+      "docs/antora/modules/ROOT/pages/release/migration-v0.4.adoc",
+    );
     const changelog = await readText("CHANGELOG.md");
 
     expect(readme).toContain("kernel-owned proof path");
-    expect(architecture).toContain(
+    expect(squashWhitespace(architecture)).toContain(
       "adapter/oracle seam exists for diagnostics and parity visibility",
     );
     expect(migration).toContain("The shipped proof path is kernel-owned.");
@@ -190,6 +247,23 @@ describe("docs assurance contract", () => {
     expect(architecture).not.toContain("wraps Repomix in a stricter system");
     expect(changelog).not.toContain("fork compatibility smoke");
     expect(migration).not.toContain("shipped runtime dependency");
+  });
+
+  test("repository-local markdown docs are explicit redirect stubs", async () => {
+    const docsIndexStub = await readText("docs/README.md");
+    const manualStub = await readText("docs/MANUAL.md");
+    const architectureStub = await readText("docs/ARCHITECTURE.md");
+
+    expect(docsIndexStub).toContain("redirect stub");
+    expect(docsIndexStub).toContain(
+      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+    );
+    expect(manualStub).toContain(
+      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+    );
+    expect(architectureStub).toContain(
+      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+    );
   });
 
   test("notes module spec documents linked-note enrichment semantics", async () => {
@@ -212,12 +286,20 @@ describe("docs assurance contract", () => {
   });
 
   test("stop conditions explain the invariant they protect", async () => {
-    const manual = await readText("docs/MANUAL.md");
+    const manual = await readText(
+      "docs/antora/modules/ROOT/pages/manual/operator-manual.adoc",
+    );
     const extractionSafety = await readText("docs/EXTRACTION_SAFETY.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
 
-    expect(manual).toContain("Why this stops you: overlap failure protects");
-    expect(manual).toContain("Why this stops you: tracked-file drift means");
+    const manualNormalized = squashWhitespace(manual);
+
+    expect(manualNormalized).toContain(
+      "deterministic plan, token totals, overlap signals, and extractability",
+    );
+    expect(manualNormalized).toContain(
+      "Dirty-state gating stops tracked-file drift",
+    );
     expect(extractionSafety).toContain(
       "Why this stops you: once the recovered packed content no longer matches",
     );
@@ -227,9 +309,11 @@ describe("docs assurance contract", () => {
   });
 
   test("workflow docs include temporal provenance and safe note mutation scenarios", async () => {
-    const fridayToMonday = await readText("docs/WORKFLOWS/friday-to-monday.md");
+    const fridayToMonday = await readText(
+      "docs/antora/modules/ROOT/pages/workflows/friday-to-monday.adoc",
+    );
     const safeNoteMutation = await readText(
-      "docs/WORKFLOWS/safe-note-mutation.md",
+      "docs/antora/modules/ROOT/pages/workflows/safe-note-mutation.adoc",
     );
 
     expect(fridayToMonday).toContain("The developer has local tracked changes");
@@ -248,10 +332,14 @@ describe("docs assurance contract", () => {
   });
 
   test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {
-    const mentalModel = await readText("docs/MENTAL_MODEL.md");
+    const mentalModel = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/mental-model.adoc",
+    );
     const agentIntegration = await readText("docs/AGENT_INTEGRATION.md");
     const agentModel = await readText("docs/AGENT_OPERATING_MODEL.md");
-    const architecture = await readText("docs/ARCHITECTURE.md");
+    const architecture = await readText(
+      "docs/antora/modules/ROOT/pages/architecture/implementation-reference.adoc",
+    );
 
     expect(mentalModel).toContain("Track B = hypothesis generation");
     expect(mentalModel).toContain("Track A = proof generation");
@@ -263,8 +351,12 @@ describe("docs assurance contract", () => {
     expect(agentIntegration).toContain("doctor_mcp()");
     expect(agentIntegration).toContain('"tokenCount": 287');
     expect(agentIntegration).toContain('"outputStartLine": 41');
-    expect(architecture).toContain("implementation reference for contributors");
-    expect(architecture).toContain(
+    const architectureNormalized = squashWhitespace(architecture);
+
+    expect(architectureNormalized).toContain(
+      "implementation reference for contributors",
+    );
+    expect(architectureNormalized).toContain(
       "Vitest as the authoritative shared-suite test runner and coverage lane",
     );
   });

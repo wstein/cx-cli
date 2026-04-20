@@ -22,8 +22,12 @@ async function readPackageVersion(): Promise<string> {
 describe("release readiness docs contract", () => {
   test("changelog and migration docs explain the v0.4.0 operating contract", async () => {
     const changelog = await readText("CHANGELOG.md");
-    const migration = await readText("docs/MIGRATIONS/0.4.0.md");
-    const docsIndex = await readText("docs/README.md");
+    const migration = await readText(
+      "docs/antora/modules/ROOT/pages/release/migration-v0.4.adoc",
+    );
+    const docsIndex = await readText(
+      "docs/antora/modules/ROOT/pages/start-here/docs-index.adoc",
+    );
     const packageVersion = await readPackageVersion();
 
     expect(packageVersion).toMatch(/^\d+\.\d+\.\d+(?:[-+].+)?$/);
@@ -40,8 +44,12 @@ describe("release readiness docs contract", () => {
     expect(migration).toContain("cx mcp catalog --json");
     expect(migration).toContain("bun run ci:notes:governance");
 
-    expect(docsIndex).toContain("## What Changed In 0.4.0");
-    expect(docsIndex).toContain("[../CHANGELOG.md](../CHANGELOG.md)");
-    expect(docsIndex).toContain("[MIGRATIONS/0.4.0.md](./MIGRATIONS/0.4.0.md)");
+    expect(docsIndex).toContain("== What Changed In 0.4.0");
+    expect(docsIndex).toContain(
+      "xref:repository/root/changelog.adoc[CHANGELOG.md]",
+    );
+    expect(docsIndex).toContain(
+      "xref:release/migration-v0.4.adoc[MIGRATIONS/0.4.0.md]",
+    );
   });
 });

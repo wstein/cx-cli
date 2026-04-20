@@ -15,13 +15,13 @@ const ROOT = path.resolve(
 );
 
 describe("sync-antora-docs.js", () => {
-  test("projects markdown docs into the Antora repository surface", async () => {
+  test("projects only non-curated markdown docs into the Antora repository surface", async () => {
     const result = await syncAntoraDocs({ repoRoot: ROOT });
 
-    expect(result.pageCount).toBeGreaterThan(20);
+    expect(result.pageCount).toBeGreaterThan(10);
 
-    const generatedReadme = await fs.readFile(
-      path.join(ROOT, DEFAULT_ANTORA_PAGES_ROOT, "docs/readme.adoc"),
+    const generatedAgentIntegration = await fs.readFile(
+      path.join(ROOT, DEFAULT_ANTORA_PAGES_ROOT, "docs/agent_integration.adoc"),
       "utf8",
     );
     const generatedChangelog = await fs.readFile(
@@ -33,12 +33,14 @@ describe("sync-antora-docs.js", () => {
       "utf8",
     );
 
-    expect(generatedReadme).toContain("Source companion: `docs/README.md`");
-    expect(generatedReadme).toContain('href="../root/changelog/"');
+    expect(generatedAgentIntegration).toContain(
+      "Source companion: `docs/AGENT_INTEGRATION.md`",
+    );
     expect(generatedChangelog).toContain("Source companion: `CHANGELOG.md`");
     expect(navPartial).toContain(
-      "xref:repository/docs/readme.adoc[docs/README.md]",
+      "xref:repository/docs/agent_integration.adoc[docs/AGENT_INTEGRATION.md]",
     );
+    expect(navPartial).not.toContain("docs/README.md");
     expect(navPartial).toContain(
       "xref:repository/root/changelog.adoc[CHANGELOG.md]",
     );

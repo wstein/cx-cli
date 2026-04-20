@@ -288,7 +288,7 @@ describe("CI lanes contract", () => {
 
   test("fast lane test discovery includes bundle failure-class unit suites", () => {
     const files = collectTestFiles(path.join(ROOT, "tests"))
-      .map((fullPath) =>
+      .map((fullPath: string) =>
         path.relative(ROOT, fullPath).split(path.sep).join("/"),
       )
       .sort();

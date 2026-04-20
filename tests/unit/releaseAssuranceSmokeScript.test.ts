@@ -12,6 +12,33 @@ import {
   runReleaseAssuranceSmokeEntry,
 } from "../../scripts/release-assurance-smoke.js";
 
+type BaseEnv = Record<string, string | undefined>;
+type ExecaStub = (
+  command: string,
+  args: string[],
+  options: Record<string, unknown>,
+) => Promise<void>;
+type RunCommandStub = (
+  command: string,
+  args: string[],
+  envOverrides: Record<string, string>,
+  options: Record<string, unknown>,
+) => Promise<void>;
+type RunJsonCommandStub = (
+  command: string,
+  args: string[],
+  envOverrides: Record<string, string>,
+  options: Record<string, unknown>,
+) => Promise<string>;
+type RemoveStub = (
+  target: string,
+  options: Record<string, unknown>,
+) => Promise<void>;
+type MkdirStub = (
+  target: string,
+  options: Record<string, unknown>,
+) => Promise<void>;
+
 describe("release assurance smoke script helpers", () => {
   test("release assurance stays independent from fork-era oracle smoke script names", () => {
     expect("ci:smoke:repomix-reference-oracle").toBe(
@@ -43,7 +70,7 @@ describe("release assurance smoke script helpers", () => {
     const env = createNpmPackEnv(tarballDir, {
       HOME: "/Users/example",
       npm_config_cache: "/Users/example/.npm",
-    });
+    } as BaseEnv) as BaseEnv;
 
     expect(env.HOME).toBe("/Users/example");
     expect(env.npm_config_cache).toBe(path.join(tarballDir, ".npm-cache"));
@@ -62,9 +89,13 @@ describe("release assurance smoke script helpers", () => {
       { CI: "true" },
       {
         baseEnv: { HOME: "/Users/example" },
-        execaImpl: async (command, args, options) => {
+        execaImpl: (async (
+          command: string,
+          args: string[],
+          options: Record<string, unknown>,
+        ) => {
           execaCalls.push({ command, args, options });
-        },
+        }) as ExecaStub,
       },
     );
 
@@ -93,10 +124,14 @@ describe("release assurance smoke script helpers", () => {
       {},
       {
         baseEnv: { HOME: "/Users/example" },
-        execaImpl: async (command, args, options) => {
+        execaImpl: (async (command, args, options) => {
           execaCalls.push({ command, args, options });
           return { stdout: '[{"filename":"demo.tgz"}]' };
-        },
+        }) as (
+          command: string,
+          args: string[],
+          options: Record<string, unknown>,
+        ) => Promise<{ stdout: string }>,
       },
     );
 
@@ -141,14 +176,14 @@ describe("release assurance smoke script helpers", () => {
       baseEnv: { HOME: "/Users/example" },
       execPath: "/usr/local/bin/node",
       fsImpl: {
-        rm: async (target, options) => {
+        rm: (async (target, options) => {
           rmCalls.push({ target, options });
-        },
-        mkdir: async (target, options) => {
+        }) satisfies RemoveStub,
+        mkdir: (async (target, options) => {
           mkdirCalls.push({ target, options });
-        },
+        }) satisfies MkdirStub,
       },
-      runJsonImpl: async (command, args, envOverrides, options) => {
+      runJsonImpl: (async (command, args, envOverrides, options) => {
         runJsonCalls.push({
           command,
           args,
@@ -156,16 +191,16 @@ describe("release assurance smoke script helpers", () => {
           options: options as Record<string, unknown>,
         });
         return '[{"filename":"cx-cli-0.0.0.tgz"}]';
-      },
-      runImpl: async (command, args, envOverrides, options) => {
+      }) satisfies RunJsonCommandStub,
+      runImpl: (async (command, args, envOverrides, options) => {
         runCalls.push({
           command,
           args,
           envOverrides: envOverrides as Record<string, string>,
           options: options as Record<string, unknown>,
         });
-      },
-      log: (message) => {
+      }) satisfies RunCommandStub,
+      log: (message: string) => {
         logs.push(message);
       },
     });
@@ -227,9 +262,9 @@ describe("release assurance smoke script helpers", () => {
     await expect(
       runReleaseAssuranceSmoke(cwd, {
         fsImpl: {
-          rm: async (target, options) => {
+          rm: (async (target, options) => {
             rmCalls.push({ target, options });
-          },
+          }) satisfies RemoveStub,
           mkdir: async () => {},
         },
         runJsonImpl: async () => "[]",

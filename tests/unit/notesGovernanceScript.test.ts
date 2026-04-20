@@ -7,6 +7,12 @@ import {
   runNotesGovernanceEntry,
 } from "../../scripts/notes-governance.js";
 
+type ExecaStub = (
+  command: string,
+  args: string[],
+  options: Record<string, unknown>,
+) => Promise<void>;
+
 describe("notes governance script", () => {
   test("creates the direct notes-check invocation", () => {
     expect(createNotesGovernanceInvocation("/tmp/cx-notes")).toEqual({
@@ -26,10 +32,10 @@ describe("notes governance script", () => {
 
     await runNotesGovernance("/tmp/cx-notes", {
       baseEnv: { CI: "true" },
-      execaImpl: async (command, args, options) => {
+      execaImpl: (async (command, args, options) => {
         execaCalls.push({ command, args, options });
-      },
-      log: (message) => {
+      }) satisfies ExecaStub,
+      log: (message: string) => {
         logs.push(message);
       },
     });
@@ -56,10 +62,10 @@ describe("notes governance script", () => {
       runCheck: async () => {
         throw new Error("boom");
       },
-      logError: (message) => {
+      logError: (message: string) => {
         errors.push(message);
       },
-      exit: (code) => {
+      exit: (code: number) => {
         exits.push(code);
       },
     });
@@ -73,7 +79,7 @@ describe("notes governance script", () => {
 
     await runNotesGovernanceEntry({
       runCheck: async () => {},
-      exit: (code) => {
+      exit: (code: number) => {
         exits.push(code);
       },
     });

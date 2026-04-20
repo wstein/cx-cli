@@ -128,9 +128,11 @@ describe("ci observability report", () => {
       {
         stdout: (message) => {
           stdout.push(message);
+          return true;
         },
         stderr: (message) => {
           stderr.push(message);
+          return true;
         },
       },
     );

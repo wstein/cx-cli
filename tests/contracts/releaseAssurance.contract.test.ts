@@ -14,6 +14,10 @@ async function readText(relativePath: string): Promise<string> {
   return fs.readFile(path.join(ROOT, relativePath), "utf8");
 }
 
+function squashWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
 async function readPackageJson(): Promise<{
   scripts?: Record<string, string>;
 }> {
@@ -130,10 +134,15 @@ describe("release assurance contract", () => {
   });
 
   test("release checklist names the reference-oracle smoke lane instead of fork-era smoke lanes", async () => {
-    const checklist = await readText("docs/RELEASE_CHECKLIST.md");
+    const checklist = await readText(
+      "docs/antora/modules/ROOT/pages/release/checklist.adoc",
+    );
+    const normalized = squashWhitespace(checklist);
 
-    expect(checklist).toContain("official Repomix reference-oracle smoke lane");
-    expect(checklist).not.toContain("Repomix fork compatibility smoke");
-    expect(checklist).not.toContain("dual-oracle");
+    expect(normalized).toContain(
+      "official Repomix reference-oracle smoke lane",
+    );
+    expect(normalized).not.toContain("Repomix fork compatibility smoke");
+    expect(normalized).not.toContain("dual-oracle");
   });
 });
