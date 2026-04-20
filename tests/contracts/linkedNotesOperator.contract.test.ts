@@ -70,6 +70,7 @@ function baseConfig(root: string): CxConfig {
     dedup: {
       mode: "fail",
       order: "config",
+      requireExplicitOwnership: false,
     },
     manifest: {
       format: "json",

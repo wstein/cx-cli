@@ -126,6 +126,10 @@
           "type": "string",
           "enum": ["config", "lexical"],
           "description": "Tiebreaker for sections with equal priority. 'config' uses declaration order in the file; 'lexical' sorts by section name."
+        },
+        "require_explicit_ownership": {
+          "type": "boolean",
+          "description": "When true, overlaps may only be resolved when exactly one matching section has the highest priority. Ties that would fall back to config or lexical order become hard failures."
         }
       }
     },

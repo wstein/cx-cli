@@ -44,6 +44,7 @@ function createConfig(): CxConfig {
     dedup: {
       mode: "fail",
       order: "config",
+      requireExplicitOwnership: false,
     },
     behaviorSources: {
       dedupMode: "cx.toml",

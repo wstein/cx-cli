@@ -16,6 +16,33 @@ export interface OverlapConflict {
   suggestions: OverlapSuggestion[];
 }
 
+export function hasExplicitOverlapOwner(
+  config: CxConfig,
+  conflict: Pick<OverlapConflict, "sections">,
+): boolean {
+  const priorities = conflict.sections.map(
+    (section) => config.sections[section]?.priority ?? 0,
+  );
+
+  if (priorities.length <= 1) {
+    return true;
+  }
+
+  const highestPriority = Math.max(...priorities);
+  return (
+    priorities.filter((priority) => priority === highestPriority).length === 1
+  );
+}
+
+export function collectAmbiguousOverlapConflicts(
+  config: CxConfig,
+  conflicts: OverlapConflict[],
+): OverlapConflict[] {
+  return conflicts.filter(
+    (conflict) => !hasExplicitOverlapOwner(config, conflict),
+  );
+}
+
 export function compileMatchers(
   patterns: string[],
 ): Array<(value: string) => boolean> {
@@ -134,6 +161,18 @@ export function formatOverlapConflictMessage(
     "Run `cx doctor fix-overlaps --dry-run` to review the full resolution plan.",
     'Alternatively, set `dedup.mode = "first-wins"` and assign a higher `priority` to the',
     "section that should own the file to resolve overlaps dynamically at runtime.",
+  ].join("\n");
+}
+
+export function formatExplicitOwnershipConflictMessage(
+  conflict: OverlapConflict,
+): string {
+  return [
+    `Section overlap requires explicit ownership for ${conflict.path}.`,
+    `Matching sections: ${conflict.sections.join(", ")}.`,
+    `Current fallback owner: ${conflict.recommendedOwner}.`,
+    "A highest-priority tie would force cx to fall back to config or lexical order.",
+    "Assign one owning section a higher `priority`, or add exclude rules so only one section claims the file.",
   ].join("\n");
 }
 

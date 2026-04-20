@@ -44,7 +44,7 @@ function makeConfig(overrides: Partial<CxConfig> = {}): CxConfig {
       followSymlinks: false,
       unmatched: "ignore",
     },
-    dedup: { mode: "fail", order: "config" },
+    dedup: { mode: "fail", order: "config", requireExplicitOwnership: false },
     manifest: {
       format: "json",
       pretty: false,

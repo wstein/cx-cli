@@ -50,6 +50,7 @@ describe("loadCxConfig", () => {
     const config = await loadCxConfig(p, {}, {});
     expect(config.repomix.style).toBe("xml");
     expect(config.dedup.mode).toBe("fail");
+    expect(config.dedup.requireExplicitOwnership).toBe(false);
     expect(config.manifest.pretty).toBe(true);
     expect(config.handover.includeRepoHistory).toBe(false);
     expect(config.handover.repoHistoryCount).toBe(25);
@@ -184,6 +185,26 @@ exclude = []
     const config = await loadCxConfig(p, {}, {});
     expect(config.sections.main?.catch_all).toBe(true);
     expect(config.sections.main?.include).toBeUndefined();
+  });
+
+  test("dedup.require_explicit_ownership loads from cx.toml", async () => {
+    const p = await write(
+      "cx.toml",
+      `schema_version = 1
+project_name = "proj"
+source_root = "."
+output_dir = "dist/proj"
+
+[dedup]
+require_explicit_ownership = true
+
+[sections.main]
+include = ["src/**"]
+exclude = []
+`,
+    );
+    const config = await loadCxConfig(p, {}, {});
+    expect(config.dedup.requireExplicitOwnership).toBe(true);
   });
 
   test("invalid repomix.style → CxError", async () => {

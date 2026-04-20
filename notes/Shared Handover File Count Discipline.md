@@ -2,7 +2,7 @@
 id: 20260420122400
 title: Shared Handover File Count Discipline
 tags: ["handover", "bundle", "governance"]
-target: v0.4
+target: current
 ---
 The shared handover must not increase generated file count casually because bundle comprehension, verification, and extraction all become more expensive when context is split across too many generated companion files.
 

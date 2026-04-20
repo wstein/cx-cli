@@ -2,7 +2,7 @@
 id: 20260420110100
 title: Render Kernel Constitution
 tags: ["architecture", "render", "determinism"]
-target: v0.4
+target: current
 ---
 The render kernel defines the proof-path behavior of `cx`.
 

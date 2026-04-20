@@ -2,7 +2,7 @@
 id: 20260420110400
 title: Tokenizer Contract
 tags: ["tokens", "determinism", "manifest"]
-target: v0.4
+target: current
 ---
 Token accounting is part of the deterministic contract.
 

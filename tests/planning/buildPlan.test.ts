@@ -93,6 +93,7 @@ function baseConfig(root: string): CxConfig {
     dedup: {
       mode: "fail",
       order: "config",
+      requireExplicitOwnership: false,
     },
     manifest: {
       format: "json",
@@ -352,6 +353,51 @@ describe("buildBundlePlan", () => {
 
     expect(srcFiles).toContain("src/index.ts");
     expect(wideFiles).not.toContain("src/index.ts");
+  });
+
+  test("fails when strict overlap ownership would fall back to config order", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.dedup.mode = "first-wins";
+    config.dedup.requireExplicitOwnership = true;
+    config.sections.mixed = { include: ["src/**"], exclude: [] };
+
+    await expect(buildBundlePlan(config)).rejects.toThrow(
+      /Section overlap requires explicit ownership for src\/index\.ts\.[\s\S]*Current fallback owner: src\./,
+    );
+  });
+
+  test("allows strict overlap ownership when one section has a higher priority", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.dedup.mode = "first-wins";
+    config.dedup.requireExplicitOwnership = true;
+    config.sections.mixed = {
+      include: ["src/**"],
+      exclude: [],
+      priority: 5,
+    };
+    const srcSection = config.sections.src;
+    if (!srcSection) {
+      throw new Error("Missing src section");
+    }
+    config.sections.src = {
+      ...srcSection,
+      include: ["src/**"],
+      exclude: [],
+      priority: 10,
+    };
+
+    const plan = await buildBundlePlan(config);
+    const srcFiles = plan.sections
+      .find((section) => section.name === "src")
+      ?.files.map((file) => file.relativePath);
+    const mixedFiles = plan.sections
+      .find((section) => section.name === "mixed")
+      ?.files.map((file) => file.relativePath);
+
+    expect(srcFiles).toContain("src/index.ts");
+    expect(mixedFiles).not.toContain("src/index.ts");
   });
 
   test("priority ordering is stable: sections without priority preserve base order", async () => {

@@ -2,7 +2,7 @@
 id: 20260420122000
 title: Bundle Index Rename To Shared Handover
 tags: ["handover", "naming", "architecture"]
-target: v0.4
+target: current
 ---
 The current term "bundle index" is now too narrow because the file already acts as a shared handover artifact for both humans and agents, not just a lookup-oriented section listing.
 

@@ -819,6 +819,11 @@ function buildCxConfigFromParsedInput(
         new Set(["config", "lexical"]),
         DEFAULT_CONFIG_VALUES.dedup.order,
       ),
+      requireExplicitOwnership: expectBoolean(
+        dedup.require_explicit_ownership,
+        "dedup.require_explicit_ownership",
+        DEFAULT_CONFIG_VALUES.dedup.requireExplicitOwnership,
+      ),
     },
     manifest: {
       format: "json",

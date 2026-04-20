@@ -2,7 +2,7 @@
 id: 20260420120500
 title: Scanner Pipeline Contract
 tags: ["security", "scanner"]
-target: v0.4
+target: backlog
 ---
 Security scanning is a pluggable pipeline, not a renderer feature.
 

@@ -11,7 +11,9 @@ import { buildMasterList } from "./masterList.js";
 import type { OverlapConflict } from "./overlaps.js";
 import {
   analyzeSectionOverlaps,
+  collectAmbiguousOverlapConflicts,
   compileMatchers,
+  formatExplicitOwnershipConflictMessage,
   formatOverlapConflictMessage,
   getMatchingSections,
   getSectionEntries,
@@ -68,6 +70,30 @@ function formatOverlapConflictsMessage(conflicts: OverlapConflict[]): string {
 
   return [
     `Section overlap detected in ${conflicts.length} locations.`,
+    conflictMessages,
+  ].join("\n");
+}
+
+function formatExplicitOwnershipConflictsMessage(
+  conflicts: OverlapConflict[],
+): string {
+  if (conflicts.length === 1) {
+    return formatExplicitOwnershipConflictMessage(
+      conflicts[0] as OverlapConflict,
+    );
+  }
+
+  const conflictMessages = conflicts
+    .map((conflict) =>
+      formatExplicitOwnershipConflictMessage(conflict)
+        .split("\n")
+        .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
+        .join("\n"),
+    )
+    .join("\n");
+
+  return [
+    `Section overlap requires explicit ownership in ${conflicts.length} locations.`,
     conflictMessages,
   ].join("\n");
 }
@@ -134,13 +160,26 @@ export async function buildBundlePlan(
   const dirtyState = classifyDirtyState(vcsState);
 
   // Phase 2: Overlap analysis (operates on the master list, not the disk).
+  const conflicts = await analyzeSectionOverlaps(config, masterList);
+
+  if (config.dedup.requireExplicitOwnership) {
+    const ambiguousConflicts = collectAmbiguousOverlapConflicts(
+      config,
+      conflicts,
+    );
+    if (ambiguousConflicts.length > 0) {
+      throw new CxError(
+        formatExplicitOwnershipConflictsMessage(ambiguousConflicts),
+        4,
+      );
+    }
+  }
+
   if (config.dedup.mode === "fail") {
-    const conflicts = await analyzeSectionOverlaps(config, masterList);
     if (conflicts.length > 0) {
       throw new CxError(formatOverlapConflictsMessage(conflicts), 4);
     }
   } else if (config.dedup.mode === "warn") {
-    const conflicts = await analyzeSectionOverlaps(config, masterList);
     for (const conflict of conflicts) {
       const message = formatOverlapConflictMessage(conflict);
       planningWarnings.push(message);

@@ -2,7 +2,7 @@
 id: 20260420120200
 title: Trust Model Formalization
 tags: ["trust", "manifest", "security"]
-target: v0.4
+target: current
 ---
 Trust is not implicit. It must be explicit and machine-readable.
 

@@ -224,6 +224,7 @@ environment regardless of whether `CX_STRICT` is active.
 | Setting                       | TOML key                    | Env var                          | CLI flag   | Default | Allowed values                |
 | ----------------------------- | --------------------------- | -------------------------------- | ---------- | ------- | ----------------------------- |
 | Overlap / dedup resolution    | `dedup.mode`                | `CX_DEDUP_MODE`                  | —          | `fail`  | `fail`, `warn`, `first-wins`  |
+| Strict overlap ownership      | `dedup.require_explicit_ownership` | —                        | —          | `false` | `true`, `false`               |
 | Repomix missing cx extension  | `repomix.missing_extension` | `CX_REPOMIX_MISSING_EXTENSION`   | —          | `warn`  | `fail`, `warn`                |
 | Duplicate config entries      | `config.duplicate_entry`    | `CX_CONFIG_DUPLICATE_ENTRY`      | —          | `fail`  | `fail`, `warn`, `first-wins`  |
 | Asset directory layout        | `assets.layout`             | `CX_ASSETS_LAYOUT`               | `--layout` | `flat`  | `flat`, `deep`                |
@@ -241,6 +242,11 @@ than one section:
 - `"warn"` — conflicts are reported to stderr and planning continues using
   priority order.
 - `"first-wins"` — conflicts are resolved silently using priority order.
+
+**`dedup.require_explicit_ownership`** tightens the non-failing overlap modes.
+When it is `true`, `cx` refuses to resolve an overlap if the owner would only
+be chosen by the `dedup.order` tie-breaker. Exactly one matching section must
+have the highest priority.
 
 ### Section priority and dynamic overlap resolution
 
@@ -293,6 +299,7 @@ Duplicate detection applies to every pattern array: per-section `include` and
 ```toml
 [dedup]
 mode = "warn"                     # overlaps are warnings, not failures
+require_explicit_ownership = true # refuse tie-break ownership in strict environments
 
 [repomix]
 missing_extension = "fail"        # require the cx adapter extension in CI

@@ -81,6 +81,7 @@ export interface CxFilesConfig {
 export interface CxDedupConfig {
   mode: CxDedupMode;
   order: "config" | "lexical";
+  requireExplicitOwnership: boolean;
 }
 
 export interface CxManifestConfig {

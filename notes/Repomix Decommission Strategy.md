@@ -2,7 +2,7 @@
 id: 20260420110600
 title: Repomix Decommission Strategy
 tags: ["repomix", "migration", "architecture"]
-target: v0.4
+target: current
 ---
 Repomix becomes a temporary compatibility layer.
 

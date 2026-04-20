@@ -37,6 +37,7 @@ unmatched = "ignore"
 [dedup]
 mode = "fail"
 order = "config"
+require_explicit_ownership = false
 
 [manifest]
 format = "json"
@@ -127,6 +128,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   dedup: {
     mode: "fail",
     order: "config",
+    requireExplicitOwnership: false,
   },
   manifest: {
     format: "json",

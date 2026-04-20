@@ -56,6 +56,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "unmatched",
     "mode",
     "order",
+    "require_explicit_ownership",
     "format",
     "pretty",
     "include_file_sha256",
@@ -167,6 +168,7 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
     dedup: {
       mode: config.dedup.mode,
       order: config.dedup.order,
+      require_explicit_ownership: config.dedup.requireExplicitOwnership,
     },
     manifest: {
       format: config.manifest.format,

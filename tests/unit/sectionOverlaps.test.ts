@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { CxConfig } from "../../src/config/types.js";
 import {
   analyzeSectionOverlaps,
+  collectAmbiguousOverlapConflicts,
   formatOverlapConflictMessage,
+  hasExplicitOverlapOwner,
 } from "../../src/planning/overlaps.js";
 
 function makeConfig(partial: Pick<CxConfig, "sections" | "dedup">): CxConfig {
@@ -21,7 +23,11 @@ describe("planning section overlap analysis", () => {
           src: { include: ["src/**"], exclude: [] },
           tests: { include: ["tests/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts", "tests/main.test.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -34,7 +40,11 @@ describe("planning section overlap analysis", () => {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -48,7 +58,11 @@ describe("planning section overlap analysis", () => {
           all: { include: ["**/*"], exclude: [], priority: 1 },
           src: { include: ["src/**"], exclude: [], priority: 5 },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -64,7 +78,11 @@ describe("planning section overlap analysis", () => {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -80,7 +98,11 @@ describe("planning section overlap analysis", () => {
           all: { include: ["**/*"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/a.ts", "src/b.ts", "tests/c.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -94,7 +116,11 @@ describe("planning section overlap analysis", () => {
           all: { include: ["**/*"], exclude: [], catch_all: true },
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
@@ -107,7 +133,11 @@ describe("planning section overlap analysis", () => {
         sections: {
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const conflicts = await analyzeSectionOverlaps(config, []);
       expect(conflicts).toEqual([]);
@@ -120,12 +150,91 @@ describe("planning section overlap analysis", () => {
           code: { include: ["**/*.ts", "**/*.js"], exclude: [] },
           src: { include: ["src/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       });
       const masterList = ["src/main.ts"];
       const conflicts = await analyzeSectionOverlaps(config, masterList);
       // Should detect overlaps for src/main.ts with multiple sections
       expect(conflicts.length).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe("explicit ownership", () => {
+    it("treats a distinct highest priority as explicit ownership", () => {
+      const config = makeConfig({
+        sections: {
+          src: { include: ["src/**"], exclude: [], priority: 10 },
+          mixed: { include: ["src/**"], exclude: [], priority: 5 },
+        },
+        dedup: {
+          order: "config",
+          mode: "first-wins",
+          requireExplicitOwnership: true,
+        },
+      });
+
+      expect(
+        hasExplicitOverlapOwner(config, {
+          sections: ["src", "mixed"],
+        }),
+      ).toBe(true);
+    });
+
+    it("treats equal highest priorities as ambiguous ownership", () => {
+      const config = makeConfig({
+        sections: {
+          src: { include: ["src/**"], exclude: [], priority: 10 },
+          mixed: { include: ["src/**"], exclude: [], priority: 10 },
+        },
+        dedup: {
+          order: "config",
+          mode: "first-wins",
+          requireExplicitOwnership: true,
+        },
+      });
+
+      expect(
+        hasExplicitOverlapOwner(config, {
+          sections: ["src", "mixed"],
+        }),
+      ).toBe(false);
+    });
+
+    it("collects ambiguous conflicts that would fall back to tie-break order", () => {
+      const config = makeConfig({
+        sections: {
+          src: { include: ["src/**"], exclude: [] },
+          mixed: { include: ["src/**"], exclude: [] },
+          docs: { include: ["docs/**"], exclude: [], priority: 5 },
+        },
+        dedup: {
+          order: "config",
+          mode: "warn",
+          requireExplicitOwnership: true,
+        },
+      });
+
+      const ambiguous = collectAmbiguousOverlapConflicts(config, [
+        {
+          path: "src/index.ts",
+          sections: ["src", "mixed"],
+          recommendedOwner: "src",
+          suggestions: [{ section: "mixed", pattern: "src/index.ts" }],
+        },
+        {
+          path: "docs/guide.md",
+          sections: ["docs"],
+          recommendedOwner: "docs",
+          suggestions: [],
+        },
+      ]);
+
+      expect(ambiguous).toHaveLength(1);
+      expect(ambiguous[0]?.path).toBe("src/index.ts");
     });
   });
 

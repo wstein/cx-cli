@@ -35,6 +35,7 @@ export interface BuildConfigOptions {
   assets?: Partial<CxAssetsConfig>;
   mcp?: Partial<CxMcpConfig>;
   sections?: Record<string, BuildSectionOptions>;
+  dedup?: Partial<CxConfig["dedup"]>;
 }
 
 function buildSections(
@@ -118,6 +119,8 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
     dedup: {
       mode: "fail",
       order: "config",
+      requireExplicitOwnership: false,
+      ...options.dedup,
     },
     manifest: {
       format: "json",

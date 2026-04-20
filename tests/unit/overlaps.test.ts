@@ -94,7 +94,11 @@ describe("planning overlaps", () => {
           core: { include: ["src/**"], exclude: [] },
           tests: { include: ["tests/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order).toEqual(["core", "tests"]);
@@ -107,7 +111,11 @@ describe("planning overlaps", () => {
           apple: { include: [], exclude: [] },
           middle: { include: [], exclude: [] },
         },
-        dedup: { order: "lexical", mode: "fail" },
+        dedup: {
+          order: "lexical",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order).toEqual(["apple", "middle", "zebra"]);
@@ -120,7 +128,11 @@ describe("planning overlaps", () => {
           high: { include: [], exclude: [], priority: 10 },
           medium: { include: [], exclude: [], priority: 5 },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order[0]).toBe("high");
@@ -134,7 +146,11 @@ describe("planning overlaps", () => {
           noprio: { include: [], exclude: [] },
           high: { include: [], exclude: [], priority: 5 },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order[0]).toBe("high");
@@ -147,7 +163,11 @@ describe("planning overlaps", () => {
           second: { include: [], exclude: [], priority: 5 },
           third: { include: [], exclude: [], priority: 5 },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order).toEqual(["first", "second", "third"]);
@@ -156,7 +176,11 @@ describe("planning overlaps", () => {
     it("returns empty array for config with no sections", () => {
       const config: CxConfig = {
         sections: {},
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order).toEqual([]);
@@ -167,7 +191,11 @@ describe("planning overlaps", () => {
         sections: {
           only: { include: ["**/*"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const order = getSectionOrder(config);
       expect(order).toEqual(["only"]);
@@ -181,7 +209,11 @@ describe("planning overlaps", () => {
           core: { include: ["src/**"], exclude: [] },
           tests: { include: ["tests/**"], exclude: [] },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const entries = getSectionEntries(config);
       expect(entries.size).toBe(2);
@@ -195,7 +227,11 @@ describe("planning overlaps", () => {
           zebra: { include: [], exclude: [], priority: 1 },
           apple: { include: [], exclude: [], priority: 5 },
         },
-        dedup: { order: "lexical", mode: "fail" },
+        dedup: {
+          order: "lexical",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const entries = getSectionEntries(config);
       const keys = [...entries.keys()];
@@ -206,7 +242,11 @@ describe("planning overlaps", () => {
     it("returns empty map for config with no sections", () => {
       const config: CxConfig = {
         sections: {},
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const entries = getSectionEntries(config);
       expect(entries.size).toBe(0);
@@ -221,7 +261,11 @@ describe("planning overlaps", () => {
             priority: 5,
           },
         },
-        dedup: { order: "config", mode: "fail" },
+        dedup: {
+          order: "config",
+          mode: "fail",
+          requireExplicitOwnership: false,
+        },
       } as unknown as CxConfig;
       const entries = getSectionEntries(config);
       const srcSection = entries.get("src");

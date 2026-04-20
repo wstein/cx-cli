@@ -28,6 +28,7 @@ unmatched = "ignore"
 [dedup]
 mode = "fail"
 order = "config"
+require_explicit_ownership = true
 
 [manifest]
 format = "json"

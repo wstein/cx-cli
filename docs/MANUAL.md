@@ -534,6 +534,18 @@ cx doctor fix-overlaps --config cx.toml --interactive
 
 Interactive mode is the safest choice when the recommended owner is not obviously correct.
 
+If you want dynamic overlap resolution without implicit tie-break ownership,
+use:
+
+```toml
+[dedup]
+mode = "first-wins"
+require_explicit_ownership = true
+```
+
+That keeps the dynamic ownership model, but turns equal-priority overlaps back
+into hard failures instead of silently falling back to config or lexical order.
+
 ### Step 4: Re-run the pipeline
 
 ```bash

@@ -2,7 +2,7 @@
 id: 20260420124000
 title: Contract Versioning Strategy
 tags: ["contracts", "versioning", "governance"]
-target: v0.4
+target: current
 ---
 Contract surfaces need explicit versioning when `cx` chooses hard breaks over deprecation layers.
 
