@@ -1,6 +1,6 @@
 import type { CxStyle } from "../config/types.js";
 
-export function buildSectionHeaderText(params: {
+export function buildSectionHandoverText(params: {
   projectName: string;
   sectionName: string;
   outputFile?: string;

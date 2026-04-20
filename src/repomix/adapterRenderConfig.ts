@@ -1,10 +1,11 @@
 import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
-import { buildSectionHeaderText } from "../repomix/handover.js";
-import type { RenderSectionInput } from "./types.js";
 
-export function buildRepomixCliConfig(
+import { buildSectionHandoverText } from "../render/sectionHandover.js";
+import type { RenderSectionInput } from "../render/types.js";
+
+export function buildAdapterRenderConfig(
   params: RenderSectionInput,
 ): Parameters<typeof RepomixTypes.mergeConfigs>[2] {
   return {
@@ -12,7 +13,7 @@ export function buildRepomixCliConfig(
       filePath: params.outputPath,
       style: params.style,
       parsableStyle: params.style === "json",
-      headerText: buildSectionHeaderText({
+      headerText: buildSectionHandoverText({
         projectName: params.config.projectName,
         sectionName: params.sectionName,
         ...(path.basename(params.outputPath) === "output"

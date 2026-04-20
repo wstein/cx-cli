@@ -3,7 +3,6 @@ import path from "node:path";
 
 import type * as RepomixTypes from "@wsmy/repomix-cx-fork";
 import { computePlanHash, planToMaps } from "../render/planHash.js";
-import { buildRepomixCliConfig } from "../render/repomixConfig.js";
 import {
   countLogicalLines,
   countNewlines,
@@ -17,6 +16,7 @@ import type {
 import { CxError } from "../shared/errors.js";
 import { type CommandIo, writeStderr } from "../shared/output.js";
 import { countTokensForFiles } from "../shared/tokens.js";
+import { buildAdapterRenderConfig } from "./adapterRenderConfig.js";
 import {
   detectRepomixCapabilities,
   getAdapterModulePath,
@@ -104,7 +104,7 @@ export async function renderSectionWithRepomix(
   const mergedConfig = mergeConfigs(
     params.sourceRoot,
     {},
-    buildRepomixCliConfig(params),
+    buildAdapterRenderConfig(params),
   );
   const warnings: string[] = [];
 

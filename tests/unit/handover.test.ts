@@ -2,11 +2,11 @@
 import { describe, expect, test } from "vitest";
 
 import { renderSharedHandoverText } from "../../src/render/handover.js";
-import { buildSectionHeaderText } from "../../src/repomix/handover.js";
+import { buildSectionHandoverText } from "../../src/render/sectionHandover.js";
 
 describe("handover text", () => {
   test("builds a self-explaining section header without changing canonical fields", () => {
-    const header = buildSectionHeaderText({
+    const header = buildSectionHandoverText({
       projectName: "demo",
       sectionName: "docs",
       outputFile: "demo-repomix-docs.xml.txt",
