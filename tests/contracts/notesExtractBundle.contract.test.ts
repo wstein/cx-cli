@@ -103,31 +103,36 @@ describe("notes extract bundle contract", () => {
     expect(parseNotesExtractBundleContent(plain.content)).toEqual(plain.bundle);
   });
 
-  test("fixture example bundle remains parseable for downstream tooling experiments", async () => {
-    const fixturePath = path.join(
-      process.cwd(),
+  test("fixture example bundles remain parseable for downstream tooling experiments", async () => {
+    const fixturePaths = [
       "tests/fixtures/bundles/notes-arc42-example.llm.md",
-    );
-    const content = await fs.readFile(fixturePath, "utf8");
-    const bundle = parseNotesExtractBundleContent(content, fixturePath);
+      "tests/fixtures/bundles/notes-arc42-example.llm.xml",
+      "tests/fixtures/bundles/notes-arc42-example.llm.txt",
+    ];
 
-    expect(bundle.profile.name).toBe("arc42");
-    expect(bundle.profile.requiredNotes).toEqual([
-      "Render Kernel Constitution",
-    ]);
-    expect(bundle.profile.requiredSections).toEqual([
-      "introduction-and-goals",
-      "constraints",
-      "solution-strategy",
-      "building-block-view",
-      "runtime-view",
-      "cross-cutting-concepts",
-      "quality-scenarios",
-      "risks-and-technical-debt",
-      "reference-notes",
-    ]);
-    expect(bundle.notes.map((note) => note.title)).toEqual([
-      "Render Kernel Constitution",
-    ]);
+    for (const fixtureRelativePath of fixturePaths) {
+      const fixturePath = path.join(process.cwd(), fixtureRelativePath);
+      const content = await fs.readFile(fixturePath, "utf8");
+      const bundle = parseNotesExtractBundleContent(content, fixturePath);
+
+      expect(bundle.profile.name).toBe("arc42");
+      expect(bundle.profile.requiredNotes).toEqual([
+        "Render Kernel Constitution",
+      ]);
+      expect(bundle.profile.requiredSections).toEqual([
+        "introduction-and-goals",
+        "constraints",
+        "solution-strategy",
+        "building-block-view",
+        "runtime-view",
+        "cross-cutting-concepts",
+        "quality-scenarios",
+        "risks-and-technical-debt",
+        "reference-notes",
+      ]);
+      expect(bundle.notes.map((note) => note.title)).toEqual([
+        "Render Kernel Constitution",
+      ]);
+    }
   });
 });
