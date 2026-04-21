@@ -3,7 +3,7 @@ id: 20260421120300
 title: cx notes extract must embed LLM instructions inside the profile output
 aliases: [embedded prompt contract, profile instructions in output, LLM instructions in extraction bundle]
 tags: [cx, notes, llm, profiles, prompts]
-target: v0.4
+target: current
 ---
 # cx notes extract must embed LLM instructions inside the profile output
 
@@ -11,7 +11,7 @@ target: v0.4
 
 ## What
 
-Each extracted bundle should include the effective LLM instructions defined by the selected profile.
+Each extracted bundle includes the effective LLM instructions defined by the selected profile.
 
 These instructions should cover:
 - target document kind

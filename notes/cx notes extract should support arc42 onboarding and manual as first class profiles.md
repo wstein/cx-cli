@@ -3,11 +3,11 @@ id: 20260421120400
 title: cx notes extract should support arc42 onboarding and manual as first class profiles
 aliases: [first class extraction profiles, arc42 onboarding manual profiles, notes extract profile targets]
 tags: [cx, notes, profiles, arc42, onboarding, manual]
-target: v0.4
+target: current
 ---
 # cx notes extract should support arc42 onboarding and manual as first class profiles
 
-`cx notes extract` should support `arc42`, `onboarding`, and `manual` as first-class profiles because those outputs serve different readers, require different narrative structures, and should not be produced from one undifferentiated note dump.
+`cx notes extract` supports `arc42`, `onboarding`, and `manual` as first-class profiles because those outputs serve different readers, require different narrative structures, and should not be produced from one undifferentiated note dump.
 
 ## What
 

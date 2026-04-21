@@ -10,8 +10,6 @@ claims about the system until governance, human review, or later proof paths
 confirm them.
 
 For the formal documentation set, start with [docs/README.md](../docs/README.md).
-The revision consensus for the repository lives in
-[docs/spec-draft.md](../docs/spec-draft.md).
 Use `notes/` for the definitive knowledge graph and `docs/` for snapshots, manuals, and
 implementation contracts.
 
@@ -31,6 +29,12 @@ In practice:
 
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
+
+`cx notes extract --profile <name>` now compiles canonical notes into
+deterministic LLM bundles for downstream documentation synthesis.
+That command does not write final docs directly. It keeps notes
+canonical, emits profile-scoped prompt bundles, and leaves the final
+narrative writing step downstream and reviewable.
 
 The notes graph is the repository cognition layer. It is where high-signal reasoning becomes durable enough for later humans, agents, bundles, and CI to reuse safely.
 
@@ -154,6 +158,11 @@ Stable ids matter because downstream automation can reference notes without depe
 Suggested filename style: `Clear Searchable Title.md`.
 
 For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, and `notes_code_links(...)` after renames or note additions.
+
+For downstream doc compilation, prefer `cx notes extract --profile arc42`,
+`cx notes extract --profile onboarding`, or `cx notes extract --profile manual`
+over ad hoc prompt assembly. That keeps selection, ordering, LLM
+instructions, and provenance inside a reviewable repository contract.
 
 ## Minimum Anatomy
 

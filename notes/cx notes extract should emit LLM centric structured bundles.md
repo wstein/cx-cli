@@ -3,11 +3,11 @@ id: 20260421120200
 title: cx notes extract should emit LLM centric structured bundles
 aliases: [LLM bundle output, notes extract output format, structured prompt bundle]
 tags: [cx, notes, llm, output, formats]
-target: v0.4
+target: current
 ---
 # cx notes extract should emit LLM centric structured bundles
 
-`cx notes extract` should emit LLM-centric structured bundles because the command's primary consumer is not a human reader but a constrained synthesis step that needs canonical content, explicit instructions, and durable section boundaries.
+`cx notes extract` emits LLM-centric structured bundles because the command's primary consumer is not a human reader but a constrained synthesis step that needs canonical content, explicit instructions, and durable section boundaries.
 
 ## What
 

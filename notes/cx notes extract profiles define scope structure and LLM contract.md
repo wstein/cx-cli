@@ -3,11 +3,11 @@ id: 20260421120100
 title: cx notes extract profiles define scope structure and LLM contract
 aliases: [notes extract profiles, profile contract for notes extraction, LLM profile contract]
 tags: [cx, notes, profiles, llm, governance]
-target: v0.4
+target: current
 ---
 # cx notes extract profiles define scope structure and LLM contract
 
-Profiles for `cx notes extract` should define not only which notes are selected, but also the structure, intended document product, and LLM authoring contract for the emitted bundle. A profile is a compilation contract, not just a tag filter.
+Profiles for `cx notes extract` define not only which notes are selected, but also the structure, intended document product, and LLM authoring contract for the emitted bundle. A profile is a compilation contract, not just a tag filter.
 
 ## What
 

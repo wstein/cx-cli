@@ -88,6 +88,7 @@ function baseConfig(root: string): CxConfig {
       strictNotesMode: false,
       failOnDriftPressuredNotes: false,
       appliesToSections: [],
+      profiles: {},
     },
     scanner: {
       mode: "warn",

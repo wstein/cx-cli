@@ -192,6 +192,7 @@ exclude = []
                 strictNotesMode: false,
                 failOnDriftPressuredNotes: false,
                 appliesToSections: [],
+                profiles: {},
               },
               scanner: {
                 mode: "warn",

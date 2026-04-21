@@ -3,19 +3,19 @@ id: 20260421120000
 title: cx notes extract compiles canonical notes into profile scoped LLM bundles
 aliases: [cx notes extract, notes extraction command, profile scoped notes bundle]
 tags: [cx, notes, extraction, llm, cli]
-target: v0.4
+target: current
 ---
 # cx notes extract compiles canonical notes into profile scoped LLM bundles
 
-`cx notes extract` should compile canonical notes into profile-scoped LLM bundles because the repository needs a deterministic bridge between atomic note truth and downstream narrative documentation workflows without making generated docs or LLM prompts the new source of truth.
+`cx notes extract` compiles canonical notes into profile-scoped LLM bundles because the repository needs a deterministic bridge between atomic note truth and downstream narrative documentation workflows without making generated docs or LLM prompts the new source of truth.
 
 ## What
 
-The command `cx notes extract` would read canonical notes from `notes/**`, apply profile-specific selection and ordering rules, and emit a structured bundle for downstream LLM-assisted document compilation.
+The command `cx notes extract` reads canonical notes from `notes/**`, applies profile-specific selection and ordering rules, and emits a structured bundle for downstream LLM-assisted document compilation.
 
-The command should not write final human docs directly.
+The command does not write final human docs directly.
 
-Instead it should produce a profile-shaped extraction artifact containing:
+Instead it produces a profile-shaped extraction artifact containing:
 - canonical note content
 - profile metadata
 - authoring contract
@@ -35,7 +35,7 @@ The repository needs an intermediate artifact that is:
 - profile-aware
 - explicit about authority boundaries
 
-This would allow:
+This allows:
 - notes to remain canonical
 - LLM synthesis to stay constrained
 - generated docs to remain downstream and reviewable
@@ -43,7 +43,7 @@ This would allow:
 
 ## How
 
-Implement `cx notes extract` as a read-only extraction command.
+`cx notes extract` is a read-only extraction command.
 
 It should:
 - load validated notes

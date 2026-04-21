@@ -276,6 +276,94 @@ stay `high++_++signal`. When the gate is active, `cx bundle` aborts with
 the same non-zero notes exit family used for malformed or duplicate
 notes.
 
+=== `++[++notes.profiles.++<++name++>]++`
+
+Notes extraction profiles define how `cx notes extract` compiles
+canonical notes into deterministic LLM bundles.
+
+[cols=",,",options="header",]
+|===
+|Key |Default |Description
+|`description` |— |Human-readable purpose for the profile.
+
+|`output++_++format` |`"markdown"` |Bundle serialization format:
+`markdown`, `xml`, or `plain`.
+
+|`target++_++paths` |— |Downstream target paths the bundle is intended to
+feed.
+
+|`include++_++tags` |`++[]++` |Tags that select notes into the bundle.
+When empty, target filtering is the primary selector.
+
+|`exclude++_++tags` |`++[]++` |Tags that explicitly remove notes from the
+bundle.
+
+|`required++_++notes` |`++[]++` |Note ids, titles, or aliases that must
+be present in the bundle.
+
+|`include++_++targets` |`++[++"current", "v0.4"++]++` |Note target states
+that are eligible for inclusion.
+
+|`section++_++order` |— |Deterministic section order for the emitted
+bundle.
+
+|`section++_++tags` |`++{}++` |Mapping from section ids to tags used for
+note grouping.
+
+|`llm` |— |Nested authoring contract that travels inside the output
+bundle.
+|===
+
+`cx notes extract` stays read-only. It emits an LLM-centered intermediate
+artifact, not final prose. The profile therefore owns both the
+selection contract and the downstream authoring contract.
+
+Example:
+
+[source,toml]
+----
+[notes.profiles.arc42]
+description = "Compile canonical notes into an arc42-oriented LLM bundle."
+output_format = "markdown"
+target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
+include_tags = []
+exclude_tags = []
+required_notes = []
+include_targets = ["current", "v0.4"]
+section_order = [
+  "introduction-and-goals",
+  "constraints",
+  "solution-strategy",
+  "building-block-view",
+  "runtime-view",
+  "cross-cutting-concepts",
+  "quality-scenarios",
+  "risks-and-technical-debt",
+  "reference-notes",
+]
+
+[notes.profiles.arc42.section_tags]
+constraints = ["contract", "governance", "trust"]
+solution-strategy = ["architecture", "kernel", "render"]
+
+[notes.profiles.arc42.llm]
+system_role = "You are a senior software architect and technical writer."
+instructions = "Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth."
+target_format = "asciidoc"
+document_kind = "arc42 architecture"
+audience = "architects-and-maintainers"
+tone = "formal-technical"
+must_cite_note_titles = true
+must_preserve_uncertainty = true
+must_not_invent_facts = true
+must_include_provenance = true
+must_surface_conflicts = true
+----
+
+The built-in first-class profiles are `arc42`, `onboarding`, and
+`manual`. Profile definitions in `cx.toml` override those built-ins for
+the current repository.
+
 === `++[++scanner++]++`
 
 [cols=",,",options="header",]

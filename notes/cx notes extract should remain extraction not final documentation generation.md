@@ -3,11 +3,11 @@ id: 20260421120600
 title: cx notes extract should remain extraction not final documentation generation
 aliases: [extraction not docs generation, notes extract boundary, no direct final docs from extract]
 tags: [cx, notes, docs, architecture, boundaries]
-target: v0.4
+target: current
 ---
 # cx notes extract should remain extraction not final documentation generation
 
-`cx notes extract` should remain an extraction command rather than a final documentation generator because the repository needs a clean boundary between canonical knowledge compilation and downstream narrative authoring.
+`cx notes extract` remains an extraction command rather than a final documentation generator because the repository needs a clean boundary between canonical knowledge compilation and downstream narrative authoring.
 
 ## What
 

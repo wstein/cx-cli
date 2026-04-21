@@ -3,15 +3,15 @@ id: 20260421120500
 title: cx notes extract should preserve provenance into downstream docs workflows
 aliases: [extraction provenance, provenance preserving notes bundles, note source traceability]
 tags: [cx, notes, provenance, docs, governance]
-target: v0.4
+target: current
 ---
 # cx notes extract should preserve provenance into downstream docs workflows
 
-`cx notes extract` should preserve provenance into downstream documentation workflows because generated or LLM-compiled docs remain trustworthy only when reviewers can trace claims back to the canonical notes that supplied them.
+`cx notes extract` preserves provenance into downstream documentation workflows because generated or LLM-compiled docs remain trustworthy only when reviewers can trace claims back to the canonical notes that supplied them.
 
 ## What
 
-An extraction bundle should preserve provenance such as:
+An extraction bundle preserves provenance such as:
 - note path
 - note id
 - note title
