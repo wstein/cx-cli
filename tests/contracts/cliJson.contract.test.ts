@@ -1,6 +1,7 @@
 // test-lane: contract
 
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import { main } from "../../src/cli/main.js";
@@ -57,6 +58,73 @@ This linked note stays visible through inspect provenance for governance-safe co
 }
 
 describe("CLI JSON contract", () => {
+  test("docs compile --json returns structured payload", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-docs-cli-"));
+    workspaceRoots.push(root);
+    await fs.mkdir(path.join(root, "notes"));
+    await fs.writeFile(
+      path.join(root, "notes", "Render Kernel Constitution.md"),
+      `---
+id: 20260421142000
+aliases: []
+tags: [architecture, kernel, contract]
+target: current
+---
+The render kernel owns the production proof path.
+
+## What
+
+The native kernel is the canonical render and verification boundary.
+
+## Why
+
+This keeps runtime trust anchored in deterministic kernel artifacts.
+
+## How
+
+Use oracle tooling only for parity diagnostics.
+
+## Links
+
+- [[src/cli/main.ts]]
+`,
+      "utf8",
+    );
+
+    const cwd = process.cwd();
+    process.chdir(root);
+    let result: Awaited<ReturnType<typeof captureCli>>;
+    try {
+      result = await captureCli({
+        run: () => main(["docs", "compile", "--profile", "arc42", "--json"]),
+      });
+    } finally {
+      process.chdir(cwd);
+    }
+
+    expect(result.exitCode).toBe(0);
+    const payload = parseJsonOutput<{
+      command?: string;
+      profile?: string;
+      documentKind?: string;
+      targetPaths?: string[];
+      writtenFiles?: string[];
+      noteCount?: number;
+      sectionCount?: number;
+    }>(result.stdout);
+    expect(payload.command).toBe("docs compile");
+    expect(payload.profile).toBe("arc42");
+    expect(payload.documentKind).toBe("arc42 architecture");
+    expect(payload.targetPaths).toEqual([
+      "docs/modules/ROOT/pages/architecture/index.adoc",
+    ]);
+    expect(payload.writtenFiles?.[0]).toContain(
+      "docs/modules/ROOT/pages/architecture/index.adoc",
+    );
+    expect(payload.noteCount).toBeGreaterThan(0);
+    expect(payload.sectionCount).toBeGreaterThan(0);
+  });
+
   test("inspect --json returns structured payload", async () => {
     const project = await createProject();
     const result = await captureCli({

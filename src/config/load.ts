@@ -483,7 +483,7 @@ function parseNotesProfiles(
       );
     }
 
-    profiles[profileName] = {
+    const profile = {
       description: expectString(
         rawProfile.description,
         `notes.profiles.${profileName}.description`,
@@ -529,6 +529,20 @@ function parseNotesProfiles(
         `notes.profiles.${profileName}.llm`,
       ),
     };
+
+    const selectionTags = new Set([
+      ...profile.includeTags.map((tag) => tag.toLowerCase()),
+      ...Object.values(profile.sectionTags)
+        .flat()
+        .map((tag) => tag.toLowerCase()),
+    ]);
+    if (selectionTags.size === 0 && profile.requiredNotes.length === 0) {
+      throw new CxError(
+        `notes.profiles.${profileName} must define at least one note-selection surface via include_tags, section_tags, or required_notes.`,
+      );
+    }
+
+    profiles[profileName] = profile;
   }
 
   return profiles;

@@ -4,7 +4,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { compileNotesExtractBundle } from "../../src/notes/extract.js";
+import {
+  compileNotesExtractBundle,
+  parseNotesExtractBundleContent,
+} from "../../src/notes/extract.js";
 
 let workspaceRoot: string;
 
@@ -106,6 +109,21 @@ describe("compileNotesExtractBundle", () => {
       }),
     );
 
+    await fs.writeFile(
+      path.join(workspaceRoot, "notes", "Unrelated Current Release Note.md"),
+      noteContent({
+        id: "20260421130300",
+        title: "Unrelated Current Release Note",
+        tags: ["release-only"],
+        target: "current",
+        summary:
+          "This note is current but outside the built-in arc42 profile contract.",
+        what: "It should not be selected just because the target is current.",
+        why: "Profiles must select by declared scope instead of broad target leakage.",
+        how: "Keep it out of bundles unless the profile explicitly asks for release-only content.",
+      }),
+    );
+
     const result = await compileNotesExtractBundle({
       workspaceRoot,
       profileName: "arc42",
@@ -122,7 +140,13 @@ describe("compileNotesExtractBundle", () => {
     ]);
     expect(result.content).toContain("# CX Notes LLM Bundle");
     expect(result.content).toContain("## Authoring Contract");
+    expect(result.content).toContain("## Machine Payload");
     expect(result.content).toContain("#### Note: Render Kernel Constitution");
     expect(result.content).not.toContain("Future Extraction Idea");
+    expect(result.content).not.toContain("Unrelated Current Release Note");
+
+    expect(parseNotesExtractBundleContent(result.content)).toEqual(
+      result.bundle,
+    );
   });
 });

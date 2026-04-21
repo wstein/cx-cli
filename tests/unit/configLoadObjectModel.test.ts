@@ -139,6 +139,45 @@ describe("loadCxConfig object model", () => {
     });
   });
 
+  test("rejects notes extraction profiles without a selection surface", async () => {
+    await expect(
+      loadConfig({
+        notes: {
+          profiles: {
+            empty_contract: {
+              description: "This profile is missing a selection surface.",
+              outputFormat: "markdown",
+              targetPaths: [
+                "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+              ],
+              includeTags: [],
+              excludeTags: [],
+              requiredNotes: [],
+              includeTargets: ["current"],
+              sectionOrder: ["reference-notes"],
+              sectionTags: {},
+              llm: {
+                systemRole: "You are a technical writer.",
+                instructions: "Write carefully.",
+                targetFormat: "asciidoc",
+                documentKind: "manual",
+                audience: "operators",
+                tone: "technical",
+                mustCiteNoteTitles: true,
+                mustPreserveUncertainty: true,
+                mustNotInventFacts: true,
+                mustIncludeProvenance: true,
+                mustSurfaceConflicts: true,
+              },
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow(
+      "notes.profiles.empty_contract must define at least one note-selection surface",
+    );
+  });
+
   test("loads scanner settings from config", async () => {
     const config = await loadConfig({
       scanner: {

@@ -17,6 +17,7 @@ import { runAdapterCommand } from "./commands/adapter.js";
 import { runAuditCommand } from "./commands/audit.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runConfigCommand } from "./commands/config.js";
+import { runDocsCommand } from "./commands/docs.js";
 import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
@@ -850,6 +851,69 @@ export async function main(
         );
       },
     );
+
+  cli.command(
+    "docs [subcommand]",
+    "Compile extracted notes bundles into final docs.",
+    (command) =>
+      command
+        .example(
+          "$0 docs compile --profile arc42",
+          "Compile canonical notes into the arc42 target document paths.",
+        )
+        .example(
+          "$0 docs compile --bundle dist/notes-manual.llm.md",
+          "Compile docs from an existing extracted bundle.",
+        )
+        .positional("subcommand", {
+          type: "string",
+          choices: ["compile"],
+          default: "compile",
+        })
+        .option("profile", {
+          type: "string",
+          description:
+            "Notes extraction profile to compile directly when no bundle path is supplied.",
+        })
+        .option("bundle", {
+          type: "string",
+          description:
+            "Existing notes extract bundle to compile into final docs.",
+        })
+        .option("format", {
+          choices: ["markdown", "xml", "plain"] as const,
+          description:
+            "Bundle format to use when compiling directly from --profile.",
+        })
+        .option("output", {
+          type: "array",
+          string: true,
+          description:
+            "Override the output paths written by docs compile. Defaults to the selected bundle target paths.",
+        })
+        .option("config", {
+          type: "string",
+          default: "cx.toml",
+          description:
+            "Configuration file that may define notes extraction profiles.",
+        })
+        .option("json", { type: "boolean", default: false }),
+    async (args) => {
+      exitCode = await runDocsCommand(
+        {
+          subcommand: args.subcommand as string | undefined,
+          workspaceRoot: io.cwd,
+          profile: args.profile as string | undefined,
+          bundle: args.bundle as string | undefined,
+          format: args.format as "markdown" | "xml" | "plain" | undefined,
+          output: normalizeArrayArg(args.output),
+          config: args.config as string | undefined,
+          json: args.json,
+        },
+        io,
+      );
+    },
+  );
 
   cli.command(
     "mcp [subcommand]",

@@ -83,6 +83,11 @@ export interface CompileNotesExtractBundleOptions {
   configPath?: string;
 }
 
+const MARKDOWN_PAYLOAD_START = "<!-- cx-notes-bundle-payload:start -->";
+const MARKDOWN_PAYLOAD_END = "<!-- cx-notes-bundle-payload:end -->";
+const PLAIN_PAYLOAD_START = "CX NOTES MACHINE PAYLOAD START";
+const PLAIN_PAYLOAD_END = "CX NOTES MACHINE PAYLOAD END";
+
 const TARGET_PRIORITY: Record<NoteTarget, number> = {
   current: 0,
   "v0.4": 1,
@@ -125,6 +130,24 @@ function renderSectionTitle(sectionId: string): string {
 
 function normalizeTagSet(tags: string[]): Set<string> {
   return new Set(tags.map((tag) => tag.toLowerCase()));
+}
+
+function selectionTagsForProfile(
+  profile: CxNotesExtractProfileConfig,
+): Set<string> {
+  return new Set([
+    ...profile.includeTags,
+    ...Object.values(profile.sectionTags).flat(),
+  ]);
+}
+
+function profileHasSelectionSurface(
+  profile: CxNotesExtractProfileConfig,
+): boolean {
+  return (
+    selectionTagsForProfile(profile).size > 0 ||
+    profile.requiredNotes.length > 0
+  );
 }
 
 function splitSections(body: string): NotesExtractNoteSection[] {
@@ -185,6 +208,15 @@ function escapeXml(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
+function unescapeXml(value: string): string {
+  return value
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&apos;", "'")
+    .replaceAll("&amp;", "&");
+}
+
 function renderMarkdownList(values: string[], fallback: string): string[] {
   if (values.length === 0) {
     return [`- ${fallback}`];
@@ -194,7 +226,7 @@ function renderMarkdownList(values: string[], fallback: string): string[] {
 }
 
 function normalizeProfile(
-  _profileName: string,
+  profileName: string,
   profile: CxNotesExtractProfileConfig,
 ): CxNotesExtractProfileConfig {
   const requiredSectionIds = [...profile.sectionOrder];
@@ -209,7 +241,7 @@ function normalizeProfile(
     ]),
   );
 
-  return {
+  const normalizedProfile = {
     ...profile,
     sectionOrder: requiredSectionIds,
     includeTags: [
@@ -231,6 +263,15 @@ function normalizeProfile(
     description: profile.description.trim(),
     targetPaths: [...new Set(profile.targetPaths)],
   };
+
+  if (!profileHasSelectionSurface(normalizedProfile)) {
+    throw new CxError(
+      `notes extract profile '${profileName}' must define at least one note-selection surface via include_tags, section_tags, or required_notes.`,
+      2,
+    );
+  }
+
+  return normalizedProfile;
 }
 
 export function getBuiltinNotesExtractProfiles(): Record<
@@ -461,6 +502,8 @@ async function loadSelectedNotes(params: {
     );
   }
 
+  const selectionTags = selectionTagsForProfile(params.profile);
+
   const selectedMetadata = validation.notes.filter((note) => {
     if (!params.profile.includeTargets.includes(note.target)) {
       return false;
@@ -474,11 +517,11 @@ async function loadSelectedNotes(params: {
       return false;
     }
 
-    if (params.profile.includeTags.length === 0) {
-      return true;
+    if (selectionTags.size === 0) {
+      return false;
     }
 
-    return params.profile.includeTags.some((tag) => tagSet.has(tag));
+    return [...selectionTags].some((tag) => tagSet.has(tag));
   });
 
   const selectedIds = new Set(selectedMetadata.map((note) => note.id));
@@ -626,6 +669,7 @@ function buildBundle(params: {
 }
 
 function renderMarkdownBundle(bundle: NotesExtractBundle): string {
+  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     "<!-- cx-notes-llm-bundle:v1 -->",
     `<!-- profile: ${bundle.profile.name} -->`,
@@ -669,6 +713,13 @@ function renderMarkdownBundle(bundle: NotesExtractBundle): string {
     `- Source glob: ${bundle.provenance.sourceGlob}`,
     `- Generation command: ${bundle.provenance.generationCommand}`,
     "",
+    "## Machine Payload",
+    MARKDOWN_PAYLOAD_START,
+    "```json",
+    machinePayload,
+    "```",
+    MARKDOWN_PAYLOAD_END,
+    "",
     "## Canonical Notes",
   ];
 
@@ -707,6 +758,7 @@ function renderMarkdownBundle(bundle: NotesExtractBundle): string {
 }
 
 function renderXmlBundle(bundle: NotesExtractBundle): string {
+  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<cx-notes-bundle version="1">',
@@ -803,11 +855,15 @@ function renderXmlBundle(bundle: NotesExtractBundle): string {
   }
 
   lines.push("  </notes>");
+  lines.push(
+    `  <machine-payload format="json">${escapeXml(machinePayload)}</machine-payload>`,
+  );
   lines.push("</cx-notes-bundle>");
   return `${lines.join("\n")}\n`;
 }
 
 function renderPlainBundle(bundle: NotesExtractBundle): string {
+  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     `CX NOTES BUNDLE v${bundle.version}`,
     `PROFILE ${bundle.profile.name}`,
@@ -821,6 +877,10 @@ function renderPlainBundle(bundle: NotesExtractBundle): string {
       .split(/\n+/)
       .map((line) => line.trim())
       .filter((line) => line.length > 0),
+    "",
+    PLAIN_PAYLOAD_START,
+    machinePayload,
+    PLAIN_PAYLOAD_END,
     "",
   ];
 
@@ -855,6 +915,80 @@ function renderBundleContent(
     case "plain":
       return renderPlainBundle(bundle);
   }
+}
+
+function extractMachinePayload(
+  content: string,
+  bundlePath: string | undefined,
+): string {
+  const markdownMatch = content.match(
+    /<!-- cx-notes-bundle-payload:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- cx-notes-bundle-payload:end -->/,
+  );
+  if (markdownMatch?.[1]) {
+    return markdownMatch[1].trim();
+  }
+
+  const xmlMatch = content.match(
+    /<machine-payload format="json">([\s\S]*?)<\/machine-payload>/,
+  );
+  if (xmlMatch?.[1]) {
+    return unescapeXml(xmlMatch[1].trim());
+  }
+
+  const plainMatch = content.match(
+    /CX NOTES MACHINE PAYLOAD START\s*([\s\S]*?)\s*CX NOTES MACHINE PAYLOAD END/,
+  );
+  if (plainMatch?.[1]) {
+    return plainMatch[1].trim();
+  }
+
+  throw new CxError(
+    `Notes extract bundle is missing its machine payload${bundlePath ? `: ${bundlePath}` : "."}`,
+    2,
+  );
+}
+
+function isNotesExtractBundle(value: unknown): value is NotesExtractBundle {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<NotesExtractBundle>;
+  return (
+    candidate.version === "1" &&
+    typeof candidate.profile?.name === "string" &&
+    Array.isArray(candidate.profile?.targetPaths) &&
+    typeof candidate.authoringContract?.documentKind === "string" &&
+    typeof candidate.provenance?.generationCommand === "string" &&
+    Array.isArray(candidate.sections) &&
+    Array.isArray(candidate.notes)
+  );
+}
+
+export function parseNotesExtractBundleContent(
+  content: string,
+  bundlePath?: string,
+): NotesExtractBundle {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(extractMachinePayload(content, bundlePath));
+  } catch (error) {
+    const resolved =
+      error instanceof Error ? error.message : "Unknown JSON parse error.";
+    throw new CxError(
+      `Notes extract bundle contains an invalid machine payload${bundlePath ? `: ${bundlePath}` : ""}. ${resolved}`,
+      2,
+    );
+  }
+
+  if (!isNotesExtractBundle(parsed)) {
+    throw new CxError(
+      `Notes extract bundle payload does not match the expected contract${bundlePath ? `: ${bundlePath}` : ""}.`,
+      2,
+    );
+  }
+
+  return parsed;
 }
 
 function defaultOutputPath(
