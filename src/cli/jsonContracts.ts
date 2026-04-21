@@ -260,6 +260,23 @@ export const ConfigCommandJsonSchema = z.object({
   }),
 });
 
+export const NotesExtractCommandJsonSchema = z.object({
+  profile: z.string(),
+  description: z.string(),
+  format: z.enum(["markdown", "xml", "plain"]),
+  outputPath: z.string(),
+  targetPaths: z.array(z.string()),
+  selectedNoteCount: z.number().int().nonnegative(),
+  sectionCount: z.number().int().nonnegative(),
+  sections: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      noteCount: z.number().int().nonnegative(),
+    }),
+  ),
+});
+
 export const ConfigCommandErrorJsonSchema = z.object({
   error: z.string(),
 });

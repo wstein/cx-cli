@@ -72,6 +72,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "strict_notes_mode",
     "fail_on_drift_pressured_notes",
     "applies_to_sections",
+    "profiles",
     "mode",
     "algorithm",
     "file_name",
@@ -198,6 +199,43 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
       fail_on_drift_pressured_notes: config.notes.failOnDriftPressuredNotes,
       ...(config.notes.appliesToSections.length > 0
         ? { applies_to_sections: config.notes.appliesToSections }
+        : {}),
+      ...(Object.keys(config.notes.profiles).length > 0
+        ? {
+            profiles: Object.fromEntries(
+              Object.entries(config.notes.profiles).map(
+                ([profileName, profile]) => [
+                  profileName,
+                  {
+                    description: profile.description,
+                    output_format: profile.outputFormat,
+                    target_paths: profile.targetPaths,
+                    include_tags: profile.includeTags,
+                    exclude_tags: profile.excludeTags,
+                    required_notes: profile.requiredNotes,
+                    include_targets: profile.includeTargets,
+                    section_order: profile.sectionOrder,
+                    section_tags: profile.sectionTags,
+                    llm: {
+                      system_role: profile.llm.systemRole,
+                      instructions: profile.llm.instructions,
+                      target_format: profile.llm.targetFormat,
+                      document_kind: profile.llm.documentKind,
+                      audience: profile.llm.audience,
+                      tone: profile.llm.tone,
+                      must_cite_note_titles: profile.llm.mustCiteNoteTitles,
+                      must_preserve_uncertainty:
+                        profile.llm.mustPreserveUncertainty,
+                      must_not_invent_facts: profile.llm.mustNotInventFacts,
+                      must_include_provenance:
+                        profile.llm.mustIncludeProvenance,
+                      must_surface_conflicts: profile.llm.mustSurfaceConflicts,
+                    },
+                  },
+                ],
+              ),
+            ),
+          }
         : {}),
     },
     scanner: {

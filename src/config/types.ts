@@ -8,6 +8,8 @@ export type CxScannerId = "reference_secrets";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
+export type CxNotesExtractFormat = "markdown" | "xml" | "plain";
+export type CxNotesDocumentFormat = "asciidoc" | "markdown" | "plain";
 
 export interface CxOutputExtensionsConfig {
   xml: string;
@@ -111,6 +113,34 @@ export interface CxNotesConfig {
   strictNotesMode: boolean;
   failOnDriftPressuredNotes: boolean;
   appliesToSections: string[];
+  profiles: Record<string, CxNotesExtractProfileConfig>;
+}
+
+export interface CxNotesExtractLlmConfig {
+  systemRole: string;
+  instructions: string;
+  targetFormat: CxNotesDocumentFormat;
+  documentKind: string;
+  audience: string;
+  tone: string;
+  mustCiteNoteTitles: boolean;
+  mustPreserveUncertainty: boolean;
+  mustNotInventFacts: boolean;
+  mustIncludeProvenance: boolean;
+  mustSurfaceConflicts: boolean;
+}
+
+export interface CxNotesExtractProfileConfig {
+  description: string;
+  outputFormat: CxNotesExtractFormat;
+  targetPaths: string[];
+  includeTags: string[];
+  excludeTags: string[];
+  requiredNotes: string[];
+  includeTargets: Array<"current" | "v0.4" | "backlog">;
+  sectionOrder: string[];
+  sectionTags: Record<string, string[]>;
+  llm: CxNotesExtractLlmConfig;
 }
 
 export interface CxScannerConfig {

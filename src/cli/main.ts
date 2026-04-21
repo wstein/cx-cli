@@ -760,6 +760,10 @@ export async function main(
             "$0 notes coverage",
             "Report tool documentation coverage in notes.",
           )
+          .example(
+            "$0 notes extract --profile arc42 --format xml",
+            "Compile canonical notes into a profile-scoped LLM bundle.",
+          )
           .positional("subcommand", {
             type: "string",
             choices: [
@@ -776,6 +780,7 @@ export async function main(
               "graph",
               "check",
               "coverage",
+              "extract",
             ],
             default: "list",
           })
@@ -803,7 +808,28 @@ export async function main(
             description:
               "Maximum traversal depth for 'graph' subcommand (default: 2).",
           })
-          .option("json", { type: "boolean", default: false }),
+          .option("json", { type: "boolean", default: false })
+          .option("profile", {
+            type: "string",
+            description:
+              "Notes extraction profile name for 'extract' (for example: arc42, onboarding, manual).",
+          })
+          .option("format", {
+            choices: ["markdown", "xml", "plain"] as const,
+            description:
+              "Bundle serialization format for 'extract'. Defaults to the selected profile's output_format.",
+          })
+          .option("output", {
+            type: "string",
+            description:
+              "Write the extracted LLM bundle to this path. Defaults to dist/notes-<profile>.llm.<ext>.",
+          })
+          .option("config", {
+            type: "string",
+            default: "cx.toml",
+            description:
+              "Configuration file that may define notes extraction profiles.",
+          }),
       async (args) => {
         exitCode = await runNotesCommand(
           {
@@ -815,6 +841,10 @@ export async function main(
             depth: args.depth as number | undefined,
             json: args.json,
             workspaceRoot: io.cwd,
+            profile: args.profile as string | undefined,
+            format: args.format as "markdown" | "xml" | "plain" | undefined,
+            output: args.output as string | undefined,
+            config: args.config as string | undefined,
           },
           io,
         );

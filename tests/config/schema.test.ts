@@ -212,6 +212,30 @@ describe("cx-config-v1.schema.json", async () => {
     // Schema is valid if it defines the property at all
     expect(repomixProp).toBeDefined();
   });
+
+  test("notes.profiles supports structured extraction contracts", () => {
+    const notesProp = (schema.properties?.notes ?? {}) as unknown as {
+      properties?: Record<string, unknown>;
+    };
+    const profilesProp = (notesProp.properties?.profiles ?? {}) as unknown as {
+      type?: string;
+      additionalProperties?: {
+        required?: string[];
+        properties?: Record<string, unknown>;
+      };
+    };
+
+    expect(profilesProp.type).toBe("object");
+    expect(profilesProp.additionalProperties?.required).toEqual(
+      expect.arrayContaining([
+        "description",
+        "output_format",
+        "target_paths",
+        "section_order",
+        "llm",
+      ]),
+    );
+  });
 });
 
 describe("cx-config-overlay-v1.schema.json", async () => {

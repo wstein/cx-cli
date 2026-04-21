@@ -74,6 +74,71 @@ describe("loadCxConfig object model", () => {
     expect(config.notes.appliesToSections).toEqual(["docs"]);
   });
 
+  test("loads notes extraction profiles from config", async () => {
+    const config = await loadConfig({
+      notes: {
+        profiles: {
+          arc42: {
+            description: "Compile arc42 note bundles.",
+            outputFormat: "xml",
+            targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
+            includeTags: ["architecture"],
+            excludeTags: ["draft"],
+            requiredNotes: ["Render Kernel Constitution"],
+            includeTargets: ["current", "v0.4"],
+            sectionOrder: ["constraints", "solution-strategy"],
+            sectionTags: {
+              constraints: ["contract"],
+            },
+            llm: {
+              systemRole:
+                "You are a senior software architect and technical writer.",
+              instructions:
+                "Write architecture documentation in AsciiDoc without inventing new facts.",
+              targetFormat: "asciidoc",
+              documentKind: "arc42 architecture",
+              audience: "architects-and-maintainers",
+              tone: "formal-technical",
+              mustCiteNoteTitles: true,
+              mustPreserveUncertainty: true,
+              mustNotInventFacts: true,
+              mustIncludeProvenance: true,
+              mustSurfaceConflicts: true,
+            },
+          },
+        },
+      },
+    });
+
+    expect(config.notes.profiles.arc42).toEqual({
+      description: "Compile arc42 note bundles.",
+      outputFormat: "xml",
+      targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
+      includeTags: ["architecture"],
+      excludeTags: ["draft"],
+      requiredNotes: ["Render Kernel Constitution"],
+      includeTargets: ["current", "v0.4"],
+      sectionOrder: ["constraints", "solution-strategy"],
+      sectionTags: {
+        constraints: ["contract"],
+      },
+      llm: {
+        systemRole: "You are a senior software architect and technical writer.",
+        instructions:
+          "Write architecture documentation in AsciiDoc without inventing new facts.",
+        targetFormat: "asciidoc",
+        documentKind: "arc42 architecture",
+        audience: "architects-and-maintainers",
+        tone: "formal-technical",
+        mustCiteNoteTitles: true,
+        mustPreserveUncertainty: true,
+        mustNotInventFacts: true,
+        mustIncludeProvenance: true,
+        mustSurfaceConflicts: true,
+      },
+    });
+  });
+
   test("loads scanner settings from config", async () => {
     const config = await loadConfig({
       scanner: {

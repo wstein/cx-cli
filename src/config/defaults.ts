@@ -65,6 +65,32 @@ fail_on_drift_pressured_notes = false
 # require_cognition_score = 80
 # applies_to_sections = ["docs"]
 
+# [notes.profiles.arc42]
+# description = "Compile canonical notes into an arc42-oriented LLM bundle."
+# output_format = "markdown"
+# target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
+# include_tags = []
+# exclude_tags = []
+# required_notes = []
+# include_targets = ["current", "v0.4"]
+# section_order = ["introduction-and-goals", "constraints", "solution-strategy", "building-block-view", "runtime-view", "cross-cutting-concepts", "quality-scenarios", "risks-and-technical-debt", "reference-notes"]
+#
+# [notes.profiles.arc42.section_tags]
+# introduction-and-goals = ["docs", "onboarding", "architecture"]
+#
+# [notes.profiles.arc42.llm]
+# system_role = "You are a senior software architect and technical writer."
+# instructions = "Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth."
+# target_format = "asciidoc"
+# document_kind = "arc42 architecture"
+# audience = "architects-and-maintainers"
+# tone = "formal-technical"
+# must_cite_note_titles = true
+# must_preserve_uncertainty = true
+# must_not_invent_facts = true
+# must_include_provenance = true
+# must_surface_conflicts = true
+
 [scanner]
 mode = "warn"
 ids = ["reference_secrets"]
@@ -163,6 +189,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     strictNotesMode: false,
     failOnDriftPressuredNotes: false,
     appliesToSections: [],
+    profiles: {},
   },
   scanner: {
     mode: "warn",

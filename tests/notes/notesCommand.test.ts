@@ -60,6 +60,46 @@ function noteFilePath(fileName: string): string {
   return path.join(testDir, "notes", fileName);
 }
 
+function llmNote(params: {
+  id: string;
+  fileName: string;
+  title: string;
+  tags: string[];
+  target: "current" | "v0.4" | "backlog";
+  summary: string;
+}): Promise<void> {
+  return fs.writeFile(
+    noteFilePath(params.fileName),
+    `---
+id: ${params.id}
+title: ${JSON.stringify(params.title)}
+aliases: []
+tags: [${params.tags.map((tag) => JSON.stringify(tag)).join(", ")}]
+target: ${params.target}
+---
+${params.summary}
+
+## What
+
+This note captures durable repository context for ${params.title}.
+
+## Why
+
+This note exists so the extraction bundle stays deterministic and reviewable.
+
+## How
+
+Use the extracted note content as canonical input to downstream LLM synthesis.
+
+## Links
+
+- [[Render Kernel Constitution]]
+- [[src/cli/main.ts]]
+`,
+    "utf8",
+  );
+}
+
 beforeEach(async () => {
   testDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-notes-cmd-"));
   await fs.mkdir(path.join(testDir, "notes"));
@@ -1109,6 +1149,127 @@ Terminal note with enough routing words for validation.
       const json = result.parsedJson as Record<string, unknown>;
       expect(json.command).toBe("notes coverage");
       expect(json.percentage).toBeDefined();
+    });
+  });
+
+  describe("extract subcommand", () => {
+    test("writes a markdown LLM bundle with text output", async () => {
+      await llmNote({
+        id: "20260421141000",
+        fileName: "Render Kernel Constitution.md",
+        title: "Render Kernel Constitution",
+        tags: ["architecture", "kernel", "contract"],
+        target: "current",
+        summary:
+          "The render kernel owns the production proof path so oracle seams remain comparison tooling rather than shipped runtime dependencies.",
+      });
+      await llmNote({
+        id: "20260421141100",
+        fileName: "Friday To Monday Workflow Contract.md",
+        title: "Friday To Monday Workflow Contract",
+        tags: ["workflow", "manual", "operator"],
+        target: "v0.4",
+        summary:
+          "The Friday-to-Monday workflow preserves repository context through notes, bundles, and reviewable handoff artifacts.",
+      });
+
+      const result = await captureNotesCommand({
+        run: () =>
+          runNotesCommand({
+            subcommand: "extract",
+            profile: "manual",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.logs).toContain("Extracted notes bundle:");
+
+      const outputPath = path.join(testDir, "dist", "notes-manual.llm.md");
+      const bundle = await fs.readFile(outputPath, "utf8");
+      expect(bundle).toContain("# CX Notes LLM Bundle");
+      expect(bundle).toContain("Profile");
+      expect(bundle).toContain("Friday To Monday Workflow Contract");
+    });
+
+    test("uses config-defined profiles and returns JSON output", async () => {
+      await llmNote({
+        id: "20260421141200",
+        fileName: "Render Kernel Constitution.md",
+        title: "Render Kernel Constitution",
+        tags: ["architecture", "kernel", "contract"],
+        target: "current",
+        summary:
+          "The render kernel owns the production proof path so oracle seams remain comparison tooling rather than shipped runtime dependencies.",
+      });
+
+      await fs.writeFile(
+        path.join(testDir, "cx.toml"),
+        `schema_version = 1
+project_name = "demo"
+source_root = "."
+output_dir = "dist/demo-bundle"
+
+[notes.profiles.arc42]
+description = "Compile architecture notes into XML bundles."
+output_format = "xml"
+target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
+include_tags = ["architecture"]
+exclude_tags = []
+required_notes = ["Render Kernel Constitution"]
+include_targets = ["current", "v0.4"]
+section_order = ["constraints", "reference-notes"]
+
+[notes.profiles.arc42.section_tags]
+constraints = ["contract"]
+
+[notes.profiles.arc42.llm]
+system_role = "You are a senior software architect and technical writer."
+instructions = "Write architecture documentation in AsciiDoc without inventing new facts."
+target_format = "asciidoc"
+document_kind = "arc42 architecture"
+audience = "architects-and-maintainers"
+tone = "formal-technical"
+must_cite_note_titles = true
+must_preserve_uncertainty = true
+must_not_invent_facts = true
+must_include_provenance = true
+must_surface_conflicts = true
+
+[sections.docs]
+include = ["docs/**"]
+exclude = []
+`,
+        "utf8",
+      );
+
+      const result = await captureNotesCommand<{
+        profile: string;
+        format: string;
+        selectedNoteCount: number;
+      }>({
+        run: () =>
+          runNotesCommand({
+            subcommand: "extract",
+            profile: "arc42",
+            json: true,
+            config: "cx.toml",
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.parsedJson?.profile).toBe("arc42");
+      expect(result.parsedJson?.format).toBe("xml");
+      expect(result.parsedJson?.selectedNoteCount).toBe(1);
+
+      const xmlBundle = await fs.readFile(
+        path.join(testDir, "dist", "notes-arc42.llm.xml"),
+        "utf8",
+      );
+      expect(xmlBundle).toContain('<cx-notes-bundle version="1">');
+      expect(xmlBundle).toContain('<profile name="arc42">');
     });
   });
 

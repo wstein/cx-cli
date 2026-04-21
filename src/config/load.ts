@@ -21,6 +21,10 @@ import type {
   CxDedupMode,
   CxHandoverConfig,
   CxNotesConfig,
+  CxNotesDocumentFormat,
+  CxNotesExtractFormat,
+  CxNotesExtractLlmConfig,
+  CxNotesExtractProfileConfig,
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxScannerConfig,
@@ -51,6 +55,21 @@ const VALID_ASSET_MODES = new Set<"copy" | "ignore" | "fail">([
 const VALID_ASSET_LAYOUTS = new Set<CxAssetsLayout>(["flat", "deep"]);
 const VALID_SCANNER_MODES = new Set<CxScannerMode>(["fail", "warn"]);
 const VALID_SCANNER_IDS = new Set<CxScannerId>(["reference_secrets"]);
+const VALID_NOTES_EXTRACT_FORMATS = new Set<CxNotesExtractFormat>([
+  "markdown",
+  "xml",
+  "plain",
+]);
+const VALID_NOTES_DOCUMENT_FORMATS = new Set<CxNotesDocumentFormat>([
+  "asciidoc",
+  "markdown",
+  "plain",
+]);
+const VALID_NOTE_TARGETS = new Set<"current" | "v0.4" | "backlog">([
+  "current",
+  "v0.4",
+  "backlog",
+]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -352,12 +371,167 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
     );
   }
 
+  const profiles = parseNotesProfiles(notes.profiles);
+
   return {
     ...(requireCognitionScore !== undefined && { requireCognitionScore }),
     strictNotesMode,
     failOnDriftPressuredNotes,
     appliesToSections,
+    profiles,
   };
+}
+
+function parseNotesExtractLlmConfig(
+  llm: unknown,
+  label: string,
+): CxNotesExtractLlmConfig {
+  if (!isPlainObject(llm)) {
+    throw new CxError(`${label} must be a table.`);
+  }
+
+  return {
+    systemRole: expectString(llm.system_role, `${label}.system_role`),
+    instructions: expectString(llm.instructions, `${label}.instructions`),
+    targetFormat: expectEnum(
+      llm.target_format,
+      `${label}.target_format`,
+      VALID_NOTES_DOCUMENT_FORMATS,
+      "asciidoc",
+    ),
+    documentKind: expectString(llm.document_kind, `${label}.document_kind`),
+    audience: expectString(llm.audience, `${label}.audience`),
+    tone: expectString(llm.tone, `${label}.tone`),
+    mustCiteNoteTitles: expectBoolean(
+      llm.must_cite_note_titles,
+      `${label}.must_cite_note_titles`,
+      true,
+    ),
+    mustPreserveUncertainty: expectBoolean(
+      llm.must_preserve_uncertainty,
+      `${label}.must_preserve_uncertainty`,
+      true,
+    ),
+    mustNotInventFacts: expectBoolean(
+      llm.must_not_invent_facts,
+      `${label}.must_not_invent_facts`,
+      true,
+    ),
+    mustIncludeProvenance: expectBoolean(
+      llm.must_include_provenance,
+      `${label}.must_include_provenance`,
+      true,
+    ),
+    mustSurfaceConflicts: expectBoolean(
+      llm.must_surface_conflicts,
+      `${label}.must_surface_conflicts`,
+      true,
+    ),
+  };
+}
+
+function parseNotesProfileSectionTags(
+  value: unknown,
+  label: string,
+): Record<string, string[]> {
+  if (value === undefined) {
+    return {};
+  }
+
+  if (!isPlainObject(value)) {
+    throw new CxError(`${label} must be a table.`);
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([sectionId, tags]) => [
+      sectionId,
+      expectStringArray(tags, `${label}.${sectionId}`),
+    ]),
+  );
+}
+
+function parseNotesProfiles(
+  profilesValue: unknown,
+): Record<string, CxNotesExtractProfileConfig> {
+  if (profilesValue === undefined) {
+    return {};
+  }
+
+  if (!isPlainObject(profilesValue)) {
+    throw new CxError("notes.profiles must be a table.");
+  }
+
+  const profiles: Record<string, CxNotesExtractProfileConfig> = {};
+
+  for (const [profileName, rawProfile] of Object.entries(profilesValue)) {
+    if (!isPlainObject(rawProfile)) {
+      throw new CxError(`notes.profiles.${profileName} must be a table.`);
+    }
+
+    const includeTargetsRaw = expectStringArray(
+      rawProfile.include_targets,
+      `notes.profiles.${profileName}.include_targets`,
+      ["current", "v0.4"],
+    );
+    const invalidTargets = includeTargetsRaw.filter(
+      (target) =>
+        !VALID_NOTE_TARGETS.has(target as "current" | "v0.4" | "backlog"),
+    );
+    if (invalidTargets.length > 0) {
+      throw new CxError(
+        `notes.profiles.${profileName}.include_targets contains unsupported note targets: ${invalidTargets.join(", ")}.`,
+      );
+    }
+
+    profiles[profileName] = {
+      description: expectString(
+        rawProfile.description,
+        `notes.profiles.${profileName}.description`,
+      ),
+      outputFormat: expectEnum(
+        rawProfile.output_format,
+        `notes.profiles.${profileName}.output_format`,
+        VALID_NOTES_EXTRACT_FORMATS,
+        "markdown",
+      ),
+      targetPaths: expectStringArray(
+        rawProfile.target_paths,
+        `notes.profiles.${profileName}.target_paths`,
+      ),
+      includeTags: expectStringArray(
+        rawProfile.include_tags,
+        `notes.profiles.${profileName}.include_tags`,
+        [],
+      ),
+      excludeTags: expectStringArray(
+        rawProfile.exclude_tags,
+        `notes.profiles.${profileName}.exclude_tags`,
+        [],
+      ),
+      requiredNotes: expectStringArray(
+        rawProfile.required_notes,
+        `notes.profiles.${profileName}.required_notes`,
+        [],
+      ),
+      includeTargets: includeTargetsRaw as Array<
+        "current" | "v0.4" | "backlog"
+      >,
+      sectionOrder: expectStringArray(
+        rawProfile.section_order,
+        `notes.profiles.${profileName}.section_order`,
+      ),
+      sectionTags: parseNotesProfileSectionTags(
+        rawProfile.section_tags,
+        `notes.profiles.${profileName}.section_tags`,
+      ),
+      llm: parseNotesExtractLlmConfig(
+        rawProfile.llm,
+        `notes.profiles.${profileName}.llm`,
+      ),
+    };
+  }
+
+  return profiles;
 }
 
 function parseScannerConfig(scanner: Record<string, unknown>): CxScannerConfig {

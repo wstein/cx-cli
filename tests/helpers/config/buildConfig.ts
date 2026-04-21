@@ -145,6 +145,7 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
       strictNotesMode: false,
       failOnDriftPressuredNotes: false,
       appliesToSections: [],
+      profiles: {},
       ...options.notes,
     },
     scanner: {

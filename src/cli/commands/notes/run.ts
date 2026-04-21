@@ -11,6 +11,7 @@ import {
   renameNote,
   updateNote,
 } from "../../../notes/crud.js";
+import { compileNotesExtractBundle } from "../../../notes/extract.js";
 import {
   buildNoteGraph,
   getBacklinks,
@@ -30,7 +31,9 @@ import {
   resolveCommandIo,
   writeJson,
   writeStdout,
+  writeValidatedJson,
 } from "../../../shared/output.js";
+import { NotesExtractCommandJsonSchema } from "../../jsonContracts.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
@@ -41,6 +44,10 @@ export interface NotesArgs {
   depth?: number | undefined;
   json?: boolean | undefined;
   workspaceRoot?: string | undefined;
+  profile?: string | undefined;
+  format?: "markdown" | "xml" | "plain" | undefined;
+  output?: string | undefined;
+  config?: string | undefined;
 }
 export async function runNotesCommand(
   args: NotesArgs,
@@ -115,6 +122,52 @@ export async function runNotesCommand(
       printInfo(`  Summary: ${note.summary}`);
       printInfo("");
       writeStdout(`${note.body.trimEnd()}\n`, io);
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "extract") {
+    if (!args.profile) {
+      throw new CxError("--profile is required for 'cx notes extract'", 2);
+    }
+
+    const result = await compileNotesExtractBundle({
+      workspaceRoot,
+      profileName: args.profile,
+      ...(args.format !== undefined ? { format: args.format } : {}),
+      ...(args.output !== undefined ? { outputPath: args.output } : {}),
+      ...(args.config !== undefined ? { configPath: args.config } : {}),
+    });
+
+    if (args.json ?? false) {
+      writeValidatedJson(
+        NotesExtractCommandJsonSchema,
+        {
+          profile: result.bundle.profile.name,
+          description: result.bundle.profile.description,
+          format: result.format,
+          outputPath: result.outputPath,
+          targetPaths: result.bundle.profile.targetPaths,
+          selectedNoteCount: result.bundle.notes.length,
+          sectionCount: result.bundle.sections.length,
+          sections: result.bundle.sections.map((section) => ({
+            id: section.id,
+            title: section.title,
+            noteCount: section.noteCount,
+          })),
+        },
+        io,
+      );
+    } else {
+      printSuccess(`Extracted notes bundle: ${result.outputPath}`);
+      printInfo(`  Profile: ${result.bundle.profile.name}`);
+      printInfo(`  Format: ${result.format}`);
+      printInfo(`  Selected notes: ${result.bundle.notes.length}`);
+      printInfo(`  Required sections: ${result.bundle.sections.length}`);
+      printInfo(
+        `  Target paths: ${result.bundle.profile.targetPaths.join(", ")}`,
+      );
     }
 
     return 0;
