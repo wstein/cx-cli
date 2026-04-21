@@ -24,7 +24,8 @@ It is not responsible for:
 - writing manual chapters
 - deciding final rhetorical style
 
-Those belong to a later synthesis stage.
+Those belong to the downstream synthesis stage implemented by
+`cx docs compile`.
 
 ## Why
 
@@ -40,7 +41,8 @@ A clean split keeps:
 
 Keep the extraction command pure and deterministic.
 
-Introduce a later command such as `cx docs compile` if the repository chooses to automate the LLM synthesis step.
+Use `cx docs compile` as the downstream synthesis step when the
+repository chooses to materialize final docs from an extracted bundle.
 
 Do not overload `cx notes extract` with direct document-writing behavior.
 

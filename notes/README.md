@@ -164,6 +164,11 @@ For downstream doc compilation, prefer `cx notes extract --profile arc42`,
 over ad hoc prompt assembly. That keeps selection, ordering, LLM
 instructions, and provenance inside a reviewable repository contract.
 
+When you are ready to write the downstream document artifact, use
+`cx docs compile --profile <name>` or point `cx docs compile --bundle ...`
+at an existing extracted bundle. That keeps extraction and document
+materialization as separate, reviewable stages.
+
 ## Minimum Anatomy
 
 Every note must contain:

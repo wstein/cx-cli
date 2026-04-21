@@ -292,8 +292,9 @@ canonical notes into deterministic LLM bundles.
 |`target++_++paths` |— |Downstream target paths the bundle is intended to
 feed.
 
-|`include++_++tags` |`++[]++` |Tags that select notes into the bundle.
-When empty, target filtering is the primary selector.
+|`include++_++tags` |`++[]++` |Tags that explicitly select notes into the
+bundle. Profiles must still define at least one selection surface through
+`include++_++tags`, `section++_++tags`, or `required++_++notes`.
 
 |`exclude++_++tags` |`++[]++` |Tags that explicitly remove notes from the
 bundle.
@@ -317,6 +318,10 @@ bundle.
 `cx notes extract` stays read-only. It emits an LLM-centered intermediate
 artifact, not final prose. The profile therefore owns both the
 selection contract and the downstream authoring contract.
+
+`cx docs compile` is the downstream writer. It consumes one extracted
+bundle and writes the final target docs described by the profile or by
+explicit CLI output overrides.
 
 Example:
 
