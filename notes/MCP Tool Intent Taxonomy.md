@@ -39,11 +39,15 @@ Deterministic plan generation and bundle metadata preview tools. These do not mu
 ## Write / Mutate
 State-changing tools. Expose them only when the agent is explicitly authorized to modify content.
 
+- `extract`
 - `replace_repomix_span`
 - `notes_new`
 - `notes_update`
 - `notes_rename`
 - `notes_delete`
+
+`extract` restores files from an existing bundle back into the live workspace
+boundary, so it is intentionally classified as mutation instead of planning.
 
 ## Policy Guidance
 

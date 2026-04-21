@@ -343,6 +343,7 @@ notes should include:
 |replace_repomix_span |BETA |Workspace |v0.2.0
 |inspect |STABLE |Planning |v0.1.0
 |bundle |STABLE |Planning |v0.1.0
+|extract |STABLE |Bundle recovery |v0.4.1
 |doctor_mcp |BETA |Doctor |v0.2.0
 |doctor_workflow |BETA |Doctor |v0.2.0
 |doctor_overlaps |BETA |Doctor |v0.2.0

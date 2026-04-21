@@ -66,7 +66,7 @@ The MCP registration wrapper assigns every tool one capability tier. Policy enfo
 * `read`: `list`, `grep`, `read`
 * `observe`: `doctor_*`, `notes_read`, `notes_search`, `notes_list`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`
 * `plan`: `inspect`, `bundle`
-* `mutate`: `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
+* `mutate`: `extract`, `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
 
 See xref:repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
 for tool stability tiers.
@@ -114,6 +114,7 @@ These tools change repository state, notes, or bundle planning
 metadata. Expose them only when the agent is explicitly authorized to
 modify content.
 
+* `extract`
 * `replace_repomix_span`
 * `notes_new`
 * `notes_update`
@@ -121,11 +122,13 @@ modify content.
 * `notes_delete`
 
 Use the read/observe group first to gather context and confirm the
-target location before allowing mutations.
+target location before allowing mutations. `extract` restores files from
+an existing bundle back into the live workspace boundary, so it belongs
+with the mutate-capability group instead of the planning tools.
 
 == Why Mutation Policy Denial Stops You
 
-When an MCP session denies `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, or `replace_repomix_span`, the denial is protecting the read/plan-versus-mutate boundary.
+When an MCP session denies `extract`, `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, or `replace_repomix_span`, the denial is protecting the read/plan-versus-mutate boundary.
 
 Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. `cx` requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish "the agent may inspect" from "the agent may edit."
 

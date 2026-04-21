@@ -17,8 +17,8 @@ cx-cli tools are organized into four stability tiers: **STABLE**, **BETA**, **EX
 
 ## Current Distribution
 
-- **STABLE** (18 tools): Core workspace (list, grep, read), planning (inspect, bundle), and notes lifecycle/discovery including reachable-graph inspection
-- **BETA** (5 tools): Diagnostic tools (doctor_*) and experimental workspace writes (replace_repomix_span)
+- **STABLE** (18 tools): Core workspace (list, grep, read), planning (inspect, bundle), workspace-bound bundle recovery (`extract`), and notes lifecycle/discovery including reachable-graph inspection
+- **BETA** (5 tools): Diagnostic tools (`doctor_*`) and experimental workspace writes (`replace_repomix_span`)
 
 ## Links
 

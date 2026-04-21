@@ -82,6 +82,7 @@ describe("MCP policy contract", () => {
   test("default policy allows plan and denies mutate", () => {
     expect(checkToolAccess("bundle", DEFAULT_POLICY).allowed).toBe(true);
     expect(checkToolAccess("inspect", DEFAULT_POLICY).allowed).toBe(true);
+    expect(checkToolAccess("extract", DEFAULT_POLICY).allowed).toBe(false);
     expect(checkToolAccess("notes_new", DEFAULT_POLICY).allowed).toBe(false);
   });
 
@@ -96,14 +97,15 @@ describe("MCP policy contract", () => {
     expect(CX_MCP_TOOL_CAPABILITIES.inspect).toBe("plan");
   });
 
-  test("stable MCP contract includes notes_graph and keeps doctor tools beta", () => {
+  test("stable MCP contract includes extract and notes_graph while doctor tools stay beta", () => {
     expect(CX_MCP_TOOL_STABILITY.bundle).toBe("STABLE");
+    expect(CX_MCP_TOOL_STABILITY.extract).toBe("STABLE");
     expect(CX_MCP_TOOL_STABILITY.notes_graph).toBe("STABLE");
     expect(CX_MCP_TOOL_STABILITY.doctor_mcp).toBe("BETA");
     expect(CX_MCP_TOOL_STABILITY.replace_repomix_span).toBe("BETA");
   });
 
-  test("taxonomy docs classify bundle as plan", async () => {
+  test("taxonomy docs classify bundle as plan and extract as mutate", async () => {
     const docsTaxonomy = await readText(
       "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
     );
@@ -117,14 +119,18 @@ describe("MCP policy contract", () => {
 
     expect(docsPlan).toContain("* `bundle`");
     expect(docsPlan).toContain("* `inspect`");
+    expect(docsWrite).toContain("* `extract`");
     expect(docsWrite).not.toContain("<code>bundle</code>");
     expect(docsWrite).not.toContain("<code>inspect</code>");
+    expect(docsRead).not.toContain("<code>extract</code>");
     expect(docsRead).not.toContain("<code>inspect</code>");
 
     expect(notesPlan).toContain("- `bundle`");
     expect(notesPlan).toContain("- `inspect`");
+    expect(notesWrite).toContain("- `extract`");
     expect(notesWrite).not.toContain("- `bundle`");
     expect(notesWrite).not.toContain("- `inspect`");
+    expect(notesRead).not.toContain("- `extract`");
     expect(notesRead).not.toContain("- `inspect`");
   });
 });

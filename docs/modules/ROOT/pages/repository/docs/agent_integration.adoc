@@ -157,6 +157,8 @@ broad-scans files.
 * `inspect()` previews the Track A proof path without writing artifacts.
 * `bundle()` over MCP is still planning metadata, not an immutable
 handoff.
+* `extract(...)` is the recovery path when an existing bundle must be
+  restored back into the workspace boundary for review or repair.
 
 Why this protects you: the agent sees enough structured state to form
 and test hypotheses without confusing live exploration with artifact
@@ -259,9 +261,9 @@ Security boundary: `cx-mcp.toml` is the intended MCP-specific profile;
 `cx doctor mcp` shows the resolved profile and effective `files.include`
 / `files.exclude` that determine tool visibility.
 
-* Intentional boundary: MCP is for live workspace inspection and editing
-only. Artifact generation, verification, and extraction stay with the
-CLI and CI handoff path.
+* Intentional boundary: MCP is for live workspace inspection, editing,
+and workspace-bound recovery from existing bundles. Artifact generation
+and verification stay with the CLI and CI handoff path.
 
 Because the server communicates over stdio, clients simply need to
 launch `cx mcp` as a subprocess and bind to its stdin/stdout. The
@@ -405,7 +407,7 @@ Example (pseudocode, conceptual):
 ----
 spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
 bindStdioToMcpClient(process.stdin, process.stdout)
-discoverTools() -> [list, grep, read, inspect, bundle, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
+discoverTools() -> [list, grep, read, inspect, bundle, extract, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]
 ----
 
 [start=6]
