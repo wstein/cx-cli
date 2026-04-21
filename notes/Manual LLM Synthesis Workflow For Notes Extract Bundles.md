@@ -23,6 +23,10 @@ The extracted bundle is the reviewable contract artifact.
 
 The LLM invocation remains external to `cx` in `v1`.
 
+In that workflow, `--format xml` means xml-tagged plain text for the
+model step. It does not mean that the repository is promising a strict
+xml-schema document.
+
 ## Why
 
 This protects the repository boundary in three ways:

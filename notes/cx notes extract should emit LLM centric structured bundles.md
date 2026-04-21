@@ -16,7 +16,7 @@ The preferred output of `cx notes extract` is a structured bundle designed for L
 Suitable formats include:
 - LLM-oriented Markdown
 - plaintext with explicit tagged sections
-- XML with tagged semantic sections
+- xml-tagged plain text with semantic sections
 
 The output should contain:
 - bundle metadata
@@ -41,11 +41,15 @@ A human-readable architecture guide needs narrative flow, but an LLM bundle need
 
 Producing an LLM-centric bundle keeps the extraction layer honest about its real consumer and avoids conflating prompt material with final docs.
 
+The `xml` flavor should not overclaim a machine-schema boundary. It is a
+plain-text prompt bundle that uses stable XML-like tag sections for LLM
+guidance and downstream tooling, not a strict XML document contract.
+
 ## How
 
 Support explicit output modes such as:
 - `llm-markdown`
-- `llm-xml`
+- `llm-xml` for xml-tagged plain text
 - `plain`
 
 Prefer structured section markers over free-form prose.

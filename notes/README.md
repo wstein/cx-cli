@@ -163,6 +163,8 @@ For downstream doc compilation, prefer `cx notes extract --profile arc42`,
 `cx notes extract --profile onboarding`, or `cx notes extract --profile manual`
 over ad hoc prompt assembly. That keeps selection, ordering, LLM
 instructions, and provenance inside a reviewable repository contract.
+Use `--format xml` when you want xml-tagged plain text for an LLM-facing
+workflow, not a strict XML document contract.
 
 In `v1`, stop there. Run the LLM step manually, keep the prompt bundle
 reviewable in the repo, and treat the resulting docs as downstream,

@@ -376,6 +376,10 @@ LLM-centered bundles from canonical notes so downstream synthesis can
 write onboarding, manual, or arc42-style documents without turning the
 generated prose into the new source of truth.
 
+The `xml` format is an xml-tagged plain-text prompt bundle. It uses
+stable tag sections for model-friendly structure without claiming that
+the whole artifact is a strict XML document.
+
 In `v1`, LLM invocation remains manual. Use `cx notes extract` when you
 need a reviewable prompt bundle, run the model step outside `cx`, and
 treat the resulting docs as downstream, human-reviewed artifacts rather
