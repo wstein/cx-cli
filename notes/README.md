@@ -167,6 +167,8 @@ instructions, and provenance inside a reviewable repository contract.
 In `v1`, stop there. Run the LLM step manually, keep the prompt bundle
 reviewable in the repo, and treat the resulting docs as downstream,
 human-reviewed artifacts instead of a repository-owned synthesis stage.
+See [[Manual LLM Synthesis Workflow For Notes Extract Bundles]] for the
+expected external workflow boundary.
 
 ## Minimum Anatomy
 
