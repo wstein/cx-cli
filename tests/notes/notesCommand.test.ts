@@ -1212,8 +1212,8 @@ source_root = "."
 output_dir = "dist/demo-bundle"
 
 [notes.profiles.arc42]
-description = "Compile architecture notes into XML bundles."
-output_format = "xml"
+description = "Compile architecture notes into JSON bundles."
+output_format = "json"
 target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
 include_tags = ["architecture"]
 exclude_tags = []
@@ -1261,19 +1261,16 @@ exclude = []
 
       expect(result.exitCode).toBe(0);
       expect(result.parsedJson?.profile).toBe("arc42");
-      expect(result.parsedJson?.format).toBe("xml");
+      expect(result.parsedJson?.format).toBe("json");
       expect(result.parsedJson?.selectedNoteCount).toBe(1);
 
-      const xmlBundle = await fs.readFile(
-        path.join(testDir, "dist", "notes-arc42.llm.xml"),
+      const jsonBundle = await fs.readFile(
+        path.join(testDir, "dist", "notes-arc42.llm.json"),
         "utf8",
       );
-      expect(xmlBundle).toContain(
-        '<cx-notes-bundle version="1" format="llm-tagged-text">',
-      );
-      expect(xmlBundle).toContain("<profile>");
-      expect(xmlBundle).toContain("name: arc42");
-      expect(xmlBundle).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
+      expect(jsonBundle.trimStart().startsWith("{")).toBe(true);
+      expect(jsonBundle).toContain('"name": "arc42"');
+      expect(jsonBundle).toContain('"outputFormat": "json"');
     });
   });
 

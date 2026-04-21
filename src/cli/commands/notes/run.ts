@@ -45,7 +45,7 @@ export interface NotesArgs {
   json?: boolean | undefined;
   workspaceRoot?: string | undefined;
   profile?: string | undefined;
-  format?: "markdown" | "xml" | "plain" | undefined;
+  format?: "markdown" | "xml" | "json" | "plain" | undefined;
   output?: string | undefined;
   config?: string | undefined;
 }

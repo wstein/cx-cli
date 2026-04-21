@@ -8,7 +8,7 @@ export type CxScannerId = "reference_secrets";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
-export type CxNotesExtractFormat = "markdown" | "xml" | "plain";
+export type CxNotesExtractFormat = "markdown" | "xml" | "json" | "plain";
 export type CxNotesDocumentFormat = "asciidoc" | "markdown" | "plain";
 
 export interface CxOutputExtensionsConfig {

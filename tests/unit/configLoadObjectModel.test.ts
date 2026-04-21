@@ -80,7 +80,7 @@ describe("loadCxConfig object model", () => {
         profiles: {
           arc42: {
             description: "Compile arc42 note bundles.",
-            outputFormat: "xml",
+            outputFormat: "json",
             targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
             includeTags: ["architecture"],
             excludeTags: ["draft"],
@@ -112,7 +112,7 @@ describe("loadCxConfig object model", () => {
 
     expect(config.notes.profiles.arc42).toEqual({
       description: "Compile arc42 note bundles.",
-      outputFormat: "xml",
+      outputFormat: "json",
       targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
       includeTags: ["architecture"],
       excludeTags: ["draft"],

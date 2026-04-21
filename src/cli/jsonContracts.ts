@@ -263,7 +263,7 @@ export const ConfigCommandJsonSchema = z.object({
 export const NotesExtractCommandJsonSchema = z.object({
   profile: z.string(),
   description: z.string(),
-  format: z.enum(["markdown", "xml", "plain"]),
+  format: z.enum(["markdown", "xml", "json", "plain"]),
   outputPath: z.string(),
   targetPaths: z.array(z.string()),
   selectedNoteCount: z.number().int().nonnegative(),

@@ -225,7 +225,7 @@
               },
               "output_format": {
                 "type": "string",
-                "enum": ["markdown", "xml", "plain"]
+                "enum": ["markdown", "xml", "json", "plain"]
               },
               "target_paths": {
                 "type": "array",

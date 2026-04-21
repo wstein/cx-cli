@@ -815,7 +815,7 @@ export async function main(
               "Notes extraction profile name for 'extract' (for example: arc42, onboarding, manual).",
           })
           .option("format", {
-            choices: ["markdown", "xml", "plain"] as const,
+            choices: ["markdown", "xml", "json", "plain"] as const,
             description:
               "Bundle serialization format for 'extract'. Defaults to the selected profile's output_format.",
           })
@@ -842,7 +842,12 @@ export async function main(
             json: args.json,
             workspaceRoot: io.cwd,
             profile: args.profile as string | undefined,
-            format: args.format as "markdown" | "xml" | "plain" | undefined,
+            format: args.format as
+              | "markdown"
+              | "xml"
+              | "json"
+              | "plain"
+              | undefined,
             output: args.output as string | undefined,
             config: args.config as string | undefined,
           },

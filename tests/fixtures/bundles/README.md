@@ -9,6 +9,7 @@ Current fixtures:
 
 - `notes-arc42-example.llm.md`
 - `notes-arc42-example.llm.xml`
+- `notes-arc42-example.llm.json`
 - `notes-arc42-example.llm.txt`
 
 Rules:

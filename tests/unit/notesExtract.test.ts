@@ -149,4 +149,44 @@ describe("compileNotesExtractBundle", () => {
       result.bundle,
     );
   });
+
+  test("builds a deterministic json LLM bundle from built-in profiles", async () => {
+    await fs.writeFile(
+      path.join(workspaceRoot, "notes", "Render Kernel Constitution.md"),
+      noteContent({
+        id: "20260421130400",
+        title: "Render Kernel Constitution",
+        tags: ["architecture", "kernel", "contract"],
+        target: "current",
+        summary:
+          "The render kernel owns the production proof path so oracle seams remain external comparison tools instead of runtime dependencies.",
+        what: "The native kernel is the canonical rendering and verification boundary for shipped proof-path execution.",
+        why: "This keeps production trust anchored in deterministic kernel artifacts rather than external oracle behavior.",
+        how: "Use oracle tooling only for parity diagnostics and reference comparison, not for ordinary bundle or verify flows.",
+      }),
+    );
+
+    const result = await compileNotesExtractBundle({
+      workspaceRoot,
+      profileName: "arc42",
+      format: "json",
+    });
+
+    expect(result.outputPath).toBe(
+      path.join(workspaceRoot, "dist", "notes-arc42.llm.json"),
+    );
+    expect(result.content.trimStart().startsWith("{")).toBe(true);
+
+    const parsedContent = JSON.parse(result.content) as {
+      profile?: { name?: string; outputFormat?: string };
+      notes?: Array<{ title?: string }>;
+    };
+    expect(parsedContent.profile?.name).toBe("arc42");
+    expect(parsedContent.profile?.outputFormat).toBe("json");
+    expect(parsedContent.notes?.[0]?.title).toBe("Render Kernel Constitution");
+
+    expect(parseNotesExtractBundleContent(result.content)).toEqual(
+      result.bundle,
+    );
+  });
 });

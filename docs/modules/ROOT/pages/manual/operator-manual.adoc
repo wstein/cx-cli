@@ -380,6 +380,11 @@ The `xml` format is an xml-tagged plain-text prompt bundle. It uses
 stable tag sections for model-friendly structure without claiming that
 the whole artifact is a strict XML document.
 
+The `json` format emits the same deterministic bundle contract as direct
+JSON, which is useful for downstream tooling, scripted inspection, or
+pipelines that do not need the markdown, xml-tagged, or plain-text
+prompt wrapper.
+
 In `v1`, LLM invocation remains manual. Use `cx notes extract` when you
 need a reviewable prompt bundle, run the model step outside `cx`, and
 treat the resulting docs as downstream, human-reviewed artifacts rather

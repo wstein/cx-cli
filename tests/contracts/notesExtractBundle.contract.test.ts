@@ -56,7 +56,7 @@ afterEach(async () => {
 });
 
 describe("notes extract bundle contract", () => {
-  test("freezes machine-payload markers across markdown, xml, and plain bundles", async () => {
+  test("freezes machine-payload markers across markdown, xml, json, and plain bundles", async () => {
     await fs.writeFile(
       path.join(workspaceRoot, "notes", "Render Kernel Constitution.md"),
       noteContent({
@@ -77,6 +77,11 @@ describe("notes extract bundle contract", () => {
       workspaceRoot,
       profileName: "arc42",
       format: "xml",
+    });
+    const json = await compileNotesExtractBundle({
+      workspaceRoot,
+      profileName: "arc42",
+      format: "json",
     });
     const plain = await compileNotesExtractBundle({
       workspaceRoot,
@@ -107,6 +112,9 @@ describe("notes extract bundle contract", () => {
     expect(xml.content).toContain("</machine-payload>");
     expect(xml.content).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
 
+    expect(json.content.trimStart().startsWith("{")).toBe(true);
+    expect(json.content).toContain('"outputFormat": "json"');
+
     expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD START");
     expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD END");
 
@@ -114,6 +122,7 @@ describe("notes extract bundle contract", () => {
       markdown.bundle,
     );
     expect(parseNotesExtractBundleContent(xml.content)).toEqual(xml.bundle);
+    expect(parseNotesExtractBundleContent(json.content)).toEqual(json.bundle);
     expect(parseNotesExtractBundleContent(plain.content)).toEqual(plain.bundle);
   });
 
@@ -121,6 +130,7 @@ describe("notes extract bundle contract", () => {
     const fixturePaths = [
       "tests/fixtures/bundles/notes-arc42-example.llm.md",
       "tests/fixtures/bundles/notes-arc42-example.llm.xml",
+      "tests/fixtures/bundles/notes-arc42-example.llm.json",
       "tests/fixtures/bundles/notes-arc42-example.llm.txt",
     ];
 

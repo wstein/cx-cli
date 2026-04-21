@@ -58,6 +58,7 @@ const VALID_SCANNER_IDS = new Set<CxScannerId>(["reference_secrets"]);
 const VALID_NOTES_EXTRACT_FORMATS = new Set<CxNotesExtractFormat>([
   "markdown",
   "xml",
+  "json",
   "plain",
 ]);
 const VALID_NOTES_DOCUMENT_FORMATS = new Set<CxNotesDocumentFormat>([

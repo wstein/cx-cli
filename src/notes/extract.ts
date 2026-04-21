@@ -913,6 +913,10 @@ function renderPlainBundle(bundle: NotesExtractBundle): string {
   return `${lines.join("\n")}\n`;
 }
 
+function renderJsonBundle(bundle: NotesExtractBundle): string {
+  return `${JSON.stringify(bundle, null, 2)}\n`;
+}
+
 function renderBundleContent(
   bundle: NotesExtractBundle,
   format: CxNotesExtractFormat,
@@ -922,6 +926,8 @@ function renderBundleContent(
       return renderMarkdownBundle(bundle);
     case "xml":
       return renderXmlBundle(bundle);
+    case "json":
+      return renderJsonBundle(bundle);
     case "plain":
       return renderPlainBundle(bundle);
   }
@@ -931,6 +937,11 @@ function extractMachinePayload(
   content: string,
   bundlePath: string | undefined,
 ): string {
+  const trimmed = content.trim();
+  if (trimmed.startsWith("{")) {
+    return trimmed;
+  }
+
   const markdownMatch = content.match(
     /<!-- cx-notes-bundle-payload:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- cx-notes-bundle-payload:end -->/,
   );
@@ -1007,7 +1018,13 @@ function defaultOutputPath(
   format: CxNotesExtractFormat,
 ): string {
   const extension =
-    format === "markdown" ? "md" : format === "xml" ? "xml" : "txt";
+    format === "markdown"
+      ? "md"
+      : format === "xml"
+        ? "xml"
+        : format === "json"
+          ? "json"
+          : "txt";
   return path.join(
     workspaceRoot,
     "dist",
