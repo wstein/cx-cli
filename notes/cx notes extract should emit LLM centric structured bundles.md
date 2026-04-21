@@ -50,7 +50,8 @@ Support explicit output modes such as:
 
 Prefer structured section markers over free-form prose.
 
-The bundle should be easy to diff, easy to validate, and easy to pass to a later `cx docs compile` or equivalent synthesis step.
+The bundle should be easy to diff, easy to validate, and easy to hand to
+a later manual LLM synthesis step or equivalent downstream workflow.
 
 Do not optimize the extraction output for casual human reading at the expense of machine structure.
 

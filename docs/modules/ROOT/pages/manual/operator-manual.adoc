@@ -360,10 +360,6 @@ CLI and MCP note commands side by side:
 |`cx notes extract --profile arc42 --format xml`
 |—
 
-|Compile final docs from a bundle
-|`cx docs compile --profile arc42`
-|—
-
 |Inspect the graph |`cx notes links` / `cx notes backlinks --id ...` /
 `cx notes orphans` / `cx notes code-links --id ...`
 |`notes_search(...)` / `notes_links(...)` /
@@ -380,11 +376,10 @@ LLM-centered bundles from canonical notes so downstream synthesis can
 write onboarding, manual, or arc42-style documents without turning the
 generated prose into the new source of truth.
 
-`cx docs compile` is the downstream synthesis step. It consumes one of
-those bundles and writes final docs to the profile target paths or to
-explicit output paths you provide. Use `cx notes extract` when you need a
-reviewable prompt bundle. Use `cx docs compile` when you are ready to
-materialize the downstream document artifact.
+In `v1`, LLM invocation remains manual. Use `cx notes extract` when you
+need a reviewable prompt bundle, run the model step outside `cx`, and
+treat the resulting docs as downstream, human-reviewed artifacts rather
+than a new source of truth.
 
 Each extraction profile is a compilation contract, not just a tag
 filter. A profile defines:
