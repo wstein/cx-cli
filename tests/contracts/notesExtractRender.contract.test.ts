@@ -130,9 +130,7 @@ describe("notes extract render contract", () => {
       format: "markdown",
     });
 
-    expect(result.outputPath).toBe(
-      path.join(workspaceRoot, "dist", "notes-arc42.md"),
-    );
+    expect(result.outputPath).toBeNull();
     expect(result.bundle.profile.name).toBe("arc42");
     expect(result.bundle.notes.map((note) => note.title)).toEqual([
       "Render Kernel Constitution",
@@ -172,9 +170,7 @@ describe("notes extract render contract", () => {
       format: "json",
     });
 
-    expect(result.outputPath).toBe(
-      path.join(workspaceRoot, "dist", "notes-arc42.json"),
-    );
+    expect(result.outputPath).toBeNull();
     expect(result.content.trimStart().startsWith("{")).toBe(true);
 
     const parsedContent = JSON.parse(result.content) as {
@@ -187,6 +183,40 @@ describe("notes extract render contract", () => {
 
     expect(parseNotesExtractBundleContent(result.content)).toEqual(
       result.bundle,
+    );
+  });
+
+  test("writes to an explicit output path when requested", async () => {
+    await fs.writeFile(
+      path.join(workspaceRoot, "notes", "Render Kernel Constitution.md"),
+      noteContent({
+        id: "20260421130500",
+        title: "Render Kernel Constitution",
+        tags: ["architecture", "kernel", "contract"],
+        target: "current",
+        summary:
+          "The render kernel owns the production proof path so oracle seams remain external comparison tools instead of runtime dependencies.",
+        what: "The native kernel is the canonical rendering and verification boundary for shipped proof-path execution.",
+        why: "This keeps production trust anchored in deterministic kernel artifacts rather than external oracle behavior.",
+        how: "Use oracle tooling only for parity diagnostics and reference comparison, not for ordinary bundle or verify flows.",
+      }),
+    );
+
+    const result = await compileNotesExtractBundle({
+      workspaceRoot,
+      profileName: "arc42",
+      format: "markdown",
+      outputPath: "dist/custom-notes.md",
+    });
+
+    expect(result.outputPath).toBe(
+      path.join(workspaceRoot, "dist", "custom-notes.md"),
+    );
+    if (result.outputPath === null) {
+      throw new Error("expected explicit output path to be written");
+    }
+    await expect(fs.readFile(result.outputPath, "utf8")).resolves.toBe(
+      result.content,
     );
   });
 });

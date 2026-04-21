@@ -264,7 +264,7 @@ export const NotesExtractCommandJsonSchema = z.object({
   profile: z.string(),
   description: z.string(),
   format: z.enum(["markdown", "xml", "json", "plain"]),
-  outputPath: z.string(),
+  outputPath: z.string().nullable(),
   targetPaths: z.array(z.string()),
   selectedNoteCount: z.number().int().nonnegative(),
   sectionCount: z.number().int().nonnegative(),

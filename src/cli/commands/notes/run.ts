@@ -160,14 +160,18 @@ export async function runNotesCommand(
         io,
       );
     } else {
-      printSuccess(`Extracted notes bundle: ${result.outputPath}`);
-      printInfo(`  Profile: ${result.bundle.profile.name}`);
-      printInfo(`  Format: ${result.format}`);
-      printInfo(`  Selected notes: ${result.bundle.notes.length}`);
-      printInfo(`  Required sections: ${result.bundle.sections.length}`);
-      printInfo(
-        `  Target paths: ${result.bundle.profile.targetPaths.join(", ")}`,
-      );
+      if (result.outputPath === null) {
+        writeStdout(result.content, io);
+      } else {
+        printSuccess(`Extracted notes bundle: ${result.outputPath}`);
+        printInfo(`  Profile: ${result.bundle.profile.name}`);
+        printInfo(`  Format: ${result.format}`);
+        printInfo(`  Selected notes: ${result.bundle.notes.length}`);
+        printInfo(`  Required sections: ${result.bundle.sections.length}`);
+        printInfo(
+          `  Target paths: ${result.bundle.profile.targetPaths.join(", ")}`,
+        );
+      }
     }
 
     return 0;

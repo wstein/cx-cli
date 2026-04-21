@@ -71,7 +71,7 @@ export interface NotesExtractBundle {
 export interface CompileNotesExtractBundleResult {
   bundle: NotesExtractBundle;
   content: string;
-  outputPath: string;
+  outputPath: string | null;
   format: CxNotesExtractFormat;
 }
 
@@ -1012,22 +1012,6 @@ export function parseNotesExtractBundleContent(
   return parsed;
 }
 
-function defaultOutputPath(
-  workspaceRoot: string,
-  profileName: string,
-  format: CxNotesExtractFormat,
-): string {
-  const extension =
-    format === "markdown"
-      ? "md"
-      : format === "xml"
-        ? "xml"
-        : format === "json"
-          ? "json"
-          : "txt";
-  return path.join(workspaceRoot, "dist", `notes-${profileName}.${extension}`);
-}
-
 export async function compileNotesExtractBundle(
   options: CompileNotesExtractBundleOptions,
 ): Promise<CompileNotesExtractBundleResult> {
@@ -1067,14 +1051,15 @@ export async function compileNotesExtractBundle(
     format,
   });
   const content = renderBundleContent(bundle, format);
-  const outputPath = path.resolve(
-    workspaceRoot,
-    options.outputPath ??
-      defaultOutputPath(workspaceRoot, options.profileName, format),
-  );
+  const outputPath =
+    options.outputPath === undefined
+      ? null
+      : path.resolve(workspaceRoot, options.outputPath);
 
-  await ensureDir(path.dirname(outputPath));
-  await fs.writeFile(outputPath, content, "utf8");
+  if (outputPath !== null) {
+    await ensureDir(path.dirname(outputPath));
+    await fs.writeFile(outputPath, content, "utf8");
+  }
 
   return {
     bundle,

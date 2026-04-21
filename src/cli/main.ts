@@ -822,7 +822,7 @@ export async function main(
           .option("output", {
             type: "string",
             description:
-              "Write the extracted notes bundle to this path. Defaults to dist/notes-<profile>.<ext>.",
+              "Write the extracted notes bundle to this path. By default, cx notes extract prints the bundle to stdout.",
           })
           .option("config", {
             type: "string",

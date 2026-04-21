@@ -1153,7 +1153,7 @@ Terminal note with enough routing words for validation.
   });
 
   describe("extract subcommand", () => {
-    test("writes a markdown LLM bundle with text output", async () => {
+    test("prints a markdown LLM bundle to stdout by default", async () => {
       await llmNote({
         id: "20260421141000",
         fileName: "Render Kernel Constitution.md",
@@ -1184,13 +1184,46 @@ Terminal note with enough routing words for validation.
       });
 
       expect(result.exitCode).toBe(0);
+      expect(result.logs).toBe("");
+      expect(result.stdout).toContain("# CX Notes LLM Bundle");
+      expect(result.stdout).toContain("Profile");
+      expect(result.stdout).toContain("Friday To Monday Workflow Contract");
+      await expect(
+        fs.access(path.join(testDir, "dist", "notes-manual.md")),
+      ).rejects.toThrow();
+    });
+
+    test("writes a markdown LLM bundle when --output is provided", async () => {
+      await llmNote({
+        id: "20260421141050",
+        fileName: "Friday To Monday Workflow Contract.md",
+        title: "Friday To Monday Workflow Contract",
+        tags: ["workflow", "handoff", "process", "manual"],
+        target: "current",
+        summary:
+          "Weekend handoffs must capture open decisions so Monday work can resume without rediscovery.",
+      });
+
+      const result = await captureNotesCommand({
+        run: () =>
+          runNotesCommand({
+            subcommand: "extract",
+            profile: "manual",
+            output: "dist/manual-output.md",
+          }),
+        parseJson: false,
+        captureConsoleLog: true,
+      });
+
+      expect(result.exitCode).toBe(0);
       expect(result.logs).toContain("Extracted notes bundle:");
 
-      const outputPath = path.join(testDir, "dist", "notes-manual.md");
-      const bundle = await fs.readFile(outputPath, "utf8");
+      const bundle = await fs.readFile(
+        path.join(testDir, "dist", "manual-output.md"),
+        "utf8",
+      );
       expect(bundle).toContain("# CX Notes LLM Bundle");
       expect(bundle).toContain("Profile");
-      expect(bundle).toContain("Friday To Monday Workflow Contract");
     });
 
     test("uses config-defined profiles and returns JSON output", async () => {
@@ -1262,15 +1295,12 @@ exclude = []
       expect(result.exitCode).toBe(0);
       expect(result.parsedJson?.profile).toBe("arc42");
       expect(result.parsedJson?.format).toBe("json");
+      expect(
+        (result.parsedJson as { outputPath?: string | null }).outputPath,
+      ).toBeNull();
       expect(result.parsedJson?.selectedNoteCount).toBe(1);
-
-      const jsonBundle = await fs.readFile(
-        path.join(testDir, "dist", "notes-arc42.json"),
-        "utf8",
-      );
-      expect(jsonBundle.trimStart().startsWith("{")).toBe(true);
-      expect(jsonBundle).toContain('"name": "arc42"');
-      expect(jsonBundle).toContain('"outputFormat": "json"');
+      expect(result.stdout).toContain('"profile": "arc42"');
+      expect(result.stdout).toContain('"format": "json"');
     });
   });
 
