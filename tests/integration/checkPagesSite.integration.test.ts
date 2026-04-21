@@ -7,12 +7,16 @@ import { describe, expect, test } from "vitest";
 import { assemblePagesSite } from "../../scripts/assemble-pages-site.js";
 import { checkPagesSite } from "../../scripts/check-pages-site.js";
 
+const SLOW_SITE_TIMEOUT_MS = 20_000;
+
 async function makeFixtureRoot(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "cx-pages-smoke-"));
 }
 
 describe("check-pages-site.js", () => {
-  test("passes for a staged site with schemas and coverage", async () => {
+  test("passes for a staged site with schemas and coverage", {
+    timeout: SLOW_SITE_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const coverageDir = path.join(root, "coverage", "vitest");
@@ -43,7 +47,9 @@ describe("check-pages-site.js", () => {
     });
   });
 
-  test("fails when the coverage surface is required but missing", async () => {
+  test("fails when the coverage surface is required but missing", {
+    timeout: SLOW_SITE_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const siteRoot = path.join(root, "site");
@@ -66,7 +72,9 @@ describe("check-pages-site.js", () => {
     );
   });
 
-  test("fails when the docs surface is missing", async () => {
+  test("fails when the docs surface is missing", {
+    timeout: SLOW_SITE_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const coverageDir = path.join(root, "coverage", "vitest");

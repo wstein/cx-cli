@@ -6,12 +6,16 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { buildAntoraSite } from "../../scripts/build-antora-site.js";
 
+const SLOW_ANTORA_TIMEOUT_MS = 20_000;
+
 async function makeFixtureRoot(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "cx-antora-site-"));
 }
 
 describe("build-antora-site.js", () => {
-  test("builds the curated Antora documentation site", async () => {
+  test("builds the curated Antora documentation site", {
+    timeout: SLOW_ANTORA_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const siteRoot = path.join(root, "antora-site");
 

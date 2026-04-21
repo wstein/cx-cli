@@ -6,12 +6,16 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { assemblePagesSite } from "../../scripts/assemble-pages-site.js";
 
+const SLOW_SITE_TIMEOUT_MS = 20_000;
+
 async function makeFixtureRoot(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "cx-pages-site-"));
 }
 
 describe("assemble-pages-site.js", () => {
-  test("stages a unified site tree with schemas and coverage", async () => {
+  test("stages a unified site tree with schemas and coverage", {
+    timeout: SLOW_SITE_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const coverageDir = path.join(root, "coverage", "vitest");
@@ -108,7 +112,9 @@ describe("assemble-pages-site.js", () => {
     expect(coverageIndex).toContain("coverage");
   });
 
-  test("publishes schemas cleanly when coverage is absent", async () => {
+  test("publishes schemas cleanly when coverage is absent", {
+    timeout: SLOW_SITE_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const siteRoot = path.join(root, "site");

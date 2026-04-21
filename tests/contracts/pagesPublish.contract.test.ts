@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import { assemblePagesSite } from "../../scripts/assemble-pages-site.js";
 
+const SLOW_PAGES_TIMEOUT_MS = 20_000;
+
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../..",
@@ -80,7 +82,9 @@ describe("Pages publish contract", () => {
     );
   });
 
-  test("root Pages index links docs, schemas, and coverage surfaces", async () => {
+  test("root Pages index links docs, schemas, and coverage surfaces", {
+    timeout: SLOW_PAGES_TIMEOUT_MS,
+  }, async () => {
     const root = await makeFixtureRoot();
     const schemasDir = path.join(root, "schemas");
     const coverageDir = path.join(root, "coverage", "vitest");

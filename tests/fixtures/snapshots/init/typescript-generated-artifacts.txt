@@ -150,8 +150,6 @@ include = [
   "README.md"
 ]
 exclude = [
-  "node_modules/**",
-  "dist/**",
   "coverage/**",
   ".git/**",
   ".turbo/**",
@@ -164,4 +162,4 @@ extends = "./cx.toml"
 
 [files]
 include = ["dist/**", "package.json", "README.md"]
-exclude = ["node_modules/**", "coverage/**", ".git/**"]
+exclude = ["coverage/**", ".git/**"]

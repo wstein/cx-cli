@@ -380,15 +380,13 @@ exclude = []
       expect(mcpContent).toContain('"package.json"');
       expect(mcpContent).toContain('"tsconfig.json"');
       expect(mcpContent).toContain("exclude = [");
-      expect(mcpContent).toContain('"node_modules/**"');
-      expect(mcpContent).toContain('"dist/**"');
+      expect(mcpContent).not.toContain('"node_modules/**"');
+      expect(mcpContent).not.toContain('"dist/**"');
       expect(buildMcpContent).toContain('extends = "./cx.toml"');
       expect(buildMcpContent).toContain(
         'include = ["dist/**", "package.json", "README.md"]',
       );
-      expect(buildMcpContent).toContain(
-        'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
-      );
+      expect(buildMcpContent).toContain('exclude = ["coverage/**", ".git/**"]');
     } finally {
       process.chdir(cwd);
     }

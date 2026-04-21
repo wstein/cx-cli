@@ -166,8 +166,8 @@ describe("runInitCommand", () => {
     expect(mcpContent).toContain('"package.json"');
     expect(mcpContent).toContain('"tsconfig.json"');
     expect(mcpContent).toContain("exclude = [");
-    expect(mcpContent).toContain('"node_modules/**"');
-    expect(mcpContent).toContain('"dist/**"');
+    expect(mcpContent).not.toContain('"node_modules/**"');
+    expect(mcpContent).not.toContain('"dist/**"');
   });
 
   test("typescript Makefile documents lockfile-first package manager selection", async () => {
@@ -230,9 +230,7 @@ describe("runInitCommand", () => {
     expect(buildOverlay).toContain(
       'include = ["dist/**", "package.json", "README.md"]',
     );
-    expect(buildOverlay).toContain(
-      'exclude = ["node_modules/**", "coverage/**", ".git/**"]',
-    );
+    expect(buildOverlay).toContain('exclude = ["coverage/**", ".git/**"]');
   });
 
   test("typescript init generated artifacts match the higher-level snapshot", async () => {
