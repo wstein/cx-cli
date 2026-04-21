@@ -30,6 +30,21 @@ describe("notes extract built-in profiles contract", () => {
       "risks-and-technical-debt",
       "reference-notes",
     ]);
+    expect(profiles.arc42?.sectionTags).toEqual({
+      "introduction-and-goals": ["docs", "onboarding", "architecture"],
+      constraints: ["governance", "trust", "boundaries", "contract"],
+      "solution-strategy": ["architecture", "kernel", "render", "notes"],
+      "building-block-view": ["bundle", "manifest", "extract", "scanner"],
+      "runtime-view": ["workflow", "mcp", "operator", "release"],
+      "cross-cutting-concepts": ["determinism", "provenance", "hash", "oracle"],
+      "quality-scenarios": ["testing", "ci", "coverage", "release"],
+      "risks-and-technical-debt": [
+        "backlog",
+        "risk",
+        "migration",
+        "decommission",
+      ],
+    });
     expect(profiles.onboarding?.targetPaths).toEqual([
       "docs/modules/ROOT/pages/start-here/docs-index.adoc",
     ]);
@@ -43,6 +58,17 @@ describe("notes extract built-in profiles contract", () => {
       "quality-and-guardrails",
       "reference-notes",
     ]);
+    expect(profiles.onboarding?.sectionTags).toEqual({
+      "mental-models": ["onboarding", "mental-model", "architecture", "notes"],
+      "core-workflows": ["workflow", "operator", "manual", "mcp"],
+      "core-architecture": ["bundle", "render", "kernel", "scanner"],
+      "quality-and-guardrails": [
+        "testing",
+        "governance",
+        "release",
+        "contract",
+      ],
+    });
     expect(profiles.manual?.targetPaths).toEqual([
       "docs/modules/ROOT/pages/manual/operator-manual.adoc",
     ]);
@@ -56,5 +82,16 @@ describe("notes extract built-in profiles contract", () => {
       "release-and-integrity",
       "reference-notes",
     ]);
+    expect(profiles.manual?.sectionTags).toEqual({
+      "core-workflows": ["workflow", "manual", "operator", "mcp"],
+      "commands-and-behavior": ["cli", "bundle", "extract", "scanner"],
+      "validation-and-troubleshooting": [
+        "validate",
+        "verify",
+        "testing",
+        "troubleshooting",
+      ],
+      "release-and-integrity": ["release", "ci", "governance", "contract"],
+    });
   });
 });
