@@ -286,7 +286,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
       includeTags: [],
       excludeTags: [],
-      requiredNotes: [],
+      requiredNotes: ["Render Kernel Constitution"],
       includeTargets: ["current", "v0.4"],
       sectionOrder: [
         "introduction-and-goals",
@@ -340,7 +340,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       targetPaths: ["docs/modules/ROOT/pages/start-here/docs-index.adoc"],
       includeTags: [],
       excludeTags: ["release", "decommission"],
-      requiredNotes: [],
+      requiredNotes: ["Agent Operating Model"],
       includeTargets: ["current", "v0.4"],
       sectionOrder: [
         "mental-models",
@@ -387,7 +387,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       targetPaths: ["docs/modules/ROOT/pages/manual/operator-manual.adoc"],
       includeTags: [],
       excludeTags: [],
-      requiredNotes: [],
+      requiredNotes: ["Friday To Monday Workflow Contract"],
       includeTargets: ["current", "v0.4"],
       sectionOrder: [
         "core-workflows",

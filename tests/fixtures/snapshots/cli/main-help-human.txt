@@ -15,7 +15,6 @@ Commands:
   cx config <subcommand>   Inspect effective configuration.
   cx adapter <subcommand>  Expert oracle diagnostics for parity, capability inspection, and migration checks.
   cx notes [subcommand]    Manage repository notes.
-  cx docs [subcommand]     Compile extracted notes bundles into final docs.
   cx mcp [subcommand]      [EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.
 
 Options:

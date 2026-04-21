@@ -277,17 +277,6 @@ export const NotesExtractCommandJsonSchema = z.object({
   ),
 });
 
-export const DocsCompileCommandJsonSchema = z.object({
-  command: z.literal("docs compile"),
-  profile: z.string(),
-  bundlePath: z.string(),
-  documentKind: z.string(),
-  targetPaths: z.array(z.string()),
-  writtenFiles: z.array(z.string()),
-  noteCount: z.number().int().nonnegative(),
-  sectionCount: z.number().int().nonnegative(),
-});
-
 export const ConfigCommandErrorJsonSchema = z.object({
   error: z.string(),
 });
