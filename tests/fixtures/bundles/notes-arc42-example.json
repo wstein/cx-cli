@@ -38,7 +38,7 @@
     "mustCiteNoteTitles": true,
     "mustPreserveUncertainty": true,
     "mustNotInventFacts": true,
-    "mustIncludeProvenance": true,
+    "mustIncludeProvenance": false,
     "mustSurfaceConflicts": true
   },
   "provenance": {

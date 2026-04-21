@@ -21,7 +21,7 @@
 - Must cite note titles: yes
 - Must preserve uncertainty: yes
 - Must not invent facts: yes
-- Must include provenance: yes
+- Must include provenance: no
 - Must surface conflicts: yes
 
 ## Required Sections

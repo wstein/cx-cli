@@ -17,7 +17,7 @@
   must-cite-note-titles: true
   must-preserve-uncertainty: true
   must-not-invent-facts: true
-  must-include-provenance: true
+  must-include-provenance: false
   must-surface-conflicts: true
   </authoring-contract>
 

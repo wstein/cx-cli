@@ -88,7 +88,7 @@ fail_on_drift_pressured_notes = false
 # must_cite_note_titles = true
 # must_preserve_uncertainty = true
 # must_not_invent_facts = true
-# must_include_provenance = true
+# must_include_provenance = false
 # must_surface_conflicts = true
 
 [scanner]
