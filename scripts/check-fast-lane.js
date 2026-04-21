@@ -6,7 +6,7 @@ import {
   parseLaneHeader,
 } from "./test-lane-policy.js";
 
-const DEFAULT_MAX_FAST_LANE_FILES = 95;
+const DEFAULT_MAX_FAST_LANE_FILES = 200;
 
 function toPosixPath(value) {
   return value.split(path.sep).join("/");
