@@ -83,11 +83,6 @@ export interface CompileNotesExtractBundleOptions {
   configPath?: string;
 }
 
-const MARKDOWN_PAYLOAD_START = "<!-- cx-notes-bundle-payload:start -->";
-const MARKDOWN_PAYLOAD_END = "<!-- cx-notes-bundle-payload:end -->";
-const PLAIN_PAYLOAD_START = "CX NOTES MACHINE PAYLOAD START";
-const PLAIN_PAYLOAD_END = "CX NOTES MACHINE PAYLOAD END";
-
 const TARGET_PRIORITY: Record<NoteTarget, number> = {
   current: 0,
   "v0.4": 1,
@@ -197,24 +192,6 @@ function splitSections(body: string): NotesExtractNoteSection[] {
   }
 
   return sections.filter((section) => section.content.length > 0);
-}
-
-function escapeXml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
-
-function unescapeXml(value: string): string {
-  return value
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&apos;", "'")
-    .replaceAll("&amp;", "&");
 }
 
 function renderMarkdownList(values: string[], fallback: string): string[] {
@@ -669,7 +646,6 @@ function buildBundle(params: {
 }
 
 function renderMarkdownBundle(bundle: NotesExtractBundle): string {
-  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     "<!-- cx-notes-llm-bundle:v1 -->",
     `<!-- profile: ${bundle.profile.name} -->`,
@@ -713,13 +689,6 @@ function renderMarkdownBundle(bundle: NotesExtractBundle): string {
     `- Source glob: ${bundle.provenance.sourceGlob}`,
     `- Generation command: ${bundle.provenance.generationCommand}`,
     "",
-    "## Machine Payload",
-    MARKDOWN_PAYLOAD_START,
-    "```json",
-    machinePayload,
-    "```",
-    MARKDOWN_PAYLOAD_END,
-    "",
     "## Canonical Notes",
   ];
 
@@ -758,7 +727,6 @@ function renderMarkdownBundle(bundle: NotesExtractBundle): string {
 }
 
 function renderXmlBundle(bundle: NotesExtractBundle): string {
-  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     '<cx-notes-bundle version="1" format="llm-tagged-text">',
     "",
@@ -864,16 +832,11 @@ function renderXmlBundle(bundle: NotesExtractBundle): string {
   }
 
   lines.push("  </notes>");
-  lines.push("");
-  lines.push(
-    `  <machine-payload format="json">${escapeXml(machinePayload)}</machine-payload>`,
-  );
   lines.push("</cx-notes-bundle>");
   return `${lines.join("\n")}\n`;
 }
 
 function renderPlainBundle(bundle: NotesExtractBundle): string {
-  const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
     `CX NOTES BUNDLE v${bundle.version}`,
     `PROFILE ${bundle.profile.name}`,
@@ -887,10 +850,6 @@ function renderPlainBundle(bundle: NotesExtractBundle): string {
       .split(/\n+/)
       .map((line) => line.trim())
       .filter((line) => line.length > 0),
-    "",
-    PLAIN_PAYLOAD_START,
-    machinePayload,
-    PLAIN_PAYLOAD_END,
     "",
   ];
 
@@ -933,42 +892,6 @@ function renderBundleContent(
   }
 }
 
-function extractMachinePayload(
-  content: string,
-  bundlePath: string | undefined,
-): string {
-  const trimmed = content.trim();
-  if (trimmed.startsWith("{")) {
-    return trimmed;
-  }
-
-  const markdownMatch = content.match(
-    /<!-- cx-notes-bundle-payload:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- cx-notes-bundle-payload:end -->/,
-  );
-  if (markdownMatch?.[1]) {
-    return markdownMatch[1].trim();
-  }
-
-  const xmlMatch = content.match(
-    /<machine-payload format="json">([\s\S]*?)<\/machine-payload>/,
-  );
-  if (xmlMatch?.[1]) {
-    return unescapeXml(xmlMatch[1].trim());
-  }
-
-  const plainMatch = content.match(
-    /CX NOTES MACHINE PAYLOAD START\s*([\s\S]*?)\s*CX NOTES MACHINE PAYLOAD END/,
-  );
-  if (plainMatch?.[1]) {
-    return plainMatch[1].trim();
-  }
-
-  throw new CxError(
-    `Notes extract bundle is missing its machine payload${bundlePath ? `: ${bundlePath}` : "."}`,
-    2,
-  );
-}
-
 function isNotesExtractBundle(value: unknown): value is NotesExtractBundle {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -990,14 +913,22 @@ export function parseNotesExtractBundleContent(
   content: string,
   bundlePath?: string,
 ): NotesExtractBundle {
+  const trimmed = content.trim();
+  if (!trimmed.startsWith("{")) {
+    throw new CxError(
+      `Notes extract bundles are machine-parseable only in json format${bundlePath ? `: ${bundlePath}` : "."} Re-run cx notes extract with --format json.`,
+      2,
+    );
+  }
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(extractMachinePayload(content, bundlePath));
+    parsed = JSON.parse(trimmed);
   } catch (error) {
     const resolved =
       error instanceof Error ? error.message : "Unknown JSON parse error.";
     throw new CxError(
-      `Notes extract bundle contains an invalid machine payload${bundlePath ? `: ${bundlePath}` : ""}. ${resolved}`,
+      `Notes extract bundle contains invalid json${bundlePath ? `: ${bundlePath}` : ""}. ${resolved}`,
       2,
     );
   }

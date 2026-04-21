@@ -2,8 +2,8 @@
 
 These files are downstream-tooling sample bundles for `cx notes extract`.
 
-They exist so tests and experiments can use stable, parseable examples of
-the shipped bundle surface without needing to regenerate a bundle first.
+They exist so tests and experiments can use stable examples of the
+shipped bundle surface without needing to regenerate a bundle first.
 
 Current fixtures:
 
@@ -14,7 +14,9 @@ Current fixtures:
 
 Rules:
 
-- keep them parseable with `parseNotesExtractBundleContent(...)`
+- keep `notes-arc42-example.json` parseable with
+  `parseNotesExtractBundleContent(...)`
+- keep the non-JSON fixtures aligned with the human-facing render output
 - keep them aligned with the built-in `arc42` profile contract
 - treat `.xml` as xml-tagged plain text for LLMs, not as a strict XML
   document contract

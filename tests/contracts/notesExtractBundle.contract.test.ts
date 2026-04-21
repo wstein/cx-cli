@@ -56,7 +56,7 @@ afterEach(async () => {
 });
 
 describe("notes extract bundle contract", () => {
-  test("freezes machine-payload markers across markdown, xml, json, and plain bundles", async () => {
+  test("keeps machine-readable parsing exclusive to json bundles", async () => {
     await fs.writeFile(
       path.join(workspaceRoot, "notes", "Render Kernel Constitution.md"),
       noteContent({
@@ -89,11 +89,8 @@ describe("notes extract bundle contract", () => {
       format: "plain",
     });
 
-    expect(markdown.content).toContain(
-      "<!-- cx-notes-bundle-payload:start -->",
-    );
-    expect(markdown.content).toContain("<!-- cx-notes-bundle-payload:end -->");
-    expect(markdown.content).toContain("```json");
+    expect(markdown.content).toContain("<!-- cx-notes-llm-bundle:v1 -->");
+    expect(markdown.content).not.toContain("## Machine Payload");
 
     expect(xml.content).toContain(
       '<cx-notes-bundle version="1" format="llm-tagged-text">',
@@ -108,55 +105,65 @@ describe("notes extract bundle contract", () => {
       '<note id="20260421153000" target="current" section="introduction-and-goals"',
     );
     expect(xml.content).toContain('<section key="what" title="What">');
-    expect(xml.content).toContain('<machine-payload format="json">');
-    expect(xml.content).toContain("</machine-payload>");
     expect(xml.content).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
 
     expect(json.content.trimStart().startsWith("{")).toBe(true);
     expect(json.content).toContain('"outputFormat": "json"');
 
-    expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD START");
-    expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD END");
+    expect(plain.content).toContain("CX NOTES BUNDLE v1");
+    expect(plain.content).not.toContain("CX NOTES MACHINE PAYLOAD START");
 
-    expect(parseNotesExtractBundleContent(markdown.content)).toEqual(
-      markdown.bundle,
+    expect(() => parseNotesExtractBundleContent(markdown.content)).toThrow(
+      "machine-parseable only in json format",
     );
-    expect(parseNotesExtractBundleContent(xml.content)).toEqual(xml.bundle);
     expect(parseNotesExtractBundleContent(json.content)).toEqual(json.bundle);
-    expect(parseNotesExtractBundleContent(plain.content)).toEqual(plain.bundle);
+    expect(() => parseNotesExtractBundleContent(xml.content)).toThrow(
+      "machine-parseable only in json format",
+    );
+    expect(() => parseNotesExtractBundleContent(plain.content)).toThrow(
+      "machine-parseable only in json format",
+    );
   });
 
   test("fixture example bundles remain parseable for downstream tooling experiments", async () => {
-    const fixturePaths = [
+    const jsonFixturePath = path.join(
+      process.cwd(),
+      "tests/fixtures/bundles/notes-arc42-example.json",
+    );
+    const jsonBundle = parseNotesExtractBundleContent(
+      await fs.readFile(jsonFixturePath, "utf8"),
+      jsonFixturePath,
+    );
+
+    expect(jsonBundle.profile.name).toBe("arc42");
+    expect(jsonBundle.profile.requiredNotes).toEqual([
+      "Render Kernel Constitution",
+    ]);
+    expect(jsonBundle.profile.requiredSections).toEqual([
+      "introduction-and-goals",
+      "constraints",
+      "solution-strategy",
+      "building-block-view",
+      "runtime-view",
+      "cross-cutting-concepts",
+      "quality-scenarios",
+      "risks-and-technical-debt",
+      "reference-notes",
+    ]);
+    expect(jsonBundle.notes.map((note) => note.title)).toEqual([
+      "Render Kernel Constitution",
+    ]);
+
+    for (const fixtureRelativePath of [
       "tests/fixtures/bundles/notes-arc42-example.md",
       "tests/fixtures/bundles/notes-arc42-example.xml",
-      "tests/fixtures/bundles/notes-arc42-example.json",
       "tests/fixtures/bundles/notes-arc42-example.txt",
-    ];
-
-    for (const fixtureRelativePath of fixturePaths) {
+    ]) {
       const fixturePath = path.join(process.cwd(), fixtureRelativePath);
       const content = await fs.readFile(fixturePath, "utf8");
-      const bundle = parseNotesExtractBundleContent(content, fixturePath);
-
-      expect(bundle.profile.name).toBe("arc42");
-      expect(bundle.profile.requiredNotes).toEqual([
-        "Render Kernel Constitution",
-      ]);
-      expect(bundle.profile.requiredSections).toEqual([
-        "introduction-and-goals",
-        "constraints",
-        "solution-strategy",
-        "building-block-view",
-        "runtime-view",
-        "cross-cutting-concepts",
-        "quality-scenarios",
-        "risks-and-technical-debt",
-        "reference-notes",
-      ]);
-      expect(bundle.notes.map((note) => note.title)).toEqual([
-        "Render Kernel Constitution",
-      ]);
+      expect(() =>
+        parseNotesExtractBundleContent(content, fixturePath),
+      ).toThrow("machine-parseable only in json format");
     }
   });
 });

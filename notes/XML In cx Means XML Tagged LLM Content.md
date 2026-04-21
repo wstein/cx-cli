@@ -48,7 +48,7 @@ Only treat a surface as a strict XML contract if the docs, tests, and
 implementation say so explicitly.
 
 For notes extraction specifically, the default `.xml` bundle means xml-tagged plain text
-with embedded machine payload markers, not a full XML document contract.
+for LLM-facing workflows, not a full XML document contract or a hidden machine payload.
 
 ## Links
 

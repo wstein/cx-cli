@@ -288,9 +288,10 @@ canonical notes into deterministic LLM bundles.
 
 |`output++_++format` |`"markdown"` |Bundle serialization format:
 `markdown`, `xml`, `json`, or `plain`. Use `json` when downstream
-tooling wants the machine payload directly. The `xml` mode is xml-tagged
-plain text for LLM consumption, not a strict XML serialization
-contract.
+tooling wants the machine-readable bundle directly. The `markdown`,
+`xml`, and `plain` modes are prompt-oriented outputs for human or LLM
+consumption. The `xml` mode is xml-tagged plain text, not a strict XML
+serialization contract.
 
 |`target++_++paths` |— |Downstream target paths the bundle is intended to
 feed.

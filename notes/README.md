@@ -163,8 +163,8 @@ For downstream doc compilation, prefer `cx notes extract --profile arc42`,
 `cx notes extract --profile onboarding`, or `cx notes extract --profile manual`
 over ad hoc prompt assembly. That keeps selection, ordering, LLM
 instructions, and provenance inside a reviewable repository contract.
-Use `--format json` when downstream tooling wants the machine payload
-directly without a prompt-oriented wrapper.
+Use `--format json` when downstream tooling wants the machine-readable
+bundle directly without a prompt-oriented wrapper.
 Use `--format xml` when you want xml-tagged plain text for an LLM-facing
 workflow, not a strict XML document contract.
 

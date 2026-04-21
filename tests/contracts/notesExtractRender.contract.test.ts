@@ -138,14 +138,9 @@ describe("notes extract render contract", () => {
     ]);
     expect(result.content).toContain("# CX Notes LLM Bundle");
     expect(result.content).toContain("## Authoring Contract");
-    expect(result.content).toContain("## Machine Payload");
     expect(result.content).toContain("#### Note: Render Kernel Constitution");
     expect(result.content).not.toContain("Future Extraction Idea");
     expect(result.content).not.toContain("Unrelated Current Release Note");
-
-    expect(parseNotesExtractBundleContent(result.content)).toEqual(
-      result.bundle,
-    );
   });
 
   test("builds a deterministic json LLM bundle from built-in profiles", async () => {
