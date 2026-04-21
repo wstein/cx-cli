@@ -1,4 +1,4 @@
-// test-lane: unit
+// test-lane: contract
 
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -58,7 +58,7 @@ afterEach(async () => {
   await fs.rm(workspaceRoot, { recursive: true, force: true });
 });
 
-describe("compileNotesExtractBundle", () => {
+describe("notes extract render contract", () => {
   test("builds a deterministic markdown LLM bundle from built-in profiles", async () => {
     await fs.writeFile(
       path.join(workspaceRoot, "notes", "Render Kernel Constitution.md"),
