@@ -6,7 +6,7 @@ GENERATION COMMAND cx notes extract --profile arc42 --format plain
 
 AUTHORING CONTRACT
 SYSTEM ROLE You are a senior software architect and technical writer.
-Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation.
+Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.
 
 SECTION Introduction and Goals (introduction-and-goals)
 NOTE 20260421170000 Render Kernel Constitution

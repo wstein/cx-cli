@@ -1259,7 +1259,7 @@ constraints = ["contract"]
 
 [notes.profiles.arc42.llm]
 system_role = "You are a senior software architect and technical writer."
-instructions = "Write architecture documentation in AsciiDoc without inventing new facts."
+instructions = "Update architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth."
 target_format = "asciidoc"
 document_kind = "arc42 architecture"
 audience = "architects-and-maintainers"

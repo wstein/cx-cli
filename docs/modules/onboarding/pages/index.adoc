@@ -73,7 +73,7 @@ live MCP help, reproducible bundles, and durable notes
 Track A vs B, MCP policy tiers, and artifact lifecycle
 * xref:architecture:system-contracts.adoc[System Contracts] - cognition
 contract, boundary contract, and trust propagation model
-* xref:manual:operator-manual.adoc[Operator Manual] - operator path, assurance ladder, and
+* xref:manual:index.adoc[Manual Overview] - operator path, assurance ladder, and
 workflow map
 
 == Reference By Concern

@@ -452,7 +452,7 @@ export async function verifyBundle(
           remediation: {
             recommendedCommand:
               "cx verify dist/demo-bundle --against . --config cx.toml",
-            docsRef: "docs/modules/manual/pages/operator-manual.adoc",
+            docsRef: "docs/modules/manual/pages/index.adoc",
             nextSteps: [
               "Provide the same cx.toml that was used when the bundle was built.",
             ],

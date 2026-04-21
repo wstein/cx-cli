@@ -94,7 +94,7 @@ describe("loadCxConfig object model", () => {
               systemRole:
                 "You are a senior software architect and technical writer.",
               instructions:
-                "Write architecture documentation in AsciiDoc without inventing new facts.",
+                "Update architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth.",
               targetFormat: "asciidoc",
               documentKind: "arc42 architecture",
               audience: "architects-and-maintainers",
@@ -125,7 +125,7 @@ describe("loadCxConfig object model", () => {
       llm: {
         systemRole: "You are a senior software architect and technical writer.",
         instructions:
-          "Write architecture documentation in AsciiDoc without inventing new facts.",
+          "Update architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth.",
         targetFormat: "asciidoc",
         documentKind: "arc42 architecture",
         audience: "architects-and-maintainers",
@@ -147,7 +147,7 @@ describe("loadCxConfig object model", () => {
             empty_contract: {
               description: "This profile is missing a selection surface.",
               outputFormat: "markdown",
-              targetPaths: ["docs/modules/manual/pages/operator-manual.adoc"],
+              targetPaths: ["docs/modules/manual/pages/index.adoc"],
               includeTags: [],
               excludeTags: [],
               requiredNotes: [],

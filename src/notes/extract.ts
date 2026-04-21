@@ -298,7 +298,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       llm: {
         systemRole: "You are a senior software architect and technical writer.",
         instructions:
-          "Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation.",
+          "Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.",
         targetFormat: "asciidoc",
         documentKind: "arc42 architecture",
         audience: "architects-and-maintainers",
@@ -345,7 +345,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
         systemRole:
           "You are an onboarding-focused maintainer and technical writer.",
         instructions:
-          "Write onboarding documentation in AsciiDoc. Define core concepts before details. Explain why the project is built this way. Keep notes canonical and point readers back to durable reference where precision matters.",
+          "Update onboarding documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Define core concepts before details. Explain why the project is built this way. Update only the relevant chapters and use partials when useful. Point readers back to durable reference where precision matters.",
         targetFormat: "asciidoc",
         documentKind: "onboarding guide",
         audience: "new-contributors",
@@ -361,7 +361,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       description:
         "Compile canonical notes into an operator manual LLM bundle for task-oriented documentation.",
       outputFormat: "markdown",
-      targetPaths: ["docs/modules/manual/pages/operator-manual.adoc"],
+      targetPaths: ["docs/modules/manual/pages/index.adoc"],
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Friday To Monday Workflow Contract"],
@@ -386,7 +386,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       llm: {
         systemRole: "You are a maintainer writing an operator manual.",
         instructions:
-          "Write task-oriented manual content in AsciiDoc. Prefer workflows and commands. Explain inputs, outputs, validation checks, and failure modes. Keep canonical facts anchored to the supplied notes and preserve uncertainty.",
+          "Update task-oriented manual content in AsciiDoc. Treat the codebase and notes as the single source of truth. Prefer workflows and commands. Explain inputs, outputs, validation checks, and failure modes. Update only the relevant chapters and use partials when useful. Preserve uncertainty.",
         targetFormat: "asciidoc",
         documentKind: "operator manual",
         audience: "operators-and-maintainers",

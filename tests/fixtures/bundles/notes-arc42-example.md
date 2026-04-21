@@ -17,7 +17,7 @@
 
 ## Authoring Contract
 - System role: You are a senior software architect and technical writer.
-- Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation.
+- Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.
 - Must cite note titles: yes
 - Must preserve uncertainty: yes
 - Must not invent facts: yes

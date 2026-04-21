@@ -19,7 +19,7 @@ published concern-specific modules.
 == Start Here
 
 - xref:onboarding:index.adoc[Documentation Index] for the migrated docs front door.
-- xref:manual:operator-manual.adoc[Operator Manual] for the shortest route to commands and workflows.
+- xref:manual:index.adoc[Manual Overview] for the shortest route to commands and workflows.
 - xref:manual:operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
 - xref:architecture:index.adoc[Architecture Overview] for the arc42-based architecture spine.
 - xref:manual:release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.

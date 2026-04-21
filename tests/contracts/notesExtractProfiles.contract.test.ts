@@ -16,6 +16,9 @@ describe("notes extract built-in profiles contract", () => {
     expect(profiles.arc42?.targetPaths).toEqual([
       "docs/modules/architecture/pages/index.adoc",
     ]);
+    expect(profiles.arc42?.llm.instructions).toBe(
+      "Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.",
+    );
     expect(profiles.arc42?.requiredNotes).toEqual([
       "Render Kernel Constitution",
     ]);
@@ -48,6 +51,9 @@ describe("notes extract built-in profiles contract", () => {
     expect(profiles.onboarding?.targetPaths).toEqual([
       "docs/modules/onboarding/pages/index.adoc",
     ]);
+    expect(profiles.onboarding?.llm.instructions).toBe(
+      "Update onboarding documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Define core concepts before details. Explain why the project is built this way. Update only the relevant chapters and use partials when useful. Point readers back to durable reference where precision matters.",
+    );
     expect(profiles.onboarding?.requiredNotes).toEqual([
       "Agent Operating Model",
     ]);
@@ -70,8 +76,11 @@ describe("notes extract built-in profiles contract", () => {
       ],
     });
     expect(profiles.manual?.targetPaths).toEqual([
-      "docs/modules/manual/pages/operator-manual.adoc",
+      "docs/modules/manual/pages/index.adoc",
     ]);
+    expect(profiles.manual?.llm.instructions).toBe(
+      "Update task-oriented manual content in AsciiDoc. Treat the codebase and notes as the single source of truth. Prefer workflows and commands. Explain inputs, outputs, validation checks, and failure modes. Update only the relevant chapters and use partials when useful. Preserve uncertainty.",
+    );
     expect(profiles.manual?.requiredNotes).toEqual([
       "Friday To Monday Workflow Contract",
     ]);
