@@ -822,7 +822,7 @@ export async function main(
           .option("output", {
             type: "string",
             description:
-              "Write the extracted LLM bundle to this path. Defaults to dist/notes-<profile>.llm.<ext>.",
+              "Write the extracted notes bundle to this path. Defaults to dist/notes-<profile>.<ext>.",
           })
           .option("config", {
             type: "string",

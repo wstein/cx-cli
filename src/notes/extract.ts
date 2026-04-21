@@ -1025,11 +1025,7 @@ function defaultOutputPath(
         : format === "json"
           ? "json"
           : "txt";
-  return path.join(
-    workspaceRoot,
-    "dist",
-    `notes-${profileName}.llm.${extension}`,
-  );
+  return path.join(workspaceRoot, "dist", `notes-${profileName}.${extension}`);
 }
 
 export async function compileNotesExtractBundle(

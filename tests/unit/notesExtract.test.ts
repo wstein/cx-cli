@@ -131,7 +131,7 @@ describe("compileNotesExtractBundle", () => {
     });
 
     expect(result.outputPath).toBe(
-      path.join(workspaceRoot, "dist", "notes-arc42.llm.md"),
+      path.join(workspaceRoot, "dist", "notes-arc42.md"),
     );
     expect(result.bundle.profile.name).toBe("arc42");
     expect(result.bundle.notes.map((note) => note.title)).toEqual([
@@ -173,7 +173,7 @@ describe("compileNotesExtractBundle", () => {
     });
 
     expect(result.outputPath).toBe(
-      path.join(workspaceRoot, "dist", "notes-arc42.llm.json"),
+      path.join(workspaceRoot, "dist", "notes-arc42.json"),
     );
     expect(result.content.trimStart().startsWith("{")).toBe(true);
 

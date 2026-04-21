@@ -128,10 +128,10 @@ describe("notes extract bundle contract", () => {
 
   test("fixture example bundles remain parseable for downstream tooling experiments", async () => {
     const fixturePaths = [
-      "tests/fixtures/bundles/notes-arc42-example.llm.md",
-      "tests/fixtures/bundles/notes-arc42-example.llm.xml",
-      "tests/fixtures/bundles/notes-arc42-example.llm.json",
-      "tests/fixtures/bundles/notes-arc42-example.llm.txt",
+      "tests/fixtures/bundles/notes-arc42-example.md",
+      "tests/fixtures/bundles/notes-arc42-example.xml",
+      "tests/fixtures/bundles/notes-arc42-example.json",
+      "tests/fixtures/bundles/notes-arc42-example.txt",
     ];
 
     for (const fixtureRelativePath of fixturePaths) {

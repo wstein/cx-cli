@@ -1186,7 +1186,7 @@ Terminal note with enough routing words for validation.
       expect(result.exitCode).toBe(0);
       expect(result.logs).toContain("Extracted notes bundle:");
 
-      const outputPath = path.join(testDir, "dist", "notes-manual.llm.md");
+      const outputPath = path.join(testDir, "dist", "notes-manual.md");
       const bundle = await fs.readFile(outputPath, "utf8");
       expect(bundle).toContain("# CX Notes LLM Bundle");
       expect(bundle).toContain("Profile");
@@ -1265,7 +1265,7 @@ exclude = []
       expect(result.parsedJson?.selectedNoteCount).toBe(1);
 
       const jsonBundle = await fs.readFile(
-        path.join(testDir, "dist", "notes-arc42.llm.json"),
+        path.join(testDir, "dist", "notes-arc42.json"),
         "utf8",
       );
       expect(jsonBundle.trimStart().startsWith("{")).toBe(true);
