@@ -35,8 +35,14 @@ describe("Antora layout contract", () => {
     expect(antora).toContain("title: CX Documentation");
     expect(antora).toContain("version: '0.4'");
     expect(antora).toContain("- modules/ROOT/nav.adoc");
+    expect(antora).toContain("- modules/onboarding/nav.adoc");
+    expect(antora).toContain("- modules/manual/nav.adoc");
+    expect(antora).toContain("- modules/architecture/nav.adoc");
 
     expect(await exists("docs/modules/ROOT/pages")).toBe(true);
+    expect(await exists("docs/modules/onboarding/pages")).toBe(true);
+    expect(await exists("docs/modules/manual/pages")).toBe(true);
+    expect(await exists("docs/modules/architecture/pages")).toBe(true);
     expect(await exists("docs/modules/ROOT/partials")).toBe(true);
     expect(await exists("docs/modules/ROOT/attachments")).toBe(true);
     expect(await exists("docs/modules/ROOT/examples")).toBe(true);
@@ -44,6 +50,9 @@ describe("Antora layout contract", () => {
     expect(await exists("docs/ui/layouts/default.hbs")).toBe(true);
 
     expect(await exists("docs/antora/modules/ROOT/pages")).toBe(false);
+    expect(await exists("docs/modules/ROOT/pages/start-here")).toBe(false);
+    expect(await exists("docs/modules/ROOT/pages/manual")).toBe(false);
+    expect(await exists("docs/modules/ROOT/pages/architecture")).toBe(false);
     expect(await exists("docs/antora-ui/layouts/default.hbs")).toBe(false);
   });
 });

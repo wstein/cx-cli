@@ -1,13 +1,13 @@
 = Operator Workflows
 :page-layout: default
 
-include::../../partials/track-primer.adoc[]
-include::../../partials/trust-boundary-primer.adoc[]
+include::ROOT:partial$track-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
 
 Use this page when you need the canonical operator workflows in one place.
 These workflows are part of the manual surface rather than a separate doc class.
 
-See xref:manual/operating-modes.adoc[Operating Modes] for the mode chooser and xref:architecture/mental-model.adoc[Mental Model] for the canonical semantics that sit underneath the workflows.
+See xref:manual:operating-modes.adoc[Operating Modes] for the mode chooser and xref:architecture:mental-model.adoc[Mental Model] for the canonical semantics that sit underneath the workflows.
 
 [[friday-to-monday-workflow]]
 == Friday To Monday Workflow
@@ -145,7 +145,7 @@ Those failures are not friction for its own sake. They are the mechanisms that k
 
 This workflow explains how note mutation is intentionally denied by default and how a trusted local developer or agent session enables it safely. The generated `cx.toml` baseline now includes `mcp.enable_mutation = true` so the operational control is primarily the MCP policy setting.
 
-See xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model] and xref:page$repository/docs/agent_integration.adoc[Agent Integration Guide] for the integration-layer view.
+See xref:ROOT:page$repository/docs/agent_operating_model.adoc[Agent Operating Model] and xref:ROOT:page$repository/docs/agent_integration.adoc[Agent Integration Guide] for the integration-layer view.
 
 === Step 1: Start In Default MCP Mode
 

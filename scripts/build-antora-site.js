@@ -12,13 +12,13 @@ export const DEFAULT_ANTORA_EXPORTS_DIR = "cx/0.4/_exports";
 export const DEFAULT_ANTORA_SINGLE_HTML_EXPORTS = [
   {
     fileName: "manual.html",
-    navFile: "modules/ROOT/nav-manual.adoc",
-    startPage: "cx::manual/index.adoc",
+    navFile: "modules/manual/nav.adoc",
+    startPage: "cx:manual:index.adoc",
   },
   {
     fileName: "architecture.html",
-    navFile: "modules/ROOT/nav-architecture.adoc",
-    startPage: "cx::architecture/index.adoc",
+    navFile: "modules/architecture/nav.adoc",
+    startPage: "cx:architecture:index.adoc",
   },
 ];
 export const DEFAULT_ANTORA_EXPORT_WORK_ROOT = "tmp/antora-single-html";

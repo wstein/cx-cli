@@ -10,6 +10,6 @@ Cross-cutting concepts that shape the whole system:
 - MCP policy and mutation boundaries
 - contract versioning
 
-include::../../partials/trust-boundary-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
 
 These concepts appear across the proof path, the MCP surface, and the cognition layer, so they are better treated as shared vocabulary than page-local detail.

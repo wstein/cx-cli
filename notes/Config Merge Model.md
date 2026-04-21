@@ -62,8 +62,8 @@ Making conflicts visible ensures config inheritance is:
 ## References
 
 - [mergeConfigs function](../src/config/merge.ts)
-- [docs/modules/ROOT/pages/manual/config-reference.adoc](../docs/modules/ROOT/pages/manual/config-reference.adoc)
-- [docs/modules/ROOT/pages/architecture/system-contracts.adoc](../docs/modules/ROOT/pages/architecture/system-contracts.adoc)
+- [docs/modules/manual/pages/config-reference.adoc](../docs/modules/manual/pages/config-reference.adoc)
+- [docs/modules/architecture/pages/system-contracts.adoc](../docs/modules/architecture/pages/system-contracts.adoc)
 - [[Config Inheritance and Overlays]]
 - [[Environment Variable Resolution]]
 - [[Section Ownership and Overlaps]]

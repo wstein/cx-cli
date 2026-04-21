@@ -81,7 +81,7 @@ describe("loadCxConfig object model", () => {
           arc42: {
             description: "Compile arc42 note bundles.",
             outputFormat: "json",
-            targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
+            targetPaths: ["docs/modules/architecture/pages/index.adoc"],
             includeTags: ["architecture"],
             excludeTags: ["draft"],
             requiredNotes: ["Render Kernel Constitution"],
@@ -113,7 +113,7 @@ describe("loadCxConfig object model", () => {
     expect(config.notes.profiles.arc42).toEqual({
       description: "Compile arc42 note bundles.",
       outputFormat: "json",
-      targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
+      targetPaths: ["docs/modules/architecture/pages/index.adoc"],
       includeTags: ["architecture"],
       excludeTags: ["draft"],
       requiredNotes: ["Render Kernel Constitution"],
@@ -147,9 +147,7 @@ describe("loadCxConfig object model", () => {
             empty_contract: {
               description: "This profile is missing a selection surface.",
               outputFormat: "markdown",
-              targetPaths: [
-                "docs/modules/ROOT/pages/manual/operator-manual.adoc",
-              ],
+              targetPaths: ["docs/modules/manual/pages/operator-manual.adoc"],
               includeTags: [],
               excludeTags: [],
               requiredNotes: [],

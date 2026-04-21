@@ -71,6 +71,6 @@ The docs can remain precise while becoming easier to traverse.
 ## Links
 
 - [docs/README.md](../docs/README.md)
-- [docs/modules/ROOT/pages/manual/operator-manual.adoc](../docs/modules/ROOT/pages/manual/operator-manual.adoc)
-- [docs/modules/ROOT/pages/manual/operating-modes.adoc](../docs/modules/ROOT/pages/manual/operating-modes.adoc)
+- [docs/modules/manual/pages/operator-manual.adoc](../docs/modules/manual/pages/operator-manual.adoc)
+- [docs/modules/manual/pages/operating-modes.adoc](../docs/modules/manual/pages/operating-modes.adoc)
 - [[CLI Command Lifecycle]]

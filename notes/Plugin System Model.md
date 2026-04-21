@@ -51,4 +51,4 @@ Plugins may extend behavior, not redefine proof.
 
 - [[System Trust Contract]]
 - [[MCP Tool Intent Taxonomy]]
-- `docs/modules/ROOT/pages/architecture/system-contracts.adoc`
+- `docs/modules/architecture/pages/system-contracts.adoc`

@@ -7,5 +7,5 @@
 * durable cognition path: `notes`
 * adapter/oracle path: diagnostics and parity only
 
-Use this page for its local concern first. Return to xref:start-here/docs-index.adoc[Documentation Index] when you need the broader map.
+Use this page for its local concern first. Return to xref:onboarding:index.adoc[Documentation Index] when you need the broader map.
 ====

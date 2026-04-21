@@ -16,9 +16,9 @@ async function readText(relativePath: string): Promise<string> {
 
 describe("Antora arc42 spine contract", () => {
   test("architecture overview and nav keep the arc42 spine ordered and explicit", async () => {
-    const nav = await readText("docs/modules/ROOT/nav.adoc");
+    const nav = await readText("docs/modules/architecture/nav.adoc");
     const architectureIndex = await readText(
-      "docs/modules/ROOT/pages/architecture/index.adoc",
+      "docs/modules/architecture/pages/index.adoc",
     );
 
     const expectedSections = [
@@ -38,11 +38,11 @@ describe("Antora arc42 spine contract", () => {
 
     let lastIndex = -1;
     for (const section of expectedSections) {
-      const navNeedle = `xref:architecture/${section}.adoc`;
+      const navNeedle = `xref:${section}.adoc`;
       const currentIndex = nav.indexOf(navNeedle);
       expect(currentIndex).toBeGreaterThan(lastIndex);
       lastIndex = currentIndex;
-      expect(architectureIndex).toContain(navNeedle);
+      expect(architectureIndex).toContain(`xref:architecture:${section}.adoc`);
     }
 
     expect(architectureIndex).toContain("uses arc42 as the architecture spine");

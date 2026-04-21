@@ -370,17 +370,17 @@ When updating or referencing governance decisions:
 
 * *"What's the contract?"* → xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
 * *"What do the concepts mean?"* →
-xref:architecture/mental-model.adoc[Mental Model]
+xref:architecture:mental-model.adoc[Mental Model]
 * *"Which mode should I choose first?"* →
-xref:manual/operating-modes.adoc[Operating Modes]
+xref:manual:operating-modes.adoc[Operating Modes]
 * *"How do tools work in an agent integration?"* →
 xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
 * *"What are all the options?"* →
-xref:manual/config-reference.adoc[Configuration Reference]
+xref:manual:config-reference.adoc[Configuration Reference]
 * *"When do I use each workflow?"* →
-xref:manual/operating-modes.adoc[Operating Modes]
+xref:manual:operating-modes.adoc[Operating Modes]
 * *"Where can I see the model play out over time?"* →
-xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]
+xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday]
 * *"Is this doc authoritative?"* → Check the source-of-truth marker at
 the top
 
@@ -427,7 +427,7 @@ Why this matters:
 For AI-generated notes especially, the question is not "did text get
 produced?" It is "did the graph gain durable, high-signal knowledge?"
 
-See xref:architecture/system-contracts.adoc[System Contracts] for the
+See xref:architecture:system-contracts.adoc[System Contracts] for the
 formal cognition contract and trust propagation model that sit under
 this layer.
 

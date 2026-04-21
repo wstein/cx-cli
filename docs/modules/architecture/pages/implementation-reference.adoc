@@ -1,21 +1,21 @@
 = CX Architecture
 :page-layout: default
 
-include::../../partials/track-primer.adoc[]
-include::../../partials/trust-boundary-primer.adoc[]
+include::ROOT:partial$track-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
 
 This is the implementation reference for contributors who need to
 understand how the codebase enforces the canonical model.
 
-Read this after xref:architecture/mental-model.adoc[Mental Model],
-xref:architecture/system-contracts.adoc[System Contracts], and
-xref:architecture/system-map.adoc[System Map], not before them.
+Read this after xref:architecture:mental-model.adoc[Mental Model],
+xref:architecture:system-contracts.adoc[System Contracts], and
+xref:architecture:system-map.adoc[System Map], not before them.
 
 == Design Goal
 
 `cx` exists to make context bundling reproducible enough for automation.
 
-For the documentation map, see xref:start-here/docs-index.adoc[Documentation Index].
+For the documentation map, see xref:onboarding:index.adoc[Documentation Index].
 
 The project now centers a native render kernel because rendering alone
 is not enough for CI/CD. A pipeline also needs deterministic planning,
@@ -25,8 +25,8 @@ visibility, not as the shipped proof path.
 
 == Canonical Model
 
-See xref:manual/operating-modes.adoc[Operating Modes] and
-xref:architecture/mental-model.adoc[Mental Model].
+See xref:manual:operating-modes.adoc[Operating Modes] and
+xref:architecture:mental-model.adoc[Mental Model].
 
 This document starts where the shared mental model stops. The mental
 model defines the CX triad, Track A vs Track B, MCP policy tiers, and
@@ -88,12 +88,12 @@ migration
 == Structured Render Contract
 
 The canonical proof-path contract now lives in
-xref:architecture/render-kernel-contract.adoc[Render Kernel Contract].
+xref:architecture:render-kernel-contract.adoc[Render Kernel Contract].
 This section gives architectural context for the current implementation.
 
 The stabilized internal seams that sit beneath that contract are
 recorded in
-xref:architecture/internal-api-contract.adoc[Internal API Contract].
+xref:architecture:internal-api-contract.adoc[Internal API Contract].
 
 `cx` enforces a deterministic structured render contract instead of
 relying on heuristic span parsing. The native kernel owns the production
@@ -649,5 +649,5 @@ output
 `degraded` is intentionally not the default success path. It requires
 explicit operator consent with `--allow-degraded`.
 
-See xref:page$repository/docs/extraction_safety.adoc[Extraction Safety] for the operational
+See xref:ROOT:page$repository/docs/extraction_safety.adoc[Extraction Safety] for the operational
 consequences.

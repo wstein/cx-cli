@@ -19,9 +19,9 @@ describe("curated docs shape contract", () => {
     const nav = await readText("docs/modules/ROOT/nav.adoc");
 
     const startHereIndex = nav.indexOf("* xref:index.adoc[Start Here]");
-    const manualIndex = nav.indexOf("** xref:manual/index.adoc[Manual]");
+    const manualIndex = nav.indexOf("** xref:manual:index.adoc[Manual]");
     const architectureIndex = nav.indexOf(
-      "** xref:architecture/index.adoc[Architecture]",
+      "** xref:architecture:index.adoc[Architecture]",
     );
     const repositoryIndex = nav.indexOf(
       "include::partial$repository-nav.adoc[]",
@@ -35,7 +35,7 @@ describe("curated docs shape contract", () => {
 
   test("docs index keeps repository references as deep reference rather than front-door onboarding", async () => {
     const docsIndex = await readText(
-      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/onboarding/pages/index.adoc",
     );
     const governance = await readText(
       "docs/modules/ROOT/pages/repository/docs/governance.adoc",

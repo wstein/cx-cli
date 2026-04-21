@@ -41,4 +41,4 @@ Hard breaks are acceptable only when contracts are explicit, version boundaries 
 
 - [[Render Kernel Constitution]]
 - [[System Trust Contract]]
-- `docs/modules/ROOT/pages/architecture/mental-model.adoc`
+- `docs/modules/architecture/pages/mental-model.adoc`

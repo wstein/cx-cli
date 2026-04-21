@@ -7,7 +7,7 @@
   document-kind: arc42 architecture
   audience: architects-and-maintainers
   tone: formal-technical
-  target-path: docs/modules/ROOT/pages/architecture/index.adoc
+  target-path: docs/modules/architecture/pages/index.adoc
   </profile>
 
   <authoring-contract>
@@ -112,7 +112,7 @@
     &quot;description&quot;: &quot;Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.&quot;,
     &quot;outputFormat&quot;: &quot;xml&quot;,
     &quot;targetPaths&quot;: [
-      &quot;docs/modules/ROOT/pages/architecture/index.adoc&quot;
+      &quot;docs/modules/architecture/pages/index.adoc&quot;
     ],
     &quot;includeTargets&quot;: [
       &quot;current&quot;,

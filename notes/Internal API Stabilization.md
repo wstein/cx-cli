@@ -32,6 +32,6 @@ All new subsystems must implement defined interfaces.
 ## Links
 
 - [[Render Kernel Constitution]]
-- docs/modules/ROOT/pages/architecture/internal-api-contract.adoc
+- docs/modules/architecture/pages/internal-api-contract.adoc
 - `src/shared/tokenizer.ts`
 - `src/doctor/scanner.ts`

@@ -5,8 +5,8 @@
 
 `cx` is a deterministic bundler, not an archiver.
 
-For the broader document map and architecture context, see the xref:start-here/docs-index.adoc[Documentation Index] and the xref:architecture/implementation-reference.adoc[Implementation Reference].
-See the xref:architecture/mental-model.adoc[Mental Model] for the canonical artifact lifecycle that extraction sits inside.
+For the broader document map and architecture context, see the xref:onboarding:index.adoc[Documentation Index] and the xref:architecture:implementation-reference.adoc[Implementation Reference].
+See the xref:architecture:mental-model.adoc[Mental Model] for the canonical artifact lifecycle that extraction sits inside.
 
 For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.
 

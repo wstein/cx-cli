@@ -5,7 +5,7 @@
     "description": "Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.",
     "outputFormat": "markdown",
     "targetPaths": [
-      "docs/modules/ROOT/pages/architecture/index.adoc"
+      "docs/modules/architecture/pages/index.adoc"
     ],
     "includeTargets": [
       "current",

@@ -70,13 +70,13 @@ describe("MCP Vitest cockpit contract", () => {
   test("operator docs make the MCP cockpit discoverable", async () => {
     const readme = await readText("README.md");
     const manual = await readText(
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/manual/pages/operator-manual.adoc",
     );
     const agentIntegration = await readText(
       "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
     );
     const docsIndex = await readText(
-      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/onboarding/pages/index.adoc",
     );
     const testsGuide = await readText("tests/README.md");
 

@@ -1,10 +1,10 @@
 = Agent Operating Model
 :page-layout: default
 
-Start with the xref:architecture/mental-model.adoc[Mental Model] for canonical semantics and xref:manual/operating-modes.adoc[Operating Modes] for the operator-facing entrypoint.
+Start with the xref:architecture:mental-model.adoc[Mental Model] for canonical semantics and xref:manual:operating-modes.adoc[Operating Modes] for the operator-facing entrypoint.
 
 This document covers the integration layer for agent operators.
-It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in the xref:architecture/mental-model.adoc[Mental Model]. This document explains what those semantics become when an agent is connected to a repository over MCP.
+It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in the xref:architecture:mental-model.adoc[Mental Model]. This document explains what those semantics become when an agent is connected to a repository over MCP.
 
 == Integration-Layer Responsibilities
 
@@ -15,13 +15,13 @@ At the agent layer, the model becomes four practical questions:
 . Which workflow should the operator invoke next?
 . Which audit trail explains what the agent actually did?
 
-That is the scope of this document. Canonical semantics stay upstream in the xref:architecture/mental-model.adoc[Mental Model].
+That is the scope of this document. Canonical semantics stay upstream in the xref:architecture:mental-model.adoc[Mental Model].
 
 == Operator Decision Ladder
 
 Use the integration layer in this order:
 
-. Start with xref:manual/operating-modes.adoc[Operating Modes] to choose the right surface.
+. Start with xref:manual:operating-modes.adoc[Operating Modes] to choose the right surface.
 . Use `cx mcp` when the operator needs live agent help on the current checkout.
 . Use `cx doctor mcp` to confirm the resolved profile, workspace boundary, and policy state.
 . Let the agent operate inside the allowed capability set.
@@ -194,12 +194,12 @@ cx notes check
 cx notes graph --id <note-id> --depth 2
 ----
 
-For the review loop that follows trusted note edits, see xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation].
+For the review loop that follows trusted note edits, see xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation].
 
 == Links
 
-* xref:architecture/mental-model.adoc[Mental Model] for canonical semantics
-* xref:manual/operating-modes.adoc[Operating Modes] for operator mode selection
+* xref:architecture:mental-model.adoc[Mental Model] for canonical semantics
+* xref:manual:operating-modes.adoc[Operating Modes] for operator mode selection
 * xref:repository/docs/agent_integration.adoc[Agent Integration Guide] for IDE and client setup
-* xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday] for temporal provenance
+* xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday] for temporal provenance
 * https://github.com/wstein/cx-cli/blob/main/notes/Agent%20Operating%20Model.md[notes/Agent Operating Model] for the knowledge-graph entry

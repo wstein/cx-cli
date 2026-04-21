@@ -1247,7 +1247,7 @@ output_dir = "dist/demo-bundle"
 [notes.profiles.arc42]
 description = "Compile architecture notes into JSON bundles."
 output_format = "json"
-target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
+target_paths = ["docs/modules/architecture/pages/index.adoc"]
 include_tags = ["architecture"]
 exclude_tags = []
 required_notes = ["Render Kernel Constitution"]

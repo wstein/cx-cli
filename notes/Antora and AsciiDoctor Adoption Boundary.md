@@ -44,6 +44,6 @@ The goal is not to upgrade all prose. The goal is to improve the information arc
 ## Links
 
 - [README.md](../README.md)
-- [docs/modules/ROOT/pages/architecture/implementation-reference.adoc](../docs/modules/ROOT/pages/architecture/implementation-reference.adoc)
-- [docs/modules/ROOT/pages/manual/operator-manual.adoc](../docs/modules/ROOT/pages/manual/operator-manual.adoc)
+- [docs/modules/architecture/pages/implementation-reference.adoc](../docs/modules/architecture/pages/implementation-reference.adoc)
+- [docs/modules/manual/pages/operator-manual.adoc](../docs/modules/manual/pages/operator-manual.adoc)
 - [[Repository Cognition Layer]]

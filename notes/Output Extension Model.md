@@ -39,5 +39,5 @@ Output plugins must not modify:
 ## Links
 
 - [[Structured Render Contract]]
-- `docs/modules/ROOT/pages/architecture/system-map.adoc`
+- `docs/modules/architecture/pages/system-map.adoc`
 - `src/templates/engine.ts`

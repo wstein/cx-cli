@@ -18,4 +18,4 @@ After mutation, graph and audit commands are part of the workflow, not optional 
 ## Links
 * [[Agent Operating Model]]
 * [[MCP Tool Intent Taxonomy]]
-* [docs/modules/ROOT/pages/manual/workflows.adoc](../docs/modules/ROOT/pages/manual/workflows.adoc)
+* [docs/modules/manual/pages/workflows.adoc](../docs/modules/manual/pages/workflows.adoc)

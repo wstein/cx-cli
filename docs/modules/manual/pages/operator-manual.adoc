@@ -1,15 +1,15 @@
 = CX Operator Manual
 :page-layout: default
 
-include::../../partials/operator-surfaces-primer.adoc[]
-include::../../partials/track-primer.adoc[]
+include::ROOT:partial$operator-surfaces-primer.adoc[]
+include::ROOT:partial$track-primer.adoc[]
 
 `cx` is a repository-native toolchain with a kernel-owned proof path, a
 live MCP workspace surface, and a durable notes layer for AI handoff and
 verification.
 
-Use xref:manual/operating-modes.adoc[Operating Modes] for the main
-conceptual entrypoint and xref:architecture/mental-model.adoc[Mental Model]
+Use xref:manual:operating-modes.adoc[Operating Modes] for the main
+conceptual entrypoint and xref:architecture:mental-model.adoc[Mental Model]
 for the canonical CX triad, Track A vs Track B, policy tiers, and
 artifact lifecycle.
 
@@ -20,8 +20,8 @@ decisions.
 If you are new to the repository:
 
 [arabic]
-. Read the root xref:page$repository/root/readme.adoc[README]
-. Read xref:architecture/system-map.adoc[System Map]
+. Read the root xref:ROOT:page$repository/root/readme.adoc[README]
+. Read xref:architecture:system-map.adoc[System Map]
 . Return here once you need the operator path instead of the conceptual
 map
 
@@ -70,7 +70,7 @@ If extraction reports `degraded`, stop and decide whether you need approximate h
 
 Why this protects you: degraded extraction means the recovered packed content no longer matches the manifest contract, so line coordinates and file identity may no longer be trustworthy enough for safe automation.
 
-For the full failure model, recovery statuses, and detailed examples, see xref:page$repository/docs/extraction_safety.adoc[Extraction Safety].
+For the full failure model, recovery statuses, and detailed examples, see xref:ROOT:page$repository/docs/extraction_safety.adoc[Extraction Safety].
 
 === Repository Commands
 
@@ -185,7 +185,7 @@ overlays independently if your workspace uses a different layout.
 
 The cross-template capability matrix, generated file contract, and
 support levels are documented in
-xref:page$repository/docs/init_template_contract.adoc[Init Template Contract].
+xref:ROOT:page$repository/docs/init_template_contract.adoc[Init Template Contract].
 
 `cx init` checks each generated target individually. It preserves
 existing files by default and creates any missing init artifacts; use
@@ -223,7 +223,7 @@ in profile resolution or audit state.
 
 For concrete integration examples and per-IDE snippets (VS Code/Cline,
 Roo Code, Cursor, Claude Desktop), see the
-xref:page$repository/docs/agent_integration.adoc[Agent Integration Guide].
+xref:ROOT:page$repository/docs/agent_integration.adoc[Agent Integration Guide].
 
 === MCP Setup And Daily Operator Use
 
@@ -405,9 +405,9 @@ This guide is for engineers running `cx` as an operational tool: local
 bundle authors, CI maintainers, and remote-runner owners.
 
 If you are new to the project, read the README first. If you need the
-detailed knobs, read xref:manual/config-reference.adoc[Configuration Reference].
+detailed knobs, read xref:manual:config-reference.adoc[Configuration Reference].
 If you need the full documentation map, read
-xref:start-here/docs-index.adoc[Documentation Index].
+xref:onboarding:index.adoc[Documentation Index].
 
 == Friday To Monday Map
 
@@ -426,11 +426,11 @@ unreviewable production input.
 The invariants are the mechanisms that keep Friday's intent queryable
 and safe on Monday.
 
-See xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday].
+See xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday].
 
 == Static Bundle Versus Live MCP
 
-See xref:architecture/mental-model.adoc[Mental Model].
+See xref:architecture:mental-model.adoc[Mental Model].
 
 The two main CX workflows are intentionally different:
 

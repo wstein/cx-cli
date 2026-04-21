@@ -51,7 +51,7 @@ This lowers navigation cost without reintroducing uncontrolled prose duplication
 
 ## Links
 
-- [docs/modules/ROOT/pages/architecture/mental-model.adoc](../docs/modules/ROOT/pages/architecture/mental-model.adoc)
+- [docs/modules/architecture/pages/mental-model.adoc](../docs/modules/architecture/pages/mental-model.adoc)
 - [docs/modules/ROOT/pages/repository/docs/agent_integration.adoc](../docs/modules/ROOT/pages/repository/docs/agent_integration.adoc)
 - [docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc](../docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc)
 - [[Agent Operating Model]]

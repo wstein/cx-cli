@@ -38,5 +38,5 @@ Do not silently change a primary workflow that downstream humans or automation a
 - [[Bundle Verify Extract Workflow Contract]]
 - [[MCP Read Path Contract]]
 - [[Safe Note Mutation Workflow Contract]]
-- `docs/modules/ROOT/pages/manual/workflows.adoc`
-- `docs/modules/ROOT/pages/manual/workflows.adoc`
+- `docs/modules/manual/pages/workflows.adoc`
+- `docs/modules/manual/pages/workflows.adoc`

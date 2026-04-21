@@ -21,4 +21,4 @@ That keeps note mutation auditable instead of treating the write itself as proof
 
 - [[Safe Note Mutation Workflow]] - explicit mutation authority and audit path.
 - [[Repository Cognition Layer]] - why note quality is a project integrity concern.
-- [docs/modules/ROOT/pages/manual/workflows.adoc](../docs/modules/ROOT/pages/manual/workflows.adoc) - canonical workflow with both operator and agent viewpoints.
+- [docs/modules/manual/pages/workflows.adoc](../docs/modules/manual/pages/workflows.adoc) - canonical workflow with both operator and agent viewpoints.

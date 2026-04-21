@@ -1,7 +1,7 @@
 = Release and Integrity
 :page-layout: default
 
-include::../../partials/trust-boundary-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
 
 Use this page when cutting a release, validating the public publish surface, or auditing shipped release artifacts.
 
@@ -254,6 +254,6 @@ For the closed `v0.4` native-render contract state, the manifest schema is now `
 
 === Related release material
 
-* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
-* xref:architecture/mental-model.adoc[Mental Model]
-* xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
+* xref:ROOT:page$repository/root/changelog.adoc[CHANGELOG.md]
+* xref:architecture:mental-model.adoc[Mental Model]
+* xref:ROOT:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]

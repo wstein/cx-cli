@@ -93,7 +93,7 @@ The source repo owns packaging and formula generation. The release workflow shou
 ## Links
 
 - `.github/workflows/release.yml`
-- `docs/modules/ROOT/pages/manual/release-and-integrity.adoc`
+- `docs/modules/manual/pages/release-and-integrity.adoc`
 - `notes/Homebrew Tap.md`
 - [[Homebrew Tap]]
 - [[npm Package Tarball]]

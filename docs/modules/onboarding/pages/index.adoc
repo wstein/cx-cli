@@ -1,29 +1,31 @@
 = CX Documentation Index
 :page-layout: default
 
-include::../../partials/operator-surfaces-primer.adoc[]
-include::../../partials/track-primer.adoc[]
-include::../../partials/trust-boundary-primer.adoc[]
+include::ROOT:partial$operator-surfaces-primer.adoc[]
+include::ROOT:partial$track-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
 
 This is the curated front door for the `cx` documentation surface.
-The canonical docs live here in the Antora component under
-`docs/modules/ROOT/pages/`.
+The canonical docs live here in the Antora component across
+`docs/modules/onboarding/pages/`, `docs/modules/manual/pages/`,
+`docs/modules/architecture/pages/`, and the shared `docs/modules/ROOT/pages/`
+reference surface.
 
 Use the published Antora site for curated navigation, breadcrumbs,
 architecture structure, and workflow entrypoints. Use this directory
 when you need the repository-local Markdown companions.
 
 Schema and coverage publishing policy lives in
-xref:manual/release-and-integrity.adoc#release-checklist[Release Checklist], which keeps the
+xref:manual:release-and-integrity.adoc#release-checklist[Release Checklist], which keeps the
 public GitHub Pages host and release mirror aligned with the checked-in
 `schemas/` files and the successful `main` CI proof path. Developer
 command conventions for `make test`, `make verify`, and `make release`
 live in the repository notes and the operator manual. The MCP surface
 has a documented stable subset, but the broader integration layer still
 evolves conservatively. Use
-xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
+xref:ROOT:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
 for the stable subset and
-xref:page$repository/docs/agent_integration.adoc[Agent Integration]
+xref:ROOT:page$repository/docs/agent_integration.adoc[Agent Integration]
 for client-facing setup guidance.
 
 [[what-changed-in-040]]
@@ -54,8 +56,8 @@ implementation details.
 
 See:
 
-* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
-* xref:manual/release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]
+* xref:ROOT:page$repository/root/changelog.adoc[CHANGELOG.md]
+* xref:manual:release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]
 
 == Start Here
 
@@ -63,46 +65,46 @@ Use the smallest core set first:
 
 * Run `cx mcp` first if you want the shortest onboarding path: see value
 now, learn the model later.
-* xref:architecture/system-map.adoc[System Map] - compressed front door plus
+* xref:architecture:system-map.adoc[System Map] - compressed front door plus
 contributor subsystem map
-* xref:manual/operating-modes.adoc[Operating Modes] - choose between
+* xref:manual:operating-modes.adoc[Operating Modes] - choose between
 live MCP help, reproducible bundles, and durable notes
-* xref:architecture/mental-model.adoc[Mental Model] - canonical semantics,
+* xref:architecture:mental-model.adoc[Mental Model] - canonical semantics,
 Track A vs B, MCP policy tiers, and artifact lifecycle
-* xref:architecture/system-contracts.adoc[System Contracts] - cognition
+* xref:architecture:system-contracts.adoc[System Contracts] - cognition
 contract, boundary contract, and trust propagation model
-* xref:manual/operator-manual.adoc[Operator Manual] - operator path, assurance ladder, and
+* xref:manual:operator-manual.adoc[Operator Manual] - operator path, assurance ladder, and
 workflow map
 
 == Reference By Concern
 
 * Agent setup and IDE integration:
-xref:page$repository/docs/agent_integration.adoc[Agent Integration]
+xref:ROOT:page$repository/docs/agent_integration.adoc[Agent Integration]
 * Agent operating rules and MCP policy consequences:
-xref:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
+xref:ROOT:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
 * Configuration knobs and precedence:
-xref:manual/config-reference.adoc[Configuration Reference]
+xref:manual:config-reference.adoc[Configuration Reference]
 * Render constitution during the native-kernel migration:
-xref:architecture/render-kernel-contract.adoc[Render Kernel Contract]
+xref:architecture:render-kernel-contract.adoc[Render Kernel Contract]
 * Release-time checks and Pages publishing:
-xref:manual/release-and-integrity.adoc#release-checklist[Release Checklist]
+xref:manual:release-and-integrity.adoc#release-checklist[Release Checklist]
 * Notes system details:
-xref:page$repository/docs/governance.adoc#notes-governance[Notes Governance]
+xref:ROOT:page$repository/docs/governance.adoc#notes-governance[Notes Governance]
 * Extraction and recovery rules:
-xref:page$repository/docs/extraction_safety.adoc[Extraction Safety]
+xref:ROOT:page$repository/docs/extraction_safety.adoc[Extraction Safety]
 * Workflow examples over time:
-xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday],
-xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
+xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday],
+xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
 * MCP debugging cockpit: `bun run test:vitest:mcp:ui`,
 `bun run test:vitest:mcp:adversarial:ui`
 * Compact operator MCP audit view: `cx audit summary`
 
 == Workflow Set
 
-* xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday] -
+* xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday] -
 the primary end-to-end workflow from live investigation to verified
 handoff
-* xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
+* xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
 - the policy boundary plus operator and agent viewpoints for trusted
 local note mutation
 
@@ -111,14 +113,14 @@ a narrower special case, not a parallel onboarding path.
 
 == Historical Material
 
-* xref:page$repository/root/changelog.adoc[CHANGELOG.md]
-* xref:manual/release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]
+* xref:ROOT:page$repository/root/changelog.adoc[CHANGELOG.md]
+* xref:manual:release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]
 
 Use these when upgrading or reviewing release history. They are not part
 of the core operator front door.
 
 The allowed front-door docs are intentionally small. See
-xref:page$repository/docs/governance.adoc[GOVERNANCE.md] for the docs surface budget and the
+xref:ROOT:page$repository/docs/governance.adoc[GOVERNANCE.md] for the docs surface budget and the
 reference-only rule for everything else.
 
 Trust shorthand for the whole docs set:

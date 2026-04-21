@@ -11,15 +11,18 @@ include::../partials/track-primer.adoc[]
 - adapter/oracle path: expert diagnostics and parity only
 
 This Antora site is the front door for the curated documentation surface.
-The canonical curated source now lives entirely under `docs/modules/ROOT/`.
+The canonical curated source now spans `docs/modules/ROOT/` for shared and
+repository-reference content plus `docs/modules/onboarding/`,
+`docs/modules/manual/`, and `docs/modules/architecture/` for the
+published concern-specific modules.
 
 == Start Here
 
-- xref:start-here/docs-index.adoc[Documentation Index] for the migrated docs front door.
-- xref:manual/operator-manual.adoc[Operator Manual] for the shortest route to commands and workflows.
-- xref:manual/operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
-- xref:architecture/index.adoc[Architecture Overview] for the arc42-based architecture spine.
-- xref:manual/release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.
+- xref:onboarding:index.adoc[Documentation Index] for the migrated docs front door.
+- xref:manual:operator-manual.adoc[Operator Manual] for the shortest route to commands and workflows.
+- xref:manual:operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
+- xref:architecture:index.adoc[Architecture Overview] for the arc42-based architecture spine.
+- xref:manual:release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.
 
 == Why this site exists
 

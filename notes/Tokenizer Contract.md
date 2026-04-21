@@ -39,5 +39,5 @@ Tokenizer providers can be added, but:
 ## Links
 
 - [[Token Accounting]]
-- `docs/modules/ROOT/pages/manual/config-reference.adoc`
+- `docs/modules/manual/pages/config-reference.adoc`
 - `src/shared/tokens.ts`

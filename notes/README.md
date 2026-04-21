@@ -3,8 +3,8 @@
 This directory is the durable upstream intent layer for the codebase. It is where repository reasoning becomes reusable memory for later humans, agents, bundles, and CI.
 
 Notes do not override the canonical semantics in
-[docs/modules/ROOT/pages/architecture/mental-model.adoc](../docs/modules/ROOT/pages/architecture/mental-model.adoc) and
-[docs/modules/ROOT/pages/architecture/system-contracts.adoc](../docs/modules/ROOT/pages/architecture/system-contracts.adoc). Notes are
+[docs/modules/architecture/pages/mental-model.adoc](../docs/modules/architecture/pages/mental-model.adoc) and
+[docs/modules/architecture/pages/system-contracts.adoc](../docs/modules/architecture/pages/system-contracts.adoc). Notes are
 **conditional** knowledge: they are durable and reviewable, but they are still
 claims about the system until governance, human review, or later proof paths
 confirm them.
@@ -21,9 +21,9 @@ contracts.
 
 In practice:
 
-- `docs/modules/ROOT/pages/architecture/mental-model.adoc` owns canonical semantics.
-- `docs/modules/ROOT/pages/architecture/system-contracts.adoc` owns cognition, boundary, and trust contracts.
-- `docs/modules/ROOT/pages/manual/operating-modes.adoc` and `docs/modules/ROOT/pages/architecture/system-map.adoc` own onboarding and routing.
+- `docs/modules/architecture/pages/mental-model.adoc` owns canonical semantics.
+- `docs/modules/architecture/pages/system-contracts.adoc` owns cognition, boundary, and trust contracts.
+- `docs/modules/manual/pages/operating-modes.adoc` and `docs/modules/architecture/pages/system-map.adoc` own onboarding and routing.
 - Notes should support those documents with durable reasoning, not silently
   replace them with a second canonical layer.
 

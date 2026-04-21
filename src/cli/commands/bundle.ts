@@ -585,7 +585,7 @@ export async function runBundleCommand(
         7,
         {
           remediation: {
-            docsRef: "docs/modules/ROOT/pages/architecture/mental-model.adoc",
+            docsRef: "docs/modules/architecture/pages/mental-model.adoc",
             whyThisProtectsYou:
               "A bundle built from tracked-file drift cannot later be verified against a committed source tree, which breaks the artifact contract for reviewers, CI, and handoff automation.",
             nextSteps: [

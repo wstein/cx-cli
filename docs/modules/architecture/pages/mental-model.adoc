@@ -3,10 +3,10 @@
 
 This is the canonical semantics and operator model for `cx`.
 
-See xref:manual/operating-modes.adoc[Operating Modes] for the shortest
+See xref:manual:operating-modes.adoc[Operating Modes] for the shortest
 path to choosing the right surface before reading the deeper model.
-See xref:architecture/system-map.adoc[System Map] for the compressed
-one-page view. See xref:architecture/system-contracts.adoc[System Contracts] for cognition
+See xref:architecture:system-map.adoc[System Map] for the compressed
+one-page view. See xref:architecture:system-contracts.adoc[System Contracts] for cognition
 quality, hard boundaries, and trust propagation.
 
 When another document needs to explain the CX triad, Track A vs Track B,
@@ -105,7 +105,7 @@ local development |Let agents operate with full workspace authority
 |===
 
 This is separate from tool stability tiers in
-xref:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers].
+xref:ROOT:page$repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers].
 Stability answers "how locked is this interface?" Policy answers "what
 is this agent allowed to do right now?"
 
@@ -152,4 +152,4 @@ plan.
 * *Monday*: validate or verify the handed-off artifact before trusting
 it.
 
-See xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday].
+See xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday].

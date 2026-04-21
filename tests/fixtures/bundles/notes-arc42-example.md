@@ -2,7 +2,7 @@
 <!-- profile: arc42 -->
 <!-- canonical: notes -->
 <!-- source: notes/**/*.md -->
-<!-- target_paths: docs/modules/ROOT/pages/architecture/index.adoc -->
+<!-- target_paths: docs/modules/architecture/pages/index.adoc -->
 
 # CX Notes LLM Bundle
 
@@ -13,7 +13,7 @@
 - Document kind: arc42 architecture
 - Audience: architects-and-maintainers
 - Tone: formal-technical
-- Target paths: docs/modules/ROOT/pages/architecture/index.adoc
+- Target paths: docs/modules/architecture/pages/index.adoc
 
 ## Authoring Contract
 - System role: You are a senior software architect and technical writer.
@@ -50,7 +50,7 @@
     "description": "Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.",
     "outputFormat": "markdown",
     "targetPaths": [
-      "docs/modules/ROOT/pages/architecture/index.adoc"
+      "docs/modules/architecture/pages/index.adoc"
     ],
     "includeTargets": [
       "current",

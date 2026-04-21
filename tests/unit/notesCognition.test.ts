@@ -26,7 +26,7 @@ See [[Render Plan Cache]] and [[src/bundle/verify.ts]] for the verification flow
 
 ## Why
 
-Review [system contracts](../docs/modules/ROOT/pages/architecture/system-contracts.adoc) before changing the trust boundary.
+Review [system contracts](../docs/modules/architecture/pages/system-contracts.adoc) before changing the trust boundary.
 
 ## How
 

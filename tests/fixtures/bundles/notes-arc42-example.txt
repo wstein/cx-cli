@@ -1,7 +1,7 @@
 CX NOTES BUNDLE v1
 PROFILE arc42
 DOCUMENT KIND arc42 architecture
-TARGET PATHS docs/modules/ROOT/pages/architecture/index.adoc
+TARGET PATHS docs/modules/architecture/pages/index.adoc
 GENERATION COMMAND cx notes extract --profile arc42 --format plain
 
 AUTHORING CONTRACT
@@ -16,7 +16,7 @@ CX NOTES MACHINE PAYLOAD START
     "description": "Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.",
     "outputFormat": "plain",
     "targetPaths": [
-      "docs/modules/ROOT/pages/architecture/index.adoc"
+      "docs/modules/architecture/pages/index.adoc"
     ],
     "includeTargets": [
       "current",

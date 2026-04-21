@@ -1,0 +1,15 @@
+= Operator Manual Overview
+:assembly-slug: manual
+
+include::ROOT:partial$track-primer.adoc[]
+include::ROOT:partial$trust-boundary-primer.adoc[]
+
+Use this section when you need the operator-facing command model, assurance ladder, workflows, and configuration choices in one curated surface.
+
+== Canonical manual pages
+
+- xref:manual:operator-manual.adoc[Operator Manual]
+- xref:manual:operating-modes.adoc[Operating Modes]
+- xref:manual:config-reference.adoc[Configuration Reference]
+- xref:manual:workflows.adoc[Operator Workflows]
+- xref:manual:release-and-integrity.adoc[Release and Integrity]

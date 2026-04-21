@@ -135,7 +135,7 @@ describe("release assurance contract", () => {
 
   test("release checklist names the reference-oracle smoke lane instead of fork-era smoke lanes", async () => {
     const checklist = await readText(
-      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
+      "docs/modules/manual/pages/release-and-integrity.adoc",
     );
     const normalized = squashWhitespace(checklist);
 

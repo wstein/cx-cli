@@ -283,7 +283,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       description:
         "Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.",
       outputFormat: "markdown",
-      targetPaths: ["docs/modules/ROOT/pages/architecture/index.adoc"],
+      targetPaths: ["docs/modules/architecture/pages/index.adoc"],
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Render Kernel Constitution"],
@@ -337,7 +337,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       description:
         "Compile canonical notes into an onboarding-oriented LLM bundle for new contributors.",
       outputFormat: "markdown",
-      targetPaths: ["docs/modules/ROOT/pages/start-here/docs-index.adoc"],
+      targetPaths: ["docs/modules/onboarding/pages/index.adoc"],
       includeTags: [],
       excludeTags: ["release", "decommission"],
       requiredNotes: ["Agent Operating Model"],
@@ -384,7 +384,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       description:
         "Compile canonical notes into an operator manual LLM bundle for task-oriented documentation.",
       outputFormat: "markdown",
-      targetPaths: ["docs/modules/ROOT/pages/manual/operator-manual.adoc"],
+      targetPaths: ["docs/modules/manual/pages/operator-manual.adoc"],
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Friday To Monday Workflow Contract"],

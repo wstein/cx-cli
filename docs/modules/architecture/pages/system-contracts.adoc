@@ -9,7 +9,7 @@ mental model:
 * the *trust propagation model* for how confidence moves through the
 system
 
-See xref:architecture/mental-model.adoc[Mental Model] for the canonical semantics of the CX triad, Track
+See xref:architecture:mental-model.adoc[Mental Model] for the canonical semantics of the CX triad, Track
 A vs Track B, policy tiers, and artifact lifecycle.
 
 == Cognition Contract V1

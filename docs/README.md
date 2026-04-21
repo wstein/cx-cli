@@ -5,9 +5,12 @@
 ## Layout
 
 - `antora.yml` defines the Antora component descriptor
-- `modules/ROOT/pages/` contains the canonical published pages
+- `modules/ROOT/pages/` contains the front door plus shared and repository-reference pages
+- `modules/onboarding/pages/` contains the onboarding and docs-index surface
+- `modules/manual/pages/` contains the operator manual surface
+- `modules/architecture/pages/` contains the arc42 architecture surface
 - `modules/ROOT/partials/` contains shared local primers and reusable fragments
-- `modules/ROOT/nav.adoc` defines the curated site navigation
+- `modules/*/nav.adoc` defines the curated site navigation for each published module
 - `ui/` contains the local Antora UI bundle
 - `packages/` is reserved for future package-level docs assets
 
@@ -28,7 +31,7 @@ The curated architecture corpus uses arc42 as its spine inside the Antora site:
 - risks
 - glossary
 
-Those chapters live under `docs/modules/ROOT/pages/architecture/`.
+Those chapters live under `docs/modules/architecture/pages/`.
 
 ## Boundaries
 

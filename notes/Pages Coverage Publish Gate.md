@@ -19,7 +19,7 @@ How to apply it:
 ## Links
 
 - [.github/workflows/publish-schemas.yml](../.github/workflows/publish-schemas.yml)
-- [docs/modules/ROOT/pages/manual/release-and-integrity.adoc](../docs/modules/ROOT/pages/manual/release-and-integrity.adoc)
+- [docs/modules/manual/pages/release-and-integrity.adoc](../docs/modules/manual/pages/release-and-integrity.adoc)
 - [README.md](../README.md)
 - [[Unified Pages Site Assembly]]
 - [[Pages Smoke Validation Workflow]]

@@ -154,7 +154,7 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
     // - safe_dirty: untracked files only, no modified tracked → no override needed
     // - unsafe_dirty: modified tracked files → --force or --ci required
     //
-    // See: docs/modules/ROOT/pages/architecture/implementation-reference.adoc#dirty-state-taxonomy
+    // See: docs/modules/architecture/pages/implementation-reference.adoc#dirty-state-taxonomy
     expect(true).toBe(true);
   });
 });

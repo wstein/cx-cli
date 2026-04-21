@@ -30,21 +30,21 @@ tips. Where integrations differ across vendors, examples show the common
 pattern; verify the final keys with the specific client documentation
 before deploying.
 
-Use the xref:manual/operator-manual.adoc[Operator Manual] for the
+Use the xref:manual:operator-manual.adoc[Operator Manual] for the
 everyday operator path. This page stays focused on client-specific
 configuration, transport behavior, and integration troubleshooting.
 
-Use xref:manual/operating-modes.adoc[Operating Modes] as the main
-conceptual entrypoint, xref:architecture/mental-model.adoc[Mental
+Use xref:manual:operating-modes.adoc[Operating Modes] as the main
+conceptual entrypoint, xref:architecture:mental-model.adoc[Mental
 Model] for canonical semantics, xref:page$repository/docs/agent_operating_model.adoc[Agent
 Operating Model] for the policy-facing integration layer, and
-xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note
+xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note
 Mutation] for the trusted note review loop.
 
 This document is an integration guide. It should describe client setup,
 tool flow, and agent-facing metadata, not redefine the canonical
 semantics already owned by the
-xref:architecture/mental-model.adoc[Mental Model].
+xref:architecture:mental-model.adoc[Mental Model].
 
 === Overview
 
@@ -71,7 +71,7 @@ mutate-capability tools stay denied unless the local operator
 intentionally enables mutation in the MCP profile.
 
 The everyday operator loop lives in
-xref:manual/operator-manual.adoc[Operator Manual]. This page assumes the
+xref:manual:operator-manual.adoc[Operator Manual]. This page assumes the
 operator already knows when to choose MCP and now needs client-specific
 configuration, transport details, and troubleshooting.
 
@@ -185,7 +185,7 @@ structured index before reopening raw files:
       "name": "docs",
       "files": [
         {
-          "path": "docs/modules/ROOT/pages/architecture/mental-model.adoc",
+          "path": "docs/modules/architecture/pages/mental-model.adoc",
           "tokenCount": 287,
           "outputStartLine": 41,
           "outputEndLine": 132
@@ -249,7 +249,7 @@ Key behavior to remember:
 ==== Tool Boundary Reminder
 
 Keep the everyday operator path in
-xref:manual/operator-manual.adoc[Operator Manual] and the policy-facing
+xref:manual:operator-manual.adoc[Operator Manual] and the policy-facing
 tool grouping in
 xref:page$repository/docs/agent_operating_model.adoc#intent-taxonomy-for-agents[Intent Taxonomy For Agents].
 
@@ -447,10 +447,10 @@ MCP server that composes other tools, or extend `cx` itself.
 === Reference & crosslinks
 
 * Operator manual:
-  xref:manual/operator-manual.adoc[Operator Manual] — quick operator
+  xref:manual:operator-manual.adoc[Operator Manual] — quick operator
   flows and MCP usage notes.
 * Configuration reference:
-  xref:manual/config-reference.adoc[Configuration Reference] —
+  xref:manual:config-reference.adoc[Configuration Reference] —
   config precedence, `cx-mcp.toml` vs `cx.toml`, and
   `files.include` / `files.exclude` behavior.
 * Extraction safety:

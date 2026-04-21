@@ -7,5 +7,5 @@ Trust remains asymmetric across the system:
 - agent output: untrusted until verified
 - bundle: trusted
 
-This page recaps only the local boundary. Use xref:architecture/08-cross-cutting-concepts.adoc[Cross-cutting Concepts] when you need the full canonical model.
+This page recaps only the local boundary. Use xref:architecture:08-cross-cutting-concepts.adoc[Cross-cutting Concepts] when you need the full canonical model.
 ====

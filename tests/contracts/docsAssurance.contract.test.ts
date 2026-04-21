@@ -22,22 +22,22 @@ describe("docs assurance contract", () => {
   test("doc hierarchy keeps semantics, mapping, workflows, and integration separate", async () => {
     const rootReadme = await readText("README.md");
     const docsIndex = await readText(
-      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/onboarding/pages/index.adoc",
     );
     const governance = await readText(
       "docs/modules/ROOT/pages/repository/docs/governance.adoc",
     );
     const mentalModel = await readText(
-      "docs/modules/ROOT/pages/architecture/mental-model.adoc",
+      "docs/modules/architecture/pages/mental-model.adoc",
     );
     const operatingModes = await readText(
-      "docs/modules/ROOT/pages/manual/operating-modes.adoc",
+      "docs/modules/manual/pages/operating-modes.adoc",
     );
     const systemMap = await readText(
-      "docs/modules/ROOT/pages/architecture/system-map.adoc",
+      "docs/modules/architecture/pages/system-map.adoc",
     );
     const systemContracts = await readText(
-      "docs/modules/ROOT/pages/architecture/system-contracts.adoc",
+      "docs/modules/architecture/pages/system-contracts.adoc",
     );
     const agentModel = await readText(
       "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
@@ -46,7 +46,7 @@ describe("docs assurance contract", () => {
       "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
     );
     const manual = await readText(
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/manual/pages/operator-manual.adoc",
     );
     const notesGuide = await readText("notes/README.md");
     const docsIndexNormalized = squashWhitespace(docsIndex);
@@ -64,13 +64,13 @@ describe("docs assurance contract", () => {
     expect(rootReadme).toContain("Agent output: untrusted until verified");
     expect(rootReadme).toContain("Bundle: trusted");
     expect(docsIndex).toContain(
-      "xref:manual/operating-modes.adoc[Operating Modes]",
+      "xref:manual:operating-modes.adoc[Operating Modes]",
     );
     expect(docsIndex).toContain(
-      "xref:architecture/system-map.adoc[System Map]",
+      "xref:architecture:system-map.adoc[System Map]",
     );
     expect(docsIndex).toContain(
-      "xref:architecture/system-contracts.adoc[System Contracts]",
+      "xref:architecture:system-contracts.adoc[System Contracts]",
     );
     expect(docsIndex).toContain("Everything else should reference");
     expect(docsIndex).toContain("Source tree: trusted");
@@ -106,10 +106,10 @@ describe("docs assurance contract", () => {
     );
     expect(mentalModelNormalized).toContain("canonical semantics");
     expect(mentalModelNormalized).toContain(
-      "xref:architecture/system-map.adoc[System Map]",
+      "xref:architecture:system-map.adoc[System Map]",
     );
     expect(mentalModelNormalized).toContain(
-      "xref:architecture/system-contracts.adoc[System Contracts]",
+      "xref:architecture:system-contracts.adoc[System Contracts]",
     );
     expect(systemMap).toContain("Hypothesis");
     expect(systemMap).toContain("Memory");
@@ -142,22 +142,22 @@ describe("docs assurance contract", () => {
       "Need durable design memory? Use `cx notes`.",
     );
     expect(manualNormalized).toContain(
-      "xref:manual/operating-modes.adoc[Operating Modes]",
+      "xref:manual:operating-modes.adoc[Operating Modes]",
     );
     expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
     expect(notesGuide).toContain("## Notes And Docs Boundary");
     expect(notesGuide).toContain(
-      "`docs/modules/ROOT/pages/architecture/mental-model.adoc` owns canonical semantics.",
+      "`docs/modules/architecture/pages/mental-model.adoc` owns canonical semantics.",
     );
     expect(notesGuide).toContain(
-      "`docs/modules/ROOT/pages/architecture/system-contracts.adoc` owns cognition, boundary, and trust contracts.",
+      "`docs/modules/architecture/pages/system-contracts.adoc` owns cognition, boundary, and trust contracts.",
     );
     expect(notesGuide).toContain("Notes should support those documents");
     expect(operatingModesNormalized).toContain(
-      "xref:manual/workflows.adoc#friday-to-monday-workflow[Friday to Monday]",
+      "xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday]",
     );
     expect(operatingModesNormalized).toContain(
-      "xref:manual/workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]",
+      "xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]",
     );
     expect(agentModel).toContain("This document covers the integration layer");
     expect(agentModel).toContain(
@@ -195,7 +195,7 @@ describe("docs assurance contract", () => {
 
   test("manual defines an assurance ladder", async () => {
     const manual = await readText(
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/manual/pages/operator-manual.adoc",
     );
 
     expect(manual).toContain("== Assurance Ladder");
@@ -207,7 +207,7 @@ describe("docs assurance contract", () => {
 
   test("release checklist states certify as CI-equivalent gate", async () => {
     const checklist = await readText(
-      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
+      "docs/modules/manual/pages/release-and-integrity.adoc",
     );
 
     const normalized = squashWhitespace(checklist);
@@ -222,7 +222,7 @@ describe("docs assurance contract", () => {
 
   test("release docs lock the two-phase candidate and finalization model", async () => {
     const checklist = await readText(
-      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
+      "docs/modules/manual/pages/release-and-integrity.adoc",
     );
     const developerWorkflow = await readText(
       "notes/Developer Command Workflow.md",
@@ -249,10 +249,10 @@ describe("docs assurance contract", () => {
   test("public docs keep the native-proof-path story and reject fork-backed runtime language", async () => {
     const readme = await readText("README.md");
     const architecture = await readText(
-      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
+      "docs/modules/architecture/pages/implementation-reference.adoc",
     );
     const migration = await readText(
-      "docs/modules/ROOT/pages/manual/release-and-integrity.adoc",
+      "docs/modules/manual/pages/release-and-integrity.adoc",
     );
     const changelog = await readText("CHANGELOG.md");
 
@@ -306,7 +306,7 @@ describe("docs assurance contract", () => {
 
   test("stop conditions explain the invariant they protect", async () => {
     const manual = await readText(
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/manual/pages/operator-manual.adoc",
     );
     const extractionSafety = await readText(
       "docs/modules/ROOT/pages/repository/docs/extraction_safety.adoc",
@@ -336,10 +336,10 @@ describe("docs assurance contract", () => {
 
   test("workflow docs include temporal provenance and safe note mutation scenarios", async () => {
     const fridayToMonday = await readText(
-      "docs/modules/ROOT/pages/manual/workflows.adoc",
+      "docs/modules/manual/pages/workflows.adoc",
     );
     const safeNoteMutation = await readText(
-      "docs/modules/ROOT/pages/manual/workflows.adoc",
+      "docs/modules/manual/pages/workflows.adoc",
     );
 
     expect(fridayToMonday).toContain("The developer has local tracked changes");
@@ -359,7 +359,7 @@ describe("docs assurance contract", () => {
 
   test("mental model and agent integration teach proof, hypothesis, and agent POV", async () => {
     const mentalModel = await readText(
-      "docs/modules/ROOT/pages/architecture/mental-model.adoc",
+      "docs/modules/architecture/pages/mental-model.adoc",
     );
     const agentIntegration = await readText(
       "docs/modules/ROOT/pages/repository/docs/agent_integration.adoc",
@@ -368,7 +368,7 @@ describe("docs assurance contract", () => {
       "docs/modules/ROOT/pages/repository/docs/agent_operating_model.adoc",
     );
     const architecture = await readText(
-      "docs/modules/ROOT/pages/architecture/implementation-reference.adoc",
+      "docs/modules/architecture/pages/implementation-reference.adoc",
     );
 
     expect(mentalModel).toContain("Track B = hypothesis generation");

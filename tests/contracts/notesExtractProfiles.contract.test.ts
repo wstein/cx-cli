@@ -14,7 +14,7 @@ describe("notes extract built-in profiles contract", () => {
     ).toEqual(["arc42", "manual", "onboarding"]);
 
     expect(profiles.arc42?.targetPaths).toEqual([
-      "docs/modules/ROOT/pages/architecture/index.adoc",
+      "docs/modules/architecture/pages/index.adoc",
     ]);
     expect(profiles.arc42?.requiredNotes).toEqual([
       "Render Kernel Constitution",
@@ -46,7 +46,7 @@ describe("notes extract built-in profiles contract", () => {
       ],
     });
     expect(profiles.onboarding?.targetPaths).toEqual([
-      "docs/modules/ROOT/pages/start-here/docs-index.adoc",
+      "docs/modules/onboarding/pages/index.adoc",
     ]);
     expect(profiles.onboarding?.requiredNotes).toEqual([
       "Agent Operating Model",
@@ -70,7 +70,7 @@ describe("notes extract built-in profiles contract", () => {
       ],
     });
     expect(profiles.manual?.targetPaths).toEqual([
-      "docs/modules/ROOT/pages/manual/operator-manual.adoc",
+      "docs/modules/manual/pages/operator-manual.adoc",
     ]);
     expect(profiles.manual?.requiredNotes).toEqual([
       "Friday To Monday Workflow Contract",

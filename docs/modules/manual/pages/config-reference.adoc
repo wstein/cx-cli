@@ -2,8 +2,8 @@
 :page-layout: default
 
 This document describes the knobs. For the operator workflow, read
-xref:manual/operator-manual.adoc[Operator Manual]. For the invariants behind these
-settings, read xref:architecture/implementation-reference.adoc[Architecture].
+xref:manual:operator-manual.adoc[Operator Manual]. For the invariants behind these
+settings, read xref:architecture:implementation-reference.adoc[Architecture].
 
 == JSON Schema for Editor Tooling
 
@@ -333,7 +333,7 @@ Example:
 [notes.profiles.arc42]
 description = "Compile canonical notes into an arc42-oriented LLM bundle."
 output_format = "markdown"
-target_paths = ["docs/modules/ROOT/pages/architecture/index.adoc"]
+target_paths = ["docs/modules/architecture/pages/index.adoc"]
 include_tags = []
 exclude_tags = []
 required_notes = []
@@ -968,7 +968,7 @@ Category A invariant and cannot be configured away.
 == Extract Status Semantics
 
 The short version is below. For the operator guidance and blast radius
-of `--allow-degraded`, read xref:page$repository/docs/extraction_safety.adoc[Extraction
+of `--allow-degraded`, read xref:ROOT:page$repository/docs/extraction_safety.adoc[Extraction
 Safety].
 
 See: MENTAL_MODEL.md for the canonical artifact lifecycle behind these
