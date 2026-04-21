@@ -62,16 +62,16 @@ CX NOTES MACHINE PAYLOAD START
     {
       "id": "introduction-and-goals",
       "title": "Introduction and Goals",
-      "noteCount": 0,
-      "noteIds": []
-    },
-    {
-      "id": "constraints",
-      "title": "Constraints",
       "noteCount": 1,
       "noteIds": [
         "20260421170000"
       ]
+    },
+    {
+      "id": "constraints",
+      "title": "Constraints",
+      "noteCount": 0,
+      "noteIds": []
     },
     {
       "id": "solution-strategy",
@@ -132,8 +132,15 @@ CX NOTES MACHINE PAYLOAD START
       "codeLinks": [
         "src/cli/main.ts"
       ],
-      "noteLinks": [],
+      "noteLinks": [
+        "src/cli/main.ts"
+      ],
       "sections": [
+        {
+          "key": "summary",
+          "title": "Summary",
+          "content": "The render kernel owns the production proof path and remains the canonical rendering boundary."
+        },
         {
           "key": "what",
           "title": "What",
@@ -148,21 +155,37 @@ CX NOTES MACHINE PAYLOAD START
           "key": "how",
           "title": "How",
           "content": "Use oracle tooling only for parity diagnostics and reference comparison."
+        },
+        {
+          "key": "links",
+          "title": "Links",
+          "content": "- [[src/cli/main.ts]]"
         }
       ],
-      "body": "The render kernel owns the production proof path and remains the canonical rendering boundary.\n\n## What\n\nThe native kernel is the canonical rendering and verification boundary.\n\n## Why\n\nThis keeps production trust anchored in deterministic kernel artifacts.\n\n## How\n\nUse oracle tooling only for parity diagnostics and reference comparison.\n",
-      "assignedSection": "constraints",
-      "assignedSectionTitle": "Constraints"
+      "body": "The render kernel owns the production proof path and remains the canonical rendering boundary.\n\n## What\n\nThe native kernel is the canonical rendering and verification boundary.\n\n## Why\n\nThis keeps production trust anchored in deterministic kernel artifacts.\n\n## How\n\nUse oracle tooling only for parity diagnostics and reference comparison.\n\n## Links\n\n- [[src/cli/main.ts]]",
+      "assignedSection": "introduction-and-goals",
+      "assignedSectionTitle": "Introduction and Goals"
     }
   ]
 }
 CX NOTES MACHINE PAYLOAD END
 
-SECTION CONSTRAINTS (constraints)
+SECTION Introduction and Goals (introduction-and-goals)
 NOTE 20260421170000 Render Kernel Constitution
 PATH notes/Render Kernel Constitution.md
 TARGET current
 SUMMARY The render kernel owns the production proof path and remains the canonical rendering boundary.
+SUMMARY The render kernel owns the production proof path and remains the canonical rendering boundary.
 WHAT The native kernel is the canonical rendering and verification boundary.
 WHY This keeps production trust anchored in deterministic kernel artifacts.
 HOW Use oracle tooling only for parity diagnostics and reference comparison.
+LINKS - [[src/cli/main.ts]]
+
+SECTION Constraints (constraints)
+SECTION Solution Strategy (solution-strategy)
+SECTION Building Block View (building-block-view)
+SECTION Runtime View (runtime-view)
+SECTION Cross-cutting Concepts (cross-cutting-concepts)
+SECTION Quality Scenarios (quality-scenarios)
+SECTION Risks and Technical Debt (risks-and-technical-debt)
+SECTION Reference Notes (reference-notes)

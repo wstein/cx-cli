@@ -1268,8 +1268,12 @@ exclude = []
         path.join(testDir, "dist", "notes-arc42.llm.xml"),
         "utf8",
       );
-      expect(xmlBundle).toContain('<cx-notes-bundle version="1">');
-      expect(xmlBundle).toContain('<profile name="arc42">');
+      expect(xmlBundle).toContain(
+        '<cx-notes-bundle version="1" format="llm-tagged-text">',
+      );
+      expect(xmlBundle).toContain("<profile>");
+      expect(xmlBundle).toContain("name: arc42");
+      expect(xmlBundle).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
     });
   });
 

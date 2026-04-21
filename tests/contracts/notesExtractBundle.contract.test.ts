@@ -90,8 +90,14 @@ describe("notes extract bundle contract", () => {
     expect(markdown.content).toContain("<!-- cx-notes-bundle-payload:end -->");
     expect(markdown.content).toContain("```json");
 
+    expect(xml.content).toContain(
+      '<cx-notes-bundle version="1" format="llm-tagged-text">',
+    );
+    expect(xml.content).toContain("<profile>");
+    expect(xml.content).toContain("name: arc42");
     expect(xml.content).toContain('<machine-payload format="json">');
     expect(xml.content).toContain("</machine-payload>");
+    expect(xml.content).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
 
     expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD START");
     expect(plain.content).toContain("CX NOTES MACHINE PAYLOAD END");

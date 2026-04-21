@@ -760,101 +760,111 @@ function renderMarkdownBundle(bundle: NotesExtractBundle): string {
 function renderXmlBundle(bundle: NotesExtractBundle): string {
   const machinePayload = JSON.stringify(bundle, null, 2);
   const lines: string[] = [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    '<cx-notes-bundle version="1">',
-    `  <profile name="${escapeXml(bundle.profile.name)}">`,
-    `    <description>${escapeXml(bundle.profile.description)}</description>`,
-    `    <output-format>${escapeXml(bundle.authoringContract.targetFormat)}</output-format>`,
-    `    <document-kind>${escapeXml(bundle.authoringContract.documentKind)}</document-kind>`,
-    `    <audience>${escapeXml(bundle.authoringContract.audience)}</audience>`,
-    `    <tone>${escapeXml(bundle.authoringContract.tone)}</tone>`,
+    '<cx-notes-bundle version="1" format="llm-tagged-text">',
+    "",
+    "  <profile>",
+    `  name: ${bundle.profile.name}`,
+    `  description: ${bundle.profile.description}`,
+    `  output-format: ${bundle.authoringContract.targetFormat}`,
+    `  document-kind: ${bundle.authoringContract.documentKind}`,
+    `  audience: ${bundle.authoringContract.audience}`,
+    `  tone: ${bundle.authoringContract.tone}`,
   ];
 
   for (const targetPath of bundle.profile.targetPaths) {
-    lines.push(`    <target-path>${escapeXml(targetPath)}</target-path>`);
+    lines.push(`  target-path: ${targetPath}`);
   }
 
   lines.push("  </profile>");
+  lines.push("");
   lines.push("  <authoring-contract>");
+  lines.push(`  system-role: ${bundle.authoringContract.systemRole}`);
+  lines.push("  instructions:");
+  for (const instructionLine of bundle.authoringContract.instructions.split(
+    "\n",
+  )) {
+    lines.push(`    ${instructionLine}`);
+  }
   lines.push(
-    `    <system-role>${escapeXml(bundle.authoringContract.systemRole)}</system-role>`,
+    `  must-cite-note-titles: ${bundle.authoringContract.mustCiteNoteTitles}`,
   );
   lines.push(
-    `    <instructions>${escapeXml(bundle.authoringContract.instructions)}</instructions>`,
+    `  must-preserve-uncertainty: ${bundle.authoringContract.mustPreserveUncertainty}`,
   );
   lines.push(
-    `    <must-cite-note-titles>${bundle.authoringContract.mustCiteNoteTitles}</must-cite-note-titles>`,
+    `  must-not-invent-facts: ${bundle.authoringContract.mustNotInventFacts}`,
   );
   lines.push(
-    `    <must-preserve-uncertainty>${bundle.authoringContract.mustPreserveUncertainty}</must-preserve-uncertainty>`,
+    `  must-include-provenance: ${bundle.authoringContract.mustIncludeProvenance}`,
   );
   lines.push(
-    `    <must-not-invent-facts>${bundle.authoringContract.mustNotInventFacts}</must-not-invent-facts>`,
-  );
-  lines.push(
-    `    <must-include-provenance>${bundle.authoringContract.mustIncludeProvenance}</must-include-provenance>`,
-  );
-  lines.push(
-    `    <must-surface-conflicts>${bundle.authoringContract.mustSurfaceConflicts}</must-surface-conflicts>`,
+    `  must-surface-conflicts: ${bundle.authoringContract.mustSurfaceConflicts}`,
   );
   lines.push("  </authoring-contract>");
+  lines.push("");
   lines.push("  <provenance>");
-  lines.push(
-    `    <canonical-source>${bundle.provenance.canonicalSource}</canonical-source>`,
-  );
-  lines.push(`    <source-glob>${bundle.provenance.sourceGlob}</source-glob>`);
-  lines.push(
-    `    <generation-command>${escapeXml(bundle.provenance.generationCommand)}</generation-command>`,
-  );
+  lines.push(`  canonical-source: ${bundle.provenance.canonicalSource}`);
+  lines.push(`  source-glob: ${bundle.provenance.sourceGlob}`);
+  lines.push(`  generation-command: ${bundle.provenance.generationCommand}`);
   lines.push("  </provenance>");
+  lines.push("");
   lines.push("  <required-sections>");
 
   for (const section of bundle.sections) {
-    lines.push(
-      `    <section id="${escapeXml(section.id)}" note-count="${section.noteCount}">${escapeXml(section.title)}</section>`,
-    );
+    lines.push(`    <section id="${section.id}">`);
+    lines.push(`    title: ${section.title}`);
+    lines.push(`    note-count: ${section.noteCount}`);
+    lines.push("    </section>");
   }
 
   lines.push("  </required-sections>");
+  lines.push("");
   lines.push("  <notes>");
 
   for (const note of bundle.notes) {
     lines.push(
-      `    <note id="${escapeXml(note.id)}" target="${escapeXml(note.target)}" section="${escapeXml(note.assignedSection)}" path="${escapeXml(note.path)}">`,
+      `    <note id="${note.id}" target="${note.target}" section="${note.assignedSection}" path="${note.path}">`,
     );
-    lines.push(`      <title>${escapeXml(note.title)}</title>`);
-    lines.push(`      <summary>${escapeXml(note.summary)}</summary>`);
-    lines.push("      <aliases>");
+    lines.push(`    title: ${note.title}`);
+    lines.push(`    assigned-section-title: ${note.assignedSectionTitle}`);
+    lines.push("    summary:");
+    lines.push(`      ${note.summary}`);
+    lines.push("    <aliases>");
     for (const alias of note.aliases) {
-      lines.push(`        <alias>${escapeXml(alias)}</alias>`);
+      lines.push(`      <alias>${alias}</alias>`);
     }
-    lines.push("      </aliases>");
-    lines.push("      <tags>");
+    lines.push("    </aliases>");
+    lines.push("    <tags>");
     for (const tag of note.tags) {
-      lines.push(`        <tag>${escapeXml(tag)}</tag>`);
+      lines.push(`      <tag>${tag}</tag>`);
     }
-    lines.push("      </tags>");
-    lines.push("      <code-links>");
+    lines.push("    </tags>");
+    lines.push("    <code-links>");
     for (const codeLink of note.codeLinks) {
-      lines.push(`        <code-link>${escapeXml(codeLink)}</code-link>`);
+      lines.push(`      <code-link>${codeLink}</code-link>`);
     }
-    lines.push("      </code-links>");
-    lines.push("      <note-links>");
+    lines.push("    </code-links>");
+    lines.push("    <note-links>");
     for (const noteLink of note.noteLinks) {
-      lines.push(`        <note-link>${escapeXml(noteLink)}</note-link>`);
+      lines.push(`      <note-link>${noteLink}</note-link>`);
     }
-    lines.push("      </note-links>");
-    lines.push("      <sections>");
+    lines.push("    </note-links>");
+    lines.push("    <sections>");
     for (const noteSection of note.sections) {
       lines.push(
-        `        <section key="${escapeXml(noteSection.key)}" title="${escapeXml(noteSection.title)}">${escapeXml(noteSection.content)}</section>`,
+        `      <section key="${noteSection.key}" title="${noteSection.title}">`,
       );
+      for (const contentLine of noteSection.content.split("\n")) {
+        lines.push(`        ${contentLine}`);
+      }
+      lines.push("      </section>");
     }
-    lines.push("      </sections>");
+    lines.push("    </sections>");
     lines.push("    </note>");
   }
 
   lines.push("  </notes>");
+  lines.push("");
   lines.push(
     `  <machine-payload format="json">${escapeXml(machinePayload)}</machine-payload>`,
   );

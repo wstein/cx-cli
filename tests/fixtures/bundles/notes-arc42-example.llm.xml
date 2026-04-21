@@ -1,59 +1,110 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<cx-notes-bundle version="1">
-  <profile name="arc42">
-    <description>Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.</description>
-    <output-format>asciidoc</output-format>
-    <document-kind>arc42 architecture</document-kind>
-    <audience>architects-and-maintainers</audience>
-    <tone>formal-technical</tone>
-    <target-path>docs/modules/ROOT/pages/architecture/index.adoc</target-path>
+<cx-notes-bundle version="1" format="llm-tagged-text">
+
+  <profile>
+  name: arc42
+  description: Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.
+  output-format: asciidoc
+  document-kind: arc42 architecture
+  audience: architects-and-maintainers
+  tone: formal-technical
+  target-path: docs/modules/ROOT/pages/architecture/index.adoc
   </profile>
+
   <authoring-contract>
-    <system-role>You are a senior software architect and technical writer.</system-role>
-    <instructions>Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation.</instructions>
-    <must-cite-note-titles>true</must-cite-note-titles>
-    <must-preserve-uncertainty>true</must-preserve-uncertainty>
-    <must-not-invent-facts>true</must-not-invent-facts>
-    <must-include-provenance>true</must-include-provenance>
-    <must-surface-conflicts>true</must-surface-conflicts>
+  system-role: You are a senior software architect and technical writer.
+  instructions:
+    Write arc42-style architecture documentation in AsciiDoc. Use notes as canonical truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation.
+  must-cite-note-titles: true
+  must-preserve-uncertainty: true
+  must-not-invent-facts: true
+  must-include-provenance: true
+  must-surface-conflicts: true
   </authoring-contract>
+
   <provenance>
-    <canonical-source>notes</canonical-source>
-    <source-glob>notes/**/*.md</source-glob>
-    <generation-command>cx notes extract --profile arc42 --format xml</generation-command>
+  canonical-source: notes
+  source-glob: notes/**/*.md
+  generation-command: cx notes extract --profile arc42 --format xml
   </provenance>
+
   <required-sections>
-    <section id="introduction-and-goals" note-count="0">Introduction and Goals</section>
-    <section id="constraints" note-count="1">Constraints</section>
-    <section id="solution-strategy" note-count="0">Solution Strategy</section>
-    <section id="building-block-view" note-count="0">Building Block View</section>
-    <section id="runtime-view" note-count="0">Runtime View</section>
-    <section id="cross-cutting-concepts" note-count="0">Cross-cutting Concepts</section>
-    <section id="quality-scenarios" note-count="0">Quality Scenarios</section>
-    <section id="risks-and-technical-debt" note-count="0">Risks and Technical Debt</section>
-    <section id="reference-notes" note-count="0">Reference Notes</section>
+    <section id="introduction-and-goals">
+    title: Introduction and Goals
+    note-count: 1
+    </section>
+    <section id="constraints">
+    title: Constraints
+    note-count: 0
+    </section>
+    <section id="solution-strategy">
+    title: Solution Strategy
+    note-count: 0
+    </section>
+    <section id="building-block-view">
+    title: Building Block View
+    note-count: 0
+    </section>
+    <section id="runtime-view">
+    title: Runtime View
+    note-count: 0
+    </section>
+    <section id="cross-cutting-concepts">
+    title: Cross-cutting Concepts
+    note-count: 0
+    </section>
+    <section id="quality-scenarios">
+    title: Quality Scenarios
+    note-count: 0
+    </section>
+    <section id="risks-and-technical-debt">
+    title: Risks and Technical Debt
+    note-count: 0
+    </section>
+    <section id="reference-notes">
+    title: Reference Notes
+    note-count: 0
+    </section>
   </required-sections>
+
   <notes>
-    <note id="20260421170000" target="current" section="constraints" path="notes/Render Kernel Constitution.md">
-      <title>Render Kernel Constitution</title>
-      <summary>The render kernel owns the production proof path and remains the canonical rendering boundary.</summary>
-      <aliases></aliases>
-      <tags>
-        <tag>architecture</tag>
-        <tag>contract</tag>
-        <tag>kernel</tag>
-      </tags>
-      <code-links>
-        <code-link>src/cli/main.ts</code-link>
-      </code-links>
-      <note-links></note-links>
-      <sections>
-        <section key="what" title="What">The native kernel is the canonical rendering and verification boundary.</section>
-        <section key="why" title="Why">This keeps production trust anchored in deterministic kernel artifacts.</section>
-        <section key="how" title="How">Use oracle tooling only for parity diagnostics and reference comparison.</section>
-      </sections>
+    <note id="20260421170000" target="current" section="introduction-and-goals" path="notes/Render Kernel Constitution.md">
+    title: Render Kernel Constitution
+    assigned-section-title: Introduction and Goals
+    summary:
+      The render kernel owns the production proof path and remains the canonical rendering boundary.
+    <aliases>
+    </aliases>
+    <tags>
+      <tag>architecture</tag>
+      <tag>contract</tag>
+      <tag>kernel</tag>
+    </tags>
+    <code-links>
+      <code-link>src/cli/main.ts</code-link>
+    </code-links>
+    <note-links>
+      <note-link>src/cli/main.ts</note-link>
+    </note-links>
+    <sections>
+      <section key="summary" title="Summary">
+        The render kernel owns the production proof path and remains the canonical rendering boundary.
+      </section>
+      <section key="what" title="What">
+        The native kernel is the canonical rendering and verification boundary.
+      </section>
+      <section key="why" title="Why">
+        This keeps production trust anchored in deterministic kernel artifacts.
+      </section>
+      <section key="how" title="How">
+        Use oracle tooling only for parity diagnostics and reference comparison.
+      </section>
+      <section key="links" title="Links">
+        - [[src/cli/main.ts]]
+      </section>
+    </sections>
     </note>
   </notes>
+
   <machine-payload format="json">{
   &quot;version&quot;: &quot;1&quot;,
   &quot;profile&quot;: {
@@ -107,16 +158,16 @@
     {
       &quot;id&quot;: &quot;introduction-and-goals&quot;,
       &quot;title&quot;: &quot;Introduction and Goals&quot;,
-      &quot;noteCount&quot;: 0,
-      &quot;noteIds&quot;: []
-    },
-    {
-      &quot;id&quot;: &quot;constraints&quot;,
-      &quot;title&quot;: &quot;Constraints&quot;,
       &quot;noteCount&quot;: 1,
       &quot;noteIds&quot;: [
         &quot;20260421170000&quot;
       ]
+    },
+    {
+      &quot;id&quot;: &quot;constraints&quot;,
+      &quot;title&quot;: &quot;Constraints&quot;,
+      &quot;noteCount&quot;: 0,
+      &quot;noteIds&quot;: []
     },
     {
       &quot;id&quot;: &quot;solution-strategy&quot;,
@@ -177,8 +228,15 @@
       &quot;codeLinks&quot;: [
         &quot;src/cli/main.ts&quot;
       ],
-      &quot;noteLinks&quot;: [],
+      &quot;noteLinks&quot;: [
+        &quot;src/cli/main.ts&quot;
+      ],
       &quot;sections&quot;: [
+        {
+          &quot;key&quot;: &quot;summary&quot;,
+          &quot;title&quot;: &quot;Summary&quot;,
+          &quot;content&quot;: &quot;The render kernel owns the production proof path and remains the canonical rendering boundary.&quot;
+        },
         {
           &quot;key&quot;: &quot;what&quot;,
           &quot;title&quot;: &quot;What&quot;,
@@ -193,11 +251,16 @@
           &quot;key&quot;: &quot;how&quot;,
           &quot;title&quot;: &quot;How&quot;,
           &quot;content&quot;: &quot;Use oracle tooling only for parity diagnostics and reference comparison.&quot;
+        },
+        {
+          &quot;key&quot;: &quot;links&quot;,
+          &quot;title&quot;: &quot;Links&quot;,
+          &quot;content&quot;: &quot;- [[src/cli/main.ts]]&quot;
         }
       ],
-      &quot;body&quot;: &quot;The render kernel owns the production proof path and remains the canonical rendering boundary.\\n\\n## What\\n\\nThe native kernel is the canonical rendering and verification boundary.\\n\\n## Why\\n\\nThis keeps production trust anchored in deterministic kernel artifacts.\\n\\n## How\\n\\nUse oracle tooling only for parity diagnostics and reference comparison.\\n&quot;,
-      &quot;assignedSection&quot;: &quot;constraints&quot;,
-      &quot;assignedSectionTitle&quot;: &quot;Constraints&quot;
+      &quot;body&quot;: &quot;The render kernel owns the production proof path and remains the canonical rendering boundary.\n\n## What\n\nThe native kernel is the canonical rendering and verification boundary.\n\n## Why\n\nThis keeps production trust anchored in deterministic kernel artifacts.\n\n## How\n\nUse oracle tooling only for parity diagnostics and reference comparison.\n\n## Links\n\n- [[src/cli/main.ts]]&quot;,
+      &quot;assignedSection&quot;: &quot;introduction-and-goals&quot;,
+      &quot;assignedSectionTitle&quot;: &quot;Introduction and Goals&quot;
     }
   ]
 }</machine-payload>

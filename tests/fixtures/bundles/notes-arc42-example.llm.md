@@ -96,16 +96,16 @@
     {
       "id": "introduction-and-goals",
       "title": "Introduction and Goals",
-      "noteCount": 0,
-      "noteIds": []
-    },
-    {
-      "id": "constraints",
-      "title": "Constraints",
       "noteCount": 1,
       "noteIds": [
         "20260421170000"
       ]
+    },
+    {
+      "id": "constraints",
+      "title": "Constraints",
+      "noteCount": 0,
+      "noteIds": []
     },
     {
       "id": "solution-strategy",
@@ -166,8 +166,15 @@
       "codeLinks": [
         "src/cli/main.ts"
       ],
-      "noteLinks": [],
+      "noteLinks": [
+        "src/cli/main.ts"
+      ],
       "sections": [
+        {
+          "key": "summary",
+          "title": "Summary",
+          "content": "The render kernel owns the production proof path and remains the canonical rendering boundary."
+        },
         {
           "key": "what",
           "title": "What",
@@ -182,11 +189,16 @@
           "key": "how",
           "title": "How",
           "content": "Use oracle tooling only for parity diagnostics and reference comparison."
+        },
+        {
+          "key": "links",
+          "title": "Links",
+          "content": "- [[src/cli/main.ts]]"
         }
       ],
-      "body": "The render kernel owns the production proof path and remains the canonical rendering boundary.\n\n## What\n\nThe native kernel is the canonical rendering and verification boundary.\n\n## Why\n\nThis keeps production trust anchored in deterministic kernel artifacts.\n\n## How\n\nUse oracle tooling only for parity diagnostics and reference comparison.\n",
-      "assignedSection": "constraints",
-      "assignedSectionTitle": "Constraints"
+      "body": "The render kernel owns the production proof path and remains the canonical rendering boundary.\n\n## What\n\nThe native kernel is the canonical rendering and verification boundary.\n\n## Why\n\nThis keeps production trust anchored in deterministic kernel artifacts.\n\n## How\n\nUse oracle tooling only for parity diagnostics and reference comparison.\n\n## Links\n\n- [[src/cli/main.ts]]",
+      "assignedSection": "introduction-and-goals",
+      "assignedSectionTitle": "Introduction and Goals"
     }
   ]
 }
@@ -195,8 +207,8 @@
 
 ## Canonical Notes
 
-### Section: Constraints
-- Section id: constraints
+### Section: Introduction and Goals
+- Section id: introduction-and-goals
 - Note count: 1
 
 #### Note: Render Kernel Constitution
@@ -206,7 +218,10 @@
 - Tags: architecture, contract, kernel
 - Aliases: (none)
 - Code links: src/cli/main.ts
-- Note links: (none)
+- Note links: src/cli/main.ts
+
+##### Summary
+The render kernel owns the production proof path and remains the canonical rendering boundary.
 
 ##### Summary
 The render kernel owns the production proof path and remains the canonical rendering boundary.
@@ -219,3 +234,38 @@ This keeps production trust anchored in deterministic kernel artifacts.
 
 ##### How
 Use oracle tooling only for parity diagnostics and reference comparison.
+
+##### Links
+- [[src/cli/main.ts]]
+
+### Section: Constraints
+- Section id: constraints
+- Note count: 0
+
+### Section: Solution Strategy
+- Section id: solution-strategy
+- Note count: 0
+
+### Section: Building Block View
+- Section id: building-block-view
+- Note count: 0
+
+### Section: Runtime View
+- Section id: runtime-view
+- Note count: 0
+
+### Section: Cross-cutting Concepts
+- Section id: cross-cutting-concepts
+- Note count: 0
+
+### Section: Quality Scenarios
+- Section id: quality-scenarios
+- Note count: 0
+
+### Section: Risks and Technical Debt
+- Section id: risks-and-technical-debt
+- Note count: 0
+
+### Section: Reference Notes
+- Section id: reference-notes
+- Note count: 0
