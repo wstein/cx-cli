@@ -77,6 +77,7 @@ describe("MCP Policy System", () => {
       expect(decision.allowed).toBe(false);
       expect(decision.capability).toBe("mutate");
       expect(decision.reason).toContain("denied");
+      expect(checkToolAccess("extract", DEFAULT_POLICY).allowed).toBe(false);
     });
 
     it("allows observe tools under default policy", () => {
@@ -108,6 +109,9 @@ describe("MCP Policy System", () => {
     it("allows all capabilities under unrestricted policy", () => {
       expect(checkToolAccess("list", UNRESTRICTED_POLICY).allowed).toBe(true);
       expect(checkToolAccess("bundle", UNRESTRICTED_POLICY).allowed).toBe(true);
+      expect(checkToolAccess("extract", UNRESTRICTED_POLICY).allowed).toBe(
+        true,
+      );
       expect(checkToolAccess("notes_new", UNRESTRICTED_POLICY).allowed).toBe(
         true,
       );
@@ -147,6 +151,7 @@ describe("MCP Policy System", () => {
 
     it("classifies all mutate tools correctly", () => {
       const mutateTools = [
+        "extract",
         "notes_new",
         "notes_update",
         "notes_delete",
@@ -166,6 +171,7 @@ describe("MCP Policy System", () => {
         "read",
         "inspect",
         "bundle",
+        "extract",
         "notes_read",
         "notes_search",
         "notes_graph",

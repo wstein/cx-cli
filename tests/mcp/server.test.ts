@@ -28,6 +28,7 @@ type CxMcpToolName =
   | "doctor_overlaps"
   | "doctor_secrets"
   | "doctor_workflow"
+  | "extract"
   | "grep"
   | "inspect"
   | "list"
@@ -177,6 +178,7 @@ describe("cx MCP server", () => {
       "doctor_overlaps",
       "doctor_secrets",
       "doctor_workflow",
+      "extract",
       "grep",
       "inspect",
       "list",
@@ -197,6 +199,7 @@ describe("cx MCP server", () => {
     ]);
     expect(instructions).toContain("immutable snapshots");
     expect(instructions).toContain("interactive exploration");
+    expect(instructions).toContain("Bundle recovery: extract");
   });
 
   test("doctor_mcp returns the resolved MCP profile and scope", async () => {

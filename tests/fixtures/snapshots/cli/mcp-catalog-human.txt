@@ -1,11 +1,11 @@
-MCP tool catalog: v1, 22 tools
+MCP tool catalog: v1, 23 tools
 By capability:
   - read: 3
   - observe: 12
   - plan: 2
-  - mutate: 5
+  - mutate: 6
 By stability:
-  - STABLE: 17
+  - STABLE: 18
   - BETA: 5
   - EXPERIMENTAL: 0
   - INTERNAL: 0
@@ -15,6 +15,7 @@ Tools:
   - doctor_overlaps: observe, BETA
   - doctor_secrets: observe, BETA
   - doctor_workflow: observe, BETA
+  - extract: mutate, STABLE
   - grep: read, STABLE
   - inspect: plan, STABLE
   - list: read, STABLE

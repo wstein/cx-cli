@@ -27,6 +27,11 @@ describe("mcp registration lane", () => {
       capability: "plan",
       stability: "STABLE",
     });
+    expect(report.toolCatalog.find((tool) => tool.name === "extract")).toEqual({
+      name: "extract",
+      capability: "mutate",
+      stability: "STABLE",
+    });
   });
 
   test("prints the MCP tool catalog as JSON", async () => {
@@ -50,6 +55,11 @@ describe("mcp registration lane", () => {
       name: "doctor_mcp",
       capability: "observe",
       stability: "BETA",
+    });
+    expect(payload.toolCatalog).toContainEqual({
+      name: "extract",
+      capability: "mutate",
+      stability: "STABLE",
     });
   });
 

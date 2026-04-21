@@ -49,7 +49,7 @@ describe("registerCxMcpTools", () => {
     }
   });
 
-  test("registers tool groups from workspace, bundle, doctor, and notes modules", async () => {
+  test("registers tool groups from workspace, bundle, extract, doctor, and notes modules", async () => {
     const workspace = await createWorkspace({
       config: buildConfig({
         projectName: "mcp-tools-index",
@@ -76,6 +76,7 @@ describe("registerCxMcpTools", () => {
 
     expect(tools.has("list")).toBe(true);
     expect(tools.has("bundle")).toBe(true);
+    expect(tools.has("extract")).toBe(true);
     expect(tools.has("doctor_mcp")).toBe(true);
     expect(tools.has("notes_graph")).toBe(true);
   });
