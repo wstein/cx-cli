@@ -86,8 +86,8 @@ describe("MCP Vitest cockpit contract", () => {
     expect(manual).toContain("bun run test:vitest:mcp");
     expect(manual).toContain("bun run test:vitest:mcp:adversarial");
     expect(docsIndex).toContain("bun run test:vitest:mcp:adversarial:ui");
-    expect(agentIntegration).toContain("## MCP Test And Debug Cockpit");
-    expect(agentIntegration).toContain("### MCP Vitest UI Troubleshooting");
+    expect(agentIntegration).toContain("=== MCP Test And Debug Cockpit");
+    expect(agentIntegration).toContain("==== MCP Vitest UI Troubleshooting");
     expect(agentIntegration).toContain("bun run test:vitest:mcp:ui");
     expect(agentIntegration).toContain("bun run test:vitest:mcp:adversarial");
     expect(agentIntegration).toContain("import-graph");
