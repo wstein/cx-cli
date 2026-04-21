@@ -95,6 +95,14 @@ describe("notes extract bundle contract", () => {
     );
     expect(xml.content).toContain("<profile>");
     expect(xml.content).toContain("name: arc42");
+    expect(xml.content).toContain("<authoring-contract>");
+    expect(xml.content).toContain("<required-sections>");
+    expect(xml.content).toContain('<section id="introduction-and-goals">');
+    expect(xml.content).toContain("<notes>");
+    expect(xml.content).toContain(
+      '<note id="20260421153000" target="current" section="introduction-and-goals"',
+    );
+    expect(xml.content).toContain('<section key="what" title="What">');
     expect(xml.content).toContain('<machine-payload format="json">');
     expect(xml.content).toContain("</machine-payload>");
     expect(xml.content).not.toContain('<?xml version="1.0" encoding="UTF-8"?>');
