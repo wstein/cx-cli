@@ -110,6 +110,7 @@ function buildInstructions(configPath: string): string {
 Tool reference:
 Workspace: list (enumerate tracked files), grep (search file contents), read (fetch a file), replace_repomix_span (patch a span in a section output).
 Planning: inspect (live bundle plan without writing artifacts), bundle (preview snapshot metadata).
+Bundle recovery: extract (restore files from an existing bundle back into the workspace boundary).
 Doctor: doctor_mcp (diagnose MCP profile), doctor_workflow (recommend inspect/bundle/mcp for a task), doctor_overlaps (find section file conflicts), doctor_secrets (scan for exposed secrets).
 Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lifecycle); notes_search, notes_list (discovery); notes_backlinks, notes_orphans, notes_code_links, notes_links (graph queries).`;
 

@@ -2,6 +2,7 @@ import type { McpCapability } from "../capabilities.js";
 import type { StabilityTier } from "../tiers.js";
 import { BUNDLE_TOOL_DEFINITIONS } from "./bundle.js";
 import { DOCTOR_TOOL_DEFINITIONS } from "./doctor.js";
+import { EXTRACT_TOOL_DEFINITIONS } from "./extract.js";
 import { NOTES_TOOL_DEFINITIONS } from "./notes.js";
 import { WORKSPACE_TOOL_DEFINITIONS } from "./workspace.js";
 
@@ -28,6 +29,7 @@ export const CX_MCP_TOOL_CATALOG_VERSION = 1;
 export const CX_MCP_TOOL_DEFINITIONS: readonly CxMcpToolDefinition[] = [
   ...WORKSPACE_TOOL_DEFINITIONS,
   ...BUNDLE_TOOL_DEFINITIONS,
+  ...EXTRACT_TOOL_DEFINITIONS,
   ...DOCTOR_TOOL_DEFINITIONS,
   ...NOTES_TOOL_DEFINITIONS,
 ];
