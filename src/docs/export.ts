@@ -11,6 +11,11 @@ import {
   normalizeMarkdownIR,
   renderMarkdown,
 } from "@wsmy/antora-markdown-exporter";
+import {
+  listFilesRecursive,
+  relativePosix,
+  sortLexically,
+} from "../shared/fs.js";
 import { sha256File } from "../shared/hashing.js";
 
 export type DocsExportSurfaceName = "architecture" | "manual" | "onboarding";
@@ -73,6 +78,111 @@ interface DocsExportPageRecord {
 }
 
 const require = createRequire(import.meta.url);
+const parseResourceRef = require("@antora/assembler/parse-resource-ref") as (
+  ref: string,
+  ctx?: {
+    component?: string;
+    version?: string;
+    module?: string;
+    relative?: string;
+  },
+  family?: string,
+  contentCatalog?: {
+    getComponent: (name: string) => { latest: { version: string } } | undefined;
+  },
+) => {
+  component: string;
+  version: string;
+  module: string;
+  family: string | undefined;
+  relative: string;
+};
+
+type AntoraIncludeFamily = "page" | "partial";
+
+interface AntoraIncludeVirtualFile {
+  path: string;
+  dirname: string;
+  contents: Buffer;
+  src: {
+    component: string;
+    version: string;
+    module: string;
+    family: AntoraIncludeFamily;
+    relative: string;
+    basename: string;
+    path: string;
+    contents: Buffer;
+  };
+  pub: {
+    moduleRootPath: string;
+  };
+}
+
+interface AntoraIncludeCatalog {
+  getComponent: (name: string) => { latest: { version: string } } | undefined;
+  resolveResource: (
+    target: string,
+    ctx: {
+      component?: string;
+      version?: string;
+      module?: string;
+      relative?: string;
+    },
+    defaultFamily?: string,
+  ) => AntoraIncludeVirtualFile | undefined;
+  getByPath: (params: {
+    component: string;
+    version: string;
+    path: string;
+  }) => AntoraIncludeVirtualFile | undefined;
+}
+
+function resolvePackageRelativeRequire(
+  packageName: string,
+  relativePath: string,
+) {
+  const packageEntryPath = require.resolve(packageName);
+  return require(path.join(path.dirname(packageEntryPath), relativePath));
+}
+
+function resolveAntoraIncludeFile(
+  target: string,
+  page: AntoraIncludeVirtualFile,
+  cursor: {
+    file?: { src: AntoraIncludeVirtualFile["src"] };
+    dir: { toString: () => string };
+  },
+  catalog: AntoraIncludeCatalog,
+):
+  | {
+      contents: string;
+      file: string;
+      path: string;
+      src: AntoraIncludeVirtualFile["src"];
+    }
+  | undefined {
+  const resolver = resolvePackageRelativeRequire(
+    "@antora/asciidoc-loader",
+    "include/resolve-include-file.js",
+  ) as (
+    target: string,
+    page: AntoraIncludeVirtualFile,
+    cursor: {
+      file?: { src: AntoraIncludeVirtualFile["src"] };
+      dir: { toString: () => string };
+    },
+    catalog: AntoraIncludeCatalog,
+  ) =>
+    | {
+        contents: string;
+        file: string;
+        path: string;
+        src: AntoraIncludeVirtualFile["src"];
+      }
+    | undefined;
+  return resolver(target, page, cursor, catalog);
+}
 
 function readPackageVersion(packageName: string): string {
   const entryPath = require.resolve(packageName);
@@ -119,6 +229,9 @@ const INCLUDE_LINE_PATTERN = /^include::([^[]+)\[[^\]]*\]\s*$/gm;
 const NAV_XREF_PATTERN = /xref:([^[]+)\[[^\]]*\]/g;
 const MULTIMARKDOWN_METADATA_PATTERN = /^Title:\s*(.+)\nDate:\s*[^\n]+\n\n/u;
 const MARKDOWN_LINK_PATTERN = /\[[^\]]+\]\(([^)\s]+)\)/g;
+const ANTORA_INCLUDE_RESOURCE_PATTERN = /[$:@]/u;
+const DOCS_COMPONENT_NAME = "docs";
+const DOCS_COMPONENT_VERSION = "main";
 
 const DOCS_EXPORT_DIAGNOSTIC_MESSAGES: Record<
   DocsExportDiagnostic["code"],
@@ -257,62 +370,212 @@ async function collectSurfacePagePaths(
   return pagePaths;
 }
 
-function resolveIncludeTarget(params: {
-  workspaceRoot: string;
-  currentRelativePath: string;
-  includeTarget: string;
-}): string {
-  const { workspaceRoot, currentRelativePath, includeTarget } = params;
-  const currentAbsolutePath = path.join(workspaceRoot, currentRelativePath);
-  const currentDirectory = path.dirname(currentAbsolutePath);
+async function buildAntoraIncludeCatalog(workspaceRoot: string): Promise<{
+  catalog: AntoraIncludeCatalog;
+  filesByWorkspaceRelativePath: Map<string, AntoraIncludeVirtualFile>;
+}> {
+  const modulesRoot = path.join(workspaceRoot, "docs", "modules");
+  const filesByWorkspaceRelativePath = new Map<
+    string,
+    AntoraIncludeVirtualFile
+  >();
+  const filesByResourceKey = new Map<string, AntoraIncludeVirtualFile>();
+  const filesByCatalogPath = new Map<string, AntoraIncludeVirtualFile>();
 
-  const moduleFamilyMatch = /^([^:]+):(partial|page)\$(.+)$/u.exec(
-    includeTarget,
-  );
-  if (moduleFamilyMatch) {
-    const [, moduleName, family, relativePath] = moduleFamilyMatch;
-    return path.join(
-      workspaceRoot,
-      "docs",
-      "modules",
-      moduleName ?? "",
-      family === "partial" ? "partials" : "pages",
-      relativePath ?? "",
+  for (const absolutePath of sortLexically(
+    await listFilesRecursive(modulesRoot),
+  )) {
+    if (!absolutePath.endsWith(".adoc")) {
+      continue;
+    }
+
+    const workspaceRelativePath = relativePosix(workspaceRoot, absolutePath);
+    const segments = workspaceRelativePath.split("/");
+    if (
+      segments.length < 5 ||
+      segments[0] !== "docs" ||
+      segments[1] !== "modules"
+    ) {
+      continue;
+    }
+
+    const moduleName = segments[2] ?? "ROOT";
+    const familyDir = segments[3];
+    const family =
+      familyDir === "pages"
+        ? "page"
+        : familyDir === "partials"
+          ? "partial"
+          : null;
+    if (family === null) {
+      continue;
+    }
+
+    const relative = segments.slice(4).join("/");
+    const contents = await fs.readFile(absolutePath);
+    const virtualFile: AntoraIncludeVirtualFile = {
+      path: workspaceRelativePath,
+      dirname: path.posix.dirname(workspaceRelativePath),
+      contents,
+      src: {
+        component: DOCS_COMPONENT_NAME,
+        version: DOCS_COMPONENT_VERSION,
+        module: moduleName,
+        family,
+        relative,
+        basename: path.posix.basename(relative),
+        path: `${moduleName}/${familyDir}/${relative}`,
+        contents,
+      },
+      pub: {
+        moduleRootPath: ".",
+      },
+    };
+
+    filesByWorkspaceRelativePath.set(workspaceRelativePath, virtualFile);
+    filesByCatalogPath.set(
+      [DOCS_COMPONENT_NAME, DOCS_COMPONENT_VERSION, virtualFile.src.path].join(
+        "@",
+      ),
+      virtualFile,
+    );
+    filesByResourceKey.set(
+      [
+        DOCS_COMPONENT_NAME,
+        DOCS_COMPONENT_VERSION,
+        moduleName,
+        family,
+        relative,
+      ].join("@"),
+      virtualFile,
     );
   }
 
-  const bareFamilyMatch = /^(partial|page)\$(.+)$/u.exec(includeTarget);
-  if (bareFamilyMatch) {
-    const [, family, relativePath] = bareFamilyMatch;
-    const moduleName = currentRelativePath.split("/")[2] ?? "ROOT";
-    return path.join(
-      workspaceRoot,
-      "docs",
-      "modules",
-      moduleName,
-      family === "partial" ? "partials" : "pages",
-      relativePath ?? "",
-    );
-  }
-
-  return path.resolve(currentDirectory, includeTarget);
+  return {
+    filesByWorkspaceRelativePath,
+    catalog: {
+      getComponent(name) {
+        if (name !== DOCS_COMPONENT_NAME) {
+          return undefined;
+        }
+        return { latest: { version: DOCS_COMPONENT_VERSION } };
+      },
+      resolveResource(target, ctx, defaultFamily) {
+        const resource = parseResourceRef(target, ctx, defaultFamily, this);
+        return filesByResourceKey.get(
+          [
+            resource.component,
+            resource.version,
+            resource.module,
+            resource.family ?? defaultFamily ?? "page",
+            resource.relative,
+          ].join("@"),
+        );
+      },
+      getByPath(params) {
+        return filesByCatalogPath.get(
+          [params.component, params.version, params.path].join("@"),
+        );
+      },
+    },
+  };
 }
 
-async function expandIncludes(params: {
+function resolveRelativeIncludeWorkspacePath(params: {
   workspaceRoot: string;
-  relativePath: string;
+  currentWorkspaceRelativePath: string;
+  includeTarget: string;
+}): string {
+  return relativePosix(
+    params.workspaceRoot,
+    path.resolve(
+      params.workspaceRoot,
+      path.dirname(params.currentWorkspaceRelativePath),
+      params.includeTarget,
+    ),
+  );
+}
+
+async function resolveAntoraIncludeSource(params: {
+  workspaceRoot: string;
+  workspaceRelativePath: string;
+  includeTarget: string;
+  catalog: AntoraIncludeCatalog;
+  filesByWorkspaceRelativePath: Map<string, AntoraIncludeVirtualFile>;
+}): Promise<string> {
+  if (!ANTORA_INCLUDE_RESOURCE_PATTERN.test(params.includeTarget)) {
+    const relativeIncludePath = resolveRelativeIncludeWorkspacePath({
+      workspaceRoot: params.workspaceRoot,
+      currentWorkspaceRelativePath: params.workspaceRelativePath,
+      includeTarget: params.includeTarget,
+    });
+    if (!params.filesByWorkspaceRelativePath.has(relativeIncludePath)) {
+      throw new Error(
+        `Unable to resolve docs include ${params.includeTarget} from ${params.workspaceRelativePath}.`,
+      );
+    }
+    return relativeIncludePath;
+  }
+
+  const currentVirtualFile = params.filesByWorkspaceRelativePath.get(
+    params.workspaceRelativePath,
+  );
+  if (!currentVirtualFile) {
+    throw new Error(
+      `Unable to resolve docs include context for ${params.workspaceRelativePath}.`,
+    );
+  }
+
+  const resolved = resolveAntoraIncludeFile(
+    params.includeTarget,
+    currentVirtualFile,
+    {
+      file: currentVirtualFile,
+      dir: {
+        toString: () => path.posix.dirname(currentVirtualFile.src.path),
+      },
+    },
+    params.catalog,
+  );
+  if (!resolved) {
+    throw new Error(
+      `Unable to resolve docs include ${params.includeTarget} from ${params.workspaceRelativePath}.`,
+    );
+  }
+
+  return relativePosix(
+    params.workspaceRoot,
+    path.resolve(
+      params.workspaceRoot,
+      "docs",
+      "modules",
+      resolved.src.module,
+      resolved.src.family === "partial" ? "partials" : "pages",
+      resolved.src.relative,
+    ),
+  );
+}
+
+async function expandAntoraIncludes(params: {
+  workspaceRoot: string;
+  workspaceRelativePath: string;
+  catalog: AntoraIncludeCatalog;
+  filesByWorkspaceRelativePath: Map<string, AntoraIncludeVirtualFile>;
   stack?: string[] | undefined;
 }): Promise<string> {
   const stack = params.stack ?? [];
-  if (stack.includes(params.relativePath)) {
+  if (stack.includes(params.workspaceRelativePath)) {
     throw new Error(
-      `Detected recursive docs include while expanding ${params.relativePath}.`,
+      `Detected recursive docs include while expanding ${params.workspaceRelativePath}.`,
     );
   }
 
-  const absolutePath = path.join(params.workspaceRoot, params.relativePath);
+  const absolutePath = path.join(
+    params.workspaceRoot,
+    params.workspaceRelativePath,
+  );
   const source = await fs.readFile(absolutePath, "utf8");
-  const nextStack = [...stack, params.relativePath];
+  const nextStack = [...stack, params.workspaceRelativePath];
 
   const parts: string[] = [];
   let lastIndex = 0;
@@ -328,18 +591,19 @@ async function expandIncludes(params: {
       continue;
     }
 
-    const includePath = resolveIncludeTarget({
+    const includeWorkspaceRelativePath = await resolveAntoraIncludeSource({
       workspaceRoot: params.workspaceRoot,
-      currentRelativePath: params.relativePath,
+      workspaceRelativePath: params.workspaceRelativePath,
       includeTarget: includeTarget.trim(),
+      catalog: params.catalog,
+      filesByWorkspaceRelativePath: params.filesByWorkspaceRelativePath,
     });
-    const includeRelativePath = path
-      .relative(params.workspaceRoot, includePath)
-      .replaceAll("\\", "/");
     parts.push(
-      await expandIncludes({
+      await expandAntoraIncludes({
         workspaceRoot: params.workspaceRoot,
-        relativePath: includeRelativePath,
+        workspaceRelativePath: includeWorkspaceRelativePath,
+        catalog: params.catalog,
+        filesByWorkspaceRelativePath: params.filesByWorkspaceRelativePath,
         stack: nextStack,
       }),
     );
@@ -584,11 +848,15 @@ async function renderDocsPage(params: {
   surfaceName: DocsExportSurfaceName;
   outputFile: string;
   format: DocsExportFormat;
+  includeCatalog: AntoraIncludeCatalog;
+  includeFilesByWorkspaceRelativePath: Map<string, AntoraIncludeVirtualFile>;
 }): Promise<DocsExportPageRecord> {
   const absolutePagePath = path.join(params.workspaceRoot, params.pagePath);
-  const source = await expandIncludes({
+  const source = await expandAntoraIncludes({
     workspaceRoot: params.workspaceRoot,
-    relativePath: params.pagePath,
+    workspaceRelativePath: params.pagePath,
+    catalog: params.includeCatalog,
+    filesByWorkspaceRelativePath: params.includeFilesByWorkspaceRelativePath,
   });
 
   return withSuppressedExporterWarnings(async () => {
@@ -648,6 +916,9 @@ export async function exportAntoraDocsToMarkdown(
     surfacePagePaths.set(surface.surfaceName, pagePaths);
   }
 
+  const { catalog: includeCatalog, filesByWorkspaceRelativePath } =
+    await buildAntoraIncludeCatalog(params.workspaceRoot);
+
   const renderedPages = await Promise.all(
     surfaceDefinitions.flatMap((surface) =>
       (surfacePagePaths.get(surface.surfaceName) ?? []).map((pagePath) =>
@@ -657,6 +928,8 @@ export async function exportAntoraDocsToMarkdown(
           surfaceName: surface.surfaceName,
           outputFile: surface.outputFile,
           format,
+          includeCatalog,
+          includeFilesByWorkspaceRelativePath: filesByWorkspaceRelativePath,
         }),
       ),
     ),
