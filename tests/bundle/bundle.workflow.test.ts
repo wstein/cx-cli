@@ -244,13 +244,17 @@ describe("bundle workflow", () => {
       derivedReviewExports?: Array<{
         storedPath?: string;
         extractability?: { status?: string };
+        diagnostics?: { status?: string; diagnostics?: unknown[] };
       }>;
     }>(inspectCapture.stdout());
     expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
     expect(inspectPayload.derivedReviewExports).toHaveLength(3);
     expect(
       inspectPayload.derivedReviewExports?.every(
-        (artifact) => artifact.extractability?.status === "intact",
+        (artifact) =>
+          artifact.extractability?.status === "intact" &&
+          artifact.diagnostics?.status === "clean" &&
+          artifact.diagnostics?.diagnostics?.length === 0,
       ),
     ).toBe(true);
 
@@ -266,6 +270,7 @@ describe("bundle workflow", () => {
       derivedReviewExports?: Array<{
         storedPath?: string;
         status?: string;
+        diagnostics?: { status?: string; diagnostics?: unknown[] };
       }>;
     }>(listCapture.stdout());
     expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
@@ -279,7 +284,10 @@ describe("bundle workflow", () => {
     ]);
     expect(
       listPayload.derivedReviewExports?.every(
-        (artifact) => artifact.status === "intact",
+        (artifact) =>
+          artifact.status === "intact" &&
+          artifact.diagnostics?.status === "clean" &&
+          artifact.diagnostics?.diagnostics?.length === 0,
       ),
     ).toBe(true);
   });
@@ -612,6 +620,10 @@ describe("bundle workflow", () => {
         totalCount?: number;
         intactCount?: number;
         blockedCount?: number;
+        cleanCount?: number;
+        flaggedCount?: number;
+        unavailableCount?: number;
+        totalDiagnosticCount?: number;
       } | null;
     }>(verifyCapture.stdout());
 
@@ -622,6 +634,10 @@ describe("bundle workflow", () => {
       totalCount: 0,
       intactCount: 0,
       blockedCount: 0,
+      cleanCount: 0,
+      flaggedCount: 0,
+      unavailableCount: 0,
+      totalDiagnosticCount: 0,
       files: [],
     });
   });
@@ -649,10 +665,16 @@ describe("bundle workflow", () => {
         totalCount?: number;
         intactCount?: number;
         blockedCount?: number;
+        cleanCount?: number;
+        flaggedCount?: number;
+        unavailableCount?: number;
+        totalDiagnosticCount?: number;
         files?: Array<{
           storedPath?: string;
           status?: string;
           reason?: string;
+          diagnosticStatus?: string;
+          diagnosticCount?: number;
         }>;
       } | null;
     }>(verifyCapture.stdout());
@@ -661,12 +683,71 @@ describe("bundle workflow", () => {
     expect(payload.derivedReviewExports?.totalCount).toBe(3);
     expect(payload.derivedReviewExports?.intactCount).toBe(3);
     expect(payload.derivedReviewExports?.blockedCount).toBe(0);
+    expect(payload.derivedReviewExports?.cleanCount).toBe(3);
+    expect(payload.derivedReviewExports?.flaggedCount).toBe(0);
+    expect(payload.derivedReviewExports?.unavailableCount).toBe(0);
+    expect(payload.derivedReviewExports?.totalDiagnosticCount).toBe(0);
     expect(
       payload.derivedReviewExports?.files?.every(
         (artifact) =>
-          artifact.status === "intact" && artifact.reason === "intact",
+          artifact.status === "intact" &&
+          artifact.reason === "intact" &&
+          artifact.diagnosticStatus === "clean" &&
+          artifact.diagnosticCount === 0,
       ),
     ).toBe(true);
+  });
+
+  test("reports derived docs review export diagnostics in verify JSON", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    await fs.appendFile(
+      path.join(project.bundleDir, "demo-docs-exports/manual.mmd.txt"),
+      "\n[broken](manual:operator-manual.html)\n",
+      "utf8",
+    );
+
+    const verifyCapture = createBufferedCommandIo();
+    const verifyExitCode = await runVerifyCommand(
+      { bundleDir: project.bundleDir, json: true },
+      verifyCapture.io,
+    );
+    expect(verifyExitCode).toBe(10);
+
+    const payload = parseJsonOutput<{
+      valid?: boolean;
+      derivedReviewExports?: {
+        flaggedCount?: number;
+        totalDiagnosticCount?: number;
+        files?: Array<{
+          storedPath?: string;
+          diagnosticStatus?: string;
+          diagnosticCount?: number;
+        }>;
+      } | null;
+      error?: { type?: string };
+    }>(verifyCapture.stdout());
+
+    expect(payload.valid).toBe(false);
+    expect(payload.error?.type).toBe("checksum_mismatch");
+    expect(payload.derivedReviewExports?.flaggedCount).toBe(1);
+    expect(payload.derivedReviewExports?.totalDiagnosticCount).toBe(1);
+    expect(payload.derivedReviewExports?.files).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          diagnosticStatus: "flagged",
+          diagnosticCount: 1,
+        }),
+      ]),
+    );
   });
 
   test("emits structured JSON failure payload for checksum omission", async () => {

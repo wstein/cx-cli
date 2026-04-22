@@ -1,7 +1,11 @@
 import path from "node:path";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
-import { exportAntoraDocsToMarkdown } from "../../docs/export.js";
+import {
+  type DocsExportArtifact,
+  DocsExportValidationError,
+  exportAntoraDocsToMarkdown,
+} from "../../docs/export.js";
 import {
   formatBytes,
   formatNumber,
@@ -54,12 +58,53 @@ export async function runDocsCommand(
     configuredOutputDir: args.outputDir,
     targetDir: config.docs.targetDir,
   });
-  const exports = await exportAntoraDocsToMarkdown({
-    workspaceRoot: config.sourceRoot,
-    outputDir,
-    format: "multimarkdown",
-    playbookPath: args.playbook,
-  });
+  const playbookPath = path.resolve(
+    config.sourceRoot,
+    args.playbook ?? "antora-playbook.yml",
+  );
+
+  let exports: DocsExportArtifact[];
+  try {
+    exports = await exportAntoraDocsToMarkdown({
+      workspaceRoot: config.sourceRoot,
+      outputDir,
+      format: "multimarkdown",
+      playbookPath: args.playbook,
+    });
+  } catch (error) {
+    if (args.json !== true) {
+      throw error;
+    }
+
+    const payload =
+      error instanceof DocsExportValidationError
+        ? {
+            command: "docs export" as const,
+            valid: false as const,
+            projectName: config.projectName,
+            outputDir,
+            playbookPath,
+            error: {
+              type: "validation" as const,
+              message: error.message,
+              surfaceName: error.surfaceName,
+              diagnostics: error.diagnostics,
+            },
+          }
+        : {
+            command: "docs export" as const,
+            valid: false as const,
+            projectName: config.projectName,
+            outputDir,
+            playbookPath,
+            error: {
+              type: "runtime" as const,
+              message: error instanceof Error ? error.message : String(error),
+            },
+          };
+    writeValidatedJson(DocsExportCommandJsonSchema, payload, io);
+    return 12;
+  }
   const totalBytes = exports.reduce(
     (sum, artifact) => sum + artifact.sizeBytes,
     0,
@@ -68,21 +113,24 @@ export async function runDocsCommand(
     (sum, artifact) => sum + artifact.pageCount,
     0,
   );
+  const totalDiagnostics = exports.reduce(
+    (sum, artifact) => sum + artifact.diagnostics.diagnostics.length,
+    0,
+  );
 
   if (args.json === true) {
     writeValidatedJson(
       DocsExportCommandJsonSchema,
       {
         command: "docs export",
+        valid: true,
         projectName: config.projectName,
         outputDir,
-        playbookPath: path.resolve(
-          config.sourceRoot,
-          args.playbook ?? "antora-playbook.yml",
-        ),
+        playbookPath,
         exportCount: exports.length,
         totalBytes,
         totalPages,
+        totalDiagnostics,
         exports,
       },
       io,
@@ -95,13 +143,11 @@ export async function runDocsCommand(
     [
       ["Project", config.projectName],
       ["Output", outputDir],
-      [
-        "Playbook",
-        path.resolve(config.sourceRoot, args.playbook ?? "antora-playbook.yml"),
-      ],
+      ["Playbook", playbookPath],
       ["Exports", exports.length],
       ["Pages", formatNumber(totalPages)],
       ["Total size", formatBytes(totalBytes)],
+      ["Diagnostics", formatNumber(totalDiagnostics)],
     ],
     io,
   );

@@ -117,6 +117,7 @@ export async function runVerifyCommand(
 
   try {
     await verifyBundle(bundleDir, againstDir, selection, againstConfig);
+    const lockWarnings: string[] = [];
 
     // Load manifest for projectName and dirtyState visibility
     try {
@@ -126,13 +127,20 @@ export async function runVerifyCommand(
       derivedReviewExportsSummary = summarizeDerivedReviewExportIntegrity(
         await resolveDerivedReviewExportIntegrity({ bundleDir, manifest }),
       );
+      if (derivedReviewExportsSummary.flaggedCount > 0) {
+        const msg =
+          `Derived review exports contain ${derivedReviewExportsSummary.totalDiagnosticCount} detected source-link diagnostic` +
+          `${derivedReviewExportsSummary.totalDiagnosticCount === 1 ? "" : "s"} across ${derivedReviewExportsSummary.flaggedCount} artifact` +
+          `${derivedReviewExportsSummary.flaggedCount === 1 ? "" : "s"}.`;
+        lockWarnings.push(msg);
+        writeStderr(`Warning: ${msg}\n`, io);
+      }
     } catch {
       // If manifest load fails, we still proceed with lock drift check
     }
 
     // Emit warnings for dirty state so operators see at a glance whether the
     // bundle was built from uncommitted changes, and via what mechanism.
-    const lockWarnings: string[] = [];
     if (manifestDirtyState === "ci_dirty") {
       const msg =
         "Bundle was created in a CI pipeline with uncommitted changes (ci_dirty). " +

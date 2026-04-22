@@ -452,7 +452,7 @@ export async function runListCommand(
   });
   const derivedReviewExports = (
     await resolveDerivedReviewExportIntegrity({ bundleDir, manifest })
-  ).map(({ artifact, integrity }) => ({
+  ).map(({ artifact, integrity, diagnostics }) => ({
     surfaceName: artifact.surfaceName,
     title: artifact.title,
     moduleName: artifact.moduleName,
@@ -464,6 +464,7 @@ export async function runListCommand(
     trustClassification: artifact.trustClassification,
     status: integrity.status,
     extractability: { ...integrity },
+    diagnostics,
   }));
 
   const rowsWithMeta: RowMeta[] = rows.map((file) => {

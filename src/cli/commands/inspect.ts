@@ -155,7 +155,13 @@ export async function runInspectCommand(
               artifact.extractability.status !== "intact"
                 ? ` (${artifact.extractability.reason}; expected ${formatChecksumPrefix(artifact.extractability.expectedSha256)} got ${formatChecksumPrefix(artifact.extractability.actualSha256)})`
                 : "";
-            return `  ${status} ${artifact.storedPath} [${artifact.surfaceName}, ${artifact.trustClassification}]${suffix}`;
+            const diagnosticsSuffix =
+              artifact.diagnostics.status === "flagged"
+                ? ` [diagnostics: ${artifact.diagnostics.diagnostics.length}]`
+                : artifact.diagnostics.status === "unavailable"
+                  ? " [diagnostics unavailable]"
+                  : "";
+            return `  ${status} ${artifact.storedPath} [${artifact.surfaceName}, ${artifact.trustClassification}]${diagnosticsSuffix}${suffix}`;
           }),
           "",
         ]

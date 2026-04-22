@@ -32,11 +32,19 @@ export interface DocsExportArtifact {
   sourcePaths: string[];
   sha256: string;
   sizeBytes: number;
+  diagnostics: DocsExportDiagnostics;
 }
 
-export interface DocsExportLeak {
+export interface DocsExportDiagnostic {
   destination: string;
-  reason: "raw_xref" | "antora_family" | "module_qualified_html" | "adoc_link";
+  code: "raw_xref" | "antora_family" | "module_qualified_html" | "adoc_link";
+  severity: "error";
+  message: string;
+}
+
+export interface DocsExportDiagnostics {
+  status: "clean" | "flagged";
+  diagnostics: DocsExportDiagnostic[];
 }
 
 export interface ExportDocsParams {
@@ -111,6 +119,20 @@ const INCLUDE_LINE_PATTERN = /^include::([^[]+)\[[^\]]*\]\s*$/gm;
 const NAV_XREF_PATTERN = /xref:([^[]+)\[[^\]]*\]/g;
 const MULTIMARKDOWN_METADATA_PATTERN = /^Title:\s*(.+)\nDate:\s*[^\n]+\n\n/u;
 const MARKDOWN_LINK_PATTERN = /\[[^\]]+\]\(([^)\s]+)\)/g;
+
+const DOCS_EXPORT_DIAGNOSTIC_MESSAGES: Record<
+  DocsExportDiagnostic["code"],
+  string
+> = {
+  raw_xref:
+    "Rendered markdown still contains a raw xref destination instead of a lowered link.",
+  antora_family:
+    "Rendered markdown still contains an Antora family destination such as ROOT:page$ or ROOT:partial$.",
+  module_qualified_html:
+    "Rendered markdown still contains a module-qualified Antora HTML path instead of a review-artifact link.",
+  adoc_link:
+    "Rendered markdown still links to a source .adoc file instead of a review-facing destination.",
+};
 
 export function resolveDocsExportExtension(format: DocsExportFormat): string {
   return format === "multimarkdown" ? ".mmd" : ".md";
@@ -443,7 +465,6 @@ function rewriteRenderedLinks(params: {
   markdown: string;
   xrefs: ReturnType<typeof collectMarkdownInspectionReport>["xrefs"];
   currentSurface: DocsExportSurfaceName;
-  extension: string;
   exportedPages: Map<
     string,
     {
@@ -494,8 +515,10 @@ function rewriteRenderedLinks(params: {
   return rewritten;
 }
 
-export function detectDocsExportLeaks(markdown: string): DocsExportLeak[] {
-  const leaks = new Map<string, DocsExportLeak>();
+export function analyzeDocsExportMarkdown(
+  markdown: string,
+): DocsExportDiagnostics {
+  const diagnostics = new Map<string, DocsExportDiagnostic>();
 
   for (const match of markdown.matchAll(MARKDOWN_LINK_PATTERN)) {
     const destination = match[1]?.trim();
@@ -503,28 +526,56 @@ export function detectDocsExportLeaks(markdown: string): DocsExportLeak[] {
       continue;
     }
 
-    let reason: DocsExportLeak["reason"] | null = null;
+    let code: DocsExportDiagnostic["code"] | null = null;
     if (destination.startsWith("xref:")) {
-      reason = "raw_xref";
+      code = "raw_xref";
     } else if (
       destination.includes("ROOT:page$") ||
       destination.includes("ROOT:partial$")
     ) {
-      reason = "antora_family";
+      code = "antora_family";
     } else if (
       /^(architecture|manual|onboarding):.+\.html(?:#.*)?$/u.test(destination)
     ) {
-      reason = "module_qualified_html";
+      code = "module_qualified_html";
     } else if (/\.adoc(?:#.*)?$/u.test(destination)) {
-      reason = "adoc_link";
+      code = "adoc_link";
     }
 
-    if (reason) {
-      leaks.set(destination, { destination, reason });
+    if (code) {
+      diagnostics.set(destination, {
+        destination,
+        code,
+        severity: "error",
+        message: DOCS_EXPORT_DIAGNOSTIC_MESSAGES[code],
+      });
     }
   }
 
-  return [...leaks.values()];
+  return {
+    status: diagnostics.size === 0 ? "clean" : "flagged",
+    diagnostics: [...diagnostics.values()],
+  };
+}
+
+export class DocsExportValidationError extends Error {
+  readonly surfaceName: DocsExportSurfaceName;
+  readonly diagnostics: DocsExportDiagnostics;
+
+  constructor(
+    surfaceName: DocsExportSurfaceName,
+    diagnostics: DocsExportDiagnostics,
+  ) {
+    const details = diagnostics.diagnostics
+      .map((diagnostic) => `${diagnostic.code}: ${diagnostic.destination}`)
+      .join("; ");
+    super(
+      `Docs export for ${surfaceName} produced source-flavored links: ${details}`,
+    );
+    this.name = "DocsExportValidationError";
+    this.surfaceName = surfaceName;
+    this.diagnostics = diagnostics;
+  }
 }
 
 async function renderDocsPage(params: {
@@ -635,20 +686,14 @@ export async function exportAntoraDocsToMarkdown(
           markdown: page.renderedMarkdown,
           xrefs: page.xrefs,
           currentSurface: surface.surfaceName,
-          extension,
           exportedPages,
         }),
       )
       .join("\n\n")}\n`;
 
-    const leaks = detectDocsExportLeaks(content);
-    if (leaks.length > 0) {
-      const details = leaks
-        .map((leak) => `${leak.reason}: ${leak.destination}`)
-        .join("; ");
-      throw new Error(
-        `Docs export for ${surface.surfaceName} produced source-flavored links: ${details}`,
-      );
+    const diagnostics = analyzeDocsExportMarkdown(content);
+    if (diagnostics.status === "flagged") {
+      throw new DocsExportValidationError(surface.surfaceName, diagnostics);
     }
 
     const outputPath = path.join(params.outputDir, surface.outputFile);
@@ -668,6 +713,7 @@ export async function exportAntoraDocsToMarkdown(
       sourcePaths,
       sha256: await sha256File(outputPath),
       sizeBytes: stat.size,
+      diagnostics,
     });
   }
 

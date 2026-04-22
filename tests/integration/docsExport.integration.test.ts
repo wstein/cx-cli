@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import {
-  detectDocsExportLeaks,
+  analyzeDocsExportMarkdown,
   exportAntoraDocsToMarkdown,
 } from "../../src/docs/export.js";
 
@@ -37,7 +37,10 @@ describe("docs export", () => {
     expect(onboarding).not.toContain(
       "include::ROOT:partial$track-primer.adoc[]",
     );
-    expect(detectDocsExportLeaks(onboarding)).toEqual([]);
+    expect(analyzeDocsExportMarkdown(onboarding)).toEqual({
+      status: "clean",
+      diagnostics: [],
+    });
     expect(onboarding).toContain("(manual.mmd#release-checklist)");
 
     const manual = await fs.readFile(
@@ -46,7 +49,10 @@ describe("docs export", () => {
     );
     expect(manual).toContain("# Operator Manual Overview");
     expect(manual).toContain("# CX Operator Manual");
-    expect(detectDocsExportLeaks(manual)).toEqual([]);
+    expect(analyzeDocsExportMarkdown(manual)).toEqual({
+      status: "clean",
+      diagnostics: [],
+    });
     expect(manual).toContain("(#cx-operator-manual)");
 
     const architecture = await fs.readFile(
@@ -55,13 +61,20 @@ describe("docs export", () => {
     );
     expect(architecture).toContain("# Architecture Overview");
     expect(architecture).toContain("[Mental Model](#cx-mental-model)");
-    expect(detectDocsExportLeaks(architecture)).toEqual([]);
+    expect(analyzeDocsExportMarkdown(architecture)).toEqual({
+      status: "clean",
+      diagnostics: [],
+    });
 
     for (const artifact of artifacts) {
       expect(artifact.pageCount).toBeGreaterThan(0);
       expect(artifact.sourcePaths.length).toBe(artifact.pageCount);
       expect(artifact.sha256).toMatch(/^[0-9a-f]{64}$/u);
       expect(artifact.sizeBytes).toBeGreaterThan(0);
+      expect(artifact.diagnostics).toEqual({
+        status: "clean",
+        diagnostics: [],
+      });
     }
   });
 

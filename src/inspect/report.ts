@@ -85,6 +85,21 @@ export interface InspectReport {
     sha256: string;
     trustClassification: "derived_review_export";
     extractability: InspectExtractability | null;
+    diagnostics: {
+      status: "clean" | "flagged" | "unavailable";
+      reason: "clean" | "source_leak_detected" | "artifact_unavailable";
+      message: string;
+      diagnostics: Array<{
+        destination: string;
+        code:
+          | "raw_xref"
+          | "antora_family"
+          | "module_qualified_html"
+          | "adoc_link";
+        severity: "error";
+        message: string;
+      }>;
+    };
   }>;
   unmatchedFiles: string[];
   warnings: string[];
@@ -221,7 +236,7 @@ export async function collectInspectReport(params: {
           bundleDir: plan.bundleDir,
           manifest,
         })
-      ).map(({ artifact, integrity }) => ({
+      ).map(({ artifact, integrity, diagnostics }) => ({
         surfaceName: artifact.surfaceName,
         title: artifact.title,
         moduleName: artifact.moduleName,
@@ -241,6 +256,7 @@ export async function collectInspectReport(params: {
             ? { actualSha256: integrity.actualSha256 }
             : {}),
         },
+        diagnostics,
       }));
     }
   } catch (error) {

@@ -1,4 +1,9 @@
+import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  analyzeDocsExportMarkdown,
+  type DocsExportDiagnostic,
+} from "../docs/export.js";
 import type {
   CxManifest,
   DerivedReviewExportRecord,
@@ -17,16 +22,28 @@ export interface DerivedReviewExportIntegrity {
 export interface DerivedReviewExportWithIntegrity {
   artifact: DerivedReviewExportRecord;
   integrity: DerivedReviewExportIntegrity;
+  diagnostics: {
+    status: "clean" | "flagged" | "unavailable";
+    reason: "clean" | "source_leak_detected" | "artifact_unavailable";
+    message: string;
+    diagnostics: DocsExportDiagnostic[];
+  };
 }
 
 export interface DerivedReviewExportIntegritySummary {
   totalCount: number;
   intactCount: number;
   blockedCount: number;
+  cleanCount: number;
+  flaggedCount: number;
+  unavailableCount: number;
+  totalDiagnosticCount: number;
   files: Array<{
     storedPath: string;
     status: "intact" | "blocked";
     reason: "intact" | "missing_artifact" | "hash_mismatch";
+    diagnosticStatus: "clean" | "flagged" | "unavailable";
+    diagnosticCount: number;
   }>;
 }
 
@@ -46,10 +63,32 @@ export async function resolveDerivedReviewExportIntegrity(params: {
             message: `Bundle is missing derived review export ${artifact.storedPath}.`,
             expectedSha256: artifact.sha256,
           },
+          diagnostics: {
+            status: "unavailable",
+            reason: "artifact_unavailable",
+            message: `Cannot inspect derived review export ${artifact.storedPath} because the bundle artifact is missing.`,
+            diagnostics: [],
+          },
         };
       }
 
+      const content = await fs.readFile(artifactPath, "utf8");
       const actualSha256 = await sha256File(artifactPath);
+      const markdownDiagnostics = analyzeDocsExportMarkdown(content);
+      const diagnostics =
+        markdownDiagnostics.status === "clean"
+          ? {
+              status: "clean" as const,
+              reason: "clean" as const,
+              message: `Derived review export ${artifact.storedPath} contains no detected source-flavored markdown links.`,
+              diagnostics: markdownDiagnostics.diagnostics,
+            }
+          : {
+              status: "flagged" as const,
+              reason: "source_leak_detected" as const,
+              message: `Derived review export ${artifact.storedPath} contains detected source-flavored markdown links.`,
+              diagnostics: markdownDiagnostics.diagnostics,
+            };
       if (actualSha256 !== artifact.sha256) {
         return {
           artifact,
@@ -60,6 +99,7 @@ export async function resolveDerivedReviewExportIntegrity(params: {
             expectedSha256: artifact.sha256,
             actualSha256,
           },
+          diagnostics,
         };
       }
 
@@ -72,6 +112,7 @@ export async function resolveDerivedReviewExportIntegrity(params: {
           expectedSha256: artifact.sha256,
           actualSha256,
         },
+        diagnostics,
       };
     }),
   );
@@ -84,6 +125,10 @@ export function summarizeDerivedReviewExportIntegrity(
     totalCount: records.length,
     intactCount: 0,
     blockedCount: 0,
+    cleanCount: 0,
+    flaggedCount: 0,
+    unavailableCount: 0,
+    totalDiagnosticCount: 0,
     files: [],
   };
 
@@ -93,10 +138,20 @@ export function summarizeDerivedReviewExportIntegrity(
     } else {
       summary.blockedCount += 1;
     }
+    if (record.diagnostics.status === "clean") {
+      summary.cleanCount += 1;
+    } else if (record.diagnostics.status === "flagged") {
+      summary.flaggedCount += 1;
+    } else {
+      summary.unavailableCount += 1;
+    }
+    summary.totalDiagnosticCount += record.diagnostics.diagnostics.length;
     summary.files.push({
       storedPath: record.artifact.storedPath,
       status: record.integrity.status,
       reason: record.integrity.reason,
+      diagnosticStatus: record.diagnostics.status,
+      diagnosticCount: record.diagnostics.diagnostics.length,
     });
   }
 

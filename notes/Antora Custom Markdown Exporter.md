@@ -47,6 +47,11 @@ Implement the export in `v0.5` with these constraints:
   syntax
 - support `cx bundle --include-doc-exports` as an opt-in-only bridge into the
   bundle folder, writing `.mmd.txt` bundle artifacts by default
+- surface structured export diagnostics in `cx docs export --json` when
+  review-artifact validation fails
+- summarize derived review export diagnostics in `cx inspect` and
+  `cx verify --json` so operators can spot degraded bundled docs without
+  reopening the source tree
 - allow optional placement alongside bundle outputs only when explicitly
   requested
 - if recorded in the manifest, use a non-proof field such as derived review

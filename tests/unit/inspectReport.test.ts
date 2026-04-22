@@ -82,6 +82,12 @@ describe("collectInspectReport", () => {
     expect(report.derivedReviewExports[0]?.extractability?.status).toBe(
       "intact",
     );
+    expect(report.derivedReviewExports[0]?.diagnostics).toEqual({
+      status: "clean",
+      reason: "clean",
+      message: expect.stringContaining("contains no detected source-flavored"),
+      diagnostics: [],
+    });
     expect(
       report.derivedReviewExports.map((artifact) => artifact.storedPath),
     ).toEqual([

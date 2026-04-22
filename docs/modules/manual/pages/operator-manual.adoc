@@ -228,7 +228,10 @@ into review-friendly links between the emitted surface files and rejects
 source-flavored leftovers such as `xref:` links, module-qualified Antora
 HTML targets, and `.adoc` destinations. Use `--playbook` when the docs
 surface is driven by a playbook other than the default
-`antora-playbook.yml` at the source root.
+`antora-playbook.yml` at the source root. JSON mode reports structured
+validation diagnostics when the export is blocked so CI and operators can
+see the exact surface and leaked destinations instead of only receiving a
+generic failure.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
 the generated docs under `docs.target_dir/` inside the bundle. The
@@ -236,7 +239,10 @@ default is `{project}-docs-exports`, and you can configure it the same
 way as `assets.target_dir` in `cx.toml`. The bundle manifest records
 those files as `.mmd.txt` artifacts in `derivedReviewExports` so they
 are discoverable, checksum-covered, and still clearly labeled as derived
-review material rather than proof-path section outputs.
+review material rather than proof-path section outputs. `cx inspect
+--derived-review-exports --json` and `cx verify --json` also summarize the
+derived review exports, including source-link diagnostics for already
+bundled artifacts.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP
 tool contract. It exposes the registered tool set with stable `name`,

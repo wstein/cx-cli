@@ -70,21 +70,26 @@ describe("CLI JSON contract", () => {
 
     const payload = parseJsonOutput<{
       command?: string;
+      valid?: boolean;
       playbookPath?: string;
       exportCount?: number;
       totalPages?: number;
+      totalDiagnostics?: number;
       exports?: Array<{
         surfaceName?: string;
         outputFile?: string;
         pageCount?: number;
+        diagnostics?: { status?: string; diagnostics?: unknown[] };
       }>;
     }>(result.stdout);
     expect(payload.command).toBe("docs export");
+    expect(payload.valid).toBe(true);
     expect(payload.playbookPath).toBe(
       path.join(process.cwd(), "antora-playbook.yml"),
     );
     expect(payload.exportCount).toBe(3);
     expect(payload.totalPages).toBeGreaterThan(0);
+    expect(payload.totalDiagnostics).toBe(0);
     expect(payload.exports).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -103,6 +108,8 @@ describe("CLI JSON contract", () => {
     );
     for (const artifact of payload.exports ?? []) {
       expect(artifact.pageCount).toBeGreaterThan(0);
+      expect(artifact.diagnostics?.status).toBe("clean");
+      expect(artifact.diagnostics?.diagnostics).toEqual([]);
     }
   });
 
@@ -391,11 +398,17 @@ See [[20260418120000]].
           totalCount?: number;
           intactCount?: number;
           blockedCount?: number;
+          cleanCount?: number;
+          flaggedCount?: number;
+          totalDiagnosticCount?: number;
         } | null;
       }>(verifyResult.stdout);
       expect(verifyPayload.derivedReviewExports?.totalCount).toBe(3);
       expect(verifyPayload.derivedReviewExports?.intactCount).toBe(3);
       expect(verifyPayload.derivedReviewExports?.blockedCount).toBe(0);
+      expect(verifyPayload.derivedReviewExports?.cleanCount).toBe(3);
+      expect(verifyPayload.derivedReviewExports?.flaggedCount).toBe(0);
+      expect(verifyPayload.derivedReviewExports?.totalDiagnosticCount).toBe(0);
     } finally {
       process.chdir(cwd);
     }

@@ -27,6 +27,30 @@ const ExtractabilitySchema = z.object({
   actualSha256: z.string().optional(),
 });
 
+const DocsExportDiagnosticSchema = z.object({
+  destination: z.string(),
+  code: z.enum([
+    "raw_xref",
+    "antora_family",
+    "module_qualified_html",
+    "adoc_link",
+  ]),
+  severity: z.literal("error"),
+  message: z.string(),
+});
+
+const DocsExportDiagnosticsSchema = z.object({
+  status: z.enum(["clean", "flagged"]),
+  diagnostics: z.array(DocsExportDiagnosticSchema),
+});
+
+const DerivedReviewExportDiagnosticsSchema = z.object({
+  status: z.enum(["clean", "flagged", "unavailable"]),
+  reason: z.enum(["clean", "source_leak_detected", "artifact_unavailable"]),
+  message: z.string(),
+  diagnostics: z.array(DocsExportDiagnosticSchema),
+});
+
 const InspectFileSchema = z.object({
   relativePath: z.string(),
   absolutePath: z.string(),
@@ -105,6 +129,7 @@ export const InspectReportJsonSchema = z.object({
       sha256: z.string(),
       trustClassification: z.literal("derived_review_export"),
       extractability: ExtractabilitySchema.nullable(),
+      diagnostics: DerivedReviewExportDiagnosticsSchema,
     }),
   ),
   unmatchedFiles: z.array(z.string()),
@@ -163,29 +188,53 @@ export const BundleCommandJsonSchema = z.object({
   warnings: z.array(z.string()),
 });
 
-export const DocsExportCommandJsonSchema = z.object({
-  command: z.literal("docs export"),
-  projectName: z.string(),
-  outputDir: z.string(),
-  playbookPath: z.string(),
-  exportCount: z.number().int().nonnegative(),
-  totalBytes: z.number().nonnegative(),
-  totalPages: z.number().int().nonnegative(),
-  exports: z.array(
-    z.object({
-      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
-      title: z.string(),
-      moduleName: z.string(),
-      outputFile: z.string(),
-      outputPath: z.string(),
-      relativeOutputPath: z.string(),
-      pageCount: z.number().int().nonnegative(),
-      sourcePaths: z.array(z.string()),
-      sha256: z.string(),
-      sizeBytes: z.number().nonnegative(),
-    }),
-  ),
-});
+export const DocsExportCommandJsonSchema = z.union([
+  z.object({
+    command: z.literal("docs export"),
+    valid: z.literal(true),
+    projectName: z.string(),
+    outputDir: z.string(),
+    playbookPath: z.string(),
+    exportCount: z.number().int().nonnegative(),
+    totalBytes: z.number().nonnegative(),
+    totalPages: z.number().int().nonnegative(),
+    totalDiagnostics: z.number().int().nonnegative(),
+    exports: z.array(
+      z.object({
+        surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+        title: z.string(),
+        moduleName: z.string(),
+        outputFile: z.string(),
+        outputPath: z.string(),
+        relativeOutputPath: z.string(),
+        pageCount: z.number().int().nonnegative(),
+        sourcePaths: z.array(z.string()),
+        sha256: z.string(),
+        sizeBytes: z.number().nonnegative(),
+        diagnostics: DocsExportDiagnosticsSchema,
+      }),
+    ),
+  }),
+  z.object({
+    command: z.literal("docs export"),
+    valid: z.literal(false),
+    projectName: z.string(),
+    outputDir: z.string(),
+    playbookPath: z.string(),
+    error: z.union([
+      z.object({
+        type: z.literal("validation"),
+        message: z.string(),
+        surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+        diagnostics: DocsExportDiagnosticsSchema,
+      }),
+      z.object({
+        type: z.literal("runtime"),
+        message: z.string(),
+      }),
+    ]),
+  }),
+]);
 
 export const ListCommandJsonSchema = z.object({
   summary: ManifestSummarySchema,
@@ -252,6 +301,7 @@ export const ListCommandJsonSchema = z.object({
         expectedSha256: z.string().optional(),
         actualSha256: z.string().optional(),
       }),
+      diagnostics: DerivedReviewExportDiagnosticsSchema,
     }),
   ),
   files: z.array(
@@ -299,11 +349,17 @@ export const VerifyCommandJsonSchema = z.union([
         totalCount: z.number().int().nonnegative(),
         intactCount: z.number().int().nonnegative(),
         blockedCount: z.number().int().nonnegative(),
+        cleanCount: z.number().int().nonnegative(),
+        flaggedCount: z.number().int().nonnegative(),
+        unavailableCount: z.number().int().nonnegative(),
+        totalDiagnosticCount: z.number().int().nonnegative(),
         files: z.array(
           z.object({
             storedPath: z.string(),
             status: z.enum(["intact", "blocked"]),
             reason: z.enum(["intact", "missing_artifact", "hash_mismatch"]),
+            diagnosticStatus: z.enum(["clean", "flagged", "unavailable"]),
+            diagnosticCount: z.number().int().nonnegative(),
           }),
         ),
       })
@@ -326,11 +382,17 @@ export const VerifyCommandJsonSchema = z.union([
         totalCount: z.number().int().nonnegative(),
         intactCount: z.number().int().nonnegative(),
         blockedCount: z.number().int().nonnegative(),
+        cleanCount: z.number().int().nonnegative(),
+        flaggedCount: z.number().int().nonnegative(),
+        unavailableCount: z.number().int().nonnegative(),
+        totalDiagnosticCount: z.number().int().nonnegative(),
         files: z.array(
           z.object({
             storedPath: z.string(),
             status: z.enum(["intact", "blocked"]),
             reason: z.enum(["intact", "missing_artifact", "hash_mismatch"]),
+            diagnosticStatus: z.enum(["clean", "flagged", "unavailable"]),
+            diagnosticCount: z.number().int().nonnegative(),
           }),
         ),
       })
