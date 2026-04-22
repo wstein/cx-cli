@@ -42,6 +42,9 @@ Implement the export in `v0.5` with these constraints:
 - add `cx docs export` as the primary operator entrypoint
 - emit per-surface `.mmd` files instead of one flattened mega-document
 - preserve Antora topic boundaries and provenance metadata
+- normalize exported links so review artifacts point at emitted surfaces or
+  stable repository-reference HTML paths instead of leaking Antora source
+  syntax
 - support `cx bundle --include-doc-exports` as an opt-in-only bridge into the
   bundle folder, writing `.mmd.txt` bundle artifacts by default
 - allow optional placement alongside bundle outputs only when explicitly

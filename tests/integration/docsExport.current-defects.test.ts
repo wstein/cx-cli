@@ -10,7 +10,7 @@ const outputRoots: string[] = [];
 
 async function makeOutputRoot(): Promise<string> {
   const outputRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "cx-docs-export-defects-"),
+    path.join(os.tmpdir(), "cx-docs-export-clean-"),
   );
   outputRoots.push(outputRoot);
   return outputRoot;
@@ -24,8 +24,8 @@ afterEach(async () => {
   );
 });
 
-describe("docs export current defects", () => {
-  test("still leaks module-qualified and Antora-family flavored links in rendered review output", async () => {
+describe("docs export link contract", () => {
+  test("rewrites Antora-flavored xrefs into review-friendly links", async () => {
     const outputDir = await makeOutputRoot();
 
     await exportAntoraDocsToMarkdown({
@@ -38,8 +38,16 @@ describe("docs export current defects", () => {
       "utf8",
     );
 
-    expect(onboarding).toContain("(manual:release-and-integrity.html");
-    expect(onboarding).toContain("(architecture:system-map.html)");
-    expect(onboarding).toContain("(ROOT:page$repository/docs/governance.html");
+    expect(onboarding).toContain("(manual.mmd#release-checklist)");
+    expect(onboarding).toContain("(architecture.mmd#cx-system-map)");
+    expect(onboarding).toContain(
+      "(repository/docs/governance.html#mcp-tool-stability)",
+    );
+    expect(onboarding).not.toContain("(manual:release-and-integrity.html");
+    expect(onboarding).not.toContain("(architecture:system-map.html)");
+    expect(onboarding).not.toContain(
+      "(ROOT:page$repository/docs/governance.html",
+    );
+    expect(onboarding).not.toContain("xref:");
   });
 });

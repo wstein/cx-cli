@@ -253,6 +253,10 @@ export async function seedAntoraDocs(rootDir: string): Promise<void> {
       recursive: true,
     },
   );
+  await fs.copyFile(
+    path.join(process.cwd(), "antora-playbook.yml"),
+    path.join(rootDir, "antora-playbook.yml"),
+  );
 }
 
 export async function tamperSectionOutput(

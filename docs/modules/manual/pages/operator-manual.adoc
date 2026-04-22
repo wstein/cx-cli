@@ -223,7 +223,12 @@ addition to workspace file browsing.
 `.mmd` review artifacts so operators and downstream LLM workflows can
 inspect the final documentation content directly instead of inferring it
 from source AsciiDoc files alone. MultiMarkdown is the default export
-format for this command.
+format for this command. The export rewrites Antora-style cross references
+into review-friendly links between the emitted surface files and rejects
+source-flavored leftovers such as `xref:` links, module-qualified Antora
+HTML targets, and `.adoc` destinations. Use `--playbook` when the docs
+surface is driven by a playbook other than the default
+`antora-playbook.yml` at the source root.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
 the generated docs under `docs.target_dir/` inside the bundle. The

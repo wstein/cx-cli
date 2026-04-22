@@ -694,6 +694,11 @@ export async function main(
             description:
               "Directory where docs exports should be written. Defaults to dist/<docs.target_dir>; MultiMarkdown uses .mmd by default.",
           })
+          .option("playbook", {
+            type: "string",
+            description:
+              "Antora playbook to validate before exporting docs. Defaults to antora-playbook.yml at the source root.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runDocsCommand(
@@ -701,6 +706,7 @@ export async function main(
             subcommand: "export",
             config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             outputDir: args["output-dir"],
+            playbook: args.playbook,
             json: args.json,
           },
           io,

@@ -4,7 +4,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { exportAntoraDocsToMarkdown } from "../../src/docs/export.js";
+import {
+  detectDocsExportLeaks,
+  exportAntoraDocsToMarkdown,
+} from "../../src/docs/export.js";
 
 async function makeOutputRoot(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "cx-docs-export-"));
@@ -34,6 +37,8 @@ describe("docs export", () => {
     expect(onboarding).not.toContain(
       "include::ROOT:partial$track-primer.adoc[]",
     );
+    expect(detectDocsExportLeaks(onboarding)).toEqual([]);
+    expect(onboarding).toContain("(manual.mmd#release-checklist)");
 
     const manual = await fs.readFile(
       path.join(outputDir, "manual.mmd"),
@@ -41,13 +46,16 @@ describe("docs export", () => {
     );
     expect(manual).toContain("# Operator Manual Overview");
     expect(manual).toContain("# CX Operator Manual");
+    expect(detectDocsExportLeaks(manual)).toEqual([]);
+    expect(manual).toContain("(#cx-operator-manual)");
 
     const architecture = await fs.readFile(
       path.join(outputDir, "architecture.mmd"),
       "utf8",
     );
     expect(architecture).toContain("# Architecture Overview");
-    expect(architecture).toContain("[Mental Model]");
+    expect(architecture).toContain("[Mental Model](#cx-mental-model)");
+    expect(detectDocsExportLeaks(architecture)).toEqual([]);
 
     for (const artifact of artifacts) {
       expect(artifact.pageCount).toBeGreaterThan(0);

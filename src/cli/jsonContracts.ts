@@ -167,6 +167,7 @@ export const DocsExportCommandJsonSchema = z.object({
   command: z.literal("docs export"),
   projectName: z.string(),
   outputDir: z.string(),
+  playbookPath: z.string(),
   exportCount: z.number().int().nonnegative(),
   totalBytes: z.number().nonnegative(),
   totalPages: z.number().int().nonnegative(),

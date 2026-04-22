@@ -41,9 +41,15 @@ describe("runDocsCommand", () => {
       ),
     ).toBe(0);
 
-    const payload = parseJsonOutput<{ outputDir?: string }>(capture.stdout());
+    const payload = parseJsonOutput<{
+      outputDir?: string;
+      playbookPath?: string;
+    }>(capture.stdout());
     expect(payload.outputDir).toBe(
       path.join(workspace.rootDir, "dist", "review-docs"),
+    );
+    expect(payload.playbookPath).toBe(
+      path.join(process.cwd(), "antora-playbook.yml"),
     );
     expect(capture.stderr()).toBe("");
   });

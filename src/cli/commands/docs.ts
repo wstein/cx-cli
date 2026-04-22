@@ -21,6 +21,7 @@ export interface DocsArgs {
   subcommand: "export";
   config: string;
   outputDir?: string | undefined;
+  playbook?: string | undefined;
   json?: boolean | undefined;
 }
 
@@ -57,6 +58,7 @@ export async function runDocsCommand(
     workspaceRoot: config.sourceRoot,
     outputDir,
     format: "multimarkdown",
+    playbookPath: args.playbook,
   });
   const totalBytes = exports.reduce(
     (sum, artifact) => sum + artifact.sizeBytes,
@@ -74,6 +76,10 @@ export async function runDocsCommand(
         command: "docs export",
         projectName: config.projectName,
         outputDir,
+        playbookPath: path.resolve(
+          config.sourceRoot,
+          args.playbook ?? "antora-playbook.yml",
+        ),
         exportCount: exports.length,
         totalBytes,
         totalPages,
@@ -89,6 +95,10 @@ export async function runDocsCommand(
     [
       ["Project", config.projectName],
       ["Output", outputDir],
+      [
+        "Playbook",
+        path.resolve(config.sourceRoot, args.playbook ?? "antora-playbook.yml"),
+      ],
       ["Exports", exports.length],
       ["Pages", formatNumber(totalPages)],
       ["Total size", formatBytes(totalBytes)],

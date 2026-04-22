@@ -70,6 +70,7 @@ describe("CLI JSON contract", () => {
 
     const payload = parseJsonOutput<{
       command?: string;
+      playbookPath?: string;
       exportCount?: number;
       totalPages?: number;
       exports?: Array<{
@@ -79,6 +80,9 @@ describe("CLI JSON contract", () => {
       }>;
     }>(result.stdout);
     expect(payload.command).toBe("docs export");
+    expect(payload.playbookPath).toBe(
+      path.join(process.cwd(), "antora-playbook.yml"),
+    );
     expect(payload.exportCount).toBe(3);
     expect(payload.totalPages).toBeGreaterThan(0);
     expect(payload.exports).toEqual(
@@ -284,6 +288,10 @@ See [[20260418120000]].
       path.join(process.cwd(), "docs", "modules"),
       path.join(project.root, "docs", "modules"),
       { recursive: true },
+    );
+    await fs.copyFile(
+      path.join(process.cwd(), "antora-playbook.yml"),
+      path.join(project.root, "antora-playbook.yml"),
     );
 
     const cwd = process.cwd();

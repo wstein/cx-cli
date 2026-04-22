@@ -1,6 +1,16 @@
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+import {
+  type AssemblyDocument,
+  type AssemblyHeading,
+  type AssemblyInline,
+  collectMarkdownInspectionReport,
+  convertAssemblyStructureToMarkdownIR,
+  extractAssemblyStructure,
+  normalizeMarkdownIR,
+  renderMarkdown,
+} from "@wsmy/antora-markdown-exporter";
 import { sha256File } from "../shared/hashing.js";
 
 export type DocsExportSurfaceName = "architecture" | "manual" | "onboarding";
@@ -24,12 +34,18 @@ export interface DocsExportArtifact {
   sizeBytes: number;
 }
 
+export interface DocsExportLeak {
+  destination: string;
+  reason: "raw_xref" | "antora_family" | "module_qualified_html" | "adoc_link";
+}
+
 export interface ExportDocsParams {
   workspaceRoot: string;
   outputDir: string;
   format?: DocsExportFormat | undefined;
   extension?: string | undefined;
   filenamePrefix?: string | undefined;
+  playbookPath?: string | undefined;
 }
 
 interface DocsExportSurfaceSpec {
@@ -37,6 +53,15 @@ interface DocsExportSurfaceSpec {
   title: string;
   moduleName: string;
   navFile: string;
+}
+
+interface DocsExportPageRecord {
+  surfaceName: DocsExportSurfaceName;
+  pagePath: string;
+  outputFile: string;
+  primaryAnchor: string | null;
+  renderedMarkdown: string;
+  xrefs: ReturnType<typeof collectMarkdownInspectionReport>["xrefs"];
 }
 
 const require = createRequire(import.meta.url);
@@ -85,22 +110,27 @@ const BUILTIN_DOC_SURFACES: DocsExportSurfaceSpec[] = [
 const INCLUDE_LINE_PATTERN = /^include::([^[]+)\[[^\]]*\]\s*$/gm;
 const NAV_XREF_PATTERN = /xref:([^[]+)\[[^\]]*\]/g;
 const MULTIMARKDOWN_METADATA_PATTERN = /^Title:\s*(.+)\nDate:\s*[^\n]+\n\n/u;
+const MARKDOWN_LINK_PATTERN = /\[[^\]]+\]\(([^)\s]+)\)/g;
 
 export function resolveDocsExportExtension(format: DocsExportFormat): string {
   return format === "multimarkdown" ? ".mmd" : ".md";
 }
 
-async function renderPageMarkdown(
-  source: string,
-  pagePath: string,
-  format: DocsExportFormat,
-): Promise<string> {
-  const { renderAssemblyMarkdown } = await import(
-    "@wsmy/antora-markdown-exporter"
+export async function resolveDocsPlaybookPath(params: {
+  workspaceRoot: string;
+  playbookPath?: string | undefined;
+}): Promise<string> {
+  const playbookPath = path.resolve(
+    params.workspaceRoot,
+    params.playbookPath ?? "antora-playbook.yml",
   );
-  return renderAssemblyMarkdown(source, format, pagePath, {
-    xrefFallbackLabelStyle: "fragment-or-path",
-  });
+  const stat = await fs.stat(playbookPath).catch(() => undefined);
+  if (!stat?.isFile()) {
+    throw new Error(
+      `Antora playbook not found for docs export: ${playbookPath}.`,
+    );
+  }
+  return playbookPath;
 }
 
 const SUPPRESSED_EXPORTER_WARNING_PATTERN =
@@ -309,43 +339,228 @@ function normalizeRenderedPage(markdown: string): string {
   return `# ${title}\n\n${normalized.slice(metadataMatch[0].length).trim()}`;
 }
 
-async function renderSurfaceDocument(params: {
-  workspaceRoot: string;
-  surface: DocsExportSurfaceSpec;
-  format: DocsExportFormat;
-}): Promise<{ content: string; sourcePaths: string[] }> {
-  const pagePaths = await collectSurfacePagePaths(
-    params.workspaceRoot,
-    params.surface,
+function inlineText(children: AssemblyInline[]): string {
+  return children
+    .map((child) => {
+      switch (child.type) {
+        case "text":
+        case "code":
+        case "htmlInline":
+          return child.value;
+        case "emphasis":
+        case "strong":
+        case "link":
+          return inlineText(child.children);
+        case "image":
+          return inlineText(child.alt);
+        case "xref":
+          return inlineText(child.children);
+        default:
+          return "";
+      }
+    })
+    .join("")
+    .trim();
+}
+
+function slugifyHeading(text: string): string {
+  return text
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/['".,()[\]`]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function resolveHeadingAnchor(heading: AssemblyHeading): string | null {
+  if (heading.identifier) {
+    return heading.identifier.replace(/^_+/u, "").replaceAll("_", "-");
+  }
+
+  const text = inlineText(heading.children);
+  if (text.length === 0) {
+    return null;
+  }
+
+  const anchor = slugifyHeading(text);
+  return anchor.length > 0 ? anchor : null;
+}
+
+function resolvePrimaryAnchor(document: AssemblyDocument): string | null {
+  const firstHeading = document.children.find(
+    (block): block is AssemblyHeading => block.type === "heading",
   );
-  if (pagePaths.length === 0) {
-    throw new Error(
-      `No pages were resolved from ${params.surface.navFile} for docs export.`,
+  if (!firstHeading) {
+    return null;
+  }
+  return resolveHeadingAnchor(firstHeading);
+}
+
+function resolveRepositoryPageLink(params: {
+  targetPath: string;
+  fragment?: string | undefined;
+}): string | null {
+  if (!params.targetPath.startsWith("ROOT:page$")) {
+    return null;
+  }
+
+  const htmlPath = params.targetPath
+    .slice("ROOT:page$".length)
+    .replace(/\.adoc$/u, ".html");
+  return params.fragment ? `${htmlPath}#${params.fragment}` : htmlPath;
+}
+
+function normalizeTargetPathToPagePath(targetPath: string): string | null {
+  if (targetPath.startsWith("ROOT:page$")) {
+    return path
+      .join(
+        "docs",
+        "modules",
+        "ROOT",
+        "pages",
+        targetPath.slice("ROOT:page$".length),
+      )
+      .replaceAll("\\", "/");
+  }
+
+  const moduleMatch = /^([^:]+):(.+)$/u.exec(targetPath);
+  if (!moduleMatch) {
+    return null;
+  }
+
+  const [, moduleName, relativePath] = moduleMatch;
+  if (!moduleName || !relativePath?.endsWith(".adoc")) {
+    return null;
+  }
+
+  return path
+    .join("docs", "modules", moduleName, "pages", relativePath)
+    .replaceAll("\\", "/");
+}
+
+function rewriteRenderedLinks(params: {
+  markdown: string;
+  xrefs: ReturnType<typeof collectMarkdownInspectionReport>["xrefs"];
+  currentSurface: DocsExportSurfaceName;
+  extension: string;
+  exportedPages: Map<
+    string,
+    {
+      surfaceName: DocsExportSurfaceName;
+      outputFile: string;
+      primaryAnchor: string | null;
+    }
+  >;
+}): string {
+  const replacements = new Map<string, string>();
+
+  for (const xref of params.xrefs) {
+    const exportedPage = params.exportedPages.get(
+      normalizeTargetPathToPagePath(xref.target.path) ?? xref.target.path,
+    );
+    if (exportedPage) {
+      const anchor = xref.target.fragment ?? exportedPage.primaryAnchor;
+      const resolvedLink =
+        exportedPage.surfaceName === params.currentSurface
+          ? anchor
+            ? `#${anchor}`
+            : "#"
+          : `${exportedPage.outputFile}${anchor ? `#${anchor}` : ""}`;
+
+      replacements.set(xref.target.raw, resolvedLink);
+      replacements.set(xref.url, resolvedLink);
+      continue;
+    }
+
+    const repositoryPageLink = resolveRepositoryPageLink({
+      targetPath: xref.target.path,
+      fragment: xref.target.fragment,
+    });
+    if (repositoryPageLink) {
+      replacements.set(xref.target.raw, repositoryPageLink);
+      replacements.set(xref.url, repositoryPageLink);
+    }
+  }
+
+  let rewritten = params.markdown;
+  for (const [sourceDestination, resolvedDestination] of replacements) {
+    rewritten = rewritten.replaceAll(
+      `](${sourceDestination})`,
+      `](${resolvedDestination})`,
     );
   }
 
-  const renderedPages = await withSuppressedExporterWarnings(async () => {
-    const pages: string[] = [];
+  return rewritten;
+}
 
-    for (const pagePath of pagePaths) {
-      const expanded = await expandIncludes({
-        workspaceRoot: params.workspaceRoot,
-        relativePath: pagePath,
-      });
-      pages.push(
-        normalizeRenderedPage(
-          await renderPageMarkdown(expanded, pagePath, params.format),
-        ),
-      );
+export function detectDocsExportLeaks(markdown: string): DocsExportLeak[] {
+  const leaks = new Map<string, DocsExportLeak>();
+
+  for (const match of markdown.matchAll(MARKDOWN_LINK_PATTERN)) {
+    const destination = match[1]?.trim();
+    if (!destination) {
+      continue;
     }
 
-    return pages;
+    let reason: DocsExportLeak["reason"] | null = null;
+    if (destination.startsWith("xref:")) {
+      reason = "raw_xref";
+    } else if (
+      destination.includes("ROOT:page$") ||
+      destination.includes("ROOT:partial$")
+    ) {
+      reason = "antora_family";
+    } else if (
+      /^(architecture|manual|onboarding):.+\.html(?:#.*)?$/u.test(destination)
+    ) {
+      reason = "module_qualified_html";
+    } else if (/\.adoc(?:#.*)?$/u.test(destination)) {
+      reason = "adoc_link";
+    }
+
+    if (reason) {
+      leaks.set(destination, { destination, reason });
+    }
+  }
+
+  return [...leaks.values()];
+}
+
+async function renderDocsPage(params: {
+  workspaceRoot: string;
+  pagePath: string;
+  surfaceName: DocsExportSurfaceName;
+  outputFile: string;
+  format: DocsExportFormat;
+}): Promise<DocsExportPageRecord> {
+  const absolutePagePath = path.join(params.workspaceRoot, params.pagePath);
+  const source = await expandIncludes({
+    workspaceRoot: params.workspaceRoot,
+    relativePath: params.pagePath,
   });
 
-  return {
-    content: `${renderedPages.join("\n\n")}\n`,
-    sourcePaths: pagePaths,
-  };
+  return withSuppressedExporterWarnings(async () => {
+    const structured = extractAssemblyStructure(source, {
+      sourcePath: absolutePagePath,
+      xrefFallbackLabelStyle: "fragment-or-basename",
+    });
+    const document = normalizeMarkdownIR(
+      convertAssemblyStructureToMarkdownIR(structured),
+    );
+    const inspection = collectMarkdownInspectionReport(document);
+
+    return {
+      surfaceName: params.surfaceName,
+      pagePath: params.pagePath,
+      outputFile: params.outputFile,
+      primaryAnchor: resolvePrimaryAnchor(structured),
+      renderedMarkdown: normalizeRenderedPage(
+        renderMarkdown(document, params.format),
+      ),
+      xrefs: inspection.xrefs,
+    };
+  });
 }
 
 export async function exportAntoraDocsToMarkdown(
@@ -353,22 +568,90 @@ export async function exportAntoraDocsToMarkdown(
 ): Promise<DocsExportArtifact[]> {
   const format = params.format ?? "multimarkdown";
   const extension = params.extension ?? resolveDocsExportExtension(format);
+  await resolveDocsPlaybookPath({
+    workspaceRoot: params.workspaceRoot,
+    playbookPath: params.playbookPath,
+  });
   await fs.mkdir(params.outputDir, { recursive: true });
 
-  const artifacts: DocsExportArtifact[] = [];
-
-  for (const surface of BUILTIN_DOC_SURFACES) {
-    const { content, sourcePaths } = await renderSurfaceDocument({
-      workspaceRoot: params.workspaceRoot,
-      surface,
-      format,
-    });
-    const outputFile = resolveOutputFileName({
+  const surfaceDefinitions = BUILTIN_DOC_SURFACES.map((surface) => ({
+    ...surface,
+    outputFile: resolveOutputFileName({
       surfaceName: surface.surfaceName,
       extension,
       filenamePrefix: params.filenamePrefix,
-    });
-    const outputPath = path.join(params.outputDir, outputFile);
+    }),
+  }));
+
+  const surfacePagePaths = new Map<DocsExportSurfaceName, string[]>();
+  for (const surface of surfaceDefinitions) {
+    const pagePaths = await collectSurfacePagePaths(
+      params.workspaceRoot,
+      surface,
+    );
+    if (pagePaths.length === 0) {
+      throw new Error(
+        `No pages were resolved from ${surface.navFile} for docs export.`,
+      );
+    }
+    surfacePagePaths.set(surface.surfaceName, pagePaths);
+  }
+
+  const renderedPages = await Promise.all(
+    surfaceDefinitions.flatMap((surface) =>
+      (surfacePagePaths.get(surface.surfaceName) ?? []).map((pagePath) =>
+        renderDocsPage({
+          workspaceRoot: params.workspaceRoot,
+          pagePath,
+          surfaceName: surface.surfaceName,
+          outputFile: surface.outputFile,
+          format,
+        }),
+      ),
+    ),
+  );
+
+  const exportedPages = new Map(
+    renderedPages.map((page) => [
+      page.pagePath,
+      {
+        surfaceName: page.surfaceName,
+        outputFile: page.outputFile,
+        primaryAnchor: page.primaryAnchor,
+      },
+    ]),
+  );
+
+  const artifacts: DocsExportArtifact[] = [];
+
+  for (const surface of surfaceDefinitions) {
+    const sourcePaths = surfacePagePaths.get(surface.surfaceName) ?? [];
+    const pages = renderedPages.filter(
+      (page) => page.surfaceName === surface.surfaceName,
+    );
+    const content = `${pages
+      .map((page) =>
+        rewriteRenderedLinks({
+          markdown: page.renderedMarkdown,
+          xrefs: page.xrefs,
+          currentSurface: surface.surfaceName,
+          extension,
+          exportedPages,
+        }),
+      )
+      .join("\n\n")}\n`;
+
+    const leaks = detectDocsExportLeaks(content);
+    if (leaks.length > 0) {
+      const details = leaks
+        .map((leak) => `${leak.reason}: ${leak.destination}`)
+        .join("; ");
+      throw new Error(
+        `Docs export for ${surface.surfaceName} produced source-flavored links: ${details}`,
+      );
+    }
+
+    const outputPath = path.join(params.outputDir, surface.outputFile);
     await fs.writeFile(outputPath, content, "utf8");
     const stat = await fs.stat(outputPath);
 
@@ -376,7 +659,7 @@ export async function exportAntoraDocsToMarkdown(
       surfaceName: surface.surfaceName,
       title: surface.title,
       moduleName: surface.moduleName,
-      outputFile,
+      outputFile: surface.outputFile,
       outputPath,
       relativeOutputPath: path
         .relative(params.outputDir, outputPath)
