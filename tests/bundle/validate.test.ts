@@ -9,7 +9,11 @@ import {
   loadManifestFromBundle,
   validateBundle,
 } from "../../src/bundle/validate.js";
-import { createProject, runQuietBundleCommand } from "./helpers.js";
+import {
+  createProject,
+  runQuietBundleCommand,
+  seedAntoraDocs,
+} from "./helpers.js";
 
 describe("bundle validation", () => {
   test("rejects bundles missing a manifest file", async () => {
@@ -95,6 +99,30 @@ describe("bundle validation", () => {
 
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
       `Bundle is missing asset ${assetPath}.`,
+    );
+  });
+
+  test("rejects missing derived review exports", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    const exportPath = manifest.derivedReviewExports?.[0]?.storedPath;
+    expect(exportPath).toBeDefined();
+    if (exportPath === undefined) {
+      throw new Error("Expected derived review export in manifest");
+    }
+
+    await fs.rm(path.join(project.bundleDir, exportPath));
+
+    await expect(validateBundle(project.bundleDir)).rejects.toThrow(
+      `Bundle is missing derived review export ${exportPath}.`,
     );
   });
 

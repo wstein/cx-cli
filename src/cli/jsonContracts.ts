@@ -99,6 +99,25 @@ export const BundleCommandJsonSchema = z.object({
   manifestName: z.string(),
   checksumFile: z.string(),
   handoverFile: z.string(),
+  derivedReviewExports: z.array(
+    z.object({
+      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+      title: z.string(),
+      moduleName: z.string(),
+      storedPath: z.string(),
+      sha256: z.string(),
+      sizeBytes: z.number().nonnegative(),
+      pageCount: z.number().int().nonnegative(),
+      sourcePaths: z.array(z.string()),
+      generator: z.object({
+        name: z.string(),
+        version: z.string(),
+        format: z.literal("multimarkdown"),
+        extension: z.literal(".mmd.md"),
+      }),
+      trustClassification: z.literal("derived_review_export"),
+    }),
+  ),
   sections: z.array(
     z.object({
       name: z.string(),

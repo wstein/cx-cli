@@ -113,6 +113,15 @@ export async function validateBundle(
     }
   }
 
+  for (const artifact of manifest.derivedReviewExports ?? []) {
+    if (!(await pathExistsFn(path.join(bundleDir, artifact.storedPath)))) {
+      throw new CxError(
+        `Bundle is missing derived review export ${artifact.storedPath}.`,
+        2,
+      );
+    }
+  }
+
   const checksumPath = path.join(bundleDir, manifest.checksumFile);
   if (!(await pathExistsFn(checksumPath))) {
     throw new CxError(

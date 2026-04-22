@@ -244,6 +244,17 @@ This note is linked from source code.
   };
 }
 
+export async function seedAntoraDocs(rootDir: string): Promise<void> {
+  await fs.mkdir(path.join(rootDir, "docs"), { recursive: true });
+  await fs.cp(
+    path.join(process.cwd(), "docs", "modules"),
+    path.join(rootDir, "docs", "modules"),
+    {
+      recursive: true,
+    },
+  );
+}
+
 export async function tamperSectionOutput(
   bundleDir: string,
   sectionName: string,

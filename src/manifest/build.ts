@@ -9,6 +9,7 @@ import { MANIFEST_SCHEMA_VERSION } from "./json.js";
 import type {
   CxManifest,
   CxSection,
+  DerivedReviewExportRecord,
   ManifestFileRow,
   ManifestTraceability,
   ManifestTrustModel,
@@ -43,6 +44,7 @@ export async function buildManifest(params: {
   modifiedFiles: string[];
   /** Repository notes metadata, if present. */
   notes?: NoteRecord[] | undefined;
+  derivedReviewExports?: DerivedReviewExportRecord[] | undefined;
 }): Promise<CxManifest> {
   const sections: CxSection[] = await Promise.all(
     params.sectionOutputs.map(async (sectionOutput) => {
@@ -185,6 +187,15 @@ export async function buildManifest(params: {
 
   if (params.notes !== undefined && params.notes.length > 0) {
     manifest.notes = params.notes;
+  }
+
+  if (
+    params.derivedReviewExports !== undefined &&
+    params.derivedReviewExports.length > 0
+  ) {
+    manifest.derivedReviewExports = [...params.derivedReviewExports].sort(
+      (left, right) => left.storedPath.localeCompare(right.storedPath, "en"),
+    );
   }
 
   return manifest;

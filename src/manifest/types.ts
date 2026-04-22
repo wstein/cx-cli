@@ -75,6 +75,24 @@ export interface NoteRecord {
   lastModified: string;
 }
 
+export interface DerivedReviewExportRecord {
+  surfaceName: "architecture" | "manual" | "onboarding";
+  title: string;
+  moduleName: string;
+  storedPath: string;
+  sha256: string;
+  sizeBytes: number;
+  pageCount: number;
+  sourcePaths: string[];
+  generator: {
+    name: string;
+    version: string;
+    format: "multimarkdown";
+    extension: ".mmd.md";
+  };
+  trustClassification: "derived_review_export";
+}
+
 export interface ManifestTrustModel {
   sourceTree: "trusted";
   notes: NoteTrustLevel;
@@ -104,7 +122,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 9;
+  schemaVersion: 10;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
@@ -157,4 +175,6 @@ export interface CxManifest {
   files: ManifestFileRow[];
   /** Repository notes metadata, if notes were present during bundling. */
   notes?: NoteRecord[];
+  /** Derived docs exports for review workflows. */
+  derivedReviewExports?: DerivedReviewExportRecord[];
 }

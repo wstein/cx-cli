@@ -20,6 +20,7 @@ import {
   runQuietBundleCommand,
   runQuietValidateCommand,
   runQuietVerifyCommand,
+  seedAntoraDocs,
   tamperSectionOutput,
 } from "./helpers.js";
 
@@ -132,6 +133,55 @@ describe("bundle workflow", () => {
     expect(
       await fs.stat(path.join(project.bundleDir, "demo.sha256")),
     ).toBeDefined();
+  });
+
+  test("adds derived docs review exports when --include-doc-exports is enabled", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    const capture = createBufferedCommandIo({ cwd: project.root });
+
+    await expect(
+      runBundleCommand(
+        {
+          config: project.configPath,
+          json: true,
+          includeDocExports: true,
+        },
+        capture.io,
+      ),
+    ).resolves.toBe(0);
+
+    const payload = parseJsonOutput<{
+      derivedReviewExports?: Array<{
+        surfaceName?: string;
+        storedPath?: string;
+      }>;
+    }>(capture.stdout());
+    expect(payload.derivedReviewExports).toHaveLength(3);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    expect(manifest.derivedReviewExports).toHaveLength(3);
+    expect(
+      manifest.derivedReviewExports?.map((artifact) => artifact.storedPath),
+    ).toEqual([
+      "demo-docs-exports/architecture.mmd.md",
+      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/onboarding.mmd.md",
+    ]);
+
+    for (const artifact of manifest.derivedReviewExports ?? []) {
+      expect(
+        await fs.stat(path.join(project.bundleDir, artifact.storedPath)),
+      ).toBeDefined();
+    }
+
+    const checksum = await fs.readFile(
+      path.join(project.bundleDir, manifest.checksumFile),
+      "utf8",
+    );
+    expect(checksum).toContain("demo-docs-exports/architecture.mmd.md");
+    expect(checksum).toContain("demo-docs-exports/manual.mmd.md");
+    expect(checksum).toContain("demo-docs-exports/onboarding.mmd.md");
   });
 
   test("emits structured JSON for list and inspect automation", async () => {
@@ -537,6 +587,35 @@ describe("bundle workflow", () => {
     await expect(fs.stat(orphanedAssetPath)).rejects.toThrow();
     const preservedAfter = await sha256File(preservedSectionPath);
     expect(preservedAfter).toBe(preservedBefore);
+  });
+
+  test("--update prunes orphaned derived docs review exports", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const orphanedExportPath = path.join(
+      project.bundleDir,
+      "demo-docs-exports",
+      "obsolete.mmd.md",
+    );
+    await fs.writeFile(orphanedExportPath, "# obsolete\n", "utf8");
+    expect(await fs.stat(orphanedExportPath)).toBeDefined();
+
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+        update: true,
+      }),
+    ).toBe(0);
+
+    await expect(fs.stat(orphanedExportPath)).rejects.toThrow();
   });
 
   test("--update refuses to prune non-bundle directories", async () => {

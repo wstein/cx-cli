@@ -54,7 +54,7 @@ export async function runDocsCommand(
     projectName: config.projectName,
   });
   const exports = await exportAntoraDocsToMarkdown({
-    workspaceRoot: io.cwd,
+    workspaceRoot: config.sourceRoot,
     outputDir,
   });
   const totalBytes = exports.reduce(

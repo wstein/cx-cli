@@ -90,6 +90,12 @@ describe("manifest JSON parsing and rendering", () => {
       expect(parsed.handoverFile).toBeUndefined();
     });
 
+    it("omits derivedReviewExports when absent", () => {
+      const json = renderManifestJson(VALID_MINIMAL_MANIFEST);
+      const parsed = JSON.parse(json);
+      expect(parsed.derivedReviewExports).toBeUndefined();
+    });
+
     it("includes notes array when present", () => {
       const manifestWithNotes = {
         ...VALID_MINIMAL_MANIFEST,
@@ -112,6 +118,36 @@ describe("manifest JSON parsing and rendering", () => {
       const json = renderManifestJson(manifestWithNotes);
       expect(json).toContain("notes");
       expect(json).toContain("Test Note");
+    });
+
+    it("includes derived review exports when present", () => {
+      const manifestWithDerivedExports: CxManifest = {
+        ...VALID_MINIMAL_MANIFEST,
+        derivedReviewExports: [
+          {
+            surfaceName: "onboarding",
+            title: "Onboarding",
+            moduleName: "onboarding",
+            storedPath: "test-docs-exports/onboarding.mmd.md",
+            sha256:
+              "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            sizeBytes: 256,
+            pageCount: 4,
+            sourcePaths: ["docs/modules/onboarding/pages/index.adoc"],
+            generator: {
+              name: "@wsmy/antora-markdown-exporter",
+              version: "0.7.0",
+              format: "multimarkdown",
+              extension: ".mmd.md",
+            },
+            trustClassification: "derived_review_export",
+          },
+        ],
+      };
+
+      const json = renderManifestJson(manifestWithDerivedExports);
+      expect(json).toContain("derivedReviewExports");
+      expect(json).toContain("onboarding.mmd.md");
     });
 
     it("produces valid JSON that can be parsed", () => {

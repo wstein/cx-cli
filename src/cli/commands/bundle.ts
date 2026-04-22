@@ -5,6 +5,10 @@ import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout, CxStyle } from "../../config/types.js";
+import {
+  DOCS_EXPORT_GENERATOR,
+  exportAntoraDocsToMarkdown,
+} from "../../docs/export.js";
 import type { ScannerPipeline } from "../../doctor/scanner.js";
 import { loadReferenceScannerPipeline } from "../../doctor/scanner.js";
 import { buildManifest } from "../../manifest/build.js";
@@ -16,6 +20,7 @@ import {
   writeLock,
 } from "../../manifest/lock.js";
 import type {
+  DerivedReviewExportRecord,
   SectionHashMaps,
   SectionSpanMaps,
   SectionTokenMaps,
@@ -88,6 +93,7 @@ export interface BundleArgs {
    * beyond standard stderr warnings.
    */
   ci?: boolean | undefined;
+  includeDocExports?: boolean | undefined;
 }
 
 interface RenderedSectionArtifacts {
@@ -350,12 +356,14 @@ async function collectScannerArtifactFiles(params: {
   sectionOutputFiles: string[];
   handoverFile: string;
   manifestName: string;
+  derivedReviewExportFiles?: string[] | undefined;
   readFile: typeof fs.readFile;
 }): Promise<Array<{ path: string; content: string }>> {
   const artifactPaths = [
     ...params.sectionOutputFiles,
     params.handoverFile,
     params.manifestName,
+    ...(params.derivedReviewExportFiles ?? []),
   ];
 
   return Promise.all(
@@ -367,6 +375,10 @@ async function collectScannerArtifactFiles(params: {
       ),
     })),
   );
+}
+
+function docsExportDirectoryName(projectName: string): string {
+  return `${projectName}-docs-exports`;
 }
 
 export async function collectSharedHandoverRepoHistory(params: {
@@ -785,6 +797,35 @@ export async function runBundleCommand(
           }))
         : undefined;
 
+    const derivedReviewExports: DerivedReviewExportRecord[] | undefined =
+      args.includeDocExports === true
+        ? (
+            await exportAntoraDocsToMarkdown({
+              workspaceRoot: plan.sourceRoot,
+              outputDir: path.join(
+                activeBundleDir,
+                docsExportDirectoryName(plan.projectName),
+              ),
+            })
+          ).map((artifact) => ({
+            surfaceName: artifact.surfaceName,
+            title: artifact.title,
+            moduleName: artifact.moduleName,
+            storedPath: path
+              .join(
+                docsExportDirectoryName(plan.projectName),
+                artifact.outputFile,
+              )
+              .replaceAll("\\", "/"),
+            sha256: artifact.sha256,
+            sizeBytes: artifact.sizeBytes,
+            pageCount: artifact.pageCount,
+            sourcePaths: [...artifact.sourcePaths],
+            generator: { ...DOCS_EXPORT_GENERATOR },
+            trustClassification: "derived_review_export",
+          }))
+        : undefined;
+
     const manifest = await buildManifest({
       config,
       plan,
@@ -798,6 +839,7 @@ export async function runBundleCommand(
       dirtyState: effectiveDirtyState,
       modifiedFiles: effectiveModifiedFiles,
       notes: notesRecords,
+      derivedReviewExports,
     });
     const manifestName = `${plan.projectName}-manifest.json`;
     await fs.writeFile(
@@ -818,6 +860,9 @@ export async function runBundleCommand(
             ),
             handoverFile,
             manifestName,
+            derivedReviewExportFiles: derivedReviewExports?.map(
+              (artifact) => artifact.storedPath,
+            ),
             readFile: deps.readFile ?? fs.readFile,
           }),
           scannerPipeline: deps.scannerPipeline,
@@ -862,6 +907,7 @@ export async function runBundleCommand(
       handoverFile,
       ...plan.sections.map((section) => section.outputFile),
       ...plan.assets.map((asset) => asset.storedPath),
+      ...(derivedReviewExports?.map((artifact) => artifact.storedPath) ?? []),
       plan.checksumFile,
     ];
 
@@ -871,6 +917,7 @@ export async function runBundleCommand(
       handoverFile,
       ...plan.sections.map((section) => section.outputFile),
       ...plan.assets.map((asset) => asset.storedPath),
+      ...(derivedReviewExports?.map((artifact) => artifact.storedPath) ?? []),
     ]);
 
     await validateBundle(activeBundleDir);
@@ -911,6 +958,7 @@ export async function runBundleCommand(
           ["Project", plan.projectName],
           ["Location", plan.bundleDir],
           ["Shared handover", handoverFile],
+          ["Docs review exports", derivedReviewExports?.length ?? 0],
         ],
         io,
       );
@@ -994,6 +1042,7 @@ export async function runBundleCommand(
           sections: sectionOutputs,
           sectionCount: plan.sections.length,
           assetCount: plan.assets.length,
+          derivedReviewExports: derivedReviewExports ?? [],
           unmatchedCount: plan.unmatchedFiles.length,
           dirtyState: effectiveDirtyState,
           dirtyStateNote,

@@ -152,6 +152,7 @@ verification, and live MCP work.
 cx init --name demo
 cx docs export
 cx inspect --token-breakdown
+cx bundle --include-doc-exports
 cx bundle --config cx.toml
 cx mcp
 cx doctor mcp --config cx.toml
@@ -222,6 +223,12 @@ addition to workspace file browsing.
 `.mmd.md` review artifacts so operators and downstream LLM workflows can
 inspect the final documentation content directly instead of inferring it
 from source AsciiDoc files alone.
+
+`cx bundle --include-doc-exports` reuses that same export path and stages
+the generated docs under `{project}-docs-exports/` inside the bundle. The
+bundle manifest records those files in `derivedReviewExports` so they are
+discoverable, checksum-covered, and still clearly labeled as derived
+review material rather than proof-path section outputs.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP
 tool contract. It exposes the registered tool set with stable `name`,

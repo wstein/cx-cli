@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { sha256File } from "../shared/hashing.js";
 
@@ -30,6 +31,19 @@ interface DocsExportSurfaceSpec {
   moduleName: string;
   navFile: string;
 }
+
+const require = createRequire(import.meta.url);
+const exporterPackage =
+  require("@wsmy/antora-markdown-exporter/package.json") as {
+    version: string;
+  };
+
+export const DOCS_EXPORT_GENERATOR = {
+  name: "@wsmy/antora-markdown-exporter",
+  version: exporterPackage.version,
+  format: "multimarkdown",
+  extension: ".mmd.md",
+} as const;
 
 const BUILTIN_DOC_SURFACES: DocsExportSurfaceSpec[] = [
   {

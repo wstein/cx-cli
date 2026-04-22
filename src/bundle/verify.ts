@@ -405,6 +405,8 @@ export async function verifyBundle(
     ...(manifest.handoverFile ? [manifest.handoverFile] : []),
     ...selectedSections.map((section) => section.outputFile),
     ...selectedAssets.map((asset) => asset.storedPath),
+    ...(manifest.derivedReviewExports?.map((artifact) => artifact.storedPath) ??
+      []),
     // Include the lock file only when present — older bundles do not have one.
     ...(listedFiles.has(lock) ? [lock] : []),
   ]);

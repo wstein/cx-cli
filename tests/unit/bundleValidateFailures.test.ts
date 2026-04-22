@@ -10,7 +10,7 @@ const HASH_B = "b".repeat(64);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 9,
+    schemaVersion: 10,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",

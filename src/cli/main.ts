@@ -374,6 +374,10 @@ export async function main(
             "$0 bundle --config cx.toml --ci",
             "Pipeline mode: bypass unsafe-dirty check and record ci_dirty in the manifest.",
           )
+          .example(
+            "$0 bundle --config cx.toml --include-doc-exports",
+            "Add derived MultiMarkdown docs review exports alongside the bundle artifacts.",
+          )
           .option("config", { type: "string", default: "cx.toml" })
           .option("json", { type: "boolean", default: false })
           .option("update", {
@@ -398,6 +402,12 @@ export async function main(
             choices: ["flat", "deep"] as const,
             description:
               'Override assets.layout for this run ("flat" or "deep"). Takes precedence over CX_ASSETS_LAYOUT and cx.toml.',
+          })
+          .option("include-doc-exports", {
+            type: "boolean",
+            default: false,
+            description:
+              "Write derived Antora MultiMarkdown review exports into the bundle and record them in manifest metadata.",
           }),
       async (args) => {
         exitCode = await runBundleCommand(
@@ -408,6 +418,7 @@ export async function main(
             update: args.update,
             force: args.force,
             ci: args.ci,
+            includeDocExports: args["include-doc-exports"],
           },
           io,
         );

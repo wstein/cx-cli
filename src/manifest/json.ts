@@ -8,6 +8,7 @@ import type {
   AssetRecord,
   CxManifest,
   CxSection,
+  DerivedReviewExportRecord,
   ManifestFileRow,
   ManifestSettings,
   ManifestTraceability,
@@ -16,7 +17,7 @@ import type {
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 9 as const;
+export const MANIFEST_SCHEMA_VERSION = 10 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -25,7 +26,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v9.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v10.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -53,6 +54,7 @@ interface ManifestDto {
   traceability: ManifestTraceability;
   sections: SectionDto[];
   assets: AssetRecord[];
+  derivedReviewExports?: DerivedReviewExportRecord[];
   notes: Array<{
     id: string;
     title: string;
@@ -262,6 +264,73 @@ function parseNoteDto(
   };
 }
 
+function parseDerivedReviewExportDto(
+  raw: unknown,
+  index: number,
+): DerivedReviewExportRecord {
+  const obj = requireObject(raw, `derivedReviewExport[${index}]`);
+  const generator = requireObject(
+    obj.generator,
+    `derivedReviewExport[${index}].generator`,
+  );
+
+  return {
+    surfaceName: requireString(
+      obj.surfaceName,
+      `derivedReviewExport[${index}].surfaceName`,
+    ) as DerivedReviewExportRecord["surfaceName"],
+    title: requireString(obj.title, `derivedReviewExport[${index}].title`),
+    moduleName: requireString(
+      obj.moduleName,
+      `derivedReviewExport[${index}].moduleName`,
+    ),
+    storedPath: requireString(
+      obj.storedPath,
+      `derivedReviewExport[${index}].storedPath`,
+    ),
+    sha256: requireString(obj.sha256, `derivedReviewExport[${index}].sha256`),
+    sizeBytes: requireNumber(
+      obj.sizeBytes,
+      `derivedReviewExport[${index}].sizeBytes`,
+    ),
+    pageCount: requireNumber(
+      obj.pageCount,
+      `derivedReviewExport[${index}].pageCount`,
+    ),
+    sourcePaths: requireArray(
+      obj.sourcePaths,
+      `derivedReviewExport[${index}].sourcePaths`,
+    ).map((value, sourceIndex) =>
+      requireString(
+        value,
+        `derivedReviewExport[${index}].sourcePaths[${sourceIndex}]`,
+      ),
+    ),
+    generator: {
+      name: requireString(
+        generator.name,
+        `derivedReviewExport[${index}].generator.name`,
+      ),
+      version: requireString(
+        generator.version,
+        `derivedReviewExport[${index}].generator.version`,
+      ),
+      format: requireString(
+        generator.format,
+        `derivedReviewExport[${index}].generator.format`,
+      ) as "multimarkdown",
+      extension: requireString(
+        generator.extension,
+        `derivedReviewExport[${index}].generator.extension`,
+      ) as ".mmd.md",
+    },
+    trustClassification: requireString(
+      obj.trustClassification,
+      `derivedReviewExport[${index}].trustClassification`,
+    ) as "derived_review_export",
+  };
+}
+
 function parseTraceabilityDto(raw: unknown): ManifestTraceability {
   const obj = requireObject(raw, "traceability");
   const bundleRaw = requireObject(obj.bundle, "traceability.bundle");
@@ -322,6 +391,10 @@ function parseManifestDto(raw: unknown): {
   const traceability = parseTraceabilityDto(obj.traceability);
   const sectionsRaw = requireArray(obj.sections, "sections");
   const assetsRaw = requireArray(obj.assets ?? [], "assets");
+  const derivedReviewExportsRaw =
+    obj.derivedReviewExports === undefined
+      ? []
+      : requireArray(obj.derivedReviewExports, "derivedReviewExports");
   const notesRaw =
     obj.notes === undefined ? [] : requireArray(obj.notes, "notes");
 
@@ -409,6 +482,9 @@ function parseManifestDto(raw: unknown): {
     traceability,
     sections,
     assets: assetsRaw.map((asset, index) => parseAssetDto(asset, index)),
+    derivedReviewExports: derivedReviewExportsRaw.map((artifact, index) =>
+      parseDerivedReviewExportDto(artifact, index),
+    ),
     notes: notesRaw.map((note, index) => parseNoteDto(note, index)),
   };
 
@@ -473,6 +549,9 @@ export function renderManifestJson(
         ? { provenance: asset.provenance }
         : {}),
     })),
+    ...(manifest.derivedReviewExports !== undefined
+      ? { derivedReviewExports: manifest.derivedReviewExports }
+      : {}),
     ...(manifest.notes !== undefined ? { notes: manifest.notes } : {}),
     ...(manifest.handoverFile !== undefined
       ? { handoverFile: manifest.handoverFile }
@@ -545,6 +624,10 @@ export function parseManifestJson(source: string): CxManifest {
     traceability: dto.traceability,
     sections,
     assets: dto.assets,
+    ...(dto.derivedReviewExports !== undefined &&
+    dto.derivedReviewExports.length > 0
+      ? { derivedReviewExports: dto.derivedReviewExports }
+      : {}),
     ...(dto.notes.length > 0 ? { notes: dto.notes } : {}),
     files: [...textRows, ...assetRows].sort((left, right) =>
       left.path.localeCompare(right.path, "en"),

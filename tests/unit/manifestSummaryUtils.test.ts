@@ -10,7 +10,7 @@ import {
 // Helper to create test manifest
 function createTestManifest(): CxManifest {
   return {
-    schemaVersion: 9,
+    schemaVersion: 10,
     bundleVersion: 1,
     projectName: "test-project",
     sourceRoot: ".",
