@@ -57,6 +57,51 @@ This linked note stays visible through inspect provenance for governance-safe co
 }
 
 describe("CLI JSON contract", () => {
+  test("docs export --json returns structured export metadata", async () => {
+    const outputDir = await fs.mkdtemp(
+      path.join(process.cwd(), "tmp-docs-json-"),
+    );
+    workspaceRoots.push(outputDir);
+
+    const result = await captureCli({
+      run: () => main(["docs", "export", "--output-dir", outputDir, "--json"]),
+    });
+    expect(result.exitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      command?: string;
+      exportCount?: number;
+      totalPages?: number;
+      exports?: Array<{
+        surfaceName?: string;
+        outputFile?: string;
+        pageCount?: number;
+      }>;
+    }>(result.stdout);
+    expect(payload.command).toBe("docs export");
+    expect(payload.exportCount).toBe(3);
+    expect(payload.totalPages).toBeGreaterThan(0);
+    expect(payload.exports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          surfaceName: "onboarding",
+          outputFile: "onboarding.mmd.md",
+        }),
+        expect.objectContaining({
+          surfaceName: "manual",
+          outputFile: "manual.mmd.md",
+        }),
+        expect.objectContaining({
+          surfaceName: "architecture",
+          outputFile: "architecture.mmd.md",
+        }),
+      ]),
+    );
+    for (const artifact of payload.exports ?? []) {
+      expect(artifact.pageCount).toBeGreaterThan(0);
+    }
+  });
+
   test("inspect --json returns structured payload", async () => {
     const project = await createProject();
     const result = await captureCli({

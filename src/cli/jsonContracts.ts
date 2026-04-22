@@ -126,6 +126,29 @@ export const BundleCommandJsonSchema = z.object({
   warnings: z.array(z.string()),
 });
 
+export const DocsExportCommandJsonSchema = z.object({
+  command: z.literal("docs export"),
+  projectName: z.string(),
+  outputDir: z.string(),
+  exportCount: z.number().int().nonnegative(),
+  totalBytes: z.number().nonnegative(),
+  totalPages: z.number().int().nonnegative(),
+  exports: z.array(
+    z.object({
+      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+      title: z.string(),
+      moduleName: z.string(),
+      outputFile: z.string(),
+      outputPath: z.string(),
+      relativeOutputPath: z.string(),
+      pageCount: z.number().int().nonnegative(),
+      sourcePaths: z.array(z.string()),
+      sha256: z.string(),
+      sizeBytes: z.number().nonnegative(),
+    }),
+  ),
+});
+
 export const ListCommandJsonSchema = z.object({
   summary: ManifestSummarySchema,
   settings: z.record(z.string(), z.unknown()),

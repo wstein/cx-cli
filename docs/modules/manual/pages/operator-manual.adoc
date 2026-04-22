@@ -33,6 +33,7 @@ Use the smallest operator sequence that matches the job:
 
 * Live workspace path: `cx mcp`
 * Durable cognition path: `cx notes`
+* Curated docs review path: `cx docs export`
 * Native proof path: `cx inspect`, `cx bundle`, `cx validate`,
 `cx verify`, `cx extract`
 * Recovery or audit: `cx list`, `cx audit`, `cx doctor`
@@ -149,6 +150,7 @@ verification, and live MCP work.
 [source,bash]
 ----
 cx init --name demo
+cx docs export
 cx inspect --token-breakdown
 cx bundle --config cx.toml
 cx mcp
@@ -215,6 +217,11 @@ missing, `cx` falls back to the baseline `cx.toml` configuration. The
 MCP surface now includes live bundle planning plus note reading, search,
 creation, update, rename, delete, and note-graph inspection tools in
 addition to workspace file browsing.
+
+`cx docs export` writes the curated Antora surfaces into deterministic
+`.mmd.md` review artifacts so operators and downstream LLM workflows can
+inspect the final documentation content directly instead of inferring it
+from source AsciiDoc files alone.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP
 tool contract. It exposes the registered tool set with stable `name`,

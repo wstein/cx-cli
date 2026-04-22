@@ -17,6 +17,7 @@ import { runAdapterCommand } from "./commands/adapter.js";
 import { runAuditCommand } from "./commands/audit.js";
 import { runBundleCommand } from "./commands/bundle.js";
 import { runConfigCommand } from "./commands/config.js";
+import { runDocsCommand } from "./commands/docs.js";
 import { runDoctorCommand } from "./commands/doctor.js";
 import { runExtractCommand } from "./commands/extract.js";
 import { runInitCommand } from "./commands/init.js";
@@ -637,6 +638,43 @@ export async function main(
             allSections: args["all-sections"],
             style: args.style,
             stdout: args.stdout,
+            outputDir: args["output-dir"],
+            json: args.json,
+          },
+          io,
+        );
+      },
+    )
+    .command(
+      "docs <subcommand>",
+      "Export curated Antora docs into reviewable MultiMarkdown artifacts.",
+      (command) =>
+        command
+          .example(
+            "$0 docs export",
+            "Export the curated docs surfaces into dist/<project>-docs-exports.",
+          )
+          .example(
+            "$0 docs export --output-dir tmp/docs-review --json",
+            "Write docs exports to a specific directory and print machine-readable metadata.",
+          )
+          .positional("subcommand", {
+            type: "string",
+            choices: ["export"] as const,
+            demandOption: true,
+          })
+          .option("config", { type: "string", default: "cx.toml" })
+          .option("output-dir", {
+            type: "string",
+            description:
+              "Directory where .mmd.md exports should be written. Defaults to dist/<project>-docs-exports.",
+          })
+          .option("json", { type: "boolean", default: false }),
+      async (args) => {
+        exitCode = await runDocsCommand(
+          {
+            subcommand: "export",
+            config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             outputDir: args["output-dir"],
             json: args.json,
           },
