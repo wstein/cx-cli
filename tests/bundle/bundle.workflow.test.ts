@@ -175,6 +175,17 @@ describe("bundle workflow", () => {
       ).toBeDefined();
     }
 
+    const onboardingExport = await fs.readFile(
+      path.join(project.bundleDir, "demo-docs-exports", "onboarding.mmd.txt"),
+      "utf8",
+    );
+    expect(onboardingExport).toContain("(manual.mmd.txt#release-checklist)");
+    expect(onboardingExport).toContain(
+      "(repository/docs/governance.html#mcp-tool-stability)",
+    );
+    expect(onboardingExport).not.toContain("ROOT:page$");
+    expect(onboardingExport).not.toContain("manual:release-and-integrity.html");
+
     const checksum = await fs.readFile(
       path.join(project.bundleDir, manifest.checksumFile),
       "utf8",
