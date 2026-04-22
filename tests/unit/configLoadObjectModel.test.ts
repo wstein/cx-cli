@@ -85,7 +85,7 @@ describe("loadCxConfig object model", () => {
             includeTags: ["architecture"],
             excludeTags: ["draft"],
             requiredNotes: ["Render Kernel Constitution"],
-            includeTargets: ["current", "v0.4"],
+            includeTargets: ["current", "v0.5"],
             sectionOrder: ["constraints", "solution-strategy"],
             sectionTags: {
               constraints: ["contract"],
@@ -117,7 +117,7 @@ describe("loadCxConfig object model", () => {
       includeTags: ["architecture"],
       excludeTags: ["draft"],
       requiredNotes: ["Render Kernel Constitution"],
-      includeTargets: ["current", "v0.4"],
+      includeTargets: ["current", "v0.5"],
       sectionOrder: ["constraints", "solution-strategy"],
       sectionTags: {
         constraints: ["contract"],

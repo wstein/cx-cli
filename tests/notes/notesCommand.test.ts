@@ -65,7 +65,7 @@ function llmNote(params: {
   fileName: string;
   title: string;
   tags: string[];
-  target: "current" | "v0.4" | "backlog";
+  target: "current" | "v0.4" | "v0.5" | "backlog";
   summary: string;
 }): Promise<void> {
   return fs.writeFile(

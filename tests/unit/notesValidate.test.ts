@@ -112,8 +112,28 @@ This note has a real summary paragraph now.
 
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.error).toContain(
-      "target must be one of current, v0.4, or backlog",
+      "target must be one of current, v0.4, v0.5, or backlog",
     );
+  });
+
+  test("accepts v0.5 as a planned note target", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "v0-5-note.md",
+        `---
+id: 20250113143015
+aliases: []
+tags: ["planning"]
+target: v0.5
+---
+
+This note is planned for the v0.5 line and remains reviewable.
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(true);
+    expect(result.notes[0]?.target).toBe("v0.5");
   });
 
   test("trims whitespace-only aliases", () => {

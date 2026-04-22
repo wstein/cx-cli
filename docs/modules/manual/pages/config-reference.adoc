@@ -306,7 +306,7 @@ bundle.
 |`required++_++notes` |`++[]++` |Note ids, titles, or aliases that must
 be present in the bundle.
 
-|`include++_++targets` |`++[++"current", "v0.4"++]++` |Note target states
+|`include++_++targets` |`++[++"current", "v0.5"++]++` |Note target states
 that are eligible for inclusion.
 
 |`section++_++order` |— |Deterministic section order for the emitted
@@ -338,7 +338,7 @@ target_paths = ["docs/modules/architecture/pages/index.adoc"]
 include_tags = []
 exclude_tags = []
 required_notes = []
-include_targets = ["current", "v0.4"]
+include_targets = ["current", "v0.5"]
 section_order = [
   "introduction-and-goals",
   "constraints",

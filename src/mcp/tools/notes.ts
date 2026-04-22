@@ -141,13 +141,13 @@ export function registerNotesTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: (args.tags as string[] | undefined) ?? [],
-        target: typeof args.target === "string" ? args.target : "v0.4",
+        target: typeof args.target === "string" ? args.target : "v0.5",
         availability:
           typeof args.target === "string"
             ? describeNoteTarget(
                 args.target as (typeof NOTE_TARGET_VALUES)[number],
               )
-            : describeNoteTarget("v0.4"),
+            : describeNoteTarget("v0.5"),
       });
     },
   );

@@ -15,7 +15,7 @@ function noteContent(params: {
   id: string;
   title: string;
   tags: string[];
-  target: "current" | "v0.4" | "backlog";
+  target: "current" | "v0.4" | "v0.5" | "backlog";
   summary: string;
   what: string;
   why: string;
@@ -85,7 +85,7 @@ describe("notes extract render contract", () => {
         id: "20260421130100",
         title: "Friday To Monday Workflow Contract",
         tags: ["workflow", "manual", "operator"],
-        target: "v0.4",
+        target: "v0.5",
         summary:
           "The Friday-to-Monday workflow records how operators hand off repository context safely between sessions without degrading proof-path trust.",
         what: "The workflow captures how repository context travels through notes, bundles, and reviewable documentation surfaces.",

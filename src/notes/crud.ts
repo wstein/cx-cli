@@ -12,8 +12,10 @@ function noteTargetPriority(target: NoteTarget): number {
       return 0;
     case "v0.4":
       return 1;
-    case "backlog":
+    case "v0.5":
       return 2;
+    case "backlog":
+      return 3;
   }
 }
 
@@ -23,6 +25,8 @@ export function describeNoteTarget(target: NoteTarget): string {
       return "implemented and trusted";
     case "v0.4":
       return "planned for v0.4 and not yet implemented";
+    case "v0.5":
+      return "planned for v0.5 and not yet implemented";
     case "backlog":
       return "future idea and not scheduled";
   }
@@ -64,7 +68,7 @@ function renderNewNote(
   title: string,
   tags: string[] = [],
   body?: string | undefined,
-  target: NoteTarget = "v0.4",
+  target: NoteTarget = "v0.5",
 ): string {
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const noteBody =
@@ -319,7 +323,7 @@ export async function createNewNote(
     title,
     options?.tags,
     options?.body,
-    options?.target ?? "v0.4",
+    options?.target ?? "v0.5",
   );
   assertRenderedNoteValid(filePath, content);
   await fs.writeFile(filePath, content, "utf-8");
@@ -329,7 +333,7 @@ export async function createNewNote(
     filePath,
     title,
     tags: options?.tags ?? [],
-    target: options?.target ?? "v0.4",
+    target: options?.target ?? "v0.5",
   };
 }
 

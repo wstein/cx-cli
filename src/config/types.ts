@@ -137,7 +137,7 @@ export interface CxNotesExtractProfileConfig {
   includeTags: string[];
   excludeTags: string[];
   requiredNotes: string[];
-  includeTargets: Array<"current" | "v0.4" | "backlog">;
+  includeTargets: Array<"current" | "v0.4" | "v0.5" | "backlog">;
   sectionOrder: string[];
   sectionTags: Record<string, string[]>;
   llm: CxNotesExtractLlmConfig;

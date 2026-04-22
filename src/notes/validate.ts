@@ -20,7 +20,12 @@ export interface NoteFrontmatter {
   title?: string;
 }
 
-export const NOTE_TARGET_VALUES = ["current", "v0.4", "backlog"] as const;
+export const NOTE_TARGET_VALUES = [
+  "current",
+  "v0.4",
+  "v0.5",
+  "backlog",
+] as const;
 export type NoteTarget = (typeof NOTE_TARGET_VALUES)[number];
 
 export function isNoteTarget(value: unknown): value is NoteTarget {
@@ -145,7 +150,7 @@ function parseNoteDocument(
         error: {
           filePath,
           error:
-            "Missing required frontmatter field: target (current | v0.4 | backlog)",
+            "Missing required frontmatter field: target (current | v0.4 | v0.5 | backlog)",
         },
       };
     }
@@ -156,7 +161,7 @@ function parseNoteDocument(
         error: {
           filePath,
           error:
-            "Invalid frontmatter field: target must be one of current, v0.4, or backlog",
+            "Invalid frontmatter field: target must be one of current, v0.4, v0.5, or backlog",
         },
       };
     }

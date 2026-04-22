@@ -66,9 +66,10 @@ const VALID_NOTES_DOCUMENT_FORMATS = new Set<CxNotesDocumentFormat>([
   "markdown",
   "plain",
 ]);
-const VALID_NOTE_TARGETS = new Set<"current" | "v0.4" | "backlog">([
+const VALID_NOTE_TARGETS = new Set<"current" | "v0.4" | "v0.5" | "backlog">([
   "current",
   "v0.4",
+  "v0.5",
   "backlog",
 ]);
 
@@ -472,11 +473,13 @@ function parseNotesProfiles(
     const includeTargetsRaw = expectStringArray(
       rawProfile.include_targets,
       `notes.profiles.${profileName}.include_targets`,
-      ["current", "v0.4"],
+      ["current", "v0.5"],
     );
     const invalidTargets = includeTargetsRaw.filter(
       (target) =>
-        !VALID_NOTE_TARGETS.has(target as "current" | "v0.4" | "backlog"),
+        !VALID_NOTE_TARGETS.has(
+          target as "current" | "v0.4" | "v0.5" | "backlog",
+        ),
     );
     if (invalidTargets.length > 0) {
       throw new CxError(
@@ -515,7 +518,7 @@ function parseNotesProfiles(
         [],
       ),
       includeTargets: includeTargetsRaw as Array<
-        "current" | "v0.4" | "backlog"
+        "current" | "v0.4" | "v0.5" | "backlog"
       >,
       sectionOrder: expectStringArray(
         rawProfile.section_order,

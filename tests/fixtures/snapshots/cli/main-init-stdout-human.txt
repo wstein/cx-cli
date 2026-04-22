@@ -56,7 +56,7 @@ fail_on_drift_pressured_notes = false
 # include_tags = []
 # exclude_tags = []
 # required_notes = []
-# include_targets = ["current", "v0.4"]
+# include_targets = ["current", "v0.5"]
 # section_order = ["introduction-and-goals", "constraints", "solution-strategy", "building-block-view", "runtime-view", "cross-cutting-concepts", "quality-scenarios", "risks-and-technical-debt", "reference-notes"]
 #
 # [notes.profiles.arc42.section_tags]

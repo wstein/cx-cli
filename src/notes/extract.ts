@@ -86,7 +86,8 @@ export interface CompileNotesExtractBundleOptions {
 const TARGET_PRIORITY: Record<NoteTarget, number> = {
   current: 0,
   "v0.4": 1,
-  backlog: 2,
+  "v0.5": 2,
+  backlog: 3,
 };
 
 const SECTION_TITLE_ALIASES: Record<string, string> = {
@@ -264,7 +265,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Render Kernel Constitution"],
-      includeTargets: ["current", "v0.4"],
+      includeTargets: ["current", "v0.5"],
       sectionOrder: [
         "introduction-and-goals",
         "constraints",
@@ -318,7 +319,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: ["release", "decommission"],
       requiredNotes: ["Agent Operating Model"],
-      includeTargets: ["current", "v0.4"],
+      includeTargets: ["current", "v0.5"],
       sectionOrder: [
         "mental-models",
         "core-workflows",
@@ -365,7 +366,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Friday To Monday Workflow Contract"],
-      includeTargets: ["current", "v0.4"],
+      includeTargets: ["current", "v0.5"],
       sectionOrder: [
         "core-workflows",
         "commands-and-behavior",

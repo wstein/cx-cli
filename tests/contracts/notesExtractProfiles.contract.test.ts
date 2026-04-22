@@ -7,6 +7,10 @@ describe("notes extract built-in profiles contract", () => {
   test("freezes the built-in profile names, target paths, anchors, and required sections", () => {
     const profiles = getBuiltinNotesExtractProfiles();
 
+    expect(profiles.arc42?.includeTargets).toEqual(["current", "v0.5"]);
+    expect(profiles.onboarding?.includeTargets).toEqual(["current", "v0.5"]);
+    expect(profiles.manual?.includeTargets).toEqual(["current", "v0.5"]);
+
     expect(
       Object.keys(profiles).sort((left, right) =>
         left.localeCompare(right, "en"),

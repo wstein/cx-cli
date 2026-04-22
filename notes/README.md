@@ -185,7 +185,7 @@ Every note must contain:
 Target values:
 
 - `current`: implemented in code, tested, and trusted
-- `v0.4`: planned for that release and not yet implemented
+- `v0.5`: planned for that release and not yet implemented
 - `backlog`: future idea that is not scheduled
 
 ## Governance And CI
