@@ -1,6 +1,6 @@
 import path from "node:path";
-
 import kleur from "kleur";
+import { resolveDerivedReviewExportIntegrity } from "../../bundle/derivedReviewExports.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import type { CxListDisplayConfig } from "../../config/types.js";
 import { loadCxUserConfig } from "../../config/user.js";
@@ -41,6 +41,26 @@ interface RowMeta {
   extractability: {
     status: "intact" | "copied" | "degraded" | "blocked";
     reason: string;
+    message: string;
+    expectedSha256?: string;
+    actualSha256?: string;
+  };
+}
+
+interface DerivedReviewExportMeta {
+  surfaceName: "architecture" | "manual" | "onboarding";
+  title: string;
+  moduleName: string;
+  storedPath: string;
+  sha256: string;
+  sizeBytes: number;
+  pageCount: number;
+  sourcePaths: string[];
+  trustClassification: "derived_review_export";
+  status: "intact" | "blocked";
+  extractability: {
+    status: "intact" | "blocked";
+    reason: "intact" | "missing_artifact" | "hash_mismatch";
     message: string;
     expectedSha256?: string;
     actualSha256?: string;
@@ -226,6 +246,7 @@ function colorExtractability(
 function renderGroupedList(
   manifestName: string,
   rows: RowMeta[],
+  derivedReviewExports: DerivedReviewExportMeta[],
   listDisplay: CxListDisplayConfig,
   useColor: boolean,
 ): string {
@@ -329,6 +350,80 @@ function renderGroupedList(
     }
   }
 
+  if (derivedReviewExports.length > 0) {
+    const pathWidth = Math.max(
+      "stored_path".length,
+      ...derivedReviewExports.map((artifact) => artifact.storedPath.length),
+    );
+    const pagesWidth = Math.max(
+      "pages".length,
+      ...derivedReviewExports.map(
+        (artifact) => formatNumber(artifact.pageCount).length,
+      ),
+    );
+    const bytesWidth = Math.max(
+      "bytes".length,
+      ...derivedReviewExports.map(
+        (artifact) => formatBytes(artifact.sizeBytes).length,
+      ),
+    );
+    const statusWidth = Math.max(
+      "status".length,
+      ...derivedReviewExports.map((artifact) => artifact.status.length),
+    );
+
+    lines.push("");
+    lines.push(
+      useColor
+        ? kleur.bold().cyan("derived_review_exports")
+        : "derived_review_exports",
+    );
+    lines.push(
+      [
+        "  ",
+        useColor
+          ? kleur.gray("pages".padStart(pagesWidth))
+          : "pages".padStart(pagesWidth),
+        "  ",
+        useColor
+          ? kleur.gray("bytes".padStart(bytesWidth))
+          : "bytes".padStart(bytesWidth),
+        "  ",
+        useColor
+          ? kleur.gray("status".padEnd(statusWidth))
+          : "status".padEnd(statusWidth),
+        "  ",
+        useColor
+          ? kleur.gray("stored_path".padEnd(pathWidth))
+          : "stored_path".padEnd(pathWidth),
+      ].join(""),
+    );
+
+    for (const artifact of derivedReviewExports.toSorted((left, right) =>
+      compareDeterministicText(left.storedPath, right.storedPath),
+    )) {
+      const pagesRaw = formatNumber(artifact.pageCount).padStart(pagesWidth);
+      const bytesRaw = formatBytes(artifact.sizeBytes).padStart(bytesWidth);
+      const statusRaw = artifact.status.padEnd(statusWidth);
+      const pathCell = useColor
+        ? kleur.white(artifact.storedPath.padEnd(pathWidth))
+        : artifact.storedPath.padEnd(pathWidth);
+      const suffix = ` [${artifact.surfaceName}, ${artifact.trustClassification}]`;
+      lines.push(
+        [
+          "  ",
+          pagesRaw,
+          "  ",
+          colorBytes(artifact.sizeBytes, bytesRaw, listDisplay, useColor),
+          "  ",
+          colorExtractability(artifact.status, statusRaw, useColor),
+          "  ",
+          `${pathCell}${useColor ? kleur.gray(suffix) : suffix}`,
+        ].join(""),
+      );
+    }
+  }
+
   return `${lines.join("\n")}\n`;
 }
 
@@ -352,6 +447,21 @@ export async function runListCommand(
     manifest,
     rows,
   });
+  const derivedReviewExports = (
+    await resolveDerivedReviewExportIntegrity({ bundleDir, manifest })
+  ).map(({ artifact, integrity }) => ({
+    surfaceName: artifact.surfaceName,
+    title: artifact.title,
+    moduleName: artifact.moduleName,
+    storedPath: artifact.storedPath,
+    sha256: artifact.sha256,
+    sizeBytes: artifact.sizeBytes,
+    pageCount: artifact.pageCount,
+    sourcePaths: artifact.sourcePaths,
+    trustClassification: artifact.trustClassification,
+    status: integrity.status,
+    extractability: { ...integrity },
+  }));
 
   const rowsWithMeta: RowMeta[] = rows.map((file) => {
     const mtime = file.mtime;
@@ -395,6 +505,7 @@ export async function runListCommand(
         },
         sections,
         assets,
+        derivedReviewExports,
         files: rowsWithMeta,
       },
       io,
@@ -406,6 +517,7 @@ export async function runListCommand(
     renderGroupedList(
       manifestName,
       rowsWithMeta,
+      derivedReviewExports,
       userConfig.display.list,
       useColor,
     ),

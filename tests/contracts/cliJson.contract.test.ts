@@ -271,4 +271,51 @@ See [[20260418120000]].
     expect(payload.selection?.files).toEqual(["src/index.ts"]);
     expect(payload.summary?.fileCount).toBe(1);
   });
+
+  test("inspect and list --json surface derived review exports after opt-in bundling", async () => {
+    const project = await createProject();
+    await fs.mkdir(path.join(project.root, "docs"), { recursive: true });
+    await fs.cp(
+      path.join(process.cwd(), "docs", "modules"),
+      path.join(project.root, "docs", "modules"),
+      { recursive: true },
+    );
+
+    const cwd = process.cwd();
+    process.chdir(project.root);
+    try {
+      await expect(
+        main([
+          "bundle",
+          "--config",
+          project.configPath,
+          "--include-doc-exports",
+        ]),
+      ).resolves.toBe(0);
+
+      const inspectResult = await captureCli({
+        run: () => main(["inspect", "--config", project.configPath, "--json"]),
+      });
+      expect(inspectResult.exitCode).toBe(0);
+      const inspectPayload = parseJsonOutput<{
+        summary?: { derivedReviewExportCount?: number };
+        derivedReviewExports?: Array<{ storedPath?: string }>;
+      }>(inspectResult.stdout);
+      expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
+      expect(inspectPayload.derivedReviewExports).toHaveLength(3);
+
+      const listResult = await captureCli({
+        run: () => main(["list", "dist/demo-bundle", "--json"]),
+      });
+      expect(listResult.exitCode).toBe(0);
+      const listPayload = parseJsonOutput<{
+        summary?: { derivedReviewExportCount?: number };
+        derivedReviewExports?: Array<{ storedPath?: string }>;
+      }>(listResult.stdout);
+      expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
+      expect(listPayload.derivedReviewExports).toHaveLength(3);
+    } finally {
+      process.chdir(cwd);
+    }
+  });
 });

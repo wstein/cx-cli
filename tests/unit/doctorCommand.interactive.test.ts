@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import * as prompts from "@inquirer/prompts";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { captureCli } from "../helpers/cli/captureCli.js";
 
@@ -72,23 +73,17 @@ function installInquirerMock(owner: string): {
   selectMock: ReturnType<typeof vi.fn>;
 } {
   const selectMock = vi.fn(async () => owner);
-  vi.doMock("@inquirer/prompts", () => ({
-    input: vi.fn(async () => "unused"),
-    select: selectMock,
-    confirm: vi.fn(async () => true),
-    checkbox: vi.fn(async () => []),
-  }));
+  vi.spyOn(prompts, "select").mockImplementation(selectMock);
+  vi.spyOn(prompts, "input").mockImplementation(async () => "unused");
+  vi.spyOn(prompts, "confirm").mockImplementation(async () => true);
+  vi.spyOn(prompts, "checkbox").mockImplementation(async () => []);
   return { selectMock };
 }
 
 describe("runDoctorCommand coverage helpers", () => {
   afterEach(() => {
-    vi.doUnmock("@inquirer/prompts");
     vi.clearAllMocks();
     vi.restoreAllMocks();
-    vi.unstubAllEnvs();
-    vi.unstubAllGlobals();
-    vi.resetModules();
   });
 
   test("fix-overlaps interactive path updates the config", async () => {

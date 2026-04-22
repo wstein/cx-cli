@@ -37,9 +37,6 @@ async function installMockReferenceOracle(options: {
 afterEach(async () => {
   vi.clearAllMocks();
   vi.restoreAllMocks();
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
-  vi.resetModules();
   setOracleAdapterPath(DEFAULT_ADAPTER_PATH);
   await Promise.all(
     mockOracleDirs

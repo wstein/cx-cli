@@ -13,9 +13,6 @@ const execFileAsync = promisify(execFile);
 afterEach(() => {
   vi.clearAllMocks();
   vi.restoreAllMocks();
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
-  vi.resetModules();
 });
 
 async function loadQuietCxConfig(configPath: string) {

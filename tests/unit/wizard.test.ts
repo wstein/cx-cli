@@ -1,4 +1,6 @@
 // test-lane: unit
+
+import * as prompts from "@inquirer/prompts";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   printWizardComplete,
@@ -22,12 +24,8 @@ describe("shared wizard utilities", () => {
   });
 
   afterEach(() => {
-    vi.doUnmock("@inquirer/prompts");
     vi.clearAllMocks();
     vi.restoreAllMocks();
-    vi.unstubAllEnvs();
-    vi.unstubAllGlobals();
-    vi.resetModules();
   });
 
   test("printWizardHeader renders a title block", () => {
@@ -60,31 +58,19 @@ describe("shared wizard utilities", () => {
 
   test("wizardInput forwards defaults and descriptions to the prompt", async () => {
     const inputMock = vi.fn(
-      async (_options: { message: string; default: string }) => "typed answer",
+      async (_options: { message: string; default?: string }) => "typed answer",
     );
+    vi.spyOn(prompts, "input").mockImplementation(inputMock);
 
-    vi.doMock("@inquirer/prompts", () => ({
-      input: inputMock,
-      select: vi.fn(async (_options: { message: string }) => "unused"),
-      confirm: vi.fn(
-        async (_options: { message: string; default: boolean }) => true,
+    const result = await import("../../src/shared/wizard.js").then((wizard) =>
+      wizard.wizardInput(
+        "Your name",
+        {
+          default: "fallback",
+          description: "Enter the name to use",
+        },
+        { log },
       ),
-      checkbox: vi.fn(
-        async (_options: {
-          message: string;
-          choices: Array<{ name: string; value: unknown }>;
-        }) => [],
-      ),
-    }));
-
-    const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardInput(
-      "Your name",
-      {
-        default: "fallback",
-        description: "Enter the name to use",
-      },
-      { log },
     );
 
     expect(result).toBe("typed answer");
@@ -100,42 +86,31 @@ describe("shared wizard utilities", () => {
 
   test("wizardSelect maps choices before prompting", async () => {
     const selectMock = vi.fn(
-      async (_options: {
-        message: string;
-        choices: Array<{ name: string; value: string }>;
-      }) => "two",
+      async (_options: { message: string; choices: readonly unknown[] }) =>
+        "two",
     );
+    vi.spyOn(prompts, "select").mockImplementation(selectMock);
 
-    vi.doMock("@inquirer/prompts", () => ({
-      input: vi.fn(
-        async (_options: { message: string; default: string }) => "unused",
+    const result = await import("../../src/shared/wizard.js").then((wizard) =>
+      wizard.wizardSelect(
+        "Choose one",
+        [
+          { name: "One", value: "one" },
+          { name: "Two", value: "two" },
+        ],
+        { description: "Pick a value" },
+        { log },
       ),
-      select: selectMock,
-      confirm: vi.fn(
-        async (_options: { message: string; default: boolean }) => true,
-      ),
-      checkbox: vi.fn(
-        async (_options: {
-          message: string;
-          choices: Array<{ name: string; value: unknown }>;
-        }) => [],
-      ),
-    }));
-
-    const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardSelect(
-      "Choose one",
-      [
-        { name: "One", value: "one" },
-        { name: "Two", value: "two" },
-      ],
-      { description: "Pick a value" },
-      { log },
     );
 
     expect(result).toBe("two");
     expect(selectMock).toHaveBeenCalledTimes(1);
-    expect(selectMock.mock.calls[0]?.[0]?.choices).toEqual([
+    expect(
+      selectMock.mock.calls[0]?.[0]?.choices as ReadonlyArray<{
+        name: string;
+        value: string;
+      }>,
+    ).toEqual([
       { name: "One", value: "one" },
       { name: "Two", value: "two" },
     ]);
@@ -144,31 +119,19 @@ describe("shared wizard utilities", () => {
 
   test("wizardConfirm respects default values", async () => {
     const confirmMock = vi.fn(
-      async (_options: { message: string; default: boolean }) => false,
+      async (_options: { message: string; default?: boolean }) => false,
     );
+    vi.spyOn(prompts, "confirm").mockImplementation(confirmMock);
 
-    vi.doMock("@inquirer/prompts", () => ({
-      input: vi.fn(
-        async (_options: { message: string; default: string }) => "unused",
+    const result = await import("../../src/shared/wizard.js").then((wizard) =>
+      wizard.wizardConfirm(
+        "Proceed?",
+        {
+          default: false,
+          description: "Confirm the action",
+        },
+        { log },
       ),
-      select: vi.fn(async (_options: { message: string }) => "unused"),
-      confirm: confirmMock,
-      checkbox: vi.fn(
-        async (_options: {
-          message: string;
-          choices: Array<{ name: string; value: unknown }>;
-        }) => [],
-      ),
-    }));
-
-    const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardConfirm(
-      "Proceed?",
-      {
-        default: false,
-        description: "Confirm the action",
-      },
-      { log },
     );
 
     expect(result).toBe(false);
@@ -182,37 +145,33 @@ describe("shared wizard utilities", () => {
 
   test("wizardCheckbox maps choices and returns selected values", async () => {
     const checkboxMock = vi.fn(
-      async (_options: {
-        message: string;
-        choices: Array<{ name: string; value: string }>;
-      }) => ["alpha", "beta"],
-    );
-
-    vi.doMock("@inquirer/prompts", () => ({
-      input: vi.fn(
-        async (_options: { message: string; default: string }) => "unused",
-      ),
-      select: vi.fn(async (_options: { message: string }) => "unused"),
-      confirm: vi.fn(
-        async (_options: { message: string; default: boolean }) => true,
-      ),
-      checkbox: checkboxMock,
-    }));
-
-    const wizard = await import("../../src/shared/wizard.js");
-    const result = await wizard.wizardCheckbox(
-      "Choose items",
-      [
-        { name: "Alpha", value: "alpha" },
-        { name: "Beta", value: "beta" },
+      async (_options: { message: string; choices: readonly unknown[] }) => [
+        "alpha",
+        "beta",
       ],
-      { description: "Pick all that apply" },
-      { log },
+    );
+    vi.spyOn(prompts, "checkbox").mockImplementation(checkboxMock);
+
+    const result = await import("../../src/shared/wizard.js").then((wizard) =>
+      wizard.wizardCheckbox(
+        "Choose items",
+        [
+          { name: "Alpha", value: "alpha" },
+          { name: "Beta", value: "beta" },
+        ],
+        { description: "Pick all that apply" },
+        { log },
+      ),
     );
 
     expect(result).toEqual(["alpha", "beta"]);
     expect(checkboxMock).toHaveBeenCalledTimes(1);
-    expect(checkboxMock.mock.calls[0]?.[0]?.choices).toEqual([
+    expect(
+      checkboxMock.mock.calls[0]?.[0]?.choices as ReadonlyArray<{
+        name: string;
+        value: string;
+      }>,
+    ).toEqual([
       { name: "Alpha", value: "alpha" },
       { name: "Beta", value: "beta" },
     ]);

@@ -184,6 +184,68 @@ describe("bundle workflow", () => {
     expect(checksum).toContain("demo-docs-exports/onboarding.mmd.md");
   });
 
+  test("surfaces derived docs review exports through inspect and list", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const inspectCapture = createBufferedCommandIo({ cwd: project.root });
+    expect(
+      await runInspectCommand(
+        { config: project.configPath, json: true },
+        inspectCapture.io,
+      ),
+    ).toBe(0);
+    const inspectPayload = parseJsonOutput<{
+      summary?: { derivedReviewExportCount?: number };
+      derivedReviewExports?: Array<{
+        storedPath?: string;
+        extractability?: { status?: string };
+      }>;
+    }>(inspectCapture.stdout());
+    expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
+    expect(inspectPayload.derivedReviewExports).toHaveLength(3);
+    expect(
+      inspectPayload.derivedReviewExports?.every(
+        (artifact) => artifact.extractability?.status === "intact",
+      ),
+    ).toBe(true);
+
+    const listCapture = createBufferedCommandIo({ cwd: project.root });
+    expect(
+      await runListCommand(
+        { bundleDir: project.bundleDir, json: true },
+        listCapture.io,
+      ),
+    ).toBe(0);
+    const listPayload = parseJsonOutput<{
+      summary?: { derivedReviewExportCount?: number };
+      derivedReviewExports?: Array<{
+        storedPath?: string;
+        status?: string;
+      }>;
+    }>(listCapture.stdout());
+    expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
+    expect(listPayload.derivedReviewExports).toHaveLength(3);
+    expect(
+      listPayload.derivedReviewExports?.map((artifact) => artifact.storedPath),
+    ).toEqual([
+      "demo-docs-exports/architecture.mmd.md",
+      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/onboarding.mmd.md",
+    ]);
+    expect(
+      listPayload.derivedReviewExports?.every(
+        (artifact) => artifact.status === "intact",
+      ),
+    ).toBe(true);
+  });
+
   test("emits structured JSON for list and inspect automation", async () => {
     const { project } = await bundledProject();
     const inspectCapture = createBufferedCommandIo();

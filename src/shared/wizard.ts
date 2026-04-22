@@ -1,4 +1,4 @@
-import { checkbox, confirm, input, select } from "@inquirer/prompts";
+import * as prompts from "@inquirer/prompts";
 import kleur from "kleur";
 
 /**
@@ -30,7 +30,7 @@ export async function wizardInput(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  const result = await input({
+  const result = await prompts.input({
     message: kleur.cyan(`? ${message}`),
     default: options.default ?? "",
   });
@@ -49,7 +49,7 @@ export async function wizardSelect<T>(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return select<T>({
+  return prompts.select<T>({
     message: kleur.cyan(`? ${message}`),
     choices: choices.map((c) => ({
       name: c.name,
@@ -69,7 +69,7 @@ export async function wizardConfirm(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return confirm({
+  return prompts.confirm({
     message: kleur.cyan(`? ${message}`),
     default: options.default ?? true,
   });
@@ -87,7 +87,7 @@ export async function wizardCheckbox<T>(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return checkbox<T>({
+  return prompts.checkbox<T>({
     message: kleur.cyan(`? ${message}`),
     choices: choices.map((c) => ({
       name: c.name,

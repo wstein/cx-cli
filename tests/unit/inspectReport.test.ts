@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { runBundleCommand } from "../../src/cli/commands/bundle.js";
 import { collectInspectReport } from "../../src/inspect/report.js";
-import { createProject } from "../bundle/helpers.js";
+import { createProject, seedAntoraDocs } from "../bundle/helpers.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
 describe("collectInspectReport", () => {
@@ -57,6 +57,38 @@ describe("collectInspectReport", () => {
     expect(report.tokenBreakdown?.totalTokenCount).toBeGreaterThan(0);
     expect(report.tokenBreakdown?.sections.length).toBeGreaterThan(0);
     expect(report.sections[0]?.files[0]?.extractability?.status).toBe("intact");
+  });
+
+  test("includes derived review exports when the bundle recorded them", async () => {
+    const project = await createProject();
+    roots.push(project.root);
+    await seedAntoraDocs(project.root);
+
+    const io = createBufferedCommandIo({ cwd: project.root });
+    await expect(
+      runBundleCommand(
+        { config: project.configPath, includeDocExports: true },
+        io.io,
+      ),
+    ).resolves.toBe(0);
+
+    const { loadCxConfig } = await import("../../src/config/load.js");
+    const report = await collectInspectReport({
+      config: await loadCxConfig(project.configPath),
+    });
+
+    expect(report.summary.derivedReviewExportCount).toBe(3);
+    expect(report.derivedReviewExports).toHaveLength(3);
+    expect(report.derivedReviewExports[0]?.extractability?.status).toBe(
+      "intact",
+    );
+    expect(
+      report.derivedReviewExports.map((artifact) => artifact.storedPath),
+    ).toEqual([
+      "demo-docs-exports/architecture.mmd.md",
+      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/onboarding.mmd.md",
+    ]);
   });
 
   test("marks the bundle as unavailable when the manifest no longer matches the current plan", async () => {

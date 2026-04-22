@@ -470,7 +470,7 @@ describe("cx MCP server", () => {
       listPayload.notes.some(
         (note) =>
           note.title === "Agent Insight" &&
-          note.target === "v0.4" &&
+          note.target === "v0.5" &&
           note.availability.includes("not yet implemented"),
       ),
     ).toBe(true);
@@ -517,7 +517,7 @@ describe("cx MCP server", () => {
     expect(payload.body).toContain("A note body for direct MCP reads.");
     expect(payload.tags).toEqual(["read"]);
     expect(payload.filePath).toBe(createPayload.filePath);
-    expect(payload.target).toBe("v0.4");
+    expect(payload.target).toBe("v0.5");
     expect(payload.availability).toContain("not yet implemented");
   });
 
@@ -557,7 +557,7 @@ describe("cx MCP server", () => {
     expect(payload.notes[0]?.snippet).toContain("workflow");
   });
 
-  test("notes_search prioritizes current notes and marks v0.4 notes as planned", async () => {
+  test("notes_search prioritizes current notes and marks v0.5 notes as planned", async () => {
     const project = await createWorkspace();
     const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
@@ -614,7 +614,7 @@ This workflow is implemented and trusted for operators today.
       payload.notes.some(
         (note) =>
           note.title === "Future Workflow" &&
-          note.target === "v0.4" &&
+          note.target === "v0.5" &&
           note.availability.includes("not yet implemented"),
       ),
     ).toBe(true);

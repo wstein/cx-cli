@@ -14,6 +14,7 @@ export interface ManifestSummary {
   projectName: string;
   sectionCount: number;
   assetCount: number;
+  derivedReviewExportCount: number;
   fileCount: number;
   textFileCount: number;
   assetFileCount: number;
@@ -42,6 +43,7 @@ export function summarizeManifest(
     assetCount: manifest.assets.filter((asset) =>
       selectedAssetPaths.has(asset.sourcePath),
     ).length,
+    derivedReviewExportCount: manifest.derivedReviewExports?.length ?? 0,
     fileCount: rows.length,
     textFileCount: rows.filter((file) => file.kind === "text").length,
     assetFileCount: rows.filter((file) => file.kind === "asset").length,

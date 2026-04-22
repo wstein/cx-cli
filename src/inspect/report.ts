@@ -1,3 +1,4 @@
+import { resolveDerivedReviewExportIntegrity } from "../bundle/derivedReviewExports.js";
 import { loadManifestFromBundle, validateBundle } from "../bundle/validate.js";
 import type { CxConfig } from "../config/types.js";
 import { resolveExtractability } from "../extract/resolution.js";
@@ -34,6 +35,7 @@ export interface InspectReport {
     bundleDir: string;
     sectionCount: number;
     assetCount: number;
+    derivedReviewExportCount: number;
     unmatchedCount: number;
     textFileCount: number;
   };
@@ -70,6 +72,17 @@ export interface InspectReport {
     provenance: InclusionProvenance[];
     extractability: InspectExtractability | null;
   }>;
+  derivedReviewExports: Array<{
+    surfaceName: "architecture" | "manual" | "onboarding";
+    title: string;
+    moduleName: string;
+    storedPath: string;
+    pageCount: number;
+    sizeBytes: number;
+    sha256: string;
+    trustClassification: "derived_review_export";
+    extractability: InspectExtractability | null;
+  }>;
   unmatchedFiles: string[];
   warnings: string[];
 }
@@ -83,6 +96,7 @@ function buildInspectSummary(
     bundleDir: plan.bundleDir,
     sectionCount: plan.sections.length,
     assetCount: plan.assets.length,
+    derivedReviewExportCount: 0,
     unmatchedCount: plan.unmatchedFiles.length,
     textFileCount: plan.sections.reduce(
       (total, section) => total + section.files.length,
@@ -155,6 +169,7 @@ export async function collectInspectReport(params: {
     : undefined;
   let bundleComparison: InspectReport["bundleComparison"];
   let extractabilityByPath = new Map<string, InspectExtractability>();
+  let derivedReviewExports: InspectReport["derivedReviewExports"] = [];
 
   try {
     const { manifestName } = await validateBundle(plan.bundleDir);
@@ -197,6 +212,32 @@ export async function collectInspectReport(params: {
         bundleDir: plan.bundleDir,
         manifestName,
       };
+      derivedReviewExports = (
+        await resolveDerivedReviewExportIntegrity({
+          bundleDir: plan.bundleDir,
+          manifest,
+        })
+      ).map(({ artifact, integrity }) => ({
+        surfaceName: artifact.surfaceName,
+        title: artifact.title,
+        moduleName: artifact.moduleName,
+        storedPath: artifact.storedPath,
+        pageCount: artifact.pageCount,
+        sizeBytes: artifact.sizeBytes,
+        sha256: artifact.sha256,
+        trustClassification: artifact.trustClassification,
+        extractability: {
+          status: integrity.status,
+          reason: integrity.reason,
+          message: integrity.message,
+          ...(integrity.expectedSha256 !== undefined
+            ? { expectedSha256: integrity.expectedSha256 }
+            : {}),
+          ...(integrity.actualSha256 !== undefined
+            ? { actualSha256: integrity.actualSha256 }
+            : {}),
+        },
+      }));
     }
   } catch (error) {
     bundleComparison = {
@@ -206,8 +247,11 @@ export async function collectInspectReport(params: {
     };
   }
 
+  const summary = buildInspectSummary(plan);
+  summary.derivedReviewExportCount = derivedReviewExports.length;
+
   return {
-    summary: buildInspectSummary(plan),
+    summary,
     bundleComparison,
     tokenBreakdown,
     sections: plan.sections.map((section) => ({
@@ -231,6 +275,7 @@ export async function collectInspectReport(params: {
       provenance: asset.provenance,
       extractability: extractabilityByPath.get(asset.relativePath) ?? null,
     })),
+    derivedReviewExports,
     unmatchedFiles: plan.unmatchedFiles,
     warnings: plan.warnings,
   };

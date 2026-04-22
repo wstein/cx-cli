@@ -63,9 +63,6 @@ function createCaptureServer(): {
 afterEach(() => {
   vi.clearAllMocks();
   vi.restoreAllMocks();
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
-  vi.resetModules();
 });
 
 describe("registerCxMcpTool runtime hardening", () => {

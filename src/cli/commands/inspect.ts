@@ -141,6 +141,23 @@ export async function runInspectCommand(
           "",
         ]
       : []),
+    ...(report.derivedReviewExports.length > 0
+      ? [
+          "derived_review_exports",
+          ...report.derivedReviewExports.map((artifact) => {
+            const status = (
+              artifact.extractability?.status ?? "unknown"
+            ).padEnd(8);
+            const suffix =
+              artifact.extractability &&
+              artifact.extractability.status !== "intact"
+                ? ` (${artifact.extractability.reason}; expected ${formatChecksumPrefix(artifact.extractability.expectedSha256)} got ${formatChecksumPrefix(artifact.extractability.actualSha256)})`
+                : "";
+            return `  ${status} ${artifact.storedPath} [${artifact.surfaceName}, ${artifact.trustClassification}]${suffix}`;
+          }),
+          "",
+        ]
+      : []),
     ...(report.unmatchedFiles.length > 0
       ? ["unmatched", ...report.unmatchedFiles.map((file) => `  ${file}`)]
       : []),
