@@ -25,6 +25,7 @@ export interface InspectArgs {
   json: boolean;
   tokenBreakdown?: boolean;
   layout?: CxAssetsLayout | undefined;
+  derivedReviewExports?: boolean | undefined;
 }
 
 function formatChecksumPrefix(checksum: string | undefined): string {
@@ -70,6 +71,7 @@ export async function runInspectCommand(
   );
   const report = await collectInspectReport({
     config,
+    derivedReviewExportsOnly: args.derivedReviewExports,
     ...(args.tokenBreakdown !== undefined
       ? { tokenBreakdown: args.tokenBreakdown }
       : {}),

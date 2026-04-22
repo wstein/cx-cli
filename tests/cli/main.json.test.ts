@@ -152,12 +152,17 @@ exclude = []
 
     const payload = parseJsonOutput<{
       summary?: { fileCount?: number; sectionCount?: number };
-      selection?: { sections?: string[]; files?: string[] };
+      selection?: {
+        sections?: string[];
+        files?: string[];
+        derivedReviewExportsOnly?: boolean;
+      };
     }>(capture.stdout());
     expect(payload.summary?.fileCount).toBe(1);
     expect(payload.summary?.sectionCount).toBe(1);
     expect(payload.selection?.sections).toEqual(["src"]);
     expect(payload.selection?.files).toEqual(["src/index.ts"]);
+    expect(payload.selection?.derivedReviewExportsOnly).toBe(false);
   });
 
   test("covers wrapper commands that dispatch through main", async () => {

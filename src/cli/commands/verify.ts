@@ -1,4 +1,9 @@
 import path from "node:path";
+import {
+  type DerivedReviewExportIntegritySummary,
+  resolveDerivedReviewExportIntegrity,
+  summarizeDerivedReviewExportIntegrity,
+} from "../../bundle/derivedReviewExports.js";
 import { loadManifestFromBundle } from "../../bundle/validate.js";
 import { VerifyError, verifyBundle } from "../../bundle/verify.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
@@ -107,6 +112,8 @@ export async function runVerifyCommand(
   let projectName: string | null = null;
   let manifestDirtyState: DirtyState | null = null;
   let bundleMode: string | null = null;
+  let derivedReviewExportsSummary: DerivedReviewExportIntegritySummary | null =
+    null;
 
   try {
     await verifyBundle(bundleDir, againstDir, selection, againstConfig);
@@ -116,6 +123,9 @@ export async function runVerifyCommand(
       const { manifest } = await loadManifestFromBundle(bundleDir);
       projectName = manifest.projectName;
       manifestDirtyState = manifest.dirtyState as DirtyState | null;
+      derivedReviewExportsSummary = summarizeDerivedReviewExportIntegrity(
+        await resolveDerivedReviewExportIntegrity({ bundleDir, manifest }),
+      );
     } catch {
       // If manifest load fails, we still proceed with lock drift check
     }
@@ -190,6 +200,7 @@ export async function runVerifyCommand(
           valid: true,
           dirtyState: manifestDirtyState,
           bundleMode: bundleMode,
+          derivedReviewExports: derivedReviewExportsSummary,
           warnings: lockWarnings,
           lockDrift: lockMismatches.length > 0 ? lockMismatches : null,
         },
@@ -209,6 +220,7 @@ export async function runVerifyCommand(
         valid: false;
         dirtyState: DirtyState | null;
         bundleMode: string | null;
+        derivedReviewExports: DerivedReviewExportIntegritySummary | null;
         error: {
           type?: string;
           message: string;
@@ -225,11 +237,24 @@ export async function runVerifyCommand(
         valid: false,
         dirtyState: manifestDirtyState,
         bundleMode: bundleMode,
+        derivedReviewExports: derivedReviewExportsSummary,
         error: {
           message: resolvedError.message,
           remediation: getErrorRemediation(error) ?? null,
         },
       };
+
+      if (derivedReviewExportsSummary === null) {
+        try {
+          const { manifest } = await loadManifestFromBundle(bundleDir);
+          derivedReviewExportsSummary = summarizeDerivedReviewExportIntegrity(
+            await resolveDerivedReviewExportIntegrity({ bundleDir, manifest }),
+          );
+          payload.derivedReviewExports = derivedReviewExportsSummary;
+        } catch {
+          // Leave derived review export summary unavailable if manifest load fails.
+        }
+      }
 
       if (error instanceof VerifyError) {
         payload.error.type = error.type;

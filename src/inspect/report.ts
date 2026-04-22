@@ -29,6 +29,9 @@ interface TokenBreakdown {
 }
 
 export interface InspectReport {
+  selection: {
+    derivedReviewExportsOnly: boolean;
+  };
   summary: {
     projectName: string;
     sourceRoot: string;
@@ -159,6 +162,7 @@ async function buildTokenBreakdown(
 export async function collectInspectReport(params: {
   config: CxConfig;
   tokenBreakdown?: boolean | undefined;
+  derivedReviewExportsOnly?: boolean | undefined;
 }): Promise<InspectReport> {
   const plan = await enrichPlanWithLinkedNotes(
     await buildBundlePlan(params.config),
@@ -251,32 +255,45 @@ export async function collectInspectReport(params: {
   summary.derivedReviewExportCount = derivedReviewExports.length;
 
   return {
+    selection: {
+      derivedReviewExportsOnly: params.derivedReviewExportsOnly ?? false,
+    },
     summary,
     bundleComparison,
-    tokenBreakdown,
-    sections: plan.sections.map((section) => ({
-      name: section.name,
-      style: section.style,
-      outputFile: section.outputFile,
-      files: section.files.map((file) => ({
-        relativePath: file.relativePath,
-        absolutePath: file.absolutePath,
-        sizeBytes: file.sizeBytes,
-        mediaType: file.mediaType,
-        provenance: file.provenance,
-        extractability: extractabilityByPath.get(file.relativePath) ?? null,
-      })),
-    })),
-    assets: plan.assets.map((asset) => ({
-      relativePath: asset.relativePath,
-      absolutePath: asset.absolutePath,
-      storedPath: asset.storedPath,
-      sizeBytes: asset.sizeBytes,
-      provenance: asset.provenance,
-      extractability: extractabilityByPath.get(asset.relativePath) ?? null,
-    })),
+    tokenBreakdown:
+      params.derivedReviewExportsOnly === true ? undefined : tokenBreakdown,
+    sections:
+      params.derivedReviewExportsOnly === true
+        ? []
+        : plan.sections.map((section) => ({
+            name: section.name,
+            style: section.style,
+            outputFile: section.outputFile,
+            files: section.files.map((file) => ({
+              relativePath: file.relativePath,
+              absolutePath: file.absolutePath,
+              sizeBytes: file.sizeBytes,
+              mediaType: file.mediaType,
+              provenance: file.provenance,
+              extractability:
+                extractabilityByPath.get(file.relativePath) ?? null,
+            })),
+          })),
+    assets:
+      params.derivedReviewExportsOnly === true
+        ? []
+        : plan.assets.map((asset) => ({
+            relativePath: asset.relativePath,
+            absolutePath: asset.absolutePath,
+            storedPath: asset.storedPath,
+            sizeBytes: asset.sizeBytes,
+            provenance: asset.provenance,
+            extractability:
+              extractabilityByPath.get(asset.relativePath) ?? null,
+          })),
     derivedReviewExports,
-    unmatchedFiles: plan.unmatchedFiles,
+    unmatchedFiles:
+      params.derivedReviewExportsOnly === true ? [] : plan.unmatchedFiles,
     warnings: plan.warnings,
   };
 }

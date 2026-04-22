@@ -303,11 +303,39 @@ See [[20260418120000]].
       });
       expect(inspectResult.exitCode).toBe(0);
       const inspectPayload = parseJsonOutput<{
+        selection?: { derivedReviewExportsOnly?: boolean };
         summary?: { derivedReviewExportCount?: number };
         derivedReviewExports?: Array<{ storedPath?: string }>;
       }>(inspectResult.stdout);
+      expect(inspectPayload.selection?.derivedReviewExportsOnly).toBe(false);
       expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
       expect(inspectPayload.derivedReviewExports).toHaveLength(3);
+
+      const inspectDerivedOnlyResult = await captureCli({
+        run: () =>
+          main([
+            "inspect",
+            "--config",
+            project.configPath,
+            "--json",
+            "--derived-review-exports",
+          ]),
+      });
+      expect(inspectDerivedOnlyResult.exitCode).toBe(0);
+      const inspectDerivedOnlyPayload = parseJsonOutput<{
+        selection?: { derivedReviewExportsOnly?: boolean };
+        sections?: unknown[];
+        assets?: unknown[];
+        unmatchedFiles?: unknown[];
+        derivedReviewExports?: Array<{ storedPath?: string }>;
+      }>(inspectDerivedOnlyResult.stdout);
+      expect(
+        inspectDerivedOnlyPayload.selection?.derivedReviewExportsOnly,
+      ).toBe(true);
+      expect(inspectDerivedOnlyPayload.sections).toEqual([]);
+      expect(inspectDerivedOnlyPayload.assets).toEqual([]);
+      expect(inspectDerivedOnlyPayload.unmatchedFiles).toEqual([]);
+      expect(inspectDerivedOnlyPayload.derivedReviewExports).toHaveLength(3);
 
       const listResult = await captureCli({
         run: () => main(["list", "dist/demo-bundle", "--json"]),
@@ -345,6 +373,21 @@ See [[20260418120000]].
       expect(derivedOnlyPayload.sections).toEqual([]);
       expect(derivedOnlyPayload.assets).toEqual([]);
       expect(derivedOnlyPayload.derivedReviewExports).toHaveLength(3);
+
+      const verifyResult = await captureCli({
+        run: () => main(["verify", "dist/demo-bundle", "--json"]),
+      });
+      expect(verifyResult.exitCode).toBe(0);
+      const verifyPayload = parseJsonOutput<{
+        derivedReviewExports?: {
+          totalCount?: number;
+          intactCount?: number;
+          blockedCount?: number;
+        } | null;
+      }>(verifyResult.stdout);
+      expect(verifyPayload.derivedReviewExports?.totalCount).toBe(3);
+      expect(verifyPayload.derivedReviewExports?.intactCount).toBe(3);
+      expect(verifyPayload.derivedReviewExports?.blockedCount).toBe(0);
     } finally {
       process.chdir(cwd);
     }

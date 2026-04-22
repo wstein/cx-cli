@@ -290,6 +290,53 @@ describe("bundle workflow", () => {
     ]);
   });
 
+  test("inspects only derived docs review exports when requested", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const inspectCapture = createBufferedCommandIo({ cwd: project.root });
+    expect(
+      await runInspectCommand(
+        {
+          config: project.configPath,
+          json: true,
+          derivedReviewExports: true,
+        },
+        inspectCapture.io,
+      ),
+    ).toBe(0);
+    const inspectPayload = parseJsonOutput<{
+      selection?: { derivedReviewExportsOnly?: boolean };
+      summary?: { derivedReviewExportCount?: number };
+      sections?: unknown[];
+      assets?: unknown[];
+      unmatchedFiles?: unknown[];
+      derivedReviewExports?: Array<{ storedPath?: string }>;
+      tokenBreakdown?: unknown;
+    }>(inspectCapture.stdout());
+    expect(inspectPayload.selection?.derivedReviewExportsOnly).toBe(true);
+    expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
+    expect(inspectPayload.sections).toEqual([]);
+    expect(inspectPayload.assets).toEqual([]);
+    expect(inspectPayload.unmatchedFiles).toEqual([]);
+    expect(inspectPayload.tokenBreakdown).toBeUndefined();
+    expect(
+      inspectPayload.derivedReviewExports?.map(
+        (artifact) => artifact.storedPath,
+      ),
+    ).toEqual([
+      "demo-docs-exports/architecture.mmd.md",
+      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/onboarding.mmd.md",
+    ]);
+  });
+
   test("emits structured JSON for list and inspect automation", async () => {
     const { project } = await bundledProject();
     const inspectCapture = createBufferedCommandIo();
@@ -523,11 +570,65 @@ describe("bundle workflow", () => {
     const verifyPayload = parseJsonOutput<{
       valid?: boolean;
       files?: string[];
+      derivedReviewExports?: {
+        totalCount?: number;
+        intactCount?: number;
+        blockedCount?: number;
+      } | null;
     }>(verifyCapture.stdout());
 
     expect(bundlePayload.checksumFile).toBe("demo.sha256");
     expect(verifyPayload.valid).toBe(true);
     expect(verifyPayload.files).toEqual(["src/index.ts"]);
+    expect(verifyPayload.derivedReviewExports).toEqual({
+      totalCount: 0,
+      intactCount: 0,
+      blockedCount: 0,
+      files: [],
+    });
+  });
+
+  test("summarizes derived docs review exports in verify JSON", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const verifyCapture = createBufferedCommandIo();
+    const verifyExitCode = await runVerifyCommand(
+      { bundleDir: project.bundleDir, json: true },
+      verifyCapture.io,
+    );
+    expect(verifyExitCode).toBe(0);
+
+    const payload = parseJsonOutput<{
+      valid?: boolean;
+      derivedReviewExports?: {
+        totalCount?: number;
+        intactCount?: number;
+        blockedCount?: number;
+        files?: Array<{
+          storedPath?: string;
+          status?: string;
+          reason?: string;
+        }>;
+      } | null;
+    }>(verifyCapture.stdout());
+
+    expect(payload.valid).toBe(true);
+    expect(payload.derivedReviewExports?.totalCount).toBe(3);
+    expect(payload.derivedReviewExports?.intactCount).toBe(3);
+    expect(payload.derivedReviewExports?.blockedCount).toBe(0);
+    expect(
+      payload.derivedReviewExports?.files?.every(
+        (artifact) =>
+          artifact.status === "intact" && artifact.reason === "intact",
+      ),
+    ).toBe(true);
   });
 
   test("emits structured JSON failure payload for checksum omission", async () => {

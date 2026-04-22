@@ -19,6 +19,17 @@ export interface DerivedReviewExportWithIntegrity {
   integrity: DerivedReviewExportIntegrity;
 }
 
+export interface DerivedReviewExportIntegritySummary {
+  totalCount: number;
+  intactCount: number;
+  blockedCount: number;
+  files: Array<{
+    storedPath: string;
+    status: "intact" | "blocked";
+    reason: "intact" | "missing_artifact" | "hash_mismatch";
+  }>;
+}
+
 export async function resolveDerivedReviewExportIntegrity(params: {
   bundleDir: string;
   manifest: CxManifest;
@@ -64,4 +75,30 @@ export async function resolveDerivedReviewExportIntegrity(params: {
       };
     }),
   );
+}
+
+export function summarizeDerivedReviewExportIntegrity(
+  records: DerivedReviewExportWithIntegrity[],
+): DerivedReviewExportIntegritySummary {
+  const summary: DerivedReviewExportIntegritySummary = {
+    totalCount: records.length,
+    intactCount: 0,
+    blockedCount: 0,
+    files: [],
+  };
+
+  for (const record of records) {
+    if (record.integrity.status === "intact") {
+      summary.intactCount += 1;
+    } else {
+      summary.blockedCount += 1;
+    }
+    summary.files.push({
+      storedPath: record.artifact.storedPath,
+      status: record.integrity.status,
+      reason: record.integrity.reason,
+    });
+  }
+
+  return summary;
 }

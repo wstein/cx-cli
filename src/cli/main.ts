@@ -339,6 +339,12 @@ export async function main(
             default: false,
             description: "Show per-section token distribution as a bar chart.",
           })
+          .option("derived-review-exports", {
+            type: "boolean",
+            default: false,
+            description:
+              "Show only derived docs review exports from the current planning view.",
+          })
           .option("layout", {
             choices: ["flat", "deep"] as const,
             description:
@@ -347,6 +353,7 @@ export async function main(
       async (args) => {
         exitCode = await runInspectCommand({
           config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
+          derivedReviewExports: args["derived-review-exports"],
           json: args.json,
           tokenBreakdown: args["token-breakdown"],
           layout: args.layout,

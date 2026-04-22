@@ -46,6 +46,9 @@ const InspectAssetSchema = z.object({
 });
 
 export const InspectReportJsonSchema = z.object({
+  selection: z.object({
+    derivedReviewExportsOnly: z.boolean(),
+  }),
   summary: z.object({
     projectName: z.string(),
     sourceRoot: z.string(),
@@ -290,6 +293,20 @@ export const VerifyCommandJsonSchema = z.union([
       .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
       .nullable(),
     bundleMode: z.enum(["local", "ci"]).nullable(),
+    derivedReviewExports: z
+      .object({
+        totalCount: z.number().int().nonnegative(),
+        intactCount: z.number().int().nonnegative(),
+        blockedCount: z.number().int().nonnegative(),
+        files: z.array(
+          z.object({
+            storedPath: z.string(),
+            status: z.enum(["intact", "blocked"]),
+            reason: z.enum(["intact", "missing_artifact", "hash_mismatch"]),
+          }),
+        ),
+      })
+      .nullable(),
     warnings: z.array(z.string()),
     lockDrift: z.array(LockDriftEntrySchema).nullable(),
   }),
@@ -303,6 +320,20 @@ export const VerifyCommandJsonSchema = z.union([
       .enum(["clean", "safe_dirty", "forced_dirty", "ci_dirty"])
       .nullable(),
     bundleMode: z.enum(["local", "ci"]).nullable(),
+    derivedReviewExports: z
+      .object({
+        totalCount: z.number().int().nonnegative(),
+        intactCount: z.number().int().nonnegative(),
+        blockedCount: z.number().int().nonnegative(),
+        files: z.array(
+          z.object({
+            storedPath: z.string(),
+            status: z.enum(["intact", "blocked"]),
+            reason: z.enum(["intact", "missing_artifact", "hash_mismatch"]),
+          }),
+        ),
+      })
+      .nullable(),
     error: z.object({
       type: z.string().optional(),
       message: z.string(),
