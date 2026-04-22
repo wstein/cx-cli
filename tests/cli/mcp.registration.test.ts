@@ -227,6 +227,9 @@ exclude = []
                 targetDir: "demo-assets",
                 layout: "flat",
               },
+              docs: {
+                targetDir: "demo-docs-exports",
+              },
               behavior: {
                 repomixMissingExtension: "warn",
                 configDuplicateEntry: "fail",

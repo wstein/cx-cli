@@ -50,6 +50,9 @@
     "assets": {
       "$ref": "./cx-config-v1.schema.json#/properties/assets"
     },
+    "docs": {
+      "$ref": "./cx-config-v1.schema.json#/properties/docs"
+    },
     "config": {
       "$ref": "./cx-config-v1.schema.json#/properties/config"
     },

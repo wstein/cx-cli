@@ -95,6 +95,9 @@ function baseConfig(root: string): CxConfig {
       ids: ["reference_secrets"],
       includePostPackArtifacts: false,
     },
+    docs: {
+      targetDir: "operator-contract-docs-exports",
+    },
     checksums: {
       algorithm: "sha256",
       fileName: "operator-contract.sha256",

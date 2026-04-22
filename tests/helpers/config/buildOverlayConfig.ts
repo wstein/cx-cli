@@ -1,6 +1,7 @@
 import type {
   CxAssetsConfig,
   CxChecksumsConfig,
+  CxDocsConfig,
   CxFilesConfig,
   CxManifestConfig,
   CxMcpConfig,
@@ -21,6 +22,7 @@ export interface BuildOverlayConfigOptions {
   checksums?: Partial<CxChecksumsConfig>;
   tokens?: Partial<CxTokensConfig>;
   assets?: Partial<CxAssetsConfig>;
+  docs?: Partial<CxDocsConfig>;
   mcp?: Partial<CxMcpConfig>;
   dedup?: {
     mode?: "fail" | "warn" | "first-wins";
@@ -153,6 +155,14 @@ export function buildOverlayConfig(
     addIfDefined(assets, "layout", options.assets.layout);
     if (Object.keys(assets).length > 0) {
       overlay.assets = assets;
+    }
+  }
+
+  if (options.docs) {
+    const docs: Record<string, unknown> = {};
+    addIfDefined(docs, "target_dir", options.docs.targetDir);
+    if (Object.keys(docs).length > 0) {
+      overlay.docs = docs;
     }
   }
 

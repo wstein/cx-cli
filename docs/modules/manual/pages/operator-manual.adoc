@@ -225,10 +225,12 @@ inspect the final documentation content directly instead of inferring it
 from source AsciiDoc files alone.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
-the generated docs under `{project}-docs-exports/` inside the bundle. The
-bundle manifest records those files in `derivedReviewExports` so they are
-discoverable, checksum-covered, and still clearly labeled as derived
-review material rather than proof-path section outputs.
+the generated docs under `docs.target_dir/` inside the bundle. The
+default is `{project}-docs-exports`, and you can configure it the same
+way as `assets.target_dir` in `cx.toml`. The bundle manifest records
+those files in `derivedReviewExports` so they are discoverable,
+checksum-covered, and still clearly labeled as derived review material
+rather than proof-path section outputs.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP
 tool contract. It exposes the registered tool set with stable `name`,

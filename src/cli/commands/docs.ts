@@ -27,13 +27,13 @@ export interface DocsArgs {
 function resolveDocsExportOutputDir(params: {
   cwd: string;
   configuredOutputDir?: string | undefined;
-  projectName: string;
+  targetDir: string;
 }): string {
   if (params.configuredOutputDir) {
     return path.resolve(params.cwd, params.configuredOutputDir);
   }
 
-  return path.resolve(params.cwd, "dist", `${params.projectName}-docs-exports`);
+  return path.resolve(params.cwd, "dist", params.targetDir);
 }
 
 export async function runDocsCommand(
@@ -51,7 +51,7 @@ export async function runDocsCommand(
   const outputDir = resolveDocsExportOutputDir({
     cwd: io.cwd,
     configuredOutputDir: args.outputDir,
-    projectName: config.projectName,
+    targetDir: config.docs.targetDir,
   });
   const exports = await exportAntoraDocsToMarkdown({
     workspaceRoot: config.sourceRoot,

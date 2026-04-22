@@ -419,6 +419,16 @@
         }
       }
     },
+    "docs": {
+      "type": "object",
+      "properties": {
+        "target_dir": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Directory where review-doc exports are placed. May contain {project} placeholder."
+        }
+      }
+    },
     "config": {
       "type": "object",
       "properties": {

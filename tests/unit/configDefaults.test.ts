@@ -115,6 +115,12 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_VALUES.assets.include.length).toBeGreaterThan(0);
     });
 
+    it("includes docs export settings", () => {
+      expect(DEFAULT_CONFIG_VALUES.docs.targetDir).toBe(
+        "{project}-docs-exports",
+      );
+    });
+
     it("includes behavior values", () => {
       expect(DEFAULT_CONFIG_VALUES.behavior.repomixMissingExtension).toBe(
         "warn",
@@ -162,6 +168,7 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("[files");
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("[dedup");
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("[manifest");
+      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[docs");
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections");
     });
 

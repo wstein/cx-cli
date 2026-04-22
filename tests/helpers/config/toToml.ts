@@ -37,6 +37,7 @@ function sortKeys(keys: string[], path: string[]): string[] {
     "checksums",
     "tokens",
     "assets",
+    "docs",
     "config",
     "mcp",
     "sections",
@@ -256,6 +257,9 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
       mode: config.assets.mode,
       target_dir: config.assets.targetDir,
       layout: config.assets.layout,
+    },
+    docs: {
+      target_dir: config.docs.targetDir,
     },
     config: {
       duplicate_entry: config.behavior.configDuplicateEntry,

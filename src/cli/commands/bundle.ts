@@ -377,8 +377,8 @@ async function collectScannerArtifactFiles(params: {
   );
 }
 
-function docsExportDirectoryName(projectName: string): string {
-  return `${projectName}-docs-exports`;
+function docsExportDirectoryName(targetDir: string): string {
+  return targetDir;
 }
 
 export async function collectSharedHandoverRepoHistory(params: {
@@ -804,7 +804,7 @@ export async function runBundleCommand(
               workspaceRoot: plan.sourceRoot,
               outputDir: path.join(
                 activeBundleDir,
-                docsExportDirectoryName(plan.projectName),
+                docsExportDirectoryName(config.docs.targetDir),
               ),
             })
           ).map((artifact) => ({
@@ -813,7 +813,7 @@ export async function runBundleCommand(
             moduleName: artifact.moduleName,
             storedPath: path
               .join(
-                docsExportDirectoryName(plan.projectName),
+                docsExportDirectoryName(config.docs.targetDir),
                 artifact.outputFile,
               )
               .replaceAll("\\", "/"),

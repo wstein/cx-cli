@@ -602,6 +602,8 @@ duplicate_entry = "first-wins"    # silently deduplicate repeated patterns
 
 [assets]
 layout = "deep"                   # preserve source directory structure in the bundle
+[docs]
+target_dir = "review-docs"        # place .mmd.md review exports under dist/review-docs and bundle/review-docs
 ----
 
 === Example: Docker environment
@@ -958,6 +960,9 @@ exclude = ["test/fixtures/**"]
 mode = "copy"
 target_dir = "assets"
 layout = "flat"
+
+[docs]
+target_dir = "{project}-docs-exports"
 ----
 
 === Asset collision invariant

@@ -677,7 +677,7 @@ export async function main(
         command
           .example(
             "$0 docs export",
-            "Export the curated docs surfaces into dist/<project>-docs-exports.",
+            "Export the curated docs surfaces into dist/<docs.target_dir>.",
           )
           .example(
             "$0 docs export --output-dir tmp/docs-review --json",
@@ -692,7 +692,7 @@ export async function main(
           .option("output-dir", {
             type: "string",
             description:
-              "Directory where .mmd.md exports should be written. Defaults to dist/<project>-docs-exports.",
+              "Directory where .mmd.md exports should be written. Defaults to dist/<docs.target_dir>.",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {

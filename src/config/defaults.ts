@@ -110,6 +110,9 @@ mode = "copy"
 target_dir = "{project}-assets"
 layout = "flat"
 
+[docs]
+target_dir = "{project}-docs-exports"
+
 [sections.docs]
 include = ["docs/**", "notes/**", "README.md", "*.md"]
 exclude = []
@@ -209,6 +212,9 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     mode: "copy",
     targetDir: "{project}-assets",
     layout: "flat",
+  },
+  docs: {
+    targetDir: "{project}-docs-exports",
   },
   behavior: {
     ...DEFAULT_BEHAVIOR_VALUES,

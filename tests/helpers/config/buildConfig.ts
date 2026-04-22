@@ -3,6 +3,7 @@ import type {
   CxAssetsConfig,
   CxChecksumsConfig,
   CxConfig,
+  CxDocsConfig,
   CxFilesConfig,
   CxHandoverConfig,
   CxManifestConfig,
@@ -37,6 +38,7 @@ export interface BuildConfigOptions {
   checksums?: Partial<CxChecksumsConfig>;
   tokens?: Partial<CxTokensConfig>;
   assets?: Partial<CxAssetsConfig>;
+  docs?: Partial<CxDocsConfig>;
   mcp?: Partial<CxMcpConfig>;
   sections?: Record<string, BuildSectionOptions>;
   dedup?: Partial<CxConfig["dedup"]>;
@@ -170,6 +172,10 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
       targetDir: `${projectName}-assets`,
       layout: "flat",
       ...options.assets,
+    },
+    docs: {
+      targetDir: `${projectName}-docs-exports`,
+      ...options.docs,
     },
     behavior: {
       ...DEFAULT_BEHAVIOR_VALUES,

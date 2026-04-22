@@ -184,6 +184,33 @@ describe("bundle workflow", () => {
     expect(checksum).toContain("demo-docs-exports/onboarding.mmd.md");
   });
 
+  test("uses docs.target_dir for bundled derived docs review exports", async () => {
+    const project = await createProject({
+      config: {
+        docs: {
+          targetDir: "review-docs",
+        },
+      },
+    });
+    await seedAntoraDocs(project.root);
+
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    expect(
+      manifest.derivedReviewExports?.map((artifact) => artifact.storedPath),
+    ).toEqual([
+      "review-docs/architecture.mmd.md",
+      "review-docs/manual.mmd.md",
+      "review-docs/onboarding.mmd.md",
+    ]);
+  });
+
   test("surfaces derived docs review exports through inspect and list", async () => {
     const project = await createProject();
     await seedAntoraDocs(project.root);

@@ -49,6 +49,9 @@ mode = "copy"
 target_dir = "demo-assets"
 layout = "flat"
 
+[docs]
+target_dir = "demo-docs-exports"
+
 [config]
 duplicate_entry = "fail"
 

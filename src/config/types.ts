@@ -186,6 +186,17 @@ export interface CxAssetsConfig {
   layout: CxAssetsLayout;
 }
 
+export interface CxDocsConfig {
+  /**
+   * Directory name used for exported review docs.
+   *
+   * - In `cx docs export`, the default destination becomes `dist/<targetDir>`.
+   * - In `cx bundle --include-doc-exports`, exports are staged under this
+   *   directory inside the bundle alongside other artifacts.
+   */
+  targetDir: string;
+}
+
 /**
  * Category B behavioral settings — configurable via cx.toml, CX_* env vars, or CLI flags.
  *
@@ -282,6 +293,7 @@ export interface CxConfig {
   checksums: CxChecksumsConfig;
   tokens: CxTokensConfig;
   assets: CxAssetsConfig;
+  docs: CxDocsConfig;
   behavior: CxBehaviorConfig;
   behaviorSources: CxBehaviorSources;
   mcp: CxMcpConfig;
@@ -306,6 +318,7 @@ export interface CxConfigInput {
   tokens?: Record<string, unknown>;
   display?: unknown;
   assets?: Record<string, unknown>;
+  docs?: Record<string, unknown>;
   config?: Record<string, unknown>;
   mcp?: Record<string, unknown>;
   sections?: Record<string, Record<string, unknown>>;

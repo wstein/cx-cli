@@ -32,6 +32,7 @@ describe("loadCxConfig object model", () => {
     const config = await loadConfig();
     expect(config.projectName).toBe("demo");
     expect(config.assets.targetDir).toBe("demo-assets");
+    expect(config.docs.targetDir).toBe("demo-docs-exports");
     expect(config.assets.layout).toBe("flat");
     expect(config.checksums.fileName).toBe("demo.sha256");
     expect(config.tokens.encoding).toBe("o200k_base");
@@ -246,7 +247,7 @@ describe("loadCxConfig object model", () => {
     );
   });
 
-  test("expands the project token in checksum and asset paths", async () => {
+  test("expands the project token in checksum, asset, and docs paths", async () => {
     const config = await loadConfig({
       checksums: {
         fileName: "{project}.lock",
@@ -254,10 +255,14 @@ describe("loadCxConfig object model", () => {
       assets: {
         targetDir: "{project}-assets",
       },
+      docs: {
+        targetDir: "{project}-review-docs",
+      },
     });
 
     expect(config.checksums.fileName).toBe("demo.lock");
     expect(config.assets.targetDir).toBe("demo-assets");
+    expect(config.docs.targetDir).toBe("demo-review-docs");
   });
 
   test("loads section priority from config", async () => {

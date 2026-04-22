@@ -145,6 +145,9 @@ function baseConfig(root: string): CxConfig {
       targetDir: "demo-assets",
       layout: "flat",
     },
+    docs: {
+      targetDir: "demo-docs-exports",
+    },
     sections: {
       docs: {
         include: ["docs/**"],

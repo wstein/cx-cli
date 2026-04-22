@@ -873,6 +873,7 @@ function buildCxConfigFromParsedInput(
   const checksums = parsed.checksums ?? {};
   const tokens = parsed.tokens ?? {};
   const assets = parsed.assets ?? {};
+  const docs = parsed.docs ?? {};
   const configSection = parsed.config ?? {};
   const mcp = parsed.mcp ?? {};
   const sectionsInput = parsed.sections;
@@ -1192,6 +1193,15 @@ function buildCxConfigFromParsedInput(
         projectName,
       ),
       layout: assetsLayoutResolved.value,
+    },
+    docs: {
+      targetDir: resolveTemplate(
+        expectString(
+          docs.target_dir ?? DEFAULT_CONFIG_VALUES.docs.targetDir,
+          "docs.target_dir",
+        ),
+        projectName,
+      ),
     },
     behavior,
     behaviorSources,
