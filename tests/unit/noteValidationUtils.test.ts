@@ -197,7 +197,7 @@ describe("note validation utilities", () => {
       // This test verifies the type structure is valid
       type NoteMetadataCheck = {
         id: string;
-        target: "current" | "v0.4" | "v0.5" | "backlog";
+        target: "current" | "v0.4" | "v0.5" | "v0.6" | "backlog";
         aliases: string[];
         tags: string[];
         title: string;

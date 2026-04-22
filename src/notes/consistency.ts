@@ -90,7 +90,7 @@ export interface ConsistencyReport {
     id: string;
     filePath: string;
     title: string;
-    target: "current" | "v0.4" | "v0.5" | "backlog";
+    target: "current" | "v0.4" | "v0.5" | "v0.6" | "backlog";
     score: number;
     label: NoteCognitionLabel;
     trustLevel: NoteTrustLevel;

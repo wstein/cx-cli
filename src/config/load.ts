@@ -66,12 +66,9 @@ const VALID_NOTES_DOCUMENT_FORMATS = new Set<CxNotesDocumentFormat>([
   "markdown",
   "plain",
 ]);
-const VALID_NOTE_TARGETS = new Set<"current" | "v0.4" | "v0.5" | "backlog">([
-  "current",
-  "v0.4",
-  "v0.5",
-  "backlog",
-]);
+const VALID_NOTE_TARGETS = new Set<
+  "current" | "v0.4" | "v0.5" | "v0.6" | "backlog"
+>(["current", "v0.4", "v0.5", "v0.6", "backlog"]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -478,7 +475,7 @@ function parseNotesProfiles(
     const invalidTargets = includeTargetsRaw.filter(
       (target) =>
         !VALID_NOTE_TARGETS.has(
-          target as "current" | "v0.4" | "v0.5" | "backlog",
+          target as "current" | "v0.4" | "v0.5" | "v0.6" | "backlog",
         ),
     );
     if (invalidTargets.length > 0) {
@@ -518,7 +515,7 @@ function parseNotesProfiles(
         [],
       ),
       includeTargets: includeTargetsRaw as Array<
-        "current" | "v0.4" | "v0.5" | "backlog"
+        "current" | "v0.4" | "v0.5" | "v0.6" | "backlog"
       >,
       sectionOrder: expectStringArray(
         rawProfile.section_order,

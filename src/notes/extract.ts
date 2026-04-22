@@ -87,7 +87,8 @@ const TARGET_PRIORITY: Record<NoteTarget, number> = {
   current: 0,
   "v0.4": 1,
   "v0.5": 2,
-  backlog: 3,
+  "v0.6": 3,
+  backlog: 4,
 };
 
 const SECTION_TITLE_ALIASES: Record<string, string> = {

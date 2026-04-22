@@ -14,8 +14,10 @@ function noteTargetPriority(target: NoteTarget): number {
       return 1;
     case "v0.5":
       return 2;
-    case "backlog":
+    case "v0.6":
       return 3;
+    case "backlog":
+      return 4;
   }
 }
 
@@ -27,6 +29,8 @@ export function describeNoteTarget(target: NoteTarget): string {
       return "planned for v0.4 and not yet implemented";
     case "v0.5":
       return "planned for v0.5 and not yet implemented";
+    case "v0.6":
+      return "planned for v0.6 and not yet implemented";
     case "backlog":
       return "future idea and not scheduled";
   }

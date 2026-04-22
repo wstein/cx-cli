@@ -112,7 +112,7 @@ This note has a real summary paragraph now.
 
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.error).toContain(
-      "target must be one of current, v0.4, v0.5, or backlog",
+      "target must be one of current, v0.4, v0.5, v0.6, or backlog",
     );
   });
 
@@ -134,6 +134,26 @@ This note is planned for the v0.5 line and remains reviewable.
 
     expect(result.valid).toBe(true);
     expect(result.notes[0]?.target).toBe("v0.5");
+  });
+
+  test("accepts v0.6 as a planned note target", () => {
+    const result = validateNoteDocuments([
+      doc(
+        "v0-6-note.md",
+        `---
+id: 20250113143016
+aliases: []
+tags: ["planning"]
+target: v0.6
+---
+
+This note is planned for the v0.6 line and remains reviewable.
+`,
+      ),
+    ]);
+
+    expect(result.valid).toBe(true);
+    expect(result.notes[0]?.target).toBe("v0.6");
   });
 
   test("trims whitespace-only aliases", () => {

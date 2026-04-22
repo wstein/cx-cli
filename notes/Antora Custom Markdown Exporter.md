@@ -12,6 +12,11 @@ Antora-derived MultiMarkdown export belongs in the `v0.5` line as a derived revi
 Add a docs export path that emits separate `.mmd.md` files for canonical
 surfaces such as architecture, manual, onboarding, workflows, and release.
 
+Use a staged rollout:
+
+- `v0.5`: support `cx bundle --include-doc-exports` as an opt-in bridge
+- `v0.6`: consider making doc exports default bundle content
+
 Prefer an explicit command such as `cx docs export` over making Antora export
 part of the default `cx bundle` path.
 
@@ -37,6 +42,8 @@ Implement the export in `v0.5` with these constraints:
 - add `cx docs export` as the primary operator entrypoint
 - emit per-surface `.mmd.md` files instead of one flattened mega-document
 - preserve Antora topic boundaries and provenance metadata
+- support `cx bundle --include-doc-exports` as an opt-in-only bridge into the
+  bundle folder
 - allow optional placement alongside bundle outputs only when explicitly
   requested
 - if recorded in the manifest, use a non-proof field such as derived review
@@ -49,6 +56,8 @@ manifest, checksum, validate, and verify contracts are deliberately extended.
 
 - [[Antora and AsciiDoctor Adoption Boundary]]
 - [[Antora MultiMarkdown Exports Stay Outside Proof Artifacts]]
+- [[v0.5 Bundle Includes Doc Exports Only By Opt-In]]
+- [[v0.6 Bundle Includes Doc Exports By Default]]
 - [[Output Extension Model]]
 - [[Publish Antora Docs to GitHub Pages]]
 - `docs/modules/ROOT/pages/`
