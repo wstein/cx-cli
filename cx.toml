@@ -59,7 +59,7 @@ target_dir = "assets"
 layout = "flat"
 
 [docs]
-target_dir = "docs-exports"
+target_dir = "."
 
 [sections.docs]
 include = ["docs/**", "notes/**", "README.md", "*.md"]
