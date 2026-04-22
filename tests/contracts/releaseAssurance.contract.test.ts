@@ -47,7 +47,7 @@ describe("release assurance contract", () => {
   test("release workflow pins Bun setup to the declared minimum runtime", async () => {
     const workflow = await readText(".github/workflows/release.yml");
 
-    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
+    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.12");
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });
 

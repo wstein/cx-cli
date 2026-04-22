@@ -22,7 +22,7 @@ Use this short checklist when cutting a release.
 * Promote `main` only after successful publishing, and do it with a fast-forward update to the released commit. Do not rebase `main` onto the release tag.
 * The release workflow should own that final `main` fast-forward so the shipped commit and the branch tip stay identical without a manual replay step.
 * Run `make certify` before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, the official Repomix reference-oracle smoke lane, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use `make verify` during development; `make certify` is the pre-tag CI-equivalent gate.
-* The CI workflow validates Bun against the declared minimum runtime (`1.3.11`) and `latest` before release automation is allowed to proceed.
+* The CI workflow validates Bun against the declared minimum runtime (`1.3.12`) and `latest` before release automation is allowed to proceed.
 * The Pages publish now assembles one site tree with `/schemas/` and `/coverage/`; successful `main` CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.
 * Run `bun run pages:smoke` against the staged `dist/site/` tree whenever you need to validate the public publish surface locally.
 * If schema files change, update the published Pages site and verify the `schemas/` index still lists the current versions.

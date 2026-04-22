@@ -31,7 +31,7 @@ describe("CI lanes contract", () => {
   test("workflow test lanes invoke script-backed Bun commands", async () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
-    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.11");
+    expect(workflow).toContain("BUN_MIN_VERSION: 1.3.12");
     expect(workflow).toContain("run: bun run ci:test:fast:monitored");
     expect(workflow).toContain(
       'cat .ci/observability-summary.md >> "$GITHUB_STEP_SUMMARY"',
@@ -236,7 +236,7 @@ describe("CI lanes contract", () => {
       "  bun-compat-smoke:\n    runs-on: ubuntu-latest\n    needs:",
     );
     expect(workflow).toContain("      - test-fast");
-    expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
+    expect(workflow).toContain('bun-version: ["1.3.12", "latest"]');
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });
 
@@ -253,7 +253,7 @@ describe("CI lanes contract", () => {
     expect(workflow).toContain("Upload HTML coverage report");
     expect(workflow).not.toContain("fast-lane-observability");
     expect(workflow).not.toContain("contracts-observability");
-    expect(workflow).toContain('bun-version: ["1.3.11", "latest"]');
+    expect(workflow).toContain('bun-version: ["1.3.12", "latest"]');
     expect(workflow).toContain("bun-version: $" + "{{ env.BUN_MIN_VERSION }}");
   });
 
