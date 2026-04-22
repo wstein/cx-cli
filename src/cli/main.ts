@@ -471,11 +471,18 @@ export async function main(
           .positional("bundleDir", { type: "string", demandOption: true })
           .option("section", { type: "array", string: true })
           .option("file", { type: "array", string: true })
+          .option("derived-review-exports-only", {
+            type: "boolean",
+            default: false,
+            description:
+              "Show only derived docs review exports, without bundle file rows.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runListCommand(
           {
             bundleDir: resolveCliPath(args.bundleDir, io.cwd) ?? args.bundleDir,
+            derivedReviewExportsOnly: args["derived-review-exports-only"],
             files: normalizeArrayArg(args.file),
             json: args.json,
             sections: normalizeArrayArg(args.section),

@@ -264,11 +264,16 @@ See [[20260418120000]].
     expect(result.exitCode).toBe(0);
 
     const payload = parseJsonOutput<{
-      selection?: { sections?: string[]; files?: string[] };
+      selection?: {
+        sections?: string[];
+        files?: string[];
+        derivedReviewExportsOnly?: boolean;
+      };
       summary?: { fileCount?: number };
     }>(result.stdout);
     expect(payload.selection?.sections).toEqual(["src"]);
     expect(payload.selection?.files).toEqual(["src/index.ts"]);
+    expect(payload.selection?.derivedReviewExportsOnly).toBe(false);
     expect(payload.summary?.fileCount).toBe(1);
   });
 
@@ -314,6 +319,32 @@ See [[20260418120000]].
       }>(listResult.stdout);
       expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
       expect(listPayload.derivedReviewExports).toHaveLength(3);
+
+      const derivedOnlyResult = await captureCli({
+        run: () =>
+          main([
+            "list",
+            "dist/demo-bundle",
+            "--json",
+            "--derived-review-exports-only",
+          ]),
+      });
+      expect(derivedOnlyResult.exitCode).toBe(0);
+      const derivedOnlyPayload = parseJsonOutput<{
+        selection?: { derivedReviewExportsOnly?: boolean };
+        summary?: { fileCount?: number; derivedReviewExportCount?: number };
+        files?: unknown[];
+        sections?: unknown[];
+        assets?: unknown[];
+        derivedReviewExports?: Array<{ storedPath?: string }>;
+      }>(derivedOnlyResult.stdout);
+      expect(derivedOnlyPayload.selection?.derivedReviewExportsOnly).toBe(true);
+      expect(derivedOnlyPayload.summary?.fileCount).toBe(0);
+      expect(derivedOnlyPayload.summary?.derivedReviewExportCount).toBe(3);
+      expect(derivedOnlyPayload.files).toEqual([]);
+      expect(derivedOnlyPayload.sections).toEqual([]);
+      expect(derivedOnlyPayload.assets).toEqual([]);
+      expect(derivedOnlyPayload.derivedReviewExports).toHaveLength(3);
     } finally {
       process.chdir(cwd);
     }

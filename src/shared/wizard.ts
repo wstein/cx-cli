@@ -9,6 +9,42 @@ interface WizardIo {
   log?: (...args: unknown[]) => void;
 }
 
+interface WizardPromptAdapter {
+  input: typeof prompts.input;
+  select: typeof prompts.select;
+  confirm: typeof prompts.confirm;
+  checkbox: typeof prompts.checkbox;
+}
+
+let wizardPromptAdapter: WizardPromptAdapter = {
+  input: prompts.input,
+  select: prompts.select,
+  confirm: prompts.confirm,
+  checkbox: prompts.checkbox,
+};
+
+function getWizardPromptAdapter(): WizardPromptAdapter {
+  return wizardPromptAdapter;
+}
+
+export function setWizardPromptAdapter(
+  adapter: Partial<WizardPromptAdapter>,
+): void {
+  wizardPromptAdapter = {
+    ...wizardPromptAdapter,
+    ...adapter,
+  };
+}
+
+export function resetWizardPromptAdapter(): void {
+  wizardPromptAdapter = {
+    input: prompts.input,
+    select: prompts.select,
+    confirm: prompts.confirm,
+    checkbox: prompts.checkbox,
+  };
+}
+
 function getWizardLogger(io: WizardIo = {}): (...args: unknown[]) => void {
   return io.log ?? console.log;
 }
@@ -30,7 +66,7 @@ export async function wizardInput(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  const result = await prompts.input({
+  const result = await getWizardPromptAdapter().input({
     message: kleur.cyan(`? ${message}`),
     default: options.default ?? "",
   });
@@ -49,7 +85,7 @@ export async function wizardSelect<T>(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return prompts.select<T>({
+  return getWizardPromptAdapter().select<T>({
     message: kleur.cyan(`? ${message}`),
     choices: choices.map((c) => ({
       name: c.name,
@@ -69,7 +105,7 @@ export async function wizardConfirm(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return prompts.confirm({
+  return getWizardPromptAdapter().confirm({
     message: kleur.cyan(`? ${message}`),
     default: options.default ?? true,
   });
@@ -87,7 +123,7 @@ export async function wizardCheckbox<T>(
   if (options.description) {
     getWizardLogger(io)(`${kleur.gray(options.description)}`);
   }
-  return prompts.checkbox<T>({
+  return getWizardPromptAdapter().checkbox<T>({
     message: kleur.cyan(`? ${message}`),
     choices: choices.map((c) => ({
       name: c.name,

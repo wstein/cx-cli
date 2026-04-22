@@ -1,12 +1,12 @@
 // test-lane: unit
-
-import * as prompts from "@inquirer/prompts";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   printWizardComplete,
   printWizardHeader,
   printWizardStep,
   printWizardTip,
+  resetWizardPromptAdapter,
+  setWizardPromptAdapter,
 } from "../../src/shared/wizard.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
@@ -24,6 +24,7 @@ describe("shared wizard utilities", () => {
   });
 
   afterEach(() => {
+    resetWizardPromptAdapter();
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });
@@ -60,7 +61,9 @@ describe("shared wizard utilities", () => {
     const inputMock = vi.fn(
       async (_options: { message: string; default?: string }) => "typed answer",
     );
-    vi.spyOn(prompts, "input").mockImplementation(inputMock);
+    setWizardPromptAdapter({
+      input: inputMock as typeof import("@inquirer/prompts").input,
+    });
 
     const result = await import("../../src/shared/wizard.js").then((wizard) =>
       wizard.wizardInput(
@@ -89,7 +92,9 @@ describe("shared wizard utilities", () => {
       async (_options: { message: string; choices: readonly unknown[] }) =>
         "two",
     );
-    vi.spyOn(prompts, "select").mockImplementation(selectMock);
+    setWizardPromptAdapter({
+      select: selectMock as typeof import("@inquirer/prompts").select,
+    });
 
     const result = await import("../../src/shared/wizard.js").then((wizard) =>
       wizard.wizardSelect(
@@ -121,7 +126,9 @@ describe("shared wizard utilities", () => {
     const confirmMock = vi.fn(
       async (_options: { message: string; default?: boolean }) => false,
     );
-    vi.spyOn(prompts, "confirm").mockImplementation(confirmMock);
+    setWizardPromptAdapter({
+      confirm: confirmMock as typeof import("@inquirer/prompts").confirm,
+    });
 
     const result = await import("../../src/shared/wizard.js").then((wizard) =>
       wizard.wizardConfirm(
@@ -150,7 +157,9 @@ describe("shared wizard utilities", () => {
         "beta",
       ],
     );
-    vi.spyOn(prompts, "checkbox").mockImplementation(checkboxMock);
+    setWizardPromptAdapter({
+      checkbox: checkboxMock as typeof import("@inquirer/prompts").checkbox,
+    });
 
     const result = await import("../../src/shared/wizard.js").then((wizard) =>
       wizard.wizardCheckbox(

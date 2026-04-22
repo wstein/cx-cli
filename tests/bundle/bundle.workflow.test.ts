@@ -246,6 +246,50 @@ describe("bundle workflow", () => {
     ).toBe(true);
   });
 
+  test("lists only derived docs review exports when requested", async () => {
+    const project = await createProject();
+    await seedAntoraDocs(project.root);
+    expect(
+      await runQuietBundleCommand({
+        config: project.configPath,
+        includeDocExports: true,
+      }),
+    ).toBe(0);
+
+    const listCapture = createBufferedCommandIo({ cwd: project.root });
+    expect(
+      await runListCommand(
+        {
+          bundleDir: project.bundleDir,
+          json: true,
+          derivedReviewExportsOnly: true,
+        },
+        listCapture.io,
+      ),
+    ).toBe(0);
+    const listPayload = parseJsonOutput<{
+      summary?: { fileCount?: number; derivedReviewExportCount?: number };
+      selection?: { derivedReviewExportsOnly?: boolean };
+      sections?: unknown[];
+      assets?: unknown[];
+      files?: unknown[];
+      derivedReviewExports?: Array<{ storedPath?: string }>;
+    }>(listCapture.stdout());
+    expect(listPayload.selection?.derivedReviewExportsOnly).toBe(true);
+    expect(listPayload.summary?.fileCount).toBe(0);
+    expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
+    expect(listPayload.sections).toEqual([]);
+    expect(listPayload.assets).toEqual([]);
+    expect(listPayload.files).toEqual([]);
+    expect(
+      listPayload.derivedReviewExports?.map((artifact) => artifact.storedPath),
+    ).toEqual([
+      "demo-docs-exports/architecture.mmd.md",
+      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/onboarding.mmd.md",
+    ]);
+  });
+
   test("emits structured JSON for list and inspect automation", async () => {
     const { project } = await bundledProject();
     const inspectCapture = createBufferedCommandIo();

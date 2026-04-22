@@ -33,14 +33,24 @@ interface DocsExportSurfaceSpec {
 }
 
 const require = createRequire(import.meta.url);
-const exporterPackage =
-  require("@wsmy/antora-markdown-exporter/package.json") as {
-    version: string;
-  };
+
+function readPackageVersion(packageName: string): string {
+  const entryPath = require.resolve(packageName);
+  const packageJsonPath = path.join(
+    path.dirname(entryPath),
+    "..",
+    "package.json",
+  );
+  const packageJson = require(packageJsonPath) as { version?: string };
+  if (!packageJson.version) {
+    throw new Error(`Missing version metadata for ${packageName}.`);
+  }
+  return packageJson.version;
+}
 
 export const DOCS_EXPORT_GENERATOR = {
   name: "@wsmy/antora-markdown-exporter",
-  version: exporterPackage.version,
+  version: readPackageVersion("@wsmy/antora-markdown-exporter"),
   format: "multimarkdown",
   extension: ".mmd.md",
 } as const;

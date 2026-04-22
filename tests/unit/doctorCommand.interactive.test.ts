@@ -5,8 +5,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import * as prompts from "@inquirer/prompts";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import {
+  resetWizardPromptAdapter,
+  setWizardPromptAdapter,
+} from "../../src/shared/wizard.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
 
 const execFileAsync = promisify(execFile);
@@ -73,15 +76,18 @@ function installInquirerMock(owner: string): {
   selectMock: ReturnType<typeof vi.fn>;
 } {
   const selectMock = vi.fn(async () => owner);
-  vi.spyOn(prompts, "select").mockImplementation(selectMock);
-  vi.spyOn(prompts, "input").mockImplementation(async () => "unused");
-  vi.spyOn(prompts, "confirm").mockImplementation(async () => true);
-  vi.spyOn(prompts, "checkbox").mockImplementation(async () => []);
+  setWizardPromptAdapter({
+    select: selectMock as typeof import("@inquirer/prompts").select,
+    input: (async () => "unused") as typeof import("@inquirer/prompts").input,
+    confirm: (async () => true) as typeof import("@inquirer/prompts").confirm,
+    checkbox: (async () => []) as typeof import("@inquirer/prompts").checkbox,
+  });
   return { selectMock };
 }
 
 describe("runDoctorCommand coverage helpers", () => {
   afterEach(() => {
+    resetWizardPromptAdapter();
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });

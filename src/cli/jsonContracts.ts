@@ -190,6 +190,7 @@ export const ListCommandJsonSchema = z.object({
   selection: z.object({
     sections: z.array(z.string()),
     files: z.array(z.string()),
+    derivedReviewExportsOnly: z.boolean(),
   }),
   sections: z.array(
     z.object({

@@ -27,6 +27,7 @@ export interface ListArgs {
   json: boolean;
   sections?: string[] | undefined;
   files?: string[] | undefined;
+  derivedReviewExportsOnly?: boolean | undefined;
 }
 
 interface RowMeta {
@@ -436,10 +437,12 @@ export async function runListCommand(
   const bundleDir = path.resolve(io.cwd, args.bundleDir);
   const { manifest, manifestName } = await loadManifestFromBundle(bundleDir);
   const userConfig = await loadCxUserConfig();
-  const rows = selectManifestRows(manifest.files, {
-    sections: args.sections,
-    files: args.files,
-  });
+  const rows = args.derivedReviewExportsOnly
+    ? []
+    : selectManifestRows(manifest.files, {
+        sections: args.sections,
+        files: args.files,
+      });
   const sections = selectManifestSections(manifest, rows);
   const assets = selectManifestAssets(manifest, rows);
   const extractability = await resolveExtractability({
@@ -502,6 +505,7 @@ export async function runListCommand(
         selection: {
           sections: args.sections ?? [],
           files: args.files ?? [],
+          derivedReviewExportsOnly: args.derivedReviewExportsOnly ?? false,
         },
         sections,
         assets,
