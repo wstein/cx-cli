@@ -806,6 +806,8 @@ export async function runBundleCommand(
                 activeBundleDir,
                 docsExportDirectoryName(config.docs.targetDir),
               ),
+              format: "multimarkdown",
+              extension: ".mmd.txt",
             })
           ).map((artifact) => ({
             surfaceName: artifact.surfaceName,
@@ -821,7 +823,10 @@ export async function runBundleCommand(
             sizeBytes: artifact.sizeBytes,
             pageCount: artifact.pageCount,
             sourcePaths: [...artifact.sourcePaths],
-            generator: { ...DOCS_EXPORT_GENERATOR },
+            generator: {
+              ...DOCS_EXPORT_GENERATOR,
+              extension: ".mmd.txt",
+            },
             trustClassification: "derived_review_export",
           }))
         : undefined;

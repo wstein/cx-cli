@@ -128,7 +128,7 @@ describe("manifest JSON parsing and rendering", () => {
             surfaceName: "onboarding",
             title: "Onboarding",
             moduleName: "onboarding",
-            storedPath: "test-docs-exports/onboarding.mmd.md",
+            storedPath: "test-docs-exports/onboarding.mmd.txt",
             sha256:
               "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
             sizeBytes: 256,
@@ -138,7 +138,7 @@ describe("manifest JSON parsing and rendering", () => {
               name: "@wsmy/antora-markdown-exporter",
               version: "0.7.0",
               format: "multimarkdown",
-              extension: ".mmd.md",
+              extension: ".mmd.txt",
             },
             trustClassification: "derived_review_export",
           },
@@ -147,7 +147,7 @@ describe("manifest JSON parsing and rendering", () => {
 
       const json = renderManifestJson(manifestWithDerivedExports);
       expect(json).toContain("derivedReviewExports");
-      expect(json).toContain("onboarding.mmd.md");
+      expect(json).toContain("onboarding.mmd.txt");
     });
 
     it("produces valid JSON that can be parsed", () => {

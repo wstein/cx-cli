@@ -32,7 +32,7 @@ Do not declare the convention early.
 First ship and evaluate:
 
 - the `v0.5` `cx docs export` workflow
-- per-surface `.mmd.md` review outputs
+- per-surface `.mmd` review outputs plus bundled `.mmd.txt` artifacts
 - explicit trust language for derived review exports
 - operator feedback on whether the exports improve review and LLM handoff
 

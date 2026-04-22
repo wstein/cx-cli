@@ -101,7 +101,7 @@ function sampleManifest(): CxManifest {
         surfaceName: "manual",
         title: "Manual",
         moduleName: "manual",
-        storedPath: "demo-docs-exports/manual.mmd.md",
+        storedPath: "demo-docs-exports/manual.mmd.txt",
         sha256:
           "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         sizeBytes: 128,
@@ -111,7 +111,7 @@ function sampleManifest(): CxManifest {
           name: "@wsmy/antora-markdown-exporter",
           version: "0.7.0",
           format: "multimarkdown",
-          extension: ".mmd.md",
+          extension: ".mmd.txt",
         },
         trustClassification: "derived_review_export",
       },
@@ -165,7 +165,7 @@ describe("manifest contract", () => {
   test("retains derived review exports when present", () => {
     const parsed = parseManifestJson(renderManifestJson(sampleManifest()));
     expect(parsed.derivedReviewExports?.[0]?.storedPath).toBe(
-      "demo-docs-exports/manual.mmd.md",
+      "demo-docs-exports/manual.mmd.txt",
     );
     expect(parsed.derivedReviewExports?.[0]?.trustClassification).toBe(
       "derived_review_export",

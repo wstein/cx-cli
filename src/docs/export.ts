@@ -4,6 +4,12 @@ import path from "node:path";
 import { sha256File } from "../shared/hashing.js";
 
 export type DocsExportSurfaceName = "architecture" | "manual" | "onboarding";
+export type DocsExportFormat =
+  | "multimarkdown"
+  | "commonmark"
+  | "gfm"
+  | "gitlab"
+  | "strict";
 
 export interface DocsExportArtifact {
   surfaceName: DocsExportSurfaceName;
@@ -21,6 +27,7 @@ export interface DocsExportArtifact {
 export interface ExportDocsParams {
   workspaceRoot: string;
   outputDir: string;
+  format?: DocsExportFormat | undefined;
   extension?: string | undefined;
   filenamePrefix?: string | undefined;
 }
@@ -52,7 +59,6 @@ export const DOCS_EXPORT_GENERATOR = {
   name: "@wsmy/antora-markdown-exporter",
   version: readPackageVersion("@wsmy/antora-markdown-exporter"),
   format: "multimarkdown",
-  extension: ".mmd.md",
 } as const;
 
 const BUILTIN_DOC_SURFACES: DocsExportSurfaceSpec[] = [
@@ -80,16 +86,53 @@ const INCLUDE_LINE_PATTERN = /^include::([^[]+)\[[^\]]*\]\s*$/gm;
 const NAV_XREF_PATTERN = /xref:([^[]+)\[[^\]]*\]/g;
 const MULTIMARKDOWN_METADATA_PATTERN = /^Title:\s*(.+)\nDate:\s*[^\n]+\n\n/u;
 
+export function resolveDocsExportExtension(format: DocsExportFormat): string {
+  return format === "multimarkdown" ? ".mmd" : ".md";
+}
+
 async function renderPageMarkdown(
   source: string,
   pagePath: string,
+  format: DocsExportFormat,
 ): Promise<string> {
   const { renderAssemblyMarkdown } = await import(
     "@wsmy/antora-markdown-exporter"
   );
-  return renderAssemblyMarkdown(source, "multimarkdown", pagePath, {
+  return renderAssemblyMarkdown(source, format, pagePath, {
     xrefFallbackLabelStyle: "fragment-or-path",
   });
+}
+
+const SUPPRESSED_EXPORTER_WARNING_PATTERN =
+  /^asciidoctor: WARNING: <stdin>: line \d+: section title out of sequence:/u;
+
+async function withSuppressedExporterWarnings<T>(
+  action: () => Promise<T>,
+): Promise<T> {
+  const originalWrite = process.stderr.write.bind(process.stderr);
+
+  process.stderr.write = ((
+    chunk: string | Uint8Array,
+    encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+    callback?: (error?: Error | null) => void,
+  ) => {
+    const text = String(chunk);
+    const resolvedCallback =
+      typeof encodingOrCallback === "function" ? encodingOrCallback : callback;
+
+    if (SUPPRESSED_EXPORTER_WARNING_PATTERN.test(text.trim())) {
+      resolvedCallback?.();
+      return true;
+    }
+
+    return originalWrite(chunk, encodingOrCallback as never, callback);
+  }) as typeof process.stderr.write;
+
+  try {
+    return await action();
+  } finally {
+    process.stderr.write = originalWrite;
+  }
 }
 
 function resolveOutputFileName(params: {
@@ -269,6 +312,7 @@ function normalizeRenderedPage(markdown: string): string {
 async function renderSurfaceDocument(params: {
   workspaceRoot: string;
   surface: DocsExportSurfaceSpec;
+  format: DocsExportFormat;
 }): Promise<{ content: string; sourcePaths: string[] }> {
   const pagePaths = await collectSurfacePagePaths(
     params.workspaceRoot,
@@ -280,17 +324,23 @@ async function renderSurfaceDocument(params: {
     );
   }
 
-  const renderedPages = await Promise.all(
-    pagePaths.map(async (pagePath) => {
+  const renderedPages = await withSuppressedExporterWarnings(async () => {
+    const pages: string[] = [];
+
+    for (const pagePath of pagePaths) {
       const expanded = await expandIncludes({
         workspaceRoot: params.workspaceRoot,
         relativePath: pagePath,
       });
-      return normalizeRenderedPage(
-        await renderPageMarkdown(expanded, pagePath),
+      pages.push(
+        normalizeRenderedPage(
+          await renderPageMarkdown(expanded, pagePath, params.format),
+        ),
       );
-    }),
-  );
+    }
+
+    return pages;
+  });
 
   return {
     content: `${renderedPages.join("\n\n")}\n`,
@@ -301,7 +351,8 @@ async function renderSurfaceDocument(params: {
 export async function exportAntoraDocsToMarkdown(
   params: ExportDocsParams,
 ): Promise<DocsExportArtifact[]> {
-  const extension = params.extension ?? ".mmd.md";
+  const format = params.format ?? "multimarkdown";
+  const extension = params.extension ?? resolveDocsExportExtension(format);
   await fs.mkdir(params.outputDir, { recursive: true });
 
   const artifacts: DocsExportArtifact[] = [];
@@ -310,6 +361,7 @@ export async function exportAntoraDocsToMarkdown(
     const { content, sourcePaths } = await renderSurfaceDocument({
       workspaceRoot: params.workspaceRoot,
       surface,
+      format,
     });
     const outputFile = resolveOutputFileName({
       surfaceName: surface.surfaceName,

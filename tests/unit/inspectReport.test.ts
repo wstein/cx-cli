@@ -85,9 +85,9 @@ describe("collectInspectReport", () => {
     expect(
       report.derivedReviewExports.map((artifact) => artifact.storedPath),
     ).toEqual([
-      "demo-docs-exports/architecture.mmd.md",
-      "demo-docs-exports/manual.mmd.md",
-      "demo-docs-exports/onboarding.mmd.md",
+      "demo-docs-exports/architecture.mmd.txt",
+      "demo-docs-exports/manual.mmd.txt",
+      "demo-docs-exports/onboarding.mmd.txt",
     ]);
   });
 

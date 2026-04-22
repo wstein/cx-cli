@@ -164,9 +164,9 @@ describe("bundle workflow", () => {
     expect(
       manifest.derivedReviewExports?.map((artifact) => artifact.storedPath),
     ).toEqual([
-      "demo-docs-exports/architecture.mmd.md",
-      "demo-docs-exports/manual.mmd.md",
-      "demo-docs-exports/onboarding.mmd.md",
+      "demo-docs-exports/architecture.mmd.txt",
+      "demo-docs-exports/manual.mmd.txt",
+      "demo-docs-exports/onboarding.mmd.txt",
     ]);
 
     for (const artifact of manifest.derivedReviewExports ?? []) {
@@ -179,9 +179,9 @@ describe("bundle workflow", () => {
       path.join(project.bundleDir, manifest.checksumFile),
       "utf8",
     );
-    expect(checksum).toContain("demo-docs-exports/architecture.mmd.md");
-    expect(checksum).toContain("demo-docs-exports/manual.mmd.md");
-    expect(checksum).toContain("demo-docs-exports/onboarding.mmd.md");
+    expect(checksum).toContain("demo-docs-exports/architecture.mmd.txt");
+    expect(checksum).toContain("demo-docs-exports/manual.mmd.txt");
+    expect(checksum).toContain("demo-docs-exports/onboarding.mmd.txt");
   });
 
   test("uses docs.target_dir for bundled derived docs review exports", async () => {
@@ -205,9 +205,9 @@ describe("bundle workflow", () => {
     expect(
       manifest.derivedReviewExports?.map((artifact) => artifact.storedPath),
     ).toEqual([
-      "review-docs/architecture.mmd.md",
-      "review-docs/manual.mmd.md",
-      "review-docs/onboarding.mmd.md",
+      "review-docs/architecture.mmd.txt",
+      "review-docs/manual.mmd.txt",
+      "review-docs/onboarding.mmd.txt",
     ]);
   });
 
@@ -262,9 +262,9 @@ describe("bundle workflow", () => {
     expect(
       listPayload.derivedReviewExports?.map((artifact) => artifact.storedPath),
     ).toEqual([
-      "demo-docs-exports/architecture.mmd.md",
-      "demo-docs-exports/manual.mmd.md",
-      "demo-docs-exports/onboarding.mmd.md",
+      "demo-docs-exports/architecture.mmd.txt",
+      "demo-docs-exports/manual.mmd.txt",
+      "demo-docs-exports/onboarding.mmd.txt",
     ]);
     expect(
       listPayload.derivedReviewExports?.every(
@@ -311,9 +311,9 @@ describe("bundle workflow", () => {
     expect(
       listPayload.derivedReviewExports?.map((artifact) => artifact.storedPath),
     ).toEqual([
-      "demo-docs-exports/architecture.mmd.md",
-      "demo-docs-exports/manual.mmd.md",
-      "demo-docs-exports/onboarding.mmd.md",
+      "demo-docs-exports/architecture.mmd.txt",
+      "demo-docs-exports/manual.mmd.txt",
+      "demo-docs-exports/onboarding.mmd.txt",
     ]);
   });
 
@@ -358,9 +358,9 @@ describe("bundle workflow", () => {
         (artifact) => artifact.storedPath,
       ),
     ).toEqual([
-      "demo-docs-exports/architecture.mmd.md",
-      "demo-docs-exports/manual.mmd.md",
-      "demo-docs-exports/onboarding.mmd.md",
+      "demo-docs-exports/architecture.mmd.txt",
+      "demo-docs-exports/manual.mmd.txt",
+      "demo-docs-exports/onboarding.mmd.txt",
     ]);
   });
 
@@ -836,7 +836,7 @@ describe("bundle workflow", () => {
     const orphanedExportPath = path.join(
       project.bundleDir,
       "demo-docs-exports",
-      "obsolete.mmd.md",
+      "obsolete.mmd.txt",
     );
     await fs.writeFile(orphanedExportPath, "# obsolete\n", "utf8");
     expect(await fs.stat(orphanedExportPath)).toBeDefined();

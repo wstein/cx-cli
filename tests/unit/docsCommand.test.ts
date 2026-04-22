@@ -45,5 +45,6 @@ describe("runDocsCommand", () => {
     expect(payload.outputDir).toBe(
       path.join(workspace.rootDir, "dist", "review-docs"),
     );
+    expect(capture.stderr()).toBe("");
   });
 });

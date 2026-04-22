@@ -88,7 +88,7 @@ export interface DerivedReviewExportRecord {
     name: string;
     version: string;
     format: "multimarkdown";
-    extension: ".mmd.md";
+    extension: ".mmd.txt";
   };
   trustClassification: "derived_review_export";
 }

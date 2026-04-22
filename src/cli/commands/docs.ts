@@ -56,6 +56,7 @@ export async function runDocsCommand(
   const exports = await exportAntoraDocsToMarkdown({
     workspaceRoot: config.sourceRoot,
     outputDir,
+    format: "multimarkdown",
   });
   const totalBytes = exports.reduce(
     (sum, artifact) => sum + artifact.sizeBytes,

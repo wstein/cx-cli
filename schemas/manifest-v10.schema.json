@@ -490,7 +490,7 @@
               "const": "multimarkdown"
             },
             "extension": {
-              "const": ".mmd.md"
+              "const": ".mmd.txt"
             }
           }
         },

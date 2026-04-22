@@ -131,7 +131,7 @@ export const BundleCommandJsonSchema = z.object({
         name: z.string(),
         version: z.string(),
         format: z.literal("multimarkdown"),
-        extension: z.literal(".mmd.md"),
+        extension: z.literal(".mmd.txt"),
       }),
       trustClassification: z.literal("derived_review_export"),
     }),

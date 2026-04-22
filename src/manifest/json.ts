@@ -322,7 +322,7 @@ function parseDerivedReviewExportDto(
       extension: requireString(
         generator.extension,
         `derivedReviewExport[${index}].generator.extension`,
-      ) as ".mmd.md",
+      ) as ".mmd.txt",
     },
     trustClassification: requireString(
       obj.trustClassification,

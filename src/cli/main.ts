@@ -692,7 +692,7 @@ export async function main(
           .option("output-dir", {
             type: "string",
             description:
-              "Directory where .mmd.md exports should be written. Defaults to dist/<docs.target_dir>.",
+              "Directory where docs exports should be written. Defaults to dist/<docs.target_dir>; MultiMarkdown uses .mmd by default.",
           })
           .option("json", { type: "boolean", default: false }),
       async (args) => {

@@ -85,15 +85,15 @@ describe("CLI JSON contract", () => {
       expect.arrayContaining([
         expect.objectContaining({
           surfaceName: "onboarding",
-          outputFile: "onboarding.mmd.md",
+          outputFile: "onboarding.mmd",
         }),
         expect.objectContaining({
           surfaceName: "manual",
-          outputFile: "manual.mmd.md",
+          outputFile: "manual.mmd",
         }),
         expect.objectContaining({
           surfaceName: "architecture",
-          outputFile: "architecture.mmd.md",
+          outputFile: "architecture.mmd",
         }),
       ]),
     );

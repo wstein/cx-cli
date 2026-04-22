@@ -603,7 +603,7 @@ duplicate_entry = "first-wins"    # silently deduplicate repeated patterns
 [assets]
 layout = "deep"                   # preserve source directory structure in the bundle
 [docs]
-target_dir = "review-docs"        # place .mmd.md review exports under dist/review-docs and bundle/review-docs
+target_dir = "review-docs"        # place .mmd docs under dist/review-docs and bundled .mmd.txt exports under bundle/review-docs
 ----
 
 === Example: Docker environment
@@ -964,6 +964,22 @@ layout = "flat"
 [docs]
 target_dir = "{project}-docs-exports"
 ----
+
+=== `docs.target_dir`
+
+`docs.target_dir` controls the directory name used for Antora-derived
+review exports.
+
+It affects two surfaces:
+
+* `cx docs export` writes into `dist/<docs.target_dir>/` by default.
+  MultiMarkdown exports use `.mmd` by default; other markdown flavors use
+  `.md`.
+* `cx bundle --include-doc-exports` stages the same curated docs inside
+  the bundle under `<docs.target_dir>/`, with bundled MultiMarkdown files
+  written as `.mmd.txt` so they behave like other text bundle artifacts.
+
+The default value is `{project}-docs-exports`.
 
 === Asset collision invariant
 

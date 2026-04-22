@@ -20,13 +20,13 @@ describe("docs export", () => {
     });
 
     expect(artifacts.map((artifact) => artifact.outputFile)).toEqual([
-      "onboarding.mmd.md",
-      "manual.mmd.md",
-      "architecture.mmd.md",
+      "onboarding.mmd",
+      "manual.mmd",
+      "architecture.mmd",
     ]);
 
     const onboarding = await fs.readFile(
-      path.join(outputDir, "onboarding.mmd.md"),
+      path.join(outputDir, "onboarding.mmd"),
       "utf8",
     );
     expect(onboarding).toContain("# CX Documentation Index");
@@ -36,14 +36,14 @@ describe("docs export", () => {
     );
 
     const manual = await fs.readFile(
-      path.join(outputDir, "manual.mmd.md"),
+      path.join(outputDir, "manual.mmd"),
       "utf8",
     );
     expect(manual).toContain("# Operator Manual Overview");
     expect(manual).toContain("# CX Operator Manual");
 
     const architecture = await fs.readFile(
-      path.join(outputDir, "architecture.mmd.md"),
+      path.join(outputDir, "architecture.mmd"),
       "utf8",
     );
     expect(architecture).toContain("# Architecture Overview");
@@ -67,9 +67,9 @@ describe("docs export", () => {
     });
 
     expect(artifacts.map((artifact) => artifact.outputFile)).toEqual([
-      "demo-onboarding.mmd.md",
-      "demo-manual.mmd.md",
-      "demo-architecture.mmd.md",
+      "demo-onboarding.mmd",
+      "demo-manual.mmd",
+      "demo-architecture.mmd",
     ]);
   });
 });

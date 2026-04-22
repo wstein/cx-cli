@@ -4,7 +4,7 @@ aliases: ["docs export trust boundary", "antora export bundle boundary"]
 tags: [docs, antora, bundle, trust, v0.5]
 target: v0.5
 ---
-Antora-derived `.mmd.md` exports should stay outside the default proof-path bundle contract in `v0.5`, even when they are generated beside bundle outputs for review.
+Antora-derived `.mmd` review exports and bundled `.mmd.txt` derivatives should stay outside the default proof-path bundle contract in `v0.5`, even when they are generated beside bundle outputs for review.
 
 ## What
 
