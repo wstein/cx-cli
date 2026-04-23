@@ -60,13 +60,26 @@ type ExportedAntoraAssembly = {
   sourcePages: string[];
 };
 
+type AntoraRuntimeLogOptions = {
+  destination?: {
+    file?: string;
+    append?: boolean;
+    bufferSize?: number;
+    sync?: boolean;
+  };
+  level?: "all" | "debug" | "info" | "warn" | "error" | "fatal" | "silent";
+  levelFormat?: "number" | "label";
+  format?: "json" | "pretty";
+  failureLevel?: "warn" | "error" | "fatal" | "none";
+};
+
 let exportAntoraModulesToMarkdownPromise:
   | Promise<
       (options: {
         playbookPath: string;
         flavor: DocsExportFormat;
         rootLevel: 0 | 1;
-        logOutput?: string | undefined;
+        runtimeLog?: AntoraRuntimeLogOptions | undefined;
       }) => Promise<ExportedAntoraAssembly[]>
     >
   | undefined;
@@ -76,7 +89,7 @@ async function loadExportAntoraModulesToMarkdown(): Promise<
     playbookPath: string;
     flavor: DocsExportFormat;
     rootLevel: 0 | 1;
-    logOutput?: string | undefined;
+    runtimeLog?: AntoraRuntimeLogOptions | undefined;
   }) => Promise<ExportedAntoraAssembly[]>
 > {
   exportAntoraModulesToMarkdownPromise ??= (async () => {
@@ -88,6 +101,7 @@ async function loadExportAntoraModulesToMarkdown(): Promise<
         playbookPath: string;
         flavor: DocsExportFormat;
         rootLevel: 0 | 1;
+        runtimeLog?: AntoraRuntimeLogOptions | undefined;
       }) => Promise<ExportedAntoraAssembly[]>;
     };
     if (typeof exporterModule.exportAntoraModulesToMarkdown !== "function") {
@@ -148,6 +162,19 @@ const DOCS_EXPORT_DIAGNOSTIC_MESSAGES: Record<
 
 export function resolveDocsExportExtension(format: DocsExportFormat): string {
   return format === "multimarkdown" ? ".mmd" : ".md";
+}
+
+export async function pruneEmptyLogOutput(
+  logOutputPath: string | undefined,
+): Promise<void> {
+  if (!logOutputPath) {
+    return;
+  }
+
+  const stat = await fs.stat(logOutputPath).catch(() => undefined);
+  if (stat?.isFile() && stat.size === 0) {
+    await fs.unlink(logOutputPath).catch(() => undefined);
+  }
 }
 
 export async function resolveDocsPlaybookPath(params: {
@@ -378,14 +405,66 @@ export async function exportAntoraDocsToMarkdown(
 
   const exportAntoraModulesToMarkdown =
     await loadExportAntoraModulesToMarkdown();
-  const exports = await withSuppressedExporterWarnings(() =>
-    exportAntoraModulesToMarkdown({
-      playbookPath,
-      flavor: format,
-      rootLevel,
-      logOutput: params.logOutput,
-    }),
-  );
+  const resolvedLogOutput = params.logOutput
+    ? path.resolve(params.logOutput)
+    : undefined;
+  if (resolvedLogOutput) {
+    await fs.mkdir(path.dirname(resolvedLogOutput), { recursive: true });
+  }
+
+  const runtimeLog = resolvedLogOutput
+    ? {
+        level: "all" as const,
+        format: "pretty" as const,
+        destination: {
+          file: resolvedLogOutput,
+          sync: true,
+        },
+      }
+    : undefined;
+
+  // Wrap export with stream interception to capture any warnings
+  // This is a fallback in case Antora's native logger doesn't write to the file
+  let exports: ExportedAntoraAssembly[];
+  try {
+    if (resolvedLogOutput) {
+      const logWriter = await fs.open(resolvedLogOutput, "w");
+      const originalStderr = process.stderr.write.bind(process.stderr);
+
+      process.stderr.write = ((chunk, encodingOrCallback, callback) => {
+        const text = String(chunk);
+        if (text.trim()) {
+          logWriter.write(`${text}\n`).catch(() => {});
+        }
+        return originalStderr(chunk, encodingOrCallback as never, callback);
+      }) as typeof process.stderr.write;
+
+      try {
+        exports = await withSuppressedExporterWarnings(() =>
+          exportAntoraModulesToMarkdown({
+            playbookPath,
+            flavor: format,
+            rootLevel,
+            runtimeLog,
+          }),
+        );
+      } finally {
+        process.stderr.write = originalStderr;
+        await logWriter.close();
+      }
+    } else {
+      exports = await withSuppressedExporterWarnings(() =>
+        exportAntoraModulesToMarkdown({
+          playbookPath,
+          flavor: format,
+          rootLevel,
+          runtimeLog,
+        }),
+      );
+    }
+  } finally {
+    await pruneEmptyLogOutput(resolvedLogOutput);
+  }
 
   const outputFileBySourcePath = new Map<string, string>();
   for (const exported of exports) {
