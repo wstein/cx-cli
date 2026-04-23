@@ -72,7 +72,7 @@ describe("handover text", () => {
     expect(indexText).toContain(
       "- docs: demo-docs.xml.txt | xml | 2 files | packed tokens 12 | output tokens 16",
     );
-    expect(indexText).toContain("<derived_review_export_inventory>");
+    expect(indexText).toContain("<rendered_documentation_inventory>");
     expect(indexText).toContain(
       "- manual: demo-docs-exports/manual.mmd.txt | module manual | 7 pages | root level 1",
     );

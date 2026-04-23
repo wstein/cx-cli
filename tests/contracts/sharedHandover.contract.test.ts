@@ -41,8 +41,8 @@ describe("shared handover contract", () => {
     expect(rendered).toContain("cx shared handover\nproject: demo");
     expect(rendered).toContain("<section_inventory>");
     expect(rendered).toContain("</section_inventory>");
-    expect(rendered).toContain("<derived_review_export_inventory>");
-    expect(rendered).toContain("</derived_review_export_inventory>");
+    expect(rendered).toContain("<rendered_documentation_inventory>");
+    expect(rendered).toContain("</rendered_documentation_inventory>");
     expect(rendered).toContain("<inclusion_provenance>");
     expect(rendered).toContain("</inclusion_provenance>");
     expect(rendered).toContain("<recent_repository_history>");

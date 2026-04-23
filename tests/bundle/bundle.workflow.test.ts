@@ -184,7 +184,7 @@ describe("bundle workflow", () => {
       path.join(project.bundleDir, "demo-handover.xml.txt"),
       "utf8",
     );
-    expect(bundleIndex).toContain("<derived_review_export_inventory>");
+    expect(bundleIndex).toContain("<rendered_documentation_inventory>");
     expect(bundleIndex).toContain("demo-docs-exports/docs-index.mmd.txt");
     expect(bundleIndex).toContain("demo-docs-exports/manual.mmd.txt");
     expect(bundleIndex).toContain("demo-docs-exports/start-here.mmd.txt");

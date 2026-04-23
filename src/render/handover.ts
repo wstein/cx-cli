@@ -128,13 +128,13 @@ function renderSharedHandoverXml(
   }
 
   if ((params.derivedReviewExports?.length ?? 0) > 0) {
-    lines.push("", "<derived_review_export_inventory>");
+    lines.push("", "<rendered_documentation_inventory>");
     for (const artifact of params.derivedReviewExports ?? []) {
       lines.push(
         `- ${artifact.assemblyName}: ${artifact.storedPath} | module ${artifact.moduleName ?? "none"} | ${artifact.pageCount} pages | root level ${artifact.rootLevel}`,
       );
     }
-    lines.push("</derived_review_export_inventory>");
+    lines.push("</rendered_documentation_inventory>");
   }
 
   if ((params.provenanceSummary?.length ?? 0) > 0) {
