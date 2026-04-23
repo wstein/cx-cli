@@ -1,5 +1,6 @@
 site:
   title: CX Documentation
+  url: https://wstein.github.io/cx-cli/
   start_page: cx::index.adoc
 content:
   sources:
