@@ -90,7 +90,7 @@
   "dependencies": {
     "@asciidoctor/core": "2.2.8",
     "@inquirer/prompts": "^8.4.2",
-    "@wsmy/antora-markdown-exporter": "0.7.3",
+    "@wsmy/antora-markdown-exporter": "0.7.8",
     "execa": "^9.6.1",
     "fast-xml-parser": "^5.7.1",
     "gpt-tokenizer": "^3.4.0",
