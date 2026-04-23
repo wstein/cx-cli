@@ -36,7 +36,7 @@ The adapter/oracle seam remains comparison-only:
 The proof path currently supports four styles: `xml`, `markdown`,
 `json`, and `plain`.
 
-=== XML
+== XML
 
 Observed contract:
 
@@ -54,7 +54,7 @@ Evidence:
 * link:https://github.com/wstein/cx-cli/blob/main/src/adapter/oracleRender.ts[`src/adapter/oracleRender.ts`]
 * link:https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts[`tests/bundle/parsers.test.ts`]
 
-=== Markdown
+== Markdown
 
 Observed contract:
 
@@ -68,7 +68,7 @@ Evidence:
 * link:https://github.com/wstein/cx-cli/blob/main/src/extract/parsers.ts[`src/extract/parsers.ts`]
 * link:https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts[`tests/bundle/parsers.test.ts`]
 
-=== JSON
+== JSON
 
 Observed contract:
 
@@ -82,7 +82,7 @@ Evidence:
 * link:https://github.com/wstein/cx-cli/blob/main/tests/bundle/parsers.test.ts[`tests/bundle/parsers.test.ts`]
 * link:https://github.com/wstein/cx-cli/blob/main/tests/bundle/bundle.render-spans.contract.test.ts[`tests/bundle/bundle.render-spans.contract.test.ts`]
 
-=== Plain
+== Plain
 
 Observed contract:
 

@@ -19,7 +19,7 @@ The universal generated files are:
 * `.codex/settings.json`
 * `notes/` scaffolding
 
-=== Capability Levels
+== Capability Levels
 
 * `basic`: workspace-aware `Makefile` plus the shared MCP overlay
 contract.
@@ -28,7 +28,7 @@ targets.
 * `advanced`: enhanced template plus separate MCP overlays for authoring
 and build-artifact inspection.
 
-=== Template Matrix
+== Template Matrix
 
 [cols=",,,,,",options="header",]
 |===
@@ -63,7 +63,7 @@ and build-artifact inspection.
 `verify`, `certify` |no
 |===
 
-=== Overlay Intent
+== Overlay Intent
 
 * Authoring overlay: live source exploration and editing in MCP
 sessions.
@@ -73,10 +73,10 @@ from the default authoring surface.
 If a repository uses nonstandard source or output layouts, edit the
 overlays independently instead of broadening the default authoring view.
 
-=== Enhanced Templates
+== Enhanced Templates
 
 [[rust-template]]
-==== Rust
+=== Rust
 
 Use the Rust template for Cargo workspaces that need a richer local
 verification gate than the basic templates.

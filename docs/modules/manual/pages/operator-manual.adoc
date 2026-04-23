@@ -238,7 +238,7 @@ generic failure.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
 the generated Antora assemblies under `docs.target_dir/` inside the bundle. The
-default is `{project}-docs-exports`, and you can configure it the same
+default is `\{project}-docs-exports`, and you can configure it the same
 way as `assets.target_dir` in `cx.toml`. The bundle manifest records
 those files as `.mmd.txt` artifacts in `derivedReviewExports` so they
 are discoverable, checksum-covered, and still clearly labeled as derived

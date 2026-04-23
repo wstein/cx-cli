@@ -292,12 +292,12 @@ parity/testing work; the older fork is historical.
 settings, and validates the project configuration.
 
 [[2-deterministic-planning]]
-=== 2. Deterministic planning
+== 2. Deterministic planning
 
 Planning is a three-phase pipeline anchored to the VCS-derived master
 list.
 
-==== Phase 1: Build the master base
+=== Phase 1: Build the master base
 
 The planner resolves the source of truth for candidate files from
 version control, not from a broad filesystem walk. The priority order
@@ -319,7 +319,7 @@ the planner behavior identical to the actual Git/Fossil/Hg provider code
 paths used in production.
 ____
 
-==== Phase 2: Apply global list shaping
+=== Phase 2: Apply global list shaping
 
 The global `++[++files++]++ include` array can extend the master base
 with extra paths that the VCS does not track, such as generated
@@ -330,7 +330,7 @@ planned.
 This shaping step changes membership in the master base, but it still
 does not let sections discover new files on their own.
 
-==== Phase 3: Classify into sections
+=== Phase 3: Classify into sections
 
 Section `include` and `exclude` globs are *classifiers*, not
 discoverers. They operate only on the already-computed master base and
@@ -350,7 +350,7 @@ At this stage the planner resolves:
 
 This happens before rendering because the plan must be settled first.
 
-==== Dirty state taxonomy
+=== Dirty state taxonomy
 
 After deriving the master list, the planner classifies the working tree
 into one of four states:
@@ -388,7 +388,7 @@ input.
 VCS state is not tracked for filesystem-fallback workspaces. Those
 always produce `dirtyState = "clean"` and `vcsProvider = "none"`.
 
-==== Section priority and overlap resolution
+=== Section priority and overlap resolution
 
 Sections are ordered by their `priority` value (descending) before
 overlap resolution begins. A file claimed by multiple sections is
@@ -397,7 +397,7 @@ Sections without an explicit priority are treated as priority 0 and
 their relative order follows `dedup.order` (config position or lexical)
 as a stable tie-breaker.
 
-==== Catch-all sections
+=== Catch-all sections
 
 A section may set `catch++_++all = true` instead of providing an
 `include` list. A catch-all section absorbs all files in the master list

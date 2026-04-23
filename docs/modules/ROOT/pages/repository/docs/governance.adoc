@@ -10,7 +10,7 @@ Use it when you need to answer three questions precisely:
 * how notes are governed as durable cognition
 * how stable an MCP-facing interface is allowed to be
 
-=== Source-of-Truth Markers
+== Source-of-Truth Markers
 
 Every documentation file includes an HTML comment at the top declaring
 its source, status, and stability:
@@ -19,7 +19,7 @@ its source, status, and stability:
 <!-- Source: FILENAME.md | Status: CANONICAL | Stability: STABLE -->
 ....
 
-==== Status Values
+=== Status Values
 
 * *CANONICAL*: Authoritative source of truth. Changes here are binding.
 Other docs derive from this.
@@ -28,7 +28,7 @@ directly; update the source instead.
 * *EDITORIAL*: Explanatory or tutorial content. May lag the canonical
 source. Lower priority for consistency.
 
-==== Stability Values
+=== Stability Values
 
 * *STABLE*: Semver-protected contract. Breaking changes require major
 version bump (documented in release notes).
@@ -39,7 +39,7 @@ rewritten without notice.
 
 '''''
 
-=== Canonical Documentation Map
+== Canonical Documentation Map
 
 [cols=",,,",options="header",]
 |===
@@ -77,7 +77,7 @@ semantics
 validation steps
 |===
 
-==== Derived Documentation
+=== Derived Documentation
 
 Some files are generated or synced:
 
@@ -88,7 +88,7 @@ Some files are generated or synced:
 |API docs (if published) |Source code |Generated from JSDoc comments
 |===
 
-==== Editorial Documentation
+=== Editorial Documentation
 
 Tutorial and explanation docs:
 
@@ -109,7 +109,7 @@ without redefining the canonical semantics
 
 `cx` intentionally keeps a small front-door docs surface.
 
-==== Front-Door Docs
+=== Front-Door Docs
 
 These are the only documents that should behave like primary
 entrypoints:
@@ -119,7 +119,7 @@ entrypoints:
 * `Operating Modes`
 * `Operator Manual`
 
-==== Canonical Core Docs
+=== Canonical Core Docs
 
 These own stable meaning and contracts, but they are not additional
 onboarding doors:
@@ -128,7 +128,7 @@ onboarding doors:
 * `System Contracts`
 * `Documentation Governance`
 
-==== Reference-Only Docs
+=== Reference-Only Docs
 
 Everything else should be written as reference, integration detail,
 workflow example, or historical material.
@@ -144,7 +144,7 @@ references, not part of the operator front door.
 * Agent integration and configuration docs should be linked by concern,
 not treated as general entrypoints.
 
-==== Default Rule
+=== Default Rule
 
 If a new document would introduce another plausible place to start, it
 should usually become a section inside an existing front-door doc
@@ -157,7 +157,7 @@ instead.
 `cx` intentionally uses a hard documentation hierarchy so semantics have
 one canonical home.
 
-==== Canonical Roles
+=== Canonical Roles
 
 * `Mental Model` owns canonical semantics.
 * `Operating Modes` maps those semantics to operator choices and
@@ -166,7 +166,7 @@ progressive onboarding.
 * Agent integration docs document the integration layer: policy consequences,
 tool sequences, client setup, and review loops.
 
-==== Non-Negotiable Rule
+=== Non-Negotiable Rule
 
 Everything outside `Mental Model` must reference canonical semantics
 instead of redefining them.
@@ -208,14 +208,14 @@ stable enough to automate against.
 
 === Update Procedures
 
-==== Updating Canonical Docs
+=== Updating Canonical Docs
 
 . Make changes directly in the canonical file
 . Ensure the change doesn't break the semver contract
 . Update the git log message to reference the doc change
 . If a derived doc depends on this content, update it too
 
-==== Updating Derived Docs
+=== Updating Derived Docs
 
 *Do not edit directly.* Instead:
 
@@ -223,7 +223,7 @@ stable enough to automate against.
 . Make the change in the source
 . Re-run the generation/sync process
 
-==== Updating Editorial Docs
+=== Updating Editorial Docs
 
 Changes are welcome. Update the file, no special approval needed.
 
@@ -239,7 +239,7 @@ appears in its MCP description with the format `[TIER_NAME]`
 `cx mcp catalog --json`; `cx doctor mcp --json` also includes the same
 registered tool catalog when you need broader MCP diagnostics.
 
-==== Current Reliability Focus
+=== Current Reliability Focus
 
 The current stability push is intentionally scoped to global-state
 reduction, not broad toolchain replacement. `cx` continues to
@@ -258,7 +258,7 @@ regressions. The workflow graph is gated behind `test-fast`: downstream
 CI lanes do not start if the fast gate is red, and CI artifacts are
 uploaded only after the full lane set passes.
 
-==== STABLE Tools
+=== STABLE Tools
 
 *What it means:*
 
@@ -270,7 +270,7 @@ guidance
 *Example:* If this stability policy says tool `list` is STABLE, we cannot remove
 the tool or rename its output fields without releasing v1.0.
 
-==== BETA Tools
+=== BETA Tools
 
 *What it means:*
 
@@ -281,7 +281,7 @@ the tool or rename its output fields without releasing v1.0.
 *Example:* If the Agent Operating Model policy-tier system were BETA,
 operators should not depend on exact policy names across versions.
 
-==== EXPERIMENTAL Tools
+=== EXPERIMENTAL Tools
 
 *What it means:*
 
@@ -289,7 +289,7 @@ operators should not depend on exact policy names across versions.
 * No advance notice required
 * Do not build long-term dependencies on content
 
-==== INTERNAL Tools
+=== INTERNAL Tools
 
 *What it means:*
 
@@ -386,7 +386,7 @@ the top
 
 '''''
 
-=== Why This System?
+== Why This System?
 
 Without explicit governance, docs drift: some become outdated, some
 contradict each other, and operators and automation stop knowing what to
@@ -407,7 +407,7 @@ This is lightweight (one-line comments) but removes ambiguity.
 '''''
 
 [[notes-governance]]
-=== Notes Governance
+== Notes Governance
 
 The notes graph is the repository cognition layer.
 
@@ -431,7 +431,7 @@ See xref:architecture:system-contracts.adoc[System Contracts] for the
 formal cognition contract and trust propagation model that sit under
 this layer.
 
-==== Governance Model: How, What, Why
+=== Governance Model: How, What, Why
 
 Every note should answer three questions clearly, even when the author
 does not use literal section headings:
@@ -444,7 +444,7 @@ The opening paragraph is the summary contract. It must stand on its own
 because `manifest.notes[]` uses that summary as the fast routing path
 for later automation.
 
-==== Governance Rules
+=== Governance Rules
 
 The validator and CI enforce these baseline rules:
 
@@ -457,7 +457,7 @@ The validator and CI enforce these baseline rules:
 
 These are cognition-layer limits, not arbitrary formatting preferences.
 
-==== Canonical Note Anatomy
+=== Canonical Note Anatomy
 
 Every note must use this minimal structure:
 
@@ -488,7 +488,7 @@ Rules:
   for later reuse
 * the links section must point to other notes, code, or both
 
-==== Bundle Integration
+=== Bundle Integration
 
 The default starter config must include `notes/**` inside
 `[sections.docs].include`.
@@ -505,7 +505,7 @@ exclude = []
 This ensures the repository contract carries both machine state and
 human intent.
 
-==== Implemented Behavior
+=== Implemented Behavior
 
 This implementation includes:
 
@@ -527,7 +527,7 @@ This implementation includes:
 * graph reachability queries via `cx notes graph --id <id> --depth <n>`
   and the `notes_graph` MCP tool
 
-==== Linked-Note Enrichment Semantics
+=== Linked-Note Enrichment Semantics
 
 Linked-note enrichment is a post-planning orchestration step controlled
 by `manifest.includeLinkedNotes`.
@@ -562,7 +562,7 @@ Depth semantics for graph inspection:
 * `depth = N` includes notes reachable within at most `N` wikilink
   hops.
 
-==== Staleness and Contradiction Pressure
+=== Staleness and Contradiction Pressure
 
 `cx notes check` reports:
 
@@ -577,7 +577,7 @@ These signals are diagnostic rather than blocking by themselves. They
 make durable-memory decay visible before agents start treating stale
 memory as current architecture.
 
-==== CI Check Path
+=== CI Check Path
 
 The governance path is operational, not aspirational:
 
@@ -593,7 +593,7 @@ The governance path is operational, not aspirational:
   summaries so note quality gates and fast-lane drift stay visible over
   time.
 
-==== Future Extensions
+=== Future Extensions
 
 The following candidates remain for future implementation:
 

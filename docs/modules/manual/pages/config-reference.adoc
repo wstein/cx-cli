@@ -789,7 +789,7 @@ Example:
 [source,toml]
 ----
 source_root = "~/projects/$WORKSPACE/src"
-output_dir = "dist/{project}-bundle"
+output_dir = "dist/`{project}`-bundle"
 ----
 
 == Token Counting
@@ -962,7 +962,7 @@ target_dir = "assets"
 layout = "flat"
 
 [docs]
-target_dir = "{project}-docs-exports"
+target_dir = "`{project}`-docs-exports"
 root_level = 1
 ----
 
@@ -981,7 +981,7 @@ It affects two surfaces:
   the bundle under `<docs.target_dir>/`, with bundled MultiMarkdown files
   written as `.mmd.txt` so they behave like other text bundle artifacts.
 
-The default value is `{project}-docs-exports`.
+The default value is `\{project}-docs-exports`.
 
 === `docs.root_level`
 

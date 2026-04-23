@@ -46,7 +46,7 @@ tool flow, and agent-facing metadata, not redefine the canonical
 semantics already owned by the
 xref:architecture:mental-model.adoc[Mental Model].
 
-=== Overview
+== Overview
 
 `cx mcp` exposes a deterministic, file-scoped Model Context Protocol
 (MCP) server over standard input/output (stdio). When started from a
@@ -75,7 +75,7 @@ xref:manual:operator-manual.adoc[Operator Manual]. This page assumes the
 operator already knows when to choose MCP and now needs client-specific
 configuration, transport details, and troubleshooting.
 
-=== MCP Test And Debug Cockpit
+== MCP Test And Debug Cockpit
 
 For MCP-specific debugging, use the focused Vitest cockpit instead of
 the broad repository coverage lane:
@@ -110,7 +110,7 @@ This is still a Track B debugging surface. Promote any fix through the
 normal Bun verification and CI proof lanes once the MCP issue is
 understood.
 
-==== MCP Vitest UI Troubleshooting
+=== MCP Vitest UI Troubleshooting
 
 * Startup hangs or server boot failures: Use
 `bun run test:vitest:mcp:adversarial` or
@@ -130,13 +130,13 @@ Why this helps: the operator can match the failure class to the right
 cockpit instead of rerunning a broad test surface while guessing whether
 the problem is startup, policy, or import cost.
 
-=== Agent Point Of View
+== Agent Point Of View
 
 From the agent's perspective, the MCP session is not a vague "chat with
 the repo." It is a structured loop over scoped tools, manifest metadata,
 and durable notes.
 
-==== Typical MCP Tool Sequence
+=== Typical MCP Tool Sequence
 
 [source,text]
 ----
@@ -164,7 +164,7 @@ Why this protects you: the agent sees enough structured state to form
 and test hypotheses without confusing live exploration with artifact
 proof.
 
-==== Manifest Example From The Agent's Point Of View
+=== Manifest Example From The Agent's Point Of View
 
 When a bundle exists, the agent should consume the manifest as a
 structured index before reopening raw files:
@@ -215,7 +215,7 @@ simplify common editor and desktop integration workflows:
 ** `.vscode/mcp.json` — VS Code MCP server settings
 ** `.claude/settings.json` — Claude Desktop MCP server enablement
 ** `.codex/settings.json` — Codex-compatible MCP server enablement
-* These generated files use `cwd = "${workspaceFolder}"` so the
+* These generated files use `cwd = "$\{workspaceFolder\}"` so the
 agent starts from the repository root and resolves `cx-mcp.toml` or
 `cx.toml` correctly.
 
@@ -246,7 +246,7 @@ Key behavior to remember:
 * The server is started by running `cx mcp` in the repository root.
 * Transport: stdio (stdin/stdout)
 
-==== Tool Boundary Reminder
+=== Tool Boundary Reminder
 
 Keep the everyday operator path in
 xref:manual:operator-manual.adoc[Operator Manual] and the policy-facing
@@ -289,7 +289,7 @@ replace_repomix_span(path="src/index.ts", startLine=4, endLine=4, replacement="e
 read(path="src/index.ts", startLine=1, endLine=12)
 ----
 
-=== Supported integration patterns
+== Supported integration patterns
 
 * Local IDE agent extensions that support MCP over stdio (VS Code
 extensions such as Cline / Roo Code / other MCP-capable extensions)
@@ -298,7 +298,7 @@ Desktop and similar)
 * Custom agent frameworks (LangChain-style adapters or direct MCP
 clients using the upstream `@modelcontextprotocol` SDK)
 
-=== Examples
+== Examples
 
 Note: these examples document the common, production-ready patterns.
 They are intentionally conservative about absolute configuration keys
@@ -320,7 +320,7 @@ like:
     "cx-workspace": {
       "command": "cx",
       "args": ["mcp"],
-      "cwd": "${workspaceFolder}",
+      "cwd": "$\{workspaceFolder\}",
       "env": {
         "CX_STRICT": "true"
       }
@@ -354,7 +354,7 @@ Example (pseudoconfig for an MCP-capable extension):
       "transport": "stdio",
       "command": "cx",
       "args": ["mcp"],
-      "cwd": "${workspaceFolder}",
+      "cwd": "$\{workspaceFolder\}",
       "env": {
         "CX_STRICT": "true"
       }
@@ -417,7 +417,7 @@ The same stdio pattern works for editor integrations that can spawn a
 subprocess. Ensure the working directory and environment are correct,
 and the editor plugin is able to manage a long-running subprocess.
 
-=== Security and safety
+== Security and safety
 
 * Limit the agent's working directory: run `cx mcp` in the repository
 root so `cx` can apply the intended `files.include` / `files.exclude`
@@ -433,7 +433,7 @@ the server to treat Category B warnings as failures.
 * Audit the effective MCP profile with `cx doctor mcp --config cx.toml`
 before allowing production agents to connect.
 
-=== Troubleshooting
+== Troubleshooting
 
 * Agent cannot find `cx`: use an absolute path to the `cx` binary.
 * Agent cannot find `cx-mcp.toml` or `cx.toml`: ensure `cwd` points to
@@ -444,7 +444,7 @@ see the resolved profile.
 implementation). If you need additional capabilities, build a wrapper
 MCP server that composes other tools, or extend `cx` itself.
 
-=== Reference & crosslinks
+== Reference & crosslinks
 
 * Operator manual:
   xref:manual:operator-manual.adoc[Operator Manual] — quick operator
@@ -459,7 +459,7 @@ MCP server that composes other tools, or extend `cx` itself.
 * MCP server implementation: `src/mcp/server.ts` (server lifecycle and
 stdio transport) and `src/mcp/tools.ts` (registered tools and behavior).
 
-=== Exact integration snippet: Claude Desktop (macOS example)
+== Exact integration snippet: Claude Desktop (macOS example)
 
 On macOS the user config for Claude Desktop often lives under
 `~/Library/Application Support/Claude/claude_desktop_config.json`.
