@@ -71,6 +71,7 @@ The MCP registration wrapper assigns every tool one capability tier. Policy enfo
 See xref:repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
 for tool stability tiers.
 
+[[intent-taxonomy-for-agents]]
 == Intent Taxonomy For Agents
 
 The integration layer also groups tools by intent so prompts, policy
