@@ -234,7 +234,11 @@ to switch between a single combined assembly (`0`) and one export per
 assembly or module (`1`, the default). JSON mode reports structured
 diagnostics when the export is blocked so CI and operators can see the
 exact assembly and unresolved destinations instead of only receiving a
-generic failure.
+generic failure. Use `--log-output <path>` when you want Antora export
+logs written to a file instead of stderr. This overrides
+`docs.log_output` from `cx.toml`. Empty log files are deleted
+automatically after the export, so a log path only remains on disk when
+it captured actual output.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
 the generated Antora assemblies under `docs.target_dir/` inside the bundle. The
@@ -245,7 +249,10 @@ are discoverable, checksum-covered, and still clearly labeled as derived
 review material rather than proof-path section outputs. `cx inspect
 --derived-review-exports --json` and `cx verify --json` also summarize the
 derived review exports, including unresolved review-link diagnostics for already
-bundled artifacts.
+bundled artifacts. When bundled docs export logging is enabled, the log
+is written to `antora-export.log.txt` in the bundle root. Empty bundled
+log files are removed automatically and are not recorded as bundle
+content or handover inventory.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP
 tool contract. It exposes the registered tool set with stable `name`,

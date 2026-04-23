@@ -964,6 +964,7 @@ layout = "flat"
 [docs]
 target_dir = "`{project}`-docs-exports"
 root_level = 1
+log_output = "tmp/antora-export.log.txt"
 ----
 
 === `docs.target_dir`
@@ -995,6 +996,31 @@ This setting applies to both `cx docs export` and
 `cx docs export --root-level` or `cx bundle --docs-root-level`.
 
 The default value is `1`.
+
+=== `docs.log_output`
+
+`docs.log_output` sets an optional log file path for Antora markdown
+export output.
+
+It affects two surfaces:
+
+* `cx docs export` writes export logs to this file unless you override it
+  with `--log-output`.
+* `cx bundle --include-doc-exports` uses the same logging path when docs
+  exports are generated as part of a bundle unless the command supplies a
+  more specific bundle-side destination.
+
+Behavior notes:
+
+* The CLI flag `cx docs export --log-output <path>` overrides
+  `docs.log_output`.
+* `cx bundle --include-doc-exports` writes bundled export logs to
+  `antora-export.log.txt` in the bundle root.
+* Empty log files are deleted automatically after export and are not
+  treated as bundle artifacts.
+
+Leave this unset when you want export diagnostics to stay on stderr
+only.
 
 === Asset collision invariant
 

@@ -47,6 +47,12 @@ Implement the export in `v0.5` with these constraints:
   syntax
 - support `cx bundle --include-doc-exports` as an opt-in-only bridge into the
   bundle folder, writing `.mmd.txt` bundle artifacts by default
+- allow optional export log capture through `docs.log_output` and
+  `cx docs export --log-output`
+- write bundled export logs to `antora-export.log.txt` when
+  `cx bundle --include-doc-exports` captures them
+- delete empty export log files automatically so empty logs do not
+  survive in output folders or bundle inventories
 - surface structured export diagnostics in `cx docs export --json` when
   review-artifact validation fails
 - summarize derived review export diagnostics in `cx inspect` and
