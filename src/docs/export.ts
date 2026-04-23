@@ -46,6 +46,7 @@ export interface ExportDocsParams {
   filenamePrefix?: string | undefined;
   playbookPath?: string | undefined;
   rootLevel?: 0 | 1 | undefined;
+  logOutput?: string | undefined;
 }
 
 const require = createRequire(import.meta.url);
@@ -65,6 +66,7 @@ let exportAntoraModulesToMarkdownPromise:
         playbookPath: string;
         flavor: DocsExportFormat;
         rootLevel: 0 | 1;
+        logOutput?: string | undefined;
       }) => Promise<ExportedAntoraAssembly[]>
     >
   | undefined;
@@ -74,6 +76,7 @@ async function loadExportAntoraModulesToMarkdown(): Promise<
     playbookPath: string;
     flavor: DocsExportFormat;
     rootLevel: 0 | 1;
+    logOutput?: string | undefined;
   }) => Promise<ExportedAntoraAssembly[]>
 > {
   exportAntoraModulesToMarkdownPromise ??= (async () => {
@@ -380,6 +383,7 @@ export async function exportAntoraDocsToMarkdown(
       playbookPath,
       flavor: format,
       rootLevel,
+      logOutput: params.logOutput,
     }),
   );
 
