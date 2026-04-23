@@ -28,6 +28,7 @@ describe("Vitest coverage contract", () => {
     expect(shared).toContain('"tests/helpers/**"');
     expect(shared).toContain("all: true");
     expect(shared).toContain("options.coverageEnabled ?? false");
+    expect(shared).toContain("testTimeout: 15_000");
     expect(config).toContain("defineCxVitestConfig");
     expect(config).toContain('reportsDirectory: "./coverage/vitest"');
     expect(config).toContain('"tests/**/*.test.ts"');

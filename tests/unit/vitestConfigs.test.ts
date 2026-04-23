@@ -19,6 +19,10 @@ function isCoverageEnabled(config: unknown): boolean | undefined {
     ?.coverage?.enabled;
 }
 
+function getTestTimeout(config: unknown): number | undefined {
+  return (config as { test?: { testTimeout?: number } }).test?.testTimeout;
+}
+
 describe("Vitest configuration helpers", () => {
   test("keeps the default shared Vitest lane coverage-free", () => {
     const config = defineCxVitestConfig({
@@ -34,6 +38,7 @@ describe("Vitest configuration helpers", () => {
 
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest");
     expect(isCoverageEnabled(config)).toBe(false);
+    expect(getTestTimeout(config)).toBe(15_000);
     expect(getIncludePatterns(config)).toEqual([
       "tests/unit/**/*.test.ts",
       "tests/contracts/**/*.test.ts",
@@ -64,6 +69,7 @@ describe("Vitest configuration helpers", () => {
 
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest-mcp");
     expect(isCoverageEnabled(config)).toBe(false);
+    expect(getTestTimeout(config)).toBe(15_000);
     expect(getIncludePatterns(config)).toEqual([
       "tests/mcp/**/*.test.ts",
       "tests/cli/mcp*.test.ts",
@@ -95,6 +101,7 @@ describe("Vitest configuration helpers", () => {
     expect(getCoverageDirectory(config)).toBe(
       "./coverage/vitest-mcp-adversarial",
     );
+    expect(getTestTimeout(config)).toBe(15_000);
     expect(getIncludePatterns(config)).toEqual([
       "tests/mcp/server.run.test.ts",
       "tests/mcp/toolRuntime.adversarial.test.ts",
@@ -113,5 +120,6 @@ describe("Vitest configuration helpers", () => {
 
     expect(getCoverageDirectory(config)).toBe("./coverage/vitest");
     expect(isCoverageEnabled(config)).toBe(true);
+    expect(getTestTimeout(config)).toBe(15_000);
   });
 });

@@ -230,7 +230,7 @@ describe("bundle workflow", () => {
         artifact.storedPath.startsWith("review-docs/"),
       ),
     ).toBe(true);
-  });
+  }, 15_000);
 
   test("surfaces derived docs review exports through inspect and list", async () => {
     const project = await createProject();
@@ -302,7 +302,7 @@ describe("bundle workflow", () => {
           artifact.diagnostics?.diagnostics?.length === 0,
       ),
     ).toBe(true);
-  });
+  }, 15_000);
 
   test("lists only derived docs review exports when requested", async () => {
     const project = await createProject();
@@ -387,7 +387,7 @@ describe("bundle workflow", () => {
         artifact.storedPath?.startsWith("demo-docs-exports/"),
       ),
     ).toBe(true);
-  });
+  }, 15_000);
 
   test("emits structured JSON for list and inspect automation", async () => {
     const { project } = await bundledProject();

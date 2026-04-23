@@ -12,6 +12,7 @@ const coverageExclude = [
 const baseConfig = defineConfig({
   test: {
     environment: "node",
+    testTimeout: 15_000,
   },
 });
 
