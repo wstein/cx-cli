@@ -1208,6 +1208,8 @@ function buildCxConfigFromParsedInput(
         0,
         1,
       ) as 0 | 1,
+      logOutput:
+        typeof docs.log_output === "string" ? docs.log_output : undefined,
     },
     behavior,
     behaviorSources,

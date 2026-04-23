@@ -202,6 +202,13 @@ export interface CxDocsConfig {
    * - 1 — one markdown file per Antora module / assembly (default)
    */
   rootLevel: 0 | 1;
+  /**
+   * Optional path for capturing Antora markdown export logs.
+   *
+   * When specified, logs are written to this path instead of stderr.
+   * Used by `cx docs export --log-output` or configured in cx.toml.
+   */
+  logOutput?: string | undefined;
 }
 
 /**

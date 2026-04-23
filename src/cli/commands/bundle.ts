@@ -776,6 +776,7 @@ export async function runBundleCommand(
               format: "multimarkdown",
               extension: ".mmd.txt",
               rootLevel: args.docsRootLevel ?? config.docs.rootLevel,
+              logOutput: path.join(activeBundleDir, "antora-export.log.txt"),
             })
           ).map((artifact) => ({
             assemblyName: artifact.assemblyName,

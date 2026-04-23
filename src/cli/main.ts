@@ -710,6 +710,11 @@ export async function main(
             description:
               "Override docs.root_level for this export. 0 writes one combined assembly; 1 writes one export per assembly/module.",
           })
+          .option("log-output", {
+            type: "string",
+            description:
+              "Write Antora markdown export logs to this file instead of stderr. Overrides docs.log_output from cx.toml.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runDocsCommand(
@@ -719,6 +724,7 @@ export async function main(
             outputDir: args["output-dir"],
             playbook: args.playbook,
             rootLevel: args["root-level"] as 0 | 1 | undefined,
+            logOutput: resolveCliPath(args["log-output"], io.cwd),
             json: args.json,
           },
           io,

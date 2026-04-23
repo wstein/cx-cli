@@ -217,6 +217,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   docs: {
     targetDir: "{project}-docs-exports",
     rootLevel: 1,
+    logOutput: undefined,
   },
   behavior: {
     ...DEFAULT_BEHAVIOR_VALUES,

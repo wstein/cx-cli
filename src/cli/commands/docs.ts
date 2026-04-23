@@ -26,6 +26,7 @@ export interface DocsArgs {
   outputDir?: string | undefined;
   playbook?: string | undefined;
   rootLevel?: 0 | 1 | undefined;
+  logOutput?: string | undefined;
   json?: boolean | undefined;
 }
 
@@ -72,6 +73,7 @@ export async function runDocsCommand(
       format: "multimarkdown",
       playbookPath: args.playbook,
       rootLevel,
+      logOutput: args.logOutput ?? config.docs.logOutput,
     });
   } catch (error) {
     if (args.json !== true) {
