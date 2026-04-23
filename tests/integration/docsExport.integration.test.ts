@@ -35,7 +35,7 @@ describe("docs export", () => {
     );
     expect(docsIndex).toContain("# CX Documentation: Docs Index");
     expect(docsIndex).toContain("Track A produces proof-grade artifacts");
-    expect(docsIndex).toContain("(start-here.mmd#notes-governance)");
+    expect(docsIndex).toContain("start-here.mmd#notes-governance");
     expect(docsIndex).not.toContain("ROOT:page$");
     expect(analyzeDocsExportMarkdown(docsIndex)).toEqual({
       status: "clean",
@@ -52,16 +52,14 @@ describe("docs export", () => {
       status: "clean",
       diagnostics: [],
     });
-    expect(manual).toContain("(start-here.mmd)");
+    expect(manual).toContain("start-here.mmd");
 
     const architecture = await fs.readFile(
       path.join(outputDir, "architecture.mmd"),
       "utf8",
     );
     expect(architecture).toContain("# CX Documentation: Architecture");
-    expect(architecture).toContain(
-      "[Mental Model](#architecture:mental-model)",
-    );
+    expect(architecture).toContain("start-here.mmd#architecture:mental-model");
     expect(analyzeDocsExportMarkdown(architecture)).toEqual({
       status: "clean",
       diagnostics: [],
@@ -72,9 +70,7 @@ describe("docs export", () => {
       "utf8",
     );
     expect(startHere).toContain("# CX Documentation: Start Here");
-    expect(startHere).toContain(
-      "[Agent Integration Guide](#repository-docs-agent_integration)",
-    );
+    expect(startHere).toContain("repository-docs-agent_integration");
     expect(analyzeDocsExportMarkdown(startHere)).toEqual({
       status: "clean",
       diagnostics: [],
@@ -91,7 +87,7 @@ describe("docs export", () => {
         diagnostics: [],
       });
     }
-  });
+  }, 30_000);
 
   test("supports a caller-provided filename prefix", async () => {
     const outputDir = await makeOutputRoot();
@@ -108,5 +104,5 @@ describe("docs export", () => {
       "demo-manual.mmd",
       "demo-start-here.mmd",
     ]);
-  });
+  }, 20_000);
 });

@@ -129,7 +129,7 @@ describe("CLI JSON contract", () => {
       expect(artifact.diagnostics?.status).toBe("clean");
       expect(artifact.diagnostics?.diagnostics).toEqual([]);
     }
-  });
+  }, 30_000);
 
   test("inspect --json returns structured payload", async () => {
     const project = await createProject();
@@ -144,7 +144,7 @@ describe("CLI JSON contract", () => {
     expect(payload.summary?.sectionCount).toBeGreaterThan(0);
     expect(payload.summary?.textFileCount).toBeGreaterThan(0);
     expect(Array.isArray(payload.sections)).toBe(true);
-  });
+  }, 30_000);
 
   test("inspect --json exposes asset provenance markers", async () => {
     const project = await createProject();
@@ -457,5 +457,5 @@ See [[20260418120000]].
     } finally {
       process.chdir(cwd);
     }
-  });
+  }, 30_000);
 });

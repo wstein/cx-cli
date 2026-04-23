@@ -298,29 +298,164 @@ function resolveTargetSourcePath(destination: string): {
   };
 }
 
+function resolveTargetSourcePathFromSiteUrl(destination: string): {
+  sourcePath: string;
+  fragment: string;
+} | null {
+  let url: URL;
+  try {
+    url = new URL(destination, "https://example.invalid");
+  } catch {
+    return null;
+  }
+
+  const fragment = url.hash.length > 0 ? url.hash.slice(1) : "";
+  const pathname = url.pathname.replace(/\/+$/u, "");
+  if (!pathname) {
+    return null;
+  }
+
+  const parts = pathname
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length < 2) {
+    return null;
+  }
+
+  const moduleIndex = parts.findIndex((part) =>
+    ["architecture", "manual", "onboarding", "repository"].includes(part),
+  );
+  if (moduleIndex < 0) {
+    return null;
+  }
+
+  const relevantParts = parts.slice(moduleIndex);
+  const [firstPart, ...restParts] = relevantParts;
+  if (!firstPart) {
+    return null;
+  }
+
+  if (firstPart === "repository") {
+    const rootRelativePath =
+      restParts.length === 0 ? "index" : restParts.join("/");
+    return {
+      sourcePath: `modules/ROOT/pages/${rootRelativePath}.adoc`,
+      fragment,
+    };
+  }
+
+  const pageRelativePath =
+    restParts.length === 0 ? "index" : restParts.join("/");
+  return {
+    sourcePath: `modules/${firstPart}/pages/${pageRelativePath}.adoc`,
+    fragment,
+  };
+}
+
+function deriveSiteUrlPathSuffixes(sourcePath: string): string[] {
+  const moduleMatch =
+    /^modules\/(?<module>[^/]+)\/pages\/(?<page>.+)\.adoc$/u.exec(sourcePath);
+  const moduleName = moduleMatch?.groups?.module;
+  const pagePath = moduleMatch?.groups?.page;
+  if (!moduleName || !pagePath) {
+    return [];
+  }
+
+  if (moduleName === "ROOT") {
+    if (pagePath === "index") {
+      return ["/", ""];
+    }
+    return [`/${pagePath}/`, `/${pagePath}`];
+  }
+
+  if (pagePath === "index") {
+    return [`/${moduleName}/`, `/${moduleName}`];
+  }
+
+  return [`/${moduleName}/${pagePath}/`, `/${moduleName}/${pagePath}`];
+}
+
+function resolveTargetSourcePathFromSiteUrlSuffix(
+  destination: string,
+  outputFileBySourcePath: Map<string, string>,
+): {
+  sourcePath: string;
+  fragment: string;
+} | null {
+  let url: URL;
+  try {
+    url = new URL(destination, "https://example.invalid");
+  } catch {
+    return null;
+  }
+
+  const fragment = url.hash.length > 0 ? url.hash.slice(1) : "";
+  const normalizedPathname = url.pathname.replace(/\/+$/u, "");
+  let bestMatch: string | undefined;
+
+  for (const sourcePath of outputFileBySourcePath.keys()) {
+    const suffixes = deriveSiteUrlPathSuffixes(sourcePath);
+    if (
+      suffixes.some((suffix) => {
+        const normalizedSuffix = suffix.replace(/\/+$/u, "");
+        return (
+          normalizedPathname === normalizedSuffix ||
+          normalizedPathname.endsWith(normalizedSuffix)
+        );
+      })
+    ) {
+      if (!bestMatch || sourcePath.length > bestMatch.length) {
+        bestMatch = sourcePath;
+      }
+    }
+  }
+
+  if (!bestMatch) {
+    return null;
+  }
+
+  return {
+    sourcePath: bestMatch,
+    fragment,
+  };
+}
+
 function rewriteReviewLinkDestinations(params: {
   markdown: string;
   currentOutputFile: string;
   outputFileBySourcePath: Map<string, string>;
 }): string {
   const rewriteDestination = (destination: string): string => {
-    const resolvedTarget = resolveTargetSourcePath(destination);
-    if (!resolvedTarget) {
-      return destination;
+    const candidateTargets = [
+      resolveTargetSourcePathFromSiteUrl(destination),
+      resolveTargetSourcePathFromSiteUrlSuffix(
+        destination,
+        params.outputFileBySourcePath,
+      ),
+      resolveTargetSourcePath(destination),
+    ];
+
+    for (const resolvedTarget of candidateTargets) {
+      if (!resolvedTarget) {
+        continue;
+      }
+
+      const targetOutputFile = params.outputFileBySourcePath.get(
+        resolvedTarget.sourcePath,
+      );
+      if (!targetOutputFile) {
+        continue;
+      }
+
+      const fragment =
+        resolvedTarget.fragment.length > 0 ? `#${resolvedTarget.fragment}` : "";
+      return targetOutputFile === params.currentOutputFile
+        ? fragment || "#"
+        : `${targetOutputFile}${fragment}`;
     }
 
-    const targetOutputFile = params.outputFileBySourcePath.get(
-      resolvedTarget.sourcePath,
-    );
-    if (!targetOutputFile) {
-      return destination;
-    }
-
-    const fragment =
-      resolvedTarget.fragment.length > 0 ? `#${resolvedTarget.fragment}` : "";
-    return targetOutputFile === params.currentOutputFile
-      ? fragment || "#"
-      : `${targetOutputFile}${fragment}`;
+    return destination;
   };
 
   let rewritten = params.markdown.replaceAll(

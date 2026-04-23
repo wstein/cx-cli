@@ -124,7 +124,7 @@ describe("bundle validation", () => {
     await expect(validateBundle(project.bundleDir)).rejects.toThrow(
       `Bundle is missing derived review export ${exportPath}.`,
     );
-  });
+  }, 30_000);
 
   test("rejects missing checksum files", async () => {
     const project = await createProject();

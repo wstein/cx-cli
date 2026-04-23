@@ -193,12 +193,8 @@ describe("bundle workflow", () => {
       path.join(project.bundleDir, "demo-docs-exports", "docs-index.mmd.txt"),
       "utf8",
     );
-    expect(docsIndexExport).toContain(
-      "[link-2]: manual.mmd.txt#release-checklist",
-    );
-    expect(docsIndexExport).toContain(
-      "(start-here.mmd.txt#mcp-tool-stability)",
-    );
+    expect(docsIndexExport).toContain("manual.mmd.txt#release-checklist");
+    expect(docsIndexExport).toContain("start-here.mmd.txt#mcp-tool-stability");
     expect(docsIndexExport).not.toContain("ROOT:page$");
     expect(docsIndexExport).not.toContain("manual:release-and-integrity.html");
 

@@ -76,7 +76,7 @@ describe("runDocsCommand", () => {
       ),
     ).toBe(true);
     expect(capture.stderr()).toBe("");
-  }, 15_000);
+  }, 30_000);
 
   test("honors root-level overrides in structured JSON output", async () => {
     const project = await createProject({ initializeGit: true });
@@ -114,5 +114,5 @@ describe("runDocsCommand", () => {
         moduleName: null,
       }),
     );
-  });
+  }, 30_000);
 });

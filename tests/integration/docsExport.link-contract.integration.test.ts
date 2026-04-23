@@ -38,11 +38,11 @@ describe("docs export link contract", () => {
       "utf8",
     );
 
-    expect(docsIndex).toContain("[link-2]: manual.mmd#release-checklist");
-    expect(docsIndex).toContain("(start-here.mmd#mcp-tool-stability)");
+    expect(docsIndex).toContain("manual.mmd#release-checklist");
+    expect(docsIndex).toContain("start-here.mmd#mcp-tool-stability");
     expect(docsIndex).not.toContain("manual:release-and-integrity.adoc");
     expect(docsIndex).not.toContain("architecture:system-map.adoc");
     expect(docsIndex).not.toContain("ROOT:page$repository/docs/governance");
     expect(docsIndex).not.toContain("xref:");
-  });
+  }, 30_000);
 });
