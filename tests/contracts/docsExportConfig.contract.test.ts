@@ -1,22 +1,23 @@
 // test-lane: contract
 
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
-
-const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../..",
-);
+import {
+  DEFAULT_CONFIG_TEMPLATE,
+  DEFAULT_CONFIG_VALUES,
+} from "../../src/config/defaults.js";
 
 describe("docs export config contract", () => {
-  test("checked-in cx.toml keeps derived docs exports in a dedicated directory", async () => {
-    const config = await fs.readFile(path.join(ROOT, "cx.toml"), "utf8");
+  test("defaults keep derived docs exports in a dedicated directory", () => {
+    expect(DEFAULT_CONFIG_VALUES.docs.targetDir).toBe("{project}-docs-exports");
+    expect(DEFAULT_CONFIG_VALUES.docs.rootLevel).toBe(1);
+    expect(DEFAULT_CONFIG_VALUES.docs.targetDir).not.toBe(".");
+  });
 
-    expect(config).toContain(
-      '[docs]\ntarget_dir = "docs-exports"\nroot_level = 1',
+  test("generated config template keeps derived docs exports in a dedicated directory", () => {
+    expect(DEFAULT_CONFIG_TEMPLATE).toContain(
+      '[docs]\ntarget_dir = "{project}-docs-exports"',
     );
-    expect(config).not.toContain('[docs]\ntarget_dir = "."');
+    expect(DEFAULT_CONFIG_TEMPLATE).toContain("root_level = 1");
+    expect(DEFAULT_CONFIG_TEMPLATE).not.toContain('[docs]\ntarget_dir = "."');
   });
 });
