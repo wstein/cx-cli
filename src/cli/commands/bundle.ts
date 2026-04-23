@@ -764,40 +764,6 @@ export async function runBundleCommand(
       }
     }
 
-    await fs.writeFile(
-      path.join(activeBundleDir, handoverFile),
-      renderSharedHandover({
-        style: config.repomix.style,
-        projectName: plan.projectName,
-        sectionOutputs,
-        assetPaths: plan.assets.map((asset) => ({
-          sourcePath: asset.relativePath,
-          storedPath: asset.storedPath,
-        })),
-        provenanceSummary,
-        repoHistory,
-      }),
-      "utf8",
-    );
-
-    // Extract notes metadata if present
-    const notesRecords =
-      notesResult.valid && notesResult.notes.length > 0
-        ? notesResult.notes.map((note) => ({
-            id: note.id,
-            title: note.title,
-            fileName: note.fileName,
-            aliases: note.aliases ?? [],
-            tags: note.tags ?? [],
-            summary: note.summary,
-            codeLinks: note.codeLinks,
-            cognitionScore: note.cognition.score,
-            cognitionLabel: note.cognition.label,
-            trustLevel: note.cognition.trustLevel,
-            lastModified: new Date().toISOString(),
-          }))
-        : undefined;
-
     const derivedReviewExports: DerivedReviewExportRecord[] | undefined =
       args.includeDocExports === true
         ? (
@@ -831,6 +797,47 @@ export async function runBundleCommand(
               extension: ".mmd.txt",
             },
             trustClassification: "derived_review_export",
+          }))
+        : undefined;
+
+    await fs.writeFile(
+      path.join(activeBundleDir, handoverFile),
+      renderSharedHandover({
+        style: config.repomix.style,
+        projectName: plan.projectName,
+        sectionOutputs,
+        assetPaths: plan.assets.map((asset) => ({
+          sourcePath: asset.relativePath,
+          storedPath: asset.storedPath,
+        })),
+        derivedReviewExports: (derivedReviewExports ?? []).map((artifact) => ({
+          assemblyName: artifact.assemblyName,
+          storedPath: artifact.storedPath,
+          moduleName: artifact.moduleName,
+          pageCount: artifact.pageCount,
+          rootLevel: artifact.rootLevel,
+        })),
+        provenanceSummary,
+        repoHistory,
+      }),
+      "utf8",
+    );
+
+    // Extract notes metadata if present
+    const notesRecords =
+      notesResult.valid && notesResult.notes.length > 0
+        ? notesResult.notes.map((note) => ({
+            id: note.id,
+            title: note.title,
+            fileName: note.fileName,
+            aliases: note.aliases ?? [],
+            tags: note.tags ?? [],
+            summary: note.summary,
+            codeLinks: note.codeLinks,
+            cognitionScore: note.cognition.score,
+            cognitionLabel: note.cognition.label,
+            trustLevel: note.cognition.trustLevel,
+            lastModified: new Date().toISOString(),
           }))
         : undefined;
 

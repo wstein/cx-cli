@@ -16,6 +16,14 @@ export interface RepositoryHistoryEntry {
   message: string;
 }
 
+export interface SharedHandoverDerivedReviewExportSummary {
+  assemblyName: string;
+  storedPath: string;
+  moduleName: string | null;
+  pageCount: number;
+  rootLevel: 0 | 1;
+}
+
 function appendHistoryLines(
   lines: string[],
   entry: RepositoryHistoryEntry,
@@ -31,6 +39,7 @@ interface SharedHandoverRenderParams {
   projectName: string;
   sectionOutputs: SharedHandoverSectionSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
+  derivedReviewExports?: SharedHandoverDerivedReviewExportSummary[] | undefined;
   provenanceSummary?: InclusionProvenanceSummary[] | undefined;
   repoHistory?: RepositoryHistoryEntry[] | undefined;
 }
@@ -56,6 +65,15 @@ function renderSharedHandoverPlainText(
     lines.push("", "assets:");
     for (const asset of params.assetPaths) {
       lines.push(`- ${asset.sourcePath} -> ${asset.storedPath}`);
+    }
+  }
+
+  if ((params.derivedReviewExports?.length ?? 0) > 0) {
+    lines.push("", "derived review exports:");
+    for (const artifact of params.derivedReviewExports ?? []) {
+      lines.push(
+        `- ${artifact.assemblyName}: ${artifact.storedPath} | module ${artifact.moduleName ?? "none"} | ${artifact.pageCount} pages | root level ${artifact.rootLevel}`,
+      );
     }
   }
 
@@ -109,6 +127,16 @@ function renderSharedHandoverXml(
     lines.push("</asset_inventory>");
   }
 
+  if ((params.derivedReviewExports?.length ?? 0) > 0) {
+    lines.push("", "<derived_review_export_inventory>");
+    for (const artifact of params.derivedReviewExports ?? []) {
+      lines.push(
+        `- ${artifact.assemblyName}: ${artifact.storedPath} | module ${artifact.moduleName ?? "none"} | ${artifact.pageCount} pages | root level ${artifact.rootLevel}`,
+      );
+    }
+    lines.push("</derived_review_export_inventory>");
+  }
+
   if ((params.provenanceSummary?.length ?? 0) > 0) {
     lines.push("", "<inclusion_provenance>");
     for (const entry of params.provenanceSummary ?? []) {
@@ -145,6 +173,7 @@ function renderSharedHandoverJson(
       projectName: params.projectName,
       sectionOutputs: params.sectionOutputs,
       assetPaths: params.assetPaths,
+      derivedReviewExports: params.derivedReviewExports,
       provenanceSummary: params.provenanceSummary,
       repoHistory: params.repoHistory,
     }),
@@ -175,6 +204,15 @@ function renderSharedHandoverMarkdown(
     lines.push("", "## Assets");
     for (const asset of params.assetPaths) {
       lines.push(`- ${asset.sourcePath} -> ${asset.storedPath}`);
+    }
+  }
+
+  if ((params.derivedReviewExports?.length ?? 0) > 0) {
+    lines.push("", "## Derived review exports");
+    for (const artifact of params.derivedReviewExports ?? []) {
+      lines.push(
+        `- ${artifact.assemblyName}: ${artifact.storedPath} | module ${artifact.moduleName ?? "none"} | ${artifact.pageCount} pages | root level ${artifact.rootLevel}`,
+      );
     }
   }
 

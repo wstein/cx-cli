@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import type { SharedHandoverSectionSummary } from "./handover.js";
+import type {
+  SharedHandoverDerivedReviewExportSummary,
+  SharedHandoverSectionSummary,
+} from "./handover.js";
 
 export const JsonSectionFileSchema = z.record(z.string(), z.string());
 
@@ -33,6 +36,14 @@ const JsonSharedHandoverAssetSchema = z.object({
   storedPath: z.string(),
 });
 
+const JsonSharedHandoverDerivedReviewExportSchema = z.object({
+  assemblyName: z.string(),
+  storedPath: z.string(),
+  moduleName: z.string().nullable(),
+  pageCount: z.number().int().nonnegative(),
+  rootLevel: z.union([z.literal(0), z.literal(1)]),
+});
+
 const JsonSharedHandoverProvenanceSchema = z.object({
   marker: z.string(),
   count: z.number().int().nonnegative(),
@@ -49,6 +60,9 @@ export const JsonSharedHandoverSchema = z.object({
   purpose: z.string(),
   sections: z.array(JsonSharedHandoverSectionSchema),
   assets: z.array(JsonSharedHandoverAssetSchema).optional(),
+  derivedReviewExports: z
+    .array(JsonSharedHandoverDerivedReviewExportSchema)
+    .optional(),
   inclusionProvenance: z.array(JsonSharedHandoverProvenanceSchema).optional(),
   recentRepositoryHistory: z
     .array(JsonSharedHandoverHistoryEntrySchema)
@@ -62,6 +76,7 @@ export function buildJsonSharedHandover(params: {
   projectName: string;
   sectionOutputs: SharedHandoverSectionSummary[];
   assetPaths: Array<{ sourcePath: string; storedPath: string }>;
+  derivedReviewExports?: SharedHandoverDerivedReviewExportSummary[] | undefined;
   provenanceSummary?: Array<{ marker: string; count: number }> | undefined;
   repoHistory?: Array<{ shortHash: string; message: string }> | undefined;
 }): JsonSharedHandover {
@@ -84,6 +99,19 @@ export function buildJsonSharedHandover(params: {
             sourcePath: asset.sourcePath,
             storedPath: asset.storedPath,
           })),
+        }
+      : {}),
+    ...((params.derivedReviewExports?.length ?? 0) > 0
+      ? {
+          derivedReviewExports: (params.derivedReviewExports ?? []).map(
+            (artifact) => ({
+              assemblyName: artifact.assemblyName,
+              storedPath: artifact.storedPath,
+              moduleName: artifact.moduleName,
+              pageCount: artifact.pageCount,
+              rootLevel: artifact.rootLevel,
+            }),
+          ),
         }
       : {}),
     ...((params.provenanceSummary?.length ?? 0) > 0

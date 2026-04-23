@@ -20,6 +20,15 @@ describe("shared handover contract", () => {
         },
       ],
       assetPaths: [],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       provenanceSummary: [{ marker: "section_match", count: 1 }],
       repoHistory: [
         {
@@ -32,6 +41,8 @@ describe("shared handover contract", () => {
     expect(rendered).toContain("cx shared handover\nproject: demo");
     expect(rendered).toContain("<section_inventory>");
     expect(rendered).toContain("</section_inventory>");
+    expect(rendered).toContain("<derived_review_export_inventory>");
+    expect(rendered).toContain("</derived_review_export_inventory>");
     expect(rendered).toContain("<inclusion_provenance>");
     expect(rendered).toContain("</inclusion_provenance>");
     expect(rendered).toContain("<recent_repository_history>");
@@ -63,6 +74,15 @@ describe("shared handover contract", () => {
         },
       ],
       assetPaths: [],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
@@ -80,6 +100,9 @@ describe("shared handover contract", () => {
         "",
         "## Sections",
         "- docs: demo-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
+        "",
+        "## Derived review exports",
+        "- manual: demo-docs-exports/manual.mmd.txt | module manual | 7 pages | root level 1",
         "",
         "## Recent repository history",
         "- aaaaaaaaaaaa",
@@ -108,6 +131,15 @@ describe("shared handover contract", () => {
         },
       ],
       assetPaths: [{ sourcePath: "logo.png", storedPath: "assets/logo.png" }],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       provenanceSummary: [{ marker: "section_match", count: 2 }],
       repoHistory: [
         {
@@ -135,6 +167,15 @@ describe("shared handover contract", () => {
             },
           ],
           assets: [{ sourcePath: "logo.png", storedPath: "assets/logo.png" }],
+          derivedReviewExports: [
+            {
+              assemblyName: "manual",
+              storedPath: "demo-docs-exports/manual.mmd.txt",
+              moduleName: "manual",
+              pageCount: 7,
+              rootLevel: 1,
+            },
+          ],
           inclusionProvenance: [{ marker: "section_match", count: 2 }],
           recentRepositoryHistory: [
             {

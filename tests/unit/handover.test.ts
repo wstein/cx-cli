@@ -48,6 +48,15 @@ describe("handover text", () => {
         },
       ],
       assetPaths: [],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       provenanceSummary: [{ marker: "section_match", count: 2 }],
     });
 
@@ -62,6 +71,10 @@ describe("handover text", () => {
     expect(indexText).toContain("<section_inventory>");
     expect(indexText).toContain(
       "- docs: demo-docs.xml.txt | xml | 2 files | packed tokens 12 | output tokens 16",
+    );
+    expect(indexText).toContain("<derived_review_export_inventory>");
+    expect(indexText).toContain(
+      "- manual: demo-docs-exports/manual.mmd.txt | module manual | 7 pages | root level 1",
     );
   });
 
@@ -128,6 +141,15 @@ describe("handover text", () => {
         },
       ],
       assetPaths: [],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       repoHistory: [
         {
           shortHash: "aaaaaaaaaaaa",
@@ -138,9 +160,13 @@ describe("handover text", () => {
 
     expect(indexText).toContain("# cx shared handover");
     expect(indexText).toContain("## Sections");
+    expect(indexText).toContain("## Derived review exports");
     expect(indexText).toContain("## Recent repository history");
     expect(indexText).toContain(
       "- docs: demo-docs.md | markdown | 1 files | packed tokens 4 | output tokens 9",
+    );
+    expect(indexText).toContain(
+      "- manual: demo-docs-exports/manual.mmd.txt | module manual | 7 pages | root level 1",
     );
     expect(indexText).toContain(
       "- aaaaaaaaaaaa\n  Add markdown handover coverage\n  \n  Body line",
@@ -162,6 +188,15 @@ describe("handover text", () => {
         },
       ],
       assetPaths: [{ sourcePath: "logo.png", storedPath: "assets/logo.png" }],
+      derivedReviewExports: [
+        {
+          assemblyName: "manual",
+          storedPath: "demo-docs-exports/manual.mmd.txt",
+          moduleName: "manual",
+          pageCount: 7,
+          rootLevel: 1,
+        },
+      ],
       provenanceSummary: [{ marker: "section_match", count: 2 }],
       repoHistory: [
         {
@@ -175,6 +210,10 @@ describe("handover text", () => {
       kind: string;
       sections: Array<{ outputFile: string; packedTokens: number }>;
       assets?: Array<{ sourcePath: string }>;
+      derivedReviewExports?: Array<{
+        storedPath: string;
+        assemblyName: string;
+      }>;
       inclusionProvenance?: Array<{ marker: string }>;
       recentRepositoryHistory?: Array<{ shortHash: string; message: string }>;
     };
@@ -183,6 +222,10 @@ describe("handover text", () => {
     expect(parsed.sections[0]?.outputFile).toBe("demo-src.json.txt");
     expect(parsed.sections[0]?.packedTokens).toBe(5);
     expect(parsed.assets?.[0]?.sourcePath).toBe("logo.png");
+    expect(parsed.derivedReviewExports?.[0]?.assemblyName).toBe("manual");
+    expect(parsed.derivedReviewExports?.[0]?.storedPath).toBe(
+      "demo-docs-exports/manual.mmd.txt",
+    );
     expect(parsed.inclusionProvenance?.[0]?.marker).toBe("section_match");
     expect(parsed.recentRepositoryHistory?.[0]?.shortHash).toBe("bbbbbbbbbbbb");
     expect(parsed.recentRepositoryHistory?.[0]?.message).toBe(
