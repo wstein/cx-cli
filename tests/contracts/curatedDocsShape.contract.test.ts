@@ -46,8 +46,8 @@ describe("curated docs shape contract", () => {
     expect(docsIndex).toContain("== Historical Material");
     expect(docsIndex).toContain("Agent setup and IDE integration:");
     expect(docsIndex).toContain("Read the Friday-to-Monday workflow first.");
-    expect(governance).toContain("==== Front-Door Docs");
-    expect(governance).toContain("==== Reference-Only Docs");
+    expect(governance).toContain("=== Front-Door Docs");
+    expect(governance).toContain("=== Reference-Only Docs");
     expect(governance).toContain(
       "Agent integration and configuration docs should be linked by concern",
     );

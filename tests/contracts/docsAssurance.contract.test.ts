@@ -88,8 +88,8 @@ describe("docs assurance contract", () => {
     expect(governance).toContain("=== MCP Tool Stability Tiers");
     expect(governance).toContain("[[mcp-tool-stability]]");
     expect(governance).toContain("=== Tool Stability Matrix");
-    expect(governance).toContain("==== Front-Door Docs");
-    expect(governance).toContain("==== Reference-Only Docs");
+    expect(governance).toContain("=== Front-Door Docs");
+    expect(governance).toContain("=== Reference-Only Docs");
     expect(governance).toContain(
       "If a new document would introduce another plausible place to start",
     );
@@ -288,7 +288,7 @@ describe("docs assurance contract", () => {
     );
 
     expect(notesSpec).toContain("[[notes-governance]]");
-    expect(notesSpec).toContain("=== Notes Governance");
+    expect(notesSpec).toContain("== Notes Governance");
     expect(notesSpec).toContain("formal cognition contract");
     expect(notesSpec).toContain("=== Governance Model: How, What, Why");
     expect(notesSpec).toContain("4000");
@@ -377,7 +377,7 @@ describe("docs assurance contract", () => {
     expect(mentalModel).toContain("Source tree: trusted");
     expect(agentModel).toContain("== Operator Decision Ladder");
     expect(agentModel).toContain("== Capability Tiers");
-    expect(agentIntegration).toContain("=== Agent Point Of View");
+    expect(agentIntegration).toContain("== Agent Point Of View");
     expect(agentIntegration).toContain("doctor_mcp()");
     expect(agentIntegration).toContain('"tokenCount": 287');
     expect(agentIntegration).toContain('"outputStartLine": 41');
