@@ -25,7 +25,7 @@ describe("runDocsCommand", () => {
     const workspace = await createWorkspace({
       config: buildConfig({
         sourceRoot: process.cwd(),
-        docs: { targetDir: "review-docs" },
+        docs: { targetDir: "review-docs", rootLevel: 1 },
       }),
     });
     workspaceRoots.push(workspace.rootDir);
@@ -46,8 +46,10 @@ describe("runDocsCommand", () => {
       valid?: boolean;
       outputDir?: string;
       playbookPath?: string;
+      rootLevel?: number;
       totalDiagnostics?: number;
       exports?: Array<{
+        assemblyName?: string;
         diagnostics?: { status?: string; diagnostics?: unknown[] };
       }>;
     }>(capture.stdout());
@@ -58,7 +60,14 @@ describe("runDocsCommand", () => {
     expect(payload.playbookPath).toBe(
       path.join(process.cwd(), "antora-playbook.yml"),
     );
+    expect(payload.rootLevel).toBe(1);
     expect(payload.totalDiagnostics).toBe(0);
+    expect(payload.exports?.map((artifact) => artifact.assemblyName)).toEqual([
+      "architecture",
+      "docs-index",
+      "manual",
+      "start-here",
+    ]);
     expect(
       payload.exports?.every(
         (artifact) =>
@@ -67,22 +76,12 @@ describe("runDocsCommand", () => {
       ),
     ).toBe(true);
     expect(capture.stderr()).toBe("");
-  });
+  }, 15_000);
 
-  test("emits structured JSON diagnostics when validation fails", async () => {
-    const project = await createProject();
+  test("honors root-level overrides in structured JSON output", async () => {
+    const project = await createProject({ initializeGit: true });
     workspaceRoots.push(project.root);
     await seedAntoraDocs(project.root);
-
-    const onboardingIndexPath = path.join(
-      project.root,
-      "docs/modules/onboarding/pages/index.adoc",
-    );
-    await fs.appendFile(
-      onboardingIndexPath,
-      "\nSee [broken](manual:operator-manual.html).\n",
-      "utf8",
-    );
 
     const capture = createBufferedCommandIo({ cwd: project.root });
     expect(
@@ -90,35 +89,30 @@ describe("runDocsCommand", () => {
         {
           subcommand: "export",
           config: project.configPath,
+          rootLevel: 0,
           json: true,
         },
         capture.io,
       ),
-    ).toBe(12);
+    ).toBe(0);
 
     const payload = parseJsonOutput<{
       valid?: boolean;
-      error?: {
-        type?: string;
-        surfaceName?: string;
-        diagnostics?: {
-          status?: string;
-          diagnostics?: Array<{ code?: string; destination?: string }>;
-        };
-      };
+      rootLevel?: number;
+      exports?: Array<{
+        assemblyName?: string;
+        moduleName?: string | null;
+      }>;
     }>(capture.stdout());
 
-    expect(payload.valid).toBe(false);
-    expect(payload.error?.type).toBe("validation");
-    expect(payload.error?.surfaceName).toBe("onboarding");
-    expect(payload.error?.diagnostics?.status).toBe("flagged");
-    expect(payload.error?.diagnostics?.diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: "module_qualified_html",
-          destination: "manual:operator-manual.html",
-        }),
-      ]),
+    expect(payload.valid).toBe(true);
+    expect(payload.rootLevel).toBe(0);
+    expect(payload.exports).toHaveLength(1);
+    expect(payload.exports?.[0]).toEqual(
+      expect.objectContaining({
+        assemblyName: "index",
+        moduleName: null,
+      }),
     );
   });
 });

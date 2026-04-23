@@ -33,6 +33,7 @@ describe("loadCxConfig object model", () => {
     expect(config.projectName).toBe("demo");
     expect(config.assets.targetDir).toBe("demo-assets");
     expect(config.docs.targetDir).toBe("demo-docs-exports");
+    expect(config.docs.rootLevel).toBe(1);
     expect(config.assets.layout).toBe("flat");
     expect(config.checksums.fileName).toBe("demo.sha256");
     expect(config.tokens.encoding).toBe("o200k_base");

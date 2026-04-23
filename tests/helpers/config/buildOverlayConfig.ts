@@ -161,6 +161,7 @@ export function buildOverlayConfig(
   if (options.docs) {
     const docs: Record<string, unknown> = {};
     addIfDefined(docs, "target_dir", options.docs.targetDir);
+    addIfDefined(docs, "root_level", options.docs.rootLevel);
     if (Object.keys(docs).length > 0) {
       overlay.docs = docs;
     }

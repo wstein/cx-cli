@@ -49,13 +49,14 @@ interface RowMeta {
 }
 
 interface DerivedReviewExportMeta {
-  surfaceName: "architecture" | "manual" | "onboarding";
+  assemblyName: string;
   title: string;
-  moduleName: string;
+  moduleName: string | null;
   storedPath: string;
   sha256: string;
   sizeBytes: number;
   pageCount: number;
+  rootLevel: 0 | 1;
   sourcePaths: string[];
   trustClassification: "derived_review_export";
   status: "intact" | "blocked";
@@ -409,7 +410,7 @@ function renderGroupedList(
       const pathCell = useColor
         ? kleur.white(artifact.storedPath.padEnd(pathWidth))
         : artifact.storedPath.padEnd(pathWidth);
-      const suffix = ` [${artifact.surfaceName}, ${artifact.trustClassification}]`;
+      const suffix = ` [${artifact.assemblyName}, ${artifact.trustClassification}]`;
       lines.push(
         [
           "  ",
@@ -453,13 +454,14 @@ export async function runListCommand(
   const derivedReviewExports = (
     await resolveDerivedReviewExportIntegrity({ bundleDir, manifest })
   ).map(({ artifact, integrity, diagnostics }) => ({
-    surfaceName: artifact.surfaceName,
+    assemblyName: artifact.assemblyName,
     title: artifact.title,
     moduleName: artifact.moduleName,
     storedPath: artifact.storedPath,
     sha256: artifact.sha256,
     sizeBytes: artifact.sizeBytes,
     pageCount: artifact.pageCount,
+    rootLevel: artifact.rootLevel,
     sourcePaths: artifact.sourcePaths,
     trustClassification: artifact.trustClassification,
     status: integrity.status,

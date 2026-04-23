@@ -98,7 +98,7 @@ function sampleManifest(): CxManifest {
     assets: [],
     derivedReviewExports: [
       {
-        surfaceName: "manual",
+        assemblyName: "manual",
         title: "Manual",
         moduleName: "manual",
         storedPath: "demo-docs-exports/manual.mmd.txt",
@@ -106,10 +106,11 @@ function sampleManifest(): CxManifest {
           "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         sizeBytes: 128,
         pageCount: 3,
+        rootLevel: 1,
         sourcePaths: ["docs/modules/manual/pages/index.adoc"],
         generator: {
           name: "@wsmy/antora-markdown-exporter",
-          version: "0.7.0",
+          version: "0.7.8",
           format: "multimarkdown",
           extension: ".mmd.txt",
         },

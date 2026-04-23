@@ -254,9 +254,29 @@ export async function seedAntoraDocs(rootDir: string): Promise<void> {
     },
   );
   await fs.copyFile(
+    path.join(process.cwd(), "docs", "antora.yml"),
+    path.join(rootDir, "docs", "antora.yml"),
+  );
+  await fs.copyFile(
     path.join(process.cwd(), "antora-playbook.yml"),
     path.join(rootDir, "antora-playbook.yml"),
   );
+
+  const gitDir = path.join(rootDir, ".git");
+  const gitStat = await fs.stat(gitDir).catch(() => undefined);
+  if (!gitStat?.isDirectory()) {
+    await execFileAsync("git", ["init", "-q"], { cwd: rootDir });
+    await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
+      cwd: rootDir,
+    });
+    await execFileAsync("git", ["config", "user.name", "cx"], {
+      cwd: rootDir,
+    });
+    await execFileAsync("git", ["add", "."], { cwd: rootDir });
+    await execFileAsync("git", ["commit", "-q", "-m", "seed-docs"], {
+      cwd: rootDir,
+    });
+  }
 }
 
 export async function tamperSectionOutput(

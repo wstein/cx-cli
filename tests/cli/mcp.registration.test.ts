@@ -229,6 +229,7 @@ exclude = []
               },
               docs: {
                 targetDir: "demo-docs-exports",
+                rootLevel: 1,
               },
               behavior: {
                 repomixMissingExtension: "warn",

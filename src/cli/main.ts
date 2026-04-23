@@ -415,6 +415,11 @@ export async function main(
             default: false,
             description:
               "Write derived Antora MultiMarkdown review exports into the bundle and record them in manifest metadata.",
+          })
+          .option("docs-root-level", {
+            choices: [0, 1] as const,
+            description:
+              "Override docs.root_level for bundled Antora markdown exports. 0 writes one combined assembly; 1 writes one export per assembly/module.",
           }),
       async (args) => {
         exitCode = await runBundleCommand(
@@ -426,6 +431,7 @@ export async function main(
             force: args.force,
             ci: args.ci,
             includeDocExports: args["include-doc-exports"],
+            docsRootLevel: args["docs-root-level"] as 0 | 1 | undefined,
           },
           io,
         );
@@ -672,12 +678,12 @@ export async function main(
     )
     .command(
       "docs <subcommand>",
-      "Export curated Antora docs into reviewable MultiMarkdown artifacts.",
+      "Export Antora assemblies into reviewable markdown artifacts.",
       (command) =>
         command
           .example(
             "$0 docs export",
-            "Export the curated docs surfaces into dist/<docs.target_dir>.",
+            "Export Antora markdown assemblies into dist/<docs.target_dir>.",
           )
           .example(
             "$0 docs export --output-dir tmp/docs-review --json",
@@ -699,6 +705,11 @@ export async function main(
             description:
               "Antora playbook to validate before exporting docs. Defaults to antora-playbook.yml at the source root.",
           })
+          .option("root-level", {
+            choices: [0, 1] as const,
+            description:
+              "Override docs.root_level for this export. 0 writes one combined assembly; 1 writes one export per assembly/module.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runDocsCommand(
@@ -707,6 +718,7 @@ export async function main(
             config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             outputDir: args["output-dir"],
             playbook: args.playbook,
+            rootLevel: args["root-level"] as 0 | 1 | undefined,
             json: args.json,
           },
           io,

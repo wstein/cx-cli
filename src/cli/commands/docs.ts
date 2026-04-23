@@ -3,7 +3,6 @@ import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import {
   type DocsExportArtifact,
-  DocsExportValidationError,
   exportAntoraDocsToMarkdown,
 } from "../../docs/export.js";
 import {
@@ -26,6 +25,7 @@ export interface DocsArgs {
   config: string;
   outputDir?: string | undefined;
   playbook?: string | undefined;
+  rootLevel?: 0 | 1 | undefined;
   json?: boolean | undefined;
 }
 
@@ -62,6 +62,7 @@ export async function runDocsCommand(
     config.sourceRoot,
     args.playbook ?? "antora-playbook.yml",
   );
+  const rootLevel = args.rootLevel ?? config.docs.rootLevel;
 
   let exports: DocsExportArtifact[];
   try {
@@ -70,38 +71,25 @@ export async function runDocsCommand(
       outputDir,
       format: "multimarkdown",
       playbookPath: args.playbook,
+      rootLevel,
     });
   } catch (error) {
     if (args.json !== true) {
       throw error;
     }
 
-    const payload =
-      error instanceof DocsExportValidationError
-        ? {
-            command: "docs export" as const,
-            valid: false as const,
-            projectName: config.projectName,
-            outputDir,
-            playbookPath,
-            error: {
-              type: "validation" as const,
-              message: error.message,
-              surfaceName: error.surfaceName,
-              diagnostics: error.diagnostics,
-            },
-          }
-        : {
-            command: "docs export" as const,
-            valid: false as const,
-            projectName: config.projectName,
-            outputDir,
-            playbookPath,
-            error: {
-              type: "runtime" as const,
-              message: error instanceof Error ? error.message : String(error),
-            },
-          };
+    const payload = {
+      command: "docs export" as const,
+      valid: false as const,
+      projectName: config.projectName,
+      outputDir,
+      playbookPath,
+      rootLevel,
+      error: {
+        type: "runtime" as const,
+        message: error instanceof Error ? error.message : String(error),
+      },
+    };
     writeValidatedJson(DocsExportCommandJsonSchema, payload, io);
     return 12;
   }
@@ -127,6 +115,7 @@ export async function runDocsCommand(
         projectName: config.projectName,
         outputDir,
         playbookPath,
+        rootLevel,
         exportCount: exports.length,
         totalBytes,
         totalPages,
@@ -144,6 +133,7 @@ export async function runDocsCommand(
       ["Project", config.projectName],
       ["Output", outputDir],
       ["Playbook", playbookPath],
+      ["Root level", String(rootLevel)],
       ["Exports", exports.length],
       ["Pages", formatNumber(totalPages)],
       ["Total size", formatBytes(totalBytes)],
@@ -167,7 +157,7 @@ export async function runDocsCommand(
 
   printDivider(io);
   printSuccess(
-    `Exported ${exports.length} docs surface${exports.length === 1 ? "" : "s"}.`,
+    `Exported ${exports.length} Antora markdown assembl${exports.length === 1 ? "y" : "ies"}.`,
     io,
   );
   return 0;

@@ -33,21 +33,16 @@ describe("docs export link contract", () => {
       outputDir,
     });
 
-    const onboarding = await fs.readFile(
-      path.join(outputDir, "onboarding.mmd"),
+    const docsIndex = await fs.readFile(
+      path.join(outputDir, "docs-index.mmd"),
       "utf8",
     );
 
-    expect(onboarding).toContain("(manual.mmd#release-checklist)");
-    expect(onboarding).toContain("(architecture.mmd#cx-system-map)");
-    expect(onboarding).toContain(
-      "(repository/docs/governance.html#mcp-tool-stability)",
-    );
-    expect(onboarding).not.toContain("(manual:release-and-integrity.html");
-    expect(onboarding).not.toContain("(architecture:system-map.html)");
-    expect(onboarding).not.toContain(
-      "(ROOT:page$repository/docs/governance.html",
-    );
-    expect(onboarding).not.toContain("xref:");
+    expect(docsIndex).toContain("[link-2]: manual.mmd#release-checklist");
+    expect(docsIndex).toContain("(start-here.mmd#mcp-tool-stability)");
+    expect(docsIndex).not.toContain("manual:release-and-integrity.adoc");
+    expect(docsIndex).not.toContain("architecture:system-map.adoc");
+    expect(docsIndex).not.toContain("ROOT:page$repository/docs/governance");
+    expect(docsIndex).not.toContain("xref:");
   });
 });

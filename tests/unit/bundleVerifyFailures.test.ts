@@ -23,7 +23,7 @@ const AGGREGATE_PLAN_HASH_B = sha256NormalizedText(
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 10,
+    schemaVersion: 11,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",

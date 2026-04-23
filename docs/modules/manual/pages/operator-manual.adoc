@@ -219,29 +219,32 @@ MCP surface now includes live bundle planning plus note reading, search,
 creation, update, rename, delete, and note-graph inspection tools in
 addition to workspace file browsing.
 
-`cx docs export` writes the curated Antora surfaces into deterministic
-`.mmd` review artifacts so operators and downstream LLM workflows can
+`cx docs export` writes deterministic markdown renderings of the Antora
+assemblies described by the active playbook so operators and downstream
+LLM workflows can
 inspect the final documentation content directly instead of inferring it
 from source AsciiDoc files alone. MultiMarkdown is the default export
 format for this command. The export rewrites Antora-style cross references
-into review-friendly links between the emitted surface files and rejects
-source-flavored leftovers such as `xref:` links, module-qualified Antora
-HTML targets, and `.adoc` destinations. Use `--playbook` when the docs
-surface is driven by a playbook other than the default
-`antora-playbook.yml` at the source root. JSON mode reports structured
-validation diagnostics when the export is blocked so CI and operators can
-see the exact surface and leaked destinations instead of only receiving a
+into review-friendly links between the emitted markdown files and reports
+unresolved review-link destinations such as `xref:` links,
+module-qualified Antora HTML targets, or `.adoc` destinations. Use
+`--playbook` when the docs are driven by a playbook other than the
+default `antora-playbook.yml` at the source root, and use `--root-level`
+to switch between a single combined assembly (`0`) and one export per
+assembly or module (`1`, the default). JSON mode reports structured
+diagnostics when the export is blocked so CI and operators can see the
+exact assembly and unresolved destinations instead of only receiving a
 generic failure.
 
 `cx bundle --include-doc-exports` reuses that same export path and stages
-the generated docs under `docs.target_dir/` inside the bundle. The
+the generated Antora assemblies under `docs.target_dir/` inside the bundle. The
 default is `{project}-docs-exports`, and you can configure it the same
 way as `assets.target_dir` in `cx.toml`. The bundle manifest records
 those files as `.mmd.txt` artifacts in `derivedReviewExports` so they
 are discoverable, checksum-covered, and still clearly labeled as derived
 review material rather than proof-path section outputs. `cx inspect
 --derived-review-exports --json` and `cx verify --json` also summarize the
-derived review exports, including source-link diagnostics for already
+derived review exports, including unresolved review-link diagnostics for already
 bundled artifacts.
 
 Use `cx mcp catalog --json` when you need only the machine-readable MCP

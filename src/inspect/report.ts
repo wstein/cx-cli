@@ -76,13 +76,14 @@ export interface InspectReport {
     extractability: InspectExtractability | null;
   }>;
   derivedReviewExports: Array<{
-    surfaceName: "architecture" | "manual" | "onboarding";
+    assemblyName: string;
     title: string;
-    moduleName: string;
+    moduleName: string | null;
     storedPath: string;
     pageCount: number;
     sizeBytes: number;
     sha256: string;
+    rootLevel: 0 | 1;
     trustClassification: "derived_review_export";
     extractability: InspectExtractability | null;
     diagnostics: {
@@ -237,13 +238,14 @@ export async function collectInspectReport(params: {
           manifest,
         })
       ).map(({ artifact, integrity, diagnostics }) => ({
-        surfaceName: artifact.surfaceName,
+        assemblyName: artifact.assemblyName,
         title: artifact.title,
         moduleName: artifact.moduleName,
         storedPath: artifact.storedPath,
         pageCount: artifact.pageCount,
         sizeBytes: artifact.sizeBytes,
         sha256: artifact.sha256,
+        rootLevel: artifact.rootLevel,
         trustClassification: artifact.trustClassification,
         extractability: {
           status: integrity.status,

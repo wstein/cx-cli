@@ -97,6 +97,7 @@ function baseConfig(root: string): CxConfig {
     },
     docs: {
       targetDir: "operator-contract-docs-exports",
+      rootLevel: 1,
     },
     checksums: {
       algorithm: "sha256",

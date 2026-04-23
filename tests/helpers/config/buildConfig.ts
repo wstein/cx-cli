@@ -175,6 +175,7 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
     },
     docs: {
       targetDir: `${projectName}-docs-exports`,
+      rootLevel: 1,
       ...options.docs,
     },
     behavior: {

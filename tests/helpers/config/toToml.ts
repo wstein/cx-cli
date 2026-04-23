@@ -260,6 +260,7 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
     },
     docs: {
       target_dir: config.docs.targetDir,
+      root_level: config.docs.rootLevel,
     },
     config: {
       duplicate_entry: config.behavior.configDuplicateEntry,

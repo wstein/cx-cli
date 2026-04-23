@@ -68,6 +68,7 @@ export interface BundleArgs {
   config: string;
   json?: boolean | undefined;
   layout?: CxAssetsLayout | undefined;
+  docsRootLevel?: 0 | 1 | undefined;
   update?: boolean | undefined;
   /**
    * Override the unsafe-dirty safety check for local development use.
@@ -808,9 +809,10 @@ export async function runBundleCommand(
               ),
               format: "multimarkdown",
               extension: ".mmd.txt",
+              rootLevel: args.docsRootLevel ?? config.docs.rootLevel,
             })
           ).map((artifact) => ({
-            surfaceName: artifact.surfaceName,
+            assemblyName: artifact.assemblyName,
             title: artifact.title,
             moduleName: artifact.moduleName,
             storedPath: path
@@ -822,6 +824,7 @@ export async function runBundleCommand(
             sha256: artifact.sha256,
             sizeBytes: artifact.sizeBytes,
             pageCount: artifact.pageCount,
+            rootLevel: artifact.rootLevel,
             sourcePaths: [...artifact.sourcePaths],
             generator: {
               ...DOCS_EXPORT_GENERATOR,

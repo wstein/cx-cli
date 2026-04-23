@@ -963,6 +963,7 @@ layout = "flat"
 
 [docs]
 target_dir = "{project}-docs-exports"
+root_level = 1
 ----
 
 === `docs.target_dir`
@@ -975,11 +976,25 @@ It affects two surfaces:
 * `cx docs export` writes into `dist/<docs.target_dir>/` by default.
   MultiMarkdown exports use `.mmd` by default; other markdown flavors use
   `.md`.
-* `cx bundle --include-doc-exports` stages the same curated docs inside
+* `cx bundle --include-doc-exports` stages the same exported Antora
+  assemblies inside
   the bundle under `<docs.target_dir>/`, with bundled MultiMarkdown files
   written as `.mmd.txt` so they behave like other text bundle artifacts.
 
 The default value is `{project}-docs-exports`.
+
+=== `docs.root_level`
+
+`docs.root_level` controls how Antora assemblies are exported to markdown.
+
+* `0` writes one combined assembly for the playbook.
+* `1` writes one markdown file per Antora assembly or module.
+
+This setting applies to both `cx docs export` and
+`cx bundle --include-doc-exports`. You can override it per command with
+`cx docs export --root-level` or `cx bundle --docs-root-level`.
+
+The default value is `1`.
 
 === Asset collision invariant
 

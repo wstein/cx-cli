@@ -14,7 +14,7 @@ async function makeOutputRoot(): Promise<string> {
 }
 
 describe("docs export", () => {
-  test("exports built-in Antora docs surfaces to multimarkdown files", async () => {
+  test("exports Antora assemblies to multimarkdown files", async () => {
     const outputDir = await makeOutputRoot();
 
     const artifacts = await exportAntoraDocsToMarkdown({
@@ -23,45 +23,59 @@ describe("docs export", () => {
     });
 
     expect(artifacts.map((artifact) => artifact.outputFile)).toEqual([
-      "onboarding.mmd",
-      "manual.mmd",
       "architecture.mmd",
+      "docs-index.mmd",
+      "manual.mmd",
+      "start-here.mmd",
     ]);
 
-    const onboarding = await fs.readFile(
-      path.join(outputDir, "onboarding.mmd"),
+    const docsIndex = await fs.readFile(
+      path.join(outputDir, "docs-index.mmd"),
       "utf8",
     );
-    expect(onboarding).toContain("# CX Documentation Index");
-    expect(onboarding).toContain("Track A produces proof-grade artifacts");
-    expect(onboarding).not.toContain(
-      "include::ROOT:partial$track-primer.adoc[]",
-    );
-    expect(analyzeDocsExportMarkdown(onboarding)).toEqual({
+    expect(docsIndex).toContain("# CX Documentation: Docs Index");
+    expect(docsIndex).toContain("Track A produces proof-grade artifacts");
+    expect(docsIndex).toContain("(start-here.mmd#notes-governance)");
+    expect(docsIndex).not.toContain("ROOT:page$");
+    expect(analyzeDocsExportMarkdown(docsIndex)).toEqual({
       status: "clean",
       diagnostics: [],
     });
-    expect(onboarding).toContain("(manual.mmd#release-checklist)");
 
     const manual = await fs.readFile(
       path.join(outputDir, "manual.mmd"),
       "utf8",
     );
-    expect(manual).toContain("# Operator Manual Overview");
-    expect(manual).toContain("# CX Operator Manual");
+    expect(manual).toContain("# CX Documentation: Manual");
+    expect(manual).toContain("Agent Integration Guide");
     expect(analyzeDocsExportMarkdown(manual)).toEqual({
       status: "clean",
       diagnostics: [],
     });
-    expect(manual).toContain("(#cx-operator-manual)");
+    expect(manual).toContain("(start-here.mmd)");
 
     const architecture = await fs.readFile(
       path.join(outputDir, "architecture.mmd"),
       "utf8",
     );
-    expect(architecture).toContain("# Architecture Overview");
-    expect(architecture).toContain("[Mental Model](#cx-mental-model)");
+    expect(architecture).toContain("# CX Documentation: Architecture");
+    expect(architecture).toContain(
+      "[Mental Model](#architecture:mental-model)",
+    );
     expect(analyzeDocsExportMarkdown(architecture)).toEqual({
+      status: "clean",
+      diagnostics: [],
+    });
+
+    const startHere = await fs.readFile(
+      path.join(outputDir, "start-here.mmd"),
+      "utf8",
+    );
+    expect(startHere).toContain("# CX Documentation: Start Here");
+    expect(startHere).toContain(
+      "[Agent Integration Guide](#repository-docs-agent_integration)",
+    );
+    expect(analyzeDocsExportMarkdown(startHere)).toEqual({
       status: "clean",
       diagnostics: [],
     });
@@ -71,6 +85,7 @@ describe("docs export", () => {
       expect(artifact.sourcePaths.length).toBe(artifact.pageCount);
       expect(artifact.sha256).toMatch(/^[0-9a-f]{64}$/u);
       expect(artifact.sizeBytes).toBeGreaterThan(0);
+      expect(artifact.rootLevel).toBe(1);
       expect(artifact.diagnostics).toEqual({
         status: "clean",
         diagnostics: [],
@@ -88,9 +103,10 @@ describe("docs export", () => {
     });
 
     expect(artifacts.map((artifact) => artifact.outputFile)).toEqual([
-      "demo-onboarding.mmd",
-      "demo-manual.mmd",
       "demo-architecture.mmd",
+      "demo-docs-index.mmd",
+      "demo-manual.mmd",
+      "demo-start-here.mmd",
     ]);
   });
 });

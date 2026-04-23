@@ -117,6 +117,7 @@ function baseConfig(root: string): CxConfig {
     },
     docs: {
       targetDir: "demo-docs-exports",
+      rootLevel: 1,
     },
     sections: {
       docs: {

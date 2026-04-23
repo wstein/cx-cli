@@ -11,7 +11,7 @@ import {
 
 describe("shared manifest summary utilities", () => {
   const manifest: CxManifest = {
-    schemaVersion: 10,
+    schemaVersion: 11,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: "/tmp/demo",

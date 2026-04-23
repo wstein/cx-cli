@@ -120,13 +120,14 @@ export const InspectReportJsonSchema = z.object({
   assets: z.array(InspectAssetSchema),
   derivedReviewExports: z.array(
     z.object({
-      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+      assemblyName: z.string(),
       title: z.string(),
-      moduleName: z.string(),
+      moduleName: z.string().nullable(),
       storedPath: z.string(),
       pageCount: z.number().int().nonnegative(),
       sizeBytes: z.number().nonnegative(),
       sha256: z.string(),
+      rootLevel: z.union([z.literal(0), z.literal(1)]),
       trustClassification: z.literal("derived_review_export"),
       extractability: ExtractabilitySchema.nullable(),
       diagnostics: DerivedReviewExportDiagnosticsSchema,
@@ -144,13 +145,14 @@ export const BundleCommandJsonSchema = z.object({
   handoverFile: z.string(),
   derivedReviewExports: z.array(
     z.object({
-      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+      assemblyName: z.string(),
       title: z.string(),
-      moduleName: z.string(),
+      moduleName: z.string().nullable(),
       storedPath: z.string(),
       sha256: z.string(),
       sizeBytes: z.number().nonnegative(),
       pageCount: z.number().int().nonnegative(),
+      rootLevel: z.union([z.literal(0), z.literal(1)]),
       sourcePaths: z.array(z.string()),
       generator: z.object({
         name: z.string(),
@@ -195,19 +197,21 @@ export const DocsExportCommandJsonSchema = z.union([
     projectName: z.string(),
     outputDir: z.string(),
     playbookPath: z.string(),
+    rootLevel: z.union([z.literal(0), z.literal(1)]),
     exportCount: z.number().int().nonnegative(),
     totalBytes: z.number().nonnegative(),
     totalPages: z.number().int().nonnegative(),
     totalDiagnostics: z.number().int().nonnegative(),
     exports: z.array(
       z.object({
-        surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+        assemblyName: z.string(),
         title: z.string(),
-        moduleName: z.string(),
+        moduleName: z.string().nullable(),
         outputFile: z.string(),
         outputPath: z.string(),
         relativeOutputPath: z.string(),
         pageCount: z.number().int().nonnegative(),
+        rootLevel: z.union([z.literal(0), z.literal(1)]),
         sourcePaths: z.array(z.string()),
         sha256: z.string(),
         sizeBytes: z.number().nonnegative(),
@@ -221,18 +225,11 @@ export const DocsExportCommandJsonSchema = z.union([
     projectName: z.string(),
     outputDir: z.string(),
     playbookPath: z.string(),
-    error: z.union([
-      z.object({
-        type: z.literal("validation"),
-        message: z.string(),
-        surfaceName: z.enum(["architecture", "manual", "onboarding"]),
-        diagnostics: DocsExportDiagnosticsSchema,
-      }),
-      z.object({
-        type: z.literal("runtime"),
-        message: z.string(),
-      }),
-    ]),
+    rootLevel: z.union([z.literal(0), z.literal(1)]),
+    error: z.object({
+      type: z.literal("runtime"),
+      message: z.string(),
+    }),
   }),
 ]);
 
@@ -284,13 +281,14 @@ export const ListCommandJsonSchema = z.object({
   ),
   derivedReviewExports: z.array(
     z.object({
-      surfaceName: z.enum(["architecture", "manual", "onboarding"]),
+      assemblyName: z.string(),
       title: z.string(),
-      moduleName: z.string(),
+      moduleName: z.string().nullable(),
       storedPath: z.string(),
       sha256: z.string(),
       sizeBytes: z.number().nonnegative(),
       pageCount: z.number().int().nonnegative(),
+      rootLevel: z.union([z.literal(0), z.literal(1)]),
       sourcePaths: z.array(z.string()),
       trustClassification: z.literal("derived_review_export"),
       status: z.enum(["intact", "blocked"]),

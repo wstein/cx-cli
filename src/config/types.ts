@@ -195,6 +195,13 @@ export interface CxDocsConfig {
    *   directory inside the bundle alongside other artifacts.
    */
   targetDir: string;
+  /**
+   * Antora assembler root level used for markdown review exports.
+   *
+   * - 0 — one combined markdown assembly
+   * - 1 — one markdown file per Antora module / assembly (default)
+   */
+  rootLevel: 0 | 1;
 }
 
 /**

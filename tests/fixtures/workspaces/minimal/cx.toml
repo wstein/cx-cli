@@ -51,6 +51,7 @@ layout = "flat"
 
 [docs]
 target_dir = "demo-docs-exports"
+root_level = 1
 
 [config]
 duplicate_entry = "fail"

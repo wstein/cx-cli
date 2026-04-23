@@ -161,7 +161,7 @@ export async function runInspectCommand(
                 : artifact.diagnostics.status === "unavailable"
                   ? " [diagnostics unavailable]"
                   : "";
-            return `  ${status} ${artifact.storedPath} [${artifact.surfaceName}, ${artifact.trustClassification}]${diagnosticsSuffix}${suffix}`;
+            return `  ${status} ${artifact.storedPath} [${artifact.assemblyName}, ${artifact.trustClassification}]${diagnosticsSuffix}${suffix}`;
           }),
           "",
         ]

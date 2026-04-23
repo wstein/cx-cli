@@ -259,7 +259,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["current", "v0.4", "backlog"]
+                  "enum": ["current", "v0.4", "v0.5", "v0.6", "backlog"]
                 }
               },
               "section_order": {
@@ -426,6 +426,11 @@
           "type": "string",
           "minLength": 1,
           "description": "Directory where review-doc exports are placed. May contain {project} placeholder."
+        },
+        "root_level": {
+          "type": "integer",
+          "enum": [0, 1],
+          "description": "Antora assembly export mode. 0 writes one combined assembly for the whole playbook; 1 writes one exported markdown file per Antora assembly/module."
         }
       }
     },

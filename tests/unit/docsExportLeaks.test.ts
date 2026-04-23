@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { analyzeDocsExportMarkdown } from "../../src/docs/export.js";
 
 describe("analyzeDocsExportMarkdown", () => {
-  test("flags source-flavored markdown link destinations", () => {
+  test("flags unresolved review-link destinations", () => {
     const markdown = [
       "[Manual](manual:operator-manual.html)",
       "[Repo](ROOT:page$repository/docs/governance.html#mcp-tool-stability)",

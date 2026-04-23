@@ -1202,6 +1202,12 @@ function buildCxConfigFromParsedInput(
         ),
         projectName,
       ),
+      rootLevel: expectBoundedInteger(
+        docs.root_level ?? DEFAULT_CONFIG_VALUES.docs.rootLevel,
+        "docs.root_level",
+        0,
+        1,
+      ) as 0 | 1,
     },
     behavior,
     behaviorSources,

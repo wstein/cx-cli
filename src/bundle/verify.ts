@@ -393,6 +393,14 @@ export async function verifyBundle(
   const selectedAssets = manifest.assets.filter((asset) =>
     selectedFiles.some((file) => file.path === asset.sourcePath),
   );
+  const includeSelectionSubset =
+    (selection.sections?.length ?? 0) > 0 || (selection.files?.length ?? 0) > 0;
+  const checksumSections = includeSelectionSubset
+    ? selectedSections
+    : manifest.sections;
+  const checksumAssets = includeSelectionSubset
+    ? selectedAssets
+    : manifest.assets;
   const checksums = parseChecksums(
     await readFile(path.join(bundleDir, manifest.checksumFile), "utf8"),
   );
@@ -403,8 +411,8 @@ export async function verifyBundle(
   const expectedFiles = new Set([
     manifestName,
     ...(manifest.handoverFile ? [manifest.handoverFile] : []),
-    ...selectedSections.map((section) => section.outputFile),
-    ...selectedAssets.map((asset) => asset.storedPath),
+    ...checksumSections.map((section) => section.outputFile),
+    ...checksumAssets.map((asset) => asset.storedPath),
     ...(manifest.derivedReviewExports?.map((artifact) => artifact.storedPath) ??
       []),
     // Include the lock file only when present — older bundles do not have one.

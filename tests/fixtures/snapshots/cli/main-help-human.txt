@@ -12,7 +12,7 @@ Commands:
   cx verify <bundleDir>    Verify bundle integrity.
   cx doctor [subcommand]   Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.
   cx render                Render planned sections as standard Repomix output.
-  cx docs <subcommand>     Export curated Antora docs into reviewable MultiMarkdown artifacts.
+  cx docs <subcommand>     Export Antora assemblies into reviewable markdown artifacts.
   cx config <subcommand>   Inspect effective configuration.
   cx adapter <subcommand>  Expert oracle diagnostics for parity, capability inspection, and migration checks.
   cx notes [subcommand]    Manage repository notes.

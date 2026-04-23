@@ -14,7 +14,9 @@ describe("docs export config contract", () => {
   test("checked-in cx.toml keeps derived docs exports in a dedicated directory", async () => {
     const config = await fs.readFile(path.join(ROOT, "cx.toml"), "utf8");
 
-    expect(config).toContain('[docs]\ntarget_dir = "docs-exports"');
+    expect(config).toContain(
+      '[docs]\ntarget_dir = "docs-exports"\nroot_level = 1',
+    );
     expect(config).not.toContain('[docs]\ntarget_dir = "."');
   });
 });

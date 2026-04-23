@@ -17,7 +17,7 @@ import type {
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 10 as const;
+export const MANIFEST_SCHEMA_VERSION = 11 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -26,7 +26,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v10.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v11.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -275,15 +275,18 @@ function parseDerivedReviewExportDto(
   );
 
   return {
-    surfaceName: requireString(
-      obj.surfaceName,
-      `derivedReviewExport[${index}].surfaceName`,
-    ) as DerivedReviewExportRecord["surfaceName"],
-    title: requireString(obj.title, `derivedReviewExport[${index}].title`),
-    moduleName: requireString(
-      obj.moduleName,
-      `derivedReviewExport[${index}].moduleName`,
+    assemblyName: requireString(
+      obj.assemblyName,
+      `derivedReviewExport[${index}].assemblyName`,
     ),
+    title: requireString(obj.title, `derivedReviewExport[${index}].title`),
+    moduleName:
+      obj.moduleName === null || obj.moduleName === undefined
+        ? null
+        : requireString(
+            obj.moduleName,
+            `derivedReviewExport[${index}].moduleName`,
+          ),
     storedPath: requireString(
       obj.storedPath,
       `derivedReviewExport[${index}].storedPath`,
@@ -296,6 +299,10 @@ function parseDerivedReviewExportDto(
     pageCount: requireNumber(
       obj.pageCount,
       `derivedReviewExport[${index}].pageCount`,
+    ),
+    rootLevel: expectDerivedReviewExportRootLevel(
+      obj.rootLevel,
+      `derivedReviewExport[${index}].rootLevel`,
     ),
     sourcePaths: requireArray(
       obj.sourcePaths,
@@ -329,6 +336,17 @@ function parseDerivedReviewExportDto(
       `derivedReviewExport[${index}].trustClassification`,
     ) as "derived_review_export",
   };
+}
+
+function expectDerivedReviewExportRootLevel(
+  value: unknown,
+  label: string,
+): 0 | 1 {
+  const rootLevel = requireNumber(value, label);
+  if (rootLevel !== 0 && rootLevel !== 1) {
+    throw new CxError(`Missing or invalid ${label} in manifest.`);
+  }
+  return rootLevel;
 }
 
 function parseTraceabilityDto(raw: unknown): ManifestTraceability {

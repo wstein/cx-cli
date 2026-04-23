@@ -80,13 +80,13 @@ export async function resolveDerivedReviewExportIntegrity(params: {
           ? {
               status: "clean" as const,
               reason: "clean" as const,
-              message: `Derived review export ${artifact.storedPath} contains no detected source-flavored markdown links.`,
+              message: `Derived review export ${artifact.storedPath} contains no detected unresolved review-link destinations.`,
               diagnostics: markdownDiagnostics.diagnostics,
             }
           : {
               status: "flagged" as const,
               reason: "source_leak_detected" as const,
-              message: `Derived review export ${artifact.storedPath} contains detected source-flavored markdown links.`,
+              message: `Derived review export ${artifact.storedPath} contains detected unresolved review-link destinations.`,
               diagnostics: markdownDiagnostics.diagnostics,
             };
       if (actualSha256 !== artifact.sha256) {

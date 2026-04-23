@@ -125,18 +125,19 @@ describe("manifest JSON parsing and rendering", () => {
         ...VALID_MINIMAL_MANIFEST,
         derivedReviewExports: [
           {
-            surfaceName: "onboarding",
-            title: "Onboarding",
+            assemblyName: "docs-index",
+            title: "Documentation Index",
             moduleName: "onboarding",
-            storedPath: "test-docs-exports/onboarding.mmd.txt",
+            storedPath: "test-docs-exports/docs-index.mmd.txt",
             sha256:
               "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
             sizeBytes: 256,
             pageCount: 4,
+            rootLevel: 1,
             sourcePaths: ["docs/modules/onboarding/pages/index.adoc"],
             generator: {
               name: "@wsmy/antora-markdown-exporter",
-              version: "0.7.0",
+              version: "0.7.8",
               format: "multimarkdown",
               extension: ".mmd.txt",
             },
@@ -147,7 +148,7 @@ describe("manifest JSON parsing and rendering", () => {
 
       const json = renderManifestJson(manifestWithDerivedExports);
       expect(json).toContain("derivedReviewExports");
-      expect(json).toContain("onboarding.mmd.txt");
+      expect(json).toContain("docs-index.mmd.txt");
     });
 
     it("produces valid JSON that can be parsed", () => {

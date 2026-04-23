@@ -60,6 +60,7 @@ layout = "flat"
 
 [docs]
 target_dir = "docs-exports"
+root_level = 1
 
 [sections.docs]
 include = ["docs/**", "notes/**", "README.md", "*.md"]

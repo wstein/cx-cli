@@ -119,6 +119,7 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_VALUES.docs.targetDir).toBe(
         "{project}-docs-exports",
       );
+      expect(DEFAULT_CONFIG_VALUES.docs.rootLevel).toBe(1);
     });
 
     it("includes behavior values", () => {

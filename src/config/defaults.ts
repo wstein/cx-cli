@@ -112,6 +112,7 @@ layout = "flat"
 
 [docs]
 target_dir = "{project}-docs-exports"
+root_level = 1
 
 [sections.docs]
 include = ["docs/**", "notes/**", "README.md", "*.md"]
@@ -215,6 +216,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
   },
   docs: {
     targetDir: "{project}-docs-exports",
+    rootLevel: 1,
   },
   behavior: {
     ...DEFAULT_BEHAVIOR_VALUES,

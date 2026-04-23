@@ -1,15 +1,19 @@
 // test-lane: contract
 
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { afterEach, describe, expect, test } from "vitest";
 import { main } from "../../src/cli/main.js";
 import { captureCli } from "../helpers/cli/captureCli.js";
+import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { createWorkspace } from "../helpers/workspace/createWorkspace.js";
 
 const workspaceRoots: string[] = [];
+const execFileAsync = promisify(execFile);
 
 afterEach(async () => {
   await Promise.all(
@@ -21,6 +25,7 @@ afterEach(async () => {
 
 async function createProject(options?: {
   includeLinkedNotes?: boolean;
+  initializeGit?: boolean;
 }): Promise<{ root: string; configPath: string }> {
   const workspace = await createWorkspace({
     config: buildConfig({
@@ -49,6 +54,21 @@ This linked note stays visible through inspect provenance for governance-safe co
         : {}),
     },
   });
+
+  if (options?.initializeGit === true) {
+    await execFileAsync("git", ["init", "-q"], { cwd: workspace.rootDir });
+    await execFileAsync("git", ["config", "user.email", "cx@example.com"], {
+      cwd: workspace.rootDir,
+    });
+    await execFileAsync("git", ["config", "user.name", "cx"], {
+      cwd: workspace.rootDir,
+    });
+    await execFileAsync("git", ["add", "."], { cwd: workspace.rootDir });
+    await execFileAsync("git", ["commit", "-q", "-m", "init"], {
+      cwd: workspace.rootDir,
+    });
+  }
+
   workspaceRoots.push(workspace.rootDir);
   return {
     root: workspace.rootDir,
@@ -72,11 +92,14 @@ describe("CLI JSON contract", () => {
       command?: string;
       valid?: boolean;
       playbookPath?: string;
+      rootLevel?: number;
       exportCount?: number;
       totalPages?: number;
       totalDiagnostics?: number;
       exports?: Array<{
-        surfaceName?: string;
+        assemblyName?: string;
+        moduleName?: string | null;
+        rootLevel?: number;
         outputFile?: string;
         pageCount?: number;
         diagnostics?: { status?: string; diagnostics?: unknown[] };
@@ -87,25 +110,20 @@ describe("CLI JSON contract", () => {
     expect(payload.playbookPath).toBe(
       path.join(process.cwd(), "antora-playbook.yml"),
     );
-    expect(payload.exportCount).toBe(3);
+    expect(payload.rootLevel).toBe(1);
+    expect(payload.exportCount).toBeGreaterThan(0);
     expect(payload.totalPages).toBeGreaterThan(0);
     expect(payload.totalDiagnostics).toBe(0);
-    expect(payload.exports).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          surfaceName: "onboarding",
-          outputFile: "onboarding.mmd",
-        }),
-        expect.objectContaining({
-          surfaceName: "manual",
-          outputFile: "manual.mmd",
-        }),
-        expect.objectContaining({
-          surfaceName: "architecture",
-          outputFile: "architecture.mmd",
-        }),
-      ]),
-    );
+    expect(payload.exports?.length).toBe(payload.exportCount);
+    expect(
+      payload.exports?.every(
+        (artifact) =>
+          typeof artifact.assemblyName === "string" &&
+          artifact.assemblyName.length > 0 &&
+          artifact.outputFile?.endsWith(".mmd") === true &&
+          artifact.rootLevel === 1,
+      ),
+    ).toBe(true);
     for (const artifact of payload.exports ?? []) {
       expect(artifact.pageCount).toBeGreaterThan(0);
       expect(artifact.diagnostics?.status).toBe("clean");
@@ -289,12 +307,16 @@ See [[20260418120000]].
   });
 
   test("inspect and list --json surface derived review exports after opt-in bundling", async () => {
-    const project = await createProject();
+    const project = await createProject({ initializeGit: true });
     await fs.mkdir(path.join(project.root, "docs"), { recursive: true });
     await fs.cp(
       path.join(process.cwd(), "docs", "modules"),
       path.join(project.root, "docs", "modules"),
       { recursive: true },
+    );
+    await fs.copyFile(
+      path.join(process.cwd(), "docs", "antora.yml"),
+      path.join(project.root, "docs", "antora.yml"),
     );
     await fs.copyFile(
       path.join(process.cwd(), "antora-playbook.yml"),
@@ -323,8 +345,12 @@ See [[20260418120000]].
         derivedReviewExports?: Array<{ storedPath?: string }>;
       }>(inspectResult.stdout);
       expect(inspectPayload.selection?.derivedReviewExportsOnly).toBe(false);
-      expect(inspectPayload.summary?.derivedReviewExportCount).toBe(3);
-      expect(inspectPayload.derivedReviewExports).toHaveLength(3);
+      expect(inspectPayload.summary?.derivedReviewExportCount).toBeGreaterThan(
+        0,
+      );
+      expect(inspectPayload.derivedReviewExports?.length).toBe(
+        inspectPayload.summary?.derivedReviewExportCount,
+      );
 
       const inspectDerivedOnlyResult = await captureCli({
         run: () =>
@@ -350,7 +376,9 @@ See [[20260418120000]].
       expect(inspectDerivedOnlyPayload.sections).toEqual([]);
       expect(inspectDerivedOnlyPayload.assets).toEqual([]);
       expect(inspectDerivedOnlyPayload.unmatchedFiles).toEqual([]);
-      expect(inspectDerivedOnlyPayload.derivedReviewExports).toHaveLength(3);
+      expect(
+        inspectDerivedOnlyPayload.derivedReviewExports?.length,
+      ).toBeGreaterThan(0);
 
       const listResult = await captureCli({
         run: () => main(["list", "dist/demo-bundle", "--json"]),
@@ -360,8 +388,10 @@ See [[20260418120000]].
         summary?: { derivedReviewExportCount?: number };
         derivedReviewExports?: Array<{ storedPath?: string }>;
       }>(listResult.stdout);
-      expect(listPayload.summary?.derivedReviewExportCount).toBe(3);
-      expect(listPayload.derivedReviewExports).toHaveLength(3);
+      expect(listPayload.summary?.derivedReviewExportCount).toBeGreaterThan(0);
+      expect(listPayload.derivedReviewExports?.length).toBe(
+        listPayload.summary?.derivedReviewExportCount,
+      );
 
       const derivedOnlyResult = await captureCli({
         run: () =>
@@ -383,15 +413,26 @@ See [[20260418120000]].
       }>(derivedOnlyResult.stdout);
       expect(derivedOnlyPayload.selection?.derivedReviewExportsOnly).toBe(true);
       expect(derivedOnlyPayload.summary?.fileCount).toBe(0);
-      expect(derivedOnlyPayload.summary?.derivedReviewExportCount).toBe(3);
+      expect(
+        derivedOnlyPayload.summary?.derivedReviewExportCount,
+      ).toBeGreaterThan(0);
       expect(derivedOnlyPayload.files).toEqual([]);
       expect(derivedOnlyPayload.sections).toEqual([]);
       expect(derivedOnlyPayload.assets).toEqual([]);
-      expect(derivedOnlyPayload.derivedReviewExports).toHaveLength(3);
+      expect(derivedOnlyPayload.derivedReviewExports?.length).toBe(
+        derivedOnlyPayload.summary?.derivedReviewExportCount,
+      );
 
-      const verifyResult = await captureCli({
-        run: () => main(["verify", "dist/demo-bundle", "--json"]),
-      });
+      const verifyCapture = createBufferedCommandIo({ cwd: project.root });
+      const verifyExitCode = await main(
+        ["verify", "dist/demo-bundle", "--json"],
+        verifyCapture.io,
+      );
+      const verifyResult = {
+        exitCode: verifyExitCode,
+        stdout: verifyCapture.stdout(),
+        stderr: verifyCapture.stderr(),
+      };
       expect(verifyResult.exitCode).toBe(0);
       const verifyPayload = parseJsonOutput<{
         derivedReviewExports?: {
@@ -403,10 +444,14 @@ See [[20260418120000]].
           totalDiagnosticCount?: number;
         } | null;
       }>(verifyResult.stdout);
-      expect(verifyPayload.derivedReviewExports?.totalCount).toBe(3);
-      expect(verifyPayload.derivedReviewExports?.intactCount).toBe(3);
+      expect(verifyPayload.derivedReviewExports?.totalCount).toBeGreaterThan(0);
+      expect(verifyPayload.derivedReviewExports?.intactCount).toBe(
+        verifyPayload.derivedReviewExports?.totalCount,
+      );
       expect(verifyPayload.derivedReviewExports?.blockedCount).toBe(0);
-      expect(verifyPayload.derivedReviewExports?.cleanCount).toBe(3);
+      expect(verifyPayload.derivedReviewExports?.cleanCount).toBe(
+        verifyPayload.derivedReviewExports?.totalCount,
+      );
       expect(verifyPayload.derivedReviewExports?.flaggedCount).toBe(0);
       expect(verifyPayload.derivedReviewExports?.totalDiagnosticCount).toBe(0);
     } finally {

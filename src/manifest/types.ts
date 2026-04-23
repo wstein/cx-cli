@@ -76,13 +76,14 @@ export interface NoteRecord {
 }
 
 export interface DerivedReviewExportRecord {
-  surfaceName: "architecture" | "manual" | "onboarding";
+  assemblyName: string;
   title: string;
-  moduleName: string;
+  moduleName: string | null;
   storedPath: string;
   sha256: string;
   sizeBytes: number;
   pageCount: number;
+  rootLevel: 0 | 1;
   sourcePaths: string[];
   generator: {
     name: string;
@@ -122,7 +123,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 10;
+  schemaVersion: 11;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
