@@ -276,6 +276,40 @@ stay `high++_++signal`. When the gate is active, `cx bundle` aborts with
 the same non-zero notes exit family used for malformed or duplicate
 notes.
 
+=== `++[++notes.frontmatter.fields.++<++name++>]++`
+
+Note frontmatter fields can be constrained per project. Values are open by
+default except for note ids, which must remain timestamp ids in
+`YYYYMMDDHHMMSS` form.
+
+[cols=",,",options="header",]
+|===
+|Key |Default |Description
+|`required` |field-specific |Whether the field must be present.
+
+|`type` |`"string"` |Field type. Supported values are `string` and
+`string++_++array`.
+
+|`values` |`++[]++` |Optional allowed values. Entries can be exact strings,
+wildcards using `*` and `?`, or JavaScript regex literals such as
+`/^v\d+\.\d+$/`.
+|===
+
+Example:
+
+[source,toml]
+----
+[notes.frontmatter.fields.target]
+required = true
+type = "string"
+values = ["current", "backlog", "/^v\\d+\\.\\d+$/"]
+
+[notes.frontmatter.fields.tags]
+required = false
+type = "string_array"
+values = ["/^[a-z][a-z0-9-]*$/"]
+----
+
 === `++[++notes.profiles.++<++name++>]++`
 
 Notes extraction profiles define how `cx notes extract` compiles
@@ -306,8 +340,8 @@ bundle.
 |`required++_++notes` |`++[]++` |Note ids, titles, or aliases that must
 be present in the bundle.
 
-|`include++_++targets` |`++[++"current", "v0.5"++]++` |Note target states
-that are eligible for inclusion.
+|`include++_++targets` |`++[++"current"++]++` |Project-defined note
+target labels that are eligible for inclusion.
 
 |`section++_++order` |— |Deterministic section order for the emitted
 bundle.
@@ -338,7 +372,7 @@ target_paths = ["docs/modules/architecture/pages/index.adoc"]
 include_tags = []
 exclude_tags = []
 required_notes = []
-include_targets = ["current", "v0.5"]
+include_targets = ["current"]
 section_order = [
   "introduction-and-goals",
   "constraints",
