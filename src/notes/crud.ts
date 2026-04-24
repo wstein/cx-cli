@@ -7,33 +7,11 @@ import type { NoteTarget } from "./validate.js";
 import { validateNoteDocuments, validateNotes } from "./validate.js";
 
 function noteTargetPriority(target: NoteTarget): number {
-  switch (target) {
-    case "current":
-      return 0;
-    case "v0.4":
-      return 1;
-    case "v0.5":
-      return 2;
-    case "v0.6":
-      return 3;
-    case "backlog":
-      return 4;
-  }
+  return target === "current" ? 0 : 1;
 }
 
 export function describeNoteTarget(target: NoteTarget): string {
-  switch (target) {
-    case "current":
-      return "implemented and trusted";
-    case "v0.4":
-      return "planned for v0.4 and not yet implemented";
-    case "v0.5":
-      return "planned for v0.5 and not yet implemented";
-    case "v0.6":
-      return "planned for v0.6 and not yet implemented";
-    case "backlog":
-      return "future idea and not scheduled";
-  }
+  return target === "current" ? "current target" : `target: ${target}`;
 }
 
 /**
@@ -72,7 +50,7 @@ function renderNewNote(
   title: string,
   tags: string[] = [],
   body?: string | undefined,
-  target: NoteTarget = "v0.5",
+  target: NoteTarget = "current",
 ): string {
   const tagsList = tags.length > 0 ? tags.map((t) => `'${t}'`).join(", ") : "";
   const noteBody =
@@ -327,7 +305,7 @@ export async function createNewNote(
     title,
     options?.tags,
     options?.body,
-    options?.target ?? "v0.5",
+    options?.target ?? "current",
   );
   assertRenderedNoteValid(filePath, content);
   await fs.writeFile(filePath, content, "utf-8");
@@ -337,7 +315,7 @@ export async function createNewNote(
     filePath,
     title,
     tags: options?.tags ?? [],
-    target: options?.target ?? "v0.5",
+    target: options?.target ?? "current",
   };
 }
 

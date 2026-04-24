@@ -26,7 +26,9 @@ export async function enrichPlanWithLinkedNotes(
     return plan;
   }
 
-  const noteGraph = await buildNoteGraph("notes", config.sourceRoot);
+  const noteGraph = await buildNoteGraph("notes", config.sourceRoot, true, {
+    frontmatter: config.notes.frontmatter,
+  });
   const linkedNoteIds = new Set<string>();
   for (const link of noteGraph.links) {
     linkedNoteIds.add(link.toNoteId);

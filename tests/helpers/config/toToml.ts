@@ -201,6 +201,20 @@ function normalizeRuntimeConfig(config: CxConfig): Record<string, unknown> {
       ...(config.notes.appliesToSections.length > 0
         ? { applies_to_sections: config.notes.appliesToSections }
         : {}),
+      frontmatter: {
+        fields: Object.fromEntries(
+          Object.entries(config.notes.frontmatter.fields).map(
+            ([fieldName, rule]) => [
+              fieldName,
+              {
+                required: rule.required,
+                type: rule.type,
+                values: rule.values,
+              },
+            ],
+          ),
+        ),
+      },
       ...(Object.keys(config.notes.profiles).length > 0
         ? {
             profiles: Object.fromEntries(

@@ -19,7 +19,7 @@ import {
   getOutgoingLinks,
   getReachableNotes,
 } from "../../notes/graph.js";
-import { NOTE_TARGET_VALUES, validateNotes } from "../../notes/validate.js";
+import { validateNotes } from "../../notes/validate.js";
 import { CxError } from "../../shared/errors.js";
 import { relativePosix } from "../../shared/fs.js";
 import { tierLabel } from "../tiers.js";
@@ -121,7 +121,7 @@ export function registerNotesTools(
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        target: z.enum(NOTE_TARGET_VALUES).optional(),
+        target: z.string().min(1).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -129,10 +129,7 @@ export function registerNotesTools(
         notesDir,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        target:
-          typeof args.target === "string"
-            ? (args.target as (typeof NOTE_TARGET_VALUES)[number])
-            : undefined,
+        target: typeof args.target === "string" ? args.target : undefined,
       });
 
       return jsonToolResult({
@@ -141,13 +138,11 @@ export function registerNotesTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: (args.tags as string[] | undefined) ?? [],
-        target: typeof args.target === "string" ? args.target : "v0.5",
+        target: typeof args.target === "string" ? args.target : "current",
         availability:
           typeof args.target === "string"
-            ? describeNoteTarget(
-                args.target as (typeof NOTE_TARGET_VALUES)[number],
-              )
-            : describeNoteTarget("v0.5"),
+            ? describeNoteTarget(args.target)
+            : describeNoteTarget("current"),
       });
     },
   );
@@ -189,7 +184,7 @@ export function registerNotesTools(
         title: z.string().min(1).optional(),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        target: z.enum(NOTE_TARGET_VALUES).optional(),
+        target: z.string().min(1).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -198,10 +193,7 @@ export function registerNotesTools(
         title: args.title as string | undefined,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        target:
-          typeof args.target === "string"
-            ? (args.target as (typeof NOTE_TARGET_VALUES)[number])
-            : undefined,
+        target: typeof args.target === "string" ? args.target : undefined,
       });
 
       return jsonToolResult({
@@ -323,7 +315,9 @@ export function registerNotesTools(
       inputSchema: z.object({}),
     },
     async () => {
-      const validated = await validateNotes("notes", workspace.sourceRoot);
+      const validated = await validateNotes("notes", workspace.sourceRoot, {
+        frontmatter: workspace.config.notes.frontmatter,
+      });
       const indexedNotes = new Map(
         validated.notes.map((note) => [note.id, note]),
       );

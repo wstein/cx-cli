@@ -76,6 +76,43 @@ describe("loadCxConfig object model", () => {
     expect(config.notes.appliesToSections).toEqual(["docs"]);
   });
 
+  test("loads configurable note frontmatter rules", async () => {
+    const config = await loadConfig({
+      notes: {
+        frontmatter: {
+          fields: {
+            target: {
+              required: true,
+              type: "string",
+              values: ["current", "backlog", "/^v\\d+\\.\\d+$/"],
+            },
+            tags: {
+              required: false,
+              type: "string_array",
+              values: ["/^[a-z][a-z0-9-]*$/"],
+            },
+          },
+        },
+      },
+    });
+
+    expect(config.notes.frontmatter.fields.target).toEqual({
+      required: true,
+      type: "string",
+      values: ["current", "backlog", "/^v\\d+\\.\\d+$/"],
+    });
+    expect(config.notes.frontmatter.fields.tags).toEqual({
+      required: false,
+      type: "string_array",
+      values: ["/^[a-z][a-z0-9-]*$/"],
+    });
+    expect(config.notes.frontmatter.fields.id).toEqual({
+      required: true,
+      type: "string",
+      values: [],
+    });
+  });
+
   test("loads notes extraction profiles from config", async () => {
     const config = await loadConfig({
       notes: {

@@ -15,7 +15,7 @@ function noteContent(params: {
   id: string;
   title: string;
   tags: string[];
-  target: "current" | "v0.4" | "v0.5" | "v0.6" | "backlog";
+  target: string;
   summary: string;
   what: string;
   why: string;
@@ -134,7 +134,6 @@ describe("notes extract render contract", () => {
     expect(result.bundle.profile.name).toBe("arc42");
     expect(result.bundle.notes.map((note) => note.title)).toEqual([
       "Render Kernel Constitution",
-      "Friday To Monday Workflow Contract",
     ]);
     expect(result.content).toContain("# CX Notes LLM Bundle");
     expect(result.content).toContain("## Authoring Contract");

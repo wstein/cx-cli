@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { loadCxConfig } from "../config/load.js";
 import type {
+  CxNotesConfig,
   CxNotesExtractFormat,
   CxNotesExtractLlmConfig,
   CxNotesExtractProfileConfig,
@@ -83,13 +84,9 @@ export interface CompileNotesExtractBundleOptions {
   configPath?: string;
 }
 
-const TARGET_PRIORITY: Record<NoteTarget, number> = {
-  current: 0,
-  "v0.4": 1,
-  "v0.5": 2,
-  "v0.6": 3,
-  backlog: 4,
-};
+function noteTargetPriority(target: NoteTarget): number {
+  return target === "current" ? 0 : 1;
+}
 
 const SECTION_TITLE_ALIASES: Record<string, string> = {
   "introduction-and-goals": "Introduction and Goals",
@@ -266,7 +263,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Render Kernel Constitution"],
-      includeTargets: ["current", "v0.5"],
+      includeTargets: ["current"],
       sectionOrder: [
         "introduction-and-goals",
         "constraints",
@@ -291,7 +288,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
         ],
         "quality-scenarios": ["testing", "ci", "coverage", "release"],
         "risks-and-technical-debt": [
-          "backlog",
+          "deferred",
           "risk",
           "migration",
           "decommission",
@@ -320,7 +317,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: ["release", "decommission"],
       requiredNotes: ["Agent Operating Model"],
-      includeTargets: ["current", "v0.5"],
+      includeTargets: ["current"],
       sectionOrder: [
         "mental-models",
         "core-workflows",
@@ -367,7 +364,7 @@ export function getBuiltinNotesExtractProfiles(): Record<
       includeTags: [],
       excludeTags: [],
       requiredNotes: ["Friday To Monday Workflow Contract"],
-      includeTargets: ["current", "v0.5"],
+      includeTargets: ["current"],
       sectionOrder: [
         "core-workflows",
         "commands-and-behavior",
@@ -403,16 +400,16 @@ export function getBuiltinNotesExtractProfiles(): Record<
   };
 }
 
-async function loadNotesConfigProfiles(
+async function loadNotesConfig(
   workspaceRoot: string,
   configPath: string | undefined,
-): Promise<Record<string, CxNotesExtractProfileConfig>> {
+): Promise<CxNotesConfig | null> {
   const resolvedConfigPath = path.resolve(
     workspaceRoot,
     configPath ?? "cx.toml",
   );
   if (!(await pathExists(resolvedConfigPath))) {
-    return {};
+    return null;
   }
 
   const config = await loadCxConfig(
@@ -423,7 +420,7 @@ async function loadNotesConfigProfiles(
       emitBehaviorLogs: false,
     },
   );
-  return config.notes.profiles;
+  return config.notes;
 }
 
 function noteMatchesRequiredReference(
@@ -463,8 +460,17 @@ async function loadSelectedNotes(params: {
   notesDir: string;
   workspaceRoot: string;
   profile: CxNotesExtractProfileConfig;
+  frontmatter?: CxNotesConfig["frontmatter"];
 }): Promise<NotesExtractNote[]> {
-  const validation = await validateNotes(params.notesDir, params.workspaceRoot);
+  const validation = await validateNotes(
+    params.notesDir,
+    params.workspaceRoot,
+    {
+      ...(params.frontmatter !== undefined && {
+        frontmatter: params.frontmatter,
+      }),
+    },
+  );
   if (!validation.valid) {
     const reasons = [
       ...validation.errors.map(
@@ -595,7 +601,7 @@ async function loadSelectedNotes(params: {
         sectionOrder.get(right.assignedSection) ?? Number.MAX_SAFE_INTEGER;
       return (
         leftSection - rightSection ||
-        TARGET_PRIORITY[left.target] - TARGET_PRIORITY[right.target] ||
+        noteTargetPriority(left.target) - noteTargetPriority(right.target) ||
         left.title.localeCompare(right.title, "en") ||
         left.id.localeCompare(right.id, "en")
       );
@@ -949,13 +955,13 @@ export async function compileNotesExtractBundle(
   options: CompileNotesExtractBundleOptions,
 ): Promise<CompileNotesExtractBundleResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
-  const configuredProfiles = await loadNotesConfigProfiles(
+  const configuredNotesConfig = await loadNotesConfig(
     workspaceRoot,
     options.configPath,
   );
   const profiles = {
     ...getBuiltinNotesExtractProfiles(),
-    ...configuredProfiles,
+    ...(configuredNotesConfig?.profiles ?? {}),
   };
   const profile = profiles[options.profileName];
 
@@ -975,6 +981,9 @@ export async function compileNotesExtractBundle(
     notesDir: "notes",
     workspaceRoot,
     profile,
+    ...(configuredNotesConfig?.frontmatter !== undefined && {
+      frontmatter: configuredNotesConfig.frontmatter,
+    }),
   });
   const bundle = buildBundle({
     workspaceRoot,

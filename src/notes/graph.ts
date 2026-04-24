@@ -8,7 +8,7 @@ import {
   extractWikilinkReferences,
   resolveWikilinkReference,
 } from "./linking.js";
-import type { NoteMetadata } from "./validate.js";
+import type { NoteMetadata, NoteValidationOptions } from "./validate.js";
 import { validateNotes } from "./validate.js";
 
 export interface NoteLink {
@@ -244,8 +244,9 @@ export async function buildNoteGraph(
   notesDir: string = "notes",
   projectRoot: string = process.cwd(),
   includeSrcAnalysis: boolean = true,
+  options?: NoteValidationOptions,
 ): Promise<NoteGraph> {
-  const validationResult = await validateNotes(notesDir, projectRoot);
+  const validationResult = await validateNotes(notesDir, projectRoot, options);
 
   const notesMap = new Map<string, NoteMetadata>(
     validationResult.notes.map((note) => [note.id, note]),

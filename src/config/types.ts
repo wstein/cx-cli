@@ -113,7 +113,20 @@ export interface CxNotesConfig {
   strictNotesMode: boolean;
   failOnDriftPressuredNotes: boolean;
   appliesToSections: string[];
+  frontmatter: CxNotesFrontmatterConfig;
   profiles: Record<string, CxNotesExtractProfileConfig>;
+}
+
+export type CxNotesFrontmatterFieldType = "string" | "string_array";
+
+export interface CxNotesFrontmatterFieldConfig {
+  required: boolean;
+  type: CxNotesFrontmatterFieldType;
+  values: string[];
+}
+
+export interface CxNotesFrontmatterConfig {
+  fields: Record<string, CxNotesFrontmatterFieldConfig>;
 }
 
 export interface CxNotesExtractLlmConfig {
@@ -137,7 +150,7 @@ export interface CxNotesExtractProfileConfig {
   includeTags: string[];
   excludeTags: string[];
   requiredNotes: string[];
-  includeTargets: Array<"current" | "v0.4" | "v0.5" | "v0.6" | "backlog">;
+  includeTargets: string[];
   sectionOrder: string[];
   sectionTags: Record<string, string[]>;
   llm: CxNotesExtractLlmConfig;

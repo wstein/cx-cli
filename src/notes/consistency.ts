@@ -90,7 +90,7 @@ export interface ConsistencyReport {
     id: string;
     filePath: string;
     title: string;
-    target: "current" | "v0.4" | "v0.5" | "v0.6" | "backlog";
+    target: string;
     score: number;
     label: NoteCognitionLabel;
     trustLevel: NoteTrustLevel;
@@ -184,7 +184,7 @@ export async function checkNotesConsistency(
   options?: NoteValidationOptions,
 ): Promise<ConsistencyReport> {
   const validation = await validateNotes(notesDir, projectRoot, options);
-  const graph = await buildNoteGraph(notesDir, projectRoot);
+  const graph = await buildNoteGraph(notesDir, projectRoot, true, options);
   const codePathWarnings = await collectNoteCodePathWarnings(
     validation.notes,
     projectRoot,

@@ -27,7 +27,10 @@ import type {
 } from "../../manifest/types.js";
 import { checkNotesConsistency } from "../../notes/consistency.js";
 import { enrichPlanWithLinkedNotes } from "../../notes/planner.js";
-import { validateNotes } from "../../notes/validate.js";
+import {
+  type NoteFrontmatterConfig,
+  validateNotes,
+} from "../../notes/validate.js";
 import { buildBundlePlan } from "../../planning/buildPlan.js";
 import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
@@ -160,6 +163,7 @@ async function enforceNotesGate(params: {
       strictNotesMode: boolean;
       failOnDriftPressuredNotes: boolean;
       appliesToSections: string[];
+      frontmatter: NoteFrontmatterConfig;
     };
   };
   plan: {
@@ -176,7 +180,9 @@ async function enforceNotesGate(params: {
     return;
   }
 
-  const report = await checkNotesConsistency("notes", params.plan.sourceRoot);
+  const report = await checkNotesConsistency("notes", params.plan.sourceRoot, {
+    frontmatter: notesConfig.frontmatter,
+  });
   const gatedNotePaths = collectGatedNotePaths({
     sourceRoot: params.plan.sourceRoot,
     plan: params.plan,
@@ -538,7 +544,9 @@ export async function runBundleCommand(
   );
 
   // Validate notes in the source directory
-  const notesResult = await validateNotes("notes", plan.sourceRoot);
+  const notesResult = await validateNotes("notes", plan.sourceRoot, {
+    frontmatter: config.notes.frontmatter,
+  });
   if (!notesResult.valid) {
     if (notesResult.errors.length > 0) {
       printWarning("Note validation errors:", io);

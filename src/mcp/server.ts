@@ -118,7 +118,7 @@ Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lif
     "cx mcp provides deterministic, file-based agent access to live repository context.",
     "Use cx inspect and the MCP live tools for planning against the workspace filesystem; use cx bundle locally for immutable snapshots and verification, not as a reasoning source inside MCP.",
     "Use cx mcp for interactive exploration, note maintenance, and live workspace changes.",
-    "When routing through notes, prioritize target=current entries first. Treat target=v0.4, target=v0.5, and target=v0.6 as planned work and target=backlog as future ideas, not implemented truth.",
+    "When routing through notes, prioritize target=current entries first. Other target values are project-defined routing labels and must be interpreted from the local repository context.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
     toolReference,

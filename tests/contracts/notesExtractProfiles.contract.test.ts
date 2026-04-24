@@ -7,9 +7,9 @@ describe("notes extract built-in profiles contract", () => {
   test("freezes the built-in profile names, target paths, anchors, and required sections", () => {
     const profiles = getBuiltinNotesExtractProfiles();
 
-    expect(profiles.arc42?.includeTargets).toEqual(["current", "v0.5"]);
-    expect(profiles.onboarding?.includeTargets).toEqual(["current", "v0.5"]);
-    expect(profiles.manual?.includeTargets).toEqual(["current", "v0.5"]);
+    expect(profiles.arc42?.includeTargets).toEqual(["current"]);
+    expect(profiles.onboarding?.includeTargets).toEqual(["current"]);
+    expect(profiles.manual?.includeTargets).toEqual(["current"]);
 
     expect(
       Object.keys(profiles).sort((left, right) =>
@@ -47,7 +47,7 @@ describe("notes extract built-in profiles contract", () => {
       "cross-cutting-concepts": ["determinism", "provenance", "hash", "oracle"],
       "quality-scenarios": ["testing", "ci", "coverage", "release"],
       "risks-and-technical-debt": [
-        "backlog",
+        "deferred",
         "risk",
         "migration",
         "decommission",

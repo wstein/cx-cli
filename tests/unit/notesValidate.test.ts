@@ -92,10 +92,10 @@ This note has a real summary paragraph now.
     );
   });
 
-  test("invalid target value produces error", () => {
+  test("accepts arbitrary target values by default", () => {
     const result = validateNoteDocuments([
       doc(
-        "bad-status.md",
+        "custom-status.md",
         `---
 id: 20250113143015
 aliases: []
@@ -110,13 +110,93 @@ This note has a real summary paragraph now.
       ),
     ]);
 
+    expect(result.valid).toBe(true);
+    expect(result.notes[0]?.target).toBe("draft");
+  });
+
+  test("rejects target values only when configured", () => {
+    const result = validateNoteDocuments(
+      [
+        doc(
+          "bad-status.md",
+          `---
+id: 20250113143015
+aliases: []
+tags: []
+target: draft
+---
+
+# Test
+
+This note has a real summary paragraph now.
+`,
+        ),
+      ],
+      {
+        frontmatter: {
+          fields: {
+            target: {
+              required: true,
+              type: "string",
+              values: ["current", "v0.*", "backlog"],
+            },
+          },
+        },
+      },
+    );
+
     expect(result.valid).toBe(false);
     expect(result.errors[0]?.error).toContain(
-      "target must be one of current, v0.4, v0.5, v0.6, or backlog",
+      "target must match one of current, v0.*, backlog",
     );
   });
 
-  test("accepts v0.5 as a planned note target", () => {
+  test("accepts configurable frontmatter target patterns", () => {
+    const result = validateNoteDocuments(
+      [
+        doc(
+          "custom-status.md",
+          `---
+id: 20250113143015
+aliases: []
+tags: ["parser-lab"]
+target: project-parser-lab
+---
+
+This note belongs to a custom target lane for parser work.
+`,
+        ),
+      ],
+      {
+        frontmatter: {
+          fields: {
+            id: {
+              required: true,
+              type: "string",
+              values: [],
+            },
+            target: {
+              required: true,
+              type: "string",
+              values: ["current", "project-*"],
+            },
+            aliases: { required: false, type: "string_array", values: [] },
+            tags: {
+              required: false,
+              type: "string_array",
+              values: ["/^[a-z][a-z0-9-]*$/"],
+            },
+            title: { required: false, type: "string", values: [] },
+          },
+        },
+      },
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.notes[0]?.target).toBe("project-parser-lab");
+  });
+
+  test("accepts v0.5 as a custom note target", () => {
     const result = validateNoteDocuments([
       doc(
         "v0-5-note.md",
@@ -127,7 +207,7 @@ tags: ["planning"]
 target: v0.5
 ---
 
-This note is planned for the v0.5 line and remains reviewable.
+This note uses v0.5 as a project-defined target label.
 `,
       ),
     ]);
@@ -136,7 +216,7 @@ This note is planned for the v0.5 line and remains reviewable.
     expect(result.notes[0]?.target).toBe("v0.5");
   });
 
-  test("accepts v0.6 as a planned note target", () => {
+  test("accepts v0.6 as a custom note target", () => {
     const result = validateNoteDocuments([
       doc(
         "v0-6-note.md",
@@ -147,7 +227,7 @@ tags: ["planning"]
 target: v0.6
 ---
 
-This note is planned for the v0.6 line and remains reviewable.
+This note uses v0.6 as a project-defined target label.
 `,
       ),
     ]);
@@ -255,6 +335,8 @@ target: current
 ---
 
 # Test
+
+This note has a real summary paragraph.
 `,
       ),
     ]);
@@ -533,6 +615,8 @@ target: current
 ---
 
 # Invalid Timestamp
+
+This note still has a valid summary paragraph.
 `,
         ),
       ),

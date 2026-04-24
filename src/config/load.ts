@@ -25,6 +25,9 @@ import type {
   CxNotesExtractFormat,
   CxNotesExtractLlmConfig,
   CxNotesExtractProfileConfig,
+  CxNotesFrontmatterConfig,
+  CxNotesFrontmatterFieldConfig,
+  CxNotesFrontmatterFieldType,
   CxOutputExtensionsConfig,
   CxRepomixMissingExtensionMode,
   CxScannerConfig,
@@ -66,9 +69,8 @@ const VALID_NOTES_DOCUMENT_FORMATS = new Set<CxNotesDocumentFormat>([
   "markdown",
   "plain",
 ]);
-const VALID_NOTE_TARGETS = new Set<
-  "current" | "v0.4" | "v0.5" | "v0.6" | "backlog"
->(["current", "v0.4", "v0.5", "v0.6", "backlog"]);
+const VALID_NOTES_FRONTMATTER_FIELD_TYPES =
+  new Set<CxNotesFrontmatterFieldType>(["string", "string_array"]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -216,6 +218,23 @@ function expectStringArray(
   }
 
   return [...value];
+}
+
+function assertValidRegexPattern(pattern: string, label: string): void {
+  if (!(pattern.startsWith("/") && pattern.lastIndexOf("/") > 0)) {
+    return;
+  }
+
+  const lastSlash = pattern.lastIndexOf("/");
+  const source = pattern.slice(1, lastSlash);
+  const flags = pattern.slice(lastSlash + 1);
+  try {
+    new RegExp(source, flags.includes("u") ? flags : `${flags}u`);
+  } catch (err) {
+    throw new CxError(
+      `${label} contains invalid regex pattern ${pattern}: ${err instanceof Error ? err.message : String(err)}.`,
+    );
+  }
 }
 
 function expectEnum<T extends string>(
@@ -371,14 +390,84 @@ function parseNotesConfig(notes: Record<string, unknown>): CxNotesConfig {
   }
 
   const profiles = parseNotesProfiles(notes.profiles);
+  const frontmatter = parseNotesFrontmatterConfig(notes.frontmatter);
 
   return {
     ...(requireCognitionScore !== undefined && { requireCognitionScore }),
     strictNotesMode,
     failOnDriftPressuredNotes,
     appliesToSections,
+    frontmatter,
     profiles,
   };
+}
+
+function parseNotesFrontmatterConfig(value: unknown): CxNotesFrontmatterConfig {
+  const defaults = DEFAULT_CONFIG_VALUES.notes.frontmatter;
+  if (value === undefined) {
+    return {
+      fields: Object.fromEntries(
+        Object.entries(defaults.fields).map(([fieldName, rule]) => [
+          fieldName,
+          { ...rule, values: [...rule.values] },
+        ]),
+      ),
+    };
+  }
+
+  if (!isPlainObject(value)) {
+    throw new CxError("notes.frontmatter must be a table.");
+  }
+
+  const fieldsRaw = value.fields;
+  if (fieldsRaw !== undefined && !isPlainObject(fieldsRaw)) {
+    throw new CxError("notes.frontmatter.fields must be a table.");
+  }
+
+  const fields: Record<string, CxNotesFrontmatterFieldConfig> =
+    Object.fromEntries(
+      Object.entries(defaults.fields).map(([fieldName, rule]) => [
+        fieldName,
+        { ...rule, values: [...rule.values] },
+      ]),
+    );
+
+  for (const [fieldName, rawRule] of Object.entries(fieldsRaw ?? {})) {
+    if (!isPlainObject(rawRule)) {
+      throw new CxError(
+        `notes.frontmatter.fields.${fieldName} must be a table.`,
+      );
+    }
+
+    const inherited = fields[fieldName];
+    const type = expectEnum(
+      rawRule.type,
+      `notes.frontmatter.fields.${fieldName}.type`,
+      VALID_NOTES_FRONTMATTER_FIELD_TYPES,
+      inherited?.type ?? "string",
+    );
+    const required = expectBoolean(
+      rawRule.required,
+      `notes.frontmatter.fields.${fieldName}.required`,
+      inherited?.required ?? false,
+    );
+    const values = expectStringArray(
+      rawRule.values,
+      `notes.frontmatter.fields.${fieldName}.values`,
+      inherited?.values ?? [],
+    );
+
+    values.forEach((pattern, index) => {
+      assertValidRegexPattern(
+        pattern,
+        `notes.frontmatter.fields.${fieldName}.values[${index}]`,
+      );
+    });
+
+    fields[fieldName] = { required, type, values };
+  }
+
+  return { fields };
 }
 
 function parseNotesExtractLlmConfig(
@@ -470,19 +559,8 @@ function parseNotesProfiles(
     const includeTargetsRaw = expectStringArray(
       rawProfile.include_targets,
       `notes.profiles.${profileName}.include_targets`,
-      ["current", "v0.5"],
+      ["current"],
     );
-    const invalidTargets = includeTargetsRaw.filter(
-      (target) =>
-        !VALID_NOTE_TARGETS.has(
-          target as "current" | "v0.4" | "v0.5" | "v0.6" | "backlog",
-        ),
-    );
-    if (invalidTargets.length > 0) {
-      throw new CxError(
-        `notes.profiles.${profileName}.include_targets contains unsupported note targets: ${invalidTargets.join(", ")}.`,
-      );
-    }
 
     const profile = {
       description: expectString(
@@ -514,9 +592,7 @@ function parseNotesProfiles(
         `notes.profiles.${profileName}.required_notes`,
         [],
       ),
-      includeTargets: includeTargetsRaw as Array<
-        "current" | "v0.4" | "v0.5" | "v0.6" | "backlog"
-      >,
+      includeTargets: includeTargetsRaw,
       sectionOrder: expectStringArray(
         rawProfile.section_order,
         `notes.profiles.${profileName}.section_order`,

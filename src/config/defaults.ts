@@ -64,6 +64,18 @@ strict_notes_mode = false
 fail_on_drift_pressured_notes = false
 # require_cognition_score = 80
 # applies_to_sections = ["docs"]
+#
+# Frontmatter values support exact strings, wildcards (* and ?), and regex literals.
+
+[notes.frontmatter.fields.target]
+required = true
+type = "string"
+values = ["current", "backlog", "/^v[0-9]+[.][0-9]+$/"]
+
+[notes.frontmatter.fields.tags]
+required = false
+type = "string_array"
+values = ["/^[a-z][a-z0-9-]*$/"]
 
 # [notes.profiles.arc42]
 # description = "Compile canonical notes into an arc42-oriented LLM bundle."
@@ -72,7 +84,7 @@ fail_on_drift_pressured_notes = false
 # include_tags = []
 # exclude_tags = []
 # required_notes = []
-# include_targets = ["current", "v0.5"]
+# include_targets = ["current"]
 # section_order = ["introduction-and-goals", "constraints", "solution-strategy", "building-block-view", "runtime-view", "cross-cutting-concepts", "quality-scenarios", "risks-and-technical-debt", "reference-notes"]
 #
 # [notes.profiles.arc42.section_tags]
@@ -193,6 +205,23 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     strictNotesMode: false,
     failOnDriftPressuredNotes: false,
     appliesToSections: [],
+    frontmatter: {
+      fields: {
+        id: {
+          required: true,
+          type: "string",
+          values: [],
+        },
+        target: {
+          required: true,
+          type: "string",
+          values: [],
+        },
+        aliases: { required: false, type: "string_array", values: [] },
+        tags: { required: false, type: "string_array", values: [] },
+        title: { required: false, type: "string", values: [] },
+      },
+    },
     profiles: {},
   },
   scanner: {

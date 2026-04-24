@@ -20,21 +20,37 @@ export interface NoteFrontmatter {
   title?: string;
 }
 
-export const NOTE_TARGET_VALUES = [
-  "current",
-  "v0.4",
-  "v0.5",
-  "v0.6",
-  "backlog",
-] as const;
-export type NoteTarget = (typeof NOTE_TARGET_VALUES)[number];
+export type NoteTarget = string;
 
-export function isNoteTarget(value: unknown): value is NoteTarget {
-  return (
-    typeof value === "string" &&
-    (NOTE_TARGET_VALUES as readonly string[]).includes(value)
-  );
+export type NoteFrontmatterFieldType = "string" | "string_array";
+
+export interface NoteFrontmatterFieldRule {
+  required: boolean;
+  type: NoteFrontmatterFieldType;
+  values: string[];
 }
+
+export interface NoteFrontmatterConfig {
+  fields: Record<string, NoteFrontmatterFieldRule>;
+}
+
+export const DEFAULT_NOTE_FRONTMATTER_CONFIG: NoteFrontmatterConfig = {
+  fields: {
+    id: {
+      required: true,
+      type: "string",
+      values: [],
+    },
+    target: {
+      required: true,
+      type: "string",
+      values: [],
+    },
+    aliases: { required: false, type: "string_array", values: [] },
+    tags: { required: false, type: "string_array", values: [] },
+    title: { required: false, type: "string", values: [] },
+  },
+};
 
 export interface NoteMetadata extends NoteFrontmatter {
   filePath: string;
@@ -64,6 +80,7 @@ export interface NoteDocument {
 
 export interface NoteValidationOptions {
   now?: Date;
+  frontmatter?: NoteFrontmatterConfig;
 }
 
 export const NOTE_VALIDATION_LIMITS = {
@@ -73,6 +90,84 @@ export const NOTE_VALIDATION_LIMITS = {
 
 function noteValidationMessage(message: string, protection: string): string {
   return `${message} Why this protects you: ${protection}`;
+}
+
+function wildcardToRegex(pattern: string): RegExp {
+  const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  const source = escaped.replace(/\*/g, ".*").replace(/\?/g, ".");
+  return new RegExp(`^${source}$`, "u");
+}
+
+function valuePatternToRegex(pattern: string): RegExp {
+  if (pattern.startsWith("/") && pattern.lastIndexOf("/") > 0) {
+    const lastSlash = pattern.lastIndexOf("/");
+    const source = pattern.slice(1, lastSlash);
+    const flags = pattern.slice(lastSlash + 1);
+    return new RegExp(source, flags.includes("u") ? flags : `${flags}u`);
+  }
+
+  if (pattern.includes("*") || pattern.includes("?")) {
+    return wildcardToRegex(pattern);
+  }
+
+  return new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "u");
+}
+
+function matchesAllowedValue(value: string, patterns: string[]): boolean {
+  return patterns.some((pattern) => valuePatternToRegex(pattern).test(value));
+}
+
+function describeAllowedValues(patterns: string[]): string {
+  return patterns.join(", ");
+}
+
+function validateFrontmatterRules(
+  frontmatter: Record<string, unknown>,
+  config: NoteFrontmatterConfig,
+): string | null {
+  for (const [fieldName, rule] of Object.entries(config.fields)) {
+    const value = frontmatter[fieldName];
+
+    if (value === undefined) {
+      if (rule.required) {
+        return `Missing required frontmatter field: ${fieldName}`;
+      }
+      continue;
+    }
+
+    if (rule.type === "string") {
+      if (typeof value !== "string" || value.trim().length === 0) {
+        return `Invalid frontmatter field: ${fieldName} must be a non-empty string`;
+      }
+      if (
+        rule.values.length > 0 &&
+        !matchesAllowedValue(value.trim(), rule.values)
+      ) {
+        return `Invalid frontmatter field: ${fieldName} must match one of ${describeAllowedValues(rule.values)}`;
+      }
+      continue;
+    }
+
+    if (!Array.isArray(value)) {
+      return `Invalid frontmatter field: ${fieldName} must be an array of strings`;
+    }
+
+    for (const item of value) {
+      if (typeof item !== "string") {
+        return `Invalid frontmatter field: ${fieldName} must contain only strings`;
+      }
+      const trimmed = item.trim();
+      if (
+        trimmed.length > 0 &&
+        rule.values.length > 0 &&
+        !matchesAllowedValue(trimmed, rule.values)
+      ) {
+        return `Invalid frontmatter field: ${fieldName} entries must match one of ${describeAllowedValues(rule.values)}`;
+      }
+    }
+  }
+
+  return null;
 }
 
 function normalizeStringArray(
@@ -122,6 +217,21 @@ function parseNoteDocument(
 
   try {
     const { frontmatter, body } = parseMarkdownFrontmatter(content);
+    const frontmatterConfig =
+      options?.frontmatter ?? DEFAULT_NOTE_FRONTMATTER_CONFIG;
+    const frontmatterError = validateFrontmatterRules(
+      frontmatter,
+      frontmatterConfig,
+    );
+    if (frontmatterError !== null) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: frontmatterError,
+        },
+      };
+    }
 
     const id = String(frontmatter.id ?? "").trim();
     if (!id) {
@@ -144,28 +254,7 @@ function parseNoteDocument(
       };
     }
 
-    const target = frontmatter.target;
-    if (target === undefined) {
-      return {
-        metadata: null,
-        error: {
-          filePath,
-          error:
-            "Missing required frontmatter field: target (current | v0.4 | v0.5 | v0.6 | backlog)",
-        },
-      };
-    }
-
-    if (!isNoteTarget(target)) {
-      return {
-        metadata: null,
-        error: {
-          filePath,
-          error:
-            "Invalid frontmatter field: target must be one of current, v0.4, v0.5, v0.6, or backlog",
-        },
-      };
-    }
+    const target = String(frontmatter.target ?? "").trim();
 
     const aliases = normalizeStringArray(
       frontmatter.aliases,
