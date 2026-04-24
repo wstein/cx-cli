@@ -80,7 +80,7 @@ describe("config defaults", () => {
     });
 
     it("includes shared handover settings", () => {
-      expect(DEFAULT_CONFIG_VALUES.handover.includeRepoHistory).toBe(false);
+      expect(DEFAULT_CONFIG_VALUES.handover.includeRepoHistory).toBe(true);
       expect(DEFAULT_CONFIG_VALUES.handover.repoHistoryCount).toBe(25);
     });
 

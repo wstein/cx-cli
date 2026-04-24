@@ -1,0 +1,17 @@
+site:
+  title: {{projectName}} Documentation
+  url: https://example.invalid/{{projectName}}/
+  start_page: {{projectName}}::index.adoc
+
+content:
+  sources:
+    - url: .
+      start_path: docs
+
+output:
+  dir: ./dist/antora
+
+ui:
+  bundle:
+    url: https://gitlab.com/antora/default-ui/-/jobs/artifacts/main/raw/build/ui-bundle.zip?job=build
+    snapshot: true

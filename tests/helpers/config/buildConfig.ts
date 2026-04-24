@@ -139,7 +139,7 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
       ...options.manifest,
     },
     handover: {
-      includeRepoHistory: false,
+      includeRepoHistory: true,
       repoHistoryCount: 25,
       ...options.handover,
     },

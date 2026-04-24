@@ -40,7 +40,7 @@ include_source_metadata = true
 # Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
 
 [handover]
-include_repo_history = false
+include_repo_history = true
 repo_history_count = 25
 
 [notes]

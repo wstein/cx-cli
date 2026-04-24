@@ -9,6 +9,7 @@ a second build-artifact overlay.
 
 The universal generated files are:
 
+* `README.md`
 * `cx.toml`
 * `.editorconfig`
 * `Makefile`
@@ -17,7 +18,16 @@ The universal generated files are:
 * `.vscode/mcp.json`
 * `.claude/settings.json`
 * `.codex/settings.json`
+* `antora-playbook.yml`
+* `docs/` Antora scaffold with onboarding, manual, and arc42 architecture surfaces
 * `notes/` scaffolding
+
+The generated docs scaffold is intentionally minimal:
+
+* `onboarding` gives the front door for new contributors and operators
+* `manual` keeps task-oriented procedures separate from design material
+* `architecture` uses an arc42 chapter spine so teams can grow the architecture
+  docs incrementally without inventing their own structure first
 
 == Capability Levels
 

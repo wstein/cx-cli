@@ -43,7 +43,7 @@ describe("loadCxConfig object model", () => {
       markdown: ".md",
       plain: ".txt",
     });
-    expect(config.handover.includeRepoHistory).toBe(false);
+    expect(config.handover.includeRepoHistory).toBe(true);
     expect(config.handover.repoHistoryCount).toBe(25);
     expect(config.sections.src?.include).toEqual(["src/**"]);
   });

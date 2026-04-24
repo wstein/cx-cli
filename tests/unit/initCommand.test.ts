@@ -67,6 +67,63 @@ describe("runInitCommand", () => {
     expect(cx).toContain("testproject");
   });
 
+  test("scaffolds a minimal Antora docs site on first run", async () => {
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(BASE_ARGS, capture.io);
+    expect(exitCode).toBe(0);
+
+    const [
+      readme,
+      playbook,
+      docsReadme,
+      antora,
+      rootNav,
+      onboardingPage,
+      manualPage,
+      architecturePage,
+      architectureChapter,
+    ] = await Promise.all([
+      fs.readFile(path.join(testDir, "README.md"), "utf8"),
+      fs.readFile(path.join(testDir, "antora-playbook.yml"), "utf8"),
+      fs.readFile(path.join(testDir, "docs/README.md"), "utf8"),
+      fs.readFile(path.join(testDir, "docs/antora.yml"), "utf8"),
+      fs.readFile(path.join(testDir, "docs/modules/ROOT/nav.adoc"), "utf8"),
+      fs.readFile(
+        path.join(testDir, "docs/modules/onboarding/pages/index.adoc"),
+        "utf8",
+      ),
+      fs.readFile(
+        path.join(testDir, "docs/modules/manual/pages/index.adoc"),
+        "utf8",
+      ),
+      fs.readFile(
+        path.join(testDir, "docs/modules/architecture/pages/index.adoc"),
+        "utf8",
+      ),
+      fs.readFile(
+        path.join(
+          testDir,
+          "docs/modules/architecture/pages/01-introduction-and-goals.adoc",
+        ),
+        "utf8",
+      ),
+    ]);
+
+    expect(readme).toContain("# testproject");
+    expect(readme).toContain("minimal Antora documentation site");
+    expect(playbook).toContain("title: testproject Documentation");
+    expect(playbook).toContain("start_page: testproject::index.adoc");
+    expect(docsReadme).toContain("arc42-based architecture spine");
+    expect(antora).toContain("name: testproject");
+    expect(antora).toContain("- modules/architecture/nav.adoc");
+    expect(rootNav).toContain("xref:onboarding:index.adoc[Onboarding]");
+    expect(rootNav).toContain("xref:architecture:index.adoc[Architecture]");
+    expect(onboardingPage).toContain("= Start Here");
+    expect(manualPage).toContain("= Manual");
+    expect(architecturePage).toContain("This section uses arc42 as its spine.");
+    expect(architectureChapter).toContain("= Introduction And Goals");
+  });
+
   test("second run without --force prints skip messages", async () => {
     await runInitCommand(BASE_ARGS, createBufferedCommandIo().io);
 
