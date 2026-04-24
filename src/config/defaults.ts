@@ -51,7 +51,7 @@ include_linked_notes = false
 # Set pretty = false to produce compact single-line manifests (smaller files, CI-friendly).
 
 [handover]
-include_repo_history = false
+include_repo_history = true
 repo_history_count = 25
 
 [mcp]
@@ -198,7 +198,7 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     includeLinkedNotes: false,
   },
   handover: {
-    includeRepoHistory: false,
+    includeRepoHistory: true,
     repoHistoryCount: 25,
   },
   notes: {
