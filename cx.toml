@@ -44,6 +44,20 @@ include_source_metadata = true
 include_repo_history = true
 repo_history_count = 25
 
+[notes]
+strict_notes_mode = false
+fail_on_drift_pressured_notes = false
+
+[notes.frontmatter.fields.target]
+required = true
+type = "string"
+values = ["current", "backlog", "/^v[0-9]+[.][0-9]+$/"]
+
+[notes.frontmatter.fields.tags]
+required = false
+type = "string_array"
+values = ["/^[a-z][a-z0-9-]*$/"]
+
 [checksums]
 algorithm = "sha256"
 file_name = "{project}.sha256"
