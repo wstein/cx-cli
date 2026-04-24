@@ -23,7 +23,7 @@ async function makeFixtureRoot(): Promise<string> {
 }
 
 describe("Pages publish contract", () => {
-  test("pages workflow publishes from successful main CI runs", async () => {
+  test("pages workflow publishes from successful release-branch CI runs", async () => {
     const workflow = await readText(".github/workflows/publish-schemas.yml");
 
     expect(workflow).toContain("name: Publish Pages");
@@ -37,10 +37,9 @@ describe("Pages publish contract", () => {
         '" != "success" ]; then',
     );
     expect(workflow).toContain(
-      'if [ "$' +
-        "{{ github.event.workflow_run.head_branch }}" +
-        '" = "main" ]; then',
+      'case "$' + "{{ github.event.workflow_run.head_branch }}" + '" in',
     );
+    expect(workflow).toContain("develop|main)");
     expect(workflow).toContain("Generate coverage report");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("run: bun run pages:build");
@@ -61,6 +60,7 @@ describe("Pages publish contract", () => {
     expect(workflow).toContain(
       "tag_name=$(git tag --points-at HEAD --list 'v*'",
     );
+    expect(workflow).toContain("schemas/*.schema.json");
   });
 
   test("package scripts expose the shared Pages builder", async () => {
@@ -123,6 +123,7 @@ describe("Pages publish contract", () => {
 
     expect(workflow).toContain("name: Pages Smoke");
     expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("branches: [develop, main]");
     expect(workflow).toContain("Generate coverage report");
     expect(workflow).toContain("run: bun run ci:test:coverage");
     expect(workflow).toContain("run: bun run pages:build");

@@ -114,7 +114,7 @@ Trust shorthand:
 - [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/config-reference/) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the durable repository knowledge layer
 - [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
-- [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `main` CI
+- [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `develop` or `main` CI
 
 Notes governance lane: run `bun run ci:notes:governance` to keep the cognition-layer gate visible outside the docs set.
 

@@ -20,7 +20,7 @@ on:
       - "tests/integration/assemblePagesSite.integration.test.ts"
       - "tests/integration/checkPagesSite.integration.test.ts"
   push:
-    branches: [main]
+    branches: [develop, main]
     paths:
       - ".github/workflows/pages-smoke.yml"
       - ".github/workflows/publish-schemas.yml"
@@ -41,6 +41,7 @@ on:
   workflow_dispatch:
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   BUN_MIN_VERSION: 1.3.12
 
 permissions:
@@ -51,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2

@@ -105,7 +105,7 @@ Source companion: `README.md`
 <li><a href="https://wstein.github.io/cx-cli/docs/cx/0.4/manual/config-reference/">Configuration Reference</a> for configuration knobs and editor integration</li>
 <li><a href="https://github.com/wstein/cx-cli/blob/main/notes/README.md">notes/README.md</a> for the durable repository knowledge layer</li>
 <li><a href="https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json">published schema endpoint</a> for IDE support (Taplo in VS Code)</li>
-<li><a href="https://wstein.github.io/cx-cli/coverage/">published coverage status</a> for the latest public Vitest HTML report from successful <code>main</code> CI</li>
+<li><a href="https://wstein.github.io/cx-cli/coverage/">published coverage status</a> for the latest public Vitest HTML report from successful <code>develop</code> or <code>main</code> CI</li>
 </ul>
 <p>Notes governance lane: run <code>bun run ci:notes:governance</code> to keep the cognition-layer gate visible outside the docs set.</p>
 <h2>Install</h2>

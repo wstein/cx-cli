@@ -323,8 +323,8 @@ with `/schemas/`, `/coverage/`, and the curated Antora docs site under
 * `bun run pages:smoke` validates the staged `dist/site/` tree before a
 workflow publishes it.
 * The latest public HTML coverage view is published at
-`https://wstein.github.io/cx-cli/coverage/` from successful `main` CI
-runs.
+`https://wstein.github.io/cx-cli/coverage/` from successful `develop`
+or `main` CI runs.
 * The curated docs site is published at
 `https://wstein.github.io/cx-cli/docs/`.
 * `bun run test:vitest:mcp` runs the focused MCP cockpit lane for
