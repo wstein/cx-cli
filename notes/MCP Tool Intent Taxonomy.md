@@ -34,7 +34,6 @@ Safe inspection and context gathering tools. They do not mutate state.
 - `notes_check`
 - `notes_drift`
 - `notes_trace`
-- `notes_extract`
 - `notes_ask`
 - `notes_coverage`
 - `notes_backlinks`

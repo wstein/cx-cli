@@ -15,7 +15,6 @@ import {
   searchNotes,
   updateNote,
 } from "../../notes/crud.js";
-import { compileNotesExtractBundle } from "../../notes/extract.js";
 import {
   buildNoteGraph,
   buildUnifiedNoteGraph,
@@ -109,11 +108,6 @@ const NOTES_TRACE_TOOL = {
   capability: "observe",
   stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
-const NOTES_EXTRACT_TOOL = {
-  name: "notes_extract",
-  capability: "observe",
-  stability: "STABLE",
-} as const satisfies CxMcpToolDefinition;
 const NOTES_ASK_TOOL = {
   name: "notes_ask",
   capability: "observe",
@@ -141,7 +135,6 @@ export const NOTES_TOOL_DEFINITIONS = [
   NOTES_CHECK_TOOL,
   NOTES_DRIFT_TOOL,
   NOTES_TRACE_TOOL,
-  NOTES_EXTRACT_TOOL,
   NOTES_ASK_TOOL,
   NOTES_COVERAGE_TOOL,
 ] as const satisfies readonly CxMcpToolDefinition[];
@@ -773,39 +766,6 @@ export function registerNotesTools(
           noteId: args.id as string,
         }),
       );
-    },
-  );
-
-  registerCxMcpTool(
-    server,
-    workspace,
-    NOTES_EXTRACT_TOOL,
-    {
-      title: "Extract notes evidence bundle",
-      description: `${tierLabel(NOTES_EXTRACT_TOOL.stability)} Compile a profile-scoped notes evidence bundle without writing files.`,
-      inputSchema: z.object({
-        profile: z.string().min(1),
-        format: z.enum(["markdown", "xml", "json", "plain"]).optional(),
-      }),
-    },
-    async (args: Record<string, unknown>) => {
-      const result = await compileNotesExtractBundle({
-        workspaceRoot: workspace.sourceRoot,
-        profileName: args.profile as string,
-        configPath: "cx.toml",
-        ...(args.format !== undefined && {
-          format: args.format as "markdown" | "xml" | "json" | "plain",
-        }),
-      });
-      return jsonToolResult({
-        command: "notes extract",
-        profile: result.bundle.profile.name,
-        format: result.format,
-        selectedNoteCount: result.bundle.notes.length,
-        sectionCount: result.bundle.sections.length,
-        bundle: result.bundle,
-        content: result.content,
-      });
     },
   );
 

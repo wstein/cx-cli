@@ -28,6 +28,5 @@ Hand-maintained docs drift quickly. Notes already capture intent, and code/specs
 
 ## Links
 
-- [[CX Notes Extract Is the Retrieval Workhorse]]
 - [[CX Semantic Drift Detection]]
 - [[CX Notes Layered Source of Truth]]

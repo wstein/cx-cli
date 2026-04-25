@@ -2,10 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import {
-  compileNotesExtractBundle,
-  type NotesExtractBundle,
-} from "../notes/extract.js";
+import { validateNotes } from "../notes/validate.js";
 import { CxError } from "../shared/errors.js";
 import { ensureDir, pathExists } from "../shared/fs.js";
 
@@ -40,6 +37,21 @@ const PROFILE_OUTPUTS: Record<DocsCompileProfile, string> = {
   onboarding: "docs/modules/onboarding/pages/generated-notes.adoc",
 };
 
+const PROFILE_TAGS: Record<DocsCompileProfile, string[]> = {
+  architecture: ["architecture", "decision", "invariant", "mechanism"],
+  manual: ["manual", "workflow", "operator", "process"],
+  onboarding: ["onboarding", "workflow", "glossary", "architecture"],
+};
+
+interface DocsSourceNote {
+  id: string;
+  title: string;
+  path: string;
+  tags: string[];
+  summary: string;
+  codeLinks: string[];
+}
+
 export function normalizeDocsCompileProfile(value: string): DocsCompileProfile {
   if (
     value === "architecture" ||
@@ -58,14 +70,12 @@ function hashContent(content: string): string {
   return crypto.createHash("sha256").update(content).digest("hex");
 }
 
-function collectSourceSpecRefs(bundle: NotesExtractBundle): string[] {
+function collectSourceSpecRefs(notes: DocsSourceNote[]): string[] {
   return [
     ...new Set(
-      bundle.notes.flatMap((note) =>
-        note.sections.flatMap((section) =>
-          [...section.content.matchAll(/\bspecs\/[^\s)`\]]+/gu)].map(
-            (match) => match[0] ?? "",
-          ),
+      notes.flatMap((note) =>
+        [...note.summary.matchAll(/\bspecs\/[^\s)`\]]+/gu)].map(
+          (match) => match[0] ?? "",
         ),
       ),
     ),
@@ -73,11 +83,11 @@ function collectSourceSpecRefs(bundle: NotesExtractBundle): string[] {
 }
 
 function renderGeneratedDocsPage(params: {
-  bundle: NotesExtractBundle;
+  notes: DocsSourceNote[];
   profile: DocsCompileProfile;
 }): string {
-  const sourceNoteIds = params.bundle.notes.map((note) => note.id);
-  const specRefs = collectSourceSpecRefs(params.bundle);
+  const sourceNoteIds = params.notes.map((note) => note.id);
+  const specRefs = collectSourceSpecRefs(params.notes);
   const bodyLines: string[] = [
     `// cx-docs-generated:start profile=${params.profile}`,
     `// source-note-ids: ${sourceNoteIds.join(", ") || "(none)"}`,
@@ -90,16 +100,10 @@ function renderGeneratedDocsPage(params: {
     "",
   ];
 
-  for (const section of params.bundle.sections) {
-    const notes = params.bundle.notes.filter(
-      (note) => note.assignedSection === section.id,
-    );
-    if (notes.length === 0) {
-      continue;
-    }
-    bodyLines.push(`== ${section.title}`);
+  if (params.notes.length > 0) {
+    bodyLines.push("== Source Notes");
     bodyLines.push("");
-    for (const note of notes) {
+    for (const note of params.notes) {
       bodyLines.push(`=== ${note.title}`);
       bodyLines.push("");
       bodyLines.push(`* Note ID: \`${note.id}\``);
@@ -131,22 +135,37 @@ async function expectedPage(params: {
   configPath?: string | undefined;
 }): Promise<{
   content: string;
-  bundle: NotesExtractBundle;
+  notes: DocsSourceNote[];
   outputPath: string;
 }> {
-  const result = await compileNotesExtractBundle({
-    workspaceRoot: params.workspaceRoot,
-    profileName: params.profile,
-    format: "json",
-    ...(params.configPath !== undefined && { configPath: params.configPath }),
-  });
+  const validation = await validateNotes("notes", params.workspaceRoot);
+  if (!validation.valid) {
+    throw new CxError("Cannot compile docs while notes validation fails.", 10);
+  }
+  const selectedTags = new Set(PROFILE_TAGS[params.profile]);
+  const notes = validation.notes
+    .filter((note) => note.target === "current")
+    .filter((note) =>
+      (note.tags ?? []).some((tag) => selectedTags.has(tag.toLowerCase())),
+    )
+    .sort((left, right) => left.title.localeCompare(right.title, "en"))
+    .map(
+      (note): DocsSourceNote => ({
+        id: note.id,
+        title: note.title,
+        path: path.relative(params.workspaceRoot, note.filePath),
+        tags: note.tags ?? [],
+        summary: note.summary,
+        codeLinks: note.codeLinks,
+      }),
+    );
   const content = renderGeneratedDocsPage({
-    bundle: result.bundle,
+    notes,
     profile: params.profile,
   });
   return {
     content,
-    bundle: result.bundle,
+    notes,
     outputPath: path.resolve(
       params.workspaceRoot,
       PROFILE_OUTPUTS[params.profile],
@@ -165,12 +184,12 @@ export async function compileDocsFromNotes(params: {
     : null;
   await ensureDir(path.dirname(expected.outputPath));
   await fs.writeFile(expected.outputPath, expected.content, "utf8");
-  const sourceSpecRefs = collectSourceSpecRefs(expected.bundle);
+  const sourceSpecRefs = collectSourceSpecRefs(expected.notes);
   return {
     command: "docs compile",
     profile: params.profile,
     outputPath: expected.outputPath,
-    sourceNoteIds: expected.bundle.notes.map((note) => note.id),
+    sourceNoteIds: expected.notes.map((note) => note.id),
     sourceSpecRefs,
     sha256: hashContent(expected.content),
     changed: previous !== expected.content,

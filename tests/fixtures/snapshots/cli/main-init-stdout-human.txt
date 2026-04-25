@@ -61,32 +61,6 @@ required = false
 type = "string_array"
 values = ["/^[a-z][a-z0-9-]*$/"]
 
-# [notes.profiles.arc42]
-# description = "Compile canonical notes into an arc42-oriented LLM bundle."
-# output_format = "markdown"
-# target_paths = ["docs/modules/architecture/pages/index.adoc"]
-# include_tags = []
-# exclude_tags = []
-# required_notes = []
-# include_targets = ["current"]
-# section_order = ["introduction-and-goals", "constraints", "solution-strategy", "building-block-view", "runtime-view", "cross-cutting-concepts", "quality-scenarios", "risks-and-technical-debt", "reference-notes"]
-#
-# [notes.profiles.arc42.section_tags]
-# introduction-and-goals = ["docs", "onboarding", "architecture"]
-#
-# [notes.profiles.arc42.llm]
-# system_role = "You are a senior software architect and technical writer."
-# instructions = "Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful."
-# target_format = "asciidoc"
-# document_kind = "arc42 architecture"
-# audience = "architects-and-maintainers"
-# tone = "formal-technical"
-# must_cite_note_titles = true
-# must_preserve_uncertainty = true
-# must_not_invent_facts = true
-# must_include_provenance = false
-# must_surface_conflicts = true
-
 [scanner]
 mode = "warn"
 ids = ["reference_secrets"]

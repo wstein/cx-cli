@@ -19,11 +19,9 @@ This model keeps "source of truth" precise. A generated doc page may communicate
 
 The note graph is the repository cognition layer. It links note nodes to specs, code files, tests, docs, superseded notes, and other notes. `cx notes graph --format json` should remain deterministic so humans, CI, MCP tools, and LLM workflows can consume the same graph without scraping prose.
 
-Traceability is first-class. `cx notes trace <note-id>` expands linked notes, spec refs, code refs, test refs, doc refs, supersession metadata, unresolved references, and reverse backlinks. `cx notes check` validates the graph before extraction, documentation compilation, or CI promotion consumes it.
+Traceability is first-class. `cx notes trace <note-id>` expands linked notes, spec refs, code refs, test refs, doc refs, supersession metadata, unresolved references, and reverse backlinks. `cx notes check` validates the graph before documentation compilation or CI promotion consumes it.
 
 == Retrieval And Asking
-
-`cx notes extract` is the retrieval workhorse. Profiles such as `architecture`, `onboarding`, `manual`, `llm`, `implementation`, and `spec-review` define evidence cuts for different readers and workflows. Formats such as `xml`, `markdown`, `json`, and `plain` preserve deterministic output for both human review and downstream automation.
 
 `cx notes ask "<question>"` should resolve questions through bounded evidence bundles instead of open-ended repository search. Every answer scaffold should include matched notes, linked specs, linked code, linked tests, linked docs, confidence, and unresolved gaps.
 

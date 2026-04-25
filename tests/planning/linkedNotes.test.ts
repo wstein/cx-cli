@@ -98,7 +98,6 @@ function baseConfig(root: string): CxConfig {
           title: { required: false, type: "string", values: [] },
         },
       },
-      profiles: {},
     },
     scanner: {
       mode: "warn",

@@ -48,7 +48,6 @@ type CxMcpToolName =
   | "notes_coverage"
   | "notes_delete"
   | "notes_drift"
-  | "notes_extract"
   | "notes_graph"
   | "notes_links"
   | "notes_list"
@@ -213,7 +212,6 @@ describe("cx MCP server", () => {
       "notes_coverage",
       "notes_delete",
       "notes_drift",
-      "notes_extract",
       "notes_graph",
       "notes_links",
       "notes_list",
@@ -1068,7 +1066,7 @@ The render kernel note provides enough architecture evidence for generated docum
     expect(Array.isArray(payload.orphanNotes)).toBe(true);
   });
 
-  test("note parity tools expose check, drift, trace, ask, coverage, and extract", async () => {
+  test("note parity tools expose check, drift, trace, ask, and coverage", async () => {
     const project = await createWorkspace();
     const notesDir = path.join(project.root, "notes");
     await fs.mkdir(notesDir, { recursive: true });
@@ -1100,7 +1098,7 @@ tags: ["architecture", "mcp"]
 target: current
 ---
 
-MCP evidence tools expose note validation, traceability, extraction, asking, and coverage for agent workflows.
+MCP evidence tools expose note validation, traceability, asking, and coverage for agent workflows.
 `,
       "utf8",
     );
@@ -1172,27 +1170,6 @@ MCP evidence tools expose note validation, traceability, extraction, asking, and
     };
     expect(coveragePayload.command).toBe("notes coverage");
     expect(coveragePayload.totalTools).toBeGreaterThan(0);
-
-    const extractResult = await tools.notes_extract.handler(
-      { profile: "manual", format: "json" },
-      {} as never,
-    );
-    const extractPayload = JSON.parse(firstContentText(extractResult)) as {
-      command: string;
-      profile: string;
-      selectedNoteCount: number;
-      bundle: { notes: Array<{ title: string }> };
-    };
-    expect(extractPayload.command).toBe("notes extract");
-    expect(extractPayload.profile).toBe("manual");
-    expect(extractPayload.selectedNoteCount).toBeGreaterThan(0);
-    expect(extractPayload.bundle.notes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          title: "Friday To Monday Workflow Contract",
-        }),
-      ]),
-    );
   });
 
   test("notes_links reports unresolved links for a created note", async () => {

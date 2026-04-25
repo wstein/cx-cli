@@ -14,7 +14,6 @@ Highest-priority commands are:
 - `cx notes check`
 - `cx notes graph`
 - `cx notes trace`
-- `cx notes extract`
 - `cx notes ask`
 - `cx docs compile`
 - `cx docs drift`
@@ -32,14 +31,12 @@ Implement them in that order:
 1. validation
 2. graph
 3. trace
-4. extraction
-5. asking
-6. docs compile
-7. drift detection
+4. asking
+5. docs compile
+6. drift detection
 
 ## Links
 
-- [[CX Notes Extract Is the Retrieval Workhorse]]
 - [[CX Notes Ask Needs Evidence Bundles]]
 - [[CX Docs Compile From Notes and Code]]
 - [[CX Semantic Drift Detection]]

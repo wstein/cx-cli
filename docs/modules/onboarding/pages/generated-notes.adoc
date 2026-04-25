@@ -1,21 +1,21 @@
 // cx-docs-generated:start profile=onboarding
-// source-note-ids: 20260420120700, 20260419164500, 20260417150000, 20260420183000, 20260420183100, 20260415162500, 20260420122000, 20260415162000, 20260419104000, 20260415163000, 20260415160500, 20260417165000, 20260424120000, 20260420120000, 20260425130400, 20260425130300, 20260421120000, 20260425130500, 20260421120300, 20260421120100, 20260421120200, 20260421120500, 20260421120600, 20260421120400, 20260425130100, 20260425130000, 20260425130200, 20260415123000, 20260420120400, 20260420183400, 20260420110800, 20260425120000, 20260421162000, 20260419162500, 20260415153000, 20260415160000, 20260415153500, 20260420130200, 20260415171000, 20260413153645, 20260415164500, 20260415161000, 20260417143000, 20260420121300, 20260420110100, 20260415123500, 20260420110600, 20260419153000, 20260419112000, 20260420124500, 20260415161500, 20260417165100, 20260419200000, 20260419093000, 20260420130100, 20260413123400, 20260420124300, 20260418234100, 20260425130900, 20260418234000, 20260419111000, 20260420124200, 20260417112000, 20260418234200, 20260419170000, 20260420124400, 20260419143000, 20260419180000, 20260415171500, 20260419162000, 20260419171500, 20260418234300, 20260418213000, 20260420124100, 20260418234400, 20260413123300, 20260420121000, 20260420130000, 20260420110300, 20260420120500, 20260420122400, 20260420122300, 20260420122200, 20260420124000, 20260420120900, 20260420121200, 20260420121400
+// source-note-ids: 20260420110000, 20260419164500, 20260417150000, 20260420183000, 20260420183100, 20260415162500, 20260420122000, 20260415162000, 20260420124300, 20260419104000, 20260415163000, 20260415160500, 20260417165000, 20260420120000, 20260425130000, 20260425130900, 20260415123000, 20260417105501, 20260419111000, 20260420124200, 20260417112000, 20260420120400, 20260420110800, 20260425120000, 20260419162500, 20260415153000, 20260420124400, 20260415160000, 20260419162000, 20260419171500, 20260415171000, 20260413153645, 20260415164500, 20260415161000, 20260417143000, 20260420121300, 20260420110100, 20260415123500, 20260420110600, 20260419153000, 20260419112000, 20260420124500, 20260415161500, 20260417165100, 20260419200000, 20260419093000, 20260420130100, 20260419194000, 20260420124100
 // source-spec-refs: (none)
 // generated-by: cx docs compile
-// content-sha256: 2d482c0eb4ab4c223ed4c0d348df8f8864f6b4df64068f0958e95d1a6b1b8a20
+// content-sha256: d4bcd47592265239901befc1d1f9d8b4845dda585a0da9f123d5d2a2ff11c9b6
 = Generated Notes Index
 :page-role: cx-generated
 
 This page is generated from the repository notes graph. Edit the source notes instead of this generated block.
 
-== Mental Models
+== Source Notes
 
-=== Adversarial Cognition Testing
+=== 0.4.0 Architecture Shift
 
-* Note ID: `20260420120700`
-* Source: `notes/Adversarial Cognition Testing.md`
+* Note ID: `20260420110000`
+* Source: `notes/0.4.0 Architecture Shift.md`
 
-The system must be resilient to bad knowledge.
+cx 0.4.0 marks a transition from a Repomix-adapter system to a kernel-owned architecture.
 
 === Agent Note Review Loop
 
@@ -66,6 +66,13 @@ The current term "bundle index" is now too narrow because the file already acts 
 
 cx uses SHA-256 sidecars and manifest-level checksums to ensure the integrity of a bundle from the moment it is created until it is extracted or verified.
 
+=== Bundle Verify Extract Workflow Contract
+
+* Note ID: `20260420124300`
+* Source: `notes/Bundle Verify Extract Workflow Contract.md`
+
+The bundle to verify to extract path is a contract, not just a convenient command sequence.
+
 === Choose Your Operating Mode
 
 * Note ID: `20260419104000`
@@ -94,97 +101,12 @@ cx configuration follows a deterministic loading and inheritance pipeline that e
 
 Configuration files often inherit from parent configs: Organization-level defaults → Project-specific overrides System-wide settings → User-local tweaks Pipeline defaults → Job-specific exceptions
 
-=== Configurable Note Frontmatter
-
-* Note ID: `20260424120000`
-* Source: `notes/Configurable Note Frontmatter.md`
-* Code refs: `src/config/load.ts`, `src/notes/validate.ts`
-
-Note frontmatter validation should keep repository-wide structural invariants while letting each project define its own routing vocabulary.
-
 === CX Constitution
 
 * Note ID: `20260420120000`
 * Source: `notes/CX Constitution.md`
 
 The CX Constitution defines the non-negotiable rules of the system.
-
-=== CX Notes Ask Needs Evidence Bundles
-
-* Note ID: `20260425130400`
-* Source: `notes/CX Notes Ask Needs Evidence Bundles.md`
-
-cx notes ask answers questions from bounded evidence bundles rather than from free-form repository search alone.
-
-=== CX Notes Claim Metadata
-
-* Note ID: `20260425130300`
-* Source: `notes/CX Notes Claim Metadata.md`
-
-Notes support optional structured claim metadata without becoming executable config files.
-
-=== cx notes extract compiles canonical notes into profile scoped LLM bundles
-
-* Note ID: `20260421120000`
-* Source: `notes/cx notes extract compiles canonical notes into profile scoped LLM bundles.md`
-
-cx notes extract compiles canonical notes into profile-scoped LLM bundles because the repository needs a deterministic bridge between atomic note truth and downstream narrative documentation workflows without making generated docs or LLM...
-
-=== CX Notes Extract Is the Retrieval Workhorse
-
-* Note ID: `20260425130500`
-* Source: `notes/CX Notes Extract Is the Retrieval Workhorse.md`
-
-cx notes extract is the primary retrieval and bundling mechanism for note-centric workflows.
-
-=== cx notes extract must embed LLM instructions inside the profile output
-
-* Note ID: `20260421120300`
-* Source: `notes/cx notes extract must embed LLM instructions inside the profile output.md`
-
-cx notes extract must embed LLM instructions inside the profile output because downstream narrative synthesis is only reproducible and reviewable when the authoring contract travels with the extracted note bundle instead of living in hid...
-
-=== cx notes extract profiles define scope structure and LLM contract
-
-* Note ID: `20260421120100`
-* Source: `notes/cx notes extract profiles define scope structure and LLM contract.md`
-
-Profiles for cx notes extract define not only which notes are selected, but also the structure, intended document product, and LLM authoring contract for the emitted bundle. A profile is a compilation contract, not just a tag filter.
-
-=== cx notes extract should emit LLM centric structured bundles
-
-* Note ID: `20260421120200`
-* Source: `notes/cx notes extract should emit LLM centric structured bundles.md`
-
-cx notes extract emits LLM-centric structured bundles because the command's primary consumer is not a human reader but a constrained synthesis step that needs canonical content, explicit instructions, and durable section boundaries.
-
-=== cx notes extract should preserve provenance into downstream docs workflows
-
-* Note ID: `20260421120500`
-* Source: `notes/cx notes extract should preserve provenance into downstream docs workflows.md`
-
-cx notes extract preserves provenance into downstream documentation workflows because generated or LLM-compiled docs remain trustworthy only when reviewers can trace claims back to the canonical notes that supplied them.
-
-=== cx notes extract should remain extraction not final documentation generation
-
-* Note ID: `20260421120600`
-* Source: `notes/cx notes extract should remain extraction not final documentation generation.md`
-
-cx notes extract remains an extraction command rather than a final documentation generator because the repository needs a clean boundary between canonical knowledge compilation and downstream narrative authoring.
-
-=== cx notes extract should support arc42 onboarding and manual as first class profiles
-
-* Note ID: `20260421120400`
-* Source: `notes/cx notes extract should support arc42 onboarding and manual as first class profiles.md`
-
-cx notes extract supports arc42, onboarding, and manual as first-class profiles because those outputs serve different readers, require different narrative structures, and should not be produced from one undifferentiated note dump.
-
-=== CX Notes Graph Is the Repository Cognition Layer
-
-* Note ID: `20260425130100`
-* Source: `notes/CX Notes Graph Is the Repository Cognition Layer.md`
-
-The cx note graph is the repository cognition layer.
 
 === CX Notes Layered Source of Truth
 
@@ -193,12 +115,12 @@ The cx note graph is the repository cognition layer.
 
 cx must enforce a layered source-of-truth model instead of treating all repository text as equally authoritative.
 
-=== CX Notes Traceability Must Be First Class
+=== CX Obsidian Is a Human Lens
 
-* Note ID: `20260425130200`
-* Source: `notes/CX Notes Traceability Must Be First Class.md`
+* Note ID: `20260425130900`
+* Source: `notes/CX Obsidian Is a Human Lens.md`
 
-cx treats traceability as a first-class capability instead of a side effect of markdown links.
+Obsidian is a human navigation lens for the note graph, not the authority for repository semantics.
 
 === CX Triad
 
@@ -207,19 +129,40 @@ cx treats traceability as a first-class capability instead of a side effect of m
 
 The CX architecture is built upon a triad specifically designed for operational bundling rather than just exploratory context generation. The triad consists of:
 
+=== Developer Command Workflow
+
+* Note ID: `20260417105501`
+* Source: `notes/Developer Command Workflow.md`
+
+make test is the fast local feedback loop, make verify is the normal pre-merge gate, and make release VERSION=vX.Y.Z is the repository-local two-phase release wizard. Keeping those roles separate keeps the common command quick while maki...
+
+=== Friday Night Monday Morning Provenance
+
+* Note ID: `20260419111000`
+* Source: `notes/Friday Night Monday Morning Provenance.md`
+
+Provenance becomes convincing when shown across time instead of as a static label.
+
+=== Friday To Monday Workflow Contract
+
+* Note ID: `20260420124200`
+* Source: `notes/Friday To Monday Workflow Contract.md`
+
+The Friday-to-Monday path is a workflow contract for turning live investigation into a trusted handoff.
+
+=== GitHub Actions Triggers
+
+* Note ID: `20260417112000`
+* Source: `notes/GitHub Actions Triggers.md`
+
+The CI workflow runs on every branch push and on pull requests, but not on v* tag pushes. Tag finalization belongs to the release workflow instead of the main CI pipeline. Pages publishes the unified /schemas/ and /coverage/ site from su...
+
 === Internal API Stabilization
 
 * Note ID: `20260420120400`
 * Source: `notes/Internal API Stabilization.md`
 
 The system must stabilize internal interfaces before adding plugins.
-
-=== Keep Notes Separate from Antora Canonical Docs
-
-* Note ID: `20260420183400`
-* Source: `notes/Keep Notes Separate from Antora Canonical Docs.md`
-
-The notes graph remains a distinct knowledge surface even after the canonical docs moved to Antora and AsciiDoctor.
 
 === Kernel vs Extension Boundary
 
@@ -235,13 +178,6 @@ The system enforces a strict separation between kernel and extensions.
 
 The layered truth model keeps repository cognition explicit: notes preserve intent truth, specs preserve executable rule truth, code preserves implementation truth, tests preserve behavioral truth, and docs preserve communication truth.
 
-=== Manual LLM Synthesis Workflow For Notes Extract Bundles
-
-* Note ID: `20260421162000`
-* Source: `notes/Manual LLM Synthesis Workflow For Notes Extract Bundles.md`
-
-The first implementation boundary for notes-driven docs synthesis is cx notes extract followed by a manual LLM step because the repository wants deterministic prompt bundles in version control without claiming that model invocation or fi...
-
 === MCP Import Graph Diagnostics
 
 * Note ID: `20260419162500`
@@ -256,6 +192,13 @@ Vitest UI is unusually valuable for MCP performance investigation because the MC
 
 When reviewing repository notes, use manifest-first selection and live MCP note tools instead of opening every Markdown file.
 
+=== MCP Read Path Contract
+
+* Note ID: `20260420124400`
+* Source: `notes/MCP Read Path Contract.md`
+
+The MCP read path must remain available as the primary live exploration workflow.
+
 === MCP Transport Protocol
 
 * Note ID: `20260415160000`
@@ -263,19 +206,19 @@ When reviewing repository notes, use manifest-first selection and live MCP note 
 
 cx implements the Model Context Protocol (MCP) over a standard input/output (stdio) transport layer.
 
-=== Note Graph Audit
+=== MCP Vitest UI Cockpit
 
-* Note ID: `20260415153500`
-* Source: `notes/Note Graph Audit.md`
+* Note ID: `20260419162000`
+* Source: `notes/MCP Vitest UI Cockpit.md`
 
-A note graph audit is the practice of checking note references, backlinks, orphans, and code links after the note corpus changes.
+The MCP test and debug cockpit is a dedicated Vitest UI entrypoint for the MCP-heavy suite, not a generic replacement for the Bun lanes. It exists so operators can rerun MCP failures interactively, inspect coverage inside the UI, and tra...
 
-=== Notes Gating Policy
+=== MCP Vitest UI Troubleshooting
 
-* Note ID: `20260420130200`
-* Source: `notes/Notes Gating Policy.md`
+* Note ID: `20260419171500`
+* Source: `notes/MCP Vitest UI Troubleshooting.md`
 
-Notes may act as optional build constraints in higher-assurance environments.
+The MCP Vitest UI troubleshooting flow is intentionally small: use the broad MCP cockpit when you need coverage and import visibility across the MCP boundary, and switch to the adversarial cockpit when the failure is explicitly about sta...
 
 === Operational Bifurcation
 
@@ -387,7 +330,7 @@ cx stays trustworthy only if cognition quality, boundary rules, and trust labels
 
 * Note ID: `20260419093000`
 * Source: `notes/Test Strategy Hardening.md`
-* Code refs: `.github/pull_request_template.md`, `src/notes/validate.ts`, `tests/mcp/server.run.test.ts`, `tests/README.md`, `tests/unit/configLoad.property.test.ts`, `tests/VERIFY_AGAINST_AUDIT.md`
+* Code refs: `.github/pull_request_template.md`, `src/notes/validate.ts`, `tests/README.md`, `tests/VERIFY_AGAINST_AUDIT.md`, `tests/mcp/server.run.test.ts`, `tests/unit/configLoad.property.test.ts`
 
 The suite had excellent real-world coverage but too much unit-level dependence on filesystem setup. That made core logic tests slower and more fragile than they needed to be.
 
@@ -398,133 +341,12 @@ The suite had excellent real-world coverage but too much unit-level dependence o
 
 cx models trust as a spectrum rather than a binary state.
 
-== Core Workflows
+=== Two-Phase Release Protocol
 
-=== Agentic Ecosystem MCP
+* Note ID: `20260419194000`
+* Source: `notes/Two-Phase Release Protocol.md`
 
-* Note ID: `20260413123400`
-* Source: `notes/Agentic Ecosystem MCP.md`
-
-The repository participates in agentic workflows as well as bundle rendering. cx mcp starts the native CX MCP server with cx-mcp.toml when present, cx doctor mcp shows the inherited MCP scope, and cx doctor secrets scans the master list ...
-
-=== Bundle Verify Extract Workflow Contract
-
-* Note ID: `20260420124300`
-* Source: `notes/Bundle Verify Extract Workflow Contract.md`
-
-The bundle to verify to extract path is a contract, not just a convenient command sequence.
-
-=== Crystal Template MCP and Makefile Policy
-
-* Note ID: `20260418234100`
-* Source: `notes/Crystal Template MCP and Makefile Policy.md`
-
-The Crystal init template is an enhanced template.
-
-=== CX Obsidian Is a Human Lens
-
-* Note ID: `20260425130900`
-* Source: `notes/CX Obsidian Is a Human Lens.md`
-
-Obsidian is a human navigation lens for the note graph, not the authority for repository semantics.
-
-=== Elixir Template MCP and Makefile Policy
-
-* Note ID: `20260418234000`
-* Source: `notes/Elixir Template MCP and Makefile Policy.md`
-
-The Elixir init template is an enhanced template.
-
-=== Friday Night Monday Morning Provenance
-
-* Note ID: `20260419111000`
-* Source: `notes/Friday Night Monday Morning Provenance.md`
-
-Provenance becomes convincing when shown across time instead of as a static label.
-
-=== Friday To Monday Workflow Contract
-
-* Note ID: `20260420124200`
-* Source: `notes/Friday To Monday Workflow Contract.md`
-
-The Friday-to-Monday path is a workflow contract for turning live investigation into a trusted handoff.
-
-=== GitHub Actions Triggers
-
-* Note ID: `20260417112000`
-* Source: `notes/GitHub Actions Triggers.md`
-
-The CI workflow runs on every branch push and on pull requests, but not on v* tag pushes. Tag finalization belongs to the release workflow instead of the main CI pipeline. Pages publishes the unified /schemas/ and /coverage/ site from su...
-
-=== Go Template MCP and Makefile Policy
-
-* Note ID: `20260418234200`
-* Source: `notes/Go Template MCP and Makefile Policy.md`
-
-The Go init template is an enhanced template.
-
-=== MCP Adversarial Test Cockpit
-
-* Note ID: `20260419170000`
-* Source: `notes/MCP Adversarial Test Cockpit.md`
-
-The MCP adversarial cockpit is a narrower Vitest lane for failure injection, startup breakdowns, malformed runtime payloads, and other hostile-boundary scenarios that should stay easy to rerun without dragging the broader MCP test surfac...
-
-=== MCP Read Path Contract
-
-* Note ID: `20260420124400`
-* Source: `notes/MCP Read Path Contract.md`
-
-The MCP read path must remain available as the primary live exploration workflow.
-
-=== MCP Stable Contract Boundary
-
-* Note ID: `20260419143000`
-* Source: `notes/MCP Stable Contract Boundary.md`
-
-The cx mcp surface is no longer treated as one blanket experiment. The stable contract now covers the semver-protected workspace read tools, bundle planning tools, and the durable notes graph and note lifecycle and read tools, while doct...
-
-=== MCP Tool Catalog Introspection
-
-* Note ID: `20260419180000`
-* Source: `notes/MCP Tool Catalog Introspection.md`
-
-The machine-readable MCP contract should expose tool stability metadata through a narrow operator command, not only through human-facing prose in docs or tool descriptions. cx mcp catalog --json now serves as that dedicated endpoint, whi...
-
-=== MCP Tool Intent Taxonomy
-
-* Note ID: `20260415171500`
-* Source: `notes/MCP Tool Intent Taxonomy.md`
-
-The native cx mcp tool set can be grouped by agent intent instead of implementation origin. This machine-oriented taxonomy is useful for prompt engineering, policy enforcement, and safe agent session design.
-
-=== MCP Vitest UI Cockpit
-
-* Note ID: `20260419162000`
-* Source: `notes/MCP Vitest UI Cockpit.md`
-
-The MCP test and debug cockpit is a dedicated Vitest UI entrypoint for the MCP-heavy suite, not a generic replacement for the Bun lanes. It exists so operators can rerun MCP failures interactively, inspect coverage inside the UI, and tra...
-
-=== MCP Vitest UI Troubleshooting
-
-* Note ID: `20260419171500`
-* Source: `notes/MCP Vitest UI Troubleshooting.md`
-
-The MCP Vitest UI troubleshooting flow is intentionally small: use the broad MCP cockpit when you need coverage and import visibility across the MCP boundary, and switch to the adversarial cockpit when the failure is explicitly about sta...
-
-=== Rust Template MCP and Makefile Policy
-
-* Note ID: `20260418234300`
-* Source: `notes/Rust Template MCP and Makefile Policy.md`
-
-The Rust init template is an enhanced template.
-
-=== TypeScript Template MCP and Makefile Policy
-
-* Note ID: `20260418213000`
-* Source: `notes/TypeScript Template MCP and Makefile Policy.md`
-
-The TypeScript init template is intentionally source-first for MCP and lockfile-first for package-manager selection.
+cx-cli release management should separate preparation from publication. develop prepares the versioned candidate and absorbs release-fix commits until the full CI and release-assurance surface is green. The release tag then finalizes tha...
 
 === Workflow Contracts
 
@@ -532,100 +354,5 @@ The TypeScript init template is intentionally source-first for MCP and lockfile-
 * Source: `notes/Workflow Contracts.md`
 
 Operator workflows should be treated as contracts when later automation depends on them.
-
-=== Zig Template MCP and Makefile Policy
-
-* Note ID: `20260418234400`
-* Source: `notes/Zig Template MCP and Makefile Policy.md`
-
-The Zig init template is an enhanced template and the newest supported language-specific environment.
-
-== Core Architecture
-
-=== Differential Update Staging
-
-* Note ID: `20260413123300`
-* Source: `notes/Differential Update Staging.md`
-
-cx bundle --update stages a complete bundle in a temporary directory first, then syncs the diff into the live output directory and prunes artifacts that no longer belong.
-
-=== Native Render Migration Strategy
-
-* Note ID: `20260420121000`
-* Source: `notes/Native Render Migration Strategy.md`
-
-The render engine must transition from Repomix to a native kernel without changing proof behavior, because migration is only safe when the proof path stays identical while ownership moves inward. XML, Markdown, Plain, JSON, and the share...
-
-=== Overlap Strict Mode
-
-* Note ID: `20260420130000`
-* Source: `notes/Overlap Strict Mode.md`
-
-Overlap resolution must be explicit in strict environments.
-
-=== Scanner Pipeline Architecture
-
-* Note ID: `20260420110300`
-* Source: `notes/Scanner Pipeline Architecture.md`
-
-security_check evolves into a pluggable scanner pipeline.
-
-=== Scanner Pipeline Contract
-
-* Note ID: `20260420120500`
-* Source: `notes/Scanner Pipeline Contract.md`
-
-Security scanning is a pluggable pipeline, not a renderer feature.
-
-=== Shared Handover File Count Discipline
-
-* Note ID: `20260420122400`
-* Source: `notes/Shared Handover File Count Discipline.md`
-
-The shared handover must not increase generated file count casually because bundle comprehension, verification, and extraction all become more expensive when context is split across too many generated companion files.
-
-=== Shared Handover Is The First Native Render Migration Candidate
-
-* Note ID: `20260420122300`
-* Source: `notes/Shared Handover Is The First Native Render Migration Candidate.md`
-
-The shared handover artifact is now the first native kernel-rendered artifact, proving the render migration with a real deterministic output before full section rendering moves over.
-
-=== Shared Handover Uses Same Output Family As Section Outputs
-
-* Note ID: `20260420122200`
-* Source: `notes/Shared Handover Uses Same Output Family As Section Outputs.md`
-
-The shared handover artifact should use the same output family as the section outputs so the bundle stays style-consistent and the future native kernel can treat handover rendering as part of the same rendering family.
-
-== Quality and Guardrails
-
-=== Contract Versioning Strategy
-
-* Note ID: `20260420124000`
-* Source: `notes/Contract Versioning Strategy.md`
-
-Contract surfaces need explicit versioning when cx chooses hard breaks over deprecation layers.
-
-=== Contributor Constraints
-
-* Note ID: `20260420120900`
-* Source: `notes/Contributor Constraints.md`
-
-The system must guide contributors strictly.
-
-=== Deprecation and Removal Policy
-
-* Note ID: `20260420121200`
-* Source: `notes/Deprecation and Removal Policy.md`
-
-cx does not use deprecation layers while it remains pre-public, because compatibility shims and dual behavior paths weaken contracts faster than they help migration.
-
-=== Parity Oracle Policy
-
-* Note ID: `20260420121400`
-* Source: `notes/Parity Oracle Policy.md`
-
-An external oracle may be used to prove migration correctness without becoming architecture, and ci:test:render-parity is the enforcement lane for that rule.
 
 // cx-docs-generated:end

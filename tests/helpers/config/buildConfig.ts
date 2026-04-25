@@ -164,7 +164,6 @@ export function buildConfig(options: BuildConfigOptions = {}): CxConfig {
           title: { required: false, type: "string", values: [] },
         },
       },
-      profiles: {},
       ...options.notes,
     },
     scanner: {

@@ -88,7 +88,6 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_VALUES.notes.strictNotesMode).toBe(false);
       expect(DEFAULT_CONFIG_VALUES.notes.failOnDriftPressuredNotes).toBe(false);
       expect(DEFAULT_CONFIG_VALUES.notes.appliesToSections).toEqual([]);
-      expect(DEFAULT_CONFIG_VALUES.notes.profiles).toEqual({});
     });
 
     it("includes scanner settings", () => {
@@ -200,12 +199,6 @@ describe("config defaults", () => {
       expect(DEFAULT_CONFIG_TEMPLATE).toContain('policy = "default"');
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("audit_logging = true");
       expect(DEFAULT_CONFIG_TEMPLATE).toContain("enable_mutation = true");
-    });
-
-    it("documents notes extraction profiles", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[notes.profiles.arc42]");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[notes.profiles.arc42.llm]");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain('output_format = "markdown"');
     });
   });
 

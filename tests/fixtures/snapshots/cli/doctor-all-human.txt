@@ -4,7 +4,7 @@ Active profile: cx.toml
 Policy: default
 Mutation enabled: yes
 Audit events: 0 (allowed 0, denied 0)
-Tool catalog: v1, 38 tools (33 stable, 5 beta, 0 experimental, 0 internal)
+Tool catalog: v1, 37 tools (32 stable, 5 beta, 0 experimental, 0 internal)
 Recent policy trends:
   - (no audit events)
 Recent trace IDs:
@@ -45,7 +45,6 @@ tool catalog:
   - notes_coverage: observe, STABLE
   - notes_delete: mutate, STABLE
   - notes_drift: observe, STABLE
-  - notes_extract: observe, STABLE
   - notes_graph: observe, STABLE
   - notes_links: observe, STABLE
   - notes_list: observe, STABLE

@@ -18,10 +18,10 @@ When these layers blur, semantic drift becomes invisible. The note graph gives `
 
 ## How
 
-Use `cx notes check`, `cx notes graph --format json`, `cx notes trace <note-id>`, `cx notes extract`, `cx docs compile`, and `cx docs drift` to keep the layers connected.
+Use `cx notes check`, `cx notes graph --format json`, `cx notes trace <note-id>`, `cx docs compile`, and `cx docs drift` to keep the layers connected.
 
 ## Links
 
 - [[Repository Cognition Layer]]
 - [[Keep Notes Separate from Antora Canonical Docs]]
-- [[cx notes extract should preserve provenance into downstream docs workflows]]
+- [[CX Docs Compile From Notes and Code]]

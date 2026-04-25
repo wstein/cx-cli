@@ -394,10 +394,6 @@ CLI and MCP note commands side by side:
 |Delete a note |`cx notes delete --id 20260414120000`
 |`notes_delete(id="20260414120000")`
 
-|Compile an LLM bundle
-|`cx notes extract --profile arc42 --format xml`
-|—
-
 |Inspect the graph |`cx notes links` / `cx notes backlinks --id ...` /
 `cx notes orphans` / `cx notes code-links --id ...`
 |`notes_search(...)` / `notes_links(...)` /
@@ -409,33 +405,10 @@ Use the CLI for direct on-disk note lifecycle operations. Use MCP when
 the agent needs live search, reads, updates, or graph inspection inside
 an active workspace session.
 
-`cx notes extract` is deliberately CLI-only. It compiles deterministic,
-LLM-centered bundles from canonical notes so downstream synthesis can
-write onboarding, manual, or arc42-style documents without turning the
-generated prose into the new source of truth.
-
-The `xml` format is an xml-tagged plain-text prompt bundle. It uses
-stable tag sections for model-friendly structure without claiming that
-the whole artifact is a strict XML document.
-
-The `json` format emits the same deterministic bundle contract as direct
-JSON, which is useful for downstream tooling, scripted inspection, or
-pipelines that do not need the markdown, xml-tagged, or plain-text
-prompt wrapper.
-
-In `v1`, LLM invocation remains manual. Use `cx notes extract` when you
-need a reviewable prompt bundle, run the model step outside `cx`, and
-treat the resulting docs as downstream, human-reviewed artifacts rather
-than a new source of truth.
-
-Each extraction profile is a compilation contract, not just a tag
-filter. A profile defines:
-
-* which notes are in scope
-* how they are grouped and ordered
-* which sections are required
-* which target paths the downstream document compiler is aiming at
-* which LLM authoring constraints must travel with the bundle
+`cx docs compile --profile architecture|manual|onboarding` is the
+repository-owned promotion path from stable notes into generated Antora
+pages. Use note graph tools to validate and inspect note evidence before
+running docs compilation.
 
 == Who This Manual Is For
 

@@ -13,7 +13,6 @@ Generated outputs may include:
 
 - rule contracts
 - diagnostics tables
-- extraction bundles
 - compiled docs
 - graph summaries
 
@@ -29,4 +28,3 @@ CI runs generation commands and fails if `git diff --exit-code` reports stale ar
 
 - [[CX Semantic Drift Detection]]
 - [[CX Docs Compile From Notes and Code]]
-- [[CX Notes Extract Is the Retrieval Workhorse]]

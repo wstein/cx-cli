@@ -1,11 +1,11 @@
-MCP tool catalog: v1, 38 tools
+MCP tool catalog: v1, 37 tools
 By capability:
   - read: 4
-  - observe: 23
+  - observe: 22
   - plan: 2
   - mutate: 9
 By stability:
-  - STABLE: 33
+  - STABLE: 32
   - BETA: 5
   - EXPERIMENTAL: 0
   - INTERNAL: 0
@@ -35,7 +35,6 @@ Tools:
   - notes_coverage: observe, STABLE
   - notes_delete: mutate, STABLE
   - notes_drift: observe, STABLE
-  - notes_extract: observe, STABLE
   - notes_graph: observe, STABLE
   - notes_links: observe, STABLE
   - notes_list: observe, STABLE

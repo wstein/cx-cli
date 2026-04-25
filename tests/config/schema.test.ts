@@ -213,28 +213,12 @@ describe("cx-config-v1.schema.json", async () => {
     expect(repomixProp).toBeDefined();
   });
 
-  test("notes.profiles supports structured extraction contracts", () => {
+  test("notes config keeps frontmatter validation as the structured note surface", () => {
     const notesProp = (schema.properties?.notes ?? {}) as unknown as {
       properties?: Record<string, unknown>;
     };
-    const profilesProp = (notesProp.properties?.profiles ?? {}) as unknown as {
-      type?: string;
-      additionalProperties?: {
-        required?: string[];
-        properties?: Record<string, unknown>;
-      };
-    };
-
-    expect(profilesProp.type).toBe("object");
-    expect(profilesProp.additionalProperties?.required).toEqual(
-      expect.arrayContaining([
-        "description",
-        "output_format",
-        "target_paths",
-        "section_order",
-        "llm",
-      ]),
-    );
+    expect(notesProp.properties?.frontmatter).toBeDefined();
+    expect(notesProp.properties?.profiles).toBeUndefined();
   });
 });
 

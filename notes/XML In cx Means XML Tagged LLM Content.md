@@ -11,8 +11,8 @@ In `cx`, `xml` means xml-tagged plain text for LLM-facing artifacts unless a sur
 
 ## What
 
-When `cx` exposes an `xml` output for handover or notes-extract workflows,
-the intended contract is:
+When `cx` exposes an `xml` output for handover workflows, the intended
+contract is:
 
 - plain text first
 - stable XML-like tag sections
@@ -47,12 +47,11 @@ Read `xml` in `cx` as xml-tagged LLM content by default.
 Only treat a surface as a strict XML contract if the docs, tests, and
 implementation say so explicitly.
 
-For notes extraction specifically, the default `.xml` bundle means xml-tagged plain text
-for LLM-facing workflows, not a full XML document contract or a hidden machine payload.
+The note graph no longer exposes a notes-extraction XML bundle surface. Treat
+future XML outputs as surface-specific contracts rather than assuming a generic
+notes bundle format exists.
 
 ## Links
 
 - [[XML Handover Tag Semantics]] - Shared handover already uses XML-style tags as semantic anchors rather than full serialization.
-- [[cx notes extract should emit LLM centric structured bundles]] - Notes extraction uses xml-tagged bundles for LLM-facing structure.
-- [[Manual LLM Synthesis Workflow For Notes Extract Bundles]] - Manual synthesis consumes the xml-tagged bundle as a prompt artifact.
 - [[Top-Level JSON Payload Contracts]] - JSON remains the stricter machine contract where that boundary is intended.

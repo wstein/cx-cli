@@ -8,8 +8,6 @@ export type CxScannerId = "reference_secrets";
 export type CxUnmatchedMode = "ignore" | "fail";
 export type CxAssetsMode = "copy" | "ignore" | "fail";
 export type CxAssetsLayout = "flat" | "deep";
-export type CxNotesExtractFormat = "markdown" | "xml" | "json" | "plain";
-export type CxNotesDocumentFormat = "asciidoc" | "markdown" | "plain";
 
 export interface CxOutputExtensionsConfig {
   xml: string;
@@ -119,7 +117,6 @@ export interface CxNotesConfig {
   failOnDriftPressuredNotes: boolean;
   appliesToSections: string[];
   frontmatter: CxNotesFrontmatterConfig;
-  profiles: Record<string, CxNotesExtractProfileConfig>;
 }
 
 export type CxNotesFrontmatterFieldType = "string" | "string_array";
@@ -132,37 +129,6 @@ export interface CxNotesFrontmatterFieldConfig {
 
 export interface CxNotesFrontmatterConfig {
   fields: Record<string, CxNotesFrontmatterFieldConfig>;
-}
-
-export interface CxNotesExtractLlmConfig {
-  systemRole: string;
-  instructions: string;
-  targetFormat: CxNotesDocumentFormat;
-  documentKind: string;
-  audience: string;
-  tone: string;
-  mustCiteNoteTitles: boolean;
-  mustPreserveUncertainty: boolean;
-  mustNotInventFacts: boolean;
-  mustIncludeProvenance: boolean;
-  mustSurfaceConflicts: boolean;
-}
-
-export interface CxNotesExtractProfileConfig {
-  /**
-   * Retrieval profile for note-centric evidence bundles. Profiles select notes
-   * first, then preserve provenance into linked specs, code, tests, and docs.
-   */
-  description: string;
-  outputFormat: CxNotesExtractFormat;
-  targetPaths: string[];
-  includeTags: string[];
-  excludeTags: string[];
-  requiredNotes: string[];
-  includeTargets: string[];
-  sectionOrder: string[];
-  sectionTags: Record<string, string[]>;
-  llm: CxNotesExtractLlmConfig;
 }
 
 export interface CxScannerConfig {

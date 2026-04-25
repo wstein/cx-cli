@@ -28,5 +28,4 @@ Humans and LLMs both need evidence boundaries to reduce hallucination, ambiguity
 ## Links
 
 - [[CX Notes Graph Is the Repository Cognition Layer]]
-- [[CX Notes Extract Is the Retrieval Workhorse]]
 - [[CX Docs Compile From Notes and Code]]

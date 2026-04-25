@@ -30,10 +30,8 @@ In practice:
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
 
-`cx notes extract --profile <name>` compiles canonical notes into
-deterministic evidence bundles for humans, LLMs, and downstream documentation
-synthesis. `cx docs compile --profile architecture|manual|onboarding` promotes
-stable notes into generated Antora pages, while `cx docs drift` checks that the
+`cx docs compile --profile architecture|manual|onboarding` promotes stable
+notes into generated Antora pages, while `cx docs drift` checks that the
 generated docs still match the note graph.
 
 The layered truth model is:
@@ -165,22 +163,7 @@ Stable ids matter because downstream automation can reference notes without depe
 
 Suggested filename style: `Clear Searchable Title.md`.
 
-For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_check(...)`, `notes_drift(...)`, `notes_trace(...)`, `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, `notes_code_links(...)`, and `notes_graph(...)` after renames or note additions. Use `notes_extract(...)` and `notes_ask(...)` when an agent needs a bounded evidence surface instead of an open-ended text search.
-
-For downstream doc compilation, prefer `cx notes extract --profile arc42`,
-`cx notes extract --profile onboarding`, or `cx notes extract --profile manual`
-over ad hoc prompt assembly. That keeps selection, ordering, LLM
-instructions, and provenance inside a reviewable repository contract.
-Use `--format json` when downstream tooling wants the machine-readable
-bundle directly without a prompt-oriented wrapper.
-Use `--format xml` when you want xml-tagged plain text for an LLM-facing
-workflow, not a strict XML document contract.
-
-In `v1`, stop there. Run the LLM step manually, keep the prompt bundle
-reviewable in the repo, and treat the resulting docs as downstream,
-human-reviewed artifacts instead of a repository-owned synthesis stage.
-See [[Manual LLM Synthesis Workflow For Notes Extract Bundles]] for the
-expected external workflow boundary.
+For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_check(...)`, `notes_drift(...)`, `notes_trace(...)`, `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, `notes_code_links(...)`, and `notes_graph(...)` after renames or note additions. Use `notes_ask(...)` when an agent needs bounded note-first evidence instead of an open-ended text search.
 
 ## Minimum Anatomy
 

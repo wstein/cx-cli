@@ -862,10 +862,6 @@ export async function main(
             "Report tool documentation coverage in notes.",
           )
           .example(
-            "$0 notes extract --profile arc42 --format xml",
-            "Compile canonical notes into a profile-scoped LLM bundle.",
-          )
-          .example(
             "$0 notes graph --format json",
             "Emit the unified note/spec/code/test/docs graph as JSON.",
           )
@@ -900,7 +896,6 @@ export async function main(
               "check",
               "drift",
               "coverage",
-              "extract",
             ],
             default: "list",
           })
@@ -933,27 +928,16 @@ export async function main(
             description:
               "Maximum traversal depth for 'graph' subcommand (default: 2).",
           })
-          .option("json", { type: "boolean", default: false })
-          .option("profile", {
-            type: "string",
-            description:
-              "Notes extraction profile name for 'extract' (for example: arc42, onboarding, manual).",
-          })
           .option("format", {
-            choices: ["markdown", "xml", "json", "plain"] as const,
+            choices: ["json"] as const,
             description:
-              "Bundle serialization format for 'extract'. Defaults to the selected profile's output_format.",
+              "Output format for graph, trace, ask, and drift commands.",
           })
-          .option("output", {
-            type: "string",
-            description:
-              "Write the extracted notes bundle to this path. By default, cx notes extract prints the bundle to stdout.",
-          })
+          .option("json", { type: "boolean", default: false })
           .option("config", {
             type: "string",
             default: "cx.toml",
-            description:
-              "Configuration file that may define notes extraction profiles.",
+            description: "Configuration file for note graph commands.",
           }),
       async (args) => {
         exitCode = await runNotesCommand(
@@ -965,17 +949,9 @@ export async function main(
             tags: normalizeArrayArg(args.tags),
             id: args.id as string | undefined,
             depth: args.depth as number | undefined,
+            format: args.format as "json" | undefined,
             json: args.json,
             workspaceRoot: io.cwd,
-            profile: args.profile as string | undefined,
-            format: args.format as
-              | "markdown"
-              | "xml"
-              | "json"
-              | "plain"
-              | undefined,
-            output: args.output as string | undefined,
-            config: args.config as string | undefined,
           },
           io,
         );
