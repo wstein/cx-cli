@@ -17,4 +17,5 @@
 ** xref:implementation-reference.adoc[Implementation Reference]
 ** xref:internal-api-contract.adoc[Internal API Contract]
 ** xref:render-kernel-contract.adoc[Render Kernel Contract]
+** xref:note-centric-toolchain.adoc[Note-Centric Toolchain]
 ** xref:generated-notes.adoc[Generated Notes Index]

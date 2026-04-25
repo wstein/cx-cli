@@ -1,0 +1,46 @@
+= Note-Centric Toolchain
+:page-role: architecture-draft
+
+This architecture draft defines `cx` as a note-centric repository toolchain. Notes are the intent-truth layer, specs are executable shared-rule truth, code is implementation truth, tests are behavioral truth, and docs are communication truth.
+
+== Source-of-Truth Layers
+
+`cx` must not treat all repository text as equally authoritative. The architecture separates durable intent from executable rules, implementation, behavioral checks, and communication surfaces:
+
+* Notes capture decisions, invariants, mechanisms, workflows, migration intent, and failure modes.
+* Specs capture shared executable rules and generated contracts.
+* Code captures the implemented state of the system.
+* Tests capture expected behavior and regression boundaries.
+* Docs communicate stable knowledge promoted from notes, specs, code, and tests.
+
+This model keeps "source of truth" precise. A generated doc page may communicate an invariant, but the invariant itself should be traceable back to a note and, where appropriate, an executable spec, implementation path, and test.
+
+== Graph And Traceability
+
+The note graph is the repository cognition layer. It links note nodes to specs, code files, tests, docs, superseded notes, and other notes. `cx notes graph --format json` should remain deterministic so humans, CI, MCP tools, and LLM workflows can consume the same graph without scraping prose.
+
+Traceability is first-class. `cx notes trace <note-id>` expands linked notes, spec refs, code refs, test refs, doc refs, supersession metadata, unresolved references, and reverse backlinks. `cx notes check` validates the graph before extraction, documentation compilation, or CI promotion consumes it.
+
+== Retrieval And Asking
+
+`cx notes extract` is the retrieval workhorse. Profiles such as `architecture`, `onboarding`, `manual`, `llm`, `implementation`, and `spec-review` define evidence cuts for different readers and workflows. Formats such as `xml`, `markdown`, `json`, and `plain` preserve deterministic output for both human review and downstream automation.
+
+`cx notes ask "<question>"` should resolve questions through bounded evidence bundles instead of open-ended repository search. Every answer scaffold should include matched notes, linked specs, linked code, linked tests, linked docs, confidence, and unresolved gaps.
+
+== Documentation Compilation
+
+`cx docs compile --profile architecture|manual|onboarding` promotes stable notes and linked repository evidence into Antora-ready pages with provenance markers and deterministic content. Generated pages remain freshness-checked build products, while hand-written architecture pages continue to carry curated explanations.
+
+`cx docs drift` compares generated docs back to the current note graph. `cx notes drift` compares note claims and references against specs, code, tests, and docs so semantic drift becomes visible before it reaches CI or published documentation.
+
+== MCP And CLI Execution
+
+Every `cx` CLI command should also be represented through MCP so agents can discover capabilities, inspect contracts, and run repository workflows through a tool boundary. MCP is the integration surface; the `cx` CLI remains the deterministic local execution surface.
+
+LLM agents should call the `cx` CLI directly when they need authoritative local behavior, reproducible command output, or parity with CI. MCP should expose those capabilities without becoming a second semantic authority.
+
+== Freshness And Human Lenses
+
+Generated note-, spec-, and doc-derived artifacts must be treated as freshness-checked build products. CI should run the relevant generation commands and fail when `git diff --exit-code` finds stale outputs.
+
+Obsidian can remain a human navigation lens for browsing backlinks, maps of content, and note neighborhoods. Repository semantics must stay in `cx` validation, extraction, graph construction, and docs compilation rather than in editor plugins or vault-specific behavior.
