@@ -19,7 +19,7 @@ Highest-priority commands are:
 - `cx docs compile`
 - `cx docs drift`
 
-Every `cx` CLI command should also be available through MCP for tool-mediated workflows, while LLM agents should call the `cx` CLI directly when they need deterministic local behavior.
+Every useful `cx` CLI command should also be available through MCP for tool-mediated workflows, while LLM agents should call the `cx` CLI directly when they need deterministic local behavior. Shell UX commands such as completion generation do not need MCP parity because they do not improve repository reasoning or automation.
 
 ## Why
 

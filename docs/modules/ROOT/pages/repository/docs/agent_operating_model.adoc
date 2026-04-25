@@ -63,10 +63,10 @@ The integration layer turns abstract policy into concrete tool visibility.
 
 The MCP registration wrapper assigns every tool one capability tier. Policy enforcement, audit logging, and allow-or-deny decisions all use the same declaration.
 
-* `read`: `list`, `grep`, `read`
-* `observe`: `doctor_*`, `notes_read`, `notes_search`, `notes_list`, `notes_check`, `notes_drift`, `notes_trace`, `notes_extract`, `notes_ask`, `notes_coverage`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`, `notes_graph`
+* `read`: `list`, `grep`, `read`, `bundle_list`
+* `observe`: `doctor_*`, `bundle_validate`, `bundle_verify`, `docs_drift`, `config_show_effective`, `mcp_catalog`, `notes_read`, `notes_search`, `notes_list`, `notes_check`, `notes_drift`, `notes_trace`, `notes_extract`, `notes_ask`, `notes_coverage`, `notes_backlinks`, `notes_orphans`, `notes_code_links`, `notes_links`, `notes_graph`
 * `plan`: `inspect`, `bundle`
-* `mutate`: `extract`, `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
+* `mutate`: `extract`, `bundle_create`, `docs_compile`, `docs_export`, `notes_new`, `notes_update`, `notes_delete`, `notes_rename`, `replace_repomix_span`
 
 See xref:repository/docs/governance.adoc#mcp-tool-stability[MCP Tool Stability Tiers]
 for tool stability tiers.

@@ -24,14 +24,23 @@ interface RegisteredTool {
 
 type CxMcpToolName =
   | "bundle"
+  | "bundle_create"
+  | "bundle_list"
+  | "bundle_validate"
+  | "bundle_verify"
+  | "config_show_effective"
   | "doctor_mcp"
   | "doctor_overlaps"
   | "doctor_secrets"
   | "doctor_workflow"
+  | "docs_compile"
+  | "docs_drift"
+  | "docs_export"
   | "extract"
   | "grep"
   | "inspect"
   | "list"
+  | "mcp_catalog"
   | "notes_backlinks"
   | "notes_ask"
   | "notes_check"
@@ -180,6 +189,14 @@ describe("cx MCP server", () => {
 
     expect(toolNames).toEqual([
       "bundle",
+      "bundle_create",
+      "bundle_list",
+      "bundle_validate",
+      "bundle_verify",
+      "config_show_effective",
+      "docs_compile",
+      "docs_drift",
+      "docs_export",
       "doctor_mcp",
       "doctor_overlaps",
       "doctor_secrets",
@@ -188,6 +205,7 @@ describe("cx MCP server", () => {
       "grep",
       "inspect",
       "list",
+      "mcp_catalog",
       "notes_ask",
       "notes_backlinks",
       "notes_check",
@@ -211,7 +229,7 @@ describe("cx MCP server", () => {
     ]);
     expect(instructions).toContain("immutable snapshots");
     expect(instructions).toContain("interactive exploration");
-    expect(instructions).toContain("Bundle recovery: extract");
+    expect(instructions).toContain("Bundle lifecycle:");
   });
 
   test("doctor_mcp returns the resolved MCP profile and scope", async () => {
@@ -802,6 +820,136 @@ This workflow is implemented and trusted for operators today.
     expect(bundlePayload.command).toBe("bundle preview");
     expect(bundlePayload.bundleDir).toContain("dist");
     expect(bundlePayload.note).toContain("live workspace");
+  });
+
+  test("bundle parity tools create, list, validate, and verify bundle artifacts", async () => {
+    const project = await createWorkspace();
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const createResult = await tools.bundle_create.handler(
+      { ci: true },
+      {} as never,
+    );
+    const createPayload = JSON.parse(firstContentText(createResult)) as {
+      bundleDir: string;
+      manifestName: string;
+    };
+    expect(createPayload.bundleDir).toContain("dist");
+    await expect(
+      fs.stat(path.join(createPayload.bundleDir, createPayload.manifestName)),
+    ).resolves.toBeDefined();
+
+    const listResult = await tools.bundle_list.handler(
+      { bundleDir: createPayload.bundleDir },
+      {} as never,
+    );
+    const listPayload = JSON.parse(firstContentText(listResult)) as {
+      summary: { fileCount: number };
+      files: Array<{ path: string }>;
+    };
+    expect(listPayload.summary.fileCount).toBeGreaterThan(0);
+    expect(listPayload.files).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "src/index.ts" }),
+      ]),
+    );
+
+    const validateResult = await tools.bundle_validate.handler(
+      { bundleDir: createPayload.bundleDir },
+      {} as never,
+    );
+    const validatePayload = JSON.parse(firstContentText(validateResult)) as {
+      valid: boolean;
+    };
+    expect(validatePayload.valid).toBe(true);
+
+    const verifyResult = await tools.bundle_verify.handler(
+      { bundleDir: createPayload.bundleDir },
+      {} as never,
+    );
+    const verifyPayload = JSON.parse(firstContentText(verifyResult)) as {
+      valid: boolean;
+    };
+    expect(verifyPayload.valid).toBe(true);
+  }, 30_000);
+
+  test("docs, config, and catalog MCP parity tools return command-shaped payloads", async () => {
+    const project = await createWorkspace();
+    const notesDir = path.join(project.root, "notes");
+    await fs.mkdir(notesDir, { recursive: true });
+    await fs.writeFile(
+      path.join(notesDir, "Render Kernel Constitution.md"),
+      `---
+id: 20260425142000
+title: Render Kernel Constitution
+aliases: []
+tags: ["architecture", "kernel", "contract"]
+target: current
+---
+
+The render kernel note provides enough architecture evidence for generated documentation.
+`,
+      "utf8",
+    );
+
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const configResult = await tools.config_show_effective.handler(
+      {},
+      {} as never,
+    );
+    const configPayload = JSON.parse(firstContentText(configResult)) as {
+      settings: Record<string, unknown>;
+    };
+    expect(Object.keys(configPayload.settings)).toContain("dedup.mode");
+
+    const compileResult = await tools.docs_compile.handler(
+      { profile: "architecture" },
+      {} as never,
+    );
+    const compilePayload = JSON.parse(firstContentText(compileResult)) as {
+      command: string;
+      outputPath: string;
+    };
+    expect(compilePayload.command).toBe("docs compile");
+    await expect(
+      fs.readFile(compilePayload.outputPath, "utf8"),
+    ).resolves.toContain("Generated Notes Index");
+
+    const driftResult = await tools.docs_drift.handler(
+      { profile: "architecture" },
+      {} as never,
+    );
+    const driftPayload = JSON.parse(firstContentText(driftResult)) as {
+      command: string;
+      valid: boolean;
+    };
+    expect(driftPayload).toEqual(
+      expect.objectContaining({ command: "docs drift", valid: true }),
+    );
+
+    const catalogResult = await tools.mcp_catalog.handler({}, {} as never);
+    const catalogPayload = JSON.parse(firstContentText(catalogResult)) as {
+      command: string;
+      toolCatalog: Array<{ name: string }>;
+    };
+    expect(catalogPayload.command).toBe("mcp catalog");
+    expect(catalogPayload.toolCatalog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "docs_compile" }),
+        expect.objectContaining({ name: "config_show_effective" }),
+      ]),
+    );
   });
 
   test("doctor workflow recommends an ordered path for mixed tasks", async () => {

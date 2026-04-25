@@ -18,10 +18,16 @@ Safe inspection and context gathering tools. They do not mutate state.
 - `list`
 - `grep`
 - `read`
+- `bundle_list`
 - `doctor_mcp`
 - `doctor_workflow`
 - `doctor_overlaps`
 - `doctor_secrets`
+- `bundle_validate`
+- `bundle_verify`
+- `docs_drift`
+- `config_show_effective`
+- `mcp_catalog`
 - `notes_read`
 - `notes_search`
 - `notes_list`
@@ -47,6 +53,9 @@ Deterministic plan generation and bundle metadata preview tools. These do not mu
 State-changing tools. Expose them only when the agent is explicitly authorized to modify content.
 
 - `extract`
+- `bundle_create`
+- `docs_compile`
+- `docs_export`
 - `replace_repomix_span`
 - `notes_new`
 - `notes_update`

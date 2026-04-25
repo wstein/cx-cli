@@ -110,9 +110,10 @@ function buildInstructions(configPath: string): string {
 Tool reference:
 Workspace: list (enumerate tracked files), grep (search file contents), read (fetch a file), replace_repomix_span (patch a span in a section output).
 Planning: inspect (live bundle plan without writing artifacts), bundle (preview snapshot metadata).
-Bundle recovery: extract (restore files from an existing bundle back into the workspace boundary).
+Bundle lifecycle: bundle_create (write a bundle), bundle_list (inspect bundle contents), bundle_validate and bundle_verify (check bundle artifacts), extract (restore files from an existing bundle back into the workspace boundary).
 Doctor: doctor_mcp (diagnose MCP profile), doctor_workflow (recommend inspect/bundle/mcp for a task), doctor_overlaps (find section file conflicts), doctor_secrets (scan for exposed secrets).
-Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lifecycle); notes_search, notes_list (discovery); notes_check, notes_drift, notes_trace, notes_extract, notes_ask, notes_coverage (note-centric validation and retrieval); notes_backlinks, notes_orphans, notes_code_links, notes_links, notes_graph (graph queries).`;
+Notes: notes_new, notes_read, notes_update, notes_rename, notes_delete (note lifecycle); notes_search, notes_list (discovery); notes_check, notes_drift, notes_trace, notes_extract, notes_ask, notes_coverage (note-centric validation and retrieval); notes_backlinks, notes_orphans, notes_code_links, notes_links, notes_graph (graph queries).
+Docs/config/meta: docs_compile, docs_drift, docs_export; config_show_effective; mcp_catalog.`;
 
   return [
     "cx mcp provides deterministic, file-based agent access to live repository context.",

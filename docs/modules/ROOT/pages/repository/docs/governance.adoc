@@ -343,6 +343,10 @@ notes should include:
 |replace_repomix_span |BETA |Workspace |v0.2.0
 |inspect |STABLE |Planning |v0.1.0
 |bundle |STABLE |Planning |v0.1.0
+|bundle_create |STABLE |Bundle lifecycle |v0.6.0
+|bundle_list |STABLE |Bundle lifecycle |v0.6.0
+|bundle_validate |STABLE |Bundle lifecycle |v0.6.0
+|bundle_verify |STABLE |Bundle lifecycle |v0.6.0
 |extract |STABLE |Bundle recovery |v0.4.1
 |doctor_mcp |BETA |Doctor |v0.2.0
 |doctor_workflow |BETA |Doctor |v0.2.0
@@ -366,6 +370,11 @@ notes should include:
 |notes_extract |STABLE |Notes |v0.6.0
 |notes_ask |STABLE |Notes |v0.6.0
 |notes_coverage |STABLE |Notes |v0.6.0
+|docs_compile |STABLE |Docs |v0.6.0
+|docs_drift |STABLE |Docs |v0.6.0
+|docs_export |STABLE |Docs |v0.6.0
+|config_show_effective |STABLE |Config |v0.6.0
+|mcp_catalog |STABLE |MCP |v0.6.0
 |===
 
 '''''
