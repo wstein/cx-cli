@@ -165,7 +165,7 @@ Stable ids matter because downstream automation can reference notes without depe
 
 Suggested filename style: `Clear Searchable Title.md`.
 
-For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, and `notes_code_links(...)` after renames or note additions.
+For live review, prefer MCP note tools over blind Markdown browsing. Use `notes_search(...)` to find the relevant notes, then `notes_read(...)` to inspect selected note ids. Audit graph integrity with `notes_check(...)`, `notes_drift(...)`, `notes_trace(...)`, `notes_links(...)`, `notes_backlinks(...)`, `notes_orphans(...)`, `notes_code_links(...)`, and `notes_graph(...)` after renames or note additions. Use `notes_extract(...)` and `notes_ask(...)` when an agent needs a bounded evidence surface instead of an open-ended text search.
 
 For downstream doc compilation, prefer `cx notes extract --profile arc42`,
 `cx notes extract --profile onboarding`, or `cx notes extract --profile manual`

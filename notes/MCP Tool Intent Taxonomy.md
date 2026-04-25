@@ -25,10 +25,17 @@ Safe inspection and context gathering tools. They do not mutate state.
 - `notes_read`
 - `notes_search`
 - `notes_list`
+- `notes_check`
+- `notes_drift`
+- `notes_trace`
+- `notes_extract`
+- `notes_ask`
+- `notes_coverage`
 - `notes_backlinks`
 - `notes_orphans`
 - `notes_code_links`
 - `notes_links`
+- `notes_graph`
 
 ## Plan / Preview
 Deterministic plan generation and bundle metadata preview tools. These do not mutate workspace files.

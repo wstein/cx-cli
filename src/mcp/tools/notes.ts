@@ -2,6 +2,10 @@ import path from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import {
+  checkNoteCoverage,
+  checkNotesConsistency,
+} from "../../notes/consistency.js";
+import {
   createNewNote,
   deleteNote,
   describeNoteTarget,
@@ -11,8 +15,10 @@ import {
   searchNotes,
   updateNote,
 } from "../../notes/crud.js";
+import { compileNotesExtractBundle } from "../../notes/extract.js";
 import {
   buildNoteGraph,
+  buildUnifiedNoteGraph,
   getBacklinks,
   getBrokenLinks,
   getCodeReferences,
@@ -88,6 +94,36 @@ const NOTES_GRAPH_TOOL = {
   capability: "observe",
   stability: "STABLE",
 } as const satisfies CxMcpToolDefinition;
+const NOTES_CHECK_TOOL = {
+  name: "notes_check",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_DRIFT_TOOL = {
+  name: "notes_drift",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_TRACE_TOOL = {
+  name: "notes_trace",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_EXTRACT_TOOL = {
+  name: "notes_extract",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_ASK_TOOL = {
+  name: "notes_ask",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
+const NOTES_COVERAGE_TOOL = {
+  name: "notes_coverage",
+  capability: "observe",
+  stability: "STABLE",
+} as const satisfies CxMcpToolDefinition;
 
 export const NOTES_TOOL_DEFINITIONS = [
   NOTES_NEW_TOOL,
@@ -102,7 +138,134 @@ export const NOTES_TOOL_DEFINITIONS = [
   NOTES_CODE_LINKS_TOOL,
   NOTES_LINKS_TOOL,
   NOTES_GRAPH_TOOL,
+  NOTES_CHECK_TOOL,
+  NOTES_DRIFT_TOOL,
+  NOTES_TRACE_TOOL,
+  NOTES_EXTRACT_TOOL,
+  NOTES_ASK_TOOL,
+  NOTES_COVERAGE_TOOL,
 ] as const satisfies readonly CxMcpToolDefinition[];
+
+function buildNotesTracePayload(params: {
+  workspace: CxMcpWorkspace;
+  graph: Awaited<ReturnType<typeof buildNoteGraph>>;
+  noteId: string;
+}) {
+  const note = params.graph.notes.get(params.noteId);
+  if (!note) {
+    throw new CxError(`Note not found: ${params.noteId}`, 2);
+  }
+
+  const outgoing = getOutgoingLinks(params.graph, params.noteId);
+  const backlinks = getBacklinks(params.graph, params.noteId);
+  const codeFiles = getCodeReferences(params.graph, params.noteId);
+  const claims = note.claims ?? [];
+  const specRefs = claims
+    .flatMap((claim) => (claim.specRef === undefined ? [] : [claim.specRef]))
+    .sort((left, right) => left.localeCompare(right, "en"));
+  const claimCodeRefs = claims
+    .flatMap((claim) => claim.codeRefs)
+    .sort((left, right) => left.localeCompare(right, "en"));
+  const testRefs = claims
+    .flatMap((claim) => claim.testRefs)
+    .sort((left, right) => left.localeCompare(right, "en"));
+  const docRefs = claims
+    .flatMap((claim) => claim.docRefs)
+    .sort((left, right) => left.localeCompare(right, "en"));
+
+  return {
+    command: "notes trace",
+    note: {
+      id: note.id,
+      title: note.title,
+      target: note.target,
+      kind: note.kind,
+      path: relativePosix(params.workspace.sourceRoot, note.filePath),
+      summary: note.summary,
+      tags: note.tags ?? [],
+      aliases: note.aliases ?? [],
+      supersedes: note.supersedes ?? [],
+      claims,
+    },
+    linkedNotes: outgoing,
+    linkedSpecSections: specRefs,
+    linkedCodeFiles: [...new Set([...codeFiles, ...claimCodeRefs])],
+    linkedTests: [...new Set(testRefs)],
+    linkedDocs: [...new Set(docRefs)],
+    reverseBacklinks: backlinks,
+    unresolvedRefs: getBrokenLinks(params.graph, params.noteId),
+  };
+}
+
+async function buildNotesAskPayload(params: {
+  workspace: CxMcpWorkspace;
+  question: string;
+}) {
+  const graph = await buildNoteGraph(
+    "notes",
+    params.workspace.sourceRoot,
+    true,
+  );
+  const terms = params.question
+    .toLowerCase()
+    .split(/[^a-z0-9-]+/u)
+    .filter((term) => term.length >= 3);
+  const matches = [...graph.notes.values()]
+    .map((note) => {
+      const haystack =
+        `${note.title} ${note.summary} ${(note.tags ?? []).join(" ")}`.toLowerCase();
+      const score = terms.reduce(
+        (sum, term) => sum + (haystack.includes(term) ? 1 : 0),
+        0,
+      );
+      return { note, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        left.note.title.localeCompare(right.note.title, "en"),
+    )
+    .slice(0, 10);
+
+  const matchedNotes = matches.map(({ note, score }) => ({
+    id: note.id,
+    title: note.title,
+    path: relativePosix(params.workspace.sourceRoot, note.filePath),
+    summary: note.summary,
+    score,
+  }));
+  const matchedCode = [
+    ...new Set(
+      matches.flatMap(({ note }) => getCodeReferences(graph, note.id)),
+    ),
+  ].sort((left, right) => left.localeCompare(right, "en"));
+  const confidence =
+    matchedNotes.length === 0
+      ? "low"
+      : matchedNotes.length < 3
+        ? "medium"
+        : "high";
+
+  return {
+    command: "notes ask",
+    question: params.question,
+    matchedNotes,
+    matchedSpecs: [],
+    matchedCode,
+    matchedTests: [],
+    matchedDocs: [],
+    confidence,
+    unresolvedGaps:
+      matchedNotes.length === 0
+        ? ["No note summaries or tags matched the question."]
+        : [],
+    answerScaffold:
+      matchedNotes.length === 0
+        ? "No answer scaffold is available without note evidence."
+        : "Use the matched notes as intent evidence, then verify linked code/tests/docs before writing a final answer.",
+  };
+}
 
 export function registerNotesTools(
   server: McpServer,
@@ -480,25 +643,48 @@ export function registerNotesTools(
     workspace,
     NOTES_GRAPH_TOOL,
     {
-      title: "Note graph reachability",
-      description: `${tierLabel(NOTES_GRAPH_TOOL.stability)} Return all notes reachable from a given note within a configurable hop depth following outgoing wikilinks.`,
+      title: "Inspect note graph",
+      description: `${tierLabel(NOTES_GRAPH_TOOL.stability)} Return note reachability for a seed note, or the unified note/spec/code/test/docs graph when format=json and id is omitted.`,
       inputSchema: z.object({
-        id: z.string().min(1),
+        id: z.string().min(1).optional(),
         depth: z.number().int().positive().max(10).optional(),
+        format: z.literal("json").optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
+      if (args.format === "json" && args.id === undefined) {
+        const graph = await buildUnifiedNoteGraph(
+          "notes",
+          workspace.sourceRoot,
+          true,
+          {
+            frontmatter: workspace.config.notes.frontmatter,
+          },
+        );
+        return jsonToolResult({
+          command: "notes graph",
+          format: "json",
+          ...graph,
+        });
+      }
+
+      if (typeof args.id !== "string") {
+        throw new CxError(
+          "id is required for notes_graph unless format=json is used.",
+          2,
+        );
+      }
       const depth =
         typeof args.depth === "number" && args.depth > 0
           ? (args.depth as number)
           : 2;
       const graph = await buildNoteGraph("notes", workspace.sourceRoot, false);
-      const note = graph.notes.get(args.id as string);
+      const note = graph.notes.get(args.id);
       if (!note) {
         throw new CxError(`Note not found: ${args.id}`, 2);
       }
 
-      const reachable = getReachableNotes(graph, args.id as string, depth);
+      const reachable = getReachableNotes(graph, args.id, depth);
       return jsonToolResult({
         command: "notes graph",
         id: args.id,
@@ -506,6 +692,157 @@ export function registerNotesTools(
         depth,
         reachableCount: reachable.length,
         reachable,
+      });
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_CHECK_TOOL,
+    {
+      title: "Check notes",
+      description: `${tierLabel(NOTES_CHECK_TOOL.stability)} Validate notes, summaries, links, graph consistency, cognition quality, and drift pressure.`,
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const report = await checkNotesConsistency(
+        "notes",
+        workspace.sourceRoot,
+        {
+          frontmatter: workspace.config.notes.frontmatter,
+        },
+      );
+      return jsonToolResult({
+        command: "notes check",
+        ...report,
+      });
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_DRIFT_TOOL,
+    {
+      title: "Check note drift",
+      description: `${tierLabel(NOTES_DRIFT_TOOL.stability)} Report note validation errors, code-path warnings, current-note warnings, and drift-pressured notes.`,
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const report = await checkNotesConsistency(
+        "notes",
+        workspace.sourceRoot,
+        {
+          frontmatter: workspace.config.notes.frontmatter,
+        },
+      );
+      return jsonToolResult({
+        command: "notes drift",
+        valid:
+          report.validationErrors.length === 0 &&
+          report.codePathWarnings.length === 0 &&
+          report.currentFeatureWarnings.length === 0,
+        validationErrors: report.validationErrors,
+        codePathWarnings: report.codePathWarnings,
+        currentFeatureWarnings: report.currentFeatureWarnings,
+        evaluatedNotes: report.evaluatedNotes.filter(
+          (note) => note.driftWarningCount > 0,
+        ),
+      });
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_TRACE_TOOL,
+    {
+      title: "Trace note evidence",
+      description: `${tierLabel(NOTES_TRACE_TOOL.stability)} Trace one note to linked notes, specs, code files, tests, docs, supersession metadata, and backlinks.`,
+      inputSchema: z.object({
+        id: z.string().min(1),
+      }),
+    },
+    async (args: Record<string, unknown>) => {
+      const graph = await buildNoteGraph("notes", workspace.sourceRoot, true);
+      return jsonToolResult(
+        buildNotesTracePayload({
+          workspace,
+          graph,
+          noteId: args.id as string,
+        }),
+      );
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_EXTRACT_TOOL,
+    {
+      title: "Extract notes evidence bundle",
+      description: `${tierLabel(NOTES_EXTRACT_TOOL.stability)} Compile a profile-scoped notes evidence bundle without writing files.`,
+      inputSchema: z.object({
+        profile: z.string().min(1),
+        format: z.enum(["markdown", "xml", "json", "plain"]).optional(),
+      }),
+    },
+    async (args: Record<string, unknown>) => {
+      const result = await compileNotesExtractBundle({
+        workspaceRoot: workspace.sourceRoot,
+        profileName: args.profile as string,
+        configPath: "cx.toml",
+        ...(args.format !== undefined && {
+          format: args.format as "markdown" | "xml" | "json" | "plain",
+        }),
+      });
+      return jsonToolResult({
+        command: "notes extract",
+        profile: result.bundle.profile.name,
+        format: result.format,
+        selectedNoteCount: result.bundle.notes.length,
+        sectionCount: result.bundle.sections.length,
+        bundle: result.bundle,
+        content: result.content,
+      });
+    },
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_ASK_TOOL,
+    {
+      title: "Ask notes question",
+      description: `${tierLabel(NOTES_ASK_TOOL.stability)} Resolve a repository question to note-first evidence and an answer scaffold.`,
+      inputSchema: z.object({
+        question: z.string().min(1),
+      }),
+    },
+    async (args: Record<string, unknown>) =>
+      jsonToolResult(
+        await buildNotesAskPayload({
+          workspace,
+          question: args.question as string,
+        }),
+      ),
+  );
+
+  registerCxMcpTool(
+    server,
+    workspace,
+    NOTES_COVERAGE_TOOL,
+    {
+      title: "Check notes coverage",
+      description: `${tierLabel(NOTES_COVERAGE_TOOL.stability)} Report MCP tool documentation coverage in notes.`,
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const coverage = await checkNoteCoverage("notes", workspace.sourceRoot);
+      return jsonToolResult({
+        command: "notes coverage",
+        ...coverage,
       });
     },
   );

@@ -33,8 +33,13 @@ type CxMcpToolName =
   | "inspect"
   | "list"
   | "notes_backlinks"
+  | "notes_ask"
+  | "notes_check"
   | "notes_code_links"
+  | "notes_coverage"
   | "notes_delete"
+  | "notes_drift"
+  | "notes_extract"
   | "notes_graph"
   | "notes_links"
   | "notes_list"
@@ -43,6 +48,7 @@ type CxMcpToolName =
   | "notes_read"
   | "notes_rename"
   | "notes_search"
+  | "notes_trace"
   | "notes_update"
   | "read"
   | "replace_repomix_span";
@@ -182,9 +188,14 @@ describe("cx MCP server", () => {
       "grep",
       "inspect",
       "list",
+      "notes_ask",
       "notes_backlinks",
+      "notes_check",
       "notes_code_links",
+      "notes_coverage",
       "notes_delete",
+      "notes_drift",
+      "notes_extract",
       "notes_graph",
       "notes_links",
       "notes_list",
@@ -193,6 +204,7 @@ describe("cx MCP server", () => {
       "notes_read",
       "notes_rename",
       "notes_search",
+      "notes_trace",
       "notes_update",
       "read",
       "replace_repomix_span",
@@ -864,6 +876,175 @@ This workflow is implemented and trusted for operators today.
     expect(payload.reachableCount).toBe(1);
     expect(payload.reachable[0]?.title).toBe("Graph Hop");
     expect(payload.reachable[0]?.depth).toBe(1);
+  });
+
+  test("notes_graph returns the unified graph when format json is used", async () => {
+    const project = await createWorkspace();
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    await tools.notes_new.handler(
+      {
+        title: "Unified Graph Root",
+        body: "This graph root keeps enough routing words for unified graph output.",
+        tags: ["architecture"],
+      },
+      {} as never,
+    );
+
+    const result = await tools.notes_graph.handler(
+      { format: "json" },
+      {} as never,
+    );
+    const payload = JSON.parse(firstContentText(result)) as {
+      command: string;
+      nodes: Array<{ type: string; title?: string }>;
+      edges: unknown[];
+      orphanNotes: string[];
+    };
+
+    expect(payload.command).toBe("notes graph");
+    expect(payload.nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "note",
+          title: "Unified Graph Root",
+        }),
+      ]),
+    );
+    expect(Array.isArray(payload.edges)).toBe(true);
+    expect(Array.isArray(payload.orphanNotes)).toBe(true);
+  });
+
+  test("note parity tools expose check, drift, trace, ask, coverage, and extract", async () => {
+    const project = await createWorkspace();
+    const notesDir = path.join(project.root, "notes");
+    await fs.mkdir(notesDir, { recursive: true });
+    await fs.writeFile(
+      path.join(notesDir, "Friday To Monday Workflow Contract.md"),
+      `---
+id: 20260425141000
+title: Friday To Monday Workflow Contract
+aliases: []
+tags: ["workflow", "manual", "operator"]
+target: current
+---
+
+Weekend handoffs preserve enough workflow context for operators to resume Monday work without rediscovery.
+
+## Links
+
+- [[MCP Evidence Note]]
+`,
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(notesDir, "MCP Evidence Note.md"),
+      `---
+id: 20260425141100
+title: MCP Evidence Note
+aliases: []
+tags: ["architecture", "mcp"]
+target: current
+---
+
+MCP evidence tools expose note validation, traceability, extraction, asking, and coverage for agent workflows.
+`,
+      "utf8",
+    );
+
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    const tools = getRegisteredTools(server);
+
+    const checkResult = await tools.notes_check.handler({}, {} as never);
+    const checkPayload = JSON.parse(firstContentText(checkResult)) as {
+      command: string;
+      valid: boolean;
+      totalNotes: number;
+    };
+    expect(checkPayload).toEqual(
+      expect.objectContaining({
+        command: "notes check",
+        valid: true,
+        totalNotes: 2,
+      }),
+    );
+
+    const driftResult = await tools.notes_drift.handler({}, {} as never);
+    const driftPayload = JSON.parse(firstContentText(driftResult)) as {
+      command: string;
+      valid: boolean;
+    };
+    expect(driftPayload).toEqual(
+      expect.objectContaining({ command: "notes drift", valid: true }),
+    );
+
+    const traceResult = await tools.notes_trace.handler(
+      { id: "20260425141000" },
+      {} as never,
+    );
+    const tracePayload = JSON.parse(firstContentText(traceResult)) as {
+      command: string;
+      linkedNotes: Array<{ title: string }>;
+    };
+    expect(tracePayload.command).toBe("notes trace");
+    expect(tracePayload.linkedNotes).toEqual([
+      expect.objectContaining({ title: "MCP Evidence Note" }),
+    ]);
+
+    const askResult = await tools.notes_ask.handler(
+      { question: "How do MCP evidence tools work?" },
+      {} as never,
+    );
+    const askPayload = JSON.parse(firstContentText(askResult)) as {
+      command: string;
+      matchedNotes: Array<{ title: string }>;
+      confidence: string;
+    };
+    expect(askPayload.command).toBe("notes ask");
+    expect(askPayload.confidence).not.toBe("low");
+    expect(askPayload.matchedNotes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ title: "MCP Evidence Note" }),
+      ]),
+    );
+
+    const coverageResult = await tools.notes_coverage.handler({}, {} as never);
+    const coveragePayload = JSON.parse(firstContentText(coverageResult)) as {
+      command: string;
+      totalTools: number;
+    };
+    expect(coveragePayload.command).toBe("notes coverage");
+    expect(coveragePayload.totalTools).toBeGreaterThan(0);
+
+    const extractResult = await tools.notes_extract.handler(
+      { profile: "manual", format: "json" },
+      {} as never,
+    );
+    const extractPayload = JSON.parse(firstContentText(extractResult)) as {
+      command: string;
+      profile: string;
+      selectedNoteCount: number;
+      bundle: { notes: Array<{ title: string }> };
+    };
+    expect(extractPayload.command).toBe("notes extract");
+    expect(extractPayload.profile).toBe("manual");
+    expect(extractPayload.selectedNoteCount).toBeGreaterThan(0);
+    expect(extractPayload.bundle.notes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "Friday To Monday Workflow Contract",
+        }),
+      ]),
+    );
   });
 
   test("notes_links reports unresolved links for a created note", async () => {

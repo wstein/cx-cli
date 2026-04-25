@@ -360,6 +360,12 @@ notes should include:
 |notes_code_links |STABLE |Notes |v0.1.0
 |notes_links |STABLE |Notes |v0.1.0
 |notes_graph |STABLE |Notes |v0.1.0
+|notes_check |STABLE |Notes |v0.6.0
+|notes_drift |STABLE |Notes |v0.6.0
+|notes_trace |STABLE |Notes |v0.6.0
+|notes_extract |STABLE |Notes |v0.6.0
+|notes_ask |STABLE |Notes |v0.6.0
+|notes_coverage |STABLE |Notes |v0.6.0
 |===
 
 '''''
@@ -527,6 +533,9 @@ This implementation includes:
   wikilinks
 * graph reachability queries via `cx notes graph --id <id> --depth <n>`
   and the `notes_graph` MCP tool
+* note-centric validation and retrieval parity through `notes_check`,
+  `notes_drift`, `notes_trace`, `notes_extract`, `notes_ask`, and
+  `notes_coverage`
 
 === Linked-Note Enrichment Semantics
 
