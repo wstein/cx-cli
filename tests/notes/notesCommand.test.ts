@@ -1135,6 +1135,180 @@ Terminal note with enough routing words for validation.
       expect(json.reachableCount).toBe(1);
     });
 
+    test("graph subcommand outputs the unified graph with --format json", async () => {
+      await fs.mkdir(path.join(testDir, "src"), { recursive: true });
+      await fs.mkdir(path.join(testDir, "tests"), { recursive: true });
+      await fs.mkdir(path.join(testDir, "docs"), { recursive: true });
+      await fs.writeFile(path.join(testDir, "src", "index.ts"), "export {};\n");
+      await fs.writeFile(
+        path.join(testDir, "tests", "index.test.ts"),
+        "import '../src/index';\n",
+      );
+      await fs.writeFile(path.join(testDir, "docs", "index.adoc"), "= Docs\n");
+      await fs.writeFile(
+        noteFilePath("20250113143025.md"),
+        `---
+id: 20250113143025
+title: Unified Graph Source
+target: current
+kind: invariant
+claims:
+  - id: graph-claim
+    type: invariant
+    status: accepted
+    code_refs:
+      - src/index.ts
+    test_refs:
+      - tests/index.test.ts
+    doc_refs:
+      - docs/index.adoc
+---
+
+The unified graph note carries enough durable context for graph validation and downstream trace behavior.
+`,
+        "utf8",
+      );
+
+      const result = await captureNotesCommand<{
+        command: string;
+        nodes: Array<{ type: string }>;
+        edges: Array<{ type: string; claimId?: string }>;
+      }>({
+        run: () =>
+          runNotesCommand({
+            subcommand: "graph",
+            format: "json",
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.parsedJson?.command).toBe("notes graph");
+      expect(result.parsedJson?.nodes.map((node) => node.type)).toContain(
+        "note",
+      );
+      expect(result.parsedJson?.edges).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ type: "code_ref", claimId: "graph-claim" }),
+          expect.objectContaining({ type: "test_ref", claimId: "graph-claim" }),
+          expect.objectContaining({ type: "doc_ref", claimId: "graph-claim" }),
+        ]),
+      );
+    });
+
+    test("trace subcommand returns claim-backed evidence", async () => {
+      await fs.mkdir(path.join(testDir, "src"), { recursive: true });
+      await fs.writeFile(path.join(testDir, "src", "trace.ts"), "export {};\n");
+      await fs.writeFile(
+        noteFilePath("20250113143026.md"),
+        `---
+id: 20250113143026
+title: Trace Source
+target: current
+claims:
+  - id: trace-claim
+    type: fact
+    status: accepted
+    code_refs:
+      - src/trace.ts
+---
+
+The trace note carries enough durable context for linked evidence and note tracing behavior.
+`,
+        "utf8",
+      );
+
+      const result = await captureNotesCommand<{
+        command: string;
+        linkedCodeFiles: string[];
+        note: { claims: Array<{ id: string }> };
+      }>({
+        run: () =>
+          runNotesCommand({
+            subcommand: "trace",
+            id: "20250113143026",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.parsedJson?.command).toBe("notes trace");
+      expect(result.parsedJson?.linkedCodeFiles).toEqual(["src/trace.ts"]);
+      expect(result.parsedJson?.note.claims).toEqual([
+        expect.objectContaining({ id: "trace-claim" }),
+      ]);
+    });
+
+    test("ask subcommand returns note-first evidence", async () => {
+      await fs.writeFile(
+        noteFilePath("20250113143027.md"),
+        `---
+id: 20250113143027
+title: Docs Drift Evidence
+target: current
+tags: [docs, drift]
+---
+
+Docs drift checks generated pages against durable note evidence so stale generated documentation is visible.
+`,
+        "utf8",
+      );
+
+      const result = await captureNotesCommand<{
+        command: string;
+        matchedNotes: Array<{ id: string }>;
+        confidence: string;
+      }>({
+        run: () =>
+          runNotesCommand({
+            subcommand: "ask",
+            query: "How does docs drift work?",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.parsedJson?.command).toBe("notes ask");
+      expect(result.parsedJson?.confidence).toBe("medium");
+      expect(result.parsedJson?.matchedNotes).toEqual([
+        expect.objectContaining({ id: "20250113143027" }),
+      ]);
+    });
+
+    test("drift subcommand reports a clean graph", async () => {
+      await fs.writeFile(
+        noteFilePath("20250113143028.md"),
+        `---
+id: 20250113143028
+title: Clean Drift Note
+target: current
+---
+
+The clean drift note has enough durable context and no missing implementation links.
+`,
+        "utf8",
+      );
+
+      const result = await captureNotesCommand<{
+        command: string;
+        valid: boolean;
+      }>({
+        run: () =>
+          runNotesCommand({
+            subcommand: "drift",
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.parsedJson).toEqual(
+        expect.objectContaining({ command: "notes drift", valid: true }),
+      );
+    });
+
     test("outputs JSON format", async () => {
       const result = await captureNotesCommand({
         run: () =>

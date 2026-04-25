@@ -1,1 +1,2 @@
 * xref:index.adoc[Docs Index]
+** xref:generated-notes.adoc[Generated Notes Index]

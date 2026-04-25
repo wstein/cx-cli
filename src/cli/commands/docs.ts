@@ -2,6 +2,11 @@ import path from "node:path";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
 import { loadCxConfig } from "../../config/load.js";
 import {
+  checkDocsDrift,
+  compileDocsFromNotes,
+  normalizeDocsCompileProfile,
+} from "../../docs/compile.js";
+import {
   type DocsExportArtifact,
   exportAntoraDocsToMarkdown,
 } from "../../docs/export.js";
@@ -16,17 +21,19 @@ import {
 import {
   type CommandIo,
   resolveCommandIo,
+  writeJson,
   writeValidatedJson,
 } from "../../shared/output.js";
 import { DocsExportCommandJsonSchema } from "../jsonContracts.js";
 
 export interface DocsArgs {
-  subcommand: "export";
+  subcommand: "export" | "compile" | "drift";
   config: string;
   outputDir?: string | undefined;
   playbook?: string | undefined;
   rootLevel?: 0 | 1 | undefined;
   logOutput?: string | undefined;
+  profile?: string | undefined;
   json?: boolean | undefined;
 }
 
@@ -47,6 +54,76 @@ export async function runDocsCommand(
   ioArg: Partial<CommandIo> = {},
 ): Promise<number> {
   const io = resolveCommandIo(ioArg);
+  if (args.subcommand === "compile") {
+    const profile = normalizeDocsCompileProfile(args.profile ?? "architecture");
+    const result = await compileDocsFromNotes({
+      workspaceRoot: io.cwd,
+      profile,
+      configPath: args.config,
+    });
+    if (args.json === true) {
+      writeJson(result, io);
+    } else {
+      printHeader("Docs Compile Complete", io);
+      printTable(
+        [
+          ["Profile", result.profile],
+          ["Output", result.outputPath],
+          ["Source notes", formatNumber(result.sourceNoteIds.length)],
+          ["Source specs", formatNumber(result.sourceSpecRefs.length)],
+          ["SHA-256", result.sha256],
+          ["Changed", result.changed ? "yes" : "no"],
+        ],
+        io,
+      );
+    }
+    return 0;
+  }
+
+  if (args.subcommand === "drift") {
+    const profiles =
+      args.profile === undefined
+        ? undefined
+        : [normalizeDocsCompileProfile(args.profile)];
+    const result = await checkDocsDrift({
+      workspaceRoot: io.cwd,
+      profiles,
+      configPath: args.config,
+    });
+    if (args.json === true) {
+      writeJson(result, io);
+    } else {
+      printHeader("Docs Drift", io);
+      printTable(
+        [
+          ["Profiles", result.profiles.join(", ")],
+          [
+            "Stale generated docs",
+            formatNumber(result.staleGeneratedDocs.length),
+          ],
+        ],
+        io,
+      );
+      for (const stale of result.staleGeneratedDocs) {
+        printDivider(io);
+        printTable(
+          [
+            ["Profile", stale.profile],
+            ["Output", stale.outputPath],
+            ["Reason", stale.reason],
+            ["Expected SHA-256", stale.expectedSha256],
+            ["Actual SHA-256", stale.actualSha256 ?? "(missing)"],
+          ],
+          io,
+        );
+      }
+      if (result.valid) {
+        printSuccess("Generated docs are fresh.", io);
+      }
+    }
+    return result.valid ? 0 : 1;
+  }
+
   const configPath = path.resolve(io.cwd, args.config);
   const config = await loadCxConfig(
     configPath,

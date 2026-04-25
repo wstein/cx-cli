@@ -14,6 +14,7 @@ import {
 import { compileNotesExtractBundle } from "../../../notes/extract.js";
 import {
   buildNoteGraph,
+  buildUnifiedNoteGraph,
   getBacklinks,
   getBrokenLinks,
   getCodeReferences,
@@ -37,6 +38,7 @@ import { NotesExtractCommandJsonSchema } from "../../jsonContracts.js";
 
 export interface NotesArgs {
   subcommand?: string | undefined;
+  query?: string | undefined;
   body?: string | undefined;
   title?: string | undefined;
   tags?: string[] | undefined;
@@ -607,6 +609,39 @@ export async function runNotesCommand(
     return report.valid ? 0 : 1;
   }
 
+  if (subcommand === "drift") {
+    const report = await checkNotesConsistency(notesDir, workspaceRoot);
+    const drift = {
+      command: "notes drift",
+      valid:
+        report.validationErrors.length === 0 &&
+        report.codePathWarnings.length === 0 &&
+        report.currentFeatureWarnings.length === 0,
+      validationErrors: report.validationErrors,
+      codePathWarnings: report.codePathWarnings,
+      currentFeatureWarnings: report.currentFeatureWarnings,
+      evaluatedNotes: report.evaluatedNotes.filter(
+        (note) => note.driftWarningCount > 0,
+      ),
+    };
+
+    if (args.json ?? args.format === "json") {
+      writeJsonOutput(drift);
+    } else {
+      printInfo("Notes drift check:\n");
+      printInfo(`  Validation errors: ${drift.validationErrors.length}`);
+      printInfo(`  Code path warnings: ${drift.codePathWarnings.length}`);
+      printInfo(
+        `  Current-note warnings: ${drift.currentFeatureWarnings.length}`,
+      );
+      if (drift.valid) {
+        printSuccess("  ✓ No note drift detected");
+      }
+    }
+
+    return drift.valid ? 0 : 1;
+  }
+
   if (subcommand === "coverage") {
     const coverage = await checkNoteCoverage(notesDir, workspaceRoot);
 
@@ -635,8 +670,21 @@ export async function runNotesCommand(
   }
 
   if (subcommand === "graph") {
+    if (args.format === "json" && !args.id) {
+      const graph = await buildUnifiedNoteGraph(notesDir, workspaceRoot, true);
+      writeJsonOutput({
+        command: "notes graph",
+        format: "json",
+        ...graph,
+      });
+      return 0;
+    }
+
     if (!args.id) {
-      throw new CxError("--id is required for 'cx notes graph'", 2);
+      throw new CxError(
+        "--id is required for 'cx notes graph' unless --format json is used",
+        2,
+      );
     }
 
     const depth =
@@ -675,8 +723,184 @@ export async function runNotesCommand(
     return 0;
   }
 
+  if (subcommand === "trace") {
+    const requestedId = args.id ?? args.query;
+    if (!requestedId) {
+      throw new CxError("--id is required for 'cx notes trace'", 2);
+    }
+
+    const graph = await buildNoteGraph(notesDir, workspaceRoot, true);
+    const note = graph.notes.get(requestedId);
+    if (!note) {
+      throw new CxError(`Note not found: ${requestedId}`, 2);
+    }
+
+    const outgoing = getOutgoingLinks(graph, requestedId);
+    const backlinks = getBacklinks(graph, requestedId);
+    const codeFiles = getCodeReferences(graph, requestedId);
+    const claims = note.claims ?? [];
+    const specRefs = claims
+      .flatMap((claim) => (claim.specRef === undefined ? [] : [claim.specRef]))
+      .sort((left, right) => left.localeCompare(right, "en"));
+    const claimCodeRefs = claims
+      .flatMap((claim) => claim.codeRefs)
+      .sort((left, right) => left.localeCompare(right, "en"));
+    const testRefs = claims
+      .flatMap((claim) => claim.testRefs)
+      .sort((left, right) => left.localeCompare(right, "en"));
+    const docRefs = claims
+      .flatMap((claim) => claim.docRefs)
+      .sort((left, right) => left.localeCompare(right, "en"));
+
+    const payload = {
+      command: "notes trace",
+      note: {
+        id: note.id,
+        title: note.title,
+        target: note.target,
+        kind: note.kind,
+        path: path
+          .relative(workspaceRoot, note.filePath)
+          .replaceAll(path.sep, "/"),
+        summary: note.summary,
+        tags: note.tags,
+        aliases: note.aliases,
+        supersedes: note.supersedes ?? [],
+        claims,
+      },
+      linkedNotes: outgoing,
+      linkedSpecSections: specRefs,
+      linkedCodeFiles: [...new Set([...codeFiles, ...claimCodeRefs])],
+      linkedTests: [...new Set(testRefs)],
+      linkedDocs: [...new Set(docRefs)],
+      reverseBacklinks: backlinks,
+      unresolvedRefs: getBrokenLinks(graph, requestedId),
+    };
+
+    if (args.json ?? args.format === "json") {
+      writeJsonOutput(payload);
+    } else {
+      printInfo(`Trace for "${note.title}" (${note.id}):\n`);
+      printInfo(`  Path: ${payload.note.path}`);
+      printInfo(`  Target: ${note.target}`);
+      if (note.kind !== undefined) {
+        printInfo(`  Kind: ${note.kind}`);
+      }
+      printInfo(`  Summary: ${note.summary}`);
+      printInfo(`  Linked notes: ${outgoing.length}`);
+      for (const link of outgoing)
+        printInfo(`    [${link.toNoteId}] ${link.title}`);
+      printInfo(`  Specs: ${specRefs.length}`);
+      for (const ref of specRefs) printInfo(`    ${ref}`);
+      printInfo(`  Code files: ${payload.linkedCodeFiles.length}`);
+      for (const ref of payload.linkedCodeFiles) printInfo(`    ${ref}`);
+      printInfo(`  Tests: ${payload.linkedTests.length}`);
+      for (const ref of payload.linkedTests) printInfo(`    ${ref}`);
+      printInfo(`  Docs: ${payload.linkedDocs.length}`);
+      for (const ref of payload.linkedDocs) printInfo(`    ${ref}`);
+      printInfo(`  Backlinks: ${backlinks.length}`);
+      for (const link of backlinks)
+        printInfo(`    [${link.fromNoteId}] ${link.title}`);
+    }
+
+    return 0;
+  }
+
+  if (subcommand === "ask") {
+    const question = args.query ?? args.body;
+    if (!question) {
+      throw new CxError(
+        "Question is required for 'cx notes ask \"<question>\"'",
+        2,
+      );
+    }
+
+    const graph = await buildNoteGraph(notesDir, workspaceRoot, true);
+    const terms = question
+      .toLowerCase()
+      .split(/[^a-z0-9-]+/u)
+      .filter((term) => term.length >= 3);
+    const matches = [...graph.notes.values()]
+      .map((note) => {
+        const haystack =
+          `${note.title} ${note.summary} ${(note.tags ?? []).join(" ")}`.toLowerCase();
+        const score = terms.reduce(
+          (sum, term) => sum + (haystack.includes(term) ? 1 : 0),
+          0,
+        );
+        return { note, score };
+      })
+      .filter((entry) => entry.score > 0)
+      .sort(
+        (left, right) =>
+          right.score - left.score ||
+          left.note.title.localeCompare(right.note.title, "en"),
+      )
+      .slice(0, 10);
+
+    const matchedNotes = matches.map(({ note, score }) => ({
+      id: note.id,
+      title: note.title,
+      path: path
+        .relative(workspaceRoot, note.filePath)
+        .replaceAll(path.sep, "/"),
+      summary: note.summary,
+      score,
+    }));
+    const matchedCode = [
+      ...new Set(
+        matches.flatMap(({ note }) => getCodeReferences(graph, note.id)),
+      ),
+    ].sort((left, right) => left.localeCompare(right, "en"));
+    const confidence =
+      matchedNotes.length === 0
+        ? "low"
+        : matchedNotes.length < 3
+          ? "medium"
+          : "high";
+    const payload = {
+      command: "notes ask",
+      question,
+      matchedNotes,
+      matchedSpecs: [],
+      matchedCode,
+      matchedTests: [],
+      matchedDocs: [],
+      confidence,
+      unresolvedGaps:
+        matchedNotes.length === 0
+          ? ["No note summaries or tags matched the question."]
+          : [],
+      answerScaffold:
+        matchedNotes.length === 0
+          ? "No answer scaffold is available without note evidence."
+          : "Use the matched notes as intent evidence, then verify linked code/tests/docs before writing a final answer.",
+    };
+
+    if (args.json ?? args.format === "json") {
+      writeJsonOutput(payload);
+    } else {
+      printInfo(`# Evidence for: ${question}\n`);
+      printInfo(`Confidence: ${confidence}`);
+      printInfo("Matched notes:");
+      for (const note of matchedNotes) {
+        printInfo(`  [${note.id}] ${note.title} (${note.path})`);
+      }
+      printInfo("Matched code/tests/docs:");
+      for (const codeFile of matchedCode) printInfo(`  code: ${codeFile}`);
+      if (payload.unresolvedGaps.length > 0) {
+        printWarning("Unresolved gaps:");
+        for (const gap of payload.unresolvedGaps) printInfo(`  - ${gap}`);
+      }
+      printInfo("");
+      printInfo(payload.answerScaffold);
+    }
+
+    return 0;
+  }
+
   throw new CxError(
-    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', 'links', 'graph', 'check', or 'coverage'.`,
+    `Unknown notes subcommand: ${subcommand}. Use 'new', 'rename', 'delete', 'list', 'backlinks', 'orphans', 'code-links', 'links', 'graph', 'trace', 'ask', 'check', 'drift', 'coverage', or 'extract'.`,
     2,
   );
 }

@@ -254,61 +254,59 @@ export function getBuiltinNotesExtractProfiles(): Record<
   string,
   CxNotesExtractProfileConfig
 > {
-  return {
-    arc42: normalizeProfile("arc42", {
-      description:
-        "Compile canonical notes into an arc42-oriented LLM bundle for architecture documentation.",
-      outputFormat: "markdown",
-      targetPaths: ["docs/modules/architecture/pages/index.adoc"],
-      includeTags: [],
-      excludeTags: [],
-      requiredNotes: ["Render Kernel Constitution"],
-      includeTargets: ["current"],
-      sectionOrder: [
-        "introduction-and-goals",
-        "constraints",
-        "solution-strategy",
-        "building-block-view",
-        "runtime-view",
-        "cross-cutting-concepts",
-        "quality-scenarios",
-        "risks-and-technical-debt",
+  const architecture = normalizeProfile("architecture", {
+    description:
+      "Compile canonical notes into an architecture-oriented LLM bundle for Antora documentation.",
+    outputFormat: "markdown",
+    targetPaths: ["docs/modules/architecture/pages/index.adoc"],
+    includeTags: [],
+    excludeTags: [],
+    requiredNotes: ["Render Kernel Constitution"],
+    includeTargets: ["current"],
+    sectionOrder: [
+      "introduction-and-goals",
+      "constraints",
+      "solution-strategy",
+      "building-block-view",
+      "runtime-view",
+      "cross-cutting-concepts",
+      "quality-scenarios",
+      "risks-and-technical-debt",
+    ],
+    sectionTags: {
+      "introduction-and-goals": ["docs", "onboarding", "architecture"],
+      constraints: ["governance", "trust", "boundaries", "contract"],
+      "solution-strategy": ["architecture", "kernel", "render", "notes"],
+      "building-block-view": ["bundle", "manifest", "extract", "scanner"],
+      "runtime-view": ["workflow", "mcp", "operator", "release"],
+      "cross-cutting-concepts": ["determinism", "provenance", "hash", "oracle"],
+      "quality-scenarios": ["testing", "ci", "coverage", "release"],
+      "risks-and-technical-debt": [
+        "deferred",
+        "risk",
+        "migration",
+        "decommission",
       ],
-      sectionTags: {
-        "introduction-and-goals": ["docs", "onboarding", "architecture"],
-        constraints: ["governance", "trust", "boundaries", "contract"],
-        "solution-strategy": ["architecture", "kernel", "render", "notes"],
-        "building-block-view": ["bundle", "manifest", "extract", "scanner"],
-        "runtime-view": ["workflow", "mcp", "operator", "release"],
-        "cross-cutting-concepts": [
-          "determinism",
-          "provenance",
-          "hash",
-          "oracle",
-        ],
-        "quality-scenarios": ["testing", "ci", "coverage", "release"],
-        "risks-and-technical-debt": [
-          "deferred",
-          "risk",
-          "migration",
-          "decommission",
-        ],
-      },
-      llm: {
-        systemRole: "You are a senior software architect and technical writer.",
-        instructions:
-          "Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.",
-        targetFormat: "asciidoc",
-        documentKind: "arc42 architecture",
-        audience: "architects-and-maintainers",
-        tone: "formal-technical",
-        mustCiteNoteTitles: true,
-        mustPreserveUncertainty: true,
-        mustNotInventFacts: true,
-        mustIncludeProvenance: false,
-        mustSurfaceConflicts: true,
-      },
-    }),
+    },
+    llm: {
+      systemRole: "You are a senior software architect and technical writer.",
+      instructions:
+        "Update arc42-style architecture documentation in AsciiDoc. Treat the codebase and notes as the single source of truth. Do not invent new invariants. Surface conflicts explicitly. Prefer explanation over note concatenation. Update only the relevant chapters and use partials when useful.",
+      targetFormat: "asciidoc",
+      documentKind: "arc42 architecture",
+      audience: "architects-and-maintainers",
+      tone: "formal-technical",
+      mustCiteNoteTitles: true,
+      mustPreserveUncertainty: true,
+      mustNotInventFacts: true,
+      mustIncludeProvenance: false,
+      mustSurfaceConflicts: true,
+    },
+  });
+
+  return {
+    architecture,
+    arc42: architecture,
     onboarding: normalizeProfile("onboarding", {
       description:
         "Compile canonical notes into an onboarding-oriented LLM bundle for new contributors.",

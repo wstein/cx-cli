@@ -30,11 +30,19 @@ In practice:
 Bundle manifests now carry short note summaries so downstream AI tooling can
 inspect the note graph without reparsing raw Markdown.
 
-`cx notes extract --profile <name>` now compiles canonical notes into
-deterministic LLM bundles for downstream documentation synthesis.
-That command does not write final docs directly. It keeps notes
-canonical, emits profile-scoped prompt bundles, and leaves the final
-narrative writing step downstream and reviewable.
+`cx notes extract --profile <name>` compiles canonical notes into
+deterministic evidence bundles for humans, LLMs, and downstream documentation
+synthesis. `cx docs compile --profile architecture|manual|onboarding` promotes
+stable notes into generated Antora pages, while `cx docs drift` checks that the
+generated docs still match the note graph.
+
+The layered truth model is:
+
+- notes = intent truth
+- specs = executable rule truth
+- code = implementation truth
+- tests = behavioral truth
+- docs = communication truth
 
 The notes graph is the repository cognition layer. It is where high-signal reasoning becomes durable enough for later humans, agents, bundles, and CI to reuse safely.
 
@@ -191,8 +199,10 @@ constrain them with `[notes.frontmatter.fields.target]` in `cx.toml`.
 The notes layer is governed like code, not like scratch text.
 
 - `validateNotes(...)` enforces timestamp note ids, the summary requirement, note size limits, and required frontmatter target.
-- `cx notes check` surfaces governance failures, broken links, and graph drift.
+- `cx notes check` surfaces governance failures, broken links, claim reference failures, supersession failures, and graph drift.
 - `cx notes check` also warns when a `target: current` note references missing note or code targets, so implemented truth does not silently drift into ambiguity.
+- `cx notes graph --format json` emits a unified graph of notes, specs, code, tests, docs, backlinks, unresolved refs, and orphans.
+- `cx notes trace <note-id>` follows one note into linked notes, specs, code, tests, docs, and reverse backlinks.
 - `bun run ci:notes:governance` keeps the cognition-layer gate visible as its own CI lane.
 - `bun run ci:test:contracts` keeps the canonical documentation for the cognition layer aligned with the implementation.
 - CI uploads observability and policy artifacts only after the full gate passes, so partial lanes do not look like a successful repository state.

@@ -109,6 +109,11 @@ export interface CxHandoverConfig {
 }
 
 export interface CxNotesConfig {
+  /**
+   * Notes are the intent-truth layer: durable architectural decisions,
+   * invariants, mechanisms, workflows, migrations, and failure modes that
+   * should be traced before specs, code, tests, or docs promote them.
+   */
   requireCognitionScore?: number;
   strictNotesMode: boolean;
   failOnDriftPressuredNotes: boolean;
@@ -144,6 +149,10 @@ export interface CxNotesExtractLlmConfig {
 }
 
 export interface CxNotesExtractProfileConfig {
+  /**
+   * Retrieval profile for note-centric evidence bundles. Profiles select notes
+   * first, then preserve provenance into linked specs, code, tests, and docs.
+   */
   description: string;
   outputFormat: CxNotesExtractFormat;
   targetPaths: string[];
@@ -200,6 +209,11 @@ export interface CxAssetsConfig {
 }
 
 export interface CxDocsConfig {
+  /**
+   * Docs are the communication-truth layer. Generated docs should promote
+   * stable notes and linked executable specs instead of becoming a competing
+   * source of architectural intent.
+   */
   /**
    * Directory name used for exported review docs.
    *

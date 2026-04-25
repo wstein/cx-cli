@@ -183,6 +183,7 @@
     },
     "notes": {
       "type": "object",
+      "description": "Notes are the intent-truth layer: durable architectural decisions, invariants, mechanisms, workflows, migrations, and failure modes that can be traced before specs, code, tests, or docs promote them.",
       "properties": {
         "require_cognition_score": {
           "type": "integer",
@@ -236,7 +237,7 @@
         },
         "profiles": {
           "type": "object",
-          "description": "Optional profile contracts for cx notes extract. Each profile defines selection, ordering, and LLM authoring instructions for deterministic note bundles.",
+          "description": "Optional profile contracts for cx notes extract. Each profile selects notes first, then preserves provenance into linked specs, code, tests, and docs for deterministic evidence bundles.",
           "additionalProperties": {
             "type": "object",
             "required": [
@@ -449,6 +450,7 @@
     },
     "docs": {
       "type": "object",
+      "description": "Docs are the communication-truth layer. Generated docs should promote stable notes and linked executable specs instead of becoming a competing source of architectural intent.",
       "properties": {
         "target_dir": {
           "type": "string",

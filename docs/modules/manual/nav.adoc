@@ -4,3 +4,4 @@
 ** xref:config-reference.adoc[Configuration Reference]
 ** xref:workflows.adoc[Operator Workflows]
 ** xref:release-and-integrity.adoc[Release and Integrity]
+** xref:generated-notes.adoc[Generated Notes Index]

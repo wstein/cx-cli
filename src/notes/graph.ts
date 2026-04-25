@@ -8,7 +8,11 @@ import {
   extractWikilinkReferences,
   resolveWikilinkReference,
 } from "./linking.js";
-import type { NoteMetadata, NoteValidationOptions } from "./validate.js";
+import type {
+  NoteClaim,
+  NoteMetadata,
+  NoteValidationOptions,
+} from "./validate.js";
 import { validateNotes } from "./validate.js";
 
 export interface NoteLink {
@@ -32,6 +36,43 @@ export interface NoteGraph {
   backlinks: Map<string, string[]>; // toNoteId -> [fromNoteIds]
   brokenLinks: NoteLinkIssue[];
   orphans: string[]; // Note IDs with no incoming or outgoing links
+}
+
+export type UnifiedNoteGraphNodeType =
+  | "note"
+  | "spec"
+  | "code"
+  | "test"
+  | "doc";
+
+export interface UnifiedNoteGraphNode {
+  id: string;
+  type: UnifiedNoteGraphNodeType;
+  path?: string | undefined;
+  title?: string | undefined;
+  noteId?: string | undefined;
+}
+
+export interface UnifiedNoteGraphEdge {
+  from: string;
+  to: string;
+  type:
+    | "links_to"
+    | "spec_ref"
+    | "code_ref"
+    | "test_ref"
+    | "doc_ref"
+    | "supersedes"
+    | "mentions";
+  claimId?: string | undefined;
+}
+
+export interface UnifiedNoteGraph {
+  nodes: UnifiedNoteGraphNode[];
+  edges: UnifiedNoteGraphEdge[];
+  backlinks: Record<string, string[]>;
+  unresolvedRefs: NoteLinkIssue[];
+  orphanNotes: string[];
 }
 
 async function extractLinksFromNote(
@@ -307,6 +348,149 @@ export async function buildNoteGraph(
     backlinks,
     brokenLinks,
     orphans,
+  };
+}
+
+function fileNodeId(type: UnifiedNoteGraphNodeType, reference: string): string {
+  return `${type}:${reference}`;
+}
+
+function specPathFromRef(specRef: string): string {
+  return specRef.split("#", 1)[0] ?? specRef;
+}
+
+function addFileNode(
+  nodes: Map<string, UnifiedNoteGraphNode>,
+  type: UnifiedNoteGraphNodeType,
+  reference: string,
+): string {
+  const nodeId = fileNodeId(type, reference);
+  if (!nodes.has(nodeId)) {
+    nodes.set(nodeId, { id: nodeId, type, path: reference });
+  }
+  return nodeId;
+}
+
+function addClaimEdges(params: {
+  note: NoteMetadata;
+  claim: NoteClaim;
+  nodes: Map<string, UnifiedNoteGraphNode>;
+  edges: UnifiedNoteGraphEdge[];
+}): void {
+  const from = `note:${params.note.id}`;
+  if (params.claim.specRef !== undefined) {
+    const ref = specPathFromRef(params.claim.specRef);
+    params.edges.push({
+      from,
+      to: addFileNode(params.nodes, "spec", ref),
+      type: "spec_ref",
+      claimId: params.claim.id,
+    });
+  }
+  for (const codeRef of params.claim.codeRefs) {
+    params.edges.push({
+      from,
+      to: addFileNode(params.nodes, "code", codeRef),
+      type: "code_ref",
+      claimId: params.claim.id,
+    });
+  }
+  for (const testRef of params.claim.testRefs) {
+    params.edges.push({
+      from,
+      to: addFileNode(params.nodes, "test", testRef),
+      type: "test_ref",
+      claimId: params.claim.id,
+    });
+  }
+  for (const docRef of params.claim.docRefs) {
+    params.edges.push({
+      from,
+      to: addFileNode(params.nodes, "doc", docRef),
+      type: "doc_ref",
+      claimId: params.claim.id,
+    });
+  }
+}
+
+export async function buildUnifiedNoteGraph(
+  notesDir: string = "notes",
+  projectRoot: string = process.cwd(),
+  includeSrcAnalysis = true,
+  options?: NoteValidationOptions,
+): Promise<UnifiedNoteGraph> {
+  const graph = await buildNoteGraph(
+    notesDir,
+    projectRoot,
+    includeSrcAnalysis,
+    options,
+  );
+  const nodes = new Map<string, UnifiedNoteGraphNode>();
+  const edges: UnifiedNoteGraphEdge[] = [];
+
+  for (const note of graph.notes.values()) {
+    nodes.set(`note:${note.id}`, {
+      id: `note:${note.id}`,
+      type: "note",
+      noteId: note.id,
+      title: note.title,
+      path: toPosixPath(path.relative(projectRoot, note.filePath)),
+    });
+    for (const supersededId of note.supersedes ?? []) {
+      edges.push({
+        from: `note:${note.id}`,
+        to: `note:${supersededId}`,
+        type: "supersedes",
+      });
+    }
+    for (const claim of note.claims ?? []) {
+      addClaimEdges({ note, claim, nodes, edges });
+    }
+  }
+
+  for (const link of graph.links) {
+    if (link.type === "wikilink") {
+      edges.push({
+        from: `note:${link.fromNoteId}`,
+        to: `note:${link.toNoteId}`,
+        type: "links_to",
+      });
+      continue;
+    }
+    if (link.fromNoteId.startsWith("_code:")) {
+      const codePath = link.fromNoteId.slice(6);
+      edges.push({
+        from: addFileNode(nodes, "code", codePath),
+        to: `note:${link.toNoteId}`,
+        type: "mentions",
+      });
+    }
+  }
+
+  return {
+    nodes: [...nodes.values()].sort((left, right) =>
+      left.id.localeCompare(right.id, "en"),
+    ),
+    edges: edges.sort((left, right) =>
+      `${left.from}:${left.type}:${left.to}:${left.claimId ?? ""}`.localeCompare(
+        `${right.from}:${right.type}:${right.to}:${right.claimId ?? ""}`,
+        "en",
+      ),
+    ),
+    backlinks: Object.fromEntries(
+      [...graph.backlinks.entries()].sort(([left], [right]) =>
+        left.localeCompare(right, "en"),
+      ),
+    ),
+    unresolvedRefs: [...graph.brokenLinks].sort((left, right) =>
+      `${left.fromNoteId}:${left.reference}`.localeCompare(
+        `${right.fromNoteId}:${right.reference}`,
+        "en",
+      ),
+    ),
+    orphanNotes: [...graph.orphans].sort((left, right) =>
+      left.localeCompare(right, "en"),
+    ),
   };
 }
 

@@ -21,6 +21,110 @@ afterEach(async () => {
 });
 
 describe("runDocsCommand", () => {
+  test("compiles generated architecture docs from notes", async () => {
+    const workspace = await createWorkspace();
+    workspaceRoots.push(workspace.rootDir);
+    await fs.mkdir(path.join(workspace.rootDir, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(workspace.rootDir, "notes", "Render Kernel Constitution.md"),
+      `---
+id: 20260421141000
+title: Render Kernel Constitution
+target: current
+tags: [architecture, kernel, contract]
+---
+
+The render kernel owns the production proof path so architecture docs can be generated from durable notes.
+`,
+      "utf8",
+    );
+
+    const capture = createBufferedCommandIo({ cwd: workspace.rootDir });
+    expect(
+      await runDocsCommand(
+        {
+          subcommand: "compile",
+          config: workspace.configPath,
+          profile: "architecture",
+          json: true,
+        },
+        capture.io,
+      ),
+    ).toBe(0);
+
+    const payload = parseJsonOutput<{
+      command: string;
+      profile: string;
+      outputPath: string;
+      sourceNoteIds: string[];
+    }>(capture.stdout());
+    expect(payload.command).toBe("docs compile");
+    expect(payload.profile).toBe("architecture");
+    expect(payload.sourceNoteIds).toEqual(["20260421141000"]);
+    await expect(fs.readFile(payload.outputPath, "utf8")).resolves.toContain(
+      "cx-docs-generated:start profile=architecture",
+    );
+  });
+
+  test("detects stale generated docs drift", async () => {
+    const workspace = await createWorkspace();
+    workspaceRoots.push(workspace.rootDir);
+    await fs.mkdir(path.join(workspace.rootDir, "notes"), { recursive: true });
+    await fs.writeFile(
+      path.join(workspace.rootDir, "notes", "Render Kernel Constitution.md"),
+      `---
+id: 20260421141001
+title: Render Kernel Constitution
+target: current
+tags: [architecture, kernel, contract]
+---
+
+The render kernel owns the production proof path so drift checks can compare generated documentation.
+`,
+      "utf8",
+    );
+
+    const compileCapture = createBufferedCommandIo({ cwd: workspace.rootDir });
+    expect(
+      await runDocsCommand(
+        {
+          subcommand: "compile",
+          config: workspace.configPath,
+          profile: "architecture",
+          json: true,
+        },
+        compileCapture.io,
+      ),
+    ).toBe(0);
+
+    const compiled = parseJsonOutput<{ outputPath: string }>(
+      compileCapture.stdout(),
+    );
+    await fs.appendFile(compiled.outputPath, "\nManual stale edit.\n");
+
+    const driftCapture = createBufferedCommandIo({ cwd: workspace.rootDir });
+    expect(
+      await runDocsCommand(
+        {
+          subcommand: "drift",
+          config: workspace.configPath,
+          profile: "architecture",
+          json: true,
+        },
+        driftCapture.io,
+      ),
+    ).toBe(1);
+
+    const drift = parseJsonOutput<{
+      valid: boolean;
+      staleGeneratedDocs: Array<{ reason: string }>;
+    }>(driftCapture.stdout());
+    expect(drift.valid).toBe(false);
+    expect(drift.staleGeneratedDocs).toEqual([
+      expect.objectContaining({ reason: "stale" }),
+    ]);
+  });
+
   test("defaults to dist/<docs.target_dir> when output-dir is not provided", async () => {
     const workspace = await createWorkspace({
       config: buildConfig({

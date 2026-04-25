@@ -313,7 +313,10 @@ values = ["/^[a-z][a-z0-9-]*$/"]
 === `++[++notes.profiles.++<++name++>]++`
 
 Notes extraction profiles define how `cx notes extract` compiles
-canonical notes into deterministic LLM bundles.
+canonical notes into deterministic evidence bundles. Notes are the
+intent-truth layer; profile output preserves provenance into specs
+(executable rule truth), code (implementation truth), tests (behavioral
+truth), and docs (communication truth).
 
 [cols=",,",options="header",]
 |===
@@ -353,13 +356,11 @@ note grouping.
 bundle.
 |===
 
-`cx notes extract` stays read-only. It emits an LLM-centered intermediate
-artifact, not final prose. The profile therefore owns both the
-selection contract and the downstream authoring contract.
-
-In `v1`, `cx` stops at extraction. LLM invocation remains manual, and
-the final docs stay downstream, human-reviewed artifacts rather than a
-repository-owned synthesis command.
+`cx notes extract` stays read-only. It emits an evidence bundle, not
+final prose. `cx docs compile --profile architecture|manual|onboarding`
+is the docs promotion step: it writes generated Antora pages from stable
+notes while preserving manual pages elsewhere. `cx docs drift` compares
+those generated pages back to the current note graph.
 
 Example:
 
@@ -1017,6 +1018,11 @@ It affects two surfaces:
   written as `.mmd.txt` so they behave like other text bundle artifacts.
 
 The default value is `\{project}-docs-exports`.
+
+Generated docs from `cx docs compile` are separate from review exports.
+They land in profile-specific Antora pages such as
+`docs/modules/architecture/pages/generated-notes.adoc` so hand-written
+pages and generated note summaries can coexist.
 
 === `docs.root_level`
 

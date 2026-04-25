@@ -105,12 +105,26 @@ export function parseMarkdownFrontmatter(
   const body = lines.slice(endIdx + 1).join("\n");
   const frontmatter: Record<string, unknown> = {};
 
-  for (const line of frontmatterLines) {
+  for (let index = 0; index < frontmatterLines.length; index += 1) {
+    const line = frontmatterLines[index] ?? "";
+    if (line.trim().length === 0 || line.trimStart().startsWith("#")) {
+      continue;
+    }
+
     const colonIdx = line.indexOf(":");
     if (colonIdx === -1) continue;
 
     const key = line.slice(0, colonIdx).trim();
     const valueStr = line.slice(colonIdx + 1).trim();
+
+    if (valueStr.length === 0) {
+      const block = parseFrontmatterBlock(frontmatterLines, index + 1);
+      if (block.consumed > 0) {
+        frontmatter[key] = block.value;
+        index += block.consumed;
+        continue;
+      }
+    }
 
     if (valueStr === "true") {
       frontmatter[key] = true;
@@ -153,6 +167,136 @@ export function parseMarkdownFrontmatter(
   }
 
   return { frontmatter, body };
+}
+
+function countIndent(line: string): number {
+  return line.match(/^\s*/)?.[0].length ?? 0;
+}
+
+function parseScalarValue(value: string): unknown {
+  const trimmed = value.trim();
+  if (trimmed === "true") return true;
+  if (trimmed === "false") return false;
+  if (trimmed === "null" || trimmed === "~") return null;
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    const arrayContent = trimmed.slice(1, -1).trim();
+    return arrayContent === ""
+      ? []
+      : arrayContent.split(",").map((item) =>
+          item
+            .trim()
+            .replace(/^["']|["']$/g, "")
+            .trim(),
+        );
+  }
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function parseFrontmatterBlock(
+  lines: string[],
+  startIndex: number,
+): { value: unknown; consumed: number } {
+  const firstLine = lines[startIndex];
+  if (firstLine === undefined) {
+    return { value: undefined, consumed: 0 };
+  }
+
+  const baseIndent = countIndent(firstLine);
+  const firstTrimmed = firstLine.trim();
+  if (!firstTrimmed.startsWith("- ")) {
+    return { value: undefined, consumed: 0 };
+  }
+
+  const values: unknown[] = [];
+  let index = startIndex;
+  while (index < lines.length) {
+    const line = lines[index] ?? "";
+    if (line.trim().length === 0) {
+      index += 1;
+      continue;
+    }
+    const indent = countIndent(line);
+    const trimmed = line.trim();
+    if (indent < baseIndent || !trimmed.startsWith("- ")) {
+      break;
+    }
+
+    const itemText = trimmed.slice(2).trim();
+    if (!itemText.includes(":")) {
+      values.push(parseScalarValue(itemText));
+      index += 1;
+      continue;
+    }
+
+    const item: Record<string, unknown> = {};
+    const itemColon = itemText.indexOf(":");
+    item[itemText.slice(0, itemColon).trim()] = parseScalarValue(
+      itemText.slice(itemColon + 1).trim(),
+    );
+    index += 1;
+
+    while (index < lines.length) {
+      const childLine = lines[index] ?? "";
+      if (childLine.trim().length === 0) {
+        index += 1;
+        continue;
+      }
+      const childIndent = countIndent(childLine);
+      const childTrimmed = childLine.trim();
+      if (childIndent <= baseIndent && childTrimmed.startsWith("- ")) {
+        break;
+      }
+      if (childIndent <= baseIndent) {
+        break;
+      }
+
+      const childColon = childTrimmed.indexOf(":");
+      if (childColon === -1) {
+        index += 1;
+        continue;
+      }
+      const childKey = childTrimmed.slice(0, childColon).trim();
+      const childValue = childTrimmed.slice(childColon + 1).trim();
+      if (childValue.length > 0) {
+        item[childKey] = parseScalarValue(childValue);
+        index += 1;
+        continue;
+      }
+
+      const nestedValues: string[] = [];
+      index += 1;
+      while (index < lines.length) {
+        const nestedLine = lines[index] ?? "";
+        if (nestedLine.trim().length === 0) {
+          index += 1;
+          continue;
+        }
+        const nestedIndent = countIndent(nestedLine);
+        const nestedTrimmed = nestedLine.trim();
+        if (nestedIndent <= childIndent) {
+          break;
+        }
+        if (nestedTrimmed.startsWith("- ")) {
+          const value = parseScalarValue(nestedTrimmed.slice(2).trim());
+          if (typeof value === "string" && value.length > 0) {
+            nestedValues.push(value);
+          }
+        }
+        index += 1;
+      }
+      item[childKey] = nestedValues;
+    }
+
+    values.push(item);
+  }
+
+  return { value: values, consumed: Math.max(0, index - startIndex) };
 }
 
 export function titleFromFileName(filePath: string): string {

@@ -7,6 +7,7 @@ describe("notes extract built-in profiles contract", () => {
   test("freezes the built-in profile names, target paths, anchors, and required sections", () => {
     const profiles = getBuiltinNotesExtractProfiles();
 
+    expect(profiles.architecture?.includeTargets).toEqual(["current"]);
     expect(profiles.arc42?.includeTargets).toEqual(["current"]);
     expect(profiles.onboarding?.includeTargets).toEqual(["current"]);
     expect(profiles.manual?.includeTargets).toEqual(["current"]);
@@ -15,7 +16,8 @@ describe("notes extract built-in profiles contract", () => {
       Object.keys(profiles).sort((left, right) =>
         left.localeCompare(right, "en"),
       ),
-    ).toEqual(["arc42", "manual", "onboarding"]);
+    ).toEqual(["arc42", "architecture", "manual", "onboarding"]);
+    expect(profiles.arc42).toBe(profiles.architecture);
 
     expect(profiles.arc42?.targetPaths).toEqual([
       "docs/modules/architecture/pages/index.adoc",

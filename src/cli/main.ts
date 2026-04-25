@@ -678,7 +678,7 @@ export async function main(
     )
     .command(
       "docs <subcommand>",
-      "Export Antora assemblies into reviewable markdown artifacts.",
+      "Export, compile, and drift-check Antora documentation artifacts.",
       (command) =>
         command
           .example(
@@ -689,12 +689,25 @@ export async function main(
             "$0 docs export --output-dir tmp/docs-review --json",
             "Write docs exports to a specific directory and print machine-readable metadata.",
           )
+          .example(
+            "$0 docs compile --profile architecture",
+            "Compile the architecture generated-notes page from canonical notes.",
+          )
+          .example(
+            "$0 docs drift",
+            "Check generated docs pages for drift from notes.",
+          )
           .positional("subcommand", {
             type: "string",
-            choices: ["export"] as const,
+            choices: ["export", "compile", "drift"] as const,
             demandOption: true,
           })
           .option("config", { type: "string", default: "cx.toml" })
+          .option("profile", {
+            type: "string",
+            description:
+              "Docs profile for compile/drift: architecture, manual, or onboarding.",
+          })
           .option("output-dir", {
             type: "string",
             description:
@@ -719,12 +732,13 @@ export async function main(
       async (args) => {
         exitCode = await runDocsCommand(
           {
-            subcommand: "export",
+            subcommand: args.subcommand as "export" | "compile" | "drift",
             config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             outputDir: args["output-dir"],
             playbook: args.playbook,
             rootLevel: args["root-level"] as 0 | 1 | undefined,
             logOutput: resolveCliPath(args["log-output"], io.cwd),
+            profile: args.profile as string | undefined,
             json: args.json,
           },
           io,
@@ -794,8 +808,8 @@ export async function main(
       },
     )
     .command(
-      "notes [subcommand]",
-      "Manage repository notes.",
+      "notes [subcommand] [query]",
+      "Manage repository notes as the intent-truth layer.",
       (command) =>
         command
           .example("$0 notes list", "List all notes in the notes/ directory.")
@@ -851,6 +865,22 @@ export async function main(
             "$0 notes extract --profile arc42 --format xml",
             "Compile canonical notes into a profile-scoped LLM bundle.",
           )
+          .example(
+            "$0 notes graph --format json",
+            "Emit the unified note/spec/code/test/docs graph as JSON.",
+          )
+          .example(
+            "$0 notes trace --id 20250113143015",
+            "Trace one note to linked notes, specs, code, tests, docs, and backlinks.",
+          )
+          .example(
+            "$0 notes trace 20250113143015",
+            "Trace one note using positional note id syntax.",
+          )
+          .example(
+            "$0 notes ask 'How does docs drift work?'",
+            "Return note-first evidence and an answer scaffold for a repository question.",
+          )
           .positional("subcommand", {
             type: "string",
             choices: [
@@ -865,11 +895,19 @@ export async function main(
               "code-links",
               "links",
               "graph",
+              "trace",
+              "ask",
               "check",
+              "drift",
               "coverage",
               "extract",
             ],
             default: "list",
+          })
+          .positional("query", {
+            type: "string",
+            description:
+              "Question for 'ask' or note id for positional 'trace'.",
           })
           .option("title", {
             type: "string",
@@ -921,6 +959,7 @@ export async function main(
         exitCode = await runNotesCommand(
           {
             subcommand: args.subcommand as string | undefined,
+            query: args.query as string | undefined,
             body: args.body as string | undefined,
             title: args.title as string | undefined,
             tags: normalizeArrayArg(args.tags),

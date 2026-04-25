@@ -1,3 +1,4 @@
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -18,9 +19,32 @@ export interface NoteFrontmatter {
   aliases?: string[];
   tags?: string[];
   title?: string;
+  kind?: NoteKind;
+  supersedes?: string[];
+  claims?: NoteClaim[];
 }
 
 export type NoteTarget = string;
+export type NoteKind =
+  | "decision"
+  | "invariant"
+  | "mechanism"
+  | "failure-mode"
+  | "glossary"
+  | "workflow"
+  | "migration";
+export type NoteClaimType = "invariant" | "decision" | "mechanism" | "fact";
+export type NoteClaimStatus = "accepted" | "proposed" | "superseded";
+
+export interface NoteClaim {
+  id: string;
+  type: NoteClaimType;
+  status: NoteClaimStatus;
+  specRef?: string;
+  codeRefs: string[];
+  testRefs: string[];
+  docRefs: string[];
+}
 
 export type NoteFrontmatterFieldType = "string" | "string_array";
 
@@ -49,6 +73,20 @@ export const DEFAULT_NOTE_FRONTMATTER_CONFIG: NoteFrontmatterConfig = {
     aliases: { required: false, type: "string_array", values: [] },
     tags: { required: false, type: "string_array", values: [] },
     title: { required: false, type: "string", values: [] },
+    kind: {
+      required: false,
+      type: "string",
+      values: [
+        "decision",
+        "invariant",
+        "mechanism",
+        "failure-mode",
+        "glossary",
+        "workflow",
+        "migration",
+      ],
+    },
+    supersedes: { required: false, type: "string_array", values: [] },
   },
 };
 
@@ -58,6 +96,9 @@ export interface NoteMetadata extends NoteFrontmatter {
   title: string;
   summary: string;
   codeLinks: string[];
+  kind?: NoteKind;
+  supersedes?: string[];
+  claims?: NoteClaim[];
   cognition: NoteCognitionAssessment;
 }
 
@@ -81,6 +122,7 @@ export interface NoteDocument {
 export interface NoteValidationOptions {
   now?: Date;
   frontmatter?: NoteFrontmatterConfig;
+  projectRoot?: string;
 }
 
 export const NOTE_VALIDATION_LIMITS = {
@@ -173,7 +215,7 @@ function validateFrontmatterRules(
 function normalizeStringArray(
   value: unknown,
   filePath: string,
-  fieldName: "aliases" | "tags",
+  fieldName: "aliases" | "tags" | "supersedes",
 ): { value: string[] } | { error: string } {
   if (value === undefined) {
     return { value: [] };
@@ -204,6 +246,111 @@ function normalizeStringArray(
   }
 
   return { value: normalized };
+}
+
+function normalizeStringList(value: unknown): string[] | null {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  const normalized: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string") {
+      return null;
+    }
+    const trimmed = item.trim();
+    if (trimmed.length > 0) {
+      normalized.push(trimmed);
+    }
+  }
+  return normalized;
+}
+
+const CLAIM_TYPES = new Set<NoteClaimType>([
+  "invariant",
+  "decision",
+  "mechanism",
+  "fact",
+]);
+const CLAIM_STATUSES = new Set<NoteClaimStatus>([
+  "accepted",
+  "proposed",
+  "superseded",
+]);
+
+function normalizeClaims(
+  value: unknown,
+  filePath: string,
+): { value: NoteClaim[] } | { error: string } {
+  if (value === undefined) {
+    return { value: [] };
+  }
+  if (!Array.isArray(value)) {
+    return {
+      error: `Invalid frontmatter field: claims in ${path.basename(filePath)} must be an array of claim objects`,
+    };
+  }
+
+  const claims: NoteClaim[] = [];
+  const ids = new Set<string>();
+  for (const [index, item] of value.entries()) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      return { error: `Invalid claim ${index + 1}: must be an object` };
+    }
+    const record = item as Record<string, unknown>;
+    const id = typeof record.id === "string" ? record.id.trim() : "";
+    const type = typeof record.type === "string" ? record.type.trim() : "";
+    const status =
+      typeof record.status === "string" ? record.status.trim() : "";
+    if (!/^[a-z][a-z0-9-]*$/u.test(id)) {
+      return {
+        error: `Invalid claim ${index + 1}: id must be a lowercase slug`,
+      };
+    }
+    if (ids.has(id)) {
+      return {
+        error: `Duplicate claim id in ${path.basename(filePath)}: ${id}`,
+      };
+    }
+    ids.add(id);
+    if (!CLAIM_TYPES.has(type as NoteClaimType)) {
+      return {
+        error: `Invalid claim ${id}: type must be one of ${[...CLAIM_TYPES].join(", ")}`,
+      };
+    }
+    if (!CLAIM_STATUSES.has(status as NoteClaimStatus)) {
+      return {
+        error: `Invalid claim ${id}: status must be one of ${[...CLAIM_STATUSES].join(", ")}`,
+      };
+    }
+    const codeRefs = normalizeStringList(record.code_refs);
+    const testRefs = normalizeStringList(record.test_refs);
+    const docRefs = normalizeStringList(record.doc_refs);
+    if (codeRefs === null || testRefs === null || docRefs === null) {
+      return {
+        error: `Invalid claim ${id}: code_refs, test_refs, and doc_refs must be arrays of strings when present`,
+      };
+    }
+    if (record.spec_ref !== undefined && typeof record.spec_ref !== "string") {
+      return { error: `Invalid claim ${id}: spec_ref must be a string` };
+    }
+    claims.push({
+      id,
+      type: type as NoteClaimType,
+      status: status as NoteClaimStatus,
+      ...(typeof record.spec_ref === "string" &&
+        record.spec_ref.trim().length > 0 && {
+          specRef: record.spec_ref.trim(),
+        }),
+      codeRefs,
+      testRefs,
+      docRefs,
+    });
+  }
+
+  return { value: claims };
 }
 
 function parseNoteDocument(
@@ -278,6 +425,44 @@ function parseNoteDocument(
         error: {
           filePath,
           error: tags.error,
+        },
+      };
+    }
+
+    const supersedes = normalizeStringArray(
+      frontmatter.supersedes,
+      filePath,
+      "supersedes",
+    );
+    if ("error" in supersedes) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: supersedes.error,
+        },
+      };
+    }
+
+    for (const supersededId of supersedes.value) {
+      if (!validateNoteIdFormat(supersededId)) {
+        return {
+          metadata: null,
+          error: {
+            filePath,
+            error: `Invalid supersedes note ID: "${supersededId}"`,
+          },
+        };
+      }
+    }
+
+    const claims = normalizeClaims(frontmatter.claims, filePath);
+    if ("error" in claims) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: claims.error,
         },
       };
     }
@@ -393,6 +578,12 @@ function parseNoteDocument(
         title,
         summary,
         codeLinks,
+        ...(typeof frontmatter.kind === "string" &&
+          frontmatter.kind.trim().length > 0 && {
+            kind: frontmatter.kind.trim() as NoteKind,
+          }),
+        supersedes: supersedes.value,
+        claims: claims.value,
         cognition,
         filePath,
         fileName: path.basename(filePath),
@@ -439,13 +630,104 @@ export function validateNoteDocuments(
   const duplicateIds = Array.from(idMap.entries())
     .filter(([, files]) => files.length > 1)
     .map(([id, files]) => ({ id, files }));
+  const relationalErrors = validateNoteRelations(notes, options);
 
   return {
-    valid: errors.length === 0 && duplicateIds.length === 0,
+    valid:
+      errors.length === 0 &&
+      duplicateIds.length === 0 &&
+      relationalErrors.length === 0,
     notes,
-    errors,
+    errors: [...errors, ...relationalErrors],
     duplicateIds,
   };
+}
+
+function validateNoteRelations(
+  notes: NoteMetadata[],
+  options?: NoteValidationOptions,
+): NoteValidationError[] {
+  const noteIds = new Set(notes.map((note) => note.id));
+  const errors: NoteValidationError[] = [];
+
+  for (const note of notes) {
+    for (const supersededId of note.supersedes ?? []) {
+      if (!noteIds.has(supersededId)) {
+        errors.push({
+          filePath: note.filePath,
+          error: `Supersedes references missing note ID: ${supersededId}`,
+        });
+      }
+    }
+
+    for (const claim of note.claims ?? []) {
+      for (const referencedPath of claimFileRefs(claim)) {
+        const normalizedPath = referencedPath.split("#", 1)[0] ?? "";
+        if (normalizedPath.length === 0) {
+          continue;
+        }
+        const root = options?.projectRoot ?? process.cwd();
+        if (!fsSyncPathExists(path.resolve(root, normalizedPath))) {
+          errors.push({
+            filePath: note.filePath,
+            error: `Claim ${claim.id} references missing file: ${referencedPath}`,
+          });
+        }
+      }
+    }
+  }
+
+  errors.push(...validateSupersessionCycles(notes));
+  return errors;
+}
+
+function claimFileRefs(claim: NoteClaim): string[] {
+  return [
+    ...(claim.specRef !== undefined ? [claim.specRef] : []),
+    ...claim.codeRefs,
+    ...claim.testRefs,
+    ...claim.docRefs,
+  ];
+}
+
+function fsSyncPathExists(filePath: string): boolean {
+  try {
+    return fsSync.existsSync(filePath);
+  } catch {
+    return false;
+  }
+}
+
+function validateSupersessionCycles(
+  notes: NoteMetadata[],
+): NoteValidationError[] {
+  const notesById = new Map(notes.map((note) => [note.id, note]));
+  const errors: NoteValidationError[] = [];
+
+  for (const note of notes) {
+    const visited = new Set<string>();
+    const stack = [...(note.supersedes ?? [])];
+    while (stack.length > 0) {
+      const nextId = stack.pop();
+      if (nextId === undefined) {
+        continue;
+      }
+      if (nextId === note.id) {
+        errors.push({
+          filePath: note.filePath,
+          error: `Supersedes chain contains a cycle back to ${note.id}`,
+        });
+        break;
+      }
+      if (visited.has(nextId)) {
+        continue;
+      }
+      visited.add(nextId);
+      stack.push(...(notesById.get(nextId)?.supersedes ?? []));
+    }
+  }
+
+  return errors;
 }
 
 export async function validateNotes(
@@ -487,7 +769,7 @@ export async function validateNotes(
     }
   }
 
-  const parsed = validateNoteDocuments(documents, options);
+  const parsed = validateNoteDocuments(documents, { ...options, projectRoot });
   const errors = [...readErrors, ...parsed.errors];
 
   return {
