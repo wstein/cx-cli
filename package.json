@@ -1,6 +1,6 @@
 {
   "name": "@wsmy/cx-cli",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Kernel-owned context bundler for deterministic AI handoff and verification.",
   "license": "MIT",
   "type": "module",
