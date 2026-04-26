@@ -17,6 +17,12 @@ const VALID_MINIMAL_MANIFEST: CxManifest = {
   createdAt: "2025-01-13T14:30:15Z",
   cxVersion: "1.0.0",
   checksumAlgorithm: "sha256",
+  oracleAdapter: {
+    modulePath: "repomix",
+    packageName: "repomix",
+    packageVersion: "1.14.0",
+    adapterContract: "repomix-pack-v1",
+  },
   settings: {
     globalStyle: "xml",
     tokenEncoding: "o200k_base",
@@ -70,6 +76,7 @@ describe("manifest JSON parsing and rendering", () => {
       expect(json).toContain("schemaVersion");
       expect(json).toContain("projectName");
       expect(json).toContain("sourceRoot");
+      expect(json).toContain("oracleAdapter");
       expect(json).toContain("settings");
     });
 

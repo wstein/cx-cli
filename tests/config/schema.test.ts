@@ -273,6 +273,12 @@ describe("published manifest schemas", async () => {
       "utf8",
     ),
   ) as JsonSchema;
+  const v12Schema = JSON.parse(
+    await fs.readFile(
+      path.resolve(path.join(HERE, "../../schemas/manifest-v12.schema.json")),
+      "utf8",
+    ),
+  ) as JsonSchema;
 
   test("use the GitHub Pages host", () => {
     expect(v5Schema.$id).toBe(
@@ -283,6 +289,9 @@ describe("published manifest schemas", async () => {
     );
     expect(v8Schema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/manifest-v8.schema.json",
+    );
+    expect(v12Schema.$id).toBe(
+      "https://wstein.github.io/cx-cli/schemas/manifest-v12.schema.json",
     );
   });
 });

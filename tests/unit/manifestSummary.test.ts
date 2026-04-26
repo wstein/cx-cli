@@ -11,7 +11,7 @@ import {
 
 describe("shared manifest summary utilities", () => {
   const manifest: CxManifest = {
-    schemaVersion: 11,
+    schemaVersion: 12,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: "/tmp/demo",
@@ -20,6 +20,12 @@ describe("shared manifest summary utilities", () => {
     createdAt: "2025-01-01T00:00:00Z",
     cxVersion: "0.0.0",
     checksumAlgorithm: "sha256",
+    oracleAdapter: {
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    },
     settings: {
       globalStyle: "xml",
       tokenEncoding: "o200k_base",

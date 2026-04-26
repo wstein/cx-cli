@@ -1,5 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  ADAPTER_CONTRACT,
+  getOracleAdapterModulePath,
+  getOracleAdapterRuntimeInfo,
+} from "../adapter/capabilities.js";
 import type { CxConfig } from "../config/types.js";
 import type { BundlePlan } from "../planning/types.js";
 import { computeAggregatePlanHash } from "../render/planHash.js";
@@ -120,6 +125,7 @@ export async function buildManifest(params: {
   const aggregatePlanHash = params.sectionPlanHashes
     ? computeAggregatePlanHash(params.sectionPlanHashes)
     : undefined;
+  const oracleAdapterRuntimeInfo = await getOracleAdapterRuntimeInfo();
 
   const manifest: CxManifest = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -131,6 +137,12 @@ export async function buildManifest(params: {
     createdAt: new Date().toISOString(),
     cxVersion: params.cxVersion,
     checksumAlgorithm: "sha256",
+    oracleAdapter: {
+      modulePath: getOracleAdapterModulePath(),
+      packageName: oracleAdapterRuntimeInfo.packageName,
+      packageVersion: oracleAdapterRuntimeInfo.packageVersion,
+      adapterContract: ADAPTER_CONTRACT,
+    },
     ...(aggregatePlanHash ? { renderPlanHash: aggregatePlanHash } : {}),
     settings: {
       globalStyle: params.config.repomix.style,

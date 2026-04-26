@@ -212,6 +212,12 @@ const manifestArb: fc.Arbitrary<CxManifest> = fc
       createdAt: fields.createdAt,
       cxVersion: fields.cxVersion,
       checksumAlgorithm: "sha256" as const,
+      oracleAdapter: {
+        modulePath: "repomix",
+        packageName: "repomix",
+        packageVersion: "1.14.0",
+        adapterContract: "repomix-pack-v1",
+      },
       settings: fields.settings,
       sections: fields.sections,
       assets: fields.assets,

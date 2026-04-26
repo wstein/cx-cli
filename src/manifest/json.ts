@@ -10,6 +10,7 @@ import type {
   CxSection,
   DerivedReviewExportRecord,
   ManifestFileRow,
+  ManifestOracleAdapterIdentity,
   ManifestSettings,
   ManifestTraceability,
   ManifestTrustModel,
@@ -17,7 +18,7 @@ import type {
 } from "./types.js";
 import { NORMALIZATION_POLICY } from "./types.js";
 
-export const MANIFEST_SCHEMA_VERSION = 11 as const;
+export const MANIFEST_SCHEMA_VERSION = 12 as const;
 
 export const MANIFEST_SCHEMA_PATH: string = (() => {
   const _require = createRequire(import.meta.url);
@@ -26,7 +27,7 @@ export const MANIFEST_SCHEMA_PATH: string = (() => {
     "..",
     "..",
   );
-  return path.join(packageRoot, "schemas", "manifest-v11.schema.json");
+  return path.join(packageRoot, "schemas", "manifest-v12.schema.json");
 })();
 
 interface SectionDto extends Omit<SectionOutputRecord, "style"> {
@@ -45,6 +46,7 @@ interface ManifestDto {
   createdAt: string;
   cxVersion: string;
   checksumAlgorithm: string;
+  oracleAdapter: ManifestOracleAdapterIdentity;
   settings: ManifestSettings;
   totalTokenCount: number;
   vcsProvider: string;
@@ -103,6 +105,18 @@ function requireObject(value: unknown, label: string): Record<string, unknown> {
     throw new CxError(`Missing or invalid ${label} in manifest.`);
   }
   return value as Record<string, unknown>;
+}
+
+function requireOracleAdapterContract(
+  value: unknown,
+): ManifestOracleAdapterIdentity["adapterContract"] {
+  const contract = requireString(value, "oracleAdapter.adapterContract");
+  if (contract !== "repomix-pack-v1") {
+    throw new CxError(
+      "Missing or invalid oracleAdapter.adapterContract in manifest.",
+    );
+  }
+  return contract;
 }
 
 function requireArray(value: unknown, label: string): unknown[] {
@@ -405,6 +419,7 @@ function parseManifestDto(raw: unknown): {
   }
 
   const settingsRaw = requireObject(obj.settings, "settings");
+  const oracleAdapterRaw = requireObject(obj.oracleAdapter, "oracleAdapter");
   const trustModelRaw = requireObject(obj.trustModel, "trustModel");
   const traceability = parseTraceabilityDto(obj.traceability);
   const sectionsRaw = requireArray(obj.sections, "sections");
@@ -436,6 +451,23 @@ function parseManifestDto(raw: unknown): {
       obj.checksumAlgorithm,
       "checksumAlgorithm",
     ),
+    oracleAdapter: {
+      modulePath: requireString(
+        oracleAdapterRaw.modulePath,
+        "oracleAdapter.modulePath",
+      ),
+      packageName: requireString(
+        oracleAdapterRaw.packageName,
+        "oracleAdapter.packageName",
+      ),
+      packageVersion: requireString(
+        oracleAdapterRaw.packageVersion,
+        "oracleAdapter.packageVersion",
+      ),
+      adapterContract: requireOracleAdapterContract(
+        oracleAdapterRaw.adapterContract,
+      ),
+    },
     settings: {
       globalStyle: requireString(
         settingsRaw.globalStyle,
@@ -528,6 +560,7 @@ export function renderManifestJson(
     createdAt: manifest.createdAt,
     cxVersion: manifest.cxVersion,
     checksumAlgorithm: manifest.checksumAlgorithm,
+    oracleAdapter: manifest.oracleAdapter,
     settings: manifest.settings,
     totalTokenCount: manifest.totalTokenCount,
     vcsProvider: manifest.vcsProvider,
@@ -633,6 +666,7 @@ export function parseManifestJson(source: string): CxManifest {
     createdAt: dto.createdAt,
     cxVersion: dto.cxVersion,
     checksumAlgorithm: "sha256",
+    oracleAdapter: dto.oracleAdapter,
     settings: dto.settings,
     totalTokenCount: dto.totalTokenCount,
     vcsProvider: dto.vcsProvider as CxManifest["vcsProvider"],

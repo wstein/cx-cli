@@ -10,7 +10,7 @@ import {
 // Helper to create test manifest
 function createTestManifest(): CxManifest {
   return {
-    schemaVersion: 11,
+    schemaVersion: 12,
     bundleVersion: 1,
     projectName: "test-project",
     sourceRoot: ".",
@@ -19,6 +19,12 @@ function createTestManifest(): CxManifest {
     createdAt: "2025-01-13T14:30:15Z",
     cxVersion: "1.0.0",
     checksumAlgorithm: "sha256",
+    oracleAdapter: {
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    },
     settings: {
       globalStyle: "xml",
       tokenEncoding: "o200k_base",

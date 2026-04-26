@@ -10,7 +10,7 @@ const HASH_B = "b".repeat(64);
 
 function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
   const manifest: CxManifest = {
-    schemaVersion: 11,
+    schemaVersion: 12,
     bundleVersion: 1,
     projectName: "demo",
     sourceRoot: ".",
@@ -20,6 +20,12 @@ function createManifest(overrides: Partial<CxManifest> = {}): CxManifest {
     createdAt: "2026-04-19T00:00:00.000Z",
     cxVersion: "0.0.0-test",
     checksumAlgorithm: "sha256",
+    oracleAdapter: {
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    },
     settings: {
       globalStyle: "xml",
       tokenEncoding: "o200k_base",

@@ -94,6 +94,7 @@ describe("release assurance contract", () => {
     const workflow = await readText(".github/workflows/ci.yml");
 
     expect(workflow).toContain("bun run ci:smoke:repomix-reference-oracle");
+    expect(workflow).toContain("bun run ci:test:repomix-adapter-parity");
     expect(workflow).not.toContain("ci:smoke:adapter-version");
     expect(workflow).not.toContain("ci:smoke:adapter-dual-oracle");
     expect(workflow).toContain("bun run ci:notes:governance");

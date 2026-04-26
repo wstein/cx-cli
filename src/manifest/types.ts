@@ -15,6 +15,13 @@ export interface ManifestSettings {
   includeLinkedNotes?: boolean;
 }
 
+export interface ManifestOracleAdapterIdentity {
+  modulePath: string;
+  packageName: string;
+  packageVersion: string;
+  adapterContract: "repomix-pack-v1";
+}
+
 export interface ManifestFileRow {
   path: string;
   kind: "text" | "asset";
@@ -123,7 +130,7 @@ export interface CxSection extends SectionOutputRecord {
 }
 
 export interface CxManifest {
-  schemaVersion: 11;
+  schemaVersion: 12;
   bundleVersion: 1;
   projectName: string;
   sourceRoot: string;
@@ -133,6 +140,11 @@ export interface CxManifest {
   createdAt: string;
   cxVersion: string;
   checksumAlgorithm: "sha256";
+  /**
+   * Reference-oracle adapter identity recorded so reproducibility is tied to
+   * the adapter package that was installed when the bundle was produced.
+   */
+  oracleAdapter: ManifestOracleAdapterIdentity;
   /**
    * Hash of the render plan (if structured rendering was used).
    * Provides integrity verification of the deterministic render contract.

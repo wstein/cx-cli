@@ -30,6 +30,12 @@ The selected oracle may equal the installed reference package in current CI, but
 the roles remain semantically distinct and must stay separately named in
 contracts and docs.
 
+Bundle manifests record the selected oracle adapter identity as `oracleAdapter`
+with its module path, package name, package version, and adapter contract. This
+binds reproducibility evidence to the adapter package installed when the bundle
+was produced, while the named `repomix-adapter-parity` CI job guards drift
+against the checked-in reference baseline.
+
 ## Links
 
 - [[Top-Level JSON Payload Contracts]]

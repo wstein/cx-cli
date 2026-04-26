@@ -19,6 +19,12 @@ function sampleManifest(): CxManifest {
     cxVersion: "0.3.16",
     checksumAlgorithm: "sha256",
     renderPlanHash: "abc123",
+    oracleAdapter: {
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    },
     settings: {
       globalStyle: "xml",
       tokenEncoding: "o200k_base",
@@ -135,6 +141,12 @@ describe("manifest contract", () => {
     expect(reparsed.sections[1]?.name).toBe("src");
     expect(reparsed.sections[0]?.files[0]?.path).toBe("README.md");
     expect(reparsed.sections[1]?.files[0]?.path).toBe("src/index.ts");
+    expect(reparsed.oracleAdapter).toEqual({
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    });
     expect(reparsed.traceability.agent.auditLogPath).toBe(".cx/audit.log");
   });
 

@@ -453,6 +453,12 @@ It should become the manifest summary.
       createdAt: new Date().toISOString(),
       cxVersion: "0.1.0",
       checksumAlgorithm: "sha256",
+      oracleAdapter: {
+        modulePath: "repomix",
+        packageName: "repomix",
+        packageVersion: "1.14.0",
+        adapterContract: "repomix-pack-v1",
+      },
       settings: {
         globalStyle: "xml",
         tokenEncoding: "o200k_base",
@@ -602,6 +608,12 @@ It should become the manifest summary.
     const parsed = JSON.parse(source) as Record<string, unknown>;
 
     expect(parsed.schemaVersion).toBe(MANIFEST_SCHEMA_VERSION);
+    expect(parsed.oracleAdapter).toMatchObject({
+      modulePath: "repomix",
+      packageName: "repomix",
+      packageVersion: "1.14.0",
+      adapterContract: "repomix-pack-v1",
+    });
 
     const sections = parsed.sections as Array<{ files?: unknown[] }>;
     expect(sections.length).toBeGreaterThan(0);
