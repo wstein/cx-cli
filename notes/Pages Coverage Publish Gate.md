@@ -3,7 +3,6 @@ id: 20260419160500
 title: Pages Coverage Publish Gate
 aliases: []
 tags: [ci, pages, coverage]
-target: current
 ---
 The public coverage status page should publish from successful `main` CI runs, not from every branch and not only from tagged releases. That gives operators a stable public view of repository health without conflating routine branch activity with release-time asset publishing.
 

@@ -2,7 +2,6 @@
 id: 20260420130100
 title: Trust Spectrum Model
 tags: ["trust", "architecture", "philosophy"]
-target: current
 ---
 `cx` models trust as a spectrum rather than a binary state.
 

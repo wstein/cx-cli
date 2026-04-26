@@ -2,7 +2,6 @@
 id: 20260420141000
 aliases: ["publish antora docs", "github pages docs publishing"]
 tags: [docs, antora, github-pages]
-target: backlog
 ---
 
 Publish the curated Antora docs site from `docs/` to GitHub Pages so the

@@ -2,7 +2,6 @@
 id: 20260415162000
 aliases: ["SHA-256 sidecars", "bundle integrity"]
 tags: [artifact, security, architecture]
-target: current
 ---
 `cx` uses SHA-256 sidecars and manifest-level checksums to ensure the integrity of a bundle from the moment it is created until it is extracted or verified.
 

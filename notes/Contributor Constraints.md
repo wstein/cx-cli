@@ -2,7 +2,6 @@
 id: 20260420120900
 title: Contributor Constraints
 tags: ["governance", "contrib"]
-target: current
 ---
 The system must guide contributors strictly.
 

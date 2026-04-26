@@ -2,7 +2,6 @@
 id: 20260420130200
 title: Notes Gating Policy
 tags: ["notes", "governance", "quality"]
-target: current
 ---
 Notes may act as optional build constraints in higher-assurance environments.
 

@@ -45,7 +45,6 @@ describe("bundle manifest", () => {
 id: 20260420150000
 aliases: []
 tags: []
-target: current
 ---
 
 # Sparse Note
@@ -89,7 +88,6 @@ This note states one small idea.
 id: 20260420150001
 aliases: []
 tags: []
-target: current
 ---
 
 # Sparse Note
@@ -128,7 +126,6 @@ This note states one small idea.
 id: 20260420150002
 aliases: []
 tags: []
-target: current
 ---
 
 # Drifted Note
@@ -296,7 +293,6 @@ This note explains a real file path so the summary stays non-trivial.
 id: 20260413123030
 aliases: []
 tags: []
-target: current
 ---
 
 # Summary Note

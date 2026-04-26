@@ -3,7 +3,6 @@ id: 20260421103600
 title: XML In cx Means XML Tagged LLM Content
 aliases: [xml meaning in cx, xml tagged llm content, xml in cx is not strict xml]
 tags: [xml, llm, formats, contracts, output]
-target: current
 ---
 # XML In cx Means XML Tagged LLM Content
 

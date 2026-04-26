@@ -2,7 +2,6 @@
 id: 20260425130000
 aliases: ["cx layered source of truth", "notes truth model"]
 tags: ["cx", "notes", "architecture", "stable"]
-target: current
 ---
 
 `cx` must enforce a layered source-of-truth model instead of treating all repository text as equally authoritative.

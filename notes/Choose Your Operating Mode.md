@@ -2,7 +2,6 @@
 id: 20260419104000
 aliases: ["Operating Mode Hub", "Choose Your Operating Mode"]
 tags: ["architecture", "workflow", "docs"]
-target: current
 ---
 `cx` needs a single front-door explanation that tells operators which surface to use before they learn the deeper internals.
 

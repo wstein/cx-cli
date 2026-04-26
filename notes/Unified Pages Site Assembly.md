@@ -3,7 +3,6 @@ id: 20260419151500
 title: Unified Pages Site Assembly
 aliases: []
 tags: [docs, ci, release]
-target: current
 ---
 The public Pages publish should assemble one coherent `dist/site/` tree instead of letting schema publishing and coverage publishing behave like competing deployers. The shared tree now owns the root index, `/schemas/`, and the optional `/coverage/` subtree so later workflow changes can decide when to publish without re-implementing site structure.
 

@@ -223,7 +223,6 @@ id: 20250113143015
 title: Alias Note
 aliases: [Alias One, Alias Two]
 tags: [test, example]
-target: current
 ---
 
 This note has aliases and tags.
@@ -619,7 +618,6 @@ This note has aliases and tags.
         `---
 id: 20250113143016
 title: Source Note
-target: current
 ---
 
 See [[Target Note]] while keeping enough routing words for validation.
@@ -631,7 +629,6 @@ See [[Target Note]] while keeping enough routing words for validation.
         `---
 id: 20250113143017
 title: Target Note
-target: current
 ---
 
 Target content with enough routing words for validation.
@@ -764,7 +761,6 @@ Target content with enough routing words for validation.
         `---
 id: 20250113143018
 title: Code Link Note
-target: current
 ---
 
 Note content with enough routing words for validation.
@@ -847,7 +843,6 @@ Note content with enough routing words for validation.
 id: 20250113143019
 aliases: []
 tags: []
-target: current
 title: Links Source
 ---
 
@@ -863,7 +858,6 @@ See [[Links Target]] and [[Missing Note]].
 id: 20250113143020
 aliases: []
 tags: []
-target: current
 title: Links Target
 ---
 
@@ -945,7 +939,6 @@ This target note exists and should appear as an outgoing link.
 id: 20250113143009
 aliases: []
 tags: []
-target: current
 ---
 
 ## Links
@@ -974,7 +967,6 @@ target: current
         `---
 id: 20250113143004
 title: Code Path Warning
-target: current
 ---
 
 Check [[src/missing.ts]] before touching the pipeline with enough routing words.
@@ -1018,7 +1010,6 @@ Check [[src/missing.ts]] before touching the pipeline with enough routing words.
         `---
 id: 20250113143021
 title: Graph Root
-target: current
 ---
 
 See [[Graph Hop]] with enough routing words for validation.
@@ -1030,7 +1021,6 @@ See [[Graph Hop]] with enough routing words for validation.
         `---
 id: 20250113143022
 title: Graph Hop
-target: current
 ---
 
 Terminal note with enough routing words for validation.
@@ -1059,7 +1049,6 @@ Terminal note with enough routing words for validation.
         `---
 id: 20250113143023
 title: Graph Root JSON
-target: current
 ---
 
 See [[Graph Hop JSON]] with enough routing words for validation.
@@ -1071,7 +1060,6 @@ See [[Graph Hop JSON]] with enough routing words for validation.
         `---
 id: 20250113143024
 title: Graph Hop JSON
-target: current
 ---
 
 Terminal note with enough routing words for validation.
@@ -1110,7 +1098,6 @@ Terminal note with enough routing words for validation.
         `---
 id: 20250113143025
 title: Unified Graph Source
-target: current
 kind: invariant
 claims:
   - id: graph-claim
@@ -1164,7 +1151,6 @@ The unified graph note carries enough durable context for graph validation and d
         `---
 id: 20250113143026
 title: Trace Source
-target: current
 claims:
   - id: trace-claim
     type: fact
@@ -1206,7 +1192,6 @@ The trace note carries enough durable context for linked evidence and note traci
         `---
 id: 20250113143027
 title: Docs Drift Evidence
-target: current
 tags: [docs, drift]
 ---
 
@@ -1243,7 +1228,6 @@ Docs drift checks generated pages against durable note evidence so stale generat
         `---
 id: 20250113143028
 title: Clean Drift Note
-target: current
 ---
 
 The clean drift note has enough durable context and no missing implementation links.

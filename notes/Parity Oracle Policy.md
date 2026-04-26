@@ -2,7 +2,6 @@
 id: 20260420121400
 title: Parity Oracle Policy
 tags: ["migration", "testing", "oracle"]
-target: current
 ---
 An external oracle may be used to prove migration correctness without becoming architecture, and `ci:test:render-parity` is the enforcement lane for that rule.
 

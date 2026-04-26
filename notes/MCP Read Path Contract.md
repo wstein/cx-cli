@@ -2,7 +2,6 @@
 id: 20260420124400
 title: MCP Read Path Contract
 tags: ["mcp", "workflow", "contracts"]
-target: current
 ---
 The MCP read path must remain available as the primary live exploration workflow.
 

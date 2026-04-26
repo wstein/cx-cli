@@ -3,7 +3,6 @@ id: 20260420183400
 title: Keep Notes Separate from Antora Canonical Docs
 aliases: []
 tags: ["docs", "notes", "antora", "governance"]
-target: current
 ---
 The notes graph remains a distinct knowledge surface even after the canonical docs moved to Antora and AsciiDoctor.
 

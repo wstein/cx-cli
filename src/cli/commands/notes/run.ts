@@ -701,7 +701,6 @@ export async function runNotesCommand(
       note: {
         id: note.id,
         title: note.title,
-        target: note.target,
         kind: note.kind,
         path: path
           .relative(workspaceRoot, note.filePath)
@@ -726,7 +725,6 @@ export async function runNotesCommand(
     } else {
       printInfo(`Trace for "${note.title}" (${note.id}):\n`);
       printInfo(`  Path: ${payload.note.path}`);
-      printInfo(`  Target: ${note.target}`);
       if (note.kind !== undefined) {
         printInfo(`  Kind: ${note.kind}`);
       }

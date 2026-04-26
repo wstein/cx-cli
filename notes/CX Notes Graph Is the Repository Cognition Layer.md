@@ -2,7 +2,6 @@
 id: 20260425130100
 aliases: ["cx cognition layer", "cx note graph"]
 tags: ["cx", "notes", "graph", "stable"]
-target: current
 ---
 
 The `cx` note graph is the repository cognition layer.

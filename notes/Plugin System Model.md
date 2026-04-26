@@ -2,7 +2,6 @@
 id: 20260420110200
 title: Plugin System Model
 tags: ["architecture", "plugins", "extensibility"]
-target: backlog
 ---
 `cx` introduces a bounded plugin system layered on top of the kernel.
 

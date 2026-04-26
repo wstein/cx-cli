@@ -145,14 +145,14 @@ describe("docs assurance contract", () => {
       "xref:manual:operating-modes.adoc[Operating Modes]",
     );
     expect(manual).toContain("https://wstein.github.io/cx-cli/coverage/");
-    expect(notesGuide).toContain("## Notes And Docs Boundary");
+    expect(notesGuide).toContain("## Notes-First Workflow");
     expect(notesGuide).toContain(
-      "`docs/modules/architecture/pages/mental-model.adoc` owns canonical semantics.",
+      'The workflow is based on the "mise en place" idea',
     );
+    expect(notesGuide).toContain("Notes stand on their own.");
     expect(notesGuide).toContain(
-      "`docs/modules/architecture/pages/system-contracts.adoc` owns cognition, boundary, and trust contracts.",
+      "Docs should not refer readers back to notes.",
     );
-    expect(notesGuide).toContain("Notes should support those documents");
     expect(operatingModesNormalized).toContain(
       "xref:manual:workflows.adoc#friday-to-monday-workflow[Friday to Monday]",
     );

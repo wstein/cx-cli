@@ -2,7 +2,6 @@
 id: 20260420120300
 title: Plugin Capability Tiers
 tags: ["plugins", "security", "architecture"]
-target: backlog
 ---
 Plugins are classified by trust and capability.
 

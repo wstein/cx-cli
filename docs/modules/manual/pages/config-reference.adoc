@@ -299,14 +299,8 @@ Example:
 
 [source,toml]
 ----
-[notes.frontmatter.fields.target]
-required = true
-type = "string"
-values = ["current", "backlog", "/^v\\d+\\.\\d+$/"]
-
 [notes.frontmatter.fields.tags]
 required = false
 type = "string_array"
 values = ["/^[a-z][a-z0-9-]*$/"]
 ----
-

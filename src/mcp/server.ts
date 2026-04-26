@@ -119,7 +119,7 @@ Docs/config/meta: docs_compile, docs_drift, docs_export; config_show_effective; 
     "cx mcp provides deterministic, file-based agent access to live repository context.",
     "Use cx inspect and the MCP live tools for planning against the workspace filesystem; use cx bundle locally for immutable snapshots and verification, not as a reasoning source inside MCP.",
     "Use cx mcp for interactive exploration, note maintenance, and live workspace changes.",
-    "When routing through notes, prioritize target=current entries first. Other target values are project-defined routing labels and must be interpreted from the local repository context.",
+    "When routing through notes, use ids, titles, aliases, tags, summaries, and graph links as the routing surface.",
     "Use the cx-mcp.toml profile when present; fall back to cx.toml when the MCP profile is absent.",
     `Active profile: ${configPath}`,
     toolReference,

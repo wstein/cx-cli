@@ -480,8 +480,6 @@ describe("cx MCP server", () => {
       notes: Array<{
         title: string;
         summary: string;
-        target: string;
-        availability: string;
       }>;
     };
 
@@ -492,14 +490,6 @@ describe("cx MCP server", () => {
     expect(
       listPayload.notes.some((note) =>
         note.summary.includes("important observation"),
-      ),
-    ).toBe(true);
-    expect(
-      listPayload.notes.some(
-        (note) =>
-          note.title === "Agent Insight" &&
-          note.target === "current" &&
-          note.availability === "current target",
       ),
     ).toBe(true);
   });
@@ -536,8 +526,6 @@ describe("cx MCP server", () => {
       body: string;
       tags: string[];
       filePath: string;
-      target: string;
-      availability: string;
     };
 
     expect(payload.id).toBe(createPayload.id);
@@ -545,8 +533,6 @@ describe("cx MCP server", () => {
     expect(payload.body).toContain("A note body for direct MCP reads.");
     expect(payload.tags).toEqual(["read"]);
     expect(payload.filePath).toBe(createPayload.filePath);
-    expect(payload.target).toBe("current");
-    expect(payload.availability).toBe("current target");
   });
 
   test("notes_search finds notes by body text and tags", async () => {
@@ -585,7 +571,7 @@ describe("cx MCP server", () => {
     expect(payload.notes[0]?.snippet).toContain("workflow");
   });
 
-  test("notes_search prioritizes current notes and preserves custom target labels", async () => {
+  test("notes_search finds note summaries and tags without target frontmatter", async () => {
     const project = await createWorkspace();
     const config = await loadQuietCxConfig(project.mcpPath);
     const server = createCxMcpServer({
@@ -603,7 +589,6 @@ id: 20260420130000
 title: Current Workflow
 aliases: []
 tags: ["workflow"]
-target: current
 ---
 
 This workflow is implemented and trusted for operators today.
@@ -620,7 +605,6 @@ This workflow is implemented and trusted for operators today.
         title: "Future Workflow",
         body: "This workflow is planned but not implemented yet for operators.",
         tags: ["workflow"],
-        target: "later",
       },
       {} as never,
     );
@@ -633,18 +617,15 @@ This workflow is implemented and trusted for operators today.
       {} as never,
     );
     const payload = JSON.parse(firstContentText(result)) as {
-      notes: Array<{ title: string; target: string; availability: string }>;
+      notes: Array<{ title: string; summary: string }>;
     };
 
     expect(payload.notes[0]?.title).toBe("Current Workflow");
-    expect(payload.notes[0]?.target).toBe("current");
-    expect(payload.notes[0]?.availability).toBe("current target");
     expect(
       payload.notes.some(
         (note) =>
           note.title === "Future Workflow" &&
-          note.target === "later" &&
-          note.availability === "target: later",
+          note.summary.includes("planned but not implemented"),
       ),
     ).toBe(true);
   });
@@ -887,7 +868,6 @@ id: 20260425142000
 title: Render Kernel Constitution
 aliases: []
 tags: ["architecture", "kernel", "contract"]
-target: current
 ---
 
 The render kernel note provides enough architecture evidence for generated documentation.
@@ -1077,7 +1057,6 @@ id: 20260425141000
 title: Friday To Monday Workflow Contract
 aliases: []
 tags: ["workflow", "manual", "operator"]
-target: current
 ---
 
 Weekend handoffs preserve enough workflow context for operators to resume Monday work without rediscovery.
@@ -1095,7 +1074,6 @@ id: 20260425141100
 title: MCP Evidence Note
 aliases: []
 tags: ["architecture", "mcp"]
-target: current
 ---
 
 MCP evidence tools expose note validation, traceability, asking, and coverage for agent workflows.
@@ -1200,7 +1178,6 @@ MCP evidence tools expose note validation, traceability, asking, and coverage fo
 id: ${createPayload.id}
 aliases: []
 tags: []
-target: current
 ---
 
 # Link Audit

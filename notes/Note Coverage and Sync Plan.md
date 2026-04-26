@@ -2,7 +2,6 @@
 id: 20260415164500
 aliases: ["note coverage plan", "sync audit"]
 tags: [notes, planning, architecture]
-target: current
 ---
 # Plan: Note Coverage and Sync Audit
 

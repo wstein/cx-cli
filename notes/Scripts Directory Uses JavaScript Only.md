@@ -3,7 +3,6 @@ id: 20260420191500
 title: Scripts Directory Uses JavaScript Only
 aliases: []
 tags: ["scripts", "javascript", "typescript", "boundary"]
-target: current
 ---
 The `scripts/` directory must contain ECMAScript and JavaScript files only. It must not contain TypeScript source files.
 

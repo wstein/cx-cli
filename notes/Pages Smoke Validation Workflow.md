@@ -3,7 +3,6 @@ id: 20260419173000
 title: Pages Smoke Validation Workflow
 aliases: []
 tags: [ci, pages, validation]
-target: current
 ---
 The Pages publish path should validate the staged `dist/site/` tree with a small smoke checker before the workflow pushes `gh-pages`. That validation should stay non-blocking inside the publish path while also existing as a dedicated workflow, so operators get fast feedback without turning a deploy warning into a hidden blind spot.
 

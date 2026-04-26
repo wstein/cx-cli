@@ -2,7 +2,6 @@
 id: 20260420133000
 title: Published Schema Retention Policy
 tags: ["schemas", "contracts", "release"]
-target: current
 ---
 Published schemas remain available on Pages as versioned artifacts throughout the pre-1.0 series so downstream tools can pin explicit contract versions.
 

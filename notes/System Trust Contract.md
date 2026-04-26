@@ -2,7 +2,6 @@
 id: 20260419200000
 aliases: ["Boundary Contract", "Trust Propagation Model"]
 tags: ["architecture", "trust", "boundaries", "cognition"]
-target: current
 ---
 `cx` stays trustworthy only if cognition quality, boundary rules, and trust labels remain explicit. A parseable note is not automatically reliable knowledge, Track B exploration is not automatically Track A proof, and agent output is not automatically promotable evidence.
 

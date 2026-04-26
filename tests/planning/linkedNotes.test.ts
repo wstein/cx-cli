@@ -23,7 +23,6 @@ const writeNote = async (
 id: ${id}
 aliases: []
 tags: []
-target: current
 ---
 
 ${noteBody}
@@ -84,11 +83,6 @@ function baseConfig(root: string): CxConfig {
       frontmatter: {
         fields: {
           id: {
-            required: true,
-            type: "string",
-            values: [],
-          },
-          target: {
             required: true,
             type: "string",
             values: [],

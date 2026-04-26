@@ -2,7 +2,6 @@
 id: 20260420134000
 title: Adapter Oracle And Reference Roles
 tags: ["adapter", "migration", "contracts"]
-target: current
 ---
 cx distinguishes between an oracle adapter and a reference adapter so the migration away from Repomix-centered proof paths stays explicit and contract-tested.
 

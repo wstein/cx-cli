@@ -2,7 +2,6 @@
 id: 20260415164000
 aliases: ["normalization policy", "deterministic hashes"]
 tags: [artifact, hashing, determinism]
-target: current
 ---
 `cx` computes deterministic hashes for bundle files so that identical content produces identical bundle artifacts across platforms.
 

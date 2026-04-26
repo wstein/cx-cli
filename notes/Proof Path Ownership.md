@@ -2,7 +2,6 @@
 id: 20260420121300
 title: Proof Path Ownership
 tags: ["proof", "architecture", "trust"]
-target: current
 ---
 The proof path is kernel-owned so render identity, verification, and extraction safety remain auditable even as helpers, plugins, and migration scaffolding evolve around the kernel.
 

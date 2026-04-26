@@ -2,7 +2,6 @@
 id: 20260417150000
 title: Agent Operating Model
 tags: [architecture, mcp, operations, policy]
-target: current
 ---
 # Agent Operating Model
 

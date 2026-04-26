@@ -8,7 +8,6 @@ import {
 import {
   createNewNote,
   deleteNote,
-  describeNoteTarget,
   listNotes,
   readNote,
   renameNote,
@@ -171,7 +170,6 @@ function buildNotesTracePayload(params: {
     note: {
       id: note.id,
       title: note.title,
-      target: note.target,
       kind: note.kind,
       path: relativePosix(params.workspace.sourceRoot, note.filePath),
       summary: note.summary,
@@ -277,7 +275,6 @@ export function registerNotesTools(
         title: z.string().min(1),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        target: z.string().min(1).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -285,7 +282,6 @@ export function registerNotesTools(
         notesDir,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        target: typeof args.target === "string" ? args.target : undefined,
       });
 
       return jsonToolResult({
@@ -294,11 +290,6 @@ export function registerNotesTools(
         title: args.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: (args.tags as string[] | undefined) ?? [],
-        target: typeof args.target === "string" ? args.target : "current",
-        availability:
-          typeof args.target === "string"
-            ? describeNoteTarget(args.target)
-            : describeNoteTarget("current"),
       });
     },
   );
@@ -323,7 +314,6 @@ export function registerNotesTools(
         command: "notes read",
         ...note,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -340,7 +330,6 @@ export function registerNotesTools(
         title: z.string().min(1).optional(),
         tags: z.array(z.string().min(1)).optional(),
         body: z.string().min(1).optional(),
-        target: z.string().min(1).optional(),
       }),
     },
     async (args: Record<string, unknown>) => {
@@ -349,7 +338,6 @@ export function registerNotesTools(
         title: args.title as string | undefined,
         tags: args.tags as string[] | undefined,
         body: args.body as string | undefined,
-        target: typeof args.target === "string" ? args.target : undefined,
       });
 
       return jsonToolResult({
@@ -358,8 +346,6 @@ export function registerNotesTools(
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
-        target: note.target,
-        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -391,8 +377,6 @@ export function registerNotesTools(
         ),
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
         tags: note.tags,
-        target: note.target,
-        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -418,8 +402,6 @@ export function registerNotesTools(
         id: note.id,
         title: note.title,
         filePath: relativePosix(workspace.sourceRoot, note.filePath),
-        target: note.target,
-        availability: describeNoteTarget(note.target),
       });
     },
   );
@@ -455,7 +437,6 @@ export function registerNotesTools(
         notes: result.notes.map((note) => ({
           ...note,
           filePath: relativePosix(workspace.sourceRoot, note.filePath),
-          availability: describeNoteTarget(note.target),
         })),
       });
     },
@@ -485,8 +466,6 @@ export function registerNotesTools(
         const indexed = indexedNotes.get(note.id);
         return {
           id: note.id,
-          target: note.target,
-          availability: describeNoteTarget(note.target),
           title: note.title,
           fileName: note.fileName,
           tags: note.tags ?? [],

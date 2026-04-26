@@ -1,7 +1,6 @@
 ---
 id: 20260425120000
 title: Layered Truth Model
-target: current
 kind: invariant
 tags: [architecture, notes, docs, contract]
 ---

@@ -2,7 +2,6 @@
 id: 20260420124600
 title: Top-Level JSON Payload Contracts
 tags: ["contracts", "json", "release"]
-target: current
 ---
 Top-level machine-readable JSON fields are versioned contract surfaces.
 

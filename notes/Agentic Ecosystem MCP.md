@@ -2,7 +2,6 @@
 id: 20260413123400
 aliases: ["active ecosystem", "MCP ecosystem"]
 tags: [cx, ai, mcp]
-target: current
 ---
 # Agentic Ecosystem MCP
 

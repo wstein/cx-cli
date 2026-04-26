@@ -2,7 +2,6 @@
 id: 20260425130700
 aliases: ["cx semantic drift", "notes drift"]
 tags: ["cx", "drift", "ci", "stable"]
-target: current
 ---
 
 `cx` detects semantic drift, not only structural markdown errors.

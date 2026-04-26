@@ -2,7 +2,6 @@
 id: 20260420110800
 title: Kernel vs Extension Boundary
 tags: ["architecture", "boundary", "plugins"]
-target: current
 ---
 The system enforces a strict separation between kernel and extensions.
 

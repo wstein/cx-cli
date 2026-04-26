@@ -2,7 +2,6 @@
 id: 20260420134100
 aliases: []
 tags: ["handover", "xml", "llm"]
-target: current
 ---
 XML-style shared handover tags are semantic LLM anchors, not a full XML serialization contract.
 

@@ -144,7 +144,6 @@ async function expectedPage(params: {
   }
   const selectedTags = new Set(PROFILE_TAGS[params.profile]);
   const notes = validation.notes
-    .filter((note) => note.target === "current")
     .filter((note) =>
       (note.tags ?? []).some((tag) => selectedTags.has(tag.toLowerCase())),
     )

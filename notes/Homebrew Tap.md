@@ -2,7 +2,6 @@
 id: 20260416093001
 aliases: ["homebrew tap","wstein homebrew tap"]
 tags: ["distribution","homebrew","release"]
-target: current
 ---
 # Homebrew Tap
 

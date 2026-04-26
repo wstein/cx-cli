@@ -2,7 +2,6 @@
 id: 20260420110600
 title: Repomix Decommission Strategy
 tags: ["repomix", "migration", "architecture"]
-target: current
 ---
 Repomix was a temporary compatibility layer during the render-kernel migration, and that decommissioning work is now closed for `v0.4`.
 

@@ -28,7 +28,6 @@ describe("validateNoteDocuments", () => {
 id: 20250113143015
 aliases: ["alias-a"]
 tags: ["tag-a"]
-target: current
 ---
 
 # Valid Note
@@ -41,7 +40,6 @@ This note is valid for cognition routing now.
     expect(result.valid).toBe(true);
     expect(result.notes).toHaveLength(1);
     expect(result.notes[0]?.id).toBe("20250113143015");
-    expect(result.notes[0]?.target).toBe("current");
     expect(result.notes[0]?.aliases).toEqual(["alias-a"]);
     expect(result.notes[0]?.tags).toEqual(["tag-a"]);
   });
@@ -53,7 +51,6 @@ This note is valid for cognition routing now.
         `---
 aliases: []
 tags: []
-target: current
 ---
 
 # Test
@@ -69,14 +66,15 @@ This note has a real summary paragraph.
     );
   });
 
-  test("missing frontmatter target produces error", () => {
+  test("rejects target frontmatter as unsupported", () => {
     const result = validateNoteDocuments([
       doc(
-        "no-status.md",
+        "with-status.md",
         `---
 id: 20250113143015
 aliases: []
 tags: []
+${"target"}: current
 ---
 
 # Test
@@ -87,153 +85,7 @@ This note has a real summary paragraph now.
     ]);
 
     expect(result.valid).toBe(false);
-    expect(result.errors[0]?.error).toContain(
-      "Missing required frontmatter field: target",
-    );
-  });
-
-  test("accepts arbitrary target values by default", () => {
-    const result = validateNoteDocuments([
-      doc(
-        "custom-status.md",
-        `---
-id: 20250113143015
-aliases: []
-tags: []
-target: draft
----
-
-# Test
-
-This note has a real summary paragraph now.
-`,
-      ),
-    ]);
-
-    expect(result.valid).toBe(true);
-    expect(result.notes[0]?.target).toBe("draft");
-  });
-
-  test("rejects target values only when configured", () => {
-    const result = validateNoteDocuments(
-      [
-        doc(
-          "bad-status.md",
-          `---
-id: 20250113143015
-aliases: []
-tags: []
-target: draft
----
-
-# Test
-
-This note has a real summary paragraph now.
-`,
-        ),
-      ],
-      {
-        frontmatter: {
-          fields: {
-            target: {
-              required: true,
-              type: "string",
-              values: ["current", "v0.*", "backlog"],
-            },
-          },
-        },
-      },
-    );
-
-    expect(result.valid).toBe(false);
-    expect(result.errors[0]?.error).toContain(
-      "target must match one of current, v0.*, backlog",
-    );
-  });
-
-  test("accepts configurable frontmatter target patterns", () => {
-    const result = validateNoteDocuments(
-      [
-        doc(
-          "custom-status.md",
-          `---
-id: 20250113143015
-aliases: []
-tags: ["parser-lab"]
-target: project-parser-lab
----
-
-This note belongs to a custom target lane for parser work.
-`,
-        ),
-      ],
-      {
-        frontmatter: {
-          fields: {
-            id: {
-              required: true,
-              type: "string",
-              values: [],
-            },
-            target: {
-              required: true,
-              type: "string",
-              values: ["current", "project-*"],
-            },
-            aliases: { required: false, type: "string_array", values: [] },
-            tags: {
-              required: false,
-              type: "string_array",
-              values: ["/^[a-z][a-z0-9-]*$/"],
-            },
-            title: { required: false, type: "string", values: [] },
-          },
-        },
-      },
-    );
-
-    expect(result.valid).toBe(true);
-    expect(result.notes[0]?.target).toBe("project-parser-lab");
-  });
-
-  test("accepts v0.5 as a custom note target", () => {
-    const result = validateNoteDocuments([
-      doc(
-        "v0-5-note.md",
-        `---
-id: 20250113143015
-aliases: []
-tags: ["planning"]
-target: v0.5
----
-
-This note uses v0.5 as a project-defined target label.
-`,
-      ),
-    ]);
-
-    expect(result.valid).toBe(true);
-    expect(result.notes[0]?.target).toBe("v0.5");
-  });
-
-  test("accepts v0.6 as a custom note target", () => {
-    const result = validateNoteDocuments([
-      doc(
-        "v0-6-note.md",
-        `---
-id: 20250113143016
-aliases: []
-tags: ["planning"]
-target: v0.6
----
-
-This note uses v0.6 as a project-defined target label.
-`,
-      ),
-    ]);
-
-    expect(result.valid).toBe(true);
-    expect(result.notes[0]?.target).toBe("v0.6");
+    expect(result.errors[0]?.error).toContain("Unsupported frontmatter field");
   });
 
   test("trims whitespace-only aliases", () => {
@@ -244,7 +96,6 @@ This note uses v0.6 as a project-defined target label.
 id: 20250113143015
 aliases: ["valid", "   ", "other"]
 tags: []
-target: current
 ---
 
 # Test
@@ -266,7 +117,6 @@ This note has a real summary paragraph.
 id: 20250113143015
 aliases: []
 tags: []
-target: current
 ---
 
 # Extracted From Heading
@@ -288,7 +138,6 @@ Body text now contains enough routing words.
 id: 20250113143015
 aliases: []
 tags: []
-target: current
 title: "From Frontmatter"
 ---
 
@@ -311,7 +160,6 @@ Body text now contains enough routing words.
 id: 20250113143015
 aliases: "not-an-array"
 tags: []
-target: current
 ---
 
 # Test
@@ -331,7 +179,6 @@ target: current
 id: not-a-timestamp
 aliases: []
 tags: []
-target: current
 ---
 
 # Test
@@ -351,7 +198,6 @@ This note has a real summary paragraph.
 id: 20250113143015
 aliases: []
 tags: []
-target: current
 ---
 
 # Note
@@ -380,7 +226,6 @@ This note is valid and should still trigger duplicate ID detection.
 id: 20260413123030
 aliases: []
 tags: []
-target: current
 ---
 
 # Summary Note
@@ -409,7 +254,6 @@ It should become the manifest summary.
 id: 20260413123031
 aliases: []
 tags: []
-target: current
 ---
 
 ## Links
@@ -434,7 +278,6 @@ target: current
 id: 20260413123034
 aliases: []
 tags: []
-target: current
 ---
 
 Too short.
@@ -458,7 +301,6 @@ Too short.
 id: 20260413123035
 aliases: []
 tags: []
-target: current
 ---
 
 This note explains a real repository concern with enough words to pass routing.
@@ -492,7 +334,6 @@ Describe how an operator, reviewer, or later agent should apply it.
 id: 20260413123036
 aliases: []
 tags: []
-target: current
 ---
 
 This note preserves durable guidance for the manifest trust path in this repository.
@@ -531,7 +372,6 @@ Carry the note metadata into manifests and review it in CI.
 id: 20260413123032
 aliases: []
 tags: []
-target: current
 ---
 
 ${Array.from(
@@ -560,7 +400,6 @@ ${Array.from(
 id: 20260413123033
 aliases: []
 tags: []
-target: current
 ---
 
 ${oversizedBody}
@@ -582,7 +421,6 @@ ${oversizedBody}
 id: 20260413120130
 aliases: []
 tags: []
-target: current
 ---
 
 Plain body only now contains enough routing words.
@@ -611,7 +449,6 @@ Plain body only now contains enough routing words.
 id: ${id}
 aliases: []
 tags: []
-target: current
 ---
 
 # Invalid Timestamp

@@ -3,7 +3,6 @@ id: 20260419143000
 title: MCP Stable Contract Boundary
 aliases: []
 tags: [mcp, stability, contract]
-target: current
 ---
 The `cx mcp` surface is no longer treated as one blanket experiment. The stable contract now covers the semver-protected workspace read tools, bundle planning tools, and the durable notes graph and note lifecycle and read tools, while doctor diagnostics and live workspace span replacement remain beta.
 

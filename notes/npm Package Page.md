@@ -2,7 +2,6 @@
 id: 20260416093021
 aliases: ["npm package page","wsmy cx-cli npm"]
 tags: ["distribution","npm"]
-target: current
 ---
 # npm Package Page
 

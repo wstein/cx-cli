@@ -2,7 +2,6 @@
 id: 20260416093031
 aliases: ["cx-cli repository","wstein cx-cli","github repo cx-cli"]
 tags: ["repository","source","distribution"]
-target: current
 ---
 # cx-cli GitHub Repository
 

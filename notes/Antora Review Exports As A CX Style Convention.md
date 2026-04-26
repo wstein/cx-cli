@@ -2,7 +2,6 @@
 id: 20260422151002
 aliases: ["cx style docs review exports", "docs export convention"]
 tags: [docs, antora, convention, style]
-target: v0.6
 ---
 Antora-derived review exports could become a strong `cx` style convention across projects once the `v0.5` docs export workflow proves stable and useful in practice.
 

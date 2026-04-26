@@ -35,12 +35,12 @@ export interface BuildOverlayConfigOptions {
 }
 
 function addIfDefined(
-  target: Record<string, unknown>,
+  destination: Record<string, unknown>,
   key: string,
   value: unknown,
 ): void {
   if (value !== undefined) {
-    target[key] = value;
+    destination[key] = value;
   }
 }
 

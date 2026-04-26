@@ -2,7 +2,6 @@
 id: 20260420120600
 title: Tokenizer Determinism
 tags: ["tokens", "determinism"]
-target: current
 ---
 Token counting is part of the proof contract.
 

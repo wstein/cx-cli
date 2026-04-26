@@ -2,7 +2,6 @@
 id: 20260425130400
 aliases: ["cx ask", "cx evidence bundles"]
 tags: ["cx", "notes", "llm", "retrieval", "stable"]
-target: current
 ---
 
 `cx notes ask` answers questions from bounded evidence bundles rather than from free-form repository search alone.

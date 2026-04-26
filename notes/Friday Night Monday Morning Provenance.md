@@ -2,7 +2,6 @@
 id: 20260419111000
 aliases: ["Friday to Monday Provenance", "Temporal provenance scenario"]
 tags: ["workflow", "provenance", "operations"]
-target: current
 ---
 Provenance becomes convincing when shown across time instead of as a static label.
 

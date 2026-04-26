@@ -2,7 +2,6 @@
 id: 20260420122100
 title: Shared Handover Includes Recent Repository History
 tags: ["handover", "repo-history", "context"]
-target: current
 ---
 The shared handover artifact should carry a short bounded repository history so agents and operators can see recent project motion without needing a separate artifact or a broad repository scan.
 

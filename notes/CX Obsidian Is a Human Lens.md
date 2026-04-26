@@ -2,7 +2,6 @@
 id: 20260425130900
 aliases: ["obsidian as lens", "cx not obsidian"]
 tags: ["cx", "obsidian", "workflow", "stable"]
-target: current
 ---
 
 Obsidian is a human navigation lens for the note graph, not the authority for repository semantics.

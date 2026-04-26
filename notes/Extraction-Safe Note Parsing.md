@@ -2,7 +2,6 @@
 id: 20260413153415
 aliases: ["note-parsing", "ai-routing"]
 tags: ["extraction", "ai-tools"]
-target: current
 ---
 # Extraction-Safe Note Parsing
 

@@ -2,7 +2,6 @@
 id: 20260415160500
 aliases: ["config overlays", "inheritance"]
 tags: [config, architecture, refinement]
-target: current
 ---
 `cx` configuration follows a deterministic loading and inheritance pipeline that enables colocated overlays (like `cx-mcp.toml`) without repeating the entire `cx.toml` baseline.
 

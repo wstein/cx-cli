@@ -3,7 +3,6 @@ id: 20260420183200
 title: Documentation Surface Split for Antora
 aliases: []
 tags: ["docs", "antora", "information-architecture"]
-target: current
 ---
 With Antora adopted for the curated docs site and the curated pages promoted to first-class `.adoc` sources, the documentation should stay split into explicit surfaces instead of collapsing back into one large flat canonical directory with mostly human-inferred entrypoints.
 

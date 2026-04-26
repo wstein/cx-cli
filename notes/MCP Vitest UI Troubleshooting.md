@@ -2,7 +2,6 @@
 id: 20260419171500
 aliases: ["MCP Cockpit Troubleshooting", "Vitest UI MCP Troubleshooting"]
 tags: ["mcp", "troubleshooting", "vitest", "workflow"]
-target: current
 ---
 The MCP Vitest UI troubleshooting flow is intentionally small: use the broad MCP cockpit when you need coverage and import visibility across the MCP boundary, and switch to the adversarial cockpit when the failure is explicitly about startup breakdowns, malformed runtime payloads, or other hostile-boundary behavior. The goal is to shorten diagnosis, not to replace the normal proof path.
 

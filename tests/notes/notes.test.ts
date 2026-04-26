@@ -335,7 +335,6 @@ describe("Notes Graph", () => {
 id: 20260413170000
 aliases: []
 tags: []
-target: current
 ---
 
 # Broken Link
@@ -398,7 +397,6 @@ describe("Notes Command Subcommands", () => {
 id: ${note.id}
 aliases: []
 tags: []
-target: current
 ---
 
 # Link Audit Note

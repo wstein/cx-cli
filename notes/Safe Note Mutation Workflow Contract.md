@@ -2,7 +2,6 @@
 id: 20260420124500
 title: Safe Note Mutation Workflow Contract
 tags: ["notes", "workflow", "contracts"]
-target: current
 ---
 Safe note mutation is a contract because cognition changes must stay reviewable and bounded.
 

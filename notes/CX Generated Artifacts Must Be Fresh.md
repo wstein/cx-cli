@@ -2,7 +2,6 @@
 id: 20260425130800
 aliases: ["cx generated freshness", "generated drift"]
 tags: ["cx", "generation", "ci", "stable"]
-target: current
 ---
 
 Generated note-, spec-, and doc-derived artifacts are freshness-checked build products.

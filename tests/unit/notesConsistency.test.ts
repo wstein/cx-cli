@@ -49,7 +49,6 @@ describe("Notes Consistency Check", () => {
         `---
 id: ${noteId}
 title: First Note
-target: current
 ---
 
 First note content with enough routing words for validation.`,
@@ -60,7 +59,6 @@ First note content with enough routing words for validation.`,
         `---
 id: ${noteId}
 title: Second Note
-target: current
 ---
 
 Second note content with enough routing words for validation.`,
@@ -89,7 +87,6 @@ Second note content with enough routing words for validation.`,
         `---
 id: 20250113143000
 title: Orphan Note
-target: current
 ---
 
 This note has no links but still has enough routing words.`,
@@ -100,7 +97,6 @@ This note has no links but still has enough routing words.`,
         `---
 id: 20250113143001
 title: Isolated Note
-target: current
 ---
 
 This note also has no links but still has enough routing words.`,
@@ -127,7 +123,6 @@ This note also has no links but still has enough routing words.`,
         `---
 id: 20250113143000
 title: Broken Links
-target: current
 ---
 
 Link to [[nonexistent-note]] with enough routing words to validate.`,
@@ -156,7 +151,6 @@ Link to [[nonexistent-note]] with enough routing words to validate.`,
         `---
 id: 20250113143000
 title: First Note
-target: current
 ---
 
 This is a well-formed note with enough routing words.`,
@@ -186,7 +180,6 @@ This is a well-formed note with enough routing words.`,
         `---
 id: 20260413143004
 title: Sparse Note
-target: current
 ---
 
 This note remains valid but sparse today.
@@ -219,7 +212,6 @@ It intentionally omits structure and supporting links for now.
         `---
 id: 20260413143005
 title: Drifted Note
-target: current
 ---
 
 This note preserves drift guidance for one unstable path.
@@ -256,7 +248,6 @@ Track [[src/missing.ts]] before mutation.
         `---
 id: 20260413143006
 title: Positive Claim
-target: current
 ---
 
 This note claims a repository path state with enough routing words today.
@@ -269,7 +260,6 @@ The file [[src/shared.ts]] is present and active in the repository.
         `---
 id: 20260413143007
 title: Negative Claim
-target: current
 ---
 
 This note claims the opposite path state with enough routing words today.
@@ -304,7 +294,6 @@ The file [[src/shared.ts]] is missing and no longer exists.
         `---
 id: 20250113143002
 title: Drift Warning
-target: current
 ---
 
 See [[src/missing.ts]] for the implementation details.`,
@@ -333,7 +322,6 @@ See [[src/missing.ts]] for the implementation details.`,
         `---
 id: 20250113143003
 title: Untracked Code Path
-target: current
 ---
 
 See [[src/generated.ts]] before changing the generator.`,
@@ -400,7 +388,6 @@ See [[src/generated.ts]] before changing the generator.`,
         `---
 id: 20250113143000
 title: Tools
-target: current
 ---
 
 Documentation for tools`,
@@ -430,7 +417,6 @@ Documentation for tools`,
 id: 20250113143000
 aliases: []
 tags: []
-target: current
 ---
 
 This note documents the notes_list tool behavior for coverage analysis.

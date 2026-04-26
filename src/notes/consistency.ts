@@ -90,7 +90,6 @@ export interface ConsistencyReport {
     id: string;
     filePath: string;
     title: string;
-    target: string;
     score: number;
     label: NoteCognitionLabel;
     trustLevel: NoteTrustLevel;
@@ -308,7 +307,6 @@ export async function checkNotesConsistency(
       id: note.id,
       filePath: note.filePath,
       title: note.title,
-      target: note.target,
       score: note.cognition.score,
       label: note.cognition.label,
       trustLevel: note.cognition.trustLevel,
@@ -324,29 +322,25 @@ export async function checkNotesConsistency(
     validation.duplicateIds.length === 0 &&
     brokenLinksFormatted.length === 0;
 
-  const currentNotes = new Map(
-    validation.notes
-      .filter((note) => note.target === "current")
-      .map((note) => [note.id, note]),
-  );
+  const knownNotes = new Map(validation.notes.map((note) => [note.id, note]));
   const currentFeatureWarnings = [
     ...brokenLinksFormatted
-      .filter((issue) => currentNotes.has(issue.fromNoteId))
+      .filter((issue) => knownNotes.has(issue.fromNoteId))
       .map((issue) => ({
         noteId: issue.fromNoteId,
         noteTitle: issue.fromTitle,
         reference: issue.reference,
         source: issue.source,
-        reason: "current note references a missing note or anchor",
+        reason: "note references a missing note or anchor",
       })),
     ...codePathWarnings
-      .filter((warning) => currentNotes.has(warning.fromNoteId))
+      .filter((warning) => knownNotes.has(warning.fromNoteId))
       .map((warning) => ({
         noteId: warning.fromNoteId,
         noteTitle: warning.fromTitle,
         reference: warning.path,
         source: "code" as const,
-        reason: `current note references a ${warning.status.replaceAll("_", " ")}`,
+        reason: `note references a ${warning.status.replaceAll("_", " ")}`,
       })),
   ];
 

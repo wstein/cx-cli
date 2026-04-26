@@ -81,11 +81,6 @@ describe("loadCxConfig object model", () => {
       notes: {
         frontmatter: {
           fields: {
-            target: {
-              required: true,
-              type: "string",
-              values: ["current", "backlog", "/^v\\d+\\.\\d+$/"],
-            },
             tags: {
               required: false,
               type: "string_array",
@@ -96,11 +91,6 @@ describe("loadCxConfig object model", () => {
       },
     });
 
-    expect(config.notes.frontmatter.fields.target).toEqual({
-      required: true,
-      type: "string",
-      values: ["current", "backlog", "/^v\\d+\\.\\d+$/"],
-    });
     expect(config.notes.frontmatter.fields.tags).toEqual({
       required: false,
       type: "string_array",

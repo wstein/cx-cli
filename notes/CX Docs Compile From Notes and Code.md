@@ -2,7 +2,6 @@
 id: 20260425130600
 aliases: ["cx docs compile", "notes to antora"]
 tags: ["cx", "docs", "antora", "generation", "stable"]
-target: current
 ---
 
 `cx docs compile` turns notes plus repository evidence into maintained Antora documentation surfaces.

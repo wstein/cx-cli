@@ -2,7 +2,6 @@
 id: 20260425130200
 aliases: ["cx traceability", "note trace"]
 tags: ["cx", "notes", "traceability", "stable"]
-target: current
 ---
 
 `cx` treats traceability as a first-class capability instead of a side effect of markdown links.

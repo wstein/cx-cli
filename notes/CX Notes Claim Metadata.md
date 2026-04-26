@@ -2,7 +2,6 @@
 id: 20260425130300
 aliases: ["cx note claims", "note claim surface"]
 tags: ["cx", "notes", "claims", "stable"]
-target: current
 ---
 
 Notes support optional structured claim metadata without becoming executable config files.

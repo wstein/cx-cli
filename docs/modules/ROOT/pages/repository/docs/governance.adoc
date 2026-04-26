@@ -481,7 +481,6 @@ Every note must use this minimal structure:
 id: YYYYMMDDHHMMSS
 aliases: []
 tags: []
-target: current
 ---
 Atomic body in the author's own words.
 

@@ -3,7 +3,6 @@ id: 20260420183000
 title: Antora and AsciiDoctor Adoption Boundary
 aliases: []
 tags: ["docs", "antora", "asciidoctor", "architecture"]
-target: current
 ---
 Antora and AsciiDoctor now define the curated documentation surface through a standard Antora component rooted at `docs/`, with `docs/antora.yml`, `docs/modules/ROOT/pages/`, and a separate local UI bundle under `docs/ui/`, not every text artifact in the repository.
 

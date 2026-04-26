@@ -209,11 +209,6 @@ exclude = []
                       type: "string",
                       values: [],
                     },
-                    target: {
-                      required: true,
-                      type: "string",
-                      values: [],
-                    },
                     aliases: {
                       required: false,
                       type: "string_array",

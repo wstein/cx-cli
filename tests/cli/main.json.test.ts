@@ -183,7 +183,6 @@ id: 20260418120000
 title: Valid Note
 aliases: []
 tags: []
-target: current
 ---
 
 This note provides a durable summary so the bundle wrapper coverage test passes governance.
@@ -341,7 +340,6 @@ exclude = []
       `---
 id: 20260418120001
 title: Broken Note
-target: current
 tags:
   - 123
 ---

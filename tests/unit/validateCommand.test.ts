@@ -33,7 +33,6 @@ async function createBundleFixture(noteContents: string[]): Promise<{
 id: 20260418125959
 title: Bundle Note
 tags: []
-target: current
 ---
 
 This bundle note keeps enough routing words today.
@@ -63,7 +62,6 @@ describe("runValidateCommand", () => {
 id: 20260418120000
 title: Valid Note
 tags: []
-target: current
 ---
 
 This valid note keeps enough routing words today.
@@ -83,7 +81,6 @@ This valid note keeps enough routing words today.
 id: 20260418120001
 title: Duplicate One
 tags: []
-target: current
 ---
 
 This duplicate note keeps enough routing words today.
@@ -92,7 +89,6 @@ This duplicate note keeps enough routing words today.
 id: 20260418120001
 title: Duplicate Two
 tags: []
-target: current
 ---
 
 This duplicate note keeps enough routing words today.
@@ -118,7 +114,6 @@ This duplicate note keeps enough routing words today.
 id: 20260418120002
 title: Json Note
 tags: []
-target: current
 ---
 
 This JSON note keeps enough routing words today.

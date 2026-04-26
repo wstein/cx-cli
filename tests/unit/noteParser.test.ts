@@ -241,7 +241,7 @@ describe("notes parser", () => {
       const content = [
         "---",
         "tags: [\"alpha\", beta, 'gamma']",
-        "target: 'draft'",
+        "state: 'draft'",
         'summary: "Hello world"',
         "---",
         "Body",
@@ -249,7 +249,7 @@ describe("notes parser", () => {
 
       const result = parseMarkdownFrontmatter(content);
       expect(result.frontmatter.tags).toEqual(["alpha", "beta", "gamma"]);
-      expect(result.frontmatter.target).toBe("draft");
+      expect(result.frontmatter.state).toBe("draft");
       expect(result.frontmatter.summary).toBe("Hello world");
     });
   });

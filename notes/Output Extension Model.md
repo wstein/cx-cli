@@ -2,7 +2,6 @@
 id: 20260420110500
 title: Output Extension Model
 tags: ["output", "templates", "plugins"]
-target: backlog
 ---
 Non-proof outputs may be generated via extension plugins.
 

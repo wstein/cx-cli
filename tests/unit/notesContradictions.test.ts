@@ -27,7 +27,6 @@ describe("note contradictions", () => {
       `---
 id: 20260418150000
 title: Present Claim
-target: current
 ---
 
 This note tracks a code path claim with enough routing words today.
@@ -41,7 +40,6 @@ The file [[src/missing.ts]] is present and required before release.
       `---
 id: 20260418150001
 title: Missing Claim
-target: current
 ---
 
 This note tracks the opposite code path claim with enough routing words today.
@@ -89,7 +87,6 @@ The file [[src/present.ts]] is missing from the repository right now.
       `---
 id: 20260418150010
 title: Positive Claim
-target: current
 ---
 
 This note claims a file state with enough routing words today.
@@ -103,7 +100,6 @@ The file [[src/shared.ts]] is present and active in the repository.
       `---
 id: 20260418150011
 title: Negative Claim
-target: current
 ---
 
 This note claims the opposite state with enough routing words today.

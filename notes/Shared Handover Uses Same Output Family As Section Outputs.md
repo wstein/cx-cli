@@ -2,7 +2,6 @@
 id: 20260420122200
 title: Shared Handover Uses Same Output Family As Section Outputs
 tags: ["handover", "render", "compatibility"]
-target: current
 ---
 The shared handover artifact should use the same output family as the section outputs so the bundle stays style-consistent and the future native kernel can treat handover rendering as part of the same rendering family.
 

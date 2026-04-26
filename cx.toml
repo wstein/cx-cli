@@ -48,11 +48,6 @@ repo_history_count = 25
 strict_notes_mode = false
 fail_on_drift_pressured_notes = false
 
-[notes.frontmatter.fields.target]
-required = true
-type = "string"
-values = ["current", "backlog", "/^v[0-9]+[.][0-9]+$/"]
-
 [notes.frontmatter.fields.tags]
 required = false
 type = "string_array"

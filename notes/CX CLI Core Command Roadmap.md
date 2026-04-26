@@ -2,7 +2,6 @@
 id: 20260425131000
 aliases: ["cx roadmap", "cx core commands"]
 tags: ["cx", "cli", "roadmap", "active"]
-target: current
 ---
 
 The first `cx` note-centric command set focuses on validation, traceability, retrieval, and documentation compilation.

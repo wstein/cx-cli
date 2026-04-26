@@ -2,7 +2,6 @@
 id: 20260420143000
 aliases: ["antora markdown exporter", "export antora to markdown files"]
 tags: [docs, antora, exporter, markdown]
-target: v0.5
 ---
 
 Antora-derived MultiMarkdown export belongs in the `v0.5` line as a derived review workflow, not as an automatic proof-path bundle artifact.

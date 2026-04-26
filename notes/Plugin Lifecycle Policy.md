@@ -2,7 +2,6 @@
 id: 20260420121100
 title: Plugin Lifecycle Policy
 tags: ["plugins", "governance", "lifecycle"]
-target: backlog
 ---
 Plugins follow a strict lifecycle so extension systems stay governable even when new capabilities arrive quickly.
 

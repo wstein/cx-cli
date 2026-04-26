@@ -2,7 +2,6 @@
 id: 20260415160000
 aliases: ["MCP transport", "stdio protocol"]
 tags: [mcp, transport, architecture]
-target: current
 ---
 `cx` implements the Model Context Protocol (MCP) over a standard input/output (stdio) transport layer.
 

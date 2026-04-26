@@ -2,7 +2,6 @@
 id: 20260424120000
 aliases: ["configurable frontmatter validation"]
 tags: ["notes", "config", "validation"]
-target: current
 ---
 
 Note frontmatter validation should keep repository-wide structural invariants while letting each project define its own routing vocabulary.

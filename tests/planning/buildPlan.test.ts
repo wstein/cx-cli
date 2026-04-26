@@ -118,11 +118,6 @@ function baseConfig(root: string): CxConfig {
             type: "string",
             values: [],
           },
-          target: {
-            required: true,
-            type: "string",
-            values: [],
-          },
           aliases: { required: false, type: "string_array", values: [] },
           tags: { required: false, type: "string_array", values: [] },
           title: { required: false, type: "string", values: [] },

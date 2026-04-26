@@ -47,7 +47,6 @@ async function createProject(
     `---
 id: 20260418130000
 title: Architecture
-target: current
 ---
 
 Tracked reference: [[src/index.ts]]

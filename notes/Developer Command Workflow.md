@@ -2,7 +2,6 @@
 id: 20260417105501
 aliases: ["make workflow", "developer commands", "release workflow"]
 tags: ["workflow", "development", "release"]
-target: current
 ---
 `make test` is the fast local feedback loop, `make verify` is the normal
 pre-merge gate, and `make release VERSION=vX.Y.Z` is the repository-local

@@ -67,11 +67,6 @@ fail_on_drift_pressured_notes = false
 #
 # Frontmatter values support exact strings, wildcards (* and ?), and regex literals.
 
-[notes.frontmatter.fields.target]
-required = true
-type = "string"
-values = ["current", "backlog", "/^v[0-9]+[.][0-9]+$/"]
-
 [notes.frontmatter.fields.tags]
 required = false
 type = "string_array"
@@ -182,11 +177,6 @@ export const DEFAULT_CONFIG_VALUES: Omit<
     frontmatter: {
       fields: {
         id: {
-          required: true,
-          type: "string",
-          values: [],
-        },
-        target: {
           required: true,
           type: "string",
           values: [],

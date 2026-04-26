@@ -2,7 +2,6 @@
 id: 20260420124200
 title: Friday To Monday Workflow Contract
 tags: ["workflow", "contracts", "provenance"]
-target: current
 ---
 The Friday-to-Monday path is a workflow contract for turning live investigation into a trusted handoff.
 

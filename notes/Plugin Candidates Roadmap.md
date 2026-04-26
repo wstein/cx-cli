@@ -2,7 +2,6 @@
 id: 20260420110700
 title: Plugin Candidates Roadmap
 tags: ["roadmap", "plugins", "future"]
-target: backlog
 ---
 Initial plugin candidates for the `cx` architecture.
 

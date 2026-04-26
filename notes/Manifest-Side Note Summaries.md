@@ -2,7 +2,6 @@
 id: 20260413153522
 aliases: ["manifest-summaries"]
 tags: ["manifest", "ai-tools", "optimization"]
-target: current
 ---
 # Manifest-Side Note Summaries
 

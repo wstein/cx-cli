@@ -2,7 +2,6 @@
 id: 20260420122300
 title: Shared Handover Is The First Native Render Migration Candidate
 tags: ["migration", "render", "handover"]
-target: current
 ---
 The shared handover artifact is now the first native kernel-rendered artifact, proving the render migration with a real deterministic output before full section rendering moves over.
 

@@ -2,7 +2,6 @@
 id: 20260415153500
 aliases: ["note graph audit", "note graph maintenance"]
 tags: [notes, graph, audit]
-target: current
 ---
 A note graph audit is the practice of checking note references, backlinks, orphans, and code links after the note corpus changes.
 

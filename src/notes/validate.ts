@@ -15,7 +15,6 @@ import {
 
 export interface NoteFrontmatter {
   id: string;
-  target: NoteTarget;
   aliases?: string[];
   tags?: string[];
   title?: string;
@@ -24,7 +23,6 @@ export interface NoteFrontmatter {
   claims?: NoteClaim[];
 }
 
-export type NoteTarget = string;
 export type NoteKind =
   | "decision"
   | "invariant"
@@ -61,11 +59,6 @@ export interface NoteFrontmatterConfig {
 export const DEFAULT_NOTE_FRONTMATTER_CONFIG: NoteFrontmatterConfig = {
   fields: {
     id: {
-      required: true,
-      type: "string",
-      values: [],
-    },
-    target: {
       required: true,
       type: "string",
       values: [],
@@ -401,7 +394,15 @@ function parseNoteDocument(
       };
     }
 
-    const target = String(frontmatter.target ?? "").trim();
+    if (Object.hasOwn(frontmatter, "target")) {
+      return {
+        metadata: null,
+        error: {
+          filePath,
+          error: "Unsupported frontmatter field: target",
+        },
+      };
+    }
 
     const aliases = normalizeStringArray(
       frontmatter.aliases,
@@ -572,7 +573,6 @@ function parseNoteDocument(
     return {
       metadata: {
         id,
-        target,
         aliases: aliases.value,
         tags: tags.value,
         title,

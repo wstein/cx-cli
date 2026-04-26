@@ -2,7 +2,6 @@
 id: 20260415163000
 aliases: ["cli lifecycle", "command dispatch"]
 tags: [cli, architecture, workflow]
-target: current
 ---
 The CLI command lifecycle in `cx` is built on `yargs` and a centralized command dispatch model.
 

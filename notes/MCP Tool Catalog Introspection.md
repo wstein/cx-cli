@@ -3,7 +3,6 @@ id: 20260419180000
 title: MCP Tool Catalog Introspection
 aliases: []
 tags: [mcp, automation, stability]
-target: current
 ---
 The machine-readable MCP contract should expose tool stability metadata through a narrow operator command, not only through human-facing prose in docs or tool descriptions. `cx mcp catalog --json` now serves as that dedicated endpoint, while `cx doctor mcp --json` embeds the same catalog when operators also need profile and audit context.
 

@@ -30,7 +30,6 @@ describe("runDocsCommand", () => {
       `---
 id: 20260421141000
 title: Render Kernel Constitution
-target: current
 tags: [architecture, kernel, contract]
 ---
 
@@ -75,7 +74,6 @@ The render kernel owns the production proof path so architecture docs can be gen
       `---
 id: 20260421141001
 title: Render Kernel Constitution
-target: current
 tags: [architecture, kernel, contract]
 ---
 
