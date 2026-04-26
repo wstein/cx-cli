@@ -27,6 +27,7 @@ describe("assurance ladder contract", () => {
     expect(certify).toContain("bun run ci:test:coverage");
     expect(certify).toContain("bun run ci:test:contracts");
     expect(certify).toContain("bun run ci:smoke:repomix-reference-oracle");
+    expect(certify).toContain("bun run ci:test:repomix-adapter-parity");
     expect(certify).toContain("bun run ci:smoke:bundle-transition");
     expect(certify).toContain("bun run ci:assurance:release-integrity");
     expect(certify).toContain("bun run ci:assurance:reproducibility");

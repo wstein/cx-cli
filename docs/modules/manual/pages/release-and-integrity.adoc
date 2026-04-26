@@ -198,6 +198,9 @@ The shipped proof path is kernel-owned. The remaining adapter/oracle seam is for
 * Top-level JSON payload names are treated as versioned contract surfaces and must not drift silently.
 * `cx adapter capabilities --json` now exposes explicit `oracleAdapter` and `referenceAdapter` fields instead of the older `repomix` naming.
 * CI now includes a single official-`repomix` reference-oracle smoke lane.
+* The official reference oracle is guarded by an adapter-parity baseline that
+  compares rendered bytes, per-file token counts, total tokens, and security
+  findings against `repomix` 1.13.1.
 * The older `@wsmy/repomix-cx-fork` package is no longer a shipped runtime dependency.
 * The native kernel is now the production proof path for `bundle`, `validate`, `verify`, and `extract`.
 * Other JSON command surfaces such as `cx bundle --json`, `cx inspect --json`, `cx list --json`, `cx validate --json`, and `cx verify --json` no longer embed adapter metadata.

@@ -62,6 +62,7 @@
     "ci:test:adapter-capabilities-contract": "vitest run tests/contracts/adapterCapabilities.contract.test.ts",
     "ci:notes:governance": "node scripts/notes-governance.js",
     "ci:smoke:repomix-reference-oracle": "node scripts/repomix-reference-oracle-smoke.js",
+    "ci:test:repomix-adapter-parity": "node scripts/repomix-adapter-parity.js",
     "ci:smoke:bundle-transition": "node scripts/bundle-transition-smoke.js",
     "ci:assurance:release-integrity": "node scripts/release-assurance-smoke.js",
     "ci:assurance:reproducibility": "node scripts/reproducibility-check.js",
@@ -71,7 +72,7 @@
     "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json && tsc -p tsconfig.test.json",
     "fix": "biome check --write --unsafe .",
     "verify": "bun run lint && bun run check && bun run build && bun run ci:test:coverage && bun run ci:test:compat",
-    "certify": "bun run verify && bun run ci:test:coverage && bun run ci:notes:governance && bun run ci:test:contracts && bun run ci:smoke:repomix-reference-oracle && bun run ci:smoke:bundle-transition && bun run ci:assurance:release-integrity && bun run ci:assurance:reproducibility",
+    "certify": "bun run verify && bun run ci:test:coverage && bun run ci:notes:governance && bun run ci:test:contracts && bun run ci:smoke:repomix-reference-oracle && bun run ci:test:repomix-adapter-parity && bun run ci:smoke:bundle-transition && bun run ci:assurance:release-integrity && bun run ci:assurance:reproducibility",
     "copy:init": "node scripts/copy-init-templates.js",
     "notes": "cx notes list && cx notes orphans",
     "smoke": "bun run smoke:repomix-reference-oracle",
@@ -115,7 +116,7 @@
     "@vitest/ui": "^4.1.4",
     "fast-check": "^4.7.0",
     "marked": "^18.0.2",
-    "repomix": "^1.13.1",
+    "repomix": "^1.14.0",
     "vitest": "^4.1.4"
   }
 }

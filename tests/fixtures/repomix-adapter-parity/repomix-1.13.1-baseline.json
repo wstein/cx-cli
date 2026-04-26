@@ -1,0 +1,30 @@
+{
+  "baselinePackage": {
+    "name": "repomix",
+    "version": "1.13.1"
+  },
+  "encoding": "o200k_base",
+  "fixture": {
+    "source": "tests/fixtures/repomix-adapter-parity/input",
+    "generatedFiles": [
+      "edge/nul-and-crlf.txt"
+    ]
+  },
+  "perFileTokenCounts": {
+    "docs/unicode.md": 44,
+    "docs/whitespace.txt": 17,
+    "edge/nul-and-crlf.txt": 8,
+    "src/app.ts": 26
+  },
+  "totalTokens": 95,
+  "outputXmlSha256": "82084d6b7a2db3e397ced83f0345728a01e1f556d5680096a0f22a6815696dce",
+  "securityFindings": [
+    {
+      "filePath": "src/secrets.env",
+      "messages": [
+        "found AWS Secret Access Key: abcdefghijklmnopqrstuvwxyz1234567890ABCD"
+      ],
+      "type": "file"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+first line
+second line with trailing spaces    
+third line with tabs		
+final line

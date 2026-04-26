@@ -65,6 +65,11 @@ describe("official reference-oracle capabilities", () => {
     expect(merged.output.filePath).toContain("repomix-output.xml.txt");
     const suspiciousFiles = await runSecurityCheck([
       {
+        path: "src/secrets.env",
+        content:
+          "AWS_SECRET_ACCESS_KEY=abcdefghijklmnopqrstuvwxyz1234567890ABCD\n",
+      },
+      {
         path: "src/index.ts",
         content: await fs.readFile(
           path.join(fixture.rootDir, "src", "index.ts"),
@@ -76,7 +81,15 @@ describe("official reference-oracle capabilities", () => {
     expect(
       (await getOracleAdapterCapabilities()).oracleAdapter.adapterContract,
     ).toBe(ADAPTER_CONTRACT);
-    expect(Array.isArray(suspiciousFiles)).toBe(true);
+    expect(suspiciousFiles).toEqual([
+      {
+        filePath: "src/secrets.env",
+        messages: [
+          "found AWS Secret Access Key: abcdefghijklmnopqrstuvwxyz1234567890ABCD",
+        ],
+        type: "file",
+      },
+    ]);
   });
 
   test("renderSectionWithAdapterOracle returns an empty render for zero files", async () => {

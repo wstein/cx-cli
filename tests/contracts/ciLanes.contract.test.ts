@@ -135,6 +135,9 @@ describe("CI lanes contract", () => {
     expect(scripts["ci:smoke:repomix-reference-oracle"]).toBe(
       "node scripts/repomix-reference-oracle-smoke.js",
     );
+    expect(scripts["ci:test:repomix-adapter-parity"]).toBe(
+      "node scripts/repomix-adapter-parity.js",
+    );
     expect(scripts["ci:smoke:adapter-version"]).toBeUndefined();
     expect(scripts["ci:smoke:adapter-dual-oracle"]).toBeUndefined();
     expect(scripts["ci:guard:fast-lane"]).toBe(

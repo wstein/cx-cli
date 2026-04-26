@@ -281,7 +281,10 @@ contract
 This split is intentional. It lets the kernel own the production proof
 path without weakening extraction, verification, or manifest trust.
 Official `repomix` remains only as an optional reference oracle for
-parity/testing work; the older fork is historical.
+parity/testing work; the older fork is historical. The reference-oracle lane now
+includes `scripts/repomix-adapter-parity.js`, which keeps adapter upgrades bound
+to a checked-in `repomix` 1.13.1 baseline for rendered XML bytes, per-file token
+counts, total token count, and security findings.
 
 == Pipeline
 
