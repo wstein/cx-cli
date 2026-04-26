@@ -22,7 +22,7 @@
     {
       "filePath": "src/secrets.env",
       "messages": [
-        "found AWS Secret Access Key: abcdefghijklmnopqrstuvwxyz1234567890ABCD"
+        "found AWS Secret Access Key: <redacted-fixture-secret>"
       ],
       "type": "file"
     }
