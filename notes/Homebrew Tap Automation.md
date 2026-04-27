@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Validate Ruby syntax
         run: ruby -c Formula/cx-cli.rb
@@ -54,7 +54,7 @@ The source repo owns packaging and formula generation. The release workflow shou
 
 ```yaml
 - name: Checkout Homebrew tap
-  uses: actions/checkout@v4
+  uses: actions/checkout@v6
   with:
     repository: wstein/homebrew-tap
     token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}

@@ -31,7 +31,7 @@ jobs:
       release_sha: ${{ steps.release-version.outputs.sha }}
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
@@ -98,7 +98,7 @@ jobs:
       npm_tarball_name: ${{ steps.pack.outputs.npm_tarball_name }}
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.gate.outputs.release_sha }}
@@ -144,7 +144,7 @@ jobs:
 
       - name: Upload release artifacts
         # Keep the packed npm tarball and generated formula together so both publish jobs use the same release payload.
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tarball-artifacts
           path: tarball-artifacts
@@ -198,7 +198,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download release artifacts
         uses: actions/download-artifact@v4
@@ -217,7 +217,7 @@ jobs:
           fi
 
       - name: Checkout Homebrew tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: wstein/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_PUSH_TOKEN }}
@@ -261,7 +261,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.gate.outputs.release_sha }}
@@ -309,7 +309,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout current repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ needs.gate.outputs.release_sha }}

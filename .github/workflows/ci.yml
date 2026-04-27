@@ -183,7 +183,7 @@ jobs:
 
       - name: Upload internal coverage handoff
         if: ${{ always() && hashFiles('coverage/vitest/index.html') != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-vitest-handoff
           path: |
@@ -375,13 +375,13 @@ jobs:
         run: cat .ci/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload verify-against policy report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verify-against-policy-report
           path: .ci/verify-against-policy-report.json
 
       - name: Upload observability dashboard
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-observability
           path: |
@@ -389,7 +389,7 @@ jobs:
             .ci/observability-summary.md
 
       - name: Upload HTML coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-html
           path: coverage/vitest
