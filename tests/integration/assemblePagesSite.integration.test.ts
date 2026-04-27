@@ -29,6 +29,11 @@ describe("assemble-pages-site.js", () => {
       "utf8",
     );
     await fs.writeFile(
+      path.join(schemasDir, "cx-config-overlay-v1.schema.json"),
+      '{"$id":"https://example.invalid/cx-config-overlay-v1.schema.json"}\n',
+      "utf8",
+    );
+    await fs.writeFile(
       path.join(schemasDir, "manifest-v7.schema.json"),
       '{"$id":"https://example.invalid/manifest-v7.schema.json"}\n',
       "utf8",
@@ -36,6 +41,16 @@ describe("assemble-pages-site.js", () => {
     await fs.writeFile(
       path.join(schemasDir, "manifest-v8.schema.json"),
       '{"$id":"https://example.invalid/manifest-v8.schema.json"}\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(schemasDir, "manifest-v9.schema.json"),
+      '{"$id":"https://example.invalid/manifest-v9.schema.json"}\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(schemasDir, "manifest-v10.schema.json"),
+      '{"$id":"https://example.invalid/manifest-v10.schema.json"}\n',
       "utf8",
     );
     await fs.writeFile(
@@ -67,9 +82,12 @@ describe("assemble-pages-site.js", () => {
 
     expect(result.schemaNames).toEqual([
       "cx-config-v1.schema.json",
-      "json-section-output-v1.schema.json",
+      "cx-config-overlay-v1.schema.json",
       "manifest-v7.schema.json",
       "manifest-v8.schema.json",
+      "manifest-v9.schema.json",
+      "manifest-v10.schema.json",
+      "json-section-output-v1.schema.json",
       "shared-handover-v1.schema.json",
       "shared-handover-v2.schema.json",
     ]);
@@ -106,11 +124,23 @@ describe("assemble-pages-site.js", () => {
     expect(versionedDocsIndex).toContain('href="manual/"');
     expect(versionedDocsIndex).not.toContain('href="/cx/0.5/');
     expect(schemasIndex).toContain("cx-config-v1.schema.json");
+    expect(schemasIndex).toContain("cx-config-overlay-v1.schema.json");
     expect(schemasIndex).toContain("json-section-output-v1.schema.json");
     expect(schemasIndex).toContain("manifest-v7.schema.json");
     expect(schemasIndex).toContain("manifest-v8.schema.json");
+    expect(schemasIndex).toContain("manifest-v9.schema.json");
+    expect(schemasIndex).toContain("manifest-v10.schema.json");
     expect(schemasIndex).toContain("shared-handover-v1.schema.json");
     expect(schemasIndex).toContain("shared-handover-v2.schema.json");
+    expect(schemasIndex).toContain("<h2>Configuration</h2>");
+    expect(schemasIndex).toContain("<h2>Bundle Manifest</h2>");
+    expect(schemasIndex).toContain("<h2>Render Outputs</h2>");
+    expect(schemasIndex.indexOf("cx-config-v1.schema.json")).toBeLessThan(
+      schemasIndex.indexOf("cx-config-overlay-v1.schema.json"),
+    );
+    expect(schemasIndex.indexOf("manifest-v9.schema.json")).toBeLessThan(
+      schemasIndex.indexOf("manifest-v10.schema.json"),
+    );
     expect(coverageIndex).toContain("coverage");
   });
 

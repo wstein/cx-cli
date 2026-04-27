@@ -117,9 +117,103 @@ function renderRootIndex({ hasCoverage }) {
   ].join("\n");
 }
 
+const SCHEMA_GROUPS = [
+  {
+    title: "Configuration",
+    match: (schemaName) => schemaName.startsWith("cx-config"),
+    order: [
+      "cx-config-v1.schema.json",
+      "cx-config-overlay-v1.schema.json",
+    ],
+  },
+  {
+    title: "Bundle Manifest",
+    match: (schemaName) => schemaName.startsWith("manifest-v"),
+  },
+  {
+    title: "Render Outputs",
+    match: (schemaName) =>
+      schemaName.startsWith("json-section-output") ||
+      schemaName.startsWith("shared-handover"),
+    order: [
+      "json-section-output-v1.schema.json",
+      "shared-handover-v1.schema.json",
+      "shared-handover-v2.schema.json",
+    ],
+  },
+];
+
+function schemaVersion(schemaName) {
+  const match = schemaName.match(/-v(\d+)\.schema\.json$/u);
+  return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+}
+
+function compareSchemaNames(left, right) {
+  const versionDifference = schemaVersion(left) - schemaVersion(right);
+  if (versionDifference !== 0) {
+    return versionDifference;
+  }
+
+  return left.localeCompare(right);
+}
+
+function sortSchemaNames(schemaNames) {
+  return [...schemaNames].sort((left, right) => {
+    const leftGroupIndex = SCHEMA_GROUPS.findIndex((group) => group.match(left));
+    const rightGroupIndex = SCHEMA_GROUPS.findIndex((group) => group.match(right));
+    const normalizedLeftGroupIndex =
+      leftGroupIndex === -1 ? SCHEMA_GROUPS.length : leftGroupIndex;
+    const normalizedRightGroupIndex =
+      rightGroupIndex === -1 ? SCHEMA_GROUPS.length : rightGroupIndex;
+
+    if (normalizedLeftGroupIndex !== normalizedRightGroupIndex) {
+      return normalizedLeftGroupIndex - normalizedRightGroupIndex;
+    }
+
+    const group = SCHEMA_GROUPS[normalizedLeftGroupIndex];
+    const leftOrder = group?.order?.indexOf(left) ?? -1;
+    const rightOrder = group?.order?.indexOf(right) ?? -1;
+    if (leftOrder !== -1 || rightOrder !== -1) {
+      return (leftOrder === -1 ? Number.POSITIVE_INFINITY : leftOrder) -
+        (rightOrder === -1 ? Number.POSITIVE_INFINITY : rightOrder);
+    }
+
+    return compareSchemaNames(left, right);
+  });
+}
+
+function groupSchemaNames(schemaNames) {
+  const groups = SCHEMA_GROUPS.map((group) => ({
+    title: group.title,
+    names: schemaNames.filter((schemaName) => group.match(schemaName)),
+  })).filter((group) => group.names.length > 0);
+  const groupedNames = new Set(groups.flatMap((group) => group.names));
+  const otherNames = schemaNames.filter((schemaName) => !groupedNames.has(schemaName));
+
+  if (otherNames.length > 0) {
+    groups.push({ title: "Other", names: otherNames });
+  }
+
+  return groups;
+}
+
 function renderSchemasIndex(schemaNames) {
-  const items = schemaNames
-    .map((schemaName) => `      <li><a href="${schemaName}">${schemaName}</a></li>`)
+  const groups = groupSchemaNames(schemaNames);
+  const sections = groups
+    .map((group) => {
+      const items = group.names
+        .map((schemaName) => `      <li><a href="${schemaName}">${schemaName}</a></li>`)
+        .join("\n");
+
+      return [
+        "    <section>",
+        `      <h2>${group.title}</h2>`,
+        "      <ul>",
+        items,
+        "      </ul>",
+        "    </section>",
+      ].join("\n");
+    })
     .join("\n");
 
   return [
@@ -149,9 +243,7 @@ function renderSchemasIndex(schemaNames) {
     '    <p><a href="../">Back to CX publish surface</a></p>',
     "    <h1>CX Schemas</h1>",
     "    <p>The canonical JSON Schemas for <code>cx</code> are published here.</p>",
-    "    <ul>",
-    items,
-    "    </ul>",
+    sections,
     "    <p>GitHub Releases mirror the same files as immutable snapshots.</p>",
     "    <p>The npm package also ships <code>schemas/</code> for offline use.</p>",
     "  </body>",
@@ -171,7 +263,8 @@ export async function assemblePagesSite({
   const schemaNames = schemaEntries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
     .map((entry) => entry.name)
-    .sort();
+    .sort(compareSchemaNames);
+  const orderedSchemaNames = sortSchemaNames(schemaNames);
 
   const siteSchemasDir = path.join(siteRoot, "schemas");
   const siteCoverageDir = path.join(siteRoot, "coverage");
@@ -189,7 +282,7 @@ export async function assemblePagesSite({
   await fs.cp(resolvedDocsBuildDir, siteDocsDir, { recursive: true });
 
   await Promise.all(
-    schemaNames.map((schemaName) =>
+    orderedSchemaNames.map((schemaName) =>
       fs.copyFile(
         path.join(schemasDir, schemaName),
         path.join(siteSchemasDir, schemaName),
@@ -208,7 +301,7 @@ export async function assemblePagesSite({
   );
   await fs.writeFile(
     path.join(siteSchemasDir, "index.html"),
-    renderSchemasIndex(schemaNames),
+    renderSchemasIndex(orderedSchemaNames),
     "utf8",
   );
   await fs.writeFile(path.join(siteRoot, ".nojekyll"), "", "utf8");
@@ -216,7 +309,7 @@ export async function assemblePagesSite({
   return {
     siteRoot,
     schemasDir: siteSchemasDir,
-    schemaNames,
+    schemaNames: orderedSchemaNames,
     hasCoverage,
     coverageDir: hasCoverage ? siteCoverageDir : null,
     docsDir: siteDocsDir,
