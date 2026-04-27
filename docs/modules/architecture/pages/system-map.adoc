@@ -39,23 +39,25 @@ instead of a claim.
 |===
 |Subsystem |Owning commands |Primary concern |Canonical doc
 |Live workspace surface |`cx mcp`, `cx doctor mcp`, `cx audit summary`
-|scoped live agent access |AGENT_OPERATING_MODEL.md
+|scoped live agent access
+|xref:ROOT:page$repository/docs/agent_operating_model.adoc[Agent Operating Model]
 
 |Durable reasoning surface |`cx notes`, `cx notes check` |repository
-memory and cognition quality |SYSTEM_CONTRACTS.md
+memory and cognition quality
+|xref:architecture:system-contracts.adoc[System Contracts]
 
 |Planning and artifact surface |`cx inspect`, `cx bundle`,
 `cx validate`, `cx verify`, `cx extract` |reproducible handoff and proof
-|MENTAL_MODEL.md
+|xref:architecture:mental-model.adoc[Mental Model]
 
 |Init and workspace bootstrap |`cx init` |repository-local setup and
-templates |MANUAL.md
+templates |xref:manual:index.adoc[Manual Overview]
 
 |Configuration surface |`cx.toml`, `cx-mcp.toml` |selection, overlays,
-and behavior knobs |config-reference.md
+and behavior knobs |xref:manual:config-reference.adoc[Configuration Reference]
 
 |Operator examples |workflow docs and release checklist |execution over
-time |README.md
+time |xref:manual:workflows.adoc[Operator Workflows]
 |===
 
 == Read It Top To Bottom
@@ -67,7 +69,9 @@ time |README.md
 
 == Learn Later
 
-* OPERATING_MODES.md maps the right tool to the current job.
-* MENTAL_MODEL.md defines the canonical semantics.
-* SYSTEM_CONTRACTS.md defines cognition quality, hard boundaries, and
-trust propagation.
+* xref:manual:operating-modes.adoc[Operating Modes] maps the right tool
+to the current job.
+* xref:architecture:mental-model.adoc[Mental Model] defines the
+canonical semantics.
+* xref:architecture:system-contracts.adoc[System Contracts] defines
+cognition quality, hard boundaries, and trust propagation.
