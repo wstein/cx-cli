@@ -9,6 +9,12 @@ export const DEFAULT_BEHAVIOR_VALUES = {
 };
 
 export const DEFAULT_CONFIG_TEMPLATE = `#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
+# cx works in four cooperating paths:
+#   proof:     bundle, extract, list, validate, verify
+#   live:      mcp
+#   cognition: notes
+#   adapter:   adapter, render
+# See: cx --help, or docs/modules/manual/pages/operating-modes.adoc
 schema_version = 1
 project_name = "myproject"
 source_root = "."
@@ -35,6 +41,11 @@ follow_symlinks = false
 unmatched = "ignore"
 
 [dedup]
+# mode = "fail" aborts bundling if any file matches multiple section globs.
+# This guarantees deterministic ownership in the manifest.
+# Override locally with: cx --lenient bundle
+# Or scope per-section by tightening section globs.
+# Docs: docs/modules/manual/pages/config-reference.adoc
 mode = "fail"
 order = "config"
 require_explicit_ownership = false
@@ -60,6 +71,10 @@ audit_logging = true
 enable_mutation = true
 
 [notes]
+# Note gates protect bundles from carrying weak or drift-pressured cognition.
+# All gates respect applies_to_sections. Scope gates to specific workspaces
+# when experiments should stay outside high-assurance bundle policy.
+# Docs: docs/modules/architecture/pages/notes-lint-design.adoc
 strict_notes_mode = false
 fail_on_drift_pressured_notes = false
 # require_cognition_score = 80
@@ -121,6 +136,15 @@ exclude = []
 [sections.tests]
 include = ["tests/**"]
 exclude = []
+
+# -- Audited overrides -------------------------------------------------
+# cx never silently ignores a strict gate; it records the override.
+#
+#   cx --lenient bundle      # downgrade fail to warn for this run
+#   cx bundle --force        # bundle a dirty tree; manifest records forced_dirty
+#   cx bundle --ci           # same, marked ci_dirty for pipeline provenance
+#
+# Docs: docs/modules/architecture/pages/audited-overrides.adoc
 `;
 
 export const DEFAULT_CONFIG_VALUES: Omit<

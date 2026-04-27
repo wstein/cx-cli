@@ -1,0 +1,19 @@
+= Starter Config
+:page-layout: default
+:page-role: run
+
+`cx init` writes a starter `cx.toml` that teaches the trust model without changing production defaults.
+
+The generated config now calls out the four command paths, explains why `dedup.mode = "fail"` is strict by default, names note gate scoping through `applies_to_sections`, and points audited overrides to the architecture page.
+
+[cols="1,1,1",options="header"]
+|===
+|Area |Previous starter |Current starter
+|Command orientation |Implicit command list |Four-path preamble aligned with `cx --help`
+|Section ownership |Section globs only |Comments explain master-list inclusion versus section classification
+|Deduplication |`mode = "fail"` without context |Comments explain deterministic ownership and `cx --lenient bundle`
+|Notes gates |Bare commented examples |Comments explain gate scope and drift-pressured cognition
+|Overrides |Not surfaced |Audited override block links to xref:architecture:audited-overrides.adoc[Audited Overrides]
+|===
+
+The values remain conservative: `dedup.mode = "fail"`, `strict_notes_mode = false`, and `fail_on_drift_pressured_notes = false`.

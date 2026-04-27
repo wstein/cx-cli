@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { runInitCommand } from "../../src/cli/commands/init.js";
+import { loadCxConfig } from "../../src/config/load.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 import { parseJsonOutput } from "../helpers/cli/parseJsonOutput.js";
 import { assertTextSnapshot } from "../helpers/snapshot/assertSnapshot.js";
@@ -65,6 +66,12 @@ describe("runInitCommand", () => {
     expect(exitCode).toBe(0);
     const cx = await fs.readFile(path.join(testDir, "cx.toml"), "utf8");
     expect(cx).toContain("testproject");
+    expect(cx).toContain("cx works in four cooperating paths");
+    expect(cx).toContain("proof:     bundle, extract, list, validate, verify");
+    expect(cx).toContain("cx never silently ignores a strict gate");
+    expect(cx).toContain(
+      "Docs: docs/modules/architecture/pages/audited-overrides.adoc",
+    );
     expect(cx).toContain(
       "Section globs classify files that are already in the master list.",
     );
@@ -201,6 +208,23 @@ describe("runInitCommand", () => {
     expect(exitCode).toBe(0);
     expect(capture.stdout()).toContain("testproject");
     expect(capture.stdout()).toContain("schema_version");
+  });
+
+  test("stdout starter config parses with the same behavior values", async () => {
+    const capture = createBufferedCommandIo();
+    const exitCode = await runInitCommand(
+      { ...BASE_ARGS, stdout: true },
+      capture.io,
+    );
+    expect(exitCode).toBe(0);
+
+    const configPath = path.join(testDir, "stdout-cx.toml");
+    await fs.writeFile(configPath, capture.stdout(), "utf8");
+    const config = await loadCxConfig(configPath, {}, {});
+
+    expect(config.dedup.mode).toBe("fail");
+    expect(config.notes.strictNotesMode).toBe(false);
+    expect(config.notes.failOnDriftPressuredNotes).toBe(false);
   });
 
   test("force=true on second run prints 'Updated' messages", async () => {
