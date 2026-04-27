@@ -589,12 +589,7 @@ export async function runBundleCommand(
   });
 
   const ciMode = args.ci ?? false;
-  const cliOverrides = getCLIOverrides();
-  const lenientMode =
-    cliOverrides.dedupMode === "warn" &&
-    cliOverrides.repomixMissingExtension === "warn" &&
-    cliOverrides.configDuplicateEntry === "warn";
-  const forceMode = (args.force ?? false) || lenientMode;
+  const forceMode = args.force ?? false;
   const tokenizer = defaultTokenizerProvider;
 
   // Dirty-state enforcement: abort on unsafe working trees unless the operator
@@ -619,7 +614,7 @@ export async function runBundleCommand(
             nextSteps: [
               "Commit or stash the tracked changes, then rerun cx bundle.",
               "Use --force for a local override or --ci for a pipeline override only when you intend to record dirty provenance in the manifest.",
-              "Use cx --lenient bundle ... for local exploration (manifest will record forced_dirty).",
+              "Use cx --lenient bundle only for Category B warning-mode exploration; it does not bypass dirty-state protection.",
               `Precedence: ${formatPrecedenceChain("dedup.mode")}.`,
             ],
             scopeHint: buildScopeHint("dedup.mode"),

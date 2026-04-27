@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
+import { setCLIOverrides } from "../../src/config/env.js";
 import { readLock } from "../../src/manifest/lock.js";
 import { CxError } from "../../src/shared/errors.js";
 import { createProject, runQuietBundleCommand } from "./helpers.js";
@@ -95,11 +96,39 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
         "manual:audited-overrides.adoc",
       );
       expect((error as CxError).remediation?.nextSteps).toContain(
-        "Use cx --lenient bundle ... for local exploration (manifest will record forced_dirty).",
+        "Use cx --lenient bundle only for Category B warning-mode exploration; it does not bypass dirty-state protection.",
       );
       expect((error as CxError).remediation?.scopeHint?.configKey).toBe(
         "dedup.mode",
       );
+    }
+  });
+
+  test("--lenient still exits 7 on unsafe_dirty without --ci or --force", async () => {
+    const { root, configPath } = await createAndInitProject();
+
+    await fs.writeFile(
+      path.join(root, "src", "index.ts"),
+      "export const value = 22;\n",
+      "utf8",
+    );
+
+    setCLIOverrides({
+      dedupMode: "warn",
+      repomixMissingExtension: "warn",
+      configDuplicateEntry: "warn",
+    });
+    try {
+      await runQuietBundleCommand({
+        config: configPath,
+      });
+      expect.unreachable();
+    } catch (error) {
+      expect(error).toBeInstanceOf(CxError);
+      expect((error as CxError).exitCode).toBe(7);
+      expect((error as Error).message).toContain("Refusing to bundle");
+    } finally {
+      setCLIOverrides({});
     }
   });
 

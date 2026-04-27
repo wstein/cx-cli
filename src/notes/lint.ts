@@ -21,7 +21,6 @@ const execFileAsync = promisify(execFile);
 const MIN_RENAME_CONFIDENCE = 0.9;
 
 export type NotesLintMutationKind =
-  | "frontmatter.updated_at"
   | "frontmatter.path_tags"
   | "frontmatter.structural_anchor";
 
@@ -383,9 +382,10 @@ export async function lintNotes(
         noteId: note.id,
         noteTitle: note.title,
         notePath: note.filePath,
-        suggestedFix: "Refresh updated_at in note frontmatter.",
+        suggestedFix:
+          "Review updated_at manually; notes lint does not rewrite audit metadata.",
         confidence: 1,
-        autoFixable: true,
+        autoFixable: false,
       });
     }
 
@@ -516,10 +516,6 @@ export async function applyLintFixes(
             );
           }
         }
-      }
-      if (finding.category === "stale_updated_at") {
-        mutationKinds.add("frontmatter.updated_at");
-        nextFrontmatter.updated_at = todayIsoDate();
       }
       if (finding.category === "stale_path_tags") {
         mutationKinds.add("frontmatter.path_tags");

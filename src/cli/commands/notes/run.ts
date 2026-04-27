@@ -323,7 +323,10 @@ export async function runNotesCommand(
       }
     }
 
-    if (args.write === true && writeResult?.skipped === 0) {
+    const autoFixableCount = report.findings.filter(
+      (finding) => finding.autoFixable,
+    ).length;
+    if (args.write === true && writeResult?.applied === autoFixableCount) {
       return 0;
     }
     return report.findings.every((finding) => !finding.autoFixable) ? 0 : 1;

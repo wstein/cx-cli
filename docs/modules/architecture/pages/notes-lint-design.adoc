@@ -23,7 +23,7 @@ Semantic contradictions are reported as contradictions and are never auto-fixed.
 |outside_master_list |Conditional |`--fix-section` plus confirmation or `--yes` |propose include glob update
 |excluded_from_plan |No |always |report; suggest section fix
 |Contradiction |Never |always |report only
-|Stale `updated_at` |Yes |always |rewrite frontmatter
+|Stale `updated_at` |No |always |report only; audit metadata requires human review
 |Stale tags derived from path |Yes |always |rewrite frontmatter
 |===
 
@@ -42,7 +42,6 @@ The mutation contract is captured in `notes/Notes Lint Mutation Contract.md` and
 [source,typescript]
 ----
 type NotesLintMutationKind =
-  | "frontmatter.updated_at"
   | "frontmatter.path_tags"
   | "frontmatter.structural_anchor";
 ----
