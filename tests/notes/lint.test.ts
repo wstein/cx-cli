@@ -1,14 +1,17 @@
 // test-lane: integration
 
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import type { CxSectionConfig } from "../../src/config/types.js";
 import {
   applyLintFixes,
+  detectGitFollowRenames,
   lintNotes,
   readLintHistory,
 } from "../../src/notes/lint.js";
@@ -16,6 +19,7 @@ import { parseMarkdownFrontmatter } from "../../src/notes/parser.js";
 
 let root: string;
 let notesDir: string;
+const execFileAsync = promisify(execFile);
 
 function sha256(content: string): string {
   return createHash("sha256").update(content).digest("hex");
@@ -110,5 +114,87 @@ Body content stays byte identical with enough routing words for validation.`,
     const history = await readLintHistory(notesDir);
     expect(history).toHaveLength(1);
     expect(history[0]?.noteId).toBe("20250113143001");
+  });
+
+  test("auto-fixes renamed frontmatter anchors when git-follow confidence is high", async () => {
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.writeFile(path.join(root, "src", "new.ts"), "", "utf8");
+    const notePath = await writeNote(
+      "claim.md",
+      `---
+id: 20250113143002
+title: Claim Note
+claims:
+  - id: rename-anchor
+    type: fact
+    status: accepted
+    code_refs: ["src/old.ts"]
+    test_refs: []
+    doc_refs: []
+---
+
+Body content stays byte identical with enough routing words for validation.`,
+    );
+    const before = await fs.readFile(notePath, "utf8");
+    const result = await lintNotes("notes", root, {
+      renameDetector: async () => [
+        {
+          oldPath: "src/old.ts",
+          newPath: "src/new.ts",
+          score: 1,
+          commit: "abc123",
+        },
+      ],
+    });
+
+    expect(result.findings).toContainEqual(
+      expect.objectContaining({
+        category: "missing",
+        targetPath: "src/old.ts",
+        replacementPath: "src/new.ts",
+        confidence: 0.95,
+        autoFixable: true,
+      }),
+    );
+
+    await applyLintFixes(result.findings, {
+      projectRoot: root,
+      notesDir,
+    });
+
+    const after = await fs.readFile(notePath, "utf8");
+    const afterParsed = parseMarkdownFrontmatter(after);
+    expect(sha256(afterParsed.body)).toBe(
+      sha256(parseMarkdownFrontmatter(before).body),
+    );
+    expect(after).toContain('code_refs: ["src/new.ts"]');
+    expect(after).not.toContain("src/old.ts");
+  });
+
+  test("detects git rename candidates from recent follow history", async () => {
+    await execFileAsync("git", ["init"], { cwd: root });
+    await execFileAsync("git", ["config", "user.email", "cx@example.test"], {
+      cwd: root,
+    });
+    await execFileAsync("git", ["config", "user.name", "CX Tests"], {
+      cwd: root,
+    });
+    await fs.mkdir(path.join(root, "src"), { recursive: true });
+    await fs.writeFile(path.join(root, "src", "old.ts"), "export {}\n", "utf8");
+    await execFileAsync("git", ["add", "src/old.ts"], { cwd: root });
+    await execFileAsync("git", ["commit", "-m", "add old"], { cwd: root });
+    await execFileAsync("git", ["mv", "src/old.ts", "src/new.ts"], {
+      cwd: root,
+    });
+    await execFileAsync("git", ["commit", "-m", "rename old"], { cwd: root });
+
+    const candidates = await detectGitFollowRenames("src/old.ts", root);
+
+    expect(candidates).toContainEqual(
+      expect.objectContaining({
+        oldPath: "src/old.ts",
+        newPath: "src/new.ts",
+      }),
+    );
   });
 });

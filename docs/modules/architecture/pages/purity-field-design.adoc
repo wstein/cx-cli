@@ -3,7 +3,9 @@
 :page-role: understand
 :page-publish: false
 
-This is a draft design note for relocating dirty-state enforcement. No implementation is implied by this page.
+Status: reviewed. Recommendation: Option C.
+
+No implementation is implied by this page until Werner approves the recommendation.
 
 == Problem Statement
 
@@ -24,7 +26,7 @@ Phase 3 separates workflow cleanliness from artifact verification.
 |`ci_dirty` |tracked changes, CI override
 |===
 
-Reviewers, CI, and `cx verify` gate on `purity`; the bundle command does not.
+Reviewers, CI, and `cx verify` gate on `purity`; the bundle command does not under Option B. Option C keeps the current bundle-time abort as the default and lets operators explicitly choose warning or off modes.
 
 == Marcus's Objection
 
@@ -42,7 +44,7 @@ Moving the check to verification weakens the statement that the CLI refuses to m
 
 The philosophical tradeoff is whether materialization itself is a trust boundary or merely an input to the next trust boundary.
 
-== Decision Points
+== Decision
 
 Option A: status quo. Keep abort behavior. Recommend this if discoverability and naive-operator safety dominate.
 
@@ -50,8 +52,27 @@ Option B: full move to materialization-time. Bundle always succeeds and verifier
 
 Option C: hybrid. Add `bundle.purity_gate = "abort" | "warn" | "off"` with default `abort`.
 
-Recommendation: Option C preserves the current trust contract while making expert workflows explicit and auditable.
+Recommendation: Option C.
+
+Rationale:
+
+* It preserves the current trust contract for new and casual operators.
+* It gives expert workflows an explicit configuration key instead of overloading `--force`.
+* It lets CI migrate deliberately to `cx verify --require-purity=pristine` without losing exit-code protection during the transition.
+* It keeps purity visible in both places that matter: materialization warnings and verifier gates.
+
+Rejected for now:
+
+* Option A leaves power users with only ad hoc local overrides.
+* Option B weakens the materialization trust boundary too abruptly and risks making purity easy to ignore.
 
 == Implementation Sketch
 
-If Option C is chosen, update manifest schema/types, config loading, bundle dirty-state enforcement, verify purity checks, CLI docs, and tests for default abort plus warn/off behavior.
+If Option C is approved, update:
+
+* manifest schema/types with `purity` while preserving the existing dirty-state taxonomy only as the recorded provenance source;
+* config loading for `bundle.purity_gate = "abort" | "warn" | "off"`, default `abort`;
+* bundle dirty-state enforcement so `abort` keeps exit code 7, `warn` materializes with a warning, and `off` materializes quietly while still recording manifest purity;
+* verify with `--require-purity=pristine`;
+* CLI docs and audited-overrides docs;
+* tests for default abort, warn/off materialization, manifest purity, and CI verifier gating.

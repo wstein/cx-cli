@@ -179,16 +179,59 @@ function serializeScalar(value: unknown): string {
   return JSON.stringify(String(value));
 }
 
+function serializeNestedValue(
+  key: string,
+  value: unknown,
+  indent = "",
+): string[] {
+  if (Array.isArray(value)) {
+    return [
+      `${indent}${key}: [${value.map((entry) => serializeScalar(entry)).join(", ")}]`,
+    ];
+  }
+  if (typeof value === "object" && value !== null) {
+    const lines = [`${indent}${key}:`];
+    for (const [childKey, childValue] of Object.entries(
+      value as Record<string, unknown>,
+    )) {
+      lines.push(...serializeNestedValue(childKey, childValue, `${indent}  `));
+    }
+    return lines;
+  }
+  return [`${indent}${key}: ${serializeScalar(value)}`];
+}
+
 export function stringifyMarkdownFrontmatter(
   frontmatter: Record<string, unknown>,
   body: string,
 ): string {
   const lines = ["---"];
   for (const [key, value] of Object.entries(frontmatter)) {
-    if (Array.isArray(value)) {
+    if (
+      Array.isArray(value) &&
+      value.every((entry) => typeof entry !== "object" || entry === null)
+    ) {
       lines.push(
         `${key}: [${value.map((entry) => serializeScalar(entry)).join(", ")}]`,
       );
+    } else if (Array.isArray(value)) {
+      lines.push(`${key}:`);
+      for (const entry of value) {
+        if (typeof entry === "object" && entry !== null) {
+          const objectEntries = Object.entries(
+            entry as Record<string, unknown>,
+          );
+          const [firstKey, firstValue] = objectEntries[0] ?? [];
+          if (firstKey !== undefined) {
+            lines.push(`  - ${firstKey}: ${serializeScalar(firstValue)}`);
+            for (const [childKey, childValue] of objectEntries.slice(1)) {
+              lines.push(...serializeNestedValue(childKey, childValue, "    "));
+            }
+          }
+        } else {
+          lines.push(`  - ${serializeScalar(entry)}`);
+        }
+      }
     } else {
       lines.push(`${key}: ${serializeScalar(value)}`);
     }
