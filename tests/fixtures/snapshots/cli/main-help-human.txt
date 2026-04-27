@@ -1,19 +1,30 @@
 cx <command> [options]
 
 Native proof path:
-  bundle, extract, list, validate, verify
+  bundle      Create an immutable bundle snapshot from a project.
+  extract     Restore files from a bundle.
+  list        List bundle contents.
+  validate    Validate bundle structure and schema.
+  verify      Verify bundle integrity.
 
 Live workspace path:
-  mcp
+  mcp         [EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.
 
 Durable cognition path:
-  notes
+  notes       Manage repository notes as the intent-truth layer.
 
 Adapter / oracle path:
-  adapter, render
+  adapter     Expert oracle diagnostics for parity, capability inspection, and migration checks.
+  render      Render planned sections as standard Repomix output.
 
 Setup & diagnostics:
-  init, inspect, doctor, audit, config, docs, completion
+  init        Create a starter cx.toml and scaffold repository notes.
+  inspect     Show the computed plan without writing files.
+  doctor      Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.
+  audit       Summarize recent MCP audit trends without reading raw JSONL.
+  config      Inspect effective configuration.
+  docs        Export, compile, and drift-check Antora documentation artifacts.
+  completion  Generate a shell completion script for bash, zsh, or fish.
 
 Options:
       --adapter-path  Path to a custom adapter oracle module (overrides the default repomix reference oracle when installed).  [string]

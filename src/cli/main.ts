@@ -32,22 +32,65 @@ import { renderCompletionScript } from "./completion.js";
 
 type ShellKind = "bash" | "zsh" | "fish";
 
+export const COMMAND_DESCRIPTIONS = {
+  adapter:
+    "Expert oracle diagnostics for parity, capability inspection, and migration checks.",
+  audit: "Summarize recent MCP audit trends without reading raw JSONL.",
+  bundle: "Create an immutable bundle snapshot from a project.",
+  completion: "Generate a shell completion script for bash, zsh, or fish.",
+  config: "Inspect effective configuration.",
+  docs: "Export, compile, and drift-check Antora documentation artifacts.",
+  doctor: "Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.",
+  extract: "Restore files from a bundle.",
+  init: "Create a starter cx.toml and scaffold repository notes.",
+  inspect: "Show the computed plan without writing files.",
+  list: "List bundle contents.",
+  mcp: "[EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.",
+  notes: "Manage repository notes as the intent-truth layer.",
+  render: "Render planned sections as standard Repomix output.",
+  validate: "Validate bundle structure and schema.",
+  verify: "Verify bundle integrity.",
+} as const;
+
+export type CommandName = keyof typeof COMMAND_DESCRIPTIONS;
+
+export const COMMAND_GROUPS: ReadonlyArray<{
+  heading: string;
+  commands: readonly CommandName[];
+}> = [
+  {
+    heading: "Native proof path",
+    commands: ["bundle", "extract", "list", "validate", "verify"],
+  },
+  { heading: "Live workspace path", commands: ["mcp"] },
+  { heading: "Durable cognition path", commands: ["notes"] },
+  { heading: "Adapter / oracle path", commands: ["adapter", "render"] },
+  {
+    heading: "Setup & diagnostics",
+    commands: [
+      "init",
+      "inspect",
+      "doctor",
+      "audit",
+      "config",
+      "docs",
+      "completion",
+    ],
+  },
+];
+
+function formatCommandGroups(): string {
+  return COMMAND_GROUPS.map((group) => {
+    const rows = group.commands.map(
+      (command) => `  ${command.padEnd(11)} ${COMMAND_DESCRIPTIONS[command]}`,
+    );
+    return `${group.heading}:\n${rows.join("\n")}`;
+  }).join("\n\n");
+}
+
 const TOP_LEVEL_HELP = `cx <command> [options]
 
-Native proof path:
-  bundle, extract, list, validate, verify
-
-Live workspace path:
-  mcp
-
-Durable cognition path:
-  notes
-
-Adapter / oracle path:
-  adapter, render
-
-Setup & diagnostics:
-  init, inspect, doctor, audit, config, docs, completion
+${formatCommandGroups()}
 
 Options:
       --adapter-path  Path to a custom adapter oracle module (overrides the default repomix reference oracle when installed).  [string]
@@ -158,9 +201,7 @@ export async function main(
 
   const cli = yargs(hideBin(["node", "cx", ...argv]))
     .scriptName("cx")
-    .usage(
-      "$0 <command>\n\nNative proof path:\n  bundle, extract, list, validate, verify\n\nLive workspace path:\n  mcp\n\nDurable cognition path:\n  notes\n\nAdapter / oracle path:\n  adapter, render\n\nSetup & diagnostics:\n  init, inspect, doctor, audit, config, docs, completion",
-    )
+    .usage(`$0 <command>\n\n${formatCommandGroups()}`)
     .option("adapter-path", {
       type: "string",
       description:
@@ -225,7 +266,7 @@ export async function main(
     })
     .command(
       "completion",
-      "Generate a shell completion script for bash, zsh, or fish.",
+      COMMAND_DESCRIPTIONS.completion,
       (command) =>
         command
           .option("shell", {
@@ -271,7 +312,7 @@ export async function main(
     )
     .command(
       "audit [subcommand]",
-      "Summarize recent MCP audit trends without reading raw JSONL.",
+      COMMAND_DESCRIPTIONS.audit,
       (command) =>
         command
           .example(
@@ -309,7 +350,7 @@ export async function main(
     )
     .command(
       "init",
-      "Create a starter cx.toml and scaffold repository notes.",
+      COMMAND_DESCRIPTIONS.init,
       (command) =>
         command
           .example(
@@ -356,7 +397,7 @@ export async function main(
     )
     .command(
       "inspect",
-      "Show the computed plan without writing files.",
+      COMMAND_DESCRIPTIONS.inspect,
       (command) =>
         command
           .example(
@@ -393,7 +434,7 @@ export async function main(
     )
     .command(
       "bundle",
-      "Create an immutable bundle snapshot from a project.",
+      COMMAND_DESCRIPTIONS.bundle,
       (command) =>
         command
           .example(
@@ -470,7 +511,7 @@ export async function main(
     )
     .command(
       "extract <bundleDir>",
-      "Restore files from a bundle.",
+      COMMAND_DESCRIPTIONS.extract,
       (command) =>
         command
           .example(
@@ -505,7 +546,7 @@ export async function main(
     )
     .command(
       "list <bundleDir>",
-      "List bundle contents.",
+      COMMAND_DESCRIPTIONS.list,
       (command) =>
         command
           .example(
@@ -537,7 +578,7 @@ export async function main(
     )
     .command(
       "validate <bundleDir>",
-      "Validate bundle structure and schema.",
+      COMMAND_DESCRIPTIONS.validate,
       (command) =>
         command
           .example(
@@ -558,7 +599,7 @@ export async function main(
     )
     .command(
       "verify <bundleDir>",
-      "Verify bundle integrity.",
+      COMMAND_DESCRIPTIONS.verify,
       (command) =>
         command
           .example(
@@ -591,7 +632,7 @@ export async function main(
     )
     .command(
       "doctor [subcommand]",
-      "Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.",
+      COMMAND_DESCRIPTIONS.doctor,
       (command) =>
         command
           .example(
@@ -674,7 +715,7 @@ export async function main(
     )
     .command(
       "render",
-      "Render planned sections as standard Repomix output.",
+      COMMAND_DESCRIPTIONS.render,
       (command) =>
         command
           .example(
@@ -709,7 +750,7 @@ export async function main(
     )
     .command(
       "docs <subcommand>",
-      "Export, compile, and drift-check Antora documentation artifacts.",
+      COMMAND_DESCRIPTIONS.docs,
       (command) =>
         command
           .example(
@@ -778,7 +819,7 @@ export async function main(
     )
     .command(
       "config <subcommand>",
-      "Inspect effective configuration.",
+      COMMAND_DESCRIPTIONS.config,
       (command) =>
         command
           .example(
@@ -808,7 +849,7 @@ export async function main(
     )
     .command(
       "adapter <subcommand>",
-      "Expert oracle diagnostics for parity, capability inspection, and migration checks.",
+      COMMAND_DESCRIPTIONS.adapter,
       (command) =>
         command
           .example(
@@ -840,7 +881,7 @@ export async function main(
     )
     .command(
       "notes [subcommand] [query]",
-      "Manage repository notes as the intent-truth layer.",
+      COMMAND_DESCRIPTIONS.notes,
       (command) =>
         command
           .example("$0 notes list", "List all notes in the notes/ directory.")
@@ -1024,7 +1065,7 @@ export async function main(
 
   cli.command(
     "mcp [subcommand]",
-    "[EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.",
+    COMMAND_DESCRIPTIONS.mcp,
     (command) =>
       command
         .example(
