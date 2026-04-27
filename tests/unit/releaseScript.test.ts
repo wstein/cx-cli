@@ -55,8 +55,9 @@ describe("release script helpers", () => {
     ).toBe("finalize");
   });
 
-  test("updateReleaseVersionFiles keeps package.json and package-lock.json aligned", async () => {
+  test("updateReleaseVersionFiles keeps package metadata and Antora docs aligned", async () => {
     const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "cx-release-script-"));
+    await fs.mkdir(path.join(cwd, "docs"), { recursive: true });
     await fs.writeFile(
       path.join(cwd, "package.json"),
       `${JSON.stringify({ name: "@wsmy/cx-cli", version: "0.4.0-dev" }, null, 2)}\n`,
@@ -80,8 +81,13 @@ describe("release script helpers", () => {
       )}\n`,
       "utf8",
     );
+    await fs.writeFile(
+      path.join(cwd, "docs", "antora.yml"),
+      "name: cx\ntitle: CX Documentation\nversion: '0.4'\n",
+      "utf8",
+    );
 
-    updateReleaseVersionFiles(cwd, "0.4.0");
+    updateReleaseVersionFiles(cwd, "0.5.0");
 
     const packageJson = JSON.parse(
       await fs.readFile(path.join(cwd, "package.json"), "utf8"),
@@ -92,9 +98,42 @@ describe("release script helpers", () => {
       version: string;
       packages: { "": { version: string } };
     };
+    const antoraDescriptor = await fs.readFile(
+      path.join(cwd, "docs", "antora.yml"),
+      "utf8",
+    );
 
-    expect(packageJson.version).toBe("0.4.0");
-    expect(packageLock.version).toBe("0.4.0");
-    expect(packageLock.packages[""].version).toBe("0.4.0");
+    expect(packageJson.version).toBe("0.5.0");
+    expect(packageLock.version).toBe("0.5.0");
+    expect(packageLock.packages[""].version).toBe("0.5.0");
+    expect(antoraDescriptor).toContain("version: '0.5'");
+  });
+
+  test("updateReleaseVersionFiles allows patch bumps within the same Antora minor line", async () => {
+    const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "cx-release-script-"));
+    await fs.mkdir(path.join(cwd, "docs"), { recursive: true });
+    await fs.writeFile(
+      path.join(cwd, "package.json"),
+      `${JSON.stringify({ name: "@wsmy/cx-cli", version: "0.5.5" }, null, 2)}\n`,
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(cwd, "docs", "antora.yml"),
+      "name: cx\ntitle: CX Documentation\nversion: '0.5'\n",
+      "utf8",
+    );
+
+    updateReleaseVersionFiles(cwd, "0.5.6");
+
+    const packageJson = JSON.parse(
+      await fs.readFile(path.join(cwd, "package.json"), "utf8"),
+    ) as { version: string };
+    const antoraDescriptor = await fs.readFile(
+      path.join(cwd, "docs", "antora.yml"),
+      "utf8",
+    );
+
+    expect(packageJson.version).toBe("0.5.6");
+    expect(antoraDescriptor).toContain("version: '0.5'");
   });
 });

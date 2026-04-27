@@ -6,9 +6,9 @@ import { execa } from "execa";
 import { syncAntoraDocs } from "./sync-antora-docs.js";
 
 export const DEFAULT_ANTORA_PLAYBOOK = "antora-playbook.yml";
+export const DEFAULT_ANTORA_COMPONENT_DESCRIPTOR = "docs/antora.yml";
 export const DEFAULT_ANTORA_SITE_ROOT = "dist/antora";
 export const DEFAULT_ANTORA_CACHE_DIR = ".antora/cache";
-export const DEFAULT_ANTORA_EXPORTS_DIR = "cx/0.4/_exports";
 export const DEFAULT_ANTORA_SINGLE_HTML_EXPORTS = [
   {
     fileName: "manual.html",
@@ -32,14 +32,26 @@ async function pathExists(targetPath) {
   }
 }
 
+async function readAntoraComponentVersion(
+  descriptorPath = DEFAULT_ANTORA_COMPONENT_DESCRIPTOR,
+) {
+  const descriptor = await fs.readFile(descriptorPath, "utf8");
+  const match = descriptor.match(/^version:\s*['"]?([^'"\n]+)['"]?\s*$/mu);
+  if (!match) {
+    throw new Error(`Antora descriptor ${descriptorPath} does not declare a version.`);
+  }
+  return match[1];
+}
+
 async function ensureSingleHtmlExports({
   playbook,
   toDir,
   cacheDir,
+  componentVersion,
   workRoot = DEFAULT_ANTORA_EXPORT_WORK_ROOT,
 } = {}) {
   const repoRoot = process.cwd();
-  const exportsDir = path.join(toDir, DEFAULT_ANTORA_EXPORTS_DIR);
+  const exportsDir = path.join(toDir, "cx", componentVersion, "_exports");
   await fs.mkdir(exportsDir, { recursive: true });
   const baseWorkRoot = await fs.mkdtemp(
     path.join(repoRoot, `${workRoot.replaceAll("/", "-")}-`),
@@ -78,7 +90,7 @@ async function ensureSingleHtmlExports({
         [
           "name: cx",
           "title: CX Documentation",
-          "version: '0.4'",
+          `version: '${componentVersion}'`,
           "nav:",
           `  - ${spec.navFile}`,
           "",
@@ -149,7 +161,7 @@ async function ensureSingleHtmlExports({
         },
       );
 
-      const exportedDir = path.join(buildDir, DEFAULT_ANTORA_EXPORTS_DIR);
+      const exportedDir = path.join(buildDir, "cx", componentVersion, "_exports");
       const candidateNames = [spec.fileName, "index.html"];
       let exportedSourcePath = null;
 
@@ -192,6 +204,7 @@ export async function buildAntoraSite({
   toDir = DEFAULT_ANTORA_SITE_ROOT,
   cacheDir = DEFAULT_ANTORA_CACHE_DIR,
 } = {}) {
+  const componentVersion = await readAntoraComponentVersion();
   await syncAntoraDocs();
   await fs.rm(toDir, { recursive: true, force: true });
   await fs.mkdir(cacheDir, { recursive: true });
@@ -208,7 +221,7 @@ export async function buildAntoraSite({
   );
 
   const indexPath = path.join(toDir, "index.html");
-  const rootDocsIndexPath = path.join(toDir, "cx", "0.4", "index.html");
+  const rootDocsIndexPath = path.join(toDir, "cx", componentVersion, "index.html");
 
   const hasRootIndex = await pathExists(indexPath);
   const hasVersionedIndex = await pathExists(rootDocsIndexPath);
@@ -221,6 +234,7 @@ export async function buildAntoraSite({
     playbook,
     toDir,
     cacheDir,
+    componentVersion,
   });
 
   return {

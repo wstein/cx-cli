@@ -34,7 +34,7 @@ describe("Antora layout contract", () => {
 
     expect(antora).toContain("name: cx");
     expect(antora).toContain("title: CX Documentation");
-    expect(antora).toContain("version: '0.4'");
+    expect(antora).toContain("version: '0.5'");
     expect(antora).toContain("- modules/ROOT/nav.adoc");
     expect(antora).toContain("- modules/onboarding/nav.adoc");
     expect(antora).toContain("- modules/manual/nav.adoc");

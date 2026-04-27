@@ -45,4 +45,4 @@ Those chapters live under `docs/modules/architecture/pages/`.
 - Run track: [docs/modules/manual/pages/index.adoc](modules/manual/pages/index.adoc)
 - Understand track: [docs/modules/architecture/pages/index.adoc](modules/architecture/pages/index.adoc)
 - Published docs: https://wstein.github.io/cx-cli/docs/
-- Single-file exports are emitted at `dist/antora/cx/0.4/_exports/manual.html` and `dist/antora/cx/0.4/_exports/architecture.html`.
+- Single-file exports are emitted at `dist/antora/cx/0.5/_exports/manual.html` and `dist/antora/cx/0.5/_exports/architecture.html`.

@@ -8,7 +8,7 @@
 
 `cx` is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.
 
-Mode chooser: [Operating Modes](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operating-modes/)
+Mode chooser: [Operating Modes](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operating-modes/)
 
 ## Start Here
 
@@ -18,7 +18,7 @@ That is the shortest path to value:
 
 1. Run `cx mcp`
 2. Watch the agent work on live code
-3. Learn the model later in [Operating Modes](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operating-modes/) and [Mental Model](https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/mental-model/)
+3. Learn the model later in [Operating Modes](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operating-modes/) and [Mental Model](https://wstein.github.io/cx-cli/docs/cx/0.5/architecture/mental-model/)
 
 If you only remember one mental model, keep this one:
 
@@ -26,7 +26,7 @@ If you only remember one mental model, keep this one:
 - `cx notes` is the durable cognition layer.
 - `cx bundle` and `cx verify` turn live work into a trusted artifact handoff.
 
-For the one-page map from hypothesis to memory to snapshot to proof, start with [System Map](https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/system-map/).
+For the one-page map from hypothesis to memory to snapshot to proof, start with [System Map](https://wstein.github.io/cx-cli/docs/cx/0.5/architecture/system-map/).
 
 ## Choose The Surface
 
@@ -108,10 +108,10 @@ Trust shorthand:
 
 ## Documentation
 
-- [published docs index](https://wstein.github.io/cx-cli/docs/cx/0.4/start-here/docs-index/) for the formal documentation front door
-- [System Map](https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/system-map/) for the condensed system map
-- [Operator Manual](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operator-manual/) for the operator-first Friday-to-Monday workflow
-- [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/config-reference/) for configuration knobs and editor integration
+- [published docs index](https://wstein.github.io/cx-cli/docs/cx/0.5/start-here/docs-index/) for the formal documentation front door
+- [System Map](https://wstein.github.io/cx-cli/docs/cx/0.5/architecture/system-map/) for the condensed system map
+- [Operator Manual](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operator-manual/) for the operator-first Friday-to-Monday workflow
+- [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/config-reference/) for configuration knobs and editor integration
 - [notes/README.md](notes/README.md) for the durable repository knowledge layer
 - [published schema endpoint](https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json) for IDE support (Taplo in VS Code)
 - [published coverage status](https://wstein.github.io/cx-cli/coverage/) for the latest public Vitest HTML report from successful `develop` or `main` CI
@@ -138,7 +138,7 @@ brew install wstein/tap/cx-cli
 
 ### Release Flow
 
-See [Release Checklist](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/release-and-integrity/#release-checklist) for the release order, environment secrets, and Homebrew tap handoff.
+See [Release Checklist](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/release-and-integrity/#release-checklist) for the release order, environment secrets, and Homebrew tap handoff.
 
 Run from source:
 
@@ -211,7 +211,7 @@ schema_version = 1
 project_name = "myproject"
 ```
 
-The schema validates structural shape and enum constraints. Runtime validation in `cx load` enforces relational invariants (e.g., catch-all restrictions). See [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/config-reference/#json-schema-for-editor-tooling) for details.
+The schema validates structural shape and enum constraints. Runtime validation in `cx load` enforces relational invariants (e.g., catch-all restrictions). See [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/config-reference/#json-schema-for-editor-tooling) for details.
 
 For external tooling, use the published Pages endpoints:
 
@@ -447,11 +447,11 @@ exclude = []
 
 ## Documentation Map
 
-- [Operator Manual](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/operator-manual/): end-to-end workflows, including overlap resolution
-- [System Map](https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/system-map/): condensed entrypoint and subsystem map
-- [Architecture](https://wstein.github.io/cx-cli/docs/cx/0.4/architecture/implementation-reference/): implementation reference for contributors working below the front door
-- [Extraction Safety](https://wstein.github.io/cx-cli/docs/cx/0.4/repository/docs/extraction_safety/): packed-content recovery, degraded fallback, and `--allow-degraded`
-- [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.4/manual/config-reference/): settings, precedence, and examples
+- [Operator Manual](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operator-manual/): end-to-end workflows, including overlap resolution
+- [System Map](https://wstein.github.io/cx-cli/docs/cx/0.5/architecture/system-map/): condensed entrypoint and subsystem map
+- [Architecture](https://wstein.github.io/cx-cli/docs/cx/0.5/architecture/implementation-reference/): implementation reference for contributors working below the front door
+- [Extraction Safety](https://wstein.github.io/cx-cli/docs/cx/0.5/repository/docs/extraction_safety/): packed-content recovery, degraded fallback, and `--allow-degraded`
+- [Configuration Reference](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/config-reference/): settings, precedence, and examples
 
 ## LLM-Friendly Output Extensions
 

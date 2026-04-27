@@ -86,7 +86,7 @@ describe("assemble-pages-site.js", () => {
       "utf8",
     );
     const versionedDocsIndex = await fs.readFile(
-      path.join(siteRoot, "docs", "cx", "0.4", "index.html"),
+      path.join(siteRoot, "docs", "cx", "0.5", "index.html"),
       "utf8",
     );
     const schemasIndex = await fs.readFile(
@@ -101,10 +101,10 @@ describe("assemble-pages-site.js", () => {
     expect(rootIndex).toContain('href="docs/"');
     expect(rootIndex).toContain('href="schemas/"');
     expect(rootIndex).toContain('href="coverage/"');
-    expect(docsIndex).toContain('location="cx/0.4/"');
+    expect(docsIndex).toContain('location="cx/0.5/"');
     expect(versionedDocsIndex).toContain("CX Documentation");
     expect(versionedDocsIndex).toContain('href="manual/"');
-    expect(versionedDocsIndex).not.toContain('href="/cx/0.4/');
+    expect(versionedDocsIndex).not.toContain('href="/cx/0.5/');
     expect(schemasIndex).toContain("cx-config-v1.schema.json");
     expect(schemasIndex).toContain("json-section-output-v1.schema.json");
     expect(schemasIndex).toContain("manifest-v7.schema.json");
@@ -147,14 +147,14 @@ describe("assemble-pages-site.js", () => {
       "utf8",
     );
     const versionedDocsIndex = await fs.readFile(
-      path.join(siteRoot, "docs", "cx", "0.4", "index.html"),
+      path.join(siteRoot, "docs", "cx", "0.5", "index.html"),
       "utf8",
     );
     expect(rootIndex).toContain('href="docs/"');
-    expect(docsIndex).toContain('location="cx/0.4/"');
+    expect(docsIndex).toContain('location="cx/0.5/"');
     expect(versionedDocsIndex).toContain("CX Documentation");
     expect(versionedDocsIndex).toContain('href="manual/"');
-    expect(versionedDocsIndex).not.toContain('href="/cx/0.4/');
+    expect(versionedDocsIndex).not.toContain('href="/cx/0.5/');
     expect(rootIndex).toContain("does not include a coverage report");
     await expect(
       fs.access(path.join(siteRoot, "coverage", "index.html")),

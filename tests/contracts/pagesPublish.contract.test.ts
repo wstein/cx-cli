@@ -118,11 +118,11 @@ describe("Pages publish contract", () => {
     expect(rootIndex).toContain('href="coverage/"');
 
     const versionedDocsIndex = await fs.readFile(
-      path.join(siteRoot, "docs", "cx", "0.4", "index.html"),
+      path.join(siteRoot, "docs", "cx", "0.5", "index.html"),
       "utf8",
     );
     expect(versionedDocsIndex).toContain('href="manual/"');
-    expect(versionedDocsIndex).not.toContain('href="/cx/0.4/');
+    expect(versionedDocsIndex).not.toContain('href="/cx/0.5/');
   });
 
   test("pages smoke workflow validates the staged site tree", async () => {

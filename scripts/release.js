@@ -7,6 +7,12 @@ import kleur from "kleur";
 
 export const SEMVER = /^\d+\.\d+\.\d+(?:[-+].+)?$/;
 
+function antoraVersionFromReleaseVersion(version) {
+  const normalizedVersion = normalizeVersionInput(version);
+  const match = normalizedVersion.match(/^(\d+\.\d+)\.\d+(?:[-+].+)?$/);
+  return match?.[1] ?? normalizedVersion;
+}
+
 export function isSemver(version) {
   return SEMVER.test(version);
 }
@@ -71,12 +77,30 @@ export function updateReleaseVersionFiles(cwd, version) {
     }
     writeFileSync(packageLockPath, `${JSON.stringify(packageLock, null, 2)}\n`);
   }
+
+  const antoraDescriptorPath = resolve(cwd, "docs", "antora.yml");
+  if (existsSync(antoraDescriptorPath)) {
+    const antoraVersion = antoraVersionFromReleaseVersion(version);
+    const antoraDescriptor = readFileSync(antoraDescriptorPath, "utf8");
+    const versionPattern = /^version:\s*['"]?[^'"\n]+['"]?\s*$/mu;
+    if (!versionPattern.test(antoraDescriptor)) {
+      throw new Error("docs/antora.yml must declare an Antora version.");
+    }
+    const updatedDescriptor = antoraDescriptor.replace(
+      versionPattern,
+      `version: '${antoraVersion}'`,
+    );
+    writeFileSync(antoraDescriptorPath, updatedDescriptor);
+  }
 }
 
 function getVersionFiles(cwd) {
   const files = ["package.json"];
   if (existsSync(resolve(cwd, "package-lock.json"))) {
     files.push("package-lock.json");
+  }
+  if (existsSync(resolve(cwd, "docs", "antora.yml"))) {
+    files.push("docs/antora.yml");
   }
   return files;
 }
