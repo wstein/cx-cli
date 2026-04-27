@@ -7,14 +7,19 @@ import { describe, expect, test } from "vitest";
 import { DEFAULT_BEHAVIOR_VALUES } from "../../src/config/defaults.js";
 import type { CxConfig } from "../../src/config/types.js";
 import { buildBundlePlan } from "../../src/planning/buildPlan.js";
+import { copyFixture } from "../helpers/workspace/copyFixture.js";
 
 async function createFixture(): Promise<string> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-plan-"));
   await fs.mkdir(path.join(root, "src"), { recursive: true });
   await fs.mkdir(path.join(root, "docs"), { recursive: true });
+  await fs.mkdir(path.join(root, "notes"), { recursive: true });
   await fs.mkdir(path.join(root, "scripts"), { recursive: true });
   await fs.mkdir(path.join(root, "schemas"), { recursive: true });
   await fs.mkdir(path.join(root, "tests", "cli"), { recursive: true });
+  await fs.mkdir(path.join(root, "tests", "fixtures", "workspaces"), {
+    recursive: true,
+  });
   await fs.mkdir(path.join(root, "bin"), { recursive: true });
   await fs.mkdir(path.join(root, ".github", "workflows"), {
     recursive: true,
@@ -25,6 +30,11 @@ async function createFixture(): Promise<string> {
     "utf8",
   );
   await fs.writeFile(path.join(root, "docs", "guide.md"), "# Guide\n", "utf8");
+  await fs.writeFile(
+    path.join(root, "notes", "project-note.md"),
+    "---\nid: 20260427000100\n---\n\n# Project Note\n",
+    "utf8",
+  );
   await fs.writeFile(
     path.join(root, "scripts", "repomix-reference-oracle-smoke.ts"),
     "export const smoke = true;\n",
@@ -45,6 +55,11 @@ async function createFixture(): Promise<string> {
   await fs.writeFile(
     path.join(root, "tests", "cli", "main.test.ts"),
     "test('demo', () => {});\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(root, "tests", "fixtures", "workspaces", "logo.png"),
+    "fixture image",
     "utf8",
   );
   await fs.writeFile(path.join(root, "tsconfig.json"), "{}\n", "utf8");
@@ -151,7 +166,7 @@ function baseConfig(root: string): CxConfig {
     },
     assets: {
       include: ["**/*.png"],
-      exclude: [],
+      exclude: ["tests/fixtures/**"],
       mode: "copy",
       targetDir: "demo-assets",
       layout: "flat",
@@ -311,8 +326,88 @@ describe("buildBundlePlan", () => {
       plan.sections
         .find((section) => section.name === "tests")
         ?.files.map((file) => file.relativePath),
-    ).toEqual(["tests/cli/main.test.ts"]);
+    ).toEqual(["tests/cli/main.test.ts", "tests/fixtures/workspaces/logo.png"]);
     expect(plan.unmatchedFiles).not.toContain("bun.lock");
+  });
+
+  test("keeps docs and notes in separate sections", async () => {
+    const root = await createFixture();
+    const config = baseConfig(root);
+    config.sections = {
+      docs: {
+        include: ["README.md", "docs/**"],
+        exclude: [],
+      },
+      notes: {
+        include: ["notes/**"],
+        exclude: [],
+      },
+      src: {
+        include: ["src/**"],
+        exclude: [],
+      },
+    };
+
+    const plan = await buildBundlePlan(config);
+
+    expect(plan.sections.map((section) => section.name)).toEqual([
+      "docs",
+      "notes",
+      "src",
+    ]);
+    expect(
+      plan.sections
+        .find((section) => section.name === "docs")
+        ?.files.map((file) => file.relativePath),
+    ).toEqual(["docs/guide.md"]);
+    expect(
+      plan.sections
+        .find((section) => section.name === "notes")
+        ?.files.map((file) => file.relativePath),
+    ).toEqual(["notes/project-note.md"]);
+  });
+
+  test("keeps fixture trees in tests while excluding them from assets", async () => {
+    const root = await createFixture();
+    await copyFixture({
+      fixturePath: "bundle-basic",
+      destinationPath: path.join(
+        root,
+        "tests",
+        "fixtures",
+        "workspaces",
+        "bundle-basic",
+      ),
+    });
+    const config = baseConfig(root);
+    config.assets.exclude = ["tests/fixtures/**"];
+    config.sections = {
+      tests: {
+        include: ["tests/**"],
+        exclude: [],
+      },
+    };
+
+    const plan = await buildBundlePlan(config);
+
+    expect(
+      plan.sections
+        .find((section) => section.name === "tests")
+        ?.files.map((file) => file.relativePath),
+    ).toEqual([
+      "tests/cli/main.test.ts",
+      "tests/fixtures/workspaces/bundle-basic/docs/guide.md",
+      "tests/fixtures/workspaces/bundle-basic/logo.png",
+      "tests/fixtures/workspaces/bundle-basic/README.md",
+      "tests/fixtures/workspaces/bundle-basic/src/index.ts",
+      "tests/fixtures/workspaces/logo.png",
+    ]);
+    expect(plan.assets.map((asset) => asset.relativePath)).toEqual([
+      "logo.png",
+    ]);
+    expect(plan.assets.map((asset) => asset.relativePath)).not.toContain(
+      "tests/fixtures/workspaces/bundle-basic/logo.png",
+    );
   });
 
   test("fails on section overlap by default", async () => {

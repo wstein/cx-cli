@@ -21,7 +21,14 @@ security_check = true
 # include is intentionally empty: the VCS-controlled file list is the master base.
 # Add patterns here only to pull in generated or deliberately git-ignored files.
 include = []
-exclude = ["node_modules/**", "dist/**", "tmp/**", "tests/fixtures/**"]
+exclude = [
+  "node_modules/**",
+  "dist/**",
+  "tmp/**",
+  "*.lock",
+  "**/*.lock",
+  "package-lock.json",
+]
 follow_symlinks = false
 unmatched = "ignore"
 
@@ -62,7 +69,7 @@ encoding = "o200k_base"
 
 [assets]
 include = ["**/*.{png,jpg,jpeg,gif,webp,svg,pdf}"]
-exclude = []
+exclude = ["tests/fixtures/**"]
 mode = "copy"
 target_dir = "assets"
 layout = "flat"
@@ -72,28 +79,27 @@ target_dir = "."
 root_level = 1
 
 [sections.docs]
-include = ["docs/**", "notes/**", "README.md", "*.md"]
-exclude = []
-
-[sections.repo]
 include = [
-  ".gitignore",
-  ".github/workflows/ci.yml",
-  "biome.json",
-  "bin/cx",
-  "cx.toml",
-  "scripts/**",
-  "schemas/**",
-  "package.json",
-  "tsconfig.json",
-  "tsconfig.test.json",
+  "docs/**",
+  "README.md",
+  "*.md",
+  ".github/pull_request_template.md",
+  ".github/release-body-template.md",
+  "antora-playbook.yml",
 ]
 exclude = []
+
+[sections.notes]
+include = ["notes/**"]
+exclude = []
+
+[sections.unassigned]
+catch_all = true
 
 [sections.src]
 include = ["src/**"]
 exclude = []
 
 [sections.tests]
-include = ["tests/**"]
+include = ["tests/**", "tests/fixtures/**"]
 exclude = []

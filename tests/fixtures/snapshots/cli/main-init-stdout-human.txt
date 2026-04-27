@@ -80,28 +80,16 @@ target_dir = "myproject-docs-exports"
 root_level = 1
 
 [sections.docs]
-include = ["docs/**", "notes/**", "README.md", "*.md"]
-exclude = []
+include = ["docs/**", "README.md", "*.md"]
 
-[sections.repo]
-include = [
-  ".gitignore",
-  ".github/workflows/ci.yml",
-  "biome.json",
-  "bin/cx",
-  "cx.toml",
-  "scripts/**",
-  "schemas/**",
-  "package.json",
-  "tsconfig.json",
-  "tsconfig.test.json",
-]
-exclude = []
+[sections.notes]
+include = ["notes/**"]
 
 [sections.src]
 include = ["src/**"]
-exclude = []
 
 [sections.tests]
 include = ["tests/**"]
-exclude = []
+
+[sections.unassigned]
+catch_all = true
