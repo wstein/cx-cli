@@ -35,7 +35,7 @@ describe("JSON Schema Integration", () => {
     expect(lines[0]).toBe(
       "#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
     );
-    expect(lines[1]).toContain("schema_version = 1");
+    expect(lines).toContain("schema_version = 1");
   });
 
   test("cx init --name preserves schema directive", async () => {
