@@ -76,7 +76,7 @@ For the full failure model, recovery statuses, and detailed examples, see xref:R
 
 === Audited Overrides
 
-`cx bundle --force` and `cx bundle --ci` are audited overrides. They allow a bundle to be materialized from tracked-file drift only when the operator has chosen that provenance explicitly, and the manifest records `forced_dirty` or `ci_dirty` for downstream review.
+`cx bundle --force` and `cx bundle --ci` are audited overrides. They allow a bundle to be materialized from tracked-file drift only when the operator has chosen that provenance explicitly, and the manifest records `forced_dirty` or `ci_dirty` for downstream review. `--force` also keeps the command running after contract-gate errors such as note validation or scanner findings, so the operator can inspect the resulting artifact and the emitted diagnostics together.
 
 See xref:architecture:audited-overrides.adoc[Audited Overrides] before using either flag in release or CI workflows.
 

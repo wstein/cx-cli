@@ -4,7 +4,7 @@
 
 `--force` and `--ci` are audited overrides, not silent bypasses.
 
-When `cx bundle` sees tracked files with uncommitted changes, the default behavior is to abort before materializing a bundle. Passing `--force` acknowledges the local risk and records `forced_dirty`; passing `--ci` acknowledges the pipeline risk and records `ci_dirty`. Reviewers and downstream tools can inspect that manifest field instead of guessing whether the artifact came from a clean tree.
+When `cx bundle` sees tracked files with uncommitted changes, the default behavior is to abort before materializing a bundle. Passing `--force` acknowledges the local risk and records `forced_dirty`; passing `--ci` acknowledges the pipeline risk and records `ci_dirty`. Contract gates such as note validation and scanner findings still emit their errors, but `--force` keeps the bundle moving so operators can inspect the resulting artifact with full provenance instead of being blocked by advisory gates.
 
 [source,json]
 ----
@@ -17,7 +17,7 @@ When `cx bundle` sees tracked files with uncommitted changes, the default behavi
 }
 ----
 
-Use `--force` only when a human operator intentionally wants to inspect or hand off uncommitted local work. Use `--ci` only when a CI workflow intentionally bundles a workspace that cannot be clean at bundle time.
+Use `--force` only when a human operator intentionally wants to inspect or hand off uncommitted local work and is prepared to review the emitted gate errors in the bundle log. Use `--ci` only when a CI workflow intentionally bundles a workspace that cannot be clean at bundle time.
 
 == CI Example
 

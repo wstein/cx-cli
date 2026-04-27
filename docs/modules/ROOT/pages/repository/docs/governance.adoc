@@ -598,7 +598,10 @@ memory as current architecture.
 The governance path is operational, not aspirational:
 
 . `validateNotes(...)` enforces summary and size rules during bundling,
-  validation, note CRUD, MCP note access, and graph checks.
+  validation, note CRUD, MCP note access, and graph checks. The bundle
+  command reports those failures and aborts by default, but `--force`
+  keeps the bundle moving so the operator can inspect the emitted
+  diagnostics alongside the artifact.
 . `cx notes check` surfaces governance failures directly for local
   review and CI logs.
 . `bun run ci:notes:governance` makes the cognition-layer gate visible
