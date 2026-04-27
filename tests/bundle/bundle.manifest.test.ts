@@ -147,6 +147,42 @@ This note explains a real file path so the summary stays non-trivial.
     });
   });
 
+  test("continues bundling with --force when note validation fails", async () => {
+    const project = await createProject();
+    await fs.mkdir(path.join(project.root, "notes"), { recursive: true });
+    const oversizedBody =
+      "This note intentionally exceeds the validation limit. ".repeat(90);
+    await fs.writeFile(
+      path.join(project.root, "notes", "oversized-note.md"),
+      `---
+id: 20260420150003
+aliases: []
+tags: []
+---
+
+# Oversized Note
+
+${oversizedBody}
+`,
+      "utf8",
+    );
+
+    const capture = createBufferedCommandIo();
+    const exitCode = await runBundleCommand(
+      { config: project.configPath, force: true },
+      capture.io,
+    );
+
+    expect(exitCode).toBe(0);
+    expect(capture.logs()).toContain("Note validation errors:");
+    expect(capture.stderr()).toContain(
+      "continuing bundle after note validation errors because --force was supplied.",
+    );
+
+    const { manifest } = await loadManifestFromBundle(project.bundleDir);
+    expect(manifest.notes).toBeUndefined();
+  });
+
   test("blocks bundling when the core scanner runs in fail mode", async () => {
     const project = await createProject({
       config: {
@@ -187,6 +223,52 @@ This note explains a real file path so the summary stays non-trivial.
       exitCode: 10,
       message: expect.stringContaining("Scanner pipeline blocked bundling"),
     });
+  });
+
+  test("continues bundling with --force when the core scanner blocks proof", async () => {
+    const project = await createProject({
+      config: {
+        repomix: {
+          securityCheck: true,
+        },
+        scanner: {
+          mode: "fail",
+        },
+      },
+    });
+    const scannerPipeline: ScannerPipeline = {
+      scanStage: async () => ({
+        mode: "fail",
+        warningCount: 0,
+        blockingCount: 1,
+        findings: [
+          {
+            scannerId: "test_scanner",
+            profile: "core",
+            stage: "pre_pack_source",
+            severity: "error",
+            blocksProof: true,
+            filePath: "src/index.ts",
+            messages: ["contains simulated secret"],
+          },
+        ],
+      }),
+    };
+
+    const capture = createBufferedCommandIo();
+    const exitCode = await runBundleCommand(
+      { config: project.configPath, force: true },
+      capture.io,
+      { scannerPipeline },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(capture.stderr()).toContain(
+      "Scanner pipeline blocked bundling with 1 finding(s).",
+    );
+    expect(capture.stderr()).toContain(
+      "continuing bundle after scanner gate errors because --force was supplied.",
+    );
   });
 
   test("surfaces scanner warnings in bundle json output when scanner.mode = warn", async () => {

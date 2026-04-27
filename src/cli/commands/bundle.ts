@@ -170,14 +170,15 @@ async function enforceNotesGate(params: {
     sourceRoot: string;
     sections: Array<{ name: string; files: Array<{ relativePath: string }> }>;
   };
-}): Promise<void> {
+  allowFailure?: boolean;
+}): Promise<string[] | null> {
   const notesConfig = params.config.notes;
   if (
     notesConfig.requireCognitionScore === undefined &&
     !notesConfig.strictNotesMode &&
     !notesConfig.failOnDriftPressuredNotes
   ) {
-    return;
+    return null;
   }
 
   const report = await checkNotesConsistency("notes", params.plan.sourceRoot, {
@@ -196,7 +197,7 @@ async function enforceNotesGate(params: {
   );
 
   if (gatedNotes.length === 0) {
-    return;
+    return null;
   }
 
   const requiredScore = notesConfig.requireCognitionScore;
@@ -216,7 +217,7 @@ async function enforceNotesGate(params: {
     strictFailures.length === 0 &&
     driftFailures.length === 0
   ) {
-    return;
+    return null;
   }
 
   const detailLines: string[] = [];
@@ -247,6 +248,10 @@ async function enforceNotesGate(params: {
         `- [${note.id}] ${note.title} (drift warnings ${note.driftWarningCount})`,
       );
     }
+  }
+
+  if (params.allowFailure) {
+    return detailLines;
   }
 
   throw new CxError(detailLines.join("\n"), 10, {
@@ -309,6 +314,7 @@ async function enforceScannerPipeline(params: {
   scannerPipeline: ScannerPipeline | undefined;
   stage: "pre_pack_source" | "post_pack_artifact";
   files: Array<{ path: string; content: string }>;
+  allowBlockingFindings?: boolean;
 }): Promise<string[]> {
   if (!params.config.repomix.securityCheck) {
     return [];
@@ -333,27 +339,33 @@ async function enforceScannerPipeline(params: {
     (finding) =>
       `${finding.filePath} (${finding.stage}, ${finding.scannerId}, ${finding.severity}): ${finding.messages.join("; ")}`,
   );
+  const warnings = findingSummaries.map((line) => `Scanner warning: ${line}`);
 
   if (scanReport.blockingCount > 0) {
-    throw new CxError(
-      `Scanner pipeline blocked bundling with ${scanReport.blockingCount} finding(s).\n${findingSummaries.map((line) => `- ${line}`).join("\n")}`,
-      10,
-      {
-        remediation: {
-          docsRef: "notes/Scanner Pipeline Contract.md",
-          whyThisProtectsYou:
-            "Core scanners protect the proof path from shipping known-sensitive content inside a bundle.",
-          nextSteps: [
-            "Remove or rotate the flagged secret material, then rerun cx bundle.",
-            'Set scanner.mode = "warn" only when the reduced enforcement is intentional.',
-            "Run `cx doctor secrets --config cx.toml` to review the scanner findings directly.",
-          ],
-        },
+    const blockingMessage = `Scanner pipeline blocked bundling with ${scanReport.blockingCount} finding(s).\n${findingSummaries.map((line) => `- ${line}`).join("\n")}`;
+    if (params.allowBlockingFindings) {
+      writeStderr(`${blockingMessage}\n`, params.io);
+      writeStderr(
+        "Warning: continuing bundle after scanner gate errors because --force was supplied.\n",
+        params.io,
+      );
+      return warnings;
+    }
+
+    throw new CxError(blockingMessage, 10, {
+      remediation: {
+        docsRef: "notes/Scanner Pipeline Contract.md",
+        whyThisProtectsYou:
+          "Core scanners protect the proof path from shipping known-sensitive content inside a bundle.",
+        nextSteps: [
+          "Remove or rotate the flagged secret material, then rerun cx bundle.",
+          'Set scanner.mode = "warn" only when the reduced enforcement is intentional.',
+          "Run `cx doctor secrets --config cx.toml` to review the scanner findings directly.",
+        ],
       },
-    );
+    });
   }
 
-  const warnings = findingSummaries.map((line) => `Scanner warning: ${line}`);
   for (const warning of warnings) {
     writeStderr(`Warning: ${warning}\n`, params.io);
   }
@@ -538,6 +550,8 @@ export async function runBundleCommand(
       emitBehaviorLogs: io.emitBehaviorLogs,
     },
   );
+  const ciMode = args.ci ?? false;
+  const forceMode = args.force ?? false;
   const plan = await enrichPlanWithLinkedNotes(
     await buildBundlePlan(config, {
       emitWarning: (message) => writeStderr(`Warning: ${message}\n`, io),
@@ -562,20 +576,41 @@ export async function runBundleCommand(
         writeStderr(`  ID ${id}: ${files.join(", ")}\n`, io);
       }
     }
-    throw new CxError("Note validation failed", 10, {
-      remediation: {
-        docsRef:
-          "docs/modules/ROOT/pages/repository/docs/governance.adoc#notes-governance",
-        whyThisProtectsYou:
-          "The notes graph is the repository cognition layer. Refusing low-signal or malformed notes keeps bundles and agent workflows anchored to durable knowledge instead of noisy context.",
-        nextSteps: [
-          "Fix the reported note validation errors or duplicate IDs.",
-          "Run `cx notes check` to review governance failures, graph issues, and note drift before bundling again.",
-        ],
-      },
-    });
+    if (!forceMode) {
+      throw new CxError("Note validation failed", 10, {
+        remediation: {
+          docsRef:
+            "docs/modules/ROOT/pages/repository/docs/governance.adoc#notes-governance",
+          whyThisProtectsYou:
+            "The notes graph is the repository cognition layer. Refusing low-signal or malformed notes keeps bundles and agent workflows anchored to durable knowledge instead of noisy context.",
+          nextSteps: [
+            "Fix the reported note validation errors or duplicate IDs.",
+            "Run `cx notes check` to review governance failures, graph issues, and note drift before bundling again.",
+          ],
+        },
+      });
+    }
+
+    writeStderr(
+      "Warning: continuing bundle after note validation errors because --force was supplied.\n",
+      io,
+    );
   }
-  await enforceNotesGate({ config, plan });
+  const noteGateErrors = await enforceNotesGate({
+    config,
+    plan,
+    allowFailure: forceMode,
+  });
+  if (noteGateErrors !== null) {
+    writeStderr("Note gate errors:\n", io);
+    for (const line of noteGateErrors) {
+      writeStderr(`  ${line}\n`, io);
+    }
+    writeStderr(
+      "Warning: continuing bundle after note gate errors because --force was supplied.\n",
+      io,
+    );
+  }
   const scannerWarnings = await enforceScannerPipeline({
     config,
     io,
@@ -586,10 +621,8 @@ export async function runBundleCommand(
       readFile: deps.readFile ?? fs.readFile,
     }),
     scannerPipeline: deps.scannerPipeline,
+    allowBlockingFindings: forceMode,
   });
-
-  const ciMode = args.ci ?? false;
-  const forceMode = args.force ?? false;
   const tokenizer = defaultTokenizerProvider;
 
   // Dirty-state enforcement: abort on unsafe working trees unless the operator
@@ -836,7 +869,7 @@ export async function runBundleCommand(
 
     // Extract notes metadata if present
     const notesRecords =
-      notesResult.valid && notesResult.notes.length > 0
+      notesResult.notes.length > 0
         ? notesResult.notes.map((note) => ({
             id: note.id,
             title: note.title,
