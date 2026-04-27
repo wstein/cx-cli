@@ -1,13 +1,27 @@
 // test-lane: unit
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   DEFAULT_BEHAVIOR_VALUES,
-  DEFAULT_CONFIG_TEMPLATE,
   DEFAULT_CONFIG_VALUES,
   DEFAULT_STYLE,
   DEFAULT_USER_CONFIG_TEMPLATE,
   DEFAULT_USER_CONFIG_VALUES,
 } from "../../src/config/defaults.js";
+import { renderInitTemplate } from "../../src/templates/index.js";
+
+let renderedBaseConfigTemplate: string;
+
+beforeAll(async () => {
+  renderedBaseConfigTemplate = await renderInitTemplate(
+    process.cwd(),
+    "cx.toml",
+    {
+      projectName: "myproject",
+      style: "xml",
+    },
+    "base",
+  );
+});
 
 describe("config defaults", () => {
   describe("DEFAULT_STYLE", () => {
@@ -152,53 +166,54 @@ describe("config defaults", () => {
     });
   });
 
-  describe("DEFAULT_CONFIG_TEMPLATE", () => {
+  describe("base init config template", () => {
     it("is a non-empty string", () => {
-      expect(typeof DEFAULT_CONFIG_TEMPLATE).toBe("string");
-      expect(DEFAULT_CONFIG_TEMPLATE.length).toBeGreaterThan(0);
+      expect(typeof renderedBaseConfigTemplate).toBe("string");
+      expect(renderedBaseConfigTemplate.length).toBeGreaterThan(0);
     });
 
     it("contains schema reference", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("schema");
+      expect(renderedBaseConfigTemplate).toContain("schema");
     });
 
     it("contains required config sections", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[output");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[repomix");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[files");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[dedup");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[manifest");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[docs");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections");
+      expect(renderedBaseConfigTemplate).toContain("[output");
+      expect(renderedBaseConfigTemplate).toContain("[repomix");
+      expect(renderedBaseConfigTemplate).toContain("[files");
+      expect(renderedBaseConfigTemplate).toContain("[dedup");
+      expect(renderedBaseConfigTemplate).toContain("[manifest");
+      expect(renderedBaseConfigTemplate).toContain("[docs");
+      expect(renderedBaseConfigTemplate).toContain("[sections");
     });
 
     it("contains section definitions", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections.docs");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections.repo");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections.src");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[sections.tests");
+      expect(renderedBaseConfigTemplate).toContain("[sections.docs");
+      expect(renderedBaseConfigTemplate).toContain("[sections.notes");
+      expect(renderedBaseConfigTemplate).toContain("[sections.src");
+      expect(renderedBaseConfigTemplate).toContain("[sections.tests");
     });
 
     it("contains project metadata", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("project_name");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("source_root");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("output_dir");
+      expect(renderedBaseConfigTemplate).toContain("project_name");
+      expect(renderedBaseConfigTemplate).toContain("source_root");
+      expect(renderedBaseConfigTemplate).toContain("output_dir");
     });
 
     it("contains helpful comments", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("#");
+      expect(renderedBaseConfigTemplate).toContain("#");
     });
 
     it("references standard file extensions", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain(".xml.txt");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain(".json.txt");
+      expect(renderedBaseConfigTemplate).toContain(".xml.txt");
+      expect(renderedBaseConfigTemplate).toContain(".json.txt");
     });
 
     it("includes a default mcp section with mutation enabled", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("[mcp]");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain('policy = "default"');
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("audit_logging = true");
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain("enable_mutation = true");
+      expect(renderedBaseConfigTemplate).toContain("[mcp]");
+      expect(renderedBaseConfigTemplate).toContain('policy = "default"');
+      expect(renderedBaseConfigTemplate).toContain('# policy = "unrestricted"');
+      expect(renderedBaseConfigTemplate).toContain("audit_logging = true");
+      expect(renderedBaseConfigTemplate).toContain("enable_mutation = true");
     });
   });
 
@@ -262,17 +277,17 @@ describe("config defaults", () => {
 
   describe("config defaults consistency", () => {
     it("template references match config values for output extensions", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain(
+      expect(renderedBaseConfigTemplate).toContain(
         DEFAULT_CONFIG_VALUES.output.extensions.xml,
       );
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain(
+      expect(renderedBaseConfigTemplate).toContain(
         DEFAULT_CONFIG_VALUES.output.extensions.json,
       );
     });
 
     it("template references match dedup values", () => {
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain('mode = "fail"');
-      expect(DEFAULT_CONFIG_TEMPLATE).toContain('order = "config"');
+      expect(renderedBaseConfigTemplate).toContain('mode = "fail"');
+      expect(renderedBaseConfigTemplate).toContain('order = "config"');
     });
 
     it("behavior values are included in config values", () => {

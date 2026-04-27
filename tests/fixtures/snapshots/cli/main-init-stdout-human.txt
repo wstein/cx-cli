@@ -54,6 +54,16 @@ include_source_metadata = true
 include_repo_history = true
 repo_history_count = 25
 
+[mcp]
+# The MCP server is the live workspace path: agents read live state and may
+# update notes when explicitly authorized. policy="default" keeps mutation
+# bounded; use "unrestricted" only for trusted local sessions.
+# Docs: docs/modules/manual/pages/operating-modes.adoc
+policy = "default"
+# policy = "unrestricted"
+audit_logging = true
+enable_mutation = true
+
 [notes]
 # Note gates protect bundles from carrying weak or drift-pressured cognition.
 # All gates respect applies_to_sections. Scope gates to specific workspaces

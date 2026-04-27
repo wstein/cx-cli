@@ -77,6 +77,12 @@ describe("runInitCommand", () => {
     );
     expect(cx).toContain("use [files].include for that");
     expect(cx).toContain("Keep this catch-all visible while learning");
+    expect(cx).toContain("[mcp]");
+    expect(cx).toContain('policy = "default"');
+    expect(cx).toContain('# policy = "unrestricted"');
+    expect(cx).toContain(
+      "Docs: docs/modules/manual/pages/operating-modes.adoc",
+    );
   });
 
   test("scaffolds a minimal Antora docs site on first run", async () => {
