@@ -1,0 +1,57 @@
+= Purity Field Design
+:page-layout: default
+:page-role: understand
+:page-publish: false
+
+This is a draft design note for relocating dirty-state enforcement. No implementation is implied by this page.
+
+== Problem Statement
+
+Today `cx bundle` aborts on `unsafe_dirty` with exit code 7. That conflates two questions: is the workspace clean, and is this artifact acceptable for a handoff gate?
+
+Phase 3 separates workflow cleanliness from artifact verification.
+
+== Proposal
+
+`cx bundle` can always produce a bundle. The manifest gains a `purity` field:
+
+[cols="1,3",options="header"]
+|===
+|Purity |Meaning
+|`pristine` |clean tree, all tracked files committed, no overrides
+|`safe_dirty` |untracked files only
+|`forced_dirty` |tracked changes, operator override
+|`ci_dirty` |tracked changes, CI override
+|===
+
+Reviewers, CI, and `cx verify` gate on `purity`; the bundle command does not.
+
+== Marcus's Objection
+
+If `cx bundle` always succeeds, the purity field can become ignored noise. Operators may stop noticing that a handoff artifact was produced from tracked drift.
+
+Counter-proposal: keep abort behavior by default, but allow `CX_PURITY_GATE=warn` for power users who intentionally want materialization without aborting.
+
+== Kira's Objection
+
+CI pipelines currently rely on exit code 7. A migration must include `cx verify --require-purity=pristine`, a deprecation timeline, and no compatibility shim unless Werner explicitly approves it.
+
+== Trust Spectrum Impact
+
+Moving the check to verification weakens the statement that the CLI refuses to materialize ambiguous artifacts. It strengthens the verifier contract only if every downstream workflow uses the verifier as the authoritative gate.
+
+The philosophical tradeoff is whether materialization itself is a trust boundary or merely an input to the next trust boundary.
+
+== Decision Points
+
+Option A: status quo. Keep abort behavior. Recommend this if discoverability and naive-operator safety dominate.
+
+Option B: full move to materialization-time. Bundle always succeeds and verifier gates purity.
+
+Option C: hybrid. Add `bundle.purity_gate = "abort" | "warn" | "off"` with default `abort`.
+
+Recommendation: Option C preserves the current trust contract while making expert workflows explicit and auditable.
+
+== Implementation Sketch
+
+If Option C is chosen, update manifest schema/types, config loading, bundle dirty-state enforcement, verify purity checks, CLI docs, and tests for default abort plus warn/off behavior.

@@ -1,5 +1,6 @@
 = CX Operator Manual
 :page-layout: default
+:page-role: run
 
 include::ROOT:partial$operator-surfaces-primer.adoc[]
 include::ROOT:partial$track-primer.adoc[]
@@ -72,6 +73,12 @@ If extraction reports `degraded`, stop and decide whether you need approximate h
 Why this protects you: degraded extraction means the recovered packed content no longer matches the manifest contract, so line coordinates and file identity may no longer be trustworthy enough for safe automation.
 
 For the full failure model, recovery statuses, and detailed examples, see xref:ROOT:page$repository/docs/extraction_safety.adoc[Extraction Safety].
+
+=== Audited Overrides
+
+`cx bundle --force` and `cx bundle --ci` are audited overrides. They allow a bundle to be materialized from tracked-file drift only when the operator has chosen that provenance explicitly, and the manifest records `forced_dirty` or `ci_dirty` for downstream review.
+
+See xref:architecture:audited-overrides.adoc[Audited Overrides] before using either flag in release or CI workflows.
 
 === Repository Commands
 
@@ -158,6 +165,8 @@ cx mcp
 cx doctor mcp --config cx.toml
 cx mcp catalog --json
 cx doctor secrets --config cx.toml
+cx notes lint
+cx notes lint --write
 ----
 
 `cx init` now writes a generated workspace-aware `Makefile`,

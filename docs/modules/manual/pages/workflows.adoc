@@ -1,5 +1,6 @@
 = Operator Workflows
 :page-layout: default
+:page-role: run
 
 include::ROOT:partial$track-primer.adoc[]
 include::ROOT:partial$trust-boundary-primer.adoc[]

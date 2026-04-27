@@ -1,5 +1,6 @@
 = CX System Map
 :page-layout: default
+:page-role: understand
 
 Use this page when you need one mental anchor before reading the deeper
 docs.

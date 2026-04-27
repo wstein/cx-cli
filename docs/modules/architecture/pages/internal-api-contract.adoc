@@ -1,5 +1,6 @@
 = Internal API Contract
 :page-layout: default
+:page-role: understand
 
 This document records the internal interfaces that `cx` treats as stable
 architecture seams before any plugin or extension system is introduced.

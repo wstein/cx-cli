@@ -1,5 +1,6 @@
 = Release and Integrity
 :page-layout: default
+:page-role: run
 
 include::ROOT:partial$trust-boundary-primer.adoc[]
 

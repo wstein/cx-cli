@@ -20,6 +20,11 @@ import {
   getOutgoingLinks,
   getReachableNotes,
 } from "../../../notes/graph.js";
+import {
+  applyLintFixes,
+  lintNotes,
+  readLintHistory,
+} from "../../../notes/lint.js";
 import { CxError } from "../../../shared/errors.js";
 import {
   printInfo as basePrintInfo,
@@ -40,9 +45,14 @@ export interface NotesArgs {
   title?: string | undefined;
   tags?: string[] | undefined;
   id?: string | undefined;
+  note?: string | undefined;
   depth?: number | undefined;
   format?: "json" | undefined;
   json?: boolean | undefined;
+  write?: boolean | undefined;
+  yes?: boolean | undefined;
+  history?: boolean | undefined;
+  fixSection?: boolean | undefined;
   workspaceRoot?: string | undefined;
 }
 export async function runNotesCommand(
@@ -252,6 +262,71 @@ export async function runNotesCommand(
     }
 
     return 0;
+  }
+
+  if (subcommand === "lint") {
+    if (args.history === true) {
+      const history = await readLintHistory(notesDir);
+      if (args.json ?? false) {
+        writeJsonOutput({
+          command: "notes lint --history",
+          count: history.length,
+          history,
+        });
+      } else {
+        printInfo("Notes lint history:\n");
+        for (const entry of history) {
+          printInfo(
+            `  ${String(entry.at)} ${String(entry.noteId)} ${String(entry.changeKind)}`,
+          );
+        }
+      }
+      return 0;
+    }
+
+    const noteId = args.note ?? args.id;
+    const report = await lintNotes(notesDir, workspaceRoot, {
+      ...(noteId !== undefined ? { noteId } : {}),
+    });
+    const writeResult =
+      args.write === true
+        ? await applyLintFixes(report.findings, {
+            projectRoot: workspaceRoot,
+            notesDir,
+            ...(args.yes !== undefined ? { yes: args.yes } : {}),
+          })
+        : undefined;
+
+    if (args.json ?? false) {
+      writeJsonOutput({
+        command: "notes lint",
+        valid: report.valid,
+        findings: report.findings,
+        write: writeResult,
+      });
+    } else {
+      printInfo("Notes lint:\n");
+      if (report.findings.length === 0) {
+        printSuccess("  ✓ No structural note lint findings");
+      } else {
+        for (const finding of report.findings) {
+          printInfo(
+            `  [${finding.noteId}] ${finding.category} ${finding.targetPath ?? ""}`.trimEnd(),
+          );
+          printInfo(`    ${finding.suggestedFix}`);
+        }
+      }
+      if (writeResult !== undefined) {
+        printInfo(
+          `  Applied ${writeResult.applied} fix(es); skipped ${writeResult.skipped}.`,
+        );
+      }
+    }
+
+    if (args.write === true && writeResult?.skipped === 0) {
+      return 0;
+    }
+    return report.findings.every((finding) => !finding.autoFixable) ? 0 : 1;
   }
 
   if (subcommand === "backlinks") {

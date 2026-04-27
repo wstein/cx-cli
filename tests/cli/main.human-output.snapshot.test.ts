@@ -25,6 +25,18 @@ describe("main human snapshot lane", () => {
     });
   });
 
+  test("top-level help groups commands by documented path", async () => {
+    const capture = createBufferedCommandIo();
+    const exitCode = await main(["--help"], capture.io);
+    expect(exitCode).toBe(0);
+    const output = capture.stdout();
+    expect(output).toContain("Native proof path:");
+    expect(output).toContain("Live workspace path:");
+    expect(output).toContain("Durable cognition path:");
+    expect(output).toContain("Adapter / oracle path:");
+    expect(output).toContain("Setup & diagnostics:");
+  });
+
   test("init stdout snapshot", async () => {
     const capture = createBufferedCommandIo();
     const exitCode = await main(["init", "--stdout"], capture.io);

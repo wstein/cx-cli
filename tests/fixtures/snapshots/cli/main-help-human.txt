@@ -1,22 +1,19 @@
 cx <command> [options]
 
-Commands:
-  cx completion                  Generate a shell completion script for bash, zsh, or fish.
-  cx audit [subcommand]          Summarize recent MCP audit trends without reading raw JSONL.
-  cx init                        Create a starter cx.toml and scaffold repository notes.
-  cx inspect                     Show the computed plan without writing files.
-  cx bundle                      Create an immutable bundle snapshot from a project.
-  cx extract <bundleDir>         Restore files from a bundle.
-  cx list <bundleDir>            List bundle contents.
-  cx validate <bundleDir>        Validate bundle structure and schema.
-  cx verify <bundleDir>          Verify bundle integrity.
-  cx doctor [subcommand]         Diagnose overlaps, MCP inheritance, note drift, and secret hygiene.
-  cx render                      Render planned sections as standard Repomix output.
-  cx docs <subcommand>           Export, compile, and drift-check Antora documentation artifacts.
-  cx config <subcommand>         Inspect effective configuration.
-  cx adapter <subcommand>        Expert oracle diagnostics for parity, capability inspection, and migration checks.
-  cx notes [subcommand] [query]  Manage repository notes as the intent-truth layer.
-  cx mcp [subcommand]            [EXPERIMENTAL] Start the CX MCP server or inspect the machine-readable MCP tool catalog.
+Native proof path:
+  bundle, extract, list, validate, verify
+
+Live workspace path:
+  mcp
+
+Durable cognition path:
+  notes
+
+Adapter / oracle path:
+  adapter, render
+
+Setup & diagnostics:
+  init, inspect, doctor, audit, config, docs, completion
 
 Options:
       --adapter-path  Path to a custom adapter oracle module (overrides the default repomix reference oracle when installed).  [string]

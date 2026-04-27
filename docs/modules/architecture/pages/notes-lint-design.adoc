@@ -1,0 +1,57 @@
+= Notes Lint Design
+:page-layout: default
+:page-role: understand
+
+`cx notes lint` is a structural lint surface for note-to-code drift. It runs outside the bundle path and defaults to dry-run.
+
+== Drift Taxonomy
+
+Structural categories come from `NoteCodePathWarning`: `missing`, `outside_master_list`, and `excluded_from_plan`.
+
+Semantic contradictions are reported as contradictions and are never auto-fixed.
+
+== Auto-fix Decision Matrix
+
+[cols="1,1,1,1",options="header"]
+|===
+|Category |Auto-fixable? |Trigger |Action
+|missing (file deleted) |No |always |report only
+|missing (file renamed, single git-follow match) |Yes |confidence >= 0.9 |rewrite structural frontmatter anchor
+|missing (file renamed, ambiguous) |No |confidence < 0.9 |report with candidate list
+|outside_master_list |Conditional |`--fix-section` plus confirmation or `--yes` |propose include glob update
+|excluded_from_plan |No |always |report; suggest section fix
+|Contradiction |Never |always |report only
+|Stale `updated_at` |Yes |always |rewrite frontmatter
+|Stale tags derived from path |Yes |always |rewrite frontmatter
+|===
+
+== Hard Constraints
+
+Auto-fix never edits prose body content. It may rewrite only frontmatter and structural anchors.
+
+Notes lint runs in a separate command path from `cx bundle`; bundling never triggers note rewrites.
+
+Default mode is dry-run. Mutation requires explicit `--write`.
+
+Every auto-fix appends one JSON object to `notes/.lint-history.jsonl` with note ID, change kind, and before/after hashes. The log is append-only.
+
+== Confidence Scoring
+
+A single git-follow match in the last five commits scores `0.95`.
+
+Multiple candidates score `max - second_max`.
+
+No auto-fix runs below `0.9`.
+
+== CLI Surface
+
+[source,bash]
+----
+cx notes lint [--write] [--fix-section] [--note <id>] [--json] [--history]
+----
+
+`--json` emits structured findings. `--history` reads the audit log.
+
+== Test Plan
+
+Tests cover synthetic note fixtures for the three structural drift categories, dry-run output, `--write` mutation, body byte preservation by SHA-256, and audit-log round-tripping.

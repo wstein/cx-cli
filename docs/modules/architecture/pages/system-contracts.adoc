@@ -1,5 +1,8 @@
 = CX System Contracts
 :page-layout: default
+:page-role: understand
+
+`cx notes lint` is intentionally outside the bundle materialization path. Bundle may read note consistency results for gate enforcement, but it must not import or invoke the notes lint module because lint `--write` can mutate frontmatter and append audit history.
 
 This document defines the operational contracts that sit under the
 mental model:

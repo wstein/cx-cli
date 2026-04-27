@@ -6,6 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { loadManifestFromBundle } from "../../src/bundle/validate.js";
 import { readLock } from "../../src/manifest/lock.js";
+import { CxError } from "../../src/shared/errors.js";
 import { createProject, runQuietBundleCommand } from "./helpers.js";
 
 async function createAndInitProject(): Promise<{
@@ -89,6 +90,16 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
       expect(error instanceof Error).toBe(true);
       const errorMsg = (error as Error).message;
       expect(errorMsg).toContain("Refusing to bundle");
+      expect(error).toBeInstanceOf(CxError);
+      expect((error as CxError).remediation?.docsRef).toBe(
+        "manual:audited-overrides.adoc",
+      );
+      expect((error as CxError).remediation?.nextSteps).toContain(
+        "Use cx --lenient bundle ... for local exploration (manifest will record forced_dirty).",
+      );
+      expect((error as CxError).remediation?.scopeHint?.configKey).toBe(
+        "dedup.mode",
+      );
     }
   });
 

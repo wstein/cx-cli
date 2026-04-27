@@ -1,4 +1,5 @@
 = 03 Context and Scope
+:page-role: understand
 
 The outer system boundary is four cooperating surfaces:
 

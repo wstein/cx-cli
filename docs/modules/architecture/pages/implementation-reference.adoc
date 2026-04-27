@@ -1,5 +1,6 @@
 = CX Architecture
 :page-layout: default
+:page-role: understand
 
 include::ROOT:partial$track-primer.adoc[]
 include::ROOT:partial$trust-boundary-primer.adoc[]

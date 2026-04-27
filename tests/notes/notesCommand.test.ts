@@ -70,6 +70,55 @@ afterEach(async () => {
 });
 
 describe("Notes Command Subcommands", () => {
+  describe("lint subcommand", () => {
+    test("writes frontmatter fixes and reads lint history", async () => {
+      await fs.mkdir(path.join(testDir, "notes", "area"), { recursive: true });
+      await fs.writeFile(
+        path.join(testDir, "notes", "area", "lint.md"),
+        `---
+id: 20250113143009
+title: Lint Note
+tags: ["existing"]
+updated_at: "2020-01-01"
+---
+
+Body content remains unchanged with enough routing words.`,
+        "utf8",
+      );
+
+      const lintResult = await captureNotesCommand({
+        run: () =>
+          runNotesCommand({
+            subcommand: "lint",
+            write: true,
+            yes: true,
+            json: true,
+          }),
+        parseJson: true,
+      });
+
+      expect(lintResult.exitCode).toBe(0);
+      expect(lintResult.parsedJson).toMatchObject({
+        command: "notes lint",
+      });
+
+      const historyResult = await captureNotesCommand({
+        run: () =>
+          runNotesCommand({
+            subcommand: "lint",
+            history: true,
+            json: true,
+          }),
+        parseJson: true,
+      });
+      expect(historyResult.exitCode).toBe(0);
+      expect(historyResult.parsedJson).toMatchObject({
+        command: "notes lint --history",
+        count: 1,
+      });
+    });
+  });
+
   describe("new subcommand", () => {
     test("creates a note with text output", async () => {
       const result = await captureNotesCommand({

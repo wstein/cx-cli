@@ -1,0 +1,33 @@
+= Audited Overrides
+:page-layout: default
+:page-role: understand
+
+`--force` and `--ci` are audited overrides, not silent bypasses.
+
+When `cx bundle` sees tracked files with uncommitted changes, the default behavior is to abort before materializing a bundle. Passing `--force` acknowledges the local risk and records `forced_dirty`; passing `--ci` acknowledges the pipeline risk and records `ci_dirty`. Reviewers and downstream tools can inspect that manifest field instead of guessing whether the artifact came from a clean tree.
+
+[source,json]
+----
+{
+  "dirtyState": "forced_dirty",
+  "vcs": {
+    "kind": "git",
+    "trackedDirtyFiles": ["src/index.ts"]
+  }
+}
+----
+
+Use `--force` only when a human operator intentionally wants to inspect or hand off uncommitted local work. Use `--ci` only when a CI workflow intentionally bundles a workspace that cannot be clean at bundle time.
+
+== CI Example
+
+[source,yaml]
+----
+steps:
+  - run: cx bundle --ci --config cx.toml
+  - run: cx validate dist/my-project-bundle
+  - run: |
+      node -e 'const m=require("./dist/my-project-bundle/my-project-manifest.json"); if (m.dirtyState !== "ci_dirty") process.exit(1)'
+----
+
+That downstream check makes the override explicit: the workflow records `ci_dirty` during bundle creation and then verifies that the handoff artifact says so.

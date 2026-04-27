@@ -1,5 +1,6 @@
 = Choose Your Operating Mode
 :page-layout: default
+:page-role: run
 
 include::ROOT:partial$operator-surfaces-primer.adoc[]
 include::ROOT:partial$track-primer.adoc[]

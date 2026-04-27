@@ -1,4 +1,5 @@
 = 09 Decisions and History
+:page-role: understand
 
 The curated docs surface may publish selected decisions and closure records, but it should not flatten the whole notes graph.
 

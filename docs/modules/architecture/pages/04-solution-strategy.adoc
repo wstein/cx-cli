@@ -1,4 +1,5 @@
 = 04 Solution Strategy
+:page-role: understand
 
 The solution strategy is simple: the render kernel owns the production proof path, and every other surface either feeds it, checks it, or stays outside it.
 That keeps the runtime story legible even as tooling grows around it.

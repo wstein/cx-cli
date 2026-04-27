@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   asError,
+  buildScopeHint,
   CxError,
   formatErrorRemediation,
 } from "../../src/shared/errors.js";
@@ -34,6 +35,7 @@ describe("shared error handling", () => {
         whyThisProtectsYou:
           "The current plan has to be understood before a new artifact can be trusted.",
         nextSteps: ["Review the current plan before rebuilding."],
+        scopeHint: buildScopeHint("notes.applies_to_sections"),
       },
     });
 
@@ -44,8 +46,17 @@ describe("shared error handling", () => {
       "Suggested command: cx inspect --config cx.toml",
       "Docs: docs/modules/manual/pages/index.adoc",
       "Why this protects you: The current plan has to be understood before a new artifact can be trusted.",
+      'Scope this gate: notes.applies_to_sections via --section; set applies_to_sections = ["src/**"] in [notes].',
       "Next step: Review the current plan before rebuilding.",
     ]);
+  });
+
+  test("buildScopeHint returns canned lenient guidance for behavior gates", () => {
+    expect(buildScopeHint("dedup.mode")).toEqual({
+      sectionFlag: "--lenient",
+      configKey: "dedup.mode",
+      example: "run cx --lenient bundle for a one-off warning-mode pass",
+    });
   });
 
   test("asError returns Error instances unchanged", () => {

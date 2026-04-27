@@ -57,6 +57,28 @@ const VALID_SCANNER_IDS = new Set<CxScannerId>(["reference_secrets"]);
 const VALID_NOTES_FRONTMATTER_FIELD_TYPES =
   new Set<CxNotesFrontmatterFieldType>(["string", "string_array"]);
 
+const PRECEDENCE_CHAIN_BY_CONFIG_KEY = new Map<string, string>([
+  [
+    "dedup.mode",
+    'CLI flag (--strict/--lenient) > env (CX_DEDUP_MODE or CX_STRICT) > cx.toml ([dedup] mode) > default ("fail")',
+  ],
+  [
+    "repomix.missing_extension",
+    'CLI flag (--strict/--lenient) > env (CX_REPOMIX_MISSING_EXTENSION or CX_STRICT) > cx.toml ([repomix] missing_extension) > default ("warn")',
+  ],
+  [
+    "config.duplicate_entry",
+    'CLI flag (--strict/--lenient) > env (CX_CONFIG_DUPLICATE_ENTRY or CX_STRICT) > cx.toml ([config] duplicate_entry) > default ("warn")',
+  ],
+]);
+
+export function formatPrecedenceChain(configKey: string): string {
+  return (
+    PRECEDENCE_CHAIN_BY_CONFIG_KEY.get(configKey) ??
+    `CLI flag > env > cx.toml (${configKey}) > default`
+  );
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -520,7 +542,18 @@ function deduplicatePatterns(
   const message = `${label} contains duplicate pattern(s): ${listed}.`;
 
   if (mode === "fail") {
-    throw new CxError(message);
+    throw new CxError(message, 2, {
+      remediation: {
+        docsRef: "docs/modules/manual/pages/config-reference.adoc",
+        whyThisProtectsYou:
+          "Duplicate include or exclude patterns make ownership harder to audit and can hide accidental scope changes.",
+        nextSteps: [
+          "Remove the duplicate pattern or make the ownership boundary explicit.",
+          `Precedence: ${formatPrecedenceChain("config.duplicate_entry")}.`,
+          "Run `cx --lenient bundle` for a one-off warning-mode pass while exploring locally.",
+        ],
+      },
+    });
   }
 
   if (mode === "warn") {

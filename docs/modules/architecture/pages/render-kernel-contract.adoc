@@ -1,5 +1,6 @@
 = Render Kernel Contract
 :page-layout: default
+:page-role: understand
 
 This document freezes the current proof-path rendering behavior that the
 native kernel must preserve while `cx` replaces the Repomix-backed

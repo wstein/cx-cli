@@ -169,6 +169,34 @@ export function parseMarkdownFrontmatter(
   return { frontmatter, body };
 }
 
+function serializeScalar(value: unknown): string {
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+  if (value === null) {
+    return "null";
+  }
+  return JSON.stringify(String(value));
+}
+
+export function stringifyMarkdownFrontmatter(
+  frontmatter: Record<string, unknown>,
+  body: string,
+): string {
+  const lines = ["---"];
+  for (const [key, value] of Object.entries(frontmatter)) {
+    if (Array.isArray(value)) {
+      lines.push(
+        `${key}: [${value.map((entry) => serializeScalar(entry)).join(", ")}]`,
+      );
+    } else {
+      lines.push(`${key}: ${serializeScalar(value)}`);
+    }
+  }
+  lines.push("---");
+  return `${lines.join("\n")}\n${body}`;
+}
+
 function countIndent(line: string): number {
   return line.match(/^\s*/)?.[0].length ?? 0;
 }

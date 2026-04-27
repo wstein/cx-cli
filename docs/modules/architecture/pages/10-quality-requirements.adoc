@@ -1,4 +1,5 @@
 = 10 Quality Requirements
+:page-role: understand
 
 The architecture is optimized for:
 

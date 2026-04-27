@@ -5,10 +5,10 @@
 ## Layout
 
 - `antora.yml` defines the Antora component descriptor
-- `modules/ROOT/pages/` contains the front door plus shared and repository-reference pages
-- `modules/onboarding/pages/` contains the onboarding and docs-index surface
-- `modules/manual/pages/` contains the operator manual surface
-- `modules/architecture/pages/` contains the arc42 architecture surface
+- `modules/ROOT/pages/` contains the front door, shared pages, repository-reference pages, and the Run / Understand split
+- `modules/onboarding/pages/` contains first-contact orientation and the docs-index surface
+- `modules/manual/pages/` contains the Run track for operator workflows, command references, audited overrides, and release guidance
+- `modules/architecture/pages/` contains the Understand track for the arc42 spine, mental model, and focused architecture contracts
 - `modules/ROOT/partials/` contains shared local primers and reusable fragments
 - `modules/*/nav.adoc` defines the curated site navigation for each published module
 - `ui/` contains the local Antora UI bundle
@@ -42,5 +42,7 @@ Those chapters live under `docs/modules/architecture/pages/`.
 ## Start points
 
 - Source front door: [docs/modules/ROOT/pages/index.adoc](modules/ROOT/pages/index.adoc)
+- Run track: [docs/modules/manual/pages/index.adoc](modules/manual/pages/index.adoc)
+- Understand track: [docs/modules/architecture/pages/index.adoc](modules/architecture/pages/index.adoc)
 - Published docs: https://wstein.github.io/cx-cli/docs/
 - Single-file exports are emitted at `dist/antora/cx/0.4/_exports/manual.html` and `dist/antora/cx/0.4/_exports/architecture.html`.

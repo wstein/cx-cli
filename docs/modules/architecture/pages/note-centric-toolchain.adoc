@@ -1,5 +1,5 @@
 = Note-Centric Toolchain
-:page-role: architecture-draft
+:page-role: understand
 
 This architecture draft defines `cx` as a note-centric repository toolchain. Notes are the intent-truth layer, specs are executable shared-rule truth, code is implementation truth, tests are behavioral truth, and docs are communication truth.
 

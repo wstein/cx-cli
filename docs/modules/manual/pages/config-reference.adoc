@@ -1,5 +1,6 @@
 = CX Configuration Reference
 :page-layout: default
+:page-role: run
 
 This document describes the knobs. For the operator workflow, read
 xref:manual:operator-manual.adoc[Operator Manual]. For the invariants behind these

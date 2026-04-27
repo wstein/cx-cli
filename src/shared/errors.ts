@@ -3,6 +3,13 @@ export interface ErrorRemediation {
   readonly docsRef?: string;
   readonly whyThisProtectsYou?: string;
   readonly nextSteps?: readonly string[];
+  readonly scopeHint?: ScopeHint;
+}
+
+export interface ScopeHint {
+  readonly sectionFlag: string;
+  readonly configKey: string;
+  readonly example: string;
 }
 
 interface CxErrorOptions {
@@ -32,6 +39,36 @@ export function getErrorRemediation(
   return error instanceof CxError ? error.remediation : undefined;
 }
 
+export function buildScopeHint(configKey: string): ScopeHint {
+  switch (configKey) {
+    case "notes.applies_to_sections":
+      return {
+        sectionFlag: "--section",
+        configKey,
+        example: 'set applies_to_sections = ["src/**"] in [notes]',
+      };
+    case "dedup.mode":
+      return {
+        sectionFlag: "--lenient",
+        configKey,
+        example: "run cx --lenient bundle for a one-off warning-mode pass",
+      };
+    case "config.duplicate_entry":
+      return {
+        sectionFlag: "--lenient",
+        configKey,
+        example:
+          "run cx --lenient bundle to downgrade duplicate config entries to warnings",
+      };
+    default:
+      return {
+        sectionFlag: "--lenient",
+        configKey,
+        example: "run cx --lenient <command> for a one-off relaxation",
+      };
+  }
+}
+
 export function formatErrorRemediation(
   remediation: ErrorRemediation | undefined,
 ): string[] {
@@ -48,6 +85,11 @@ export function formatErrorRemediation(
   }
   if (remediation.whyThisProtectsYou) {
     lines.push(`Why this protects you: ${remediation.whyThisProtectsYou}`);
+  }
+  if (remediation.scopeHint) {
+    lines.push(
+      `Scope this gate: ${remediation.scopeHint.configKey} via ${remediation.scopeHint.sectionFlag}; ${remediation.scopeHint.example}.`,
+    );
   }
   for (const step of remediation.nextSteps ?? []) {
     lines.push(`Next step: ${step}`);

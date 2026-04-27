@@ -1,4 +1,5 @@
 = 05 Building Block View
+:page-role: understand
 
 Key building blocks in the shipped architecture:
 

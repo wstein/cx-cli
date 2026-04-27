@@ -1,4 +1,5 @@
 = 01 Introduction and Goals
+:page-role: understand
 
 The goal of `cx` is to turn repository context into something reproducible enough for automation, not merely convenient enough for prompting.
 It is a toolchain for handoff, verification, and durable project memory rather than a prompt-packaging shortcut.

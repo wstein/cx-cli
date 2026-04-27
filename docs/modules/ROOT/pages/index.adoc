@@ -16,20 +16,35 @@ repository-reference content plus `docs/modules/onboarding/`,
 `docs/modules/manual/`, and `docs/modules/architecture/` for the
 published concern-specific modules.
 
-== Start Here
+== Run
 
-- xref:onboarding:index.adoc[Documentation Index] for the migrated docs front door.
-- xref:manual:index.adoc[Manual Overview] for the shortest route to commands and workflows.
-- xref:manual:operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
-- xref:architecture:index.adoc[Architecture Overview] for the arc42-based architecture spine.
-- xref:manual:release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.
+What to type to ship something today.
+
+* `cx init --stdout`
+* `cx inspect --token-breakdown`
+* `cx bundle --config cx.toml`
+* `cx verify dist/<project>-bundle --against .`
+* xref:manual:index.adoc[Manual Overview] for the shortest route to commands and workflows.
+* xref:manual:operating-modes.adoc[Operating Modes] for choosing between live MCP, bundles, and notes.
+* xref:manual:workflows.adoc[Friday to Monday workflow] for live exploration to proof handoff.
+* xref:ROOT:page$repository/docs/agent_integration.adoc[Agent integration] for repository-local AI workflows.
+
+== Understand
+
+Why CX is shaped this way.
+
+include::../partials/notes-boundary-primer.adoc[]
+
+* xref:architecture:index.adoc[Architecture Overview] for the arc42-based architecture spine.
+* xref:architecture:mental-model.adoc[Mental Model] for the CX triad and trust spectrum.
+* xref:architecture:system-contracts.adoc[System Contracts] for the proof and handoff boundaries.
+* xref:architecture:render-kernel-contract.adoc[Render Kernel Contract] for native rendering invariants.
+* xref:manual:release-and-integrity.adoc[Release and Integrity] for release assurance, schema publishing, and v0.4 closure.
 
 == Why this site exists
 
 The repository already behaves like a governed documentation system rather than a casual Markdown folder.
 Antora gives that system explicit navigation, page classes, breadcrumbs, reusable primers, and a clearer separation between onboarding, reference, architecture, workflows, and release material.
-
-include::../partials/notes-boundary-primer.adoc[]
 
 == Repository-local compatibility
 

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
-import { loadCxConfig } from "../../config/load.js";
+import { formatPrecedenceChain, loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout, CxStyle } from "../../config/types.js";
 import {
   DOCS_EXPORT_GENERATOR,
@@ -36,7 +36,7 @@ import { summarizeInclusionProvenance } from "../../planning/provenance.js";
 import { defaultRenderEngine } from "../../render/engine.js";
 import type { RepositoryHistoryEntry } from "../../render/handover.js";
 import { renderSharedHandover } from "../../render/handover.js";
-import { CxError } from "../../shared/errors.js";
+import { buildScopeHint, CxError } from "../../shared/errors.js";
 import {
   formatBytes,
   formatNumber,
@@ -255,10 +255,12 @@ async function enforceNotesGate(params: {
       whyThisProtectsYou:
         "Optional note gates keep high-assurance bundles from carrying weak or drift-pressured cognition into downstream agent workflows.",
       nextSteps: [
-        "Strengthen the gated notes until they meet the configured cognition threshold.",
-        "Lower or scope the notes gate only if the reduced assurance is intentional.",
-        "Run `cx notes check` to inspect low-signal notes, drift warnings, and contradictions.",
+        'Lower or scope the gate: set applies_to_sections = ["src/**"] in [notes] to exempt experimental folders.',
+        "Run `cx --lenient bundle ...` for a one-off relaxation (does not change config).",
+        "Run `cx notes check` to inspect why the gate fired.",
+        "Run `cx notes lint --write` to auto-fix structural drift.",
       ],
+      scopeHint: buildScopeHint("notes.applies_to_sections"),
     },
   });
 }
@@ -587,7 +589,12 @@ export async function runBundleCommand(
   });
 
   const ciMode = args.ci ?? false;
-  const forceMode = args.force ?? false;
+  const cliOverrides = getCLIOverrides();
+  const lenientMode =
+    cliOverrides.dedupMode === "warn" &&
+    cliOverrides.repomixMissingExtension === "warn" &&
+    cliOverrides.configDuplicateEntry === "warn";
+  const forceMode = (args.force ?? false) || lenientMode;
   const tokenizer = defaultTokenizerProvider;
 
   // Dirty-state enforcement: abort on unsafe working trees unless the operator
@@ -606,13 +613,16 @@ export async function runBundleCommand(
         7,
         {
           remediation: {
-            docsRef: "docs/modules/architecture/pages/mental-model.adoc",
+            docsRef: "manual:audited-overrides.adoc",
             whyThisProtectsYou:
               "A bundle built from tracked-file drift cannot later be verified against a committed source tree, which breaks the artifact contract for reviewers, CI, and handoff automation.",
             nextSteps: [
               "Commit or stash the tracked changes, then rerun cx bundle.",
               "Use --force for a local override or --ci for a pipeline override only when you intend to record dirty provenance in the manifest.",
+              "Use cx --lenient bundle ... for local exploration (manifest will record forced_dirty).",
+              `Precedence: ${formatPrecedenceChain("dedup.mode")}.`,
             ],
+            scopeHint: buildScopeHint("dedup.mode"),
           },
         },
       );

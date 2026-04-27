@@ -1,5 +1,6 @@
 = CX Mental Model
 :page-layout: default
+:page-role: understand
 
 This is the canonical semantics and operator model for `cx`.
 

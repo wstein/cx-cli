@@ -1,4 +1,5 @@
 = 12 Glossary
+:page-role: understand
 
 [cols="1,3"]
 |===

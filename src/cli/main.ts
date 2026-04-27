@@ -32,6 +32,35 @@ import { renderCompletionScript } from "./completion.js";
 
 type ShellKind = "bash" | "zsh" | "fish";
 
+const TOP_LEVEL_HELP = `cx <command> [options]
+
+Native proof path:
+  bundle, extract, list, validate, verify
+
+Live workspace path:
+  mcp
+
+Durable cognition path:
+  notes
+
+Adapter / oracle path:
+  adapter, render
+
+Setup & diagnostics:
+  init, inspect, doctor, audit, config, docs, completion
+
+Options:
+      --adapter-path  Path to a custom adapter oracle module (overrides the default repomix reference oracle when installed).  [string]
+      --strict        Force all Category B behavioral settings to 'fail'. Overrides CX_* env vars and cx.toml values. Equivalent to CX_STRICT=true.  [boolean]
+      --lenient       Set all Category B behavioral settings to 'warn'. Overrides CX_* env vars and cx.toml values.  [boolean]
+  -h, --help          Show help  [boolean]
+  -v, --version       Show version number  [boolean]
+
+Examples:
+  cx init --stdout                                                        Print a starter cx.toml to stdout.
+  cx bundle --config cx.toml                                              Create a bundle from the current project.
+  cx extract dist/myproject-bundle --file src/index.ts --to /tmp/restore  Restore one file from a bundle.`;
+
 function getInstallTarget(shell: ShellKind) {
   const home = homedir();
   switch (shell) {
@@ -129,7 +158,9 @@ export async function main(
 
   const cli = yargs(hideBin(["node", "cx", ...argv]))
     .scriptName("cx")
-    .usage("$0 <command> [options]")
+    .usage(
+      "$0 <command>\n\nNative proof path:\n  bundle, extract, list, validate, verify\n\nLive workspace path:\n  mcp\n\nDurable cognition path:\n  notes\n\nAdapter / oracle path:\n  adapter, render\n\nSetup & diagnostics:\n  init, inspect, doctor, audit, config, docs, completion",
+    )
     .option("adapter-path", {
       type: "string",
       description:
@@ -896,6 +927,7 @@ export async function main(
               "check",
               "drift",
               "coverage",
+              "lint",
             ],
             default: "list",
           })
@@ -923,6 +955,10 @@ export async function main(
             description:
               "Note ID (required for 'read', 'update', 'rename', 'delete', 'backlinks', 'code-links', 'links', and 'graph' subcommands).",
           })
+          .option("note", {
+            type: "string",
+            description: "Limit notes lint to one note ID.",
+          })
           .option("depth", {
             type: "number",
             description:
@@ -934,6 +970,29 @@ export async function main(
               "Output format for graph, trace, ask, and drift commands.",
           })
           .option("json", { type: "boolean", default: false })
+          .option("write", {
+            type: "boolean",
+            default: false,
+            description:
+              "Apply auto-fixable notes lint findings. Default mode is dry-run.",
+          })
+          .option("yes", {
+            type: "boolean",
+            default: false,
+            description:
+              "Confirm notes lint fixes that would otherwise require a prompt.",
+          })
+          .option("fix-section", {
+            type: "boolean",
+            default: false,
+            description:
+              "Allow notes lint to propose section include updates for outside-master-list anchors.",
+          })
+          .option("history", {
+            type: "boolean",
+            default: false,
+            description: "Read notes/.lint-history.jsonl.",
+          })
           .option("config", {
             type: "string",
             default: "cx.toml",
@@ -948,9 +1007,14 @@ export async function main(
             title: args.title as string | undefined,
             tags: normalizeArrayArg(args.tags),
             id: args.id as string | undefined,
+            note: args.note as string | undefined,
             depth: args.depth as number | undefined,
             format: args.format as "json" | undefined,
             json: args.json,
+            write: args.write,
+            yes: args.yes,
+            fixSection: args["fix-section"],
+            history: args.history,
             workspaceRoot: io.cwd,
           },
           io,
@@ -991,7 +1055,7 @@ export async function main(
     argv.length === 0 ||
     (argv.length === 1 && (argv[0] === "-h" || argv[0] === "--help"))
   ) {
-    writeStdout(`${await cli.getHelp()}\n`, io);
+    writeStdout(`${TOP_LEVEL_HELP}\n`, io);
     return 0;
   }
 
