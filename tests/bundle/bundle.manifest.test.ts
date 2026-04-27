@@ -225,7 +225,7 @@ ${oversizedBody}
     });
   });
 
-  test("continues bundling with --force when the core scanner blocks proof", async () => {
+  test("still blocks bundling when the core scanner blocks proof", async () => {
     const project = await createProject({
       config: {
         repomix: {
@@ -256,17 +256,17 @@ ${oversizedBody}
     };
 
     const capture = createBufferedCommandIo();
-    const exitCode = await runBundleCommand(
-      { config: project.configPath, force: true },
-      capture.io,
-      { scannerPipeline },
-    );
-
-    expect(exitCode).toBe(0);
-    expect(capture.stderr()).toContain(
-      "Scanner pipeline blocked bundling with 1 finding(s).",
-    );
-    expect(capture.stderr()).toContain(
+    await expect(
+      runBundleCommand(
+        { config: project.configPath, force: true },
+        capture.io,
+        { scannerPipeline },
+      ),
+    ).rejects.toMatchObject({
+      exitCode: 10,
+      message: expect.stringContaining("Scanner pipeline blocked bundling"),
+    });
+    expect(capture.stderr()).not.toContain(
       "continuing bundle after scanner gate errors because --force was supplied.",
     );
   });

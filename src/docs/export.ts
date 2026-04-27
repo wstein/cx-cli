@@ -1,7 +1,10 @@
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import { sha256File } from "../shared/hashing.js";
 
 export type DocsExportFormat =
@@ -50,6 +53,7 @@ export interface ExportDocsParams {
 }
 
 const require = createRequire(import.meta.url);
+const execFileAsync = promisify(execFile);
 
 type ExportedAntoraAssembly = {
   assemblyName: string;
@@ -225,6 +229,63 @@ async function withSuppressedExporterWarnings<T>(
   } finally {
     process.stderr.write = originalWrite;
   }
+}
+
+async function resolveGitDir(workspaceRoot: string): Promise<string | null> {
+  try {
+    const { stdout } = await execFileAsync("git", ["rev-parse", "--git-dir"], {
+      cwd: workspaceRoot,
+      maxBuffer: 1024 * 1024,
+      env: {
+        ...process.env,
+        GIT_TERMINAL_PROMPT: "0",
+        GIT_PAGER: "cat",
+      },
+    });
+    const gitDir = stdout.trim();
+    return gitDir.length > 0 ? path.resolve(workspaceRoot, gitDir) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function prepareAntoraWorkspaceRoot(params: {
+  workspaceRoot: string;
+}): Promise<{ workspaceRoot: string; cleanup: (() => Promise<void>) | null }> {
+  const gitMarker = await fs
+    .lstat(path.join(params.workspaceRoot, ".git"))
+    .catch(() => null);
+  if (gitMarker?.isDirectory()) {
+    return { workspaceRoot: params.workspaceRoot, cleanup: null };
+  }
+
+  const gitDir = await resolveGitDir(params.workspaceRoot);
+  if (gitDir === null) {
+    return { workspaceRoot: params.workspaceRoot, cleanup: null };
+  }
+
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "cx-antora-worktree-"),
+  );
+  await fs.cp(
+    path.join(params.workspaceRoot, "docs"),
+    path.join(tempRoot, "docs"),
+    {
+      recursive: true,
+    },
+  );
+  await fs.copyFile(
+    path.join(params.workspaceRoot, "antora-playbook.yml"),
+    path.join(tempRoot, "antora-playbook.yml"),
+  );
+  await fs.symlink(gitDir, path.join(tempRoot, ".git"));
+
+  return {
+    workspaceRoot: tempRoot,
+    cleanup: async () => {
+      await fs.rm(tempRoot, { recursive: true, force: true });
+    },
+  };
 }
 
 function normalizeRenderedAssembly(markdown: string): string {
@@ -532,44 +593,50 @@ export async function exportAntoraDocsToMarkdown(
   const format = params.format ?? "multimarkdown";
   const extension = params.extension ?? resolveDocsExportExtension(format);
   const rootLevel = params.rootLevel ?? 1;
-  const playbookPath = await resolveDocsPlaybookPath({
+  const exportWorkspace = await prepareAntoraWorkspaceRoot({
     workspaceRoot: params.workspaceRoot,
-    playbookPath: params.playbookPath,
   });
-  await fs.mkdir(params.outputDir, { recursive: true });
-
-  const exportAntoraModulesToMarkdown =
-    await loadExportAntoraModulesToMarkdown();
   const resolvedLogOutput = params.logOutput
     ? path.resolve(params.logOutput)
     : undefined;
-  if (resolvedLogOutput) {
-    await fs.mkdir(path.dirname(resolvedLogOutput), { recursive: true });
-  }
 
-  const runtimeLog = resolvedLogOutput
-    ? {
-        level: "all" as const,
-        format: "pretty" as const,
-        destination: {
-          file: resolvedLogOutput,
-          sync: true,
-        },
-      }
-    : undefined;
-
-  // Wrap export with stream interception to capture any warnings
-  // This is a fallback in case Antora's native logger doesn't write to the file
-  let exports: ExportedAntoraAssembly[];
   try {
+    const playbookPath = await resolveDocsPlaybookPath({
+      workspaceRoot: exportWorkspace.workspaceRoot,
+      playbookPath: params.playbookPath,
+    });
+    await fs.mkdir(params.outputDir, { recursive: true });
+
+    const exportAntoraModulesToMarkdown =
+      await loadExportAntoraModulesToMarkdown();
+    if (resolvedLogOutput) {
+      await fs.mkdir(path.dirname(resolvedLogOutput), { recursive: true });
+    }
+
+    const runtimeLog = resolvedLogOutput
+      ? {
+          level: "all" as const,
+          format: "pretty" as const,
+          destination: {
+            file: resolvedLogOutput,
+            sync: true,
+          },
+        }
+      : undefined;
+
+    let exports: ExportedAntoraAssembly[];
     if (resolvedLogOutput) {
       const logWriter = await fs.open(resolvedLogOutput, "w");
       const originalStderr = process.stderr.write.bind(process.stderr);
 
-      process.stderr.write = ((chunk, encodingOrCallback, callback) => {
+      process.stderr.write = ((
+        chunk: string | Uint8Array,
+        encodingOrCallback?: BufferEncoding | ((error?: Error | null) => void),
+        callback?: (error?: Error | null) => void,
+      ) => {
         const text = String(chunk);
         if (text.trim()) {
-          logWriter.write(`${text}\n`).catch(() => {});
+          logWriter.write(`${text}\n`).catch(() => undefined);
         }
         return originalStderr(chunk, encodingOrCallback as never, callback);
       }) as typeof process.stderr.write;
@@ -597,62 +664,65 @@ export async function exportAntoraDocsToMarkdown(
         }),
       );
     }
+
+    const outputFileBySourcePath = new Map<string, string>();
+    for (const exported of exports) {
+      const outputFile = resolveExportOutputFile({
+        assemblyPath: exported.path,
+        extension,
+        filenamePrefix: params.filenamePrefix,
+      });
+      for (const sourcePath of exported.sourcePages) {
+        outputFileBySourcePath.set(sourcePath, outputFile);
+      }
+    }
+
+    const artifacts: DocsExportArtifact[] = [];
+    for (const exported of exports) {
+      const outputFile = resolveExportOutputFile({
+        assemblyPath: exported.path,
+        extension,
+        filenamePrefix: params.filenamePrefix,
+      });
+      const content = rewriteReviewLinkDestinations({
+        markdown: normalizeRenderedAssembly(exported.content),
+        currentOutputFile: outputFile,
+        outputFileBySourcePath,
+      });
+      const diagnostics = analyzeDocsExportMarkdown(content);
+
+      const outputPath = path.join(params.outputDir, outputFile);
+      await fs.writeFile(outputPath, content, "utf8");
+      const stat = await fs.stat(outputPath);
+
+      artifacts.push({
+        assemblyName: exported.assemblyName,
+        title: resolveMarkdownTitle({
+          content,
+          fallback: exported.name,
+        }),
+        moduleName: exported.moduleName,
+        outputFile,
+        outputPath,
+        relativeOutputPath: path
+          .relative(params.outputDir, outputPath)
+          .replaceAll("\\", "/"),
+        pageCount: exported.sourcePages.length,
+        sourcePaths: [...exported.sourcePages],
+        sha256: await sha256File(outputPath),
+        sizeBytes: stat.size,
+        rootLevel,
+        diagnostics,
+      });
+    }
+
+    return artifacts.sort((left, right) =>
+      left.outputFile.localeCompare(right.outputFile),
+    );
   } finally {
     await pruneEmptyLogOutput(resolvedLogOutput);
-  }
-
-  const outputFileBySourcePath = new Map<string, string>();
-  for (const exported of exports) {
-    const outputFile = resolveExportOutputFile({
-      assemblyPath: exported.path,
-      extension,
-      filenamePrefix: params.filenamePrefix,
-    });
-    for (const sourcePath of exported.sourcePages) {
-      outputFileBySourcePath.set(sourcePath, outputFile);
+    if (exportWorkspace.cleanup !== null) {
+      await exportWorkspace.cleanup();
     }
   }
-
-  const artifacts: DocsExportArtifact[] = [];
-  for (const exported of exports) {
-    const outputFile = resolveExportOutputFile({
-      assemblyPath: exported.path,
-      extension,
-      filenamePrefix: params.filenamePrefix,
-    });
-    const content = rewriteReviewLinkDestinations({
-      markdown: normalizeRenderedAssembly(exported.content),
-      currentOutputFile: outputFile,
-      outputFileBySourcePath,
-    });
-    const diagnostics = analyzeDocsExportMarkdown(content);
-
-    const outputPath = path.join(params.outputDir, outputFile);
-    await fs.writeFile(outputPath, content, "utf8");
-    const stat = await fs.stat(outputPath);
-
-    artifacts.push({
-      assemblyName: exported.assemblyName,
-      title: resolveMarkdownTitle({
-        content,
-        fallback: exported.name,
-      }),
-      moduleName: exported.moduleName,
-      outputFile,
-      outputPath,
-      relativeOutputPath: path
-        .relative(params.outputDir, outputPath)
-        .replaceAll("\\", "/"),
-      pageCount: exported.sourcePages.length,
-      sourcePaths: [...exported.sourcePages],
-      sha256: await sha256File(outputPath),
-      sizeBytes: stat.size,
-      rootLevel,
-      diagnostics,
-    });
-  }
-
-  return artifacts.sort((left, right) =>
-    left.outputFile.localeCompare(right.outputFile),
-  );
 }

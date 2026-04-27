@@ -314,7 +314,6 @@ async function enforceScannerPipeline(params: {
   scannerPipeline: ScannerPipeline | undefined;
   stage: "pre_pack_source" | "post_pack_artifact";
   files: Array<{ path: string; content: string }>;
-  allowBlockingFindings?: boolean;
 }): Promise<string[]> {
   if (!params.config.repomix.securityCheck) {
     return [];
@@ -343,15 +342,6 @@ async function enforceScannerPipeline(params: {
 
   if (scanReport.blockingCount > 0) {
     const blockingMessage = `Scanner pipeline blocked bundling with ${scanReport.blockingCount} finding(s).\n${findingSummaries.map((line) => `- ${line}`).join("\n")}`;
-    if (params.allowBlockingFindings) {
-      writeStderr(`${blockingMessage}\n`, params.io);
-      writeStderr(
-        "Warning: continuing bundle after scanner gate errors because --force was supplied.\n",
-        params.io,
-      );
-      return warnings;
-    }
-
     throw new CxError(blockingMessage, 10, {
       remediation: {
         docsRef: "notes/Scanner Pipeline Contract.md",
@@ -621,7 +611,6 @@ export async function runBundleCommand(
       readFile: deps.readFile ?? fs.readFile,
     }),
     scannerPipeline: deps.scannerPipeline,
-    allowBlockingFindings: forceMode,
   });
   const tokenizer = defaultTokenizerProvider;
 

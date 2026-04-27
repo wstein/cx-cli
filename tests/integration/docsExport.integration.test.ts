@@ -1,8 +1,10 @@
 // test-lane: integration
 
+import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { describe, expect, test } from "vitest";
 import {
   analyzeDocsExportMarkdown,
@@ -11,6 +13,27 @@ import {
 
 async function makeOutputRoot(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "cx-docs-export-"));
+}
+
+const execFileAsync = promisify(execFile);
+
+async function makeWorktreeRoot(): Promise<{ root: string; parent: string }> {
+  const parent = await fs.mkdtemp(path.join(os.tmpdir(), "cx-docs-worktree-"));
+  const root = path.join(parent, "worktree");
+  await execFileAsync("git", ["worktree", "add", "--detach", root, "HEAD"], {
+    cwd: process.cwd(),
+  });
+  return { root, parent };
+}
+
+async function removeWorktreeRoot(params: {
+  root: string;
+  parent: string;
+}): Promise<void> {
+  await execFileAsync("git", ["worktree", "remove", "--force", params.root], {
+    cwd: process.cwd(),
+  }).catch(() => undefined);
+  await fs.rm(params.parent, { recursive: true, force: true });
 }
 
 describe("docs export", () => {
@@ -105,4 +128,29 @@ describe("docs export", () => {
       "demo-start-here.mmd",
     ]);
   }, 20_000);
+
+  test("exports Antora assemblies from a git worktree root", async () => {
+    const { root, parent } = await makeWorktreeRoot();
+    const outputDir = await makeOutputRoot();
+
+    try {
+      const artifacts = await exportAntoraDocsToMarkdown({
+        workspaceRoot: root,
+        outputDir,
+      });
+
+      expect(artifacts.length).toBeGreaterThan(0);
+      const docsIndex = await fs.readFile(
+        path.join(outputDir, "docs-index.mmd"),
+        "utf8",
+      );
+      expect(docsIndex).toContain("# CX Documentation: Docs Index");
+      expect(docsIndex).not.toContain(
+        "Local content source must be a git repository",
+      );
+    } finally {
+      await removeWorktreeRoot({ root, parent });
+      await fs.rm(outputDir, { recursive: true, force: true });
+    }
+  }, 30_000);
 });

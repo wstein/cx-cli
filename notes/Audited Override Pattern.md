@@ -10,9 +10,8 @@ For dirty state, `--force` records `forced_dirty` and `--ci` records
 `ci_dirty` in the manifest. The override does not make the tree clean;
 it makes the provenance explicit enough for downstream review and
 rejection rules. In the bundle command, `--force` continues past
-contract-gate errors such as note validation and scanner findings, but
-it still surfaces those errors so the operator can review them
-alongside the artifact.
+note-validation failures and note-gate errors, but scanner findings stay
+fatal so the bundle still stops on sensitive-content detection.
 
 The pattern has three requirements:
 
