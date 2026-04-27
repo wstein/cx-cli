@@ -54,6 +54,28 @@ export type RenameDetector = (
   projectRoot: string,
 ) => Promise<RenameCandidate[]>;
 
+type GitRenameRunner = (
+  args: string[],
+  options: {
+    cwd: string;
+    env: NodeJS.ProcessEnv;
+  },
+) => Promise<{ stdout: string }>;
+
+function runGitCommand(
+  args: string[],
+  options: {
+    cwd: string;
+    env: NodeJS.ProcessEnv;
+  },
+): Promise<{ stdout: string }> {
+  const [command, ...commandArgs] = args;
+  if (command === undefined) {
+    return Promise.resolve({ stdout: "" });
+  }
+  return execFileAsync(command, commandArgs, options);
+}
+
 export interface LintNotesOptions {
   readonly noteId?: string;
   readonly repositoryPaths?: Iterable<string>;
@@ -131,6 +153,7 @@ function parseGitRenameCandidates(
 export async function detectGitFollowRenames(
   missingPath: string,
   projectRoot: string,
+  runGit: GitRenameRunner = runGitCommand,
 ): Promise<RenameCandidate[]> {
   const commands = [
     [
@@ -143,12 +166,20 @@ export async function detectGitFollowRenames(
       "--",
       missingPath,
     ],
-    ["log", "--max-count=5", "--name-status", "--format=commit:%H", "-M"],
+    [
+      "log",
+      "--max-count=5",
+      "--name-status",
+      "--format=commit:%H",
+      "-M",
+      "--",
+      "notes/",
+    ],
   ];
   const candidates = new Map<string, RenameCandidate>();
   for (const args of commands) {
     try {
-      const { stdout } = await execFileAsync("git", args, {
+      const { stdout } = await runGit(["git", ...args], {
         cwd: projectRoot,
         env: {
           ...process.env,
@@ -161,6 +192,9 @@ export async function detectGitFollowRenames(
         if (current === undefined || candidate.score > current.score) {
           candidates.set(candidate.newPath, candidate);
         }
+      }
+      if (candidates.size > 0) {
+        break;
       }
     } catch {
       // Non-git workspaces keep rename fixes report-only.

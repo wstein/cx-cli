@@ -211,22 +211,57 @@ Body content stays byte identical with enough routing words for validation.`,
     await execFileAsync("git", ["config", "user.name", "CX Tests"], {
       cwd: root,
     });
-    await fs.mkdir(path.join(root, "src"), { recursive: true });
-    await fs.writeFile(path.join(root, "src", "old.ts"), "export {}\n", "utf8");
-    await execFileAsync("git", ["add", "src/old.ts"], { cwd: root });
+    await fs.mkdir(path.join(root, "notes"), { recursive: true });
+    await fs.writeFile(path.join(root, "notes", "old.md"), "old\n", "utf8");
+    await execFileAsync("git", ["add", "notes/old.md"], { cwd: root });
     await execFileAsync("git", ["commit", "-m", "add old"], { cwd: root });
-    await execFileAsync("git", ["mv", "src/old.ts", "src/new.ts"], {
+    await execFileAsync("git", ["mv", "notes/old.md", "notes/new.md"], {
       cwd: root,
     });
     await execFileAsync("git", ["commit", "-m", "rename old"], { cwd: root });
 
-    const candidates = await detectGitFollowRenames("src/old.ts", root);
+    const candidates = await detectGitFollowRenames("notes/old.md", root);
 
     expect(candidates).toContainEqual(
       expect.objectContaining({
-        oldPath: "src/old.ts",
-        newPath: "src/new.ts",
+        oldPath: "notes/old.md",
+        newPath: "notes/new.md",
       }),
     );
+  });
+
+  test("skips scoped fallback when primary git-follow command finds a rename", async () => {
+    const calls: string[][] = [];
+    const candidates = await detectGitFollowRenames(
+      "src/old.ts",
+      root,
+      async (args) => {
+        calls.push(args);
+        return {
+          stdout: "commit:abc123\nR100\tsrc/old.ts\tsrc/new.ts\n",
+        };
+      },
+    );
+
+    expect(candidates).toEqual([
+      {
+        oldPath: "src/old.ts",
+        newPath: "src/new.ts",
+        score: 1,
+        commit: "abc123",
+      },
+    ]);
+    expect(calls).toHaveLength(1);
+  });
+
+  test("scopes rename fallback to notes when primary finds nothing", async () => {
+    const calls: string[][] = [];
+    await detectGitFollowRenames("src/old.ts", root, async (args) => {
+      calls.push(args);
+      return { stdout: "" };
+    });
+
+    expect(calls).toHaveLength(2);
+    expect(calls[1]).toEqual(expect.arrayContaining(["--", "notes/"]));
   });
 });
