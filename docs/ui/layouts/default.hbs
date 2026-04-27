@@ -27,7 +27,7 @@
               {{#each this.items}}
               <li>
                 {{#if this.url}}
-                <a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
+                <a href="{{{relativize this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
                 {{else}}
                 <span>{{this.content}}</span>
                 {{/if}}
@@ -36,7 +36,7 @@
                   {{#each this.items}}
                   <li>
                     {{#if this.url}}
-                    <a href="{{{this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
+                    <a href="{{{relativize this.url}}}"{{#if this.current}} aria-current="page"{{/if}}>{{this.content}}</a>
                     {{else}}
                     <span>{{this.content}}</span>
                     {{/if}}

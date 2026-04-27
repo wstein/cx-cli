@@ -29,6 +29,7 @@ describe("Antora layout contract", () => {
     const antora = await readText("docs/antora.yml");
 
     expect(playbook).toContain("start_path: docs");
+    expect(playbook).toContain("url: https://wstein.github.io/cx-cli/docs/");
     expect(playbook).toContain("url: ./docs/ui");
 
     expect(antora).toContain("name: cx");

@@ -103,6 +103,8 @@ describe("assemble-pages-site.js", () => {
     expect(rootIndex).toContain('href="coverage/"');
     expect(docsIndex).toContain('location="cx/0.4/"');
     expect(versionedDocsIndex).toContain("CX Documentation");
+    expect(versionedDocsIndex).toContain('href="manual/"');
+    expect(versionedDocsIndex).not.toContain('href="/cx/0.4/');
     expect(schemasIndex).toContain("cx-config-v1.schema.json");
     expect(schemasIndex).toContain("json-section-output-v1.schema.json");
     expect(schemasIndex).toContain("manifest-v7.schema.json");
@@ -151,6 +153,8 @@ describe("assemble-pages-site.js", () => {
     expect(rootIndex).toContain('href="docs/"');
     expect(docsIndex).toContain('location="cx/0.4/"');
     expect(versionedDocsIndex).toContain("CX Documentation");
+    expect(versionedDocsIndex).toContain('href="manual/"');
+    expect(versionedDocsIndex).not.toContain('href="/cx/0.4/');
     expect(rootIndex).toContain("does not include a coverage report");
     await expect(
       fs.access(path.join(siteRoot, "coverage", "index.html")),
