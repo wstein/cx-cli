@@ -8,14 +8,15 @@ tags: [cx, safety, vcs]
 The dirty-state taxonomy separates bundle safety from convenience:
 `clean` and `safe_dirty` can proceed, `unsafe_dirty` must stop, and
 `forced_dirty` records an explicit operator override with `--force`.
+`ci_dirty` records the same tracked-file drift when a pipeline uses `--ci`.
 
 The practical rule is to keep the escape hatch but automate the quarantine.
-If a bundle reaches `forced_dirty`, downstream CI should parse the manifest,
-reject promotion, and alert on the recorded `modifiedFiles` list instead of
-depending on a human to notice terminal warnings.
+If a bundle reaches `forced_dirty` or `ci_dirty`, downstream CI should parse the manifest, reject promotion unless the override is expected, and alert on the recorded `modifiedFiles` list instead of depending on a human to notice terminal warnings.
 
 This keeps hotfix workflows available without letting bypassed safety guards
 silently contaminate later automation stages.
+
+The canonical term is audited override: `--force` and `--ci` do not erase risk; they materialize an artifact that records the risk. Dirty-state remediation must link to the audited-overrides docs so the operator sees the distinction before using the override.
 
 ## Links
 
@@ -23,3 +24,4 @@ silently contaminate later automation stages.
 - [[Differential Update Staging]] - `--update` still respects the same safety contract.
 - [[AI-first Toolbox]] - Agents need explicit provenance, not hidden
   working-tree drift.
+- [[Audited Override Pattern]]

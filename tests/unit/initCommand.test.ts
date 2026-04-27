@@ -65,6 +65,11 @@ describe("runInitCommand", () => {
     expect(exitCode).toBe(0);
     const cx = await fs.readFile(path.join(testDir, "cx.toml"), "utf8");
     expect(cx).toContain("testproject");
+    expect(cx).toContain(
+      "Section globs classify files that are already in the master list.",
+    );
+    expect(cx).toContain("use [files].include for that");
+    expect(cx).toContain("Keep this catch-all visible while learning");
   });
 
   test("scaffolds a minimal Antora docs site on first run", async () => {

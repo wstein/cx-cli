@@ -4,6 +4,8 @@
 
 `cx notes lint` is a structural lint surface for note-to-code drift. It runs outside the bundle path and defaults to dry-run.
 
+Prerequisite: reconcile `notes/CX Semantic Drift Detection.md` with actual `cx notes drift` behavior before expanding lint semantics. Today `notes drift` reports structural note-to-code drift and validation health; semantic claim/spec/doc comparison remains a design target.
+
 == Drift Taxonomy
 
 Structural categories come from `NoteCodePathWarning`: `missing`, `outside_master_list`, and `excluded_from_plan`.
@@ -34,6 +36,18 @@ Notes lint runs in a separate command path from `cx bundle`; bundling never trig
 Default mode is dry-run. Mutation requires explicit `--write`.
 
 Every auto-fix appends one JSON object to `notes/.lint-history.jsonl` with note ID, change kind, and before/after hashes. The log is append-only.
+
+The mutation contract is captured in `notes/Notes Lint Mutation Contract.md` and must remain machine-checkable:
+
+[source,typescript]
+----
+type NotesLintMutationKind =
+  | "frontmatter.updated_at"
+  | "frontmatter.path_tags"
+  | "frontmatter.structural_anchor";
+----
+
+Any new `--write` behavior extends this enum first, then adds tests proving body-byte preservation and audit history output.
 
 == Confidence Scoring
 

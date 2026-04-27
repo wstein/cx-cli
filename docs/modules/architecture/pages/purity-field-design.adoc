@@ -44,6 +44,16 @@ Moving the check to verification weakens the statement that the CLI refuses to m
 
 The philosophical tradeoff is whether materialization itself is a trust boundary or merely an input to the next trust boundary.
 
+== Notes Impact
+
+Phase 3 must update notes before code lands. The leading note changes are:
+
+* `notes/Dirty State Taxonomy.md` must distinguish dirty-state provenance from the proposed manifest purity field.
+* `notes/Audited Override Pattern.md` must explain how `bundle.purity_gate` changes operator intent without hiding tracked drift.
+* `notes/System Trust Contract.md` must be reviewed because Option B or C changes the claim that the CLI refuses to materialize ambiguous artifacts.
+
+The PR template for any Phase 3 implementation should require a note diff in the same PR as code. If no note changes are needed, the PR must say why.
+
 == Decision
 
 Option A: status quo. Keep abort behavior. Recommend this if discoverability and naive-operator safety dominate.

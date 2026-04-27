@@ -11,7 +11,17 @@ The CX architecture is built upon a triad specifically designed for operational 
 
 Bundle artifacts follow a layered interpretation model: rigid semantics in the bundle contract, richer explanatory guidance in the handover prolog and shared handover. That keeps the system deterministic while making the generated outputs easier for humans and AI tools to consume safely.
 
+The four-path CLI vocabulary is the command-map projection of this triad:
+
+- native proof path: immutable snapshots plus validation, verification, listing, and extraction
+- live workspace path: the live agent protocol
+- durable cognition path: notes and note lint/check/drift operations
+- adapter/oracle path: expert diagnostics around rendering and parity
+
+The vocabulary must not create a competing architecture. It is a help/docs affordance that keeps first-run operators from reading the whole mental model before choosing a command.
+
 ## Links
 * [[Operational Bifurcation]]
 * [[Agentic Ecosystem MCP]]
 * [[Manifest-Side Note Summaries]]
+* [[Four-Path Vocabulary Lock]]

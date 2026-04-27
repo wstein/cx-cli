@@ -20,11 +20,14 @@ Key mechanisms:
 
 This model allows for granular control over how the repository’s files are organized and presented to downstream AI and CI consumers.
 
+Starter configs are part of the teaching surface. The default `cx.toml` should show a small, explicit section model that demonstrates ownership, catch-all behavior, and the difference between section classification and master-list inclusion without encouraging broad accidental overlaps.
+
 When `dedup.mode = "fail"`, the stop is intentional. Allowing duplicate ownership to proceed would mean one source path could be treated as multiple canonical truths in the same bundle, which would break manifest clarity, token accounting, and downstream ownership assumptions.
 
 ## Links
 
 - [[Planning Boundary Enforcement]] - Ownership applies only to the master list pool.
 - [[Note Graph Audit]] - Overlap resolution can affect which notes are visible in the doc section.
+- [[Starter Config As Teaching Surface]]
 - src/planning/overlaps.ts - Implementation of the overlap and resolution logic.
 - docs/doctor/overlaps.ts - Diagnostic tools for overlap resolution.

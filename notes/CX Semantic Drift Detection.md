@@ -4,16 +4,19 @@ aliases: ["cx semantic drift", "notes drift"]
 tags: ["cx", "drift", "ci", "stable"]
 ---
 
-`cx` detects semantic drift, not only structural markdown errors.
+`cx` detects structural note drift today and reserves deeper semantic drift detection as the design target.
 
 ## What
 
-Drift includes cases where:
+The implemented `cx notes drift` command reports:
 
-- a note claim no longer matches specs
-- a spec changed without linked notes being updated
 - a code path moved and broke note references
-- docs claim behavior that notes or specs no longer support
+- a code path exists on disk but is outside the VCS master list
+- a code path is tracked but excluded from the active plan
+- current-note feature references are stale
+- note validation errors that block trustworthy drift inspection
+
+The broader semantic model also cares about cases where a note claim no longer matches specs or docs claim behavior that notes or specs no longer support, but that is not yet the full behavior of `cx notes drift`.
 
 ## Why
 
@@ -21,7 +24,7 @@ A note system is only trustworthy if it detects when its claims stop matching th
 
 ## How
 
-`cx notes drift` and `cx docs drift` compare note claims, specs, code refs, tests, and generated docs, then fail CI on unresolved mismatches.
+`cx notes drift` checks structural note-to-code drift and validation health. `cx docs drift` checks generated docs freshness against notes-derived Antora pages. Claim/spec/doc contradiction analysis belongs to the consistency layer and future lint/design work, not to the current `notes drift` command alone.
 
 ## Links
 

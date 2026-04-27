@@ -80,6 +80,8 @@ target_dir = "{{projectName}}-docs-exports"
 root_level = 1
 
 [sections.docs]
+# Section globs classify files that are already in the master list.
+# They do not pull ignored files into the bundle; use [files].include for that.
 include = ["docs/**", "README.md", "*.md"]
 
 [sections.notes]
@@ -92,4 +94,6 @@ include = ["src/**"]
 include = ["tests/**"]
 
 [sections.unassigned]
+# Keep this catch-all visible while learning the repo shape. Replace it with
+# explicit sections once every important file family has an owner.
 catch_all = true

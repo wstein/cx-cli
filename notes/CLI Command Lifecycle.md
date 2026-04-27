@@ -15,6 +15,7 @@ Key behavior:
 - **Safe stdout handling**: `writeStdoutSafe()` protects the CLI from `EPIPE` errors when output is piped to a closed receiver.
 - **Non-process exit mode**: `yargs().exitProcess(false)` allows the application to control exit behavior explicitly, improving testability and subprocess integration.
 - **Strict validation**: `strict()`, `strictCommands()`, and `strictOptions()` enforce unrecognized input failure handling.
+- **Grouped help vocabulary**: Top-level help groups commands by the four documented paths instead of exposing a flat command list first. The snapshot test for `cx --help` is the drift guard for that vocabulary.
 
 This lifecycle ensures that the CLI is both robust for automation and explicit about how user input affects the runtime configuration. The current modernization goal is not to replace `yargs`, but to keep shrinking the amount of ambient process state that command paths rely on.
 
@@ -22,5 +23,6 @@ This lifecycle ensures that the CLI is both robust for automation and explicit a
 
 - [[Config Inheritance and Overlays]] - CLI flags can override config behavior.
 - [[Environment Variable Resolution]] - CLI flags are the highest precedence in the config stack.
+- [[Four-Path Vocabulary Lock]] - Help output and docs use the same path names.
 - src/cli/main.ts - Implementation of the command lifecycle.
 - src/config/env.ts - CLI flag override plumbing.

@@ -20,6 +20,11 @@ import { validateNotes } from "./validate.js";
 const execFileAsync = promisify(execFile);
 const MIN_RENAME_CONFIDENCE = 0.9;
 
+export type NotesLintMutationKind =
+  | "frontmatter.updated_at"
+  | "frontmatter.path_tags"
+  | "frontmatter.structural_anchor";
+
 export type LintFindingCategory =
   | NoteCodePathWarning["status"]
   | "contradiction"
@@ -494,12 +499,14 @@ export async function applyLintFixes(
     const parsed = parseMarkdownFrontmatter(before);
     const bodyHash = sha256(parsed.body);
     const nextFrontmatter = { ...parsed.frontmatter };
+    const mutationKinds = new Set<NotesLintMutationKind>();
     for (const finding of noteFindings) {
       if (
         finding.category === "missing" &&
         finding.targetPath !== undefined &&
         finding.replacementPath !== undefined
       ) {
+        mutationKinds.add("frontmatter.structural_anchor");
         for (const key of ["claims", "code_refs", "test_refs", "doc_refs"]) {
           if (nextFrontmatter[key] !== undefined) {
             nextFrontmatter[key] = replaceStringRefs(
@@ -511,9 +518,11 @@ export async function applyLintFixes(
         }
       }
       if (finding.category === "stale_updated_at") {
+        mutationKinds.add("frontmatter.updated_at");
         nextFrontmatter.updated_at = todayIsoDate();
       }
       if (finding.category === "stale_path_tags") {
+        mutationKinds.add("frontmatter.path_tags");
         const tags = Array.isArray(nextFrontmatter.tags)
           ? nextFrontmatter.tags.filter(
               (entry): entry is string => typeof entry === "string",
@@ -542,7 +551,7 @@ export async function applyLintFixes(
       await appendHistory({
         notesDir: options.notesDir,
         noteId: noteFindings[0]?.noteId ?? "unknown",
-        changeKind: noteFindings.map((finding) => finding.category).join(","),
+        changeKind: [...mutationKinds].sort().join(","),
         beforeHash: sha256(before),
         afterHash: sha256(after),
       });

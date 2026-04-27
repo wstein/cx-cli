@@ -5,6 +5,8 @@ tags: ["architecture", "workflow"]
 ---
 `cx` uses a unified deterministic identity model but bifurcates operation into two distinct paths: Track B generates hypotheses against live state, while Track A generates proof that can survive review, CI, and handoff.
 
+Run/Understand is a documentation split layered on top of this model, not a third operating axis. Run pages teach what to type inside the existing paths; Understand pages explain why Track A, Track B, notes, and adapters have different trust roles.
+
 1. **Track A: Pipeline Operations** (the "Factory Floor")
    - `cx bundle`, `cx verify`, `cx extract`, `cx validate`
    - produces immutable, verifiable artifacts for CI/CD and handoff
@@ -26,6 +28,8 @@ The notes layer sits between them as the durable cognition layer. It preserves h
 
 This bifurcation helps operators choose the correct path for their immediate goal while keeping the underlying contract consistent.
 
+The four-path command vocabulary is the operator-facing map: native proof, live workspace, durable cognition, and adapter/oracle. It should stay reconciled with Track A/B by treating native proof as Track A, live workspace as Track B, durable cognition as the bridge, and adapter/oracle as expert diagnostics.
+
 ## Links
 * [[Agentic Ecosystem MCP]]
 * [[Config Inheritance and Overlays]]
@@ -35,3 +39,4 @@ This bifurcation helps operators choose the correct path for their immediate goa
 * [[MCP Transport Protocol]]
 * [[CX Triad]]
 * [[Token Accounting]]
+* [[Four-Path Vocabulary Lock]]

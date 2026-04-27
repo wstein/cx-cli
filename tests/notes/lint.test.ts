@@ -114,6 +114,9 @@ Body content stays byte identical with enough routing words for validation.`,
     const history = await readLintHistory(notesDir);
     expect(history).toHaveLength(1);
     expect(history[0]?.noteId).toBe("20250113143001");
+    expect(history[0]?.changeKind).toBe(
+      "frontmatter.path_tags,frontmatter.updated_at",
+    );
   });
 
   test("auto-fixes renamed frontmatter anchors when git-follow confidence is high", async () => {
@@ -169,6 +172,8 @@ Body content stays byte identical with enough routing words for validation.`,
     );
     expect(after).toContain('code_refs: ["src/new.ts"]');
     expect(after).not.toContain("src/old.ts");
+    const history = await readLintHistory(notesDir);
+    expect(history[0]?.changeKind).toBe("frontmatter.structural_anchor");
   });
 
   test("detects git rename candidates from recent follow history", async () => {
