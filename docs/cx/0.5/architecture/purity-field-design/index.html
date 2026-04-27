@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Purity Field Design | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="./">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_problem_statement">Problem Statement</a></li>
+<li><a href="#_proposal">Proposal</a></li>
+<li><a href="#_marcuss_objection">Marcus&#8217;s Objection</a></li>
+<li><a href="#_kiras_objection">Kira&#8217;s Objection</a></li>
+<li><a href="#_trust_spectrum_impact">Trust Spectrum Impact</a></li>
+<li><a href="#_notes_impact">Notes Impact</a></li>
+<li><a href="#_decision">Decision</a></li>
+<li><a href="#_implementation_sketch">Implementation Sketch</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Status: reviewed. Recommendation: Option C.</p>
+</div>
+<div class="paragraph">
+<p>No implementation is implied by this page until Werner approves the recommendation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_problem_statement"><a class="anchor" href="#_problem_statement"></a>Problem Statement</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Today <code>cx bundle</code> aborts on <code>unsafe_dirty</code> with exit code 7. That conflates two questions: is the workspace clean, and is this artifact acceptable for a handoff gate?</p>
+</div>
+<div class="paragraph">
+<p>Phase 3 separates workflow cleanliness from artifact verification.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_proposal"><a class="anchor" href="#_proposal"></a>Proposal</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx bundle</code> can always produce a bundle. The manifest gains a <code>purity</code> field:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Purity</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pristine</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">clean tree, all tracked files committed, no overrides</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>safe_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">untracked files only</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forced_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tracked changes, operator override</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ci_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tracked changes, CI override</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Reviewers, CI, and <code>cx verify</code> gate on <code>purity</code>; the bundle command does not under Option B. Option C keeps the current bundle-time abort as the default and lets operators explicitly choose warning or off modes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_marcuss_objection"><a class="anchor" href="#_marcuss_objection"></a>Marcus&#8217;s Objection</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If <code>cx bundle</code> always succeeds, the purity field can become ignored noise. Operators may stop noticing that a handoff artifact was produced from tracked drift.</p>
+</div>
+<div class="paragraph">
+<p>Counter-proposal: keep abort behavior by default, but allow <code>CX_PURITY_GATE=warn</code> for power users who intentionally want materialization without aborting.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_kiras_objection"><a class="anchor" href="#_kiras_objection"></a>Kira&#8217;s Objection</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>CI pipelines currently rely on exit code 7. A migration must include <code>cx verify --require-purity=pristine</code>, a deprecation timeline, and no compatibility shim unless Werner explicitly approves it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_trust_spectrum_impact"><a class="anchor" href="#_trust_spectrum_impact"></a>Trust Spectrum Impact</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Moving the check to verification weakens the statement that the CLI refuses to materialize ambiguous artifacts. It strengthens the verifier contract only if every downstream workflow uses the verifier as the authoritative gate.</p>
+</div>
+<div class="paragraph">
+<p>The philosophical tradeoff is whether materialization itself is a trust boundary or merely an input to the next trust boundary.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_notes_impact"><a class="anchor" href="#_notes_impact"></a>Notes Impact</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Phase 3 must update notes before code lands. The leading note changes are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>notes/Dirty State Taxonomy.md</code> must distinguish dirty-state provenance from the proposed manifest purity field.</p>
+</li>
+<li>
+<p><code>notes/Audited Override Pattern.md</code> must explain how <code>bundle.purity_gate</code> changes operator intent without hiding tracked drift.</p>
+</li>
+<li>
+<p><code>notes/System Trust Contract.md</code> must be reviewed because Option B or C changes the claim that the CLI refuses to materialize ambiguous artifacts.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The PR template for any Phase 3 implementation should require a note diff in the same PR as code. If no note changes are needed, the PR must say why.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_decision"><a class="anchor" href="#_decision"></a>Decision</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Option A: status quo. Keep abort behavior. Recommend this if discoverability and naive-operator safety dominate.</p>
+</div>
+<div class="paragraph">
+<p>Option B: full move to materialization-time. Bundle always succeeds and verifier gates purity.</p>
+</div>
+<div class="paragraph">
+<p>Option C: hybrid. Add <code>bundle.purity_gate = "abort" | "warn" | "off"</code> with default <code>abort</code>.</p>
+</div>
+<div class="paragraph">
+<p>Recommendation: Option C.</p>
+</div>
+<div class="paragraph">
+<p>Rationale:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It preserves the current trust contract for new and casual operators.</p>
+</li>
+<li>
+<p>It gives expert workflows an explicit configuration key instead of overloading <code>--force</code>.</p>
+</li>
+<li>
+<p>It lets CI migrate deliberately to <code>cx verify --require-purity=pristine</code> without losing exit-code protection during the transition.</p>
+</li>
+<li>
+<p>It keeps purity visible in both places that matter: materialization warnings and verifier gates.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Rejected for now:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Option A leaves power users with only ad hoc local overrides.</p>
+</li>
+<li>
+<p>Option B weakens the materialization trust boundary too abruptly and risks making purity easy to ignore.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_implementation_sketch"><a class="anchor" href="#_implementation_sketch"></a>Implementation Sketch</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If Option C is approved, update:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>manifest schema/types with <code>purity</code> while preserving the existing dirty-state taxonomy only as the recorded provenance source;</p>
+</li>
+<li>
+<p>config loading for <code>bundle.purity_gate = "abort" | "warn" | "off"</code>, default <code>abort</code>;</p>
+</li>
+<li>
+<p>bundle dirty-state enforcement so <code>abort</code> keeps exit code 7, <code>warn</code> materializes with a warning, and <code>off</code> materializes quietly while still recording manifest purity;</p>
+</li>
+<li>
+<p>verify with <code>--require-purity=pristine</code>;</p>
+</li>
+<li>
+<p>CLI docs and audited-overrides docs;</p>
+</li>
+<li>
+<p>tests for default abort, warn/off materialization, manifest purity, and CI verifier gating.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

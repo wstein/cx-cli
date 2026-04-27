@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CX Operator Manual | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Manual</a>
+                <ul>
+                  <li>
+                    <a href="./">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_quick_operator_path">Quick Operator Path</a>
+<ul class="sectlevel2">
+<li><a href="#_live_agent_path">Live Agent Path</a></li>
+<li><a href="#_artifact_path">Artifact Path</a></li>
+<li><a href="#_extraction_safety">Extraction Safety</a></li>
+<li><a href="#_audited_overrides">Audited Overrides</a></li>
+<li><a href="#_repository_commands">Repository Commands</a></li>
+</ul>
+</li>
+<li><a href="#_assurance_ladder">Assurance Ladder</a>
+<ul class="sectlevel2">
+<li><a href="#_cx_commands">CX Commands</a></li>
+<li><a href="#_mcp_setup_and_daily_operator_use">MCP Setup And Daily Operator Use</a></li>
+</ul>
+</li>
+<li><a href="#_who_this_manual_is_for">Who This Manual Is For</a></li>
+<li><a href="#_friday_to_monday_map">Friday To Monday Map</a></li>
+<li><a href="#_static_bundle_versus_live_mcp">Static Bundle Versus Live MCP</a></li>
+<li><a href="#_native_path_versus_adapter_path">Native Path Versus Adapter Path</a></li>
+<li><a href="#_core_commands">Core Commands</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>cx</code> is documented as four cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use this page for its local concern first. Return to <a href="../../onboarding/" class="xref page">Documentation Index</a> when you need the broader map.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>cx</code> is a repository-native toolchain with a kernel-owned proof path, a
+live MCP workspace surface, and a durable notes layer for AI handoff and
+verification.</p>
+</div>
+<div class="paragraph">
+<p>Use <a href="../operating-modes/" class="xref page">Operating Modes</a> for the main
+conceptual entrypoint and <a href="../../architecture/mental-model/" class="xref page">Mental Model</a>
+for the canonical CX triad, Track A vs Track B, policy tiers, and
+artifact lifecycle.</p>
+</div>
+<div class="paragraph">
+<p>Use this manual when you already know you are operating <code>cx</code> and want
+the shortest route to commands, assurance levels, and workflow
+decisions.</p>
+</div>
+<div class="paragraph">
+<p>If you are new to the repository:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Read the root <a href="../../repository/root/readme/" class="xref page">README</a></p>
+</li>
+<li>
+<p>Read <a href="../../architecture/system-map/" class="xref page">System Map</a></p>
+</li>
+<li>
+<p>Return here once you need the operator path instead of the conceptual
+map</p>
+</li>
+</ol>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quick_operator_path"><a class="anchor" href="#_quick_operator_path"></a>Quick Operator Path</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use the smallest operator sequence that matches the job:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Live workspace path: <code>cx mcp</code></p>
+</li>
+<li>
+<p>Durable cognition path: <code>cx notes</code></p>
+</li>
+<li>
+<p>Curated docs review path: <code>cx docs export</code></p>
+</li>
+<li>
+<p>Native proof path: <code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>,
+<code>cx verify</code>, <code>cx extract</code></p>
+</li>
+<li>
+<p>Recovery or audit: <code>cx list</code>, <code>cx audit</code>, <code>cx doctor</code></p>
+</li>
+<li>
+<p>Adapter/oracle path: expert diagnostics and parity only, not the primary
+operator workflow</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Typical minimal paths:</p>
+</div>
+<div class="sect2">
+<h3 id="_live_agent_path"><a class="anchor" href="#_live_agent_path"></a>Live Agent Path</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>cx mcp</code></p>
+</li>
+<li>
+<p><code>cx doctor mcp</code></p>
+</li>
+<li>
+<p><code>cx mcp catalog --json</code></p>
+</li>
+<li>
+<p><code>cx doctor workflow --task "refactor index.ts"</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_artifact_path"><a class="anchor" href="#_artifact_path"></a>Artifact Path</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>cx init --name demo</code></p>
+</li>
+<li>
+<p><code>cx inspect --token-breakdown</code></p>
+</li>
+<li>
+<p><code>cx bundle --config cx.toml</code></p>
+</li>
+<li>
+<p><code>cx verify --against .</code></p>
+</li>
+<li>
+<p><code>cx extract dist/bundle --to ./restore</code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_extraction_safety"><a class="anchor" href="#_extraction_safety"></a>Extraction Safety</h3>
+<div class="paragraph">
+<p>When you extract bundle contents, treat <code>intact</code> and <code>copied</code> outputs as the ordinary safe path.</p>
+</div>
+<div class="paragraph">
+<p>If extraction reports <code>degraded</code>, stop and decide whether you need approximate human review or deterministic machine-safe recovery:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>use <code>cx extract &#8230;&#8203; --allow-degraded</code> only for human inspection</p>
+</li>
+<li>
+<p>do not use degraded output as automation input</p>
+</li>
+<li>
+<p>rebuild the bundle instead of forcing degraded fallback when coordinates, hashes, or downstream edits matter</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: degraded extraction means the recovered packed content no longer matches the manifest contract, so line coordinates and file identity may no longer be trustworthy enough for safe automation.</p>
+</div>
+<div class="paragraph">
+<p>For the full failure model, recovery statuses, and detailed examples, see <a href="../../repository/docs/extraction_safety/" class="xref page">Extraction Safety</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_audited_overrides"><a class="anchor" href="#_audited_overrides"></a>Audited Overrides</h3>
+<div class="paragraph">
+<p><code>cx bundle --force</code> and <code>cx bundle --ci</code> are audited overrides. They allow a bundle to be materialized from tracked-file drift only when the operator has chosen that provenance explicitly, and the manifest records <code>forced_dirty</code> or <code>ci_dirty</code> for downstream review. <code>--force</code> also keeps the command running after note-validation errors, so the operator can inspect the resulting artifact and the emitted diagnostics together. Scanner findings remain fatal.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../../architecture/audited-overrides/" class="xref page">Audited Overrides</a> before using either flag in release or CI workflows.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_repository_commands"><a class="anchor" href="#_repository_commands"></a>Repository Commands</h3>
+<div class="paragraph">
+<p>Use the repository-local <code>make</code> targets for day-to-day development:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make test</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the fast unit loop while iterating</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the normal local gate before merging</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want CI-grade confidence before tagging a release</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make release VERSION=vX.Y.Z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You are stepping through the two-phase
+release wizard</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>make certify</code> runs everything <code>make verify</code> does, then performs a clean
+double-build reproducibility check: the <code>dist/</code> tree is hashed, wiped,
+rebuilt, and hashed again. The two hash sets must match exactly. This
+mirrors the CI <code>reproducibility</code> job so the release gate is exercisable
+locally without pushing.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_assurance_ladder"><a class="anchor" href="#_assurance_ladder"></a>Assurance Ladder</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use these commands as a progressive assurance model:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">What it covers</th>
+<th class="tableblock halign-left valign-top">When to run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lint, typecheck, build, Vitest coverage lane, Bun
+compatibility smoke</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">normal pre-merge gate</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run ci:test:coverage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vitest V8 coverage lane with HTML, JSON
+summary, LCOV, and markdown summary output over the full shared suite</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI coverage reporting</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:all</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">full shared repository suite through native Vitest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">broad local execution proof</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused bundle workflow, extraction,
+render-adapter, and JSON CLI lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle-heavy local iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused notes graph, note commands,
+linked-note planning, and operator contract lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes-heavy local
+iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:planning</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused planning and schema-integration
+lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">overlap, linking, and config-shape iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>verify</code> &#43; contract lane &#43; official
+Repomix reference-oracle smoke &#43; bundle transition matrix smoke
+&#43; release integrity smoke &#43; reproducibility check</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pre-tag
+local CI-equivalent certification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run integrity</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release integrity metadata generation from the
+packed npm tarball</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release artifact staging</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run verify-release</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release integrity metadata verification
+against packed tarball</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release verification and audit</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>make verify</code> and <code>make certify</code> are thin wrappers around
+<code>bun run verify</code> and <code>bun run certify</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vitest coverage is now the authoritative coverage-reporting lane for
+release assurance. Bun remains part of the execution and compatibility
+matrix.</p>
+</div>
+<div class="sect2">
+<h3 id="_cx_commands"><a class="anchor" href="#_cx_commands"></a>CX Commands</h3>
+<div class="paragraph">
+<p>Use <code>cx</code> commands for repository planning, bundle generation,
+verification, and live MCP work.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --name demo
+cx docs export
+cx inspect --token-breakdown
+cx bundle --include-doc-exports
+cx bundle --config cx.toml
+cx mcp
+cx doctor mcp --config cx.toml
+cx mcp catalog --json
+cx doctor secrets --config cx.toml
+cx notes lint
+cx notes lint --write</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>cx init</code> now writes a generated workspace-aware <code>Makefile</code>,
+<code>.editorconfig</code>, <code>cx-mcp.toml</code>, <code>cx.toml</code>, <code>.mcp.json</code>,
+<code>.vscode/mcp.json</code>, and local agent settings in <code>.claude/settings.json</code>
+and <code>.codex/settings.json</code> in addition to <code>notes/</code>. The generated
+<code>cx-mcp.toml</code> is a minimal diff to <code>cx.toml</code> and serves as the MCP
+overlay for the workspace root. The Makefile selects a language-specific
+template when it sees common workspace markers for Rust, Go,
+JavaScript/TypeScript, Python, Java, Elixir, Julia, Crystal, or Zig, and
+otherwise falls back to the base template.</p>
+</div>
+<div class="paragraph">
+<p>For the TypeScript template, the generated <code>Makefile</code> uses
+lockfile-first package-manager selection (<code>bun.lock*</code>,
+<code>pnpm-lock.yaml</code>, <code>yarn.lock</code>, then <code>package-lock.json</code> /
+<code>npm-shrinkwrap.json</code>) and keeps <code>install</code> separate from <code>build</code>. The
+normalized local targets are <code>install</code>, <code>build</code>, <code>test</code>, <code>check</code>,
+<code>lint</code>, <code>verify</code>, <code>certify</code>, <code>clean</code>, and <code>notes</code>. <code>lint</code> and <code>check</code>
+skip with a clear message when the corresponding package scripts are
+absent, and <code>certify</code> falls back to <code>verify</code> unless the workspace
+defines a stricter package-manager <code>certify</code> script. The generated
+<code>cx-mcp.toml</code> is the source-oriented authoring overlay and includes
+<code>src/<strong></code>, <code>package.json</code>, <code>tsconfig*.json</code>, and <code>README.md</code>
+while excluding <code>node_modules/</strong></code>, <code>dist/**</code>, and common
+cache or coverage directories. A companion <code>cx-mcp-build.toml</code> is
+generated for compiled-output inspection. Adjust the authoring and build
+overlays independently if your workspace uses a different layout.</p>
+</div>
+<div class="paragraph">
+<p>The cross-template capability matrix, generated file contract, and
+support levels are documented in
+<a href="../../repository/docs/init_template_contract/" class="xref page">Init Template Contract</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>cx init</code> checks each generated target individually. It preserves
+existing files by default and creates any missing init artifacts; use
+<code>--force</code> to overwrite existing generated files.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>--template</code> to explicitly choose an init template by environment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --name demo --template typescript</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>List supported templates with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --template-list</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When <code>--template</code> is omitted, <code>cx init</code> autodetects the workspace
+environment from files like <code>package.json</code>, <code>go.mod</code>, <code>pyproject.toml</code>,
+<code>pom.xml</code>, and <code>Cargo.toml</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>cx mcp</code> prefers a colocated <code>cx-mcp.toml</code> overlay. If that file is
+present, it is the default MCP config for the workspace; if it is
+missing, <code>cx</code> falls back to the baseline <code>cx.toml</code> configuration. The
+MCP surface now includes live bundle planning plus note reading, search,
+creation, update, rename, delete, and note-graph inspection tools in
+addition to workspace file browsing.</p>
+</div>
+<div class="paragraph">
+<p><code>cx docs export</code> writes deterministic markdown renderings of the Antora
+assemblies described by the active playbook so operators and downstream
+LLM workflows can
+inspect the final documentation content directly instead of inferring it
+from source AsciiDoc files alone. MultiMarkdown is the default export
+format for this command. The export rewrites Antora-style cross references
+into review-friendly links between the emitted markdown files and reports
+unresolved review-link destinations such as <code>xref:</code> links,
+module-qualified Antora HTML targets, or <code>.adoc</code> destinations. Use
+<code>--playbook</code> when the docs are driven by a playbook other than the
+default <code>antora-playbook.yml</code> at the source root, and use <code>--root-level</code>
+to switch between a single combined assembly (<code>0</code>) and one export per
+assembly or module (<code>1</code>, the default). JSON mode reports structured
+diagnostics when the export is blocked so CI and operators can see the
+exact assembly and unresolved destinations instead of only receiving a
+generic failure. Use <code>--log-output &lt;path&gt;</code> when you want Antora export
+logs written to a file instead of stderr. This overrides
+<code>docs.log_output</code> from <code>cx.toml</code>. Empty log files are deleted
+automatically after the export, so a log path only remains on disk when
+it captured actual output.</p>
+</div>
+<div class="paragraph">
+<p><code>cx bundle --include-doc-exports</code> reuses that same export path and stages
+the generated Antora assemblies under <code>docs.target_dir/</code> inside the bundle. The
+default is <code>{project}-docs-exports</code>, and you can configure it the same
+way as <code>assets.target_dir</code> in <code>cx.toml</code>. The bundle manifest records
+those files as <code>.mmd.txt</code> artifacts in <code>derivedReviewExports</code> so they
+are discoverable, checksum-covered, and still clearly labeled as derived
+review material rather than proof-path section outputs. <code>cx inspect
+--derived-review-exports --json</code> and <code>cx verify --json</code> also summarize the
+derived review exports, including unresolved review-link diagnostics for already
+bundled artifacts. When bundled docs export logging is enabled, the log
+is written to <code>antora-export.log.txt</code> in the bundle root. Empty bundled
+log files are removed automatically and are not recorded as bundle
+content or handover inventory.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>cx mcp catalog --json</code> when you need only the machine-readable MCP
+tool contract. It exposes the registered tool set with stable <code>name</code>,
+<code>capability</code>, and <code>stability</code> fields plus summary counts, without mixing
+in profile resolution or audit state.</p>
+</div>
+<div class="paragraph">
+<p>For concrete integration examples and per-IDE snippets (VS Code/Cline,
+Roo Code, Cursor, Claude Desktop), see the
+<a href="../../repository/docs/agent_integration/" class="xref page">Agent Integration Guide</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mcp_setup_and_daily_operator_use"><a class="anchor" href="#_mcp_setup_and_daily_operator_use"></a>MCP Setup And Daily Operator Use</h3>
+<div class="paragraph">
+<p>Use this sequence when you are connecting an agent or IDE to a live
+workspace:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run <code>cx mcp</code> from the repository root.</p>
+</li>
+<li>
+<p>Confirm the resolved profile and file boundary with <code>cx doctor mcp</code>.</p>
+</li>
+<li>
+<p>Inspect the machine-readable tool contract with <code>cx mcp catalog --json</code>.</p>
+</li>
+<li>
+<p>Use <code>cx-mcp.toml</code> when you need an MCP-specific overlay; otherwise
+<code>cx</code> falls back to <code>cx.toml</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Keep the everyday operator rule simple:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>use <code>cx mcp</code> for live reads, searches, planning, and note work</p>
+</li>
+<li>
+<p>use <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, and <code>cx extract</code> for
+proof-path artifacts</p>
+</li>
+<li>
+<p>keep client-specific setup details in the repository reference guide,
+not in the front-door operator path</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If an agent cannot see the right files, verify these before debugging
+anything deeper:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cwd</code> points at the repository root</p>
+</li>
+<li>
+<p>the active profile is the one you expect</p>
+</li>
+<li>
+<p><code>files.include</code> and <code>files.exclude</code> match the intended workspace
+scope</p>
+</li>
+<li>
+<p>mutation is enabled only when you intentionally want a mutate-capable
+session</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Repository-local <code>make</code> shortcuts keep the developer loop compact:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make test</code> runs the fast Vitest unit suite.</p>
+</li>
+<li>
+<p><code>make verify</code> runs lint, typecheck, build, the Vitest coverage lane,
+and Bun compatibility smoke.</p>
+</li>
+<li>
+<p><code>bun run ci:test:coverage</code> runs the authoritative Vitest V8 coverage
+lane across the shared repository suite, then writes <code>coverage/vitest/</code>
+plus <code>.ci/coverage-summary.md</code> for CI reporting.</p>
+</li>
+<li>
+<p>Treat that Vitest lane as the authoritative release-assurance
+reporting surface. The Bun lanes still prove execution compatibility and
+remain part of the runtime matrix.</p>
+</li>
+<li>
+<p><code>bun run test:contracts</code> runs the contract suite through native
+Vitest.</p>
+</li>
+<li>
+<p><code>bun run test:all</code> runs the full shared suite through native Vitest
+without collecting coverage.</p>
+</li>
+<li>
+<p><code>bun run test:all:full</code> is the explicit Vitest coverage lane for local
+release-assurance checks.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:bundle</code> isolates the slow bundle workflow,
+extraction, render-adapter, and JSON CLI suites.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:notes</code> isolates the slow notes graph and command
+suites, plus linked-note planning and operator contracts.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:planning</code> isolates planning and
+schema-integration suites for overlap, linked-note, and config-shape
+work.</p>
+</li>
+<li>
+<p><code>bun run pages:build</code> assembles the public Pages <code>dist/site/</code> tree
+with <code>/schemas/</code>, <code>/coverage/</code>, and the curated Antora docs site under
+<code>/docs/</code>.</p>
+</li>
+<li>
+<p><code>bun run pages:smoke</code> validates the staged <code>dist/site/</code> tree before a
+workflow publishes it.</p>
+</li>
+<li>
+<p>The latest public HTML coverage view is published at
+<code><a href="https://wstein.github.io/cx-cli/coverage/" class="bare">https://wstein.github.io/cx-cli/coverage/</a></code> from successful <code>develop</code>
+or <code>main</code> CI runs.</p>
+</li>
+<li>
+<p>The curated docs site is published at
+<code><a href="https://wstein.github.io/cx-cli/docs/" class="bare">https://wstein.github.io/cx-cli/docs/</a></code>.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp</code> runs the focused MCP cockpit lane for
+MCP-heavy tests without starting the full repository coverage surface.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp:ui</code> opens the same MCP-focused lane in Vitest
+UI so operators can rerun failures, inspect coverage, and review the
+import graph for slow MCP startup or registration paths.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp:adversarial</code> keeps startup failures,
+malformed runtime responses, and other hostile-boundary MCP cases
+isolated in a smaller cockpit.</p>
+</li>
+<li>
+<p><code>make certify</code> runs everything <code>verify</code> does plus contract tests,
+smoke lanes, release integrity smoke, and reproducibility checks - the
+CI-grade local gate to use before tagging.</p>
+</li>
+<li>
+<p><code>make release VERSION=vX.Y.Z</code> is a wizard: first call starts the
+release candidate on <code>develop</code>, second call with that same tagged
+version finalizes the release after CI is green.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>make</code> targets are wrappers around the corresponding Bun scripts.
+Use them for local ergonomics; use <code>cx</code> when you are working with bundle
+planning, verification, extraction, or MCP sessions.</p>
+</div>
+<div class="paragraph">
+<p>The native MCP server exposes file-based <code>list</code>, <code>grep</code>, and <code>read</code>
+tools over the workspace scope. It also exposes <code>inspect</code>, <code>bundle</code>,
+<code>doctor_mcp</code>, and <code>doctor_workflow</code> tools for live planning,
+plus note-native <code>notes_read</code>, <code>notes_search</code>, <code>notes_new</code>,
+<code>notes_update</code>, <code>notes_rename</code>, <code>notes_delete</code>,
+<code>notes_list</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>,
+<code>notes_code_links</code>, and <code>notes_links</code> tools over the notes
+corpus. Use <code>list</code> to enumerate visible files, <code>grep</code> to search their
+contents, and <code>read</code> to inspect a specific file with optional line
+anchors without switching back to the packaging workflow.</p>
+</div>
+<div class="paragraph">
+<p>Example note search:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "tool": "notes_search",
+  "arguments": {
+    "query": "workflow",
+    "tags": ["agent"],
+    "limit": 5
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>CLI and MCP note commands side by side:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task</th>
+<th class="tableblock halign-left valign-top">CLI</th>
+<th class="tableblock halign-left valign-top">MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Create a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes new --title "Research Note" --body "Initial observation."</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_new(title="Research Note", body="Initial observation.")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Read a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes read --id 20260414120000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_read(id="20260414120000")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Update a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes update --id 20260414120000 --body "Refined observation."</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_update(id="20260414120000", body="Refined observation.")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rename a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes rename --id 20260414120000 --title "Research Note v2"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_rename(id="20260414120000", title="Research Note v2")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Delete a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes delete --id 20260414120000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_delete(id="20260414120000")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inspect the graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes links</code> / <code>cx notes backlinks --id &#8230;&#8203;</code> /
+<code>cx notes orphans</code> / <code>cx notes code-links --id &#8230;&#8203;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_search(&#8230;&#8203;)</code> / <code>notes_links(&#8230;&#8203;)</code> /
+<code>notes_backlinks(&#8230;&#8203;)</code> / <code>notes_orphans(&#8230;&#8203;)</code> /
+<code>notes_code_links(&#8230;&#8203;)</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Use the CLI for direct on-disk note lifecycle operations. Use MCP when
+the agent needs live search, reads, updates, or graph inspection inside
+an active workspace session.</p>
+</div>
+<div class="paragraph">
+<p><code>cx docs compile --profile architecture|manual|onboarding</code> is the
+repository-owned promotion path from stable notes into generated Antora
+pages. Use note graph tools to validate and inspect note evidence before
+running docs compilation.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_who_this_manual_is_for"><a class="anchor" href="#_who_this_manual_is_for"></a>Who This Manual Is For</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This guide is for engineers running <code>cx</code> as an operational tool: local
+bundle authors, CI maintainers, and remote-runner owners.</p>
+</div>
+<div class="paragraph">
+<p>If you are new to the project, read the README first. If you need the
+detailed knobs, read <a href="../config-reference/" class="xref page">Configuration Reference</a>.
+If you need the full documentation map, read
+<a href="../../onboarding/" class="xref page">Documentation Index</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_friday_to_monday_map"><a class="anchor" href="#_friday_to_monday_map"></a>Friday To Monday Map</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Read the rest of this manual with one concrete timeline in mind:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>SHA-256 sidecars prove the emitted artifacts were not silently edited
+after bundling.</p>
+</li>
+<li>
+<p>The manifest records the exact file inventory, token counts, note
+summaries, and dirty-state provenance that downstream automation relies
+on.</p>
+</li>
+<li>
+<p><code>verify</code> exists so Monday&#8217;s runner can compare the bundle back to a
+source tree instead of trusting a stale directory by habit.</p>
+</li>
+<li>
+<p>Dirty-state gating stops tracked-file drift from becoming an
+unreviewable production input.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The invariants are the mechanisms that keep Friday&#8217;s intent queryable
+and safe on Monday.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_static_bundle_versus_live_mcp"><a class="anchor" href="#_static_bundle_versus_live_mcp"></a>Static Bundle Versus Live MCP</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>See <a href="../../architecture/mental-model/" class="xref page">Mental Model</a>.</p>
+</div>
+<div class="paragraph">
+<p>The two main CX workflows are intentionally different:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx bundle</code> produces a static, immutable snapshot for CI, review,
+verification, and handoff.</p>
+</li>
+<li>
+<p><code>cx mcp</code> exposes the live workspace through scoped file, search, and
+note tools for active investigation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They share the same repository boundary rules, but they answer different
+questions. Use the bundle when you need something you can verify later.
+Use MCP when you need the model to explore, search, or update the
+workspace during an ongoing task.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Best for</th>
+<th class="tableblock halign-left valign-top">Typical output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx inspect</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reviewing the planned bundle before writing files</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A
+deterministic plan, token totals, overlap signals, and extractability
+hints</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Producing an immutable artifact for review, CI, or handoff</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle files, manifest, lock file, and checksum sidecar</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploring the live workspace and maintaining notes during
+active work</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scoped file search, reads, and note tools over the current
+workspace</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_native_path_versus_adapter_path"><a class="anchor" href="#_native_path_versus_adapter_path"></a>Native Path Versus Adapter Path</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The shipped operator workflow is kernel-first:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, and <code>cx extract</code> operate on
+the native proof path</p>
+</li>
+<li>
+<p><code>cx mcp</code> operates on the live workspace path</p>
+</li>
+<li>
+<p><code>cx notes</code> operates on the durable cognition path</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The adapter/oracle surface is separate and expert-facing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>used for parity diagnostics</p>
+</li>
+<li>
+<p>used for oracle capability inspection</p>
+</li>
+<li>
+<p>used for migration and reference testing</p>
+</li>
+<li>
+<p>not required for ordinary bundle, validate, verify, or extract flows</p>
+</li>
+<li>
+<p>not the primary operator story</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_core_commands"><a class="anchor" href="#_core_commands"></a>Core Commands</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx init</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need a starter config</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx inspect</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to preview the plan before building</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to produce the bundle artifacts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx validate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want schema and structure validation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want checksum and source-tree verification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx list</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to browse stored files and statuses</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx extract</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to restore selected files from the bundle</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to start the MCP server with the agent profile</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to manage notes or inspect note graph
+relationships</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor overlaps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A plan fails because one file matches multiple
+sections</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor fix-overlaps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want exact exclude entries generated or
+applied</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to review the effective MCP profile,
+inherited scopes, and recent audit trends</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp catalog --json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the narrow machine-readable MCP tool
+catalog for automation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to audit note-to-code references against
+the VCS-backed planning master list</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor secrets</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to scan the master list for suspicious
+secret patterns</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor workflow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want a quick recommendation for bundle,
+inspect, or MCP, including mixed-task paths</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx audit summary</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want recent <code>traceId</code>, policy, and capability
+trends from <code>.cx/audit.log</code> without the full MCP profile report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx completion</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want shell-native command and flag completion</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

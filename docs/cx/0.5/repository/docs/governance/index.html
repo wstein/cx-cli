@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Documentation and Notes Governance | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_source_of_truth_markers">Source-of-Truth Markers</a>
+<ul class="sectlevel2">
+<li><a href="#_status_values">Status Values</a></li>
+<li><a href="#_stability_values">Stability Values</a></li>
+</ul>
+</li>
+<li><a href="#_canonical_documentation_map">Canonical Documentation Map</a>
+<ul class="sectlevel2">
+<li><a href="#_derived_documentation">Derived Documentation</a></li>
+<li><a href="#_editorial_documentation">Editorial Documentation</a></li>
+<li><a href="#_docs_surface_budget">Docs Surface Budget</a></li>
+<li><a href="#_front_door_docs">Front-Door Docs</a></li>
+<li><a href="#_canonical_core_docs">Canonical Core Docs</a></li>
+<li><a href="#_reference_only_docs">Reference-Only Docs</a></li>
+<li><a href="#_default_rule">Default Rule</a></li>
+<li><a href="#_hard_hierarchy_contract">Hard Hierarchy Contract</a></li>
+<li><a href="#_canonical_roles">Canonical Roles</a></li>
+<li><a href="#_non_negotiable_rule">Non-Negotiable Rule</a></li>
+<li><a href="#_governance_layers">Governance Layers</a></li>
+<li><a href="#_update_procedures">Update Procedures</a></li>
+<li><a href="#_updating_canonical_docs">Updating Canonical Docs</a></li>
+<li><a href="#_updating_derived_docs">Updating Derived Docs</a></li>
+<li><a href="#_updating_editorial_docs">Updating Editorial Docs</a></li>
+<li><a href="#mcp-tool-stability">MCP Tool Stability Tiers</a></li>
+<li><a href="#_current_reliability_focus">Current Reliability Focus</a></li>
+<li><a href="#_stable_tools">STABLE Tools</a></li>
+<li><a href="#_beta_tools">BETA Tools</a></li>
+<li><a href="#_experimental_tools">EXPERIMENTAL Tools</a></li>
+<li><a href="#_internal_tools">INTERNAL Tools</a></li>
+<li><a href="#_versioning_policy">Versioning Policy</a></li>
+<li><a href="#_migration_guidance">Migration Guidance</a></li>
+<li><a href="#_tool_stability_matrix">Tool Stability Matrix</a></li>
+<li><a href="#_links_to_governance">Links to Governance</a></li>
+</ul>
+</li>
+<li><a href="#_why_this_system">Why This System?</a></li>
+<li><a href="#notes-governance">Notes Governance</a>
+<ul class="sectlevel2">
+<li><a href="#_governance_model_how_what_why">Governance Model: How, What, Why</a></li>
+<li><a href="#_governance_rules">Governance Rules</a></li>
+<li><a href="#_canonical_note_anatomy">Canonical Note Anatomy</a></li>
+<li><a href="#_bundle_integration">Bundle Integration</a></li>
+<li><a href="#_implemented_behavior">Implemented Behavior</a></li>
+<li><a href="#_linked_note_enrichment_semantics">Linked-Note Enrichment Semantics</a></li>
+<li><a href="#_staleness_and_contradiction_pressure">Staleness and Contradiction Pressure</a></li>
+<li><a href="#_ci_check_path">CI Check Path</a></li>
+<li><a href="#_future_extensions">Future Extensions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This guide defines the governance model for the curated documentation
+surface, the notes cognition layer, and the MCP stability contract.
+Use it when you need to answer three questions precisely:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>which documents are authoritative</p>
+</li>
+<li>
+<p>how notes are governed as durable cognition</p>
+</li>
+<li>
+<p>how stable an MCP-facing interface is allowed to be</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_source_of_truth_markers"><a class="anchor" href="#_source_of_truth_markers"></a>Source-of-Truth Markers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every documentation file includes an HTML comment at the top declaring
+its source, status, and stability:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;!-- Source: FILENAME.md | Status: CANONICAL | Stability: STABLE --&gt;</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_status_values"><a class="anchor" href="#_status_values"></a>Status Values</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CANONICAL</strong>: Authoritative source of truth. Changes here are binding.
+Other docs derive from this.</p>
+</li>
+<li>
+<p><strong>DERIVED</strong>: Auto-generated or synced from another source. Do not edit
+directly; update the source instead.</p>
+</li>
+<li>
+<p><strong>EDITORIAL</strong>: Explanatory or tutorial content. May lag the canonical
+source. Lower priority for consistency.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_stability_values"><a class="anchor" href="#_stability_values"></a>Stability Values</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>STABLE</strong>: Semver-protected contract. Breaking changes require major
+version bump (documented in release notes).</p>
+</li>
+<li>
+<p><strong>BETA</strong>: Functional but subject to change in minor versions. Operators
+should pin versions if depending on this doc.</p>
+</li>
+<li>
+<p><strong>EXPERIMENTAL</strong>: Actively developed. May be removed or substantially
+rewritten without notice.</p>
+</li>
+</ul>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_canonical_documentation_map"><a class="anchor" href="#_canonical_documentation_map"></a>Canonical Documentation Map</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Status</th>
+<th class="tableblock halign-left valign-top">Stability</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementation Reference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">System architecture and
+layer design</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator Manual</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Complete feature reference and CLI usage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Governance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Documentation governance, notes
+governance, and MCP tool stability contracts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mental Model</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Canonical semantics for the CX triad,
+Track A vs Track B, policy tiers, and artifact lifecycle</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operating Modes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator-facing mode chooser and
+onboarding map</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent Operating Model</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integration-layer policy
+consequences for agent operators</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent Integration Guide</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IDE and client integration
+guide</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Release and Integrity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Release SBOM format and
+verification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extraction Safety</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content filtering and safe
+extraction</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configuration Reference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All cx.toml options and
+semantics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Release Checklist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CANONICAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Release process and
+validation steps</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_derived_documentation"><a class="anchor" href="#_derived_documentation"></a>Derived Documentation</h3>
+<div class="paragraph">
+<p>Some files are generated or synced:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Source</th>
+<th class="tableblock halign-left valign-top">How Updated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Documentation Index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator Manual</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manual excerpt during release</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API docs (if published)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source code</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generated from JSDoc comments</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_editorial_documentation"><a class="anchor" href="#_editorial_documentation"></a>Editorial Documentation</h3>
+<div class="paragraph">
+<p>Tutorial and explanation docs:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operator workflows</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Execution examples that show the model over time
+without redefining the canonical semantics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Getting Started (if added)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Introduction and quick-start tutorial</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Troubleshooting (if added)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Common issues and solutions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ (if added)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Frequently asked questions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_docs_surface_budget"><a class="anchor" href="#_docs_surface_budget"></a>Docs Surface Budget</h3>
+<div class="paragraph">
+<p><code>cx</code> intentionally keeps a small front-door docs surface.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_front_door_docs"><a class="anchor" href="#_front_door_docs"></a>Front-Door Docs</h3>
+<div class="paragraph">
+<p>These are the only documents that should behave like primary
+entrypoints:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Documentation Index</code></p>
+</li>
+<li>
+<p><code>System Map</code></p>
+</li>
+<li>
+<p><code>Operating Modes</code></p>
+</li>
+<li>
+<p><code>Operator Manual</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_canonical_core_docs"><a class="anchor" href="#_canonical_core_docs"></a>Canonical Core Docs</h3>
+<div class="paragraph">
+<p>These own stable meaning and contracts, but they are not additional
+onboarding doors:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Mental Model</code></p>
+</li>
+<li>
+<p><code>System Contracts</code></p>
+</li>
+<li>
+<p><code>Documentation Governance</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reference_only_docs"><a class="anchor" href="#_reference_only_docs"></a>Reference-Only Docs</h3>
+<div class="paragraph">
+<p>Everything else should be written as reference, integration detail,
+workflow example, or historical material.</p>
+</div>
+<div class="paragraph">
+<p>That means:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Implementation Reference</code> is an implementation reference for
+contributors, not a first-read overview.</p>
+</li>
+<li>
+<p><code>Operator Workflows</code> is a special-case execution guide, not a
+parallel onboarding path.</p>
+</li>
+<li>
+<p>Migration and release-history material are historical
+references, not part of the operator front door.</p>
+</li>
+<li>
+<p>Agent integration and configuration docs should be linked by concern,
+not treated as general entrypoints.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_default_rule"><a class="anchor" href="#_default_rule"></a>Default Rule</h3>
+<div class="paragraph">
+<p>If a new document would introduce another plausible place to start, it
+should usually become a section inside an existing front-door doc
+instead.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_hard_hierarchy_contract"><a class="anchor" href="#_hard_hierarchy_contract"></a>Hard Hierarchy Contract</h3>
+<div class="paragraph">
+<p><code>cx</code> intentionally uses a hard documentation hierarchy so semantics have
+one canonical home.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_canonical_roles"><a class="anchor" href="#_canonical_roles"></a>Canonical Roles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Mental Model</code> owns canonical semantics.</p>
+</li>
+<li>
+<p><code>Operating Modes</code> maps those semantics to operator choices and
+progressive onboarding.</p>
+</li>
+<li>
+<p><code>Operator Workflows</code> shows concrete execution examples across time.</p>
+</li>
+<li>
+<p>Agent integration docs document the integration layer: policy consequences,
+tool sequences, client setup, and review loops.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_non_negotiable_rule"><a class="anchor" href="#_non_negotiable_rule"></a>Non-Negotiable Rule</h3>
+<div class="paragraph">
+<p>Everything outside <code>Mental Model</code> must reference canonical semantics
+instead of redefining them.</p>
+</div>
+<div class="paragraph">
+<p>That means:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Operating Modes</code> should say which mode to choose, not restate the
+full semantics of the CX triad.</p>
+</li>
+<li>
+<p><code>Operator workflows</code> should show commands, decisions, and outcomes, not
+redefine Track A vs Track B.</p>
+</li>
+<li>
+<p>Agent integration docs should explain how agents consume the model through
+MCP and integration boundaries, not fork the semantics into a second
+source of truth.</p>
+</li>
+<li>
+<p>General docs such as <code>Documentation Index</code>, <code>Operator Manual</code>, and
+<code>Implementation Reference</code> should point back to the canonical layer with
+<code>See: Mental Model</code> where deeper semantics would otherwise be repeated.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: once multiple docs compete to define the same
+concept, semantic drift becomes invisible until operators make the wrong
+decision from stale text. The hierarchy keeps one semantic source of
+truth and pushes every other doc toward mapping, execution, or
+integration.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_governance_layers"><a class="anchor" href="#_governance_layers"></a>Governance Layers</h3>
+<div class="paragraph">
+<p>This page owns three related but distinct governance layers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>documentation governance for the curated docs surface</p>
+</li>
+<li>
+<p>notes governance for the durable cognition layer</p>
+</li>
+<li>
+<p>MCP stability governance for semver-facing tool contracts</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They live together because operators often need all three answers at the
+same time: what is authoritative, what is conditional, and what is
+stable enough to automate against.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_update_procedures"><a class="anchor" href="#_update_procedures"></a>Update Procedures</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_updating_canonical_docs"><a class="anchor" href="#_updating_canonical_docs"></a>Updating Canonical Docs</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Make changes directly in the canonical file</p>
+</li>
+<li>
+<p>Ensure the change doesn&#8217;t break the semver contract</p>
+</li>
+<li>
+<p>Update the git log message to reference the doc change</p>
+</li>
+<li>
+<p>If a derived doc depends on this content, update it too</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_updating_derived_docs"><a class="anchor" href="#_updating_derived_docs"></a>Updating Derived Docs</h3>
+<div class="paragraph">
+<p><strong>Do not edit directly.</strong> Instead:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Identify the canonical source</p>
+</li>
+<li>
+<p>Make the change in the source</p>
+</li>
+<li>
+<p>Re-run the generation/sync process</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_updating_editorial_docs"><a class="anchor" href="#_updating_editorial_docs"></a>Updating Editorial Docs</h3>
+<div class="paragraph">
+<p>Changes are welcome. Update the file, no special approval needed.</p>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="mcp-tool-stability"><a class="anchor" href="#mcp-tool-stability"></a>MCP Tool Stability Tiers</h3>
+<div class="paragraph">
+<p>cx-cli tools are classified into four stability tiers, each with
+distinct guarantees and expected usage patterns. The tier of each tool
+appears in its MCP description with the format <code>[TIER_NAME]</code>
+(for example, <code>[STABLE]</code>). For machine-readable inspection, prefer
+<code>cx mcp catalog --json</code>; <code>cx doctor mcp --json</code> also includes the same
+registered tool catalog when you need broader MCP diagnostics.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_current_reliability_focus"><a class="anchor" href="#_current_reliability_focus"></a>Current Reliability Focus</h3>
+<div class="paragraph">
+<p>The current stability push is intentionally scoped to global-state
+reduction, not broad toolchain replacement. <code>cx</code> continues to
+standardize on <code>yargs</code>, <code>bun:test</code>, Bun-first CI execution, and the
+native proof path while reliability work targets command I/O boundaries,
+workspace context injection, and clearer test separation between pure
+behavior and integration seams. CI now declares a minimum supported Bun
+runtime (<code>1.3.12</code>) and continuously tests both the minimum and <code>latest</code>
+Bun lanes to detect regressions across the supported runtime envelope.
+The fast CI lane is intentionally unit-only and guarded by
+<code>bun run ci:guard:fast-lane</code> so integration suites do not silently leak
+into the low-latency feedback path. Fast-lane runtime is also monitored
+with warning-first regression policy: <code>bun run ci:test:fast:monitored</code>
+records timing drift and fails only on sustained significant
+regressions. The workflow graph is gated behind <code>test-fast</code>: downstream
+CI lanes do not start if the fast gate is red, and CI artifacts are
+uploaded only after the full lane set passes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_stable_tools"><a class="anchor" href="#_stable_tools"></a>STABLE Tools</h3>
+<div class="paragraph">
+<p><strong>What it means:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Tool output schema and option names are locked</p>
+</li>
+<li>
+<p>Deprecations are announced 2&#43; releases in advance with migration
+guidance</p>
+</li>
+<li>
+<p>Breaking changes require major version bump</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Example:</strong> If this stability policy says tool <code>list</code> is STABLE, we cannot remove
+the tool or rename its output fields without releasing v1.0.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_beta_tools"><a class="anchor" href="#_beta_tools"></a>BETA Tools</h3>
+<div class="paragraph">
+<p><strong>What it means:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Functional but may evolve in minor releases</p>
+</li>
+<li>
+<p>Field names, structure, or guidance may change</p>
+</li>
+<li>
+<p>Deprecation notice given 1 release in advance</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Example:</strong> If the Agent Operating Model policy-tier system were BETA,
+operators should not depend on exact policy names across versions.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_experimental_tools"><a class="anchor" href="#_experimental_tools"></a>EXPERIMENTAL Tools</h3>
+<div class="paragraph">
+<p><strong>What it means:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Subject to removal or major rewrite</p>
+</li>
+<li>
+<p>No advance notice required</p>
+</li>
+<li>
+<p>Do not build long-term dependencies on content</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_tools"><a class="anchor" href="#_internal_tools"></a>INTERNAL Tools</h3>
+<div class="paragraph">
+<p><strong>What it means:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Not advertised publicly via MCP</p>
+</li>
+<li>
+<p>Used for tests or internal development workflows only</p>
+</li>
+<li>
+<p>External tooling should not depend on these commands</p>
+</li>
+</ul>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_versioning_policy"><a class="anchor" href="#_versioning_policy"></a>Versioning Policy</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Tier</th>
+<th class="tableblock halign-left valign-top">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add a new field to a STABLE tool&#8217;s output</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requires major
+version bump</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rename a field in a BETA tool&#8217;s output</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allowed in minor version
+bump</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remove a BETA tool entirely</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requires minor version bump with
+1-release deprecation notice</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remove a STABLE tool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requires major version bump with 2&#43;
+release deprecation notice</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add a new tool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Launched at current tier; increment minor version</p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_migration_guidance"><a class="anchor" href="#_migration_guidance"></a>Migration Guidance</h3>
+<div class="paragraph">
+<p>If a tool transitions from BETA to STABLE or is deprecated, the release
+notes should include:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The contract change</p>
+</li>
+<li>
+<p>Any schema changes in that version</p>
+</li>
+<li>
+<p>Guidance for operators updating automation</p>
+</li>
+</ol>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_tool_stability_matrix"><a class="anchor" href="#_tool_stability_matrix"></a>Tool Stability Matrix</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Tool</th>
+<th class="tableblock halign-left valign-top">Tier</th>
+<th class="tableblock halign-left valign-top">Category</th>
+<th class="tableblock halign-left valign-top">Stability Since</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">grep</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">replace_repomix_span</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inspect</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planning</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle_create</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle lifecycle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle_list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle lifecycle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle_validate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle lifecycle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle_verify</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle lifecycle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">extract</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle recovery</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.4.1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">doctor_mcp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Doctor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">doctor_workflow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Doctor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">doctor_overlaps</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Doctor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">doctor_secrets</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BETA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Doctor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_new</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_read</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_update</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_delete</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_rename</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_search</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_backlinks</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_orphans</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_code_links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.1.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_check</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_drift</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_trace</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_ask</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes_coverage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">docs_compile</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">docs_drift</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">docs_export</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">config_show_effective</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Config</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mcp_catalog</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">STABLE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">v0.6.0</p></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_links_to_governance"><a class="anchor" href="#_links_to_governance"></a>Links to Governance</h3>
+<div class="paragraph">
+<p>When updating or referencing governance decisions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>"What&#8217;s the contract?"</strong> → <a href="#mcp-tool-stability">MCP Tool Stability Tiers</a></p>
+</li>
+<li>
+<p><strong>"What do the concepts mean?"</strong> →
+<a href="../../../architecture/mental-model/" class="xref page">Mental Model</a></p>
+</li>
+<li>
+<p><strong>"Which mode should I choose first?"</strong> →
+<a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a></p>
+</li>
+<li>
+<p><strong>"How do tools work in an agent integration?"</strong> →
+<a href="../agent_operating_model/" class="xref page">Agent Operating Model</a></p>
+</li>
+<li>
+<p><strong>"What are all the options?"</strong> →
+<a href="../../../manual/config-reference/" class="xref page">Configuration Reference</a></p>
+</li>
+<li>
+<p><strong>"When do I use each workflow?"</strong> →
+<a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a></p>
+</li>
+<li>
+<p><strong>"Where can I see the model play out over time?"</strong> →
+<a href="../../../manual/workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a></p>
+</li>
+<li>
+<p><strong>"Is this doc authoritative?"</strong> → Check the source-of-truth marker at
+the top</p>
+</li>
+</ul>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_this_system"><a class="anchor" href="#_why_this_system"></a>Why This System?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Without explicit governance, docs drift: some become outdated, some
+contradict each other, and operators and automation stop knowing what to
+trust.</p>
+</div>
+<div class="paragraph">
+<p>By marking every doc:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Operators know which docs are safe to depend on (CANONICAL &#43;
+STABLE)</p>
+</li>
+<li>
+<p>We can deprecate docs intentionally (moving from STABLE to
+EXPERIMENTAL)</p>
+</li>
+<li>
+<p>Derived docs stay in sync with their sources</p>
+</li>
+<li>
+<p>Tutorial content can be approximate (EDITORIAL) without breaking
+guarantees</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is lightweight (one-line comments) but removes ambiguity.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="notes-governance"><a class="anchor" href="#notes-governance"></a>Notes Governance</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The notes graph is the repository cognition layer.</p>
+</div>
+<div class="paragraph">
+<p>That means notes are not just documentation. They preserve
+architectural intent, durable constraints, and explicit links between
+ideas and code in a form that both humans and downstream automation can
+query safely.</p>
+</div>
+<div class="paragraph">
+<p>Why this matters:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Track B uses notes to preserve hypotheses that proved useful.</p>
+</li>
+<li>
+<p>Track A carries note summaries into manifests so the proof path can
+keep the reasoning attached.</p>
+</li>
+<li>
+<p>CI treats note quality as an integrity concern because low-signal
+notes degrade both humans and agents.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For AI-generated notes especially, the question is not "did text get
+produced?" It is "did the graph gain durable, high-signal knowledge?"</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../../../architecture/system-contracts/" class="xref page">System Contracts</a> for the
+formal cognition contract and trust propagation model that sit under
+this layer.</p>
+</div>
+<div class="sect2">
+<h3 id="_governance_model_how_what_why"><a class="anchor" href="#_governance_model_how_what_why"></a>Governance Model: How, What, Why</h3>
+<div class="paragraph">
+<p>Every note should answer three questions clearly, even when the author
+does not use literal section headings:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>What</strong> is the durable fact, mechanism, or decision?</p>
+</li>
+<li>
+<p><strong>Why</strong> does it matter or which invariant does it protect?</p>
+</li>
+<li>
+<p><strong>How</strong> should an operator, reviewer, or later agent apply it?</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The opening paragraph is the summary contract. It must stand on its own
+because <code>manifest.notes[]</code> uses that summary as the fast routing path
+for later automation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_governance_rules"><a class="anchor" href="#_governance_rules"></a>Governance Rules</h3>
+<div class="paragraph">
+<p>The validator and CI enforce these baseline rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a note must produce a non-empty summary from its first paragraph</p>
+</li>
+<li>
+<p>that summary must be non-trivial</p>
+</li>
+<li>
+<p>untouched template boilerplate is not allowed to survive into
+committed notes</p>
+</li>
+<li>
+<p>a note body must stay at or below <code>4000</code> characters</p>
+</li>
+<li>
+<p>a note body must stay at or below <code>100</code> lines</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These are cognition-layer limits, not arbitrary formatting preferences.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_canonical_note_anatomy"><a class="anchor" href="#_canonical_note_anatomy"></a>Canonical Note Anatomy</h3>
+<div class="paragraph">
+<p>Every note must use this minimal structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-md hljs" data-lang="md">---
+id: YYYYMMDDHHMMSS
+aliases: []
+tags: []
+---
+Atomic body in the author's own words.
+
+## Links
+
+- [[Related note title]] - relationship
+- src/path/to/component.ts - relevant code component</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>id</code> is mandatory and machine authoritative</p>
+</li>
+<li>
+<p><code>aliases</code> and <code>tags</code> are always present, even when empty</p>
+</li>
+<li>
+<p>the filename is the canonical human title; do not use the numeric id
+as the visible title</p>
+</li>
+<li>
+<p>the body must contain one discrete thought only</p>
+</li>
+<li>
+<p>the first body paragraph must work as a stand-alone summary</p>
+</li>
+<li>
+<p>the body should explain the note&#8217;s what, why, and how clearly enough
+for later reuse</p>
+</li>
+<li>
+<p>the links section must point to other notes, code, or both</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bundle_integration"><a class="anchor" href="#_bundle_integration"></a>Bundle Integration</h3>
+<div class="paragraph">
+<p>The default starter config must include <code>notes/**</code> inside
+<code>[sections.docs].include</code>.</p>
+</div>
+<div class="paragraph">
+<p>Canonical default:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[sections.docs]
+include = ["docs/**", "notes/**", "Documentation Index", "*.md"]
+exclude = []</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This ensures the repository contract carries both machine state and
+human intent.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_implemented_behavior"><a class="anchor" href="#_implemented_behavior"></a>Implemented Behavior</h3>
+<div class="paragraph">
+<p>This implementation includes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>note frontmatter parsing during validation</p>
+</li>
+<li>
+<p>strict <code>id</code> format checks using <code>YYYYMMDDHHMMSS</code> with optional
+milliseconds</p>
+</li>
+<li>
+<p>duplicate-ID detection across the notes directory</p>
+</li>
+<li>
+<p>aliases and tags normalization</p>
+</li>
+<li>
+<p>note summary extraction from the body for manifest use</p>
+</li>
+<li>
+<p><code>codeLinks[]</code> extraction from note bodies and propagation into
+<code>manifest.notes[]</code> records</p>
+</li>
+<li>
+<p>a <code>cx notes &#8230;&#8203;</code> command family for note creation and graph
+inspection</p>
+</li>
+<li>
+<p>unresolved note and code-reference auditing via <code>cx notes links</code></p>
+</li>
+<li>
+<p>comment-scoped code reference discovery, so only intentional
+<code><a id="Note"></a></code> references in source comments count as note links</p>
+</li>
+<li>
+<p>cross-file anchor validation for <code>[[Note Title#Section Heading]]</code>
+wikilinks</p>
+</li>
+<li>
+<p>graph reachability queries via <code>cx notes graph --id &lt;id&gt; --depth &lt;n&gt;</code>
+and the <code>notes_graph</code> MCP tool</p>
+</li>
+<li>
+<p>note-centric validation and retrieval parity through <code>notes_check</code>,
+<code>notes_drift</code>, <code>notes_trace</code>, <code>notes_ask</code>, and <code>notes_coverage</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_linked_note_enrichment_semantics"><a class="anchor" href="#_linked_note_enrichment_semantics"></a>Linked-Note Enrichment Semantics</h3>
+<div class="paragraph">
+<p>Linked-note enrichment is a post-planning orchestration step controlled
+by <code>manifest.includeLinkedNotes</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It is inclusion-changing, not advisory.</p>
+</li>
+<li>
+<p>It does not alter the core VCS planning model; enrichment runs after
+file classification.</p>
+</li>
+<li>
+<p>The target section is <code>docs</code> when present, otherwise the first
+configured section.</p>
+</li>
+<li>
+<p>Notes already claimed by sections or assets are not reinjected.</p>
+</li>
+<li>
+<p>The target section is re-sorted after injection to preserve
+deterministic ordering.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Operator inspection path:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run <code>cx inspect --json</code> to see the planned section file lists before
+rendering.</p>
+</li>
+<li>
+<p>Run <code>cx notes graph --id &lt;seed&gt; --depth &lt;n&gt;</code> to inspect graph
+reachability from the seed note.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Inspect JSON reports inclusion provenance for each planned text file:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>section_match</code> for files claimed directly by a configured section</p>
+</li>
+<li>
+<p><code>linked_note_enrichment</code> for notes injected by the post-planning
+graph pass</p>
+</li>
+<li>
+<p><code>manifest_note_inclusion</code> when <code>manifest.includeLinkedNotes</code> is the
+setting that made the note appear</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Depth semantics for graph inspection:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>depth = 1</code> includes direct wikilink neighbors.</p>
+</li>
+<li>
+<p><code>depth = N</code> includes notes reachable within at most <code>N</code> wikilink
+hops.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_staleness_and_contradiction_pressure"><a class="anchor" href="#_staleness_and_contradiction_pressure"></a>Staleness and Contradiction Pressure</h3>
+<div class="paragraph">
+<p><code>cx notes check</code> reports:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>note age derived from the note timestamp id</p>
+</li>
+<li>
+<p>staleness labels (<code>fresh</code>, <code>aging</code>, <code>stale</code>)</p>
+</li>
+<li>
+<p>code-drift pressure when a note points at repository paths that are
+missing, excluded, or outside the VCS master list</p>
+</li>
+<li>
+<p>contradiction pressure when a note claims code state that conflicts
+with the repository or with sibling notes</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These signals are diagnostic rather than blocking by themselves. They
+make durable-memory decay visible before agents start treating stale
+memory as current architecture.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ci_check_path"><a class="anchor" href="#_ci_check_path"></a>CI Check Path</h3>
+<div class="paragraph">
+<p>The governance path is operational, not aspirational:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>validateNotes(&#8230;&#8203;)</code> enforces summary and size rules during bundling,
+validation, note CRUD, MCP note access, and graph checks. The bundle
+command reports those failures and aborts by default, but <code>--force</code>
+keeps the bundle moving so the operator can inspect the emitted
+diagnostics alongside the artifact.</p>
+</li>
+<li>
+<p><code>cx notes check</code> surfaces governance failures directly for local
+review and CI logs.</p>
+</li>
+<li>
+<p><code>bun run ci:notes:governance</code> makes the cognition-layer gate visible
+as its own CI lane.</p>
+</li>
+<li>
+<p><code>bun run ci:test:contracts</code> keeps the canonical docs and workflow
+references aligned with the implemented governance model.</p>
+</li>
+<li>
+<p><code>bun run ci:report:observability</code> emits CI-readable markdown and JSON
+summaries so note quality gates and fast-lane drift stay visible over
+time.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_future_extensions"><a class="anchor" href="#_future_extensions"></a>Future Extensions</h3>
+<div class="paragraph">
+<p>The following candidates remain for future implementation:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>extraction-safe note parsing for downstream routing</p>
+</li>
+<li>
+<p>manifest-side summaries beyond the first body paragraph</p>
+</li>
+<li>
+<p>stronger agent traceability that links note changes, audit trails, and
+workflow review history into one provenance path</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

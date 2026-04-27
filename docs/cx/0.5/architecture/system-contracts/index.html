@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CX System Contracts | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="./">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_cognition_contract_v1">Cognition Contract V1</a></li>
+<li><a href="#_boundary_contract">Boundary Contract</a>
+<ul class="sectlevel2">
+<li><a href="#_track_boundaries">Track Boundaries</a></li>
+<li><a href="#_surface_boundaries">Surface Boundaries</a></li>
+<li><a href="#_mutation_boundaries">Mutation Boundaries</a></li>
+</ul>
+</li>
+<li><a href="#_trust_propagation_model">Trust Propagation Model</a></li>
+<li><a href="#_what_this_does_not_claim">What This Does Not Claim</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx notes lint</code> is intentionally outside the bundle materialization path. Bundle may read note consistency results for gate enforcement, but it must not import or invoke the notes lint module because lint <code>--write</code> can mutate frontmatter and append audit history.</p>
+</div>
+<div class="paragraph">
+<p>This document defines the operational contracts that sit under the
+mental model:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the <strong>cognition contract</strong> for durable repository knowledge</p>
+</li>
+<li>
+<p>the <strong>boundary contract</strong> for what must never mix across surfaces</p>
+</li>
+<li>
+<p>the <strong>trust propagation model</strong> for how confidence moves through the
+system</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="../mental-model/" class="xref page">Mental Model</a> for the canonical semantics of the CX triad, Track
+A vs Track B, policy tiers, and artifact lifecycle.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cognition_contract_v1"><a class="anchor" href="#_cognition_contract_v1"></a>Cognition Contract V1</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> now distinguishes between a note that is merely parseable and a
+note that is fit to become durable repository memory.</p>
+</div>
+<div class="paragraph">
+<p>The minimum cognition contract is:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>a note must have a stand-alone summary paragraph</p>
+</li>
+<li>
+<p>that summary must contain enough substance to route from quickly</p>
+</li>
+<li>
+<p>template boilerplate must not survive into committed notes</p>
+</li>
+<li>
+<p>the note must stay atomic enough for humans and agents to classify
+quickly</p>
+</li>
+<li>
+<p>manifests must carry explicit cognition metadata instead of pretending
+every valid note is equally trustworthy</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Current enforcement is intentionally narrow and machine-checkable:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>summary required</p>
+</li>
+<li>
+<p>summary must be non-trivial</p>
+</li>
+<li>
+<p>untouched template prompts are rejected</p>
+</li>
+<li>
+<p>note size limits remain enforced</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Current scoring is intentionally diagnostic, not philosophical. <code>cx</code>
+measures observable signals such as summary density, structural clarity,
+evidence links, note age, and code-drift pressure. It does not claim to
+prove that the idea itself is true.</p>
+</div>
+<div class="paragraph">
+<p>The test strategy now treats cognition quality as an adversarial
+surface. Unit coverage exercises sparse, boilerplate, stale, and
+high-signal notes separately so future refactors do not collapse the
+distinction between parseable memory and durable repository knowledge.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: <code>valid note != good note</code>. The cognition contract
+narrows that gap by refusing obvious low-signal memory and by making the
+remaining quality signals explicit in manifests and CLI review.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_boundary_contract"><a class="anchor" href="#_boundary_contract"></a>Boundary Contract</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The system stays trustworthy only if certain boundaries remain hard.</p>
+</div>
+<div class="sect2">
+<h3 id="_track_boundaries"><a class="anchor" href="#_track_boundaries"></a>Track Boundaries</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Track B</strong> may investigate, search, diagnose, and preserve hypotheses.</p>
+</li>
+<li>
+<p><strong>Track B</strong> must not claim promotable artifact truth.</p>
+</li>
+<li>
+<p><strong>Track A</strong> may freeze, validate, verify, and extract proof-grade
+artifacts.</p>
+</li>
+<li>
+<p><strong>Track A</strong> must not pretend that unverified live state is already
+handoff-safe.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_surface_boundaries"><a class="anchor" href="#_surface_boundaries"></a>Surface Boundaries</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>MCP</strong> may expose live workspace state, but CI must never treat MCP
+output as promotable proof.</p>
+</li>
+<li>
+<p><strong>Bundles</strong> may carry note summaries and trust metadata, but they are
+the proof surface only after validation and verification.</p>
+</li>
+<li>
+<p><strong>Notes</strong> may preserve reasoning, but they remain conditional knowledge
+until humans or later proof paths confirm them.</p>
+</li>
+<li>
+<p><strong>CI</strong> may trust Track A outputs and governance reports, but it must not
+trust exploratory Track B state as release evidence.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mutation_boundaries"><a class="anchor" href="#_mutation_boundaries"></a>Mutation Boundaries</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>default MCP sessions must not cross from analysis into mutation
+silently</p>
+</li>
+<li>
+<p>note mutation requires an explicit trust decision</p>
+</li>
+<li>
+<p>dirty local convenience bundles must not be mistaken for promotable
+artifacts</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: once boundaries blur, the system stops being a
+trust system and becomes a bag of smart features with no reliable
+handoff semantics.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_trust_propagation_model"><a class="anchor" href="#_trust_propagation_model"></a>Trust Propagation Model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Trust moves through <code>cx</code> asymmetrically:</p>
+</div>
+<div class="paragraph">
+<p>The shorthand is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Source tree: trusted</strong></p>
+</li>
+<li>
+<p><strong>Notes: conditional</strong></p>
+</li>
+<li>
+<p><strong>Agent output: untrusted until verified</strong></p>
+</li>
+<li>
+<p><strong>Bundle: trusted</strong></p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Surface</th>
+<th class="tableblock halign-left valign-top">Trust level</th>
+<th class="tableblock halign-left valign-top">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source tree selected from the VCS master list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>trusted</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">It is the
+canonical input set for planning and later verification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes that pass governance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>conditional</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">They are durable reasoning,
+but still claims about the system rather than proof of it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent outputs and live reasoning traces</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>untrusted until verified</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">They may be useful, but they are not handoff-safe evidence by
+themselves</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle artifacts that pass validation and verification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>trusted</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">They
+are the proof surface frozen under manifest, checksum, and verification
+rules</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Manifest trust metadata exists so downstream automation can see that
+difference directly instead of inferring it from prose. Manifest
+traceability metadata now also points to the concrete audit path:
+<code>cx bundle</code> as the Track A command, <code>cx notes check</code> as the
+note-governance review gate, and <code>.cx/audit.log</code> as the MCP decision
+ledger for agent actions.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: bad reasoning should not gain the same standing
+as verified artifacts just because it was serialized into Markdown or
+emitted by an agent.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_this_does_not_claim"><a class="anchor" href="#_what_this_does_not_claim"></a>What This Does Not Claim</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These contracts do <strong>not</strong> prove:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>that a note is factually correct</p>
+</li>
+<li>
+<p>that a summary is complete</p>
+</li>
+<li>
+<p>that an agent decision was optimal</p>
+</li>
+<li>
+<p>that a repository never contains stale knowledge</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Those remain review and future-system concerns. The current contract is
+about refusing obvious low-signal cognition, keeping boundaries
+explicit, and propagating trust labels honestly.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

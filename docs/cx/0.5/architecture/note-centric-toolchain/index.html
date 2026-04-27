@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Note-Centric Toolchain | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="./">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_source_of_truth_layers">Source-of-Truth Layers</a></li>
+<li><a href="#_graph_and_traceability">Graph And Traceability</a></li>
+<li><a href="#_retrieval_and_asking">Retrieval And Asking</a></li>
+<li><a href="#_documentation_compilation">Documentation Compilation</a></li>
+<li><a href="#_mcp_and_cli_execution">MCP And CLI Execution</a></li>
+<li><a href="#_freshness_and_human_lenses">Freshness And Human Lenses</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This architecture draft defines <code>cx</code> as a note-centric repository toolchain. Notes are the intent-truth layer, specs are executable shared-rule truth, code is implementation truth, tests are behavioral truth, and docs are communication truth.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_source_of_truth_layers"><a class="anchor" href="#_source_of_truth_layers"></a>Source-of-Truth Layers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> must not treat all repository text as equally authoritative. The architecture separates durable intent from executable rules, implementation, behavioral checks, and communication surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Notes capture decisions, invariants, mechanisms, workflows, migration intent, and failure modes.</p>
+</li>
+<li>
+<p>Specs capture shared executable rules and generated contracts.</p>
+</li>
+<li>
+<p>Code captures the implemented state of the system.</p>
+</li>
+<li>
+<p>Tests capture expected behavior and regression boundaries.</p>
+</li>
+<li>
+<p>Docs communicate stable knowledge promoted from notes, specs, code, and tests.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This model keeps "source of truth" precise. A generated doc page may communicate an invariant, but the invariant itself should be traceable back to a note and, where appropriate, an executable spec, implementation path, and test.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_graph_and_traceability"><a class="anchor" href="#_graph_and_traceability"></a>Graph And Traceability</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The note graph is the repository cognition layer. It links note nodes to specs, code files, tests, docs, superseded notes, and other notes. <code>cx notes graph --format json</code> should remain deterministic so humans, CI, MCP tools, and LLM workflows can consume the same graph without scraping prose.</p>
+</div>
+<div class="paragraph">
+<p>Traceability is first-class. <code>cx notes trace &lt;note-id&gt;</code> expands linked notes, spec refs, code refs, test refs, doc refs, supersession metadata, unresolved references, and reverse backlinks. <code>cx notes check</code> validates the graph before documentation compilation or CI promotion consumes it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_retrieval_and_asking"><a class="anchor" href="#_retrieval_and_asking"></a>Retrieval And Asking</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx notes ask "&lt;question&gt;"</code> should resolve questions through bounded evidence bundles instead of open-ended repository search. Every answer scaffold should include matched notes, linked specs, linked code, linked tests, linked docs, confidence, and unresolved gaps.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_documentation_compilation"><a class="anchor" href="#_documentation_compilation"></a>Documentation Compilation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx docs compile --profile architecture|manual|onboarding</code> promotes stable notes and linked repository evidence into Antora-ready pages with provenance markers and deterministic content. Generated pages remain freshness-checked build products, while hand-written architecture pages continue to carry curated explanations.</p>
+</div>
+<div class="paragraph">
+<p><code>cx docs drift</code> compares generated docs back to the current note graph. <code>cx notes drift</code> compares note claims and references against specs, code, tests, and docs so semantic drift becomes visible before it reaches CI or published documentation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mcp_and_cli_execution"><a class="anchor" href="#_mcp_and_cli_execution"></a>MCP And CLI Execution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every <code>cx</code> CLI command should also be represented through MCP so agents can discover capabilities, inspect contracts, and run repository workflows through a tool boundary. MCP is the integration surface; the <code>cx</code> CLI remains the deterministic local execution surface.</p>
+</div>
+<div class="paragraph">
+<p>LLM agents should call the <code>cx</code> CLI directly when they need authoritative local behavior, reproducible command output, or parity with CI. MCP should expose those capabilities without becoming a second semantic authority.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_freshness_and_human_lenses"><a class="anchor" href="#_freshness_and_human_lenses"></a>Freshness And Human Lenses</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generated note-, spec-, and doc-derived artifacts must be treated as freshness-checked build products. CI should run the relevant generation commands and fail when <code>git diff --exit-code</code> finds stale outputs.</p>
+</div>
+<div class="paragraph">
+<p>Obsidian can remain a human navigation lens for browsing backlinks, maps of content, and note neighborhoods. Repository semantics must stay in <code>cx</code> validation, extraction, graph construction, and docs compilation rather than in editor plugins or vault-specific behavior.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

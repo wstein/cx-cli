@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Integration Guide — CX MCP | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_overview">Overview</a></li>
+<li><a href="#_mcp_test_and_debug_cockpit">MCP Test And Debug Cockpit</a>
+<ul class="sectlevel2">
+<li><a href="#_mcp_vitest_ui_troubleshooting">MCP Vitest UI Troubleshooting</a></li>
+</ul>
+</li>
+<li><a href="#_agent_point_of_view">Agent Point Of View</a>
+<ul class="sectlevel2">
+<li><a href="#_typical_mcp_tool_sequence">Typical MCP Tool Sequence</a></li>
+<li><a href="#_manifest_example_from_the_agents_point_of_view">Manifest Example From The Agent&#8217;s Point Of View</a></li>
+<li><a href="#_tool_boundary_reminder">Tool Boundary Reminder</a></li>
+</ul>
+</li>
+<li><a href="#_supported_integration_patterns">Supported integration patterns</a></li>
+<li><a href="#_examples">Examples</a></li>
+<li><a href="#_security_and_safety">Security and safety</a></li>
+<li><a href="#_troubleshooting">Troubleshooting</a></li>
+<li><a href="#_reference_crosslinks">Reference &amp; crosslinks</a></li>
+<li><a href="#_exact_integration_snippet_claude_desktop_macos_example">Exact integration snippet: Claude Desktop (macOS example)</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx mcp</code> now has a documented stable subset, but MCP remains an evolving
+integration surface in 0.4.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The semver-protected subset lives in
+  <a href="../governance/#mcp-tool-stability" class="xref page">MCP Tool Stability Tiers</a>:
+core workspace reads (<code>list</code>, <code>grep</code>, <code>read</code>), bundle planning
+(<code>inspect</code>, <code>bundle</code>), and the stable notes graph and note
+lifecycle/read tools.</p>
+</li>
+<li>
+<p>Beta MCP tools still exist and remain intentionally flexible:
+diagnostic <code>doctor_*</code> tools and live workspace span replacement can
+evolve in minor releases.</p>
+</li>
+<li>
+<p>Core local workflows are ready for serious use, but external
+integrators should still pin versions when they depend on beta tools or
+client-specific transport behavior.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For production bundles and verification, use <code>cx bundle</code> for artifact
+proof and <code>cx mcp</code> for live workspace exploration within the documented
+stability tiers.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>This document explains how to integrate the <code>cx mcp</code> server with common
+AI agents and IDE integrations. It shows recommended, production-ready
+configuration patterns, security and safety notes, and troubleshooting
+tips. Where integrations differ across vendors, examples show the common
+pattern; verify the final keys with the specific client documentation
+before deploying.</p>
+</div>
+<div class="paragraph">
+<p>Use the <a href="../../../manual/operator-manual/" class="xref page">Operator Manual</a> for the
+everyday operator path. This page stays focused on client-specific
+configuration, transport behavior, and integration troubleshooting.</p>
+</div>
+<div class="paragraph">
+<p>Use <a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a> as the main
+conceptual entrypoint, <a href="../../../architecture/mental-model/" class="xref page">Mental
+Model</a> for canonical semantics, <a href="../agent_operating_model/" class="xref page">Agent
+Operating Model</a> for the policy-facing integration layer, and
+<a href="../../../manual/workflows/#safe-note-mutation-workflow" class="xref page">Safe Note
+Mutation</a> for the trusted note review loop.</p>
+</div>
+<div class="paragraph">
+<p>This document is an integration guide. It should describe client setup,
+tool flow, and agent-facing metadata, not redefine the canonical
+semantics already owned by the
+<a href="../../../architecture/mental-model/" class="xref page">Mental Model</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overview"><a class="anchor" href="#_overview"></a>Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx mcp</code> exposes a deterministic, file-scoped Model Context Protocol
+(MCP) server over standard input/output (stdio). When started from a
+workspace directory it prefers a colocated <code>cx-mcp.toml</code> profile and
+will fall back to <code>cx.toml</code> if the MCP profile is absent. In addition to
+file browsing, the native server also exposes live bundle planning tools
+plus note reading, search, authoring, renaming, deletion, and note-graph
+inspection tools so agents can create, inspect, and maintain durable
+repository knowledge without leaving MCP.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>cx bundle</code> for immutable snapshots and verification. Use <code>cx mcp</code>
+for live workspace exploration, targeted reads, bundle planning, and
+note maintenance. Both modes obey the same workspace boundary, but they
+serve different phases of an agent workflow.</p>
+</div>
+<div class="paragraph">
+<p>Track B = hypothesis generation. Track A = proof generation. Notes are
+the durable cognition layer between them.</p>
+</div>
+<div class="paragraph">
+<p>By default, MCP sessions are not mutation sessions. Stable read and plan
+tools are available under the active policy, but note writes and other
+mutate-capability tools stay denied unless the local operator
+intentionally enables mutation in the MCP profile.</p>
+</div>
+<div class="paragraph">
+<p>The everyday operator loop lives in
+<a href="../../../manual/operator-manual/" class="xref page">Operator Manual</a>. This page assumes the
+operator already knows when to choose MCP and now needs client-specific
+configuration, transport details, and troubleshooting.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mcp_test_and_debug_cockpit"><a class="anchor" href="#_mcp_test_and_debug_cockpit"></a>MCP Test And Debug Cockpit</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For MCP-specific debugging, use the focused Vitest cockpit instead of
+the broad repository coverage lane:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run test:vitest:mcp
+bun run test:vitest:mcp:ui
+bun run test:vitest:mcp:adversarial
+bun run test:vitest:mcp:adversarial:ui</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This cockpit is intentionally narrow. It keeps the run centered on:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>MCP server lifecycle tests under <code>tests/mcp/**</code></p>
+</li>
+<li>
+<p>CLI-facing MCP registration and denial tests</p>
+</li>
+<li>
+<p>unit-level MCP policy, audit, and doctor report helpers</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this matters: policy gating bugs, startup hangs, adversarial
+tool-runtime failures, and slow import chains usually live inside the
+MCP boundary, not across the whole repository test surface. The focused
+UI run makes those failures easier to rerun and easier to localize.</p>
+</div>
+<div class="paragraph">
+<p>Use the UI view when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>interactive reruns of a failing MCP slice</p>
+</li>
+<li>
+<p>per-file coverage visibility while debugging MCP behavior</p>
+</li>
+<li>
+<p>import-graph and module-cost inspection for <code>src/mcp/**</code> and
+<code>src/cli/commands/mcp.ts</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is still a Track B debugging surface. Promote any fix through the
+normal Bun verification and CI proof lanes once the MCP issue is
+understood.</p>
+</div>
+<div class="sect2">
+<h3 id="_mcp_vitest_ui_troubleshooting"><a class="anchor" href="#_mcp_vitest_ui_troubleshooting"></a>MCP Vitest UI Troubleshooting</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Startup hangs or server boot failures: Use
+<code>bun run test:vitest:mcp:adversarial</code> or
+<code>bun run test:vitest:mcp:adversarial:ui</code> first. Those lanes stay focused
+on hostile or degraded startup behavior instead of the whole MCP
+surface.</p>
+</li>
+<li>
+<p>Policy denials or capability surprises: Use <code>bun run test:vitest:mcp</code>,
+then compare the failing case against <code>cx doctor mcp --json</code> and
+<code>cx mcp catalog --json</code> so the active policy, tool catalog, and the
+denial-facing tests are looking at the same boundary.</p>
+</li>
+<li>
+<p>Slow imports or suspicious startup cost: Use
+<code>bun run test:vitest:mcp:ui</code> and inspect the import graph around
+<code>src/mcp/**</code> and <code>src/cli/commands/mcp.ts</code>. That is usually faster
+than treating a startup slowdown like a generic runtime failure.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this helps: the operator can match the failure class to the right
+cockpit instead of rerunning a broad test surface while guessing whether
+the problem is startup, policy, or import cost.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_agent_point_of_view"><a class="anchor" href="#_agent_point_of_view"></a>Agent Point Of View</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>From the agent&#8217;s perspective, the MCP session is not a vague "chat with
+the repo." It is a structured loop over scoped tools, manifest metadata,
+and durable notes.</p>
+</div>
+<div class="sect2">
+<h3 id="_typical_mcp_tool_sequence"><a class="anchor" href="#_typical_mcp_tool_sequence"></a>Typical MCP Tool Sequence</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">doctor_mcp()
+notes_search(query="dirty state", limit=5)
+read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
+inspect()
+notes_read(id="20260413153522")
+bundle()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What the sequence means:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>doctor_mcp()</code> confirms the workspace boundary and active policy.</p>
+</li>
+<li>
+<p><code>notes_search(&#8230;&#8203;)</code> finds durable prior reasoning before the agent
+broad-scans files.</p>
+</li>
+<li>
+<p><code>read(&#8230;&#8203;)</code> opens only the code span that matters.</p>
+</li>
+<li>
+<p><code>inspect()</code> previews the Track A proof path without writing artifacts.</p>
+</li>
+<li>
+<p><code>bundle()</code> over MCP is still planning metadata, not an immutable
+handoff.</p>
+</li>
+<li>
+<p><code>extract(&#8230;&#8203;)</code> is the recovery path when an existing bundle must be
+restored back into the workspace boundary for review or repair.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the agent sees enough structured state to form
+and test hypotheses without confusing live exploration with artifact
+proof.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_manifest_example_from_the_agents_point_of_view"><a class="anchor" href="#_manifest_example_from_the_agents_point_of_view"></a>Manifest Example From The Agent&#8217;s Point Of View</h3>
+<div class="paragraph">
+<p>When a bundle exists, the agent should consume the manifest as a
+structured index before reopening raw files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "notes": [
+    {
+      "id": "20260413153522",
+      "title": "Manifest-Side Note Summaries",
+      "summary": "cx stores high-level note summaries in the manifest JSON so downstream agents can route to the right note before reparsing the full graph.",
+      "codeLinks": ["src/manifest/build.ts"]
+    }
+  ],
+  "sections": [
+    {
+      "name": "docs",
+      "files": [
+        {
+          "path": "docs/modules/architecture/pages/mental-model.adoc",
+          "tokenCount": 287,
+          "outputStartLine": 41,
+          "outputEndLine": 132
+        }
+      ]
+    }
+  ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why these fields matter to the agent:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>summary</code> is the cognition-layer routing hint.</p>
+</li>
+<li>
+<p><code>tokenCount</code> tells the agent how much context a file is likely to cost
+before reopening it.</p>
+</li>
+<li>
+<p><code>outputStartLine</code> and <code>outputEndLine</code> tell extraction and downstream
+review exactly where the packed text lives.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The agent does not need to guess where the evidence is. The manifest
+carries routing, size, and coordinate metadata forward explicitly.</p>
+</div>
+<div class="paragraph">
+<p>Local init support:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx init</code> now generates additional local agent configuration files to
+simplify common editor and desktop integration workflows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>.mcp.json</code> — workspace-local MCP server declaration</p>
+</li>
+<li>
+<p><code>.vscode/mcp.json</code> — VS Code MCP server settings</p>
+</li>
+<li>
+<p><code>.claude/settings.json</code> — Claude Desktop MCP server enablement</p>
+</li>
+<li>
+<p><code>.codex/settings.json</code> — Codex-compatible MCP server enablement</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>These generated files use <code>cwd = "${workspaceFolder}"</code> so the
+agent starts from the repository root and resolves <code>cx-mcp.toml</code> or
+<code>cx.toml</code> correctly.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>TypeScript note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The generated TypeScript <code>cx-mcp.toml</code> is the source-oriented
+authoring overlay by default. It exposes source files and key workspace
+metadata rather than compiled output only.</p>
+</li>
+<li>
+<p><code>cx init --template typescript</code> also generates <code>cx-mcp-build.toml</code> as
+a separate build-artifact inspection overlay without replacing the
+default authoring overlay.</p>
+</li>
+<li>
+<p>If your repository uses a non-standard source or build layout, adjust
+the authoring and build overlays independently rather than collapsing
+them into one profile.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Template contract note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx init</code> now uses a descriptor-backed template contract across
+supported languages. The current matrix and per-template capability
+levels live in
+<a href="../init_template_contract/" class="xref page">Init Template Contract</a>.</p>
+</li>
+<li>
+<p>Enhanced templates such as Elixir, Crystal, Go, Rust, and Zig keep
+their default MCP overlays source-first rather than exposing build
+caches by default.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Key behavior to remember:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The server is started by running <code>cx mcp</code> in the repository root.</p>
+</li>
+<li>
+<p>Transport: stdio (stdin/stdout)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tool_boundary_reminder"><a class="anchor" href="#_tool_boundary_reminder"></a>Tool Boundary Reminder</h3>
+<div class="paragraph">
+<p>Keep the everyday operator path in
+<a href="../../../manual/operator-manual/" class="xref page">Operator Manual</a> and the policy-facing
+tool grouping in
+<a href="../agent_operating_model/#intent-taxonomy-for-agents" class="xref page">Intent Taxonomy For Agents</a>.</p>
+</div>
+<div class="paragraph">
+<p>This integration guide should stay focused on client wiring,
+transport behavior, and troubleshooting. It is not the canonical home
+for full MCP tool taxonomy or policy grouping.</p>
+</div>
+<div class="paragraph">
+<p>Security boundary: <code>cx-mcp.toml</code> is the intended MCP-specific profile;
+<code>cx doctor mcp</code> shows the resolved profile and effective <code>files.include</code>
+/ <code>files.exclude</code> that determine tool visibility.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Intentional boundary: MCP is for live workspace inspection, editing,
+and workspace-bound recovery from existing bundles. Artifact generation
+and verification stay with the CLI and CI handoff path.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Because the server communicates over stdio, clients simply need to
+launch <code>cx mcp</code> as a subprocess and bind to its stdin/stdout. The
+examples below follow that pattern.</p>
+</div>
+<div class="paragraph">
+<p>Example note lifecycle with MCP tools:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_new(title="Research Note", body="Initial observation.", tags=["research"])
+notes_read(id="20260414120000")
+notes_update(id="20260414120000", body="Refined observation after review.", tags=["research", "updated"])
+notes_rename(id="20260414120000", title="Research Note v2")
+notes_delete(id="20260414120000")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Example live edit loop with span replacement:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">read(path="src/index.ts", startLine=1, endLine=12)
+replace_repomix_span(path="src/index.ts", startLine=4, endLine=4, replacement="export const target = 'universe';")
+read(path="src/index.ts", startLine=1, endLine=12)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_supported_integration_patterns"><a class="anchor" href="#_supported_integration_patterns"></a>Supported integration patterns</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Local IDE agent extensions that support MCP over stdio (VS Code
+extensions such as Cline / Roo Code / other MCP-capable extensions)</p>
+</li>
+<li>
+<p>Desktop agents that support configuring stdio MCP servers (Claude
+Desktop and similar)</p>
+</li>
+<li>
+<p>Custom agent frameworks (LangChain-style adapters or direct MCP
+clients using the upstream <code>@modelcontextprotocol</code> SDK)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Note: these examples document the common, production-ready patterns.
+They are intentionally conservative about absolute configuration keys
+(different extensions use different keys). When in doubt, prefer
+providing the full command (<code>/absolute/path/to/cx</code>) and an explicit
+<code>cwd</code> set to the repository root.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Claude Desktop (example)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Many desktop agent apps allow a JSON configuration block to declare
+external MCP servers. A typical config snippet (example only — verify
+file path and exact key names for your Claude Desktop install) looks
+like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "mcpServers": {
+    "cx-workspace": {
+      "command": "cx",
+      "args": ["mcp"],
+      "cwd": "$\{workspaceFolder\}",
+      "env": {
+        "CX_STRICT": "true"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use an absolute path for <code>command</code> if the app runs in an environment
+where <code>PATH</code> differs from your interactive shell (e.g.
+<code>/usr/local/bin/cx</code>).</p>
+</li>
+<li>
+<p><code>cwd</code> should point to the repository root so <code>cx</code> can find
+<code>cx-mcp.toml</code> or <code>cx.toml</code>.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="2">
+<li>
+<p>VS Code and AI-centric VS Code extensions (Cline, Roo Code, Cursor
+adapters)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>VS Code extensions vary in the JSON schema they expose for MCP servers.
+Many follow the same logical structure: a server name, a transport type
+(<code>stdio</code>), the command to run, args, and an optional <code>cwd</code> and <code>env</code>.
+Example (pseudoconfig for an MCP-capable extension):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "mcp.servers": {
+    "cx-workspace": {
+      "transport": "stdio",
+      "command": "cx",
+      "args": ["mcp"],
+      "cwd": "$\{workspaceFolder\}",
+      "env": {
+        "CX_STRICT": "true"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How to apply in VS Code:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install the MCP-capable AI extension you want (Cline, Roo Code,
+Cursor-style plugin, etc.).</p>
+</li>
+<li>
+<p>Open the extension&#8217;s settings or its JSON settings file and add an MCP
+server block using the pattern above.</p>
+</li>
+<li>
+<p>Start the extension agent; it will spawn <code>cx mcp</code> and bind to its
+stdio.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="3">
+<li>
+<p>Cursor / Codex / other AI-first IDEs</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Cursor and other AI-first IDEs expose either a direct MCP configuration
+pane or accept extension-provided MCP server declarations. Use the same
+<code>stdio</code> pattern: <code>cx mcp</code> as the command and the repository root as
+<code>cwd</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="4">
+<li>
+<p>JetBrains IDEs (IntelliJ, WebStorm, Rider) and AI plugins</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>JetBrains IDEs typically rely on plugin-specific configuration. If the
+plugin supports registering an external MCP server, register a stdio
+server using the <code>cx mcp</code> command. Otherwise, many JetBrains AI plugins
+allow a local agent to be configured via an executable path — point that
+to your <code>cx</code> wrapper.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="5">
+<li>
+<p>Agent frameworks and custom adapters (LangChain, LangGraph, custom MCP
+client)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If you are building or adapting an agent framework to talk to <code>cx mcp</code>,
+prefer using the official Model Context Protocol SDKs (where available)
+or implement a robust stdio client that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>spawns <code>cx mcp</code> with the correct <code>cwd</code> and <code>env</code></p>
+</li>
+<li>
+<p>forwards stdin and reads stdout/stderr reliably</p>
+</li>
+<li>
+<p>responds to SIGINT/SIGTERM and closes the server gracefully</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example (pseudocode, conceptual):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">spawnProcess(command: "/usr/local/bin/cx", args: ["mcp"], cwd: "/path/to/repo", env: { CX_STRICT: "true" })
+bindStdioToMcpClient(process.stdin, process.stdout)
+discoverTools() -&gt; [list, grep, read, inspect, bundle, extract, doctor_mcp, doctor_workflow, doctor_overlaps, doctor_secrets, replace_repomix_span, notes_new, notes_read, notes_update, notes_rename, notes_delete, notes_search, notes_list, notes_backlinks, notes_orphans, notes_code_links, notes_links]</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="6">
+<li>
+<p>Neovim / Emacs / Terminal-based workflows</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The same stdio pattern works for editor integrations that can spawn a
+subprocess. Ensure the working directory and environment are correct,
+and the editor plugin is able to manage a long-running subprocess.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_security_and_safety"><a class="anchor" href="#_security_and_safety"></a>Security and safety</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Limit the agent&#8217;s working directory: run <code>cx mcp</code> in the repository
+root so <code>cx</code> can apply the intended <code>files.include</code> / <code>files.exclude</code>
+scope. Do not run it from a higher-level directory that would broaden
+the agent&#8217;s visibility.</p>
+</li>
+<li>
+<p>Use a colocated <code>cx-mcp.toml</code> to create a deliberate, scoped agent
+profile when exposing the server to 3rd-party tools.</p>
+</li>
+<li>
+<p>Expect note writes and other mutate-capability tools to be denied
+unless <code>[mcp] policy = "unrestricted"</code> and
+<code>enable_mutation = true</code> are both set in the active profile.</p>
+</li>
+<li>
+<p>Prefer <code>CX_STRICT=true</code> in CI or shared environments if you want
+the server to treat Category B warnings as failures.</p>
+</li>
+<li>
+<p>Audit the effective MCP profile with <code>cx doctor mcp --config cx.toml</code>
+before allowing production agents to connect.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Agent cannot find <code>cx</code>: use an absolute path to the <code>cx</code> binary.</p>
+</li>
+<li>
+<p>Agent cannot find <code>cx-mcp.toml</code> or <code>cx.toml</code>: ensure <code>cwd</code> points to
+the repository root and the config file exists. Use <code>cx doctor mcp</code> to
+see the resolved profile.</p>
+</li>
+<li>
+<p>Tools missing: confirm the running server advertises <code>list</code>, <code>grep</code>,
+<code>read</code>, and the note tools above (these are provided by the native MCP
+implementation). If you need additional capabilities, build a wrapper
+MCP server that composes other tools, or extend <code>cx</code> itself.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reference_crosslinks"><a class="anchor" href="#_reference_crosslinks"></a>Reference &amp; crosslinks</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Operator manual:
+<a href="../../../manual/operator-manual/" class="xref page">Operator Manual</a> — quick operator
+flows and MCP usage notes.</p>
+</li>
+<li>
+<p>Configuration reference:
+<a href="../../../manual/config-reference/" class="xref page">Configuration Reference</a> —
+config precedence, <code>cx-mcp.toml</code> vs <code>cx.toml</code>, and
+<code>files.include</code> / <code>files.exclude</code> behavior.</p>
+</li>
+<li>
+<p>Extraction safety:
+<a href="../extraction_safety/" class="xref page">Extraction Safety</a> —
+safe extraction and recovery rules.</p>
+</li>
+<li>
+<p>MCP server implementation: <code>src/mcp/server.ts</code> (server lifecycle and
+stdio transport) and <code>src/mcp/tools.ts</code> (registered tools and behavior).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exact_integration_snippet_claude_desktop_macos_example"><a class="anchor" href="#_exact_integration_snippet_claude_desktop_macos_example"></a>Exact integration snippet: Claude Desktop (macOS example)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>On macOS the user config for Claude Desktop often lives under
+<code>~/Library/Application Support/Claude/claude_desktop_config.json</code>.
+A practical production-ready snippet follows — use an absolute path to
+the <code>cx</code> binary to avoid PATH differences between GUI apps and shells:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "mcpServers": {
+    "cx-workspace": {
+      "command": "/usr/local/bin/cx",
+      "args": ["mcp"],
+      "cwd": "/Users/&lt;your-username&gt;/path/to/repo",
+      "env": {
+        "CX_STRICT": "true"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Replace <code>/usr/local/bin/cx</code> with the absolute path to your <code>cx</code>
+binary.</p>
+</li>
+<li>
+<p>Replace the <code>cwd</code> value with the repository root. This keeps the agent
+scoped to the intended config file and file visibility rules.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a minimal configuration fragment, adapt the Claude Desktop example
+above rather than copying placeholder snippets from older guides. Keep
+the command path absolute and the <code>cwd</code> pinned to the repository root.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

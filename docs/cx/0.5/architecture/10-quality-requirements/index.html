@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10 Quality Requirements | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="./">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_quality_scenarios">Quality Scenarios</a></li>
+<li><a href="#_priority_rule">Priority Rule</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The architecture is optimized for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>determinism</p>
+</li>
+<li>
+<p>reproducibility</p>
+</li>
+<li>
+<p>auditability</p>
+</li>
+<li>
+<p>extraction safety</p>
+</li>
+<li>
+<p>trust-boundary clarity</p>
+</li>
+<li>
+<p>documentation navigability</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These requirements matter more than feature count.
+A smaller but provable system is preferable to a broader system with ambiguous boundaries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quality_scenarios"><a class="anchor" href="#_quality_scenarios"></a>Quality Scenarios</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Quality</th>
+<th class="tableblock halign-left valign-top">Scenario</th>
+<th class="tableblock halign-left valign-top">Required behavior</th>
+<th class="tableblock halign-left valign-top">Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Determinism</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The same committed source tree is bundled twice.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planning, ordering, render plan hashes, and checksums remain stable.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>verify</code>, render-plan tests, reproducibility checks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reproducibility</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A release package is rebuilt from the certified commit.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generated runtime output and release integrity metadata match the expected commit and version.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release integrity checks, double-build reproducibility lane.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Auditability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A reviewer asks why a bundle was trusted or dirty.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manifest metadata records trust labels, dirty-state override evidence, note governance context, and derived review exports.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">manifest schema, bundle manifest, audit log where applicable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extraction safety</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A downstream process extracts files from a bundle.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extraction follows manifest truth and verifies when requested; degraded recovery is explicit and never silent.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>extract --verify</code>, extraction safety docs, bundle validation tests.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Trust-boundary clarity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An agent produces useful live reasoning.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Track B output remains untrusted until Track A validation or verification proves an artifact.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system contracts, MCP policy, Friday-to-Monday workflow.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Documentation navigability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A new operator needs to choose the right command without reading every architecture page.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Manual pages provide entry points, while architecture pages explain the model and link to stable contracts.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Antora navigation, docs assurance tests, architecture overview.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_priority_rule"><a class="anchor" href="#_priority_rule"></a>Priority Rule</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When a feature conflicts with a quality requirement, the quality
+requirement wins unless a documented, reviewed exception records the
+tradeoff. This is why dirty-state refusal, strict overlap handling, and
+latest-only schema publishing are allowed to be inconvenient: they keep
+the public contract honest.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

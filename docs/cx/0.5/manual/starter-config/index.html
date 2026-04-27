@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Starter Config | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="./">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div class="paragraph">
+<p><code>cx init</code> writes a starter <code>cx.toml</code> that teaches the trust model without changing production defaults.</p>
+</div>
+<div class="paragraph">
+<p>The generated config now calls out the four command paths, explains why <code>dedup.mode = "fail"</code> is strict by default, names note gate scoping through <code>applies_to_sections</code>, and points audited overrides to the architecture page.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Area</th>
+<th class="tableblock halign-left valign-top">Previous starter</th>
+<th class="tableblock halign-left valign-top">Current starter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Command orientation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implicit command list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Four-path preamble aligned with <code>cx --help</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Section ownership</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Section globs only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain master-list inclusion versus section classification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deduplication</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode = "fail"</code> without context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain deterministic ownership and <code>cx --lenient bundle</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes gates</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bare commented examples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain gate scope and drift-pressured cognition</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Overrides</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not surfaced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Audited override block links to <a href="../../architecture/audited-overrides/" class="xref page">Audited Overrides</a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The values remain conservative: <code>dedup.mode = "fail"</code>, <code>strict_notes_mode = false</code>, and <code>fail_on_drift_pressured_notes = false</code>.</p>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

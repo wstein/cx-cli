@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Choose Your Operating Mode | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="./">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_ultra_minimal_onboarding">Ultra-Minimal Onboarding</a></li>
+<li><a href="#_start_here">Start Here</a></li>
+<li><a href="#_use_cx_mcp">Use <code>cx mcp</code></a></li>
+<li><a href="#_use_cx_bundle">Use <code>cx bundle</code></a></li>
+<li><a href="#_use_cx_notes">Use <code>cx notes</code></a></li>
+<li><a href="#_how_the_modes_fit_together">How The Modes Fit Together</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>cx</code> is documented as four cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use this page for its local concern first. Return to <a href="../../onboarding/" class="xref page">Documentation Index</a> when you need the broader map.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This is the main conceptual entrypoint for <code>cx</code>.</p>
+</div>
+<div class="paragraph">
+<p>Start with the fastest proof of value, then learn the deeper model.</p>
+</div>
+<div class="paragraph">
+<p>The job of this document is mapping, not semantics. For canonical
+definitions, see <a href="../../architecture/mental-model/" class="xref page">Mental Model</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ultra_minimal_onboarding"><a class="anchor" href="#_ultra_minimal_onboarding"></a>Ultra-Minimal Onboarding</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Run this first:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See the agent work on live code.</p>
+</div>
+<div class="paragraph">
+<p>Learn later:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>why <code>Track B = hypothesis generation</code></p>
+</li>
+<li>
+<p>why <code>Track A = proof generation</code></p>
+</li>
+<li>
+<p>why notes are the durable cognition layer</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That order matters. Operators usually trust the model faster after they
+have watched one live MCP session solve a real problem.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_start_here"><a class="anchor" href="#_start_here"></a>Start Here</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If someone is new to <code>cx</code>, do not begin with the full architecture
+lecture. Begin with the live surface:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run <code>cx mcp</code>.</p>
+</li>
+<li>
+<p>Let the agent do real work against live code.</p>
+</li>
+<li>
+<p>Then explain why the system is split the way it is.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The progressive onboarding model is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx mcp</code> shows the agent working on the current checkout.</p>
+</li>
+<li>
+<p><code>cx notes</code> explains how durable reasoning is preserved.</p>
+</li>
+<li>
+<p><code>cx bundle</code> explains how that work becomes a promotable artifact.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only after the operator has seen the system in motion should you
+introduce the deeper model:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Track B = hypothesis generation</strong></p>
+</li>
+<li>
+<p><strong>Track A = proof generation</strong></p>
+</li>
+<li>
+<p><strong>Notes are the durable cognition layer</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Choose the mode that matches the job you need to do right now.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_use_cx_mcp"><a class="anchor" href="#_use_cx_mcp"></a>Use <code>cx mcp</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Need fast interactive AI help on live code? Use <code>cx mcp</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>live workspace reads and search</p>
+</li>
+<li>
+<p>interactive reasoning over the current checkout</p>
+</li>
+<li>
+<p>note discovery and review during active work</p>
+</li>
+<li>
+<p>planning help before you freeze an artifact</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the workspace is still moving and you need
+the agent to understand what is true right now.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="../workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_use_cx_bundle"><a class="anchor" href="#_use_cx_bundle"></a>Use <code>cx bundle</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Need a reproducible, promotable artifact? Use <code>cx bundle</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a deterministic handoff for CI, review, or downstream automation</p>
+</li>
+<li>
+<p>manifest, lock file, and checksum sidecar protection</p>
+</li>
+<li>
+<p>later validation and verification</p>
+</li>
+<li>
+<p>extraction under manifest and hash guardrails</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the work must stop being exploratory and
+become an artifact contract.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="../workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_use_cx_notes"><a class="anchor" href="#_use_cx_notes"></a>Use <code>cx notes</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Need durable design memory? Use <code>cx notes</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>stable architectural intent in version control</p>
+</li>
+<li>
+<p>linked repository knowledge that survives sessions</p>
+</li>
+<li>
+<p>searchable note history and graph review</p>
+</li>
+<li>
+<p>durable context for later humans and agents</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the reasoning itself needs to persist, not
+just the current task result.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="../workflows/#safe-note-mutation-workflow" class="xref page">Safe Note Mutation</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_the_modes_fit_together"><a class="anchor" href="#_how_the_modes_fit_together"></a>How The Modes Fit Together</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These are not competing tools. They are the three operating surfaces of
+the same system:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start with <code>cx mcp</code> when you need live understanding.</p>
+</li>
+<li>
+<p>Record durable conclusions with <code>cx notes</code>.</p>
+</li>
+<li>
+<p>Freeze trusted handoff state with <code>cx bundle</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Another way to say the same thing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx mcp</code> is where hypotheses are generated and tested against live
+state.</p>
+</li>
+<li>
+<p><code>cx notes</code> is where high-signal reasoning becomes durable repository
+memory.</p>
+</li>
+<li>
+<p><code>cx bundle</code> is where proof is generated for review, CI, and handoff.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="../../architecture/mental-model/" class="xref page">Mental Model</a>,
+<a href="../workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a>, and
+<a href="../workflows/#safe-note-mutation-workflow" class="xref page">Safe Note Mutation</a>.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

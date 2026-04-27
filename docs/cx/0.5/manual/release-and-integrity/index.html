@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Release and Integrity | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="./">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#release-checklist">Release Checklist</a></li>
+<li><a href="#release-integrity">Release Integrity</a>
+<ul class="sectlevel2">
+<li><a href="#_whats_verified">What&#8217;s Verified</a></li>
+<li><a href="#_verification_steps">Verification Steps</a></li>
+<li><a href="#_design">Design</a></li>
+<li><a href="#_interpreting_failures">Interpreting Failures</a></li>
+<li><a href="#_release_integrity_artifact_retention">Release Integrity Artifact Retention</a></li>
+<li><a href="#_future_enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+<li><a href="#v0-4-release-closure">v0.4 Release Closure</a>
+<ul class="sectlevel2">
+<li><a href="#_migration_notes_for_0_4_0">Migration Notes For 0.4.0</a></li>
+<li><a href="#_release_contract">Release contract</a></li>
+<li><a href="#_what_changed_in_0_4_0">What changed in 0.4.0</a></li>
+<li><a href="#_if_you_use_mcp">If you use MCP</a></li>
+<li><a href="#_operator_surface_summary">Operator surface summary</a></li>
+<li><a href="#_if_you_rely_on_coverage">If you rely on coverage</a></li>
+<li><a href="#_if_you_maintain_notes">If you maintain notes</a></li>
+<li><a href="#if-you-consume-schemas">If you consume schemas</a></li>
+<li><a href="#_related_release_material">Related release material</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../../architecture/08-cross-cutting-concepts/" class="xref page">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use this page when cutting a release, validating the public publish surface, or auditing shipped release artifacts.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="release-checklist"><a class="anchor" href="#release-checklist"></a>Release Checklist</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use this short checklist when cutting a release.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Two-phase release protocol:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Prepare the release candidate on <code>develop</code>.</p>
+</li>
+<li>
+<p>Finalize the release with a <code>vX.Y.Z</code> tag from the exact green candidate commit.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Bumping <code>package.json</code> on <code>develop</code> starts the release candidate. Use <code>chore(release): start vX.Y.Z</code> for that commit and treat later commits on the candidate path as release-fix follow-ups only.</p>
+</li>
+<li>
+<p>Keep fixing forward on <code>develop</code> until the required CI lanes are green. Do not tag early and do not publish from an ordinary <code>develop</code> success alone.</p>
+</li>
+<li>
+<p>Create and push the release tag from the exact certified <code>develop</code> commit. The release workflow is the finalization step; the version bump is not.</p>
+</li>
+<li>
+<p>The release workflow must verify that the tag matches <code>package.json</code>, that the tagged commit already passed the required CI gates, and that the published artifacts come from that same certified commit.</p>
+</li>
+<li>
+<p>Promote <code>main</code> only after successful publishing, and do it with a fast-forward update to the released commit. Do not rebase <code>main</code> onto the release tag.</p>
+</li>
+<li>
+<p>The release workflow should own that final <code>main</code> fast-forward so the shipped commit and the branch tip stay identical without a manual replay step.</p>
+</li>
+<li>
+<p>Run <code>make certify</code> before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, the official Repomix reference-oracle smoke lane, the Repomix adapter parity guard, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use <code>make verify</code> during development; <code>make certify</code> is the pre-tag CI-equivalent gate.</p>
+</li>
+<li>
+<p>The CI workflow validates Bun against the declared minimum runtime (<code>1.3.12</code>) and <code>latest</code> before release automation is allowed to proceed.</p>
+</li>
+<li>
+<p>The Pages publish now assembles one site tree with <code>/schemas/</code> and <code>/coverage/</code>; successful <code>develop</code> or <code>main</code> CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.</p>
+</li>
+<li>
+<p>Run <code>bun run pages:smoke</code> against the staged <code>dist/site/</code> tree whenever you need to validate the public publish surface locally.</p>
+</li>
+<li>
+<p>If schema files change, update the published Pages site and verify the <code>schemas/</code> index still lists the current versions.</p>
+</li>
+<li>
+<p>The publish workflow runs the same smoke check in non-blocking mode before pushing <code>gh-pages</code>, and the separate <code>Pages Smoke</code> workflow keeps that validation visible on pull requests, <code>develop</code>, and <code>main</code>.</p>
+</li>
+<li>
+<p>If the Pages branch does not exist yet, let the publish workflow create <code>gh-pages</code> on the next run.</p>
+</li>
+<li>
+<p>GitHub Pages must be configured in repository settings to serve from the <code>gh-pages</code> branch.</p>
+</li>
+<li>
+<p>If a new schema version is added, refresh the public <code>$id</code> values in the JSON Schema files and keep the docs pointing at the GitHub Pages host.</p>
+</li>
+<li>
+<p>Mirror the same schema files into the GitHub Release assets for the tagged release.</p>
+</li>
+<li>
+<p>Tagged releases also publish the npm tarball, <code>release-integrity.json</code>, and the generated <code>cx-cli.rb</code> formula into GitHub release assets so the public release payload matches the documented integrity story.</p>
+</li>
+<li>
+<p>Use <code>make release VERSION=vX.Y.Z</code> as the local release wizard. The first call with a new version starts the candidate on <code>develop</code>; the second call with that same tagged version finalizes the release from the certified commit.</p>
+</li>
+<li>
+<p>Ensure <code>package.json</code> version matches the git tag before publishing release artifacts.</p>
+</li>
+<li>
+<p>The release workflow runs on <code>vX.Y.Z</code> tag pushes, plus a manual re-finalization path for an existing tag when needed.</p>
+</li>
+<li>
+<p>The release workflow only finalizes when the tagged commit already has a successful <code>develop</code> CI run; tag presence without certified CI is not enough.</p>
+</li>
+<li>
+<p><code>v0.4</code> is now a closed release line. Further work should tighten contracts, docs, or scanner scope on top of that line rather than reopening the architecture transition itself.</p>
+</li>
+<li>
+<p>The release workflow in <code>.github/workflows/release.yml</code> requires <code>NPM_TOKEN</code> in the <code>node</code> environment so <code>npm publish</code> can authenticate to the npm registry, and <code>HOMEBREW_TAP_PUSH_TOKEN</code> in the <code>homebrew</code> environment so it can authenticate the cross-repo push to <code>wstein/homebrew-tap</code>.</p>
+</li>
+<li>
+<p>Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.</p>
+</li>
+<li>
+<p>Create <code>HOMEBREW_TAP_PUSH_TOKEN</code> as a fine-grained personal access token in GitHub Settings &#8594; Developer settings &#8594; Personal access tokens &#8594; Fine-grained tokens &#8594; Generate new token.</p>
+</li>
+<li>
+<p>Scope that token to the <code>wstein/homebrew-tap</code> repository only, and grant <code>Contents: Read and write</code> so the release workflow can commit and push <code>Formula/cx-cli.rb</code>.</p>
+</li>
+<li>
+<p>Store the token in the <code>homebrew</code> environment of the source repo under the name <code>HOMEBREW_TAP_PUSH_TOKEN</code>.</p>
+</li>
+<li>
+<p>Release order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Build the package once.</p>
+</li>
+<li>
+<p>Publish the packed tarball to npm.</p>
+</li>
+<li>
+<p>Generate <code>Formula/cx-cli.rb</code> from the same tarball.</p>
+</li>
+<li>
+<p>Commit the formula into <code>wstein/homebrew-tap</code>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Final release promotion order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>develop</code> prepares the candidate.</p>
+</li>
+<li>
+<p>The <code>vX.Y.Z</code> tag finalizes the certified candidate.</p>
+</li>
+<li>
+<p>The release workflow verifies integrity and publishes from that tagged commit.</p>
+</li>
+<li>
+<p><code>main</code> fast-forwards to mirror the shipped commit.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Verify the external tap repo <code>wstein/homebrew-tap</code> accepts direct formula updates from the single release workflow, and remember that the tap repo owns formula validation on push.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="release-integrity"><a class="anchor" href="#release-integrity"></a>Release Integrity</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>cx-cli releases include cryptographic integrity verification to detect unintended changes and ensure builds are reproducible.</p>
+</div>
+<div class="sect2">
+<h3 id="_whats_verified"><a class="anchor" href="#_whats_verified"></a>What&#8217;s Verified</h3>
+<div class="paragraph">
+<p>Each release publishes a <strong>Software Bill of Materials (SBOM)</strong> with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Release version</strong> - semantic version from <code>package.json</code></p>
+</li>
+<li>
+<p><strong>Timestamp</strong> - UTC ISO-8601 timestamp of build</p>
+</li>
+<li>
+<p><strong>Node version</strong> - Node.js version used to build</p>
+</li>
+<li>
+<p><strong>Bun version</strong> - Bun runtime version used to build</p>
+</li>
+<li>
+<p><strong>Tarball name</strong> - published npm tarball filename</p>
+</li>
+<li>
+<p><strong>Tarball hash</strong> - SHA-256 digest of the tarball</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The SBOM is generated at build time, staged as <code>tarball-artifacts/release-integrity.json</code>, and published into the GitHub release assets as <code>release-integrity.json</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verification_steps"><a class="anchor" href="#_verification_steps"></a>Verification Steps</h3>
+<div class="sect3">
+<h4 id="_1_obtain_the_sbom"><a class="anchor" href="#_1_obtain_the_sbom"></a>1. Obtain the SBOM</h4>
+<div class="paragraph">
+<p>Download <code>release-integrity.json</code> from the GitHub release assets page.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2_run_local_verification"><a class="anchor" href="#_2_run_local_verification"></a>2. Run Local Verification</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run verify-release</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>reads the SBOM from <code>dist/release-integrity.json</code></p>
+</li>
+<li>
+<p>locates the tarball in <code>tarball-artifacts/</code></p>
+</li>
+<li>
+<p>computes its SHA-256 hash</p>
+</li>
+<li>
+<p>compares against the SBOM hash</p>
+</li>
+<li>
+<p>reports success or failure with details</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3_manual_verification"><a class="anchor" href="#_3_manual_verification"></a>3. Manual Verification</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Compute tarball hash
+sha256sum cx-cli-X.Y.Z.tgz
+
+# Compare against SBOM
+cat dist/release-integrity.json | jq '.tarballHash'</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_design"><a class="anchor" href="#_design"></a>Design</h3>
+<div class="sect3">
+<h4 id="_reproducibility"><a class="anchor" href="#_reproducibility"></a>Reproducibility</h4>
+<div class="paragraph">
+<p>The integrity system depends on <strong>reproducible builds</strong>: the same source, dependencies, and compiler versions produce byte-identical output.</p>
+</div>
+<div class="paragraph">
+<p>The CI/CD pipeline includes a <code>reproducibility</code> job that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>builds <code>dist/</code> twice in sequence</p>
+</li>
+<li>
+<p>captures SHA-256 of all <code>dist/*.js</code> files</p>
+</li>
+<li>
+<p>fails if any file differs between runs</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This catches timestamp injection, non-deterministic compilation, or other drift.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_trust_model"><a class="anchor" href="#_trust_model"></a>Trust Model</h4>
+<div class="paragraph">
+<p>The SBOM is released alongside the npm tarball and generated Homebrew formula as GitHub release assets. Operators can:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>verify the tarball&#8217;s SHA-256 matches the SBOM</p>
+</li>
+<li>
+<p>confirm build environment (Node, Bun versions)</p>
+</li>
+<li>
+<p>audit the release timestamp</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The SBOM itself is <strong>not signed</strong>. For full cryptographic verification, operators should validate the GitHub release against the repository&#8217;s public keys or use GitHub&#8217;s own release verification.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interpreting_failures"><a class="anchor" href="#_interpreting_failures"></a>Interpreting Failures</h3>
+<div class="paragraph">
+<p><strong>Hash mismatch</strong> &#8594; tarball has been modified or corrupted. Do not use; re-download from the official GitHub release.</p>
+</div>
+<div class="paragraph">
+<p><strong>Tarball not found</strong> &#8594; missing or renamed tarball. Verify you have the correct artifact.</p>
+</div>
+<div class="paragraph">
+<p><strong>SBOM missing or corrupt</strong> &#8594; release metadata is missing. Contact the maintainers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_release_integrity_artifact_retention"><a class="anchor" href="#_release_integrity_artifact_retention"></a>Release Integrity Artifact Retention</h3>
+<div class="paragraph">
+<p>The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. Schema files are mirrored into the same release through the tagged Pages/schema workflow. GitHub retains these assets for the lifetime of the release.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_future_enhancements"><a class="anchor" href="#_future_enhancements"></a>Future Enhancements</h3>
+<div class="paragraph">
+<p>Planned improvements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>GPG signing of release tarballs</p>
+</li>
+<li>
+<p>signed attestation of reproducible builds</p>
+</li>
+<li>
+<p>supply chain integrity proofs (SLSA provenance)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="v0-4-release-closure"><a class="anchor" href="#v0-4-release-closure"></a>v0.4 Release Closure</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use this section when upgrading to <code>cx</code> <code>0.4.0</code> or reviewing what the closed <code>v0.4</code> line established.</p>
+</div>
+<div class="sect2">
+<h3 id="_migration_notes_for_0_4_0"><a class="anchor" href="#_migration_notes_for_0_4_0"></a>Migration Notes For 0.4.0</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_release_contract"><a class="anchor" href="#_release_contract"></a>Release contract</h3>
+<div class="paragraph">
+<p><code>cx</code> now explicitly operates as three primary cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>immutable snapshots with <code>cx bundle</code></p>
+</li>
+<li>
+<p>live agent protocol with <code>cx mcp</code></p>
+</li>
+<li>
+<p>durable knowledge with <code>cx notes</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Track B generates hypotheses. Track A generates proofs. Notes are the durable cognition layer between them.</p>
+</div>
+<div class="paragraph">
+<p>The shipped proof path is kernel-owned. The remaining adapter/oracle seam is for diagnostics, parity visibility, and reference comparison only.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_what_changed_in_0_4_0"><a class="anchor" href="#_what_changed_in_0_4_0"></a>What changed in 0.4.0</h3>
+<div class="sect3">
+<h4 id="_1_coverage_and_release_assurance"><a class="anchor" href="#_1_coverage_and_release_assurance"></a>1. Coverage and release assurance</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Added a dedicated Vitest coverage lane with HTML and Markdown reporting.</p>
+</li>
+<li>
+<p>Coverage now participates in release assurance and the public Pages surface.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_2_mcp_debugging_cockpit"><a class="anchor" href="#_2_mcp_debugging_cockpit"></a>2. MCP debugging cockpit</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Added focused Vitest MCP lanes and UI-oriented debugging guidance.</p>
+</li>
+<li>
+<p>Added <code>cx mcp catalog --json</code> as the narrow machine-readable MCP contract view.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_3_cognition_and_trust_model"><a class="anchor" href="#_3_cognition_and_trust_model"></a>3. Cognition and trust model</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Notes governance, contradiction checks, cognition scoring, and trust propagation are now part of the operating model.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_4_canonical_operating_model"><a class="anchor" href="#_4_canonical_operating_model"></a>4. Canonical operating model</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>The docs now explicitly define Track B as hypothesis generation and Track A as proof generation.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_5_adapter_json_contract_naming"><a class="anchor" href="#_5_adapter_json_contract_naming"></a>5. Adapter JSON contract naming</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>The dedicated <code>cx adapter</code> command owns adapter metadata for machine-readable automation.</p>
+</li>
+<li>
+<p>Top-level JSON payload names are treated as versioned contract surfaces and must not drift silently.</p>
+</li>
+<li>
+<p><code>cx adapter capabilities --json</code> now exposes explicit <code>oracleAdapter</code> and <code>referenceAdapter</code> fields instead of the older <code>repomix</code> naming.</p>
+</li>
+<li>
+<p>CI now includes a single official-<code>repomix</code> reference-oracle smoke lane.</p>
+</li>
+<li>
+<p>The official reference oracle is guarded by an adapter-parity baseline that
+compares rendered bytes, per-file token counts, total tokens, and security
+findings against <code>repomix</code> 1.13.1.</p>
+</li>
+<li>
+<p>The older <code>@wsmy/repomix-cx-fork</code> package is no longer a shipped runtime dependency.</p>
+</li>
+<li>
+<p>The native kernel is now the production proof path for <code>bundle</code>, <code>validate</code>, <code>verify</code>, and <code>extract</code>.</p>
+</li>
+<li>
+<p>Other JSON command surfaces such as <code>cx bundle --json</code>, <code>cx inspect --json</code>, <code>cx list --json</code>, <code>cx validate --json</code>, and <code>cx verify --json</code> no longer embed adapter metadata.</p>
+</li>
+<li>
+<p>The config namespace remains <code>[repomix]</code> in <code>cx.toml</code> for this release.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_if_you_use_mcp"><a class="anchor" href="#_if_you_use_mcp"></a>If you use MCP</h3>
+<div class="paragraph">
+<p>MCP remains an evolving integration surface. Re-check local integration settings, capability expectations, and policy boundaries. For machine-readable inspection, prefer <code>cx mcp catalog --json</code>; for broader MCP diagnostics, use <code>cx doctor mcp --json</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operator_surface_summary"><a class="anchor" href="#_operator_surface_summary"></a>Operator surface summary</h3>
+<div class="paragraph">
+<p>Use <code>0.4.0</code> with these explicit surfaces in mind:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_if_you_rely_on_coverage"><a class="anchor" href="#_if_you_rely_on_coverage"></a>If you rely on coverage</h3>
+<div class="paragraph">
+<p>Use the Vitest coverage lane and HTML artifact as the primary reporting surface:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run ci:test:coverage</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_if_you_maintain_notes"><a class="anchor" href="#_if_you_maintain_notes"></a>If you maintain notes</h3>
+<div class="paragraph">
+<p>Run the governance path as part of normal review:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes check
+bun run ci:notes:governance</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notes are still conditional knowledge, not proof-grade artifacts. Governance now surfaces cognition, staleness, contradiction, and trust signals more explicitly.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="if-you-consume-schemas"><a class="anchor" href="#if-you-consume-schemas"></a>If you consume schemas</h3>
+<div class="paragraph">
+<p>Verify current schema references and Pages-hosted <code>$id</code> values:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json</a></code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you depend on manifest schemas, treat this line as a breaking schema
+surface. Pages and the npm package publish only the latest schema for each
+family; old manifest and shared-handover schema files are intentionally
+removed instead of retained as compatibility endpoints.</p>
+</div>
+<div class="paragraph">
+<p>For the current native-render contract state, the manifest schema is now <code>v12</code>. The shared handover filename is recorded in <code>handoverFile</code>, and derived Antora review exports are recorded explicitly in <code>derivedReviewExports</code> when <code>cx bundle --include-doc-exports</code> is used. Schema <code>v12</code> also records <code>oracleAdapter</code> package identity so reproducibility is bound to the selected oracle adapter package and version. Shared-handover JSON schema <code>v2</code> is the explicit contract version for <code>recentRepositoryHistory[].message</code>, which preserves full multiline commit messages instead of a subject-only field shape.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_related_release_material"><a class="anchor" href="#_related_release_material"></a>Related release material</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../../repository/root/changelog/" class="xref page">CHANGELOG.md</a></p>
+</li>
+<li>
+<p><a href="../../architecture/mental-model/" class="xref page">Mental Model</a></p>
+</li>
+<li>
+<p><a href="../../repository/docs/governance/#mcp-tool-stability" class="xref page">MCP Tool Stability Tiers</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Init Template Contract | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_capability_levels">Capability Levels</a></li>
+<li><a href="#_template_matrix">Template Matrix</a></li>
+<li><a href="#_overlay_intent">Overlay Intent</a></li>
+<li><a href="#_enhanced_templates">Enhanced Templates</a>
+<ul class="sectlevel2">
+<li><a href="#rust-template">Rust</a></li>
+<li><a href="#_advanced_template">Advanced Template</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx init</code> always generates the shared workspace bootstrap files plus a
+language-aware <code>Makefile</code>. Some templates also specialize the default
+authoring-oriented <code>cx-mcp.toml</code> overlay, and TypeScript currently adds
+a second build-artifact overlay.</p>
+</div>
+<div class="paragraph">
+<p>The universal generated files are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>README.md</code></p>
+</li>
+<li>
+<p><code>cx.toml</code></p>
+</li>
+<li>
+<p><code>.editorconfig</code></p>
+</li>
+<li>
+<p><code>Makefile</code></p>
+</li>
+<li>
+<p><code>cx-mcp.toml</code></p>
+</li>
+<li>
+<p><code>.mcp.json</code></p>
+</li>
+<li>
+<p><code>.vscode/mcp.json</code></p>
+</li>
+<li>
+<p><code>.claude/settings.json</code></p>
+</li>
+<li>
+<p><code>.codex/settings.json</code></p>
+</li>
+<li>
+<p><code>antora-playbook.yml</code></p>
+</li>
+<li>
+<p><code>docs/</code> Antora scaffold with onboarding, manual, and arc42 architecture surfaces</p>
+</li>
+<li>
+<p><code>notes/</code> scaffolding</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The generated docs scaffold is intentionally minimal:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>onboarding</code> gives the front door for new contributors and operators</p>
+</li>
+<li>
+<p><code>manual</code> keeps task-oriented procedures separate from design material</p>
+</li>
+<li>
+<p><code>architecture</code> uses an arc42 chapter spine so teams can grow the architecture
+docs incrementally without inventing their own structure first</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_capability_levels"><a class="anchor" href="#_capability_levels"></a>Capability Levels</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>basic</code>: workspace-aware <code>Makefile</code> plus the shared MCP overlay
+contract.</p>
+</li>
+<li>
+<p><code>enhanced</code>: specialized authoring overlay and richer local quality
+targets.</p>
+</li>
+<li>
+<p><code>advanced</code>: enhanced template plus separate MCP overlays for authoring
+and build-artifact inspection.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_template_matrix"><a class="anchor" href="#_template_matrix"></a>Template Matrix</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Template</th>
+<th class="tableblock halign-left valign-top">Level</th>
+<th class="tableblock halign-left valign-top">Detection markers</th>
+<th class="tableblock halign-left valign-top">Optional generated files</th>
+<th class="tableblock halign-left valign-top">Targets</th>
+<th class="tableblock halign-left valign-top">Separate MCP overlays</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>base</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rust</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Cargo.toml</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code>, <code>check</code>,
+<code>verify</code>, <code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>go</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>go.mod</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code>, <code>check</code>, <code>verify</code>,
+<code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>typescript</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">advanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>package.json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx-mcp-build.toml</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>,
+<code>test</code>, <code>check</code>, <code>verify</code>, <code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>python</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pyproject.toml</code>, <code>requirements.txt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>,
+<code>test</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>java</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pom.xml</code>, <code>build.gradle</code>, <code>build.gradle.kts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>elixir</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mix.exs</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code>, <code>check</code>,
+<code>verify</code>, <code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>julia</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Project.toml</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>crystal</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>shard.yml</code>, <code>shard.lock</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code>,
+<code>verify</code>, <code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enhanced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build.zig</code>, <code>build.zig.zon</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code>, <code>test</code>,
+<code>verify</code>, <code>certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overlay_intent"><a class="anchor" href="#_overlay_intent"></a>Overlay Intent</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Authoring overlay: live source exploration and editing in MCP
+sessions.</p>
+</li>
+<li>
+<p>Build overlay: compiled or emitted artifacts that should stay separate
+from the default authoring surface.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If a repository uses nonstandard source or output layouts, edit the
+overlays independently instead of broadening the default authoring view.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_enhanced_templates"><a class="anchor" href="#_enhanced_templates"></a>Enhanced Templates</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="rust-template"><a class="anchor" href="#rust-template"></a>Rust</h3>
+<div class="paragraph">
+<p>Use the Rust template for Cargo workspaces that need a richer local
+verification gate than the basic templates.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make build</code> &#8594; <code>cargo build --release</code></p>
+</li>
+<li>
+<p><code>make test</code> &#8594; <code>cargo test</code></p>
+</li>
+<li>
+<p><code>make check</code> &#8594; <code>cargo check</code></p>
+</li>
+<li>
+<p><code>make verify</code> &#8594; <code>cargo fmt --check</code>, <code>cargo clippy --all-targets&#8201;&#8212;&#8201;-D warnings</code>, <code>cargo test</code>, <code>cargo build --release</code></p>
+</li>
+<li>
+<p><code>make certify</code> &#8594; <code>verify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>includes <code>src/<strong></code>, <code>tests/</strong></code>, <code>benches/**</code>, <code>Cargo.toml</code>,
+<code>Cargo.lock</code>, and <code>README.md</code></p>
+</li>
+<li>
+<p>excludes <code>target/**</code> so build artifacts do not leak into the default
+authoring view</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="go-template"><a class="anchor" href="#go-template"></a>Go</h4>
+<div class="paragraph">
+<p>Use the Go template for module-aware repositories that already center on
+<code>go.mod</code>.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make build</code> &#8594; <code>go build ./&#8230;&#8203;</code></p>
+</li>
+<li>
+<p><code>make test</code> &#8594; <code>go test ./&#8230;&#8203;</code></p>
+</li>
+<li>
+<p><code>make check</code> &#8594; <code>go vet ./&#8230;&#8203;</code></p>
+</li>
+<li>
+<p><code>make verify</code> &#8594; <code>check + test + build</code></p>
+</li>
+<li>
+<p><code>make certify</code> &#8594; <code>verify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>includes <code>cmd/<strong></code>, <code>internal/</strong></code>, <code>pkg/**</code>, <code>go.mod</code>, <code>go.sum</code>, and
+<code>README.md</code></p>
+</li>
+<li>
+<p>should be widened deliberately if your project keeps important source
+outside those conventional directories</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="elixir-template"><a class="anchor" href="#elixir-template"></a>Elixir</h4>
+<div class="paragraph">
+<p>Use the Elixir template for Mix-based applications that benefit from a
+source-first MCP overlay.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make build</code> &#8594; <code>mix compile</code></p>
+</li>
+<li>
+<p><code>make test</code> &#8594; <code>mix test</code></p>
+</li>
+<li>
+<p><code>make check</code> &#8594; <code>mix format --check-formatted</code></p>
+</li>
+<li>
+<p><code>make verify</code> &#8594; <code>check + test + build</code></p>
+</li>
+<li>
+<p><code>make certify</code> &#8594; <code>verify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>includes <code>lib/<strong></code>, <code>test/</strong></code>, <code>mix.exs</code>, <code>mix.lock</code>, and <code>README.md</code></p>
+</li>
+<li>
+<p>excludes <code>_build/<strong></code>, <code>deps/</strong></code>, and coverage output so MCP stays
+focused on authoring files by default</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="crystal-template"><a class="anchor" href="#crystal-template"></a>Crystal</h4>
+<div class="paragraph">
+<p>Use the Crystal template for <code>shard.yml</code> workspaces that want a small,
+source-oriented MCP surface.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make build</code> &#8594; <code>shards build</code> when shard metadata exists, otherwise <code>crystal build src/main.cr --release</code></p>
+</li>
+<li>
+<p><code>make test</code> &#8594; <code>crystal spec</code></p>
+</li>
+<li>
+<p><code>make verify</code> &#8594; <code>test + build</code></p>
+</li>
+<li>
+<p><code>make certify</code> &#8594; <code>verify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>includes <code>src/<strong></code>, <code>spec/</strong></code>, <code>shard.yml</code>, <code>shard.lock</code>, and
+<code>README.md</code></p>
+</li>
+<li>
+<p>excludes dependency and build caches such as <code>.shards/<strong></code>, <code>lib/</strong></code>,
+and <code>bin/**</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="zig-template"><a class="anchor" href="#zig-template"></a>Zig</h4>
+<div class="paragraph">
+<p>Use the Zig template for repositories centered on <code>build.zig</code>.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make build</code> &#8594; <code>zig build</code></p>
+</li>
+<li>
+<p><code>make test</code> &#8594; <code>zig build test</code></p>
+</li>
+<li>
+<p><code>make verify</code> &#8594; <code>test + build</code></p>
+</li>
+<li>
+<p><code>make certify</code> &#8594; <code>verify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>includes <code>src/**</code>, <code>build.zig</code>, <code>build.zig.zon</code>, and <code>README.md</code></p>
+</li>
+<li>
+<p>excludes <code>zig-cache/<strong></code>, <code>.zig-cache/</strong></code>, and <code>zig-out/**</code> to keep
+the default MCP surface source-first</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_advanced_template"><a class="anchor" href="#_advanced_template"></a>Advanced Template</h3>
+<div class="sect3">
+<h4 id="typescript-template"><a class="anchor" href="#typescript-template"></a>TypeScript</h4>
+<div class="paragraph">
+<p>Use the TypeScript template when you need the most operationally rich
+template profile, including package-manager detection and separate MCP
+overlays for authoring and build artifacts.</p>
+</div>
+<div class="paragraph">
+<p>Package-manager detection:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>bun.lockb</code> or <code>bun.lock</code></p>
+</li>
+<li>
+<p><code>pnpm-lock.yaml</code></p>
+</li>
+<li>
+<p><code>yarn.lock</code></p>
+</li>
+<li>
+<p><code>package-lock.json</code> or <code>npm-shrinkwrap.json</code></p>
+</li>
+<li>
+<p><code>npm</code> when no lockfile exists</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This keeps the generated <code>Makefile</code> lockfile-first instead of choosing
+Bun only because it happens to be installed on the local machine.</p>
+</div>
+<div class="paragraph">
+<p>Generated targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make install</code></p>
+</li>
+<li>
+<p><code>make build</code></p>
+</li>
+<li>
+<p><code>make test</code></p>
+</li>
+<li>
+<p><code>make check</code></p>
+</li>
+<li>
+<p><code>make lint</code></p>
+</li>
+<li>
+<p><code>make verify</code></p>
+</li>
+<li>
+<p><code>make certify</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>TypeScript keeps <code>install</code> separate from <code>build</code>. Build commands should
+not implicitly mutate dependency state. <code>make lint</code> and <code>make check</code>
+skip with an explicit message when the corresponding package scripts are
+not present. <code>make certify</code> runs the package-manager <code>certify</code> script
+when one exists and otherwise falls back to <code>make verify</code>.</p>
+</div>
+<div class="paragraph">
+<p>Default MCP view:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx-mcp.toml</code> stays source-oriented for <code>src/**</code>, workspace metadata,
+and key TypeScript config files</p>
+</li>
+<li>
+<p><code>cx-mcp-build.toml</code> stays build-oriented for <code>dist/**</code> plus minimal
+package metadata</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use the source-oriented overlay for live editing and code
+understanding. Use the build overlay when you want to inspect emitted
+artifacts without broadening the default authoring surface.</p>
+</div>
+<div class="paragraph">
+<p>Customize the generated overlays if your repository:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>uses a source root other than <code>src/</code></p>
+</li>
+<li>
+<p>emits artifacts outside <code>dist/</code></p>
+</li>
+<li>
+<p>stores important workspace metadata in additional files</p>
+</li>
+<li>
+<p>needs stricter excludes for framework-specific caches</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
