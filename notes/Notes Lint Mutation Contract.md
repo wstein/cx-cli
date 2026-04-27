@@ -18,6 +18,8 @@ The command must not edit note prose body content. Every write must preserve the
 
 `updated_at` is audit metadata, so stale timestamp findings are report-only. A human may update them as part of the note edit that actually refreshed the content.
 
+`frontmatter.path_tags` is auto-fixable only when a note has zero tags. Tagged notes get a report-only finding so curated taxonomy is not overwritten or expanded by folder layout.
+
 Future mutation kinds must extend the enum first, then add tests proving body-byte preservation and audit-log output. Section config edits remain proposal-only unless a separate explicit command owns that write path.
 
 ## Links

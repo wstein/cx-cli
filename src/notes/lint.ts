@@ -407,7 +407,7 @@ export async function lintNotes(
         notePath: note.filePath,
         suggestedFix: `Add derived path tag(s): ${missingTags.join(", ")}.`,
         confidence: 1,
-        autoFixable: true,
+        autoFixable: tags.length === 0,
       });
     }
   }

@@ -85,7 +85,6 @@ This note references [[src/missing.ts]], [[src/untracked.ts]], and [[src/tracked
       `---
 id: 20250113143001
 title: Structural Note
-tags: ["existing"]
 updated_at: "2020-01-01"
 ---
 
@@ -115,13 +114,36 @@ Body content stays byte identical with enough routing words for validation.`,
     expect(writeResult.applied).toBe(1);
     expect(writeResult.skipped).toBe(1);
     expect(sha256(afterParsed.body)).toBe(sha256(beforeBody));
-    expect(afterParsed.frontmatter.tags).toEqual(["existing", "area"]);
+    expect(afterParsed.frontmatter.tags).toEqual(["area"]);
     expect(afterParsed.frontmatter.updated_at).toBe("2020-01-01");
 
     const history = await readLintHistory(notesDir);
     expect(history).toHaveLength(1);
     expect(history[0]?.noteId).toBe("20250113143001");
     expect(history[0]?.changeKind).toBe("frontmatter.path_tags");
+  });
+
+  test("curated tags make path tag findings report-only", async () => {
+    await writeNote(
+      path.join("area", "curated.md"),
+      `---
+id: 20250113143003
+title: Curated Tag Note
+tags: ["architecture"]
+---
+
+Body content stays byte identical with enough routing words for validation.`,
+    );
+
+    const result = await lintNotes("notes", root);
+
+    expect(result.findings).toContainEqual(
+      expect.objectContaining({
+        category: "stale_path_tags",
+        suggestedFix: "Add derived path tag(s): area.",
+        autoFixable: false,
+      }),
+    );
   });
 
   test("auto-fixes renamed frontmatter anchors when git-follow confidence is high", async () => {

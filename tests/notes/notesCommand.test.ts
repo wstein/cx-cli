@@ -78,7 +78,6 @@ describe("Notes Command Subcommands", () => {
         `---
 id: 20250113143009
 title: Lint Note
-tags: ["existing"]
 updated_at: "2020-01-01"
 ---
 
