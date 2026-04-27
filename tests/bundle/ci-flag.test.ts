@@ -96,11 +96,12 @@ describe("cx bundle --ci / --force dirty-state handling", () => {
         "manual:audited-overrides.adoc",
       );
       expect((error as CxError).remediation?.nextSteps).toContain(
-        "Use cx --lenient bundle only for Category B warning-mode exploration; it does not bypass dirty-state protection.",
+        "Use --force for a local override or --ci for a pipeline override only when you intend to record dirty provenance in the manifest.",
       );
-      expect((error as CxError).remediation?.scopeHint?.configKey).toBe(
-        "dedup.mode",
+      expect((error as CxError).remediation?.nextSteps).not.toEqual(
+        expect.arrayContaining([expect.stringContaining("dedup.mode")]),
       );
+      expect((error as CxError).remediation?.scopeHint).toBeUndefined();
     }
   });
 

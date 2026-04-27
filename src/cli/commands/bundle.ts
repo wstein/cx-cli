@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { validateBundle } from "../../bundle/validate.js";
 import { getCLIOverrides, readEnvOverrides } from "../../config/env.js";
-import { formatPrecedenceChain, loadCxConfig } from "../../config/load.js";
+import { loadCxConfig } from "../../config/load.js";
 import type { CxAssetsLayout, CxStyle } from "../../config/types.js";
 import {
   DOCS_EXPORT_GENERATOR,
@@ -614,10 +614,7 @@ export async function runBundleCommand(
             nextSteps: [
               "Commit or stash the tracked changes, then rerun cx bundle.",
               "Use --force for a local override or --ci for a pipeline override only when you intend to record dirty provenance in the manifest.",
-              "Use cx --lenient bundle only for Category B warning-mode exploration; it does not bypass dirty-state protection.",
-              `Precedence: ${formatPrecedenceChain("dedup.mode")}.`,
             ],
-            scopeHint: buildScopeHint("dedup.mode"),
           },
         },
       );
