@@ -6,9 +6,46 @@ The deployment view is CI- and release-oriented rather than service-oriented.
 
 == Main deployment surfaces
 
-- CI proof path
-- release integrity and reproducibility checks
-- Pages publishing for schemas, coverage, and curated docs
-- npm package and release assets
+[cols="1,2,2",options="header"]
+|===
+|Surface |Owned artifacts |Gate
+
+|CI proof path
+|test results, coverage inputs, contract checks, reproducibility checks
+|`make certify` and the required CI lanes must pass before release finalization.
+
+|Pages publish
+|root Pages index, `/docs/`, `/schemas/`, optional `/coverage/`
+|`pages:build` assembles the tree and `pages:smoke` validates required surfaces.
+
+|Schema publish
+|latest-only JSON Schema files under `/schemas/`
+|retired schema files fail the Pages build instead of being published.
+
+|Release assets
+|npm tarball, `release-integrity.json`, Homebrew formula, mirrored schema files
+|the release workflow must run from the exact certified tag commit.
+
+|npm package
+|CLI runtime, generated JavaScript, current schema files, docs-relevant metadata
+|package metadata and release integrity checks must match the tag version.
+|===
 
 The docs site now joins schemas and coverage as a first-class Pages publish surface.
+
+== Public URL Layout
+
+The Pages root is `https://wstein.github.io/cx-cli/`.
+The curated Antora site is mounted below `/docs/`, with versioned Antora
+content such as `/docs/cx/0.5/`. Schema endpoints are mounted at
+`/schemas/` and intentionally expose only the latest schema for each
+family. Coverage is mounted at `/coverage/` when the coverage artifact is
+available.
+
+== Release Topology
+
+Releases are two-phase. `develop` prepares the candidate and CI proves
+it. The `vX.Y.Z` tag finalizes the exact certified commit, publishes the
+npm package and GitHub release assets, and then `main` fast-forwards to
+the shipped commit. See xref:manual:release-and-integrity.adoc[Release
+and Integrity] for the operational checklist.

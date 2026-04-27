@@ -3,12 +3,48 @@
 
 Known risks and pressure points:
 
-- mutation defaults that are easy to misread
-- degraded extraction paths being misinterpreted as safe recovery
-- uncontrolled scanner growth turning into a stealth plugin system
-- docs drift between curated site pages and legacy Markdown references
-- architecture vocabulary leaking into operator pages without enough local context
+[cols="1,2,2,2",options="header"]
+|===
+|Risk |Why it matters |Mitigation |Signal
+
+|Mutation defaults are misread
+|An agent or operator may assume read-only exploration can safely mutate durable notes.
+|Keep MCP mutation behind explicit policy and `enable_mutation`, then review with notes governance.
+|MCP denial output, `doctor mcp`, note governance checks.
+
+|Degraded extraction is treated as safe recovery
+|Approximate recovery can look like proof if the warning is ignored.
+|Keep degraded extraction opt-in and tie normal extraction to manifest and checksum evidence.
+|`extract --verify`, degraded extraction diagnostics.
+
+|Scanner growth becomes a hidden plugin system
+|Unbounded scanners can change proof behavior without an explicit extension model.
+|Keep scanner IDs bounded and route scanner behavior through `ScannerPipeline`.
+|scanner config validation, internal API contract review.
+
+|Docs drift between curated pages and repository companions
+|README, generated repository-reference pages, and Antora docs can disagree about public URLs or release behavior.
+|Prefer Antora as the curated surface, regenerate repository references, and keep Pages smoke checks active.
+|docs assurance tests, Pages smoke, broken-link/link-contract reviews.
+
+|Architecture vocabulary leaks into operator pages without context
+|Terms such as Track A, Track B, proof path, and oracle can become barriers to command use.
+|Use manual pages for action-first guidance and link to architecture pages for deeper semantics.
+|operator feedback, docs assurance tests, onboarding review.
+
+|Latest-only schemas surprise pinned consumers
+|Removing old schema files is intentionally breaking, but stale consumers may discover it late.
+|Document the breaking contract and fail the Pages build when retired schemas reappear.
+|schema index, release notes, `pages:build` hard failure.
+|===
 
 == Post-v0.4 focus
 
 The next line of work is polishing and scoping these boundaries, not another architecture flip.
+
+== Review Cadence
+
+Review this page when release behavior, schema policy, MCP mutation
+policy, extraction behavior, or scanner activation changes. Each risk
+should either have an active mitigation or be promoted into a concrete
+work item before it becomes normal operating practice.

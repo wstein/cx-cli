@@ -3,15 +3,62 @@
 
 Key building blocks in the shipped architecture:
 
-- `src/render/` for kernel-owned rendering, spans, ordering, and plan hashes
-- `src/planning/` for file selection and section ownership
-- `src/manifest/` for canonical artifact truth
-- `src/bundle/verify.ts` and extraction surfaces for proof and recovery
-- `src/notes/` for repository cognition and governance
-- `src/doctor/` and `src/mcp/` for live inspection and policy-backed tooling
-- `src/adapter/` for oracle diagnostics only
+[cols="1,2,2,2",options="header"]
+|===
+|Block |Responsibility |Primary callers |Must not own
+
+|`src/planning/`
+|Select tracked files, assign section ownership, detect overlaps, and build the deterministic bundle plan.
+|`inspect`, `bundle`, MCP bundle preview
+|Rendering, artifact verification, or note governance.
+
+|`src/render/`
+|Render section outputs, spans, structured plans, hashes, and token counts through the kernel-owned proof path.
+|`bundle`, `verify`, render parity checks
+|File selection policy or adapter-specific output shapes.
+
+|`src/manifest/`
+|Write and read canonical manifest truth, including artifact metadata, trust metadata, and derived review exports.
+|`bundle`, `validate`, `verify`, `extract`, list/report commands
+|Live workspace inspection or note mutation.
+
+|`src/bundle/`
+|Validate, verify, and extract bundles against manifest truth and checksum evidence.
+|`validate`, `verify`, `extract`
+|MCP policy decisions or oracle diagnostics.
+
+|`src/notes/`
+|Parse, validate, score, and maintain the durable cognition graph.
+|`notes`, governance checks, optional bundle gates
+|Proof-path rendering or artifact truth.
+
+|`src/mcp/` and `src/doctor/`
+|Expose scoped live workspace inspection, diagnostics, and policy-backed operator guidance.
+|`mcp`, `doctor`, agent integrations
+|Promotable proof claims.
+
+|`src/adapter/`
+|Expose oracle/reference diagnostics and parity comparison.
+|Expert diagnostics, parity tests
+|Ordinary `bundle`, `validate`, `verify`, or `extract` runtime behavior.
+|===
+
+See xref:architecture:implementation-reference.adoc[Implementation Reference]
+for the deeper contributor map and
+xref:architecture:internal-api-contract.adoc[Internal API Contract] for
+stable seams such as `RenderEngine`, `StructuredRenderPlan`,
+`TokenizerProvider`, and `ScannerPipeline`.
 
 == Rule
 
 Ordinary bundle, validate, verify, and extract flows do not rely on the oracle seam.
 That separation is a runtime rule, not just a documentation preference.
+
+== Dependency Direction
+
+The ordinary proof path flows from planning to rendering to manifest
+materialization to validation, verification, and extraction. Live
+workspace tooling may inspect or preview that path, but it does not
+become artifact truth. Notes may inform a bundle through configured
+inputs and gates, but note quality is still conditional knowledge rather
+than proof.

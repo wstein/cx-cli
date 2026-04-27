@@ -5,12 +5,39 @@ The curated docs surface may publish selected decisions and closure records, but
 
 == Important current decision lines
 
-- v0.4 release closure
-- Repomix decommission and oracle boundary cleanup
-- shared handover replacing bundle-index language
-- contract versioning and latest-only schema publishing
+[cols="1,2,2",options="header"]
+|===
+|Decision line |Current decision |Trace
+
+|v0.4 release closure
+|The native proof path is the shipped runtime; follow-up work tightens contracts instead of reopening the architecture transition.
+|xref:manual:release-and-integrity.adoc#v0-4-release-closure[v0.4 Release Closure]
+
+|Repomix decommission and oracle boundary cleanup
+|The adapter/oracle seam is parity and diagnostics only, not an ordinary runtime dependency.
+|xref:architecture:render-kernel-contract.adoc[Render Kernel Contract]
+
+|Shared handover naming
+|The handoff artifact is `shared handover`, not bundle-index language, because it carries cross-section context and trust metadata.
+|xref:architecture:system-contracts.adoc[System Contracts]
+
+|Latest-only schema publishing
+|Pages and the npm package publish only the latest schema for each family; retired schema endpoints are intentionally removed.
+|xref:manual:release-and-integrity.adoc#if-you-consume-schemas[If you consume schemas]
+
+|Notes remain separate from canonical docs
+|The note graph preserves durable cognition and historical pressure, while promoted docs carry stable architecture claims.
+|xref:architecture:index.adoc#arc42-non-goal[Architecture Overview]
+|===
 
 == Source of historical pressure
 
 Use promoted notes and release docs for durable decision history.
 Keep exploratory or transitional reasoning in `notes/`.
+
+== Promotion Rule
+
+A note becomes architecture documentation only when it states a durable
+decision, invariant, mechanism, or failure mode that operators should
+depend on. Exploratory reasoning can remain valuable without being
+promoted into the curated docs surface.

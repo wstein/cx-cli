@@ -243,6 +243,7 @@ bun run ci:notes:governance
 
 Notes are still conditional knowledge, not proof-grade artifacts. Governance now surfaces cognition, staleness, contradiction, and trust signals more explicitly.
 
+[[if-you-consume-schemas]]
 === If you consume schemas
 
 Verify current schema references and Pages-hosted `$id` values:

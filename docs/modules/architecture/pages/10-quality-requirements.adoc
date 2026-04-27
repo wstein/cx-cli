@@ -12,3 +12,48 @@ The architecture is optimized for:
 
 These requirements matter more than feature count.
 A smaller but provable system is preferable to a broader system with ambiguous boundaries.
+
+== Quality Scenarios
+
+[cols="1,2,2,2",options="header"]
+|===
+|Quality |Scenario |Required behavior |Evidence
+
+|Determinism
+|The same committed source tree is bundled twice.
+|Planning, ordering, render plan hashes, and checksums remain stable.
+|`verify`, render-plan tests, reproducibility checks.
+
+|Reproducibility
+|A release package is rebuilt from the certified commit.
+|Generated runtime output and release integrity metadata match the expected commit and version.
+|release integrity checks, double-build reproducibility lane.
+
+|Auditability
+|A reviewer asks why a bundle was trusted or dirty.
+|Manifest metadata records trust labels, dirty-state override evidence, note governance context, and derived review exports.
+|manifest schema, bundle manifest, audit log where applicable.
+
+|Extraction safety
+|A downstream process extracts files from a bundle.
+|Extraction follows manifest truth and verifies when requested; degraded recovery is explicit and never silent.
+|`extract --verify`, extraction safety docs, bundle validation tests.
+
+|Trust-boundary clarity
+|An agent produces useful live reasoning.
+|Track B output remains untrusted until Track A validation or verification proves an artifact.
+|system contracts, MCP policy, Friday-to-Monday workflow.
+
+|Documentation navigability
+|A new operator needs to choose the right command without reading every architecture page.
+|Manual pages provide entry points, while architecture pages explain the model and link to stable contracts.
+|Antora navigation, docs assurance tests, architecture overview.
+|===
+
+== Priority Rule
+
+When a feature conflicts with a quality requirement, the quality
+requirement wins unless a documented, reviewed exception records the
+tradeoff. This is why dirty-state refusal, strict overlap handling, and
+latest-only schema publishing are allowed to be inconvenient: they keep
+the public contract honest.

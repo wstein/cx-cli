@@ -13,3 +13,43 @@ The core runtime story is the Friday-to-Monday transition:
 - xref:manual:workflows.adoc#safe-note-mutation-workflow[Safe Note Mutation]
 
 These workflows show how live exploration, durable notes, and proof artifacts hand work to each other over time.
+
+== Key Scenarios
+
+[cols="1,2,2,2",options="header"]
+|===
+|Scenario |Trigger |Main interaction |Trust result
+
+|Live investigation
+|An operator or agent needs current workspace context.
+|`cx mcp` exposes bounded read, inspect, bundle-preview, doctor, and notes tools according to MCP policy.
+|Track B hypotheses and optional note updates; no proof-grade artifact claim.
+
+|Bundle materialization
+|A clean source tree needs a reproducible handoff.
+|`cx inspect` previews the plan, then `cx bundle` selects tracked files, renders sections, writes manifest truth, lock data, checksums, and assets.
+|Track A snapshot with explicit provenance and trust metadata.
+
+|Artifact verification
+|A human or CI runner receives a bundle.
+|`cx validate` checks bundle structure; `cx verify` checks manifest, hashes, render plan evidence, and optionally source-tree agreement.
+|Trusted artifact only when the proof checks pass.
+
+|Extraction and recovery
+|A bundle must reconstruct files for review or downstream work.
+|`cx extract` reads manifest truth, verifies when requested, and refuses unsafe recovery unless degraded extraction is explicitly allowed.
+|Recovered files remain tied to manifest and checksum evidence.
+
+|Safe note mutation
+|A trusted local session intentionally changes durable repository memory.
+|MCP mutation requires explicit policy and mutation enablement, followed by note governance review.
+|Conditional cognition updated with auditability; still not artifact proof.
+|===
+
+== Failure Semantics
+
+Dirty tracked files stop promotable bundling unless the operator records
+an explicit local override. Checksum drift means the artifact no longer
+matches manifest truth. Degraded extraction means deterministic recovery
+could not be proven and must stay opt-in. MCP denials are expected when
+the active policy does not authorize mutation.

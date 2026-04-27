@@ -32,6 +32,7 @@ It does not try to normalize the whole repository into one architecture template
 - xref:architecture:internal-api-contract.adoc[Internal API Contract]
 - xref:architecture:render-kernel-contract.adoc[Render Kernel Contract]
 
+[[arc42-non-goal]]
 == Non-goal
 
 The `notes/` graph is not part of the arc42 spine.
