@@ -93,13 +93,17 @@ exclude = []
 include = ["notes/**"]
 exclude = []
 
-[sections.unassigned]
-catch_all = true
-
 [sections.src]
 include = ["src/**"]
+exclude = []
+
+[sections.schemas]
+include = ["schemas/**"]
 exclude = []
 
 [sections.tests]
 include = ["tests/**", "tests/fixtures/**"]
 exclude = []
+
+[sections.unassigned]
+catch_all = true
