@@ -3,28 +3,32 @@ id: 20260420133000
 title: Published Schema Retention Policy
 tags: ["schemas", "contracts", "release"]
 ---
-Published schemas remain available on Pages as versioned artifacts throughout the pre-1.0 series so downstream tools can pin explicit contract versions.
+Published schemas are a latest-only public contract. Removing old schema
+versions is an intentional breaking change: downstream tools must track the
+current schema endpoints instead of relying on Pages as a historical archive.
 
 ## What
 
-Pre-1.0 releases keep every published schema version available under its versioned Pages path.
+The repository and Pages site publish only the current schema file for each
+schema family.
 
 Examples:
 
-- `manifest-v5.schema.json`
-- `manifest-v7.schema.json`
-- `manifest-v8.schema.json`
-- `manifest-v9.schema.json`
-- `manifest-v10.schema.json`
+- `manifest-v12.schema.json`
+- `shared-handover-v2.schema.json`
+- `json-section-output-v1.schema.json`
 
 ## Why
 
-Contract consumers need stable references while the system is still converging on its long-term owned surfaces.
+The pre-1.0 contract is allowed to break hard. Keeping old schemas made the
+public Pages surface look more stable than the implementation contract and
+encouraged stale pins.
 
 ## Rule
 
-- pre-1.0: retain versioned published schemas on Pages
-- `v1.0.0`: begin a new schema history baseline and retire pre-1.0 history deliberately
+- publish only the latest schema for each family
+- fail the Pages build if retired schema files are present
+- treat removal of old schema endpoints as a breaking change
 
 ## Links
 

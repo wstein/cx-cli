@@ -137,11 +137,18 @@ const SCHEMA_GROUPS = [
       schemaName.startsWith("shared-handover"),
     order: [
       "json-section-output-v1.schema.json",
-      "shared-handover-v1.schema.json",
       "shared-handover-v2.schema.json",
     ],
   },
 ];
+
+const CURRENT_SCHEMA_NAMES = new Set([
+  "cx-config-v1.schema.json",
+  "cx-config-overlay-v1.schema.json",
+  "manifest-v12.schema.json",
+  "json-section-output-v1.schema.json",
+  "shared-handover-v2.schema.json",
+]);
 
 function schemaVersion(schemaName) {
   const match = schemaName.match(/-v(\d+)\.schema\.json$/u);
@@ -195,6 +202,17 @@ function groupSchemaNames(schemaNames) {
   }
 
   return groups;
+}
+
+function assertCurrentSchemasOnly(schemaNames) {
+  const retiredSchemaNames = schemaNames.filter(
+    (schemaName) => !CURRENT_SCHEMA_NAMES.has(schemaName),
+  );
+  if (retiredSchemaNames.length > 0) {
+    throw new Error(
+      `Retired schema files are no longer published: ${retiredSchemaNames.join(", ")}.`,
+    );
+  }
 }
 
 function renderSchemasIndex(schemaNames) {
@@ -264,6 +282,7 @@ export async function assemblePagesSite({
     .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
     .map((entry) => entry.name)
     .sort(compareSchemaNames);
+  assertCurrentSchemasOnly(schemaNames);
   const orderedSchemaNames = sortSchemaNames(schemaNames);
 
   const siteSchemasDir = path.join(siteRoot, "schemas");

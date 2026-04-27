@@ -255,24 +255,6 @@ describe("cx-config-overlay-v1.schema.json", async () => {
 });
 
 describe("published manifest schemas", async () => {
-  const v5Schema = JSON.parse(
-    await fs.readFile(
-      path.resolve(path.join(HERE, "../../schemas/manifest-v5.schema.json")),
-      "utf8",
-    ),
-  ) as JsonSchema;
-  const v7Schema = JSON.parse(
-    await fs.readFile(
-      path.resolve(path.join(HERE, "../../schemas/manifest-v7.schema.json")),
-      "utf8",
-    ),
-  ) as JsonSchema;
-  const v8Schema = JSON.parse(
-    await fs.readFile(
-      path.resolve(path.join(HERE, "../../schemas/manifest-v8.schema.json")),
-      "utf8",
-    ),
-  ) as JsonSchema;
   const v12Schema = JSON.parse(
     await fs.readFile(
       path.resolve(path.join(HERE, "../../schemas/manifest-v12.schema.json")),
@@ -281,15 +263,6 @@ describe("published manifest schemas", async () => {
   ) as JsonSchema;
 
   test("use the GitHub Pages host", () => {
-    expect(v5Schema.$id).toBe(
-      "https://wstein.github.io/cx-cli/schemas/manifest-v5.schema.json",
-    );
-    expect(v7Schema.$id).toBe(
-      "https://wstein.github.io/cx-cli/schemas/manifest-v7.schema.json",
-    );
-    expect(v8Schema.$id).toBe(
-      "https://wstein.github.io/cx-cli/schemas/manifest-v8.schema.json",
-    );
     expect(v12Schema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/manifest-v12.schema.json",
     );
@@ -297,14 +270,6 @@ describe("published manifest schemas", async () => {
 });
 
 describe("published json artifact schemas", async () => {
-  const sharedHandoverV1Schema = JSON.parse(
-    await fs.readFile(
-      path.resolve(
-        path.join(HERE, "../../schemas/shared-handover-v1.schema.json"),
-      ),
-      "utf8",
-    ),
-  ) as JsonSchema;
   const sharedHandoverV2Schema = JSON.parse(
     await fs.readFile(
       path.resolve(
@@ -323,9 +288,6 @@ describe("published json artifact schemas", async () => {
   ) as JsonSchema;
 
   test("use the GitHub Pages host", () => {
-    expect(sharedHandoverV1Schema.$id).toBe(
-      "https://wstein.github.io/cx-cli/schemas/shared-handover-v1.schema.json",
-    );
     expect(sharedHandoverV2Schema.$id).toBe(
       "https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json",
     );

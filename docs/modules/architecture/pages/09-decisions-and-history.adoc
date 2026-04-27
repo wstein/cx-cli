@@ -8,7 +8,7 @@ The curated docs surface may publish selected decisions and closure records, but
 - v0.4 release closure
 - Repomix decommission and oracle boundary cleanup
 - shared handover replacing bundle-index language
-- contract versioning and schema retention
+- contract versioning and latest-only schema publishing
 
 == Source of historical pressure
 

@@ -41,7 +41,7 @@ async function createFixture(): Promise<string> {
     "utf8",
   );
   await fs.writeFile(
-    path.join(root, "schemas", "manifest-v5.schema.json"),
+    path.join(root, "schemas", "manifest-v12.schema.json"),
     '{"$schema": "https://json-schema.org/draft/2020-12/schema"}\n',
     "utf8",
   );
@@ -226,7 +226,7 @@ describe("buildBundlePlan", () => {
       "biome.json",
       "cx.toml",
       "package.json",
-      "schemas/manifest-v5.schema.json",
+      "schemas/manifest-v12.schema.json",
       "scripts/repomix-reference-oracle-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",
@@ -317,7 +317,7 @@ describe("buildBundlePlan", () => {
       "biome.json",
       "cx.toml",
       "package.json",
-      "schemas/manifest-v5.schema.json",
+      "schemas/manifest-v12.schema.json",
       "scripts/repomix-reference-oracle-smoke.ts",
       "tsconfig.json",
       "tsconfig.test.json",

@@ -18,10 +18,9 @@ the published npm package also ships `schemas/` for offline use. GitHub
 Releases mirror the same files as immutable snapshots. These schemas
 validate structural shape and enforce enum constraints.
 
-Pre-`v1.0.0`, published schema versions remain available on Pages under
-their versioned filenames so downstream tooling can pin explicit
-contract versions. The plan is to begin a fresh schema history baseline
-at `v1.0.0`.
+Published schema endpoints are latest-only. This is a breaking public
+contract: retired schema versions are removed from Pages and from the npm
+package instead of kept as compatibility endpoints.
 
 === Using the schema in VS Code with Taplo
 
@@ -227,8 +226,9 @@ artifacts must satisfy their published schema-shaped contracts:
 * `https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json`
 * `https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json`
 
-The repo also keeps the versioned source files in `schemas/` for offline
-use:
+The repo also keeps the current source files in `schemas/` for offline
+use. Older schema versions are intentionally not retained on Pages or in
+the package:
 
 * `schemas/shared-handover-v2.schema.json`
 * `schemas/json-section-output-v1.schema.json`
