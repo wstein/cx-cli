@@ -51,21 +51,6 @@ function resolveToolDefinition(
 }
 
 /**
- * Audit event for policy enforcement.
- */
-export interface AuditEvent {
-  timestamp: string;
-  traceId: string;
-  tool: string;
-  capability: McpCapability;
-  path?: string;
-  decision: "allowed" | "denied";
-  reason: string;
-  policyName: string;
-  decisionBasis: string[];
-}
-
-/**
  * Default policy: deny all mutate, allow read/observe/plan.
  * Used when no policy is explicitly configured.
  */

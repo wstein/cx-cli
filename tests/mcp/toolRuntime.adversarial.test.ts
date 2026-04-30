@@ -209,15 +209,8 @@ describe("registerCxMcpTool runtime hardening", () => {
 
   test("records allowed audit entries even when runtime fails mid-execution", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = vi.fn(
-      async (
-        _tool: string,
-        _capability: string,
-        _allowed: boolean,
-        _reason: string,
-      ) => {},
-    );
-    const auditLogger = { logToolAccess } as unknown as AuditLogger;
+    const logToolEvent = vi.fn(async () => {});
+    const auditLogger = { logToolEvent } as unknown as AuditLogger;
 
     registerCxMcpTool(
       capture.server,
@@ -245,24 +238,26 @@ describe("registerCxMcpTool runtime hardening", () => {
       }),
     ).rejects.toThrow("tool handler interrupted after partial output");
 
-    expect(logToolAccess).toHaveBeenCalledTimes(1);
-    expect(logToolAccess.mock.calls[0]?.[0]).toBe("replace_repomix_span");
-    expect(logToolAccess.mock.calls[0]?.[1]).toBe("mutate");
-    expect(logToolAccess.mock.calls[0]?.[2]).toBe(true);
-    expect(typeof logToolAccess.mock.calls[0]?.[3]).toBe("string");
+    expect(logToolEvent).toHaveBeenCalledTimes(1);
+    const failureCalls = logToolEvent.mock.calls as unknown as Array<
+      [Record<string, unknown>]
+    >;
+    const failureEvent = failureCalls[0]?.[0];
+    expect(failureEvent).toMatchObject({
+      tool: "replace_repomix_span",
+      capability: "mutate",
+      decision: "allowed",
+      execution: {
+        error: "tool handler interrupted after partial output",
+        status: "failed",
+      },
+    });
   });
 
   test("times out interrupted mutation tools with single audit decision logging", async () => {
     const capture = createCaptureServer();
-    const logToolAccess = vi.fn(
-      async (
-        _tool: string,
-        _capability: string,
-        _allowed: boolean,
-        _reason: string,
-      ) => {},
-    );
-    const auditLogger = { logToolAccess } as unknown as AuditLogger;
+    const logToolEvent = vi.fn(async () => {});
+    const auditLogger = { logToolEvent } as unknown as AuditLogger;
 
     registerCxMcpTool(
       capture.server,
@@ -294,8 +289,68 @@ describe("registerCxMcpTool runtime hardening", () => {
       }),
     ).rejects.toThrow('MCP tool "replace_repomix_span" timed out after 20ms');
 
-    expect(logToolAccess).toHaveBeenCalledTimes(1);
-    expect(logToolAccess.mock.calls[0]?.[0]).toBe("replace_repomix_span");
-    expect(logToolAccess.mock.calls[0]?.[2]).toBe(true);
+    expect(logToolEvent).toHaveBeenCalledTimes(1);
+    const timeoutCalls = logToolEvent.mock.calls as unknown as Array<
+      [Record<string, unknown>]
+    >;
+    const timeoutEvent = timeoutCalls[0]?.[0];
+    expect(timeoutEvent).toMatchObject({
+      tool: "replace_repomix_span",
+      decision: "allowed",
+      execution: {
+        status: "timed_out",
+      },
+    });
+  });
+
+  test("records denied requests with sanitized args at the registration boundary", async () => {
+    const capture = createCaptureServer();
+    const logToolEvent = vi.fn(async () => {});
+    const auditLogger = { logToolEvent } as unknown as AuditLogger;
+
+    registerCxMcpTool(
+      capture.server,
+      createWorkspace({
+        policy: DEFAULT_POLICY,
+        auditLogger,
+      }),
+      TEST_MUTATION_TOOL,
+      {
+        title: "Replace source span",
+        description: "Mutate source content",
+        inputSchema: {},
+      },
+      async () => ({
+        content: [{ type: "text", text: "should never run" }],
+      }),
+    );
+
+    await expect(
+      capture.getHandler()({
+        path: "src/index.ts",
+        startLine: 1,
+        endLine: 1,
+        replacement: "export const value = 2;\n",
+      }),
+    ).rejects.toThrow("Access denied");
+
+    expect(logToolEvent).toHaveBeenCalledTimes(1);
+    const deniedCalls = logToolEvent.mock.calls as unknown as Array<
+      [Record<string, unknown>]
+    >;
+    const deniedEvent = deniedCalls[0]?.[0];
+    expect(deniedEvent).toMatchObject({
+      tool: "replace_repomix_span",
+      decision: "denied",
+      execution: {
+        status: "denied",
+      },
+      args: {
+        endLine: 1,
+        path: "src/index.ts",
+        replacement: "export const value = 2;\n",
+        startLine: 1,
+      },
+    });
   });
 });

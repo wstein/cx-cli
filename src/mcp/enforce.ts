@@ -1,4 +1,3 @@
-import type { AuditLogger } from "./audit.js";
 import { checkToolAccess, type McpPolicy, PolicyError } from "./policy.js";
 import type { CxMcpToolDefinition } from "./tools/catalog.js";
 
@@ -10,22 +9,8 @@ export async function enforceToolAccess<T>(
   tool: CxMcpToolDefinition,
   handler: () => Promise<T>,
   policy: McpPolicy,
-  auditLogger?: AuditLogger,
 ): Promise<T> {
   const decision = checkToolAccess(tool, policy);
-
-  if (auditLogger) {
-    await auditLogger.logToolAccess(
-      tool.name,
-      decision.capability,
-      decision.allowed,
-      decision.reason,
-      {
-        policyName: decision.policyName,
-        decisionBasis: decision.decisionBasis,
-      },
-    );
-  }
 
   if (!decision.allowed) {
     throw new PolicyError(
@@ -47,9 +32,8 @@ export function withPolicyEnforcement<T>(
   tool: CxMcpToolDefinition,
   handler: (args: Record<string, unknown>) => Promise<T>,
   policy: McpPolicy,
-  auditLogger?: AuditLogger,
 ): (args: Record<string, unknown>) => Promise<T> {
   return async (args: Record<string, unknown>): Promise<T> => {
-    return enforceToolAccess(tool, () => handler(args), policy, auditLogger);
+    return enforceToolAccess(tool, () => handler(args), policy);
   };
 }

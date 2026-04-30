@@ -1,10 +1,126 @@
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 import { ensureDir } from "../shared/fs.js";
 import type { CommandWriteStream } from "../shared/output.js";
 import type { McpCapability } from "./capabilities.js";
-import type { AuditEvent } from "./policy.js";
+
+export const AUDIT_LOG_SCHEMA_VERSION = 2;
+
+export type AuditExecutionStatus =
+  | "denied"
+  | "failed"
+  | "succeeded"
+  | "timed_out";
+
+export type AuditRedactionRule =
+  | "binary_or_blob"
+  | "body_text"
+  | "large_freeform_text"
+  | "prompt_like_input"
+  | "secret_like_key";
+
+interface AuditRedactionSummary {
+  applied: boolean;
+  rules: AuditRedactionRule[];
+}
+
+interface AuditRedactedValueBase {
+  sha256: string;
+  length: number;
+}
+
+interface AuditRedactedSecret extends AuditRedactedValueBase {
+  kind: "redacted_secret";
+}
+
+interface AuditRedactedText extends AuditRedactedValueBase {
+  kind: "redacted_text";
+  preview?: string;
+}
+
+interface AuditRedactedBlob extends AuditRedactedValueBase {
+  kind: "redacted_blob";
+}
+
+export type AuditLoggedScalar = boolean | null | number | string;
+export type AuditLoggedValue =
+  | AuditLoggedScalar
+  | AuditLoggedValue[]
+  | { [key: string]: AuditLoggedValue }
+  | AuditRedactedBlob
+  | AuditRedactedSecret
+  | AuditRedactedText;
+
+interface AuditRequestEnvelope {
+  agentReason: string;
+  args: Record<string, AuditLoggedValue>;
+  redaction: AuditRedactionSummary;
+  userGoal?: string;
+}
+
+interface AuditExecutionEnvelope {
+  durationMs?: number;
+  error?: string;
+  status: AuditExecutionStatus;
+}
+
+export interface AuditLogEvent {
+  schemaVersion: typeof AUDIT_LOG_SCHEMA_VERSION;
+  timestamp: string;
+  traceId: string;
+  sessionId: string;
+  requestId: string;
+  tool: string;
+  capability: McpCapability;
+  path?: string;
+  decision: "allowed" | "denied";
+  reason: string;
+  policyName: string;
+  decisionBasis: string[];
+  request: AuditRequestEnvelope;
+  execution: AuditExecutionEnvelope;
+}
+
+interface AuditLogToolEventParams {
+  tool: string;
+  capability: McpCapability;
+  decision: "allowed" | "denied";
+  reason: string;
+  args?: Record<string, unknown>;
+  execution: AuditExecutionEnvelope;
+  metadata?: {
+    agentReason?: string;
+    decisionBasis?: string[];
+    filePath?: string;
+    policyName?: string;
+    userGoal?: string;
+  };
+}
+
+const ALWAYS_REDACT_TEXT_KEYS = new Set([
+  "body",
+  "content",
+  "prompt",
+  "replacement",
+  "text",
+]);
+const PROMPT_LIKE_KEYS = new Set([
+  "agentReason",
+  "instruction",
+  "instructions",
+  "message",
+  "prompt",
+  "reasoning",
+  "systemPrompt",
+  "userGoal",
+]);
+const SECRET_LIKE_KEY_PATTERN =
+  /(?:api[_-]?key|auth(?:orization)?|cookie|password|secret|session|token)/iu;
+const BLOB_LIKE_STRING_PATTERN = /^[A-Za-z0-9+/=_-]{96,}$/u;
+const MAX_INLINE_STRING_LENGTH = 160;
+const MAX_PREVIEW_LENGTH = 80;
 
 export interface AuditSummary {
   totalEvents: number;
@@ -27,9 +143,11 @@ export async function collectAuditSummary(
  * Writes to .cx/audit.log in JSONL format (one JSON event per line).
  */
 export class AuditLogger {
-  private logFilePath: string;
-  private enabled: boolean;
-  private stderr: CommandWriteStream;
+  private readonly enabled: boolean;
+  private readonly logFilePath: string;
+  private nextRequestSequence = 0;
+  private readonly sessionId: string;
+  private readonly stderr: CommandWriteStream;
 
   constructor(
     workspaceRoot: string,
@@ -38,37 +156,188 @@ export class AuditLogger {
   ) {
     this.logFilePath = path.join(workspaceRoot, ".cx", "audit.log");
     this.enabled = enabled;
+    this.sessionId = `mcp-session-${randomUUID()}`;
     this.stderr = stderr;
   }
 
-  /**
-   * Log a policy enforcement event.
-   */
-  async logEvent(
-    tool: string,
-    capability: McpCapability,
-    decision: "allowed" | "denied",
-    reason: string,
-    metadata?: {
-      filePath?: string;
-      policyName?: string;
-      decisionBasis?: string[];
-    },
-  ): Promise<void> {
+  private summarizeString(
+    value: string,
+    kind:
+      | AuditRedactedBlob["kind"]
+      | AuditRedactedText["kind"]
+      | AuditRedactedSecret["kind"],
+    includePreview: boolean,
+  ): AuditRedactedBlob | AuditRedactedSecret | AuditRedactedText {
+    const base = {
+      sha256: createHash("sha256").update(value).digest("hex"),
+      length: value.length,
+    } satisfies AuditRedactedValueBase;
+
+    if (kind === "redacted_blob") {
+      return {
+        kind,
+        ...base,
+      };
+    }
+
+    if (kind === "redacted_secret") {
+      return {
+        kind,
+        ...base,
+      };
+    }
+
+    return {
+      kind,
+      ...base,
+      ...(includePreview
+        ? {
+            preview: value
+              .replace(/\s+/gu, " ")
+              .trim()
+              .slice(0, MAX_PREVIEW_LENGTH),
+          }
+        : {}),
+    };
+  }
+
+  private sanitizeValue(
+    keyPath: string[],
+    value: unknown,
+    redactionRules: Set<AuditRedactionRule>,
+  ): AuditLoggedValue {
+    if (
+      value === null ||
+      typeof value === "boolean" ||
+      typeof value === "number"
+    ) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const key = keyPath.at(-1) ?? "";
+      if (SECRET_LIKE_KEY_PATTERN.test(key)) {
+        redactionRules.add("secret_like_key");
+        return this.summarizeString(value, "redacted_secret", false);
+      }
+
+      if (ALWAYS_REDACT_TEXT_KEYS.has(key)) {
+        redactionRules.add("body_text");
+        return this.summarizeString(value, "redacted_text", true);
+      }
+
+      if (PROMPT_LIKE_KEYS.has(key)) {
+        redactionRules.add("prompt_like_input");
+        return this.summarizeString(value, "redacted_text", true);
+      }
+
+      if (BLOB_LIKE_STRING_PATTERN.test(value) || value.includes("\u0000")) {
+        redactionRules.add("binary_or_blob");
+        return this.summarizeString(value, "redacted_blob", false);
+      }
+
+      if (value.includes("\n") || value.length > MAX_INLINE_STRING_LENGTH) {
+        redactionRules.add("large_freeform_text");
+        return this.summarizeString(value, "redacted_text", true);
+      }
+
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((entry, index) =>
+        this.sanitizeValue([...keyPath, String(index)], entry, redactionRules),
+      );
+    }
+
+    if (typeof value === "object") {
+      const entries = Object.entries(value as Record<string, unknown>).sort(
+        (left, right) => left[0].localeCompare(right[0], "en"),
+      );
+      return Object.fromEntries(
+        entries.map(([key, nestedValue]) => [
+          key,
+          this.sanitizeValue([...keyPath, key], nestedValue, redactionRules),
+        ]),
+      );
+    }
+
+    redactionRules.add("binary_or_blob");
+    return this.summarizeString(String(value), "redacted_blob", false);
+  }
+
+  private sanitizeArgs(args?: Record<string, unknown>): {
+    args: Record<string, AuditLoggedValue>;
+    redaction: AuditRedactionSummary;
+  } {
+    const redactionRules = new Set<AuditRedactionRule>();
+    const rawArgs = args ?? {};
+    const entries = Object.entries(rawArgs).sort((left, right) =>
+      left[0].localeCompare(right[0], "en"),
+    );
+    const sanitizedArgs = Object.fromEntries(
+      entries.map(([key, value]) => [
+        key,
+        this.sanitizeValue([key], value, redactionRules),
+      ]),
+    );
+
+    return {
+      args: sanitizedArgs,
+      redaction: {
+        applied: redactionRules.size > 0,
+        rules: [...redactionRules].sort((left, right) =>
+          left.localeCompare(right, "en"),
+        ),
+      },
+    };
+  }
+
+  private resolvePathHint(
+    args: Record<string, unknown> | undefined,
+    metadata: AuditLogToolEventParams["metadata"],
+  ): string | undefined {
+    if (metadata?.filePath) {
+      return metadata.filePath;
+    }
+
+    const pathValue = args?.path;
+    return typeof pathValue === "string" && pathValue.length > 0
+      ? pathValue
+      : undefined;
+  }
+
+  async logToolEvent(params: AuditLogToolEventParams): Promise<void> {
     if (!this.enabled) {
       return;
     }
 
-    const event: AuditEvent = {
+    this.nextRequestSequence += 1;
+    const requestId = `req-${String(this.nextRequestSequence).padStart(6, "0")}`;
+    const { args, redaction } = this.sanitizeArgs(params.args);
+    const pathHint = this.resolvePathHint(params.args, params.metadata);
+    const event: AuditLogEvent = {
+      schemaVersion: AUDIT_LOG_SCHEMA_VERSION,
       timestamp: new Date().toISOString(),
-      traceId: `${tool}:${capability}:${decision}:${Date.now()}`,
-      tool,
-      capability,
-      decision,
-      reason,
-      policyName: metadata?.policyName ?? "unknown-policy",
-      decisionBasis: metadata?.decisionBasis ?? ["manual_log"],
-      ...(metadata?.filePath ? { path: metadata.filePath } : {}),
+      traceId: `${params.tool}:${params.capability}:${params.decision}:${Date.now()}`,
+      sessionId: this.sessionId,
+      requestId,
+      tool: params.tool,
+      capability: params.capability,
+      decision: params.decision,
+      reason: params.reason,
+      policyName: params.metadata?.policyName ?? "unknown-policy",
+      decisionBasis: params.metadata?.decisionBasis ?? ["manual_log"],
+      ...(pathHint ? { path: pathHint } : {}),
+      request: {
+        agentReason: params.metadata?.agentReason ?? "(not provided)",
+        args,
+        redaction,
+        ...(params.metadata?.userGoal
+          ? { userGoal: params.metadata.userGoal }
+          : {}),
+      },
+      execution: params.execution,
     };
 
     try {
@@ -87,38 +356,15 @@ export class AuditLogger {
   }
 
   /**
-   * Log a tool access decision.
-   */
-  async logToolAccess(
-    tool: string,
-    capability: McpCapability,
-    allowed: boolean,
-    reason: string,
-    metadata?: {
-      filePath?: string;
-      policyName?: string;
-      decisionBasis?: string[];
-    },
-  ): Promise<void> {
-    await this.logEvent(
-      tool,
-      capability,
-      allowed ? "allowed" : "denied",
-      reason,
-      metadata,
-    );
-  }
-
-  /**
    * Read audit log entries (for diagnostics).
    */
-  async readLog(): Promise<AuditEvent[]> {
+  async readLog(): Promise<AuditLogEvent[]> {
     try {
       const content = await fs.readFile(this.logFilePath, "utf8");
       return content
         .split("\n")
         .filter((line) => line.trim())
-        .map((line) => JSON.parse(line) as AuditEvent);
+        .map((line) => JSON.parse(line) as AuditLogEvent);
     } catch {
       return [];
     }

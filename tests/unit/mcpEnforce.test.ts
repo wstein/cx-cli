@@ -1,7 +1,6 @@
 // test-lane: unit
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { AuditLogger } from "../../src/mcp/audit.js";
 import {
   enforceToolAccess,
   withPolicyEnforcement,
@@ -30,21 +29,10 @@ describe("enforceToolAccess", () => {
     expect(result).toBe("ok");
   });
 
-  it("logs denied decisions before throwing", async () => {
-    const logToolAccess = vi.fn(async () => {});
-    const logger = {
-      logToolAccess,
-    } as unknown as AuditLogger;
-
+  it("throws when policy denies the tool", async () => {
     await expect(
-      enforceToolAccess(
-        MUTATE_TOOL,
-        async () => "never",
-        DEFAULT_POLICY,
-        logger,
-      ),
+      enforceToolAccess(MUTATE_TOOL, async () => "never", DEFAULT_POLICY),
     ).rejects.toThrow("Access denied");
-    expect(logToolAccess).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { withPolicyEnforcement } from "../enforce.js";
+import { checkToolAccess, PolicyError } from "../policy.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
 
@@ -111,24 +111,76 @@ export function registerCxMcpTool<TSchema, TResult>(
   runtimeOptions: CxMcpToolRuntimeOptions = {},
 ): void {
   const toolTimeoutMs = runtimeOptions.toolTimeoutMs ?? DEFAULT_TOOL_TIMEOUT_MS;
-  const protectedHandler = withPolicyEnforcement(
-    tool,
-    handler,
-    workspace.policy,
-    workspace.auditLogger,
-  );
 
   server.registerTool(
     tool.name,
     metadata as Parameters<McpServer["registerTool"]>[1],
     (async (args: Record<string, unknown>) => {
-      const result = await withToolTimeout(
-        tool.name,
-        toolTimeoutMs,
-        protectedHandler(args),
-      );
-      assertToolResultPayload(tool.name, result);
-      return result;
+      const decision = checkToolAccess(tool, workspace.policy);
+      const baseAuditMetadata = {
+        decisionBasis: decision.decisionBasis,
+        policyName: decision.policyName,
+      };
+
+      if (!decision.allowed) {
+        await workspace.auditLogger?.logToolEvent({
+          tool: tool.name,
+          capability: decision.capability,
+          decision: "denied",
+          reason: decision.reason,
+          args,
+          execution: {
+            status: "denied",
+          },
+          metadata: baseAuditMetadata,
+        });
+        throw new PolicyError(
+          tool.name,
+          decision.capability,
+          `Access denied: ${decision.reason}`,
+        );
+      }
+
+      const startedAt = Date.now();
+      try {
+        const result = await withToolTimeout(
+          tool.name,
+          toolTimeoutMs,
+          handler(args),
+        );
+        assertToolResultPayload(tool.name, result);
+        await workspace.auditLogger?.logToolEvent({
+          tool: tool.name,
+          capability: decision.capability,
+          decision: "allowed",
+          reason: decision.reason,
+          args,
+          execution: {
+            durationMs: Date.now() - startedAt,
+            status: "succeeded",
+          },
+          metadata: baseAuditMetadata,
+        });
+        return result;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        const timedOut = errorMessage.includes(" timed out after ");
+        await workspace.auditLogger?.logToolEvent({
+          tool: tool.name,
+          capability: decision.capability,
+          decision: "allowed",
+          reason: decision.reason,
+          args,
+          execution: {
+            durationMs: Date.now() - startedAt,
+            ...(timedOut ? {} : { error: errorMessage }),
+            status: timedOut ? "timed_out" : "failed",
+          },
+          metadata: baseAuditMetadata,
+        });
+        throw error;
+      }
     }) as Parameters<McpServer["registerTool"]>[2],
   );
 }

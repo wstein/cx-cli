@@ -1,6 +1,7 @@
 /**
- * MCP Server operational safeguards: policy enforcement, timeout enforcement,
- * request logging, and basic rate limiting to prevent abuse and provide audit trails.
+ * MCP Server operational safeguards: optional request metrics, timeout
+ * enforcement, and basic rate limiting. The primary persisted audit trail lives
+ * in src/mcp/tools/register.ts, which records finalized tool events.
  */
 
 import type { AuditLogger } from "./audit.js";
@@ -21,9 +22,9 @@ interface RateLimitState {
 }
 
 /**
- * Request metrics logger for audit trail and debugging.
- * Logs all tool invocations with timing and status.
- * Also enforces policy-based tool access control.
+ * Request metrics logger for debugging and optional runtime visibility.
+ * Logs tool timing to stderr and can mirror policy decisions into the audit
+ * ledger when used outside the primary registration path.
  */
 export class McpRequestLogger {
   private metrics: ToolCallMetrics[] = [];
@@ -43,12 +44,19 @@ export class McpRequestLogger {
     const decision = checkToolAccess(toolName, policy);
 
     if (this.auditLogger) {
-      await this.auditLogger.logToolAccess(
-        toolName,
-        decision.capability,
-        decision.allowed,
-        decision.reason,
-      );
+      await this.auditLogger.logToolEvent({
+        tool: toolName,
+        capability: decision.capability,
+        decision: decision.allowed ? "allowed" : "denied",
+        reason: decision.reason,
+        execution: {
+          status: decision.allowed ? "succeeded" : "denied",
+        },
+        metadata: {
+          decisionBasis: decision.decisionBasis,
+          policyName: decision.policyName,
+        },
+      });
     }
 
     if (!decision.allowed) {

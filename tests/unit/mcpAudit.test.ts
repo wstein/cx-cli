@@ -3,68 +3,191 @@
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { AuditLogger } from "../../src/mcp/audit.js";
+import { AUDIT_LOG_SCHEMA_VERSION, AuditLogger } from "../../src/mcp/audit.js";
 import { createBufferedCommandIo } from "../helpers/cli/createBufferedCommandIo.js";
 
+async function createLogger(enabled = true) {
+  const fs = await import("node:fs/promises");
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-"));
+  const logger = new AuditLogger(tmpDir, enabled);
+
+  return {
+    logger,
+    tmpDir,
+    cleanup: async () => fs.rm(tmpDir, { recursive: true, force: true }),
+  };
+}
+
 describe("MCP Audit Logger", () => {
-  describe("logEvent", () => {
-    it("logs tool access decision", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
+  describe("logToolEvent", () => {
+    it("logs request-aware tool events with execution status", async () => {
+      const { logger, cleanup } = await createLogger();
 
-      const logger = new AuditLogger(tmpDir, true);
+      try {
+        await logger.logToolEvent({
+          tool: "read",
+          capability: "read",
+          decision: "allowed",
+          reason: "Tool read (capability: read) is allowed",
+          args: {
+            path: "src/mcp/audit.ts",
+            startLine: 1,
+            endLine: 50,
+          },
+          execution: {
+            durationMs: 14,
+            status: "succeeded",
+          },
+          metadata: {
+            agentReason: "Inspect the audit logger implementation.",
+            policyName: "default-deny-mutate",
+            decisionBasis: ["tool_catalog", "policy_allow_list"],
+            userGoal: "Explain how audit logging currently works.",
+          },
+        });
 
-      await logger.logEvent(
-        "workspace_list",
-        "read",
-        "allowed",
-        "Tool workspace_list (capability: read) is allowed",
-        {
-          filePath: "/src/utils",
-          policyName: "default-deny-mutate",
-          decisionBasis: ["tool_catalog", "policy_allow_list"],
-        },
-      );
+        const events = await logger.readLog();
+        expect(events).toHaveLength(1);
 
-      const events = await logger.readLog();
-      expect(events.length).toBe(1);
+        const event = events[0];
+        expect(event?.schemaVersion).toBe(AUDIT_LOG_SCHEMA_VERSION);
+        expect(event?.tool).toBe("read");
+        expect(event?.traceId).toContain("read:read:allowed:");
+        expect(event?.sessionId).toMatch(/^mcp-session-/u);
+        expect(event?.requestId).toBe("req-000001");
+        expect(event?.capability).toBe("read");
+        expect(event?.decision).toBe("allowed");
+        expect(event?.path).toBe("src/mcp/audit.ts");
+        expect(event?.policyName).toBe("default-deny-mutate");
+        expect(event?.decisionBasis).toEqual([
+          "tool_catalog",
+          "policy_allow_list",
+        ]);
+        expect(event?.request.agentReason).toBe(
+          "Inspect the audit logger implementation.",
+        );
+        expect(event?.request.userGoal).toBe(
+          "Explain how audit logging currently works.",
+        );
+        expect(event?.request.args).toEqual({
+          endLine: 50,
+          path: "src/mcp/audit.ts",
+          startLine: 1,
+        });
+        expect(event?.request.redaction).toEqual({
+          applied: false,
+          rules: [],
+        });
+        expect(event?.execution).toEqual({
+          durationMs: 14,
+          status: "succeeded",
+        });
+        expect(event?.timestamp).toBeDefined();
+      } finally {
+        await cleanup();
+      }
+    });
 
-      const event = events[0];
-      expect(event?.tool).toBe("workspace_list");
-      expect(event?.traceId).toContain("workspace_list:read:allowed:");
-      expect(event?.capability).toBe("read");
-      expect(event?.decision).toBe("allowed");
-      expect(event?.path).toBe("/src/utils");
-      expect(event?.policyName).toBe("default-deny-mutate");
-      expect(event?.decisionBasis).toEqual([
-        "tool_catalog",
-        "policy_allow_list",
-      ]);
-      expect(event?.timestamp).toBeDefined();
+    it("redacts freeform text, blob-like fields, and secret-like values", async () => {
+      const { logger, cleanup } = await createLogger();
 
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
+      try {
+        await logger.logToolEvent({
+          tool: "replace_repomix_span",
+          capability: "mutate",
+          decision: "allowed",
+          reason: "Tool replace_repomix_span (capability: mutate) is allowed",
+          args: {
+            path: "src/index.ts",
+            replacement: "export const value = 2;\nexport const next = 3;\n",
+            token: "super-secret-token",
+            payload:
+              "VGhpcy1sb29rcy1saWtlLWEtYmxvYi1idXQtaXMtbG9uZy1lbm91Z2gtdG8tZmlyZS10aGUtaGV1cmlzdGljcy1hbmQtc2hvdWxkLW5vdC1iZS1sb2dnZWQtcmF3",
+          },
+          execution: {
+            durationMs: 9,
+            status: "failed",
+            error: "tool handler interrupted after partial output",
+          },
+          metadata: {
+            policyName: "unrestricted",
+            decisionBasis: ["tool_catalog", "policy_allow_list"],
+          },
+        });
+
+        const [event] = await logger.readLog();
+        expect(event?.request.redaction.applied).toBe(true);
+        expect(event?.request.redaction.rules).toEqual([
+          "binary_or_blob",
+          "body_text",
+          "secret_like_key",
+        ]);
+        expect(event?.request.args.path).toBe("src/index.ts");
+        expect(event?.request.args.replacement).toMatchObject({
+          kind: "redacted_text",
+        });
+        expect(event?.request.args.token).toMatchObject({
+          kind: "redacted_secret",
+        });
+        expect(event?.request.args.payload).toMatchObject({
+          kind: "redacted_blob",
+        });
+        expect(event?.execution).toEqual({
+          durationMs: 9,
+          error: "tool handler interrupted after partial output",
+          status: "failed",
+        });
+      } finally {
+        await cleanup();
+      }
+    });
+
+    it("increments request ids across writes in one session", async () => {
+      const { logger, cleanup } = await createLogger();
+
+      try {
+        await logger.logToolEvent({
+          tool: "list",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
+        await logger.logToolEvent({
+          tool: "grep",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
+
+        const events = await logger.readLog();
+        expect(events.map((event) => event.requestId)).toEqual([
+          "req-000001",
+          "req-000002",
+        ]);
+        expect(events[0]?.sessionId).toBe(events[1]?.sessionId);
+      } finally {
+        await cleanup();
+      }
     });
 
     it("handles disabled audit logging gracefully", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
+      const { logger, cleanup } = await createLogger(false);
 
-      const logger = new AuditLogger(tmpDir, false);
+      try {
+        await logger.logToolEvent({
+          tool: "notes_new",
+          capability: "mutate",
+          decision: "denied",
+          reason: "Access denied",
+          execution: { status: "denied" },
+        });
 
-      await logger.logEvent("notes_new", "mutate", "denied", "Access denied");
-
-      const events = await logger.readLog();
-      expect(events.length).toBe(0);
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
+        await expect(logger.readLog()).resolves.toEqual([]);
+      } finally {
+        await cleanup();
+      }
     });
 
     it("warns and continues when audit logging fails", async () => {
@@ -83,7 +206,13 @@ describe("MCP Audit Logger", () => {
       );
 
       try {
-        await logger.logEvent("list", "read", "allowed", "ok");
+        await logger.logToolEvent({
+          tool: "list",
+          capability: "read",
+          decision: "allowed",
+          reason: "ok",
+          execution: { status: "succeeded" },
+        });
       } finally {
         await fs.rm(tmpDir, { recursive: true, force: true });
       }
@@ -93,200 +222,103 @@ describe("MCP Audit Logger", () => {
     });
   });
 
-  describe("logToolAccess", () => {
-    it("logs allowed access", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
-
-      const logger = new AuditLogger(tmpDir, true);
-
-      await logger.logToolAccess(
-        "doctor_mcp",
-        "observe",
-        true,
-        "Tool allowed under policy",
-        {
-          policyName: "default-deny-mutate",
-          decisionBasis: ["tool_catalog", "policy_allow_list"],
-        },
-      );
-
-      const events = await logger.readLog();
-      expect(events.length).toBe(1);
-      expect(events[0]?.decision).toBe("allowed");
-      expect(events[0]?.policyName).toBe("default-deny-mutate");
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
-    });
-
-    it("logs denied access", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
-
-      const logger = new AuditLogger(tmpDir, true);
-
-      await logger.logToolAccess(
-        "notes_delete",
-        "mutate",
-        false,
-        "Tool denied by policy",
-      );
-
-      const events = await logger.readLog();
-      expect(events.length).toBe(1);
-      expect(events[0]?.decision).toBe("denied");
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
-    });
-  });
-
   describe("getSummary", () => {
     it("computes correct summary statistics", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
+      const { logger, cleanup } = await createLogger();
 
-      const logger = new AuditLogger(tmpDir, true);
+      try {
+        await logger.logToolEvent({
+          tool: "list",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
+        await logger.logToolEvent({
+          tool: "doctor_mcp",
+          capability: "observe",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+          metadata: { policyName: "default-deny-mutate" },
+        });
+        await logger.logToolEvent({
+          tool: "bundle",
+          capability: "plan",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
+        await logger.logToolEvent({
+          tool: "notes_new",
+          capability: "mutate",
+          decision: "denied",
+          reason: "denied",
+          execution: { status: "denied" },
+          metadata: { policyName: "strict-read-only" },
+        });
 
-      // Log various events
-      await logger.logToolAccess("workspace_list", "read", true, "allowed");
-      await logger.logToolAccess("workspace_grep", "read", true, "allowed");
-      await logger.logToolAccess("bundle", "plan", true, "allowed");
-      await logger.logToolAccess("notes_new", "mutate", false, "denied");
-      await logger.logToolAccess("notes_update", "mutate", false, "denied");
-
-      const summary = await logger.getSummary();
-
-      expect(summary.totalEvents).toBe(5);
-      expect(summary.allowedCount).toBe(3);
-      expect(summary.deniedCount).toBe(2);
-      expect(summary.byCapability.read).toBe(2);
-      expect(summary.byCapability.plan).toBe(1);
-      expect(summary.byCapability.mutate).toBe(2);
-      expect(summary.byCapability.observe).toBe(0);
-      expect(summary.byPolicyName["unknown-policy"]).toBe(5);
-      expect(summary.recentTraceIds).toHaveLength(5);
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
+        const summary = await logger.getSummary();
+        expect(summary.totalEvents).toBe(4);
+        expect(summary.allowedCount).toBe(3);
+        expect(summary.deniedCount).toBe(1);
+        expect(summary.byCapability).toEqual({
+          read: 1,
+          observe: 1,
+          plan: 1,
+          mutate: 1,
+        });
+        expect(summary.byPolicyName).toEqual({
+          "default-deny-mutate": 1,
+          "strict-read-only": 1,
+          "unknown-policy": 2,
+        });
+        expect(summary.recentTraceIds).toHaveLength(4);
+      } finally {
+        await cleanup();
+      }
     });
 
     it("handles empty audit log", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
+      const { logger, cleanup } = await createLogger();
 
-      const logger = new AuditLogger(tmpDir, true);
-
-      const summary = await logger.getSummary();
-
-      expect(summary.totalEvents).toBe(0);
-      expect(summary.allowedCount).toBe(0);
-      expect(summary.deniedCount).toBe(0);
-      expect(summary.byPolicyName).toEqual({});
-      expect(summary.recentTraceIds).toEqual([]);
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
+      try {
+        const summary = await logger.getSummary();
+        expect(summary.totalEvents).toBe(0);
+        expect(summary.allowedCount).toBe(0);
+        expect(summary.deniedCount).toBe(0);
+        expect(summary.byPolicyName).toEqual({});
+        expect(summary.recentTraceIds).toEqual([]);
+      } finally {
+        await cleanup();
+      }
     });
   });
 
   describe("clear", () => {
     it("removes the audit log file", async () => {
       const fs = await import("node:fs/promises");
-      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-"));
+      const { logger, tmpDir, cleanup } = await createLogger();
 
-      const logger = new AuditLogger(tmpDir, true);
-      await logger.logToolAccess("workspace_list", "read", true, "allowed");
+      try {
+        await logger.logToolEvent({
+          tool: "list",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
 
-      expect((await logger.readLog()).length).toBe(1);
+        expect((await logger.readLog()).length).toBe(1);
 
-      await logger.clear();
+        await logger.clear();
 
-      await expect(logger.readLog()).resolves.toEqual([]);
-      await expect(fs.access(logger.getLogPath())).rejects.toThrow();
-
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    });
-  });
-
-  describe("Audit Trail Integrity", () => {
-    it("records timestamp for each event", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
-
-      const logger = new AuditLogger(tmpDir, true);
-      const before = new Date();
-
-      await logger.logToolAccess("workspace_list", "read", true, "allowed");
-
-      const after = new Date();
-      const events = await logger.readLog();
-
-      expect(events[0]?.timestamp).toBeDefined();
-      const timestamp = events[0]?.timestamp;
-      if (timestamp === undefined) throw new Error("timestamp undefined");
-      const eventTime = new Date(timestamp);
-      expect(eventTime.getTime()).toBeGreaterThanOrEqual(before.getTime());
-      expect(eventTime.getTime()).toBeLessThanOrEqual(after.getTime());
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
-    });
-
-    it("preserves all event data across read/write cycles", async () => {
-      const tmpDir = await import("node:fs/promises").then((fs) =>
-        fs.mkdtemp(path.join(os.tmpdir(), "cx-audit-test-")),
-      );
-
-      const logger = new AuditLogger(tmpDir, true);
-
-      await logger.logEvent(
-        "notes_new",
-        "mutate",
-        "denied",
-        "Custom reason for denial",
-        {
-          filePath: "/notes/important",
-          policyName: "default-deny-mutate",
-          decisionBasis: ["tool_catalog", "policy_deny_list"],
-        },
-      );
-
-      const events = await logger.readLog();
-      expect(events.length).toBe(1);
-
-      const event = events[0];
-      expect(event?.tool).toBe("notes_new");
-      expect(event?.capability).toBe("mutate");
-      expect(event?.decision).toBe("denied");
-      expect(event?.reason).toBe("Custom reason for denial");
-      expect(event?.path).toBe("/notes/important");
-      expect(event?.policyName).toBe("default-deny-mutate");
-      expect(event?.decisionBasis).toEqual([
-        "tool_catalog",
-        "policy_deny_list",
-      ]);
-
-      // Cleanup
-      await import("node:fs/promises").then((fs) =>
-        fs.rm(tmpDir, { recursive: true, force: true }),
-      );
+        await expect(logger.readLog()).resolves.toEqual([]);
+        await expect(fs.access(logger.getLogPath())).rejects.toThrow();
+      } finally {
+        await cleanup();
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
     });
   });
 });
