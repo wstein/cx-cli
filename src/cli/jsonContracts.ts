@@ -642,6 +642,10 @@ export const AuditSummaryCommandJsonSchema = z.object({
     plan: z.number().int().nonnegative(),
     mutate: z.number().int().nonnegative(),
   }),
+  byAgentReasonPresence: z.object({
+    missing: z.number().int().nonnegative(),
+    provided: z.number().int().nonnegative(),
+  }),
   byExecutionStatus: z.object({
     denied: z.number().int().nonnegative(),
     failed: z.number().int().nonnegative(),
@@ -675,6 +679,8 @@ export const AuditRecentCommandJsonSchema = z.object({
   workspaceRoot: z.string(),
   auditLogPath: z.string(),
   limit: z.number().int().positive(),
+  sessionId: z.string().optional(),
+  traceId: z.string().optional(),
   events: z.array(
     z.object({
       schemaVersion: z.literal(2),

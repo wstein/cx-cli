@@ -90,6 +90,12 @@ export interface AuditRecentEvents {
   limit: number;
 }
 
+export interface AuditRecentQuery {
+  limit: number;
+  sessionId?: string;
+  traceId?: string;
+}
+
 interface AuditLogToolEventParams {
   tool: string;
   capability: McpCapability;
@@ -134,6 +140,10 @@ export interface AuditSummary {
   allowedCount: number;
   deniedCount: number;
   byCapability: Record<McpCapability, number>;
+  byAgentReasonPresence: {
+    missing: number;
+    provided: number;
+  };
   byExecutionStatus: Record<AuditExecutionStatus, number>;
   byPolicyName: Record<string, number>;
   byRedactionRule: Record<AuditRedactionRule, number>;
@@ -149,10 +159,10 @@ export async function collectAuditSummary(
 
 export async function collectRecentAuditEvents(
   workspaceRoot: string,
-  limit: number,
+  query: AuditRecentQuery,
 ): Promise<AuditRecentEvents> {
   const logger = new AuditLogger(workspaceRoot, true);
-  return logger.getRecentEvents(limit);
+  return logger.getRecentEvents(query);
 }
 
 /**
@@ -405,13 +415,22 @@ export class AuditLogger {
     return this.logFilePath;
   }
 
-  async getRecentEvents(limit: number): Promise<AuditRecentEvents> {
-    const normalizedLimit = Math.max(1, Math.floor(limit));
+  async getRecentEvents(query: AuditRecentQuery): Promise<AuditRecentEvents> {
+    const normalizedLimit = Math.max(1, Math.floor(query.limit));
     const events = await this.readLog();
+    const filteredEvents = events.filter((event) => {
+      if (query.traceId && event.traceId !== query.traceId) {
+        return false;
+      }
+      if (query.sessionId && event.sessionId !== query.sessionId) {
+        return false;
+      }
+      return true;
+    });
 
     return {
       limit: normalizedLimit,
-      events: events.slice(-normalizedLimit).reverse(),
+      events: filteredEvents.slice(-normalizedLimit).reverse(),
     };
   }
 
@@ -430,6 +449,10 @@ export class AuditLogger {
         observe: 0,
         plan: 0,
         mutate: 0,
+      },
+      byAgentReasonPresence: {
+        missing: 0,
+        provided: 0,
       },
       byExecutionStatus: {
         denied: 0,
@@ -456,6 +479,11 @@ export class AuditLogger {
       }
       const count = summary.byCapability[event.capability];
       summary.byCapability[event.capability] = (count ?? 0) + 1;
+      if (event.request.agentReason === "(not provided)") {
+        summary.byAgentReasonPresence.missing += 1;
+      } else {
+        summary.byAgentReasonPresence.provided += 1;
+      }
       summary.byExecutionStatus[event.execution.status] += 1;
       summary.byPolicyName[event.policyName] =
         (summary.byPolicyName[event.policyName] ?? 0) + 1;

@@ -27,6 +27,8 @@ export interface AuditArgs {
   workspaceRoot?: string | undefined;
   json?: boolean | undefined;
   limit?: number | undefined;
+  sessionId?: string | undefined;
+  traceId?: string | undefined;
 }
 
 export interface AuditDeps {
@@ -49,6 +51,10 @@ interface AuditSummaryPayload {
     plan: number;
     mutate: number;
   };
+  byAgentReasonPresence: {
+    missing: number;
+    provided: number;
+  };
   byExecutionStatus: {
     denied: number;
     failed: number;
@@ -65,6 +71,8 @@ interface AuditRecentPayload {
   workspaceRoot: string;
   auditLogPath: string;
   limit: number;
+  sessionId?: string;
+  traceId?: string;
   events: AuditLogEvent[];
 }
 
@@ -105,6 +113,11 @@ function printAuditSummary(
   writeStdout(`By execution status:\n`, io);
   for (const [status, count] of Object.entries(payload.byExecutionStatus)) {
     writeStdout(`  - ${status}: ${count}\n`, io);
+  }
+
+  writeStdout(`Agent reason coverage:\n`, io);
+  for (const [bucket, count] of Object.entries(payload.byAgentReasonPresence)) {
+    writeStdout(`  - ${bucket}: ${count}\n`, io);
   }
 
   writeStdout(`Policy trends:\n`, io);
@@ -148,6 +161,12 @@ function printAuditRecent(
 ): void {
   writeStdout(`Recent audit events: ${payload.auditLogPath}\n`, io);
   writeStdout(`Limit: ${payload.limit}\n`, io);
+  if (payload.traceId) {
+    writeStdout(`Trace filter: ${payload.traceId}\n`, io);
+  }
+  if (payload.sessionId) {
+    writeStdout(`Session filter: ${payload.sessionId}\n`, io);
+  }
   if (payload.events.length === 0) {
     writeStdout(`  - (no audit events)\n`, io);
     return;
@@ -222,14 +241,17 @@ export async function runAuditCommand(
 
   const readRecentAuditEvents =
     deps.readRecentAuditEvents ?? collectRecentAuditEvents;
-  const recentEvents = await readRecentAuditEvents(
-    workspaceRoot,
-    args.limit ?? 10,
-  );
+  const recentEvents = await readRecentAuditEvents(workspaceRoot, {
+    limit: args.limit ?? 10,
+    ...(args.sessionId ? { sessionId: args.sessionId } : {}),
+    ...(args.traceId ? { traceId: args.traceId } : {}),
+  });
   const payload: AuditRecentPayload = {
     command: "audit recent",
     workspaceRoot,
     auditLogPath,
+    ...(args.sessionId ? { sessionId: args.sessionId } : {}),
+    ...(args.traceId ? { traceId: args.traceId } : {}),
     ...recentEvents,
   };
 

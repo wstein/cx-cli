@@ -23,6 +23,10 @@ describe("runAuditCommand", () => {
             plan: 0,
             mutate: 0,
           },
+          byAgentReasonPresence: {
+            missing: 0,
+            provided: 0,
+          },
           byExecutionStatus: {
             denied: 0,
             failed: 0,
@@ -46,6 +50,7 @@ describe("runAuditCommand", () => {
     expect(capture.stdout()).toContain("/repo/.cx/audit.log");
     expect(capture.stdout()).toContain("Events: 0");
     expect(capture.stdout()).toContain("By execution status:");
+    expect(capture.stdout()).toContain("Agent reason coverage:");
     expect(capture.stdout()).toContain("(no audit events)");
   });
 
@@ -68,6 +73,10 @@ describe("runAuditCommand", () => {
             observe: 1,
             plan: 0,
             mutate: 1,
+          },
+          byAgentReasonPresence: {
+            missing: 1,
+            provided: 2,
           },
           byExecutionStatus: {
             denied: 1,
@@ -102,6 +111,10 @@ describe("runAuditCommand", () => {
       succeeded: 1,
       timed_out: 0,
     });
+    expect(payload.byAgentReasonPresence).toEqual({
+      missing: 1,
+      provided: 2,
+    });
   });
 
   test("prefers config.sourceRoot when config exists", async () => {
@@ -127,6 +140,10 @@ describe("runAuditCommand", () => {
             observe: 0,
             plan: 0,
             mutate: 0,
+          },
+          byAgentReasonPresence: {
+            missing: 0,
+            provided: 1,
           },
           byExecutionStatus: {
             denied: 0,
@@ -159,6 +176,7 @@ describe("runAuditCommand", () => {
       {
         subcommand: "recent",
         limit: 2,
+        traceId: "trace-2",
       },
       capture.io,
       {
@@ -208,6 +226,7 @@ describe("runAuditCommand", () => {
 
     expect(exitCode).toBe(0);
     expect(capture.stdout()).toContain("Recent audit events:");
+    expect(capture.stdout()).toContain("Trace filter: trace-2");
     expect(capture.stdout()).toContain(
       "trace-2 | notes_update | allowed/succeeded",
     );
@@ -222,6 +241,7 @@ describe("runAuditCommand", () => {
         subcommand: "recent",
         json: true,
         limit: 1,
+        sessionId: "mcp-session-1",
       },
       capture.io,
       {
@@ -264,6 +284,7 @@ describe("runAuditCommand", () => {
     expect(exitCode).toBe(0);
     expect(payload.command).toBe("audit recent");
     expect(payload.limit).toBe(1);
+    expect(payload.sessionId).toBe("mcp-session-1");
     expect(Array.isArray(payload.events)).toBe(true);
   });
 

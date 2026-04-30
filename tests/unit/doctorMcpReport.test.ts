@@ -26,6 +26,10 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
         plan: 0,
         mutate: 0,
       },
+      byAgentReasonPresence: {
+        missing: 0,
+        provided: 0,
+      },
       byExecutionStatus: {
         denied: 0,
         failed: 0,
@@ -135,6 +139,10 @@ describe("printDoctorMcpReport", () => {
             plan: 0,
             mutate: 1,
           },
+          byAgentReasonPresence: {
+            missing: 1,
+            provided: 2,
+          },
           byExecutionStatus: {
             denied: 1,
             failed: 1,
@@ -160,6 +168,8 @@ describe("printDoctorMcpReport", () => {
     );
     expect(capture.stdout()).toContain("Audit events: 3");
     expect(capture.stdout()).toContain("Audit execution:");
+    expect(capture.stdout()).toContain("Agent reason coverage:");
+    expect(capture.stdout()).toContain("missing: 1");
     expect(capture.stdout()).toContain("default-deny-mutate: 2");
     expect(capture.stdout()).toContain("body_text: 1");
     expect(capture.stdout()).toContain("trace-3");
@@ -198,6 +208,10 @@ describe("collectDoctorMcpReport", () => {
             observe: 0,
             plan: 0,
             mutate: 1,
+          },
+          byAgentReasonPresence: {
+            missing: 1,
+            provided: 1,
           },
           byExecutionStatus: {
             denied: 1,

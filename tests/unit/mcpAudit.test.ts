@@ -240,7 +240,10 @@ describe("MCP Audit Logger", () => {
           decision: "allowed",
           reason: "allowed",
           execution: { status: "succeeded" },
-          metadata: { policyName: "default-deny-mutate" },
+          metadata: {
+            agentReason: "Inspect the MCP profile.",
+            policyName: "default-deny-mutate",
+          },
         });
         await logger.logToolEvent({
           tool: "bundle",
@@ -268,6 +271,10 @@ describe("MCP Audit Logger", () => {
           plan: 1,
           mutate: 1,
         });
+        expect(summary.byAgentReasonPresence).toEqual({
+          missing: 3,
+          provided: 1,
+        });
         expect(summary.byPolicyName).toEqual({
           "default-deny-mutate": 1,
           "strict-read-only": 1,
@@ -287,8 +294,56 @@ describe("MCP Audit Logger", () => {
         expect(summary.totalEvents).toBe(0);
         expect(summary.allowedCount).toBe(0);
         expect(summary.deniedCount).toBe(0);
+        expect(summary.byAgentReasonPresence).toEqual({
+          missing: 0,
+          provided: 0,
+        });
         expect(summary.byPolicyName).toEqual({});
         expect(summary.recentTraceIds).toEqual([]);
+      } finally {
+        await cleanup();
+      }
+    });
+  });
+
+  describe("getRecentEvents", () => {
+    it("filters by traceId and sessionId", async () => {
+      const { logger, cleanup } = await createLogger();
+
+      try {
+        await logger.logToolEvent({
+          tool: "read",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+        });
+        await logger.logToolEvent({
+          tool: "grep",
+          capability: "read",
+          decision: "allowed",
+          reason: "allowed",
+          execution: { status: "succeeded" },
+          metadata: {
+            agentReason: "Search for audit references.",
+          },
+        });
+
+        const allEvents = await logger.readLog();
+        const traceId = allEvents[1]?.traceId;
+        const sessionId = allEvents[1]?.sessionId;
+        if (!traceId || !sessionId) {
+          throw new Error("expected traceId and sessionId");
+        }
+
+        const byTrace = await logger.getRecentEvents({ limit: 5, traceId });
+        expect(byTrace.events).toHaveLength(1);
+        expect(byTrace.events[0]?.traceId).toBe(traceId);
+
+        const bySession = await logger.getRecentEvents({ limit: 5, sessionId });
+        expect(bySession.events).toHaveLength(2);
+        expect(bySession.events[0]?.sessionId).toBe(sessionId);
+        expect(bySession.events[1]?.sessionId).toBe(sessionId);
       } finally {
         await cleanup();
       }

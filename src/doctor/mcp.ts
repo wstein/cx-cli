@@ -96,6 +96,12 @@ export function printDoctorMcpReport(
   )) {
     writeStdout(`  - ${status}: ${count}\n`, io);
   }
+  writeStdout(`Agent reason coverage:\n`, io);
+  for (const [bucket, count] of Object.entries(
+    report.auditSummary.byAgentReasonPresence,
+  )) {
+    writeStdout(`  - ${bucket}: ${count}\n`, io);
+  }
   writeStdout(
     `Tool catalog: v${report.toolCatalogVersion}, ${report.toolCatalogSummary.totalTools} tools (${report.toolCatalogSummary.byStability.STABLE} stable, ${report.toolCatalogSummary.byStability.BETA} beta, ${report.toolCatalogSummary.byStability.EXPERIMENTAL} experimental, ${report.toolCatalogSummary.byStability.INTERNAL} internal)\n`,
     io,

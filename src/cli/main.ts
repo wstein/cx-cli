@@ -345,6 +345,16 @@ export async function main(
             description:
               "Number of recent audit events to inspect for 'audit recent'.",
           })
+          .option("trace-id", {
+            type: "string",
+            description:
+              "Restrict 'audit recent' to one traceId without reading raw JSONL manually.",
+          })
+          .option("session-id", {
+            type: "string",
+            description:
+              "Restrict 'audit recent' to one MCP sessionId without reading raw JSONL manually.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runAuditCommand(
@@ -354,6 +364,8 @@ export async function main(
             workspaceRoot: resolveCliPath(args["workspace-root"], io.cwd),
             json: args.json,
             limit: args.limit,
+            sessionId: args["session-id"],
+            traceId: args["trace-id"],
           },
           io,
         );
