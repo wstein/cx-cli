@@ -6,6 +6,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, test } from "vitest";
 import { loadCxConfig } from "../../src/config/load.js";
+import type { AuditLogEvent } from "../../src/mcp/audit.js";
 import { createCxMcpServer } from "../../src/mcp/server.js";
 import { buildConfig } from "../helpers/config/buildConfig.js";
 import { createWorkspace as createTestWorkspace } from "../helpers/workspace/createWorkspace.js";
@@ -68,6 +69,109 @@ type ToolResult = Awaited<ReturnType<RegisteredTool["handler"]>>;
 function getRegisteredTools(server: unknown): CxMcpTools {
   return (server as unknown as { _registeredTools: CxMcpTools })
     ._registeredTools;
+}
+
+type McpCallToolHandler = (
+  request: {
+    method: "tools/call";
+    params: {
+      name: string;
+      arguments?: Record<string, unknown>;
+      _meta?: Record<string, unknown>;
+    };
+  },
+  extra: {
+    requestId: string | number;
+    sessionId?: string;
+    signal: AbortSignal;
+    sendNotification: (notification: unknown) => Promise<void>;
+    sendRequest: (
+      request: unknown,
+      resultSchema: unknown,
+      options?: unknown,
+    ) => Promise<unknown>;
+  },
+) => Promise<unknown>;
+
+interface McpCallToolRequestEnvelope {
+  id: string | number;
+  method: "tools/call";
+  params: {
+    name: string;
+    arguments?: Record<string, unknown>;
+    _meta?: Record<string, unknown>;
+  };
+}
+
+function getCallToolRequestHandler(server: unknown): McpCallToolHandler {
+  const handler = (
+    server as {
+      server: {
+        _requestHandlers: Map<string, McpCallToolHandler>;
+      };
+    }
+  ).server._requestHandlers.get("tools/call");
+
+  if (!handler) {
+    throw new Error("Missing tools/call request handler");
+  }
+
+  return handler;
+}
+
+async function callToolThroughProtocol(
+  server: unknown,
+  request: McpCallToolRequestEnvelope,
+  extra: {
+    sessionId?: string;
+  } = {},
+): Promise<unknown> {
+  const protocol = (
+    server as {
+      server: {
+        _onrequest: (
+          request: McpCallToolRequestEnvelope,
+          extra?: {
+            authInfo?: unknown;
+            requestInfo?: unknown;
+            closeSSEStream?: () => void;
+            closeStandaloneSSEStream?: () => void;
+          },
+        ) => void;
+        _transport?: {
+          sessionId?: string;
+          send: (message: unknown) => Promise<void>;
+        };
+      };
+    }
+  ).server;
+
+  return await new Promise((resolve, reject) => {
+    protocol._transport = {
+      send: async (message) => {
+        const response = message as
+          | { id: string | number; result: unknown }
+          | {
+              id: string | number;
+              error: { code: number; message: string; data?: unknown };
+            };
+
+        if ("error" in response) {
+          reject(
+            new Error(
+              `MCP request ${String(response.id)} failed: ${response.error.message}`,
+            ),
+          );
+          return;
+        }
+
+        resolve(response.result);
+      },
+      ...(extra.sessionId ? { sessionId: extra.sessionId } : {}),
+    };
+
+    protocol._onrequest(request);
+  });
 }
 
 function firstContentText(result: ToolResult): string {
@@ -439,6 +543,97 @@ describe("cx MCP server", () => {
     expect(payload.lineStart).toBe(2);
     expect(payload.lineEnd).toBe(2);
     expect(payload.content).toContain("world");
+  });
+
+  test("tools/call persists audit metadata from the full MCP request envelope", async () => {
+    const project = await createWorkspace();
+    const config = await loadQuietCxConfig(project.mcpPath);
+    const server = createCxMcpServer({
+      configPath: project.mcpPath,
+      config,
+    });
+    expect(getCallToolRequestHandler(server)).toBeTypeOf("function");
+
+    await expect(
+      callToolThroughProtocol(
+        server,
+        {
+          id: "req-transport-1",
+          method: "tools/call",
+          params: {
+            name: "replace_repomix_span",
+            arguments: {
+              path: "src/index.ts",
+              startLine: 2,
+              endLine: 2,
+              replacement: "export const target = 'transport-boundary';\n",
+            },
+            _meta: {
+              "cx/agent-reason":
+                "Apply the requested source patch through the MCP transport.",
+              "cx/user-goal":
+                "Protect the audit metadata contract at the tools/call boundary.",
+            },
+          },
+        },
+        {
+          sessionId: "transport-session-1",
+        },
+      ),
+    ).resolves.toMatchObject({
+      content: [
+        {
+          type: "text",
+        },
+      ],
+    });
+
+    const auditLog = await fs.readFile(
+      path.join(project.root, ".cx", "audit.log"),
+      "utf8",
+    );
+    const events = auditLog
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as AuditLogEvent);
+    const event = events.at(-1);
+
+    expect(event).toMatchObject({
+      tool: "replace_repomix_span",
+      capability: "mutate",
+      decision: "allowed",
+      sessionId: expect.stringMatching(/^mcp-session-/u),
+      request: {
+        agentReason:
+          "Apply the requested source patch through the MCP transport.",
+        userGoal:
+          "Protect the audit metadata contract at the tools/call boundary.",
+        args: {
+          endLine: 2,
+          path: "src/index.ts",
+          replacement: {
+            kind: "redacted_text",
+          },
+          startLine: 2,
+        },
+        redaction: {
+          applied: true,
+          rules: ["body_text"],
+        },
+      },
+      execution: {
+        status: "succeeded",
+      },
+    });
+    expect(event?.requestId).toBe("req-000001");
+    expect(event?.execution.durationMs).toBeTypeOf("number");
+    expect(event?.execution.durationMs).toBeGreaterThanOrEqual(0);
+
+    const updated = await fs.readFile(
+      path.join(project.root, "src", "index.ts"),
+      "utf8",
+    );
+    expect(updated).toContain("transport-boundary");
   });
 
   test("notes_new creates a workspace note and notes_list returns it", async () => {
