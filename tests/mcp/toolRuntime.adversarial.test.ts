@@ -7,7 +7,10 @@ import { DEFAULT_POLICY, UNRESTRICTED_POLICY } from "../../src/mcp/policy.js";
 import { registerCxMcpTool } from "../../src/mcp/tools/register.js";
 import type { CxMcpWorkspace } from "../../src/mcp/workspace.js";
 
-type RegisteredHandler = (args: Record<string, unknown>) => Promise<unknown>;
+type RegisteredHandler = (
+  args: Record<string, unknown>,
+  extra?: Record<string, unknown>,
+) => Promise<unknown>;
 
 const TEST_TOOL = {
   name: "list",
@@ -350,6 +353,60 @@ describe("registerCxMcpTool runtime hardening", () => {
         path: "src/index.ts",
         replacement: "export const value = 2;\n",
         startLine: 1,
+      },
+    });
+  });
+
+  test("threads client-supplied audit metadata from MCP request _meta", async () => {
+    const capture = createCaptureServer();
+    const logToolEvent = vi.fn(async () => {});
+    const auditLogger = { logToolEvent } as unknown as AuditLogger;
+
+    registerCxMcpTool(
+      capture.server,
+      createWorkspace({
+        policy: UNRESTRICTED_POLICY,
+        auditLogger,
+      }),
+      TEST_MUTATION_TOOL,
+      {
+        title: "Replace source span",
+        description: "Mutate source content",
+        inputSchema: {},
+      },
+      async () => ({
+        content: [{ type: "text", text: "ok" }],
+      }),
+    );
+
+    await expect(
+      capture.getHandler()(
+        {
+          path: "src/index.ts",
+          startLine: 1,
+          endLine: 1,
+          replacement: "export const value = 4;\n",
+        },
+        {
+          _meta: {
+            "cx/agent-reason": "Apply the requested source patch.",
+            "cx/user-goal": "Fix the audit logger implementation.",
+          },
+        },
+      ),
+    ).resolves.toEqual({
+      content: [{ type: "text", text: "ok" }],
+    });
+
+    expect(logToolEvent).toHaveBeenCalledTimes(1);
+    const metadataCalls = logToolEvent.mock.calls as unknown as Array<
+      [Record<string, unknown>]
+    >;
+    const metadataEvent = metadataCalls[0]?.[0];
+    expect(metadataEvent).toMatchObject({
+      metadata: {
+        agentReason: "Apply the requested source patch.",
+        userGoal: "Fix the audit logger implementation.",
       },
     });
   });

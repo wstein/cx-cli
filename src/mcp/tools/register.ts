@@ -1,4 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+  AUDIT_AGENT_REASON_META_KEY,
+  AUDIT_USER_GOAL_META_KEY,
+} from "../audit.js";
 import { checkToolAccess, PolicyError } from "../policy.js";
 import type { CxMcpWorkspace } from "../workspace.js";
 import type { CxMcpToolDefinition } from "./catalog.js";
@@ -16,6 +20,40 @@ interface ToolResultPayload {
 
 interface CxMcpToolRuntimeOptions {
   toolTimeoutMs?: number;
+}
+
+interface ToolHandlerRequestExtra {
+  _meta?: Record<string, unknown>;
+  requestId?: string | number;
+  sessionId?: string;
+}
+
+function readOptionalMetaString(
+  extra: ToolHandlerRequestExtra | undefined,
+  key: string,
+): string | undefined {
+  const value = extra?._meta?.[key];
+  return typeof value === "string" && value.trim().length > 0
+    ? value
+    : undefined;
+}
+
+function resolveAuditRequestMetadata(
+  extra: ToolHandlerRequestExtra | undefined,
+): {
+  agentReason?: string;
+  userGoal?: string;
+} {
+  const agentReason = readOptionalMetaString(
+    extra,
+    AUDIT_AGENT_REASON_META_KEY,
+  );
+  const userGoal = readOptionalMetaString(extra, AUDIT_USER_GOAL_META_KEY);
+
+  return {
+    ...(agentReason ? { agentReason } : {}),
+    ...(userGoal ? { userGoal } : {}),
+  };
 }
 
 function formatMalformedResultMessage(toolName: string, reason: string): Error {
@@ -107,7 +145,10 @@ export function registerCxMcpTool<TSchema, TResult>(
     description: string;
     inputSchema: TSchema;
   },
-  handler: (args: Record<string, unknown>) => Promise<TResult>,
+  handler: (
+    args: Record<string, unknown>,
+    extra?: ToolHandlerRequestExtra,
+  ) => Promise<TResult>,
   runtimeOptions: CxMcpToolRuntimeOptions = {},
 ): void {
   const toolTimeoutMs = runtimeOptions.toolTimeoutMs ?? DEFAULT_TOOL_TIMEOUT_MS;
@@ -115,11 +156,13 @@ export function registerCxMcpTool<TSchema, TResult>(
   server.registerTool(
     tool.name,
     metadata as Parameters<McpServer["registerTool"]>[1],
-    (async (args: Record<string, unknown>) => {
+    (async (args: Record<string, unknown>, extra?: ToolHandlerRequestExtra) => {
       const decision = checkToolAccess(tool, workspace.policy);
+      const requestMetadata = resolveAuditRequestMetadata(extra);
       const baseAuditMetadata = {
         decisionBasis: decision.decisionBasis,
         policyName: decision.policyName,
+        ...requestMetadata,
       };
 
       if (!decision.allowed) {
@@ -146,7 +189,7 @@ export function registerCxMcpTool<TSchema, TResult>(
         const result = await withToolTimeout(
           tool.name,
           toolTimeoutMs,
-          handler(args),
+          handler(args, extra),
         );
         assertToolResultPayload(tool.name, result);
         await workspace.auditLogger?.logToolEvent({

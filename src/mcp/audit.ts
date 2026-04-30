@@ -7,6 +7,8 @@ import type { CommandWriteStream } from "../shared/output.js";
 import type { McpCapability } from "./capabilities.js";
 
 export const AUDIT_LOG_SCHEMA_VERSION = 2;
+export const AUDIT_AGENT_REASON_META_KEY = "cx/agent-reason";
+export const AUDIT_USER_GOAL_META_KEY = "cx/user-goal";
 
 export type AuditExecutionStatus =
   | "denied"

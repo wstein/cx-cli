@@ -116,6 +116,11 @@ The `request` object contains:
 
 The log must prefer structure over raw payload capture. If an argument is safe and already compact, store it directly. If it is sensitive or unbounded, replace it with a descriptor object.
 
+When a client can supply richer intent, it should send these cx-specific MCP request `_meta` keys:
+
+* `cx/agent-reason`
+* `cx/user-goal`
+
 == Execution Envelope
 
 The `execution` object contains:
@@ -170,6 +175,13 @@ The runtime flow becomes:
 . Finalize the same event with `succeeded`, `failed`, or `timed_out`.
 
 This keeps one audit event per tool call while making the final ledger reflect the whole lifecycle instead of just the gate decision.
+
+== Operator Commands
+
+Operators consume the ledger through two complementary commands:
+
+* `cx audit summary` for aggregate trends, including execution-status counts and redaction-rule counts
+* `cx audit recent` for the latest sanitized request envelopes without opening raw JSONL
 
 == Implementation Notes
 

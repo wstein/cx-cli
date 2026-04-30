@@ -172,14 +172,18 @@ Audit logging is the integration-layer answer to "what did the agent really do?"
 
 The request-aware evolution of this ledger is documented in xref:architecture:mcp-audit-trace-design.adoc[MCP Audit Trace Design]. That design adds sanitized request arguments, agent rationale, session correlation, and execution status so team review can reconstruct what the agent asked for without turning the audit log into a raw prompt dump.
 
+When an MCP client can provide richer context, it should send `cx/agent-reason` and `cx/user-goal` through request `_meta`. `cx` copies those values into the audit request envelope so later review can distinguish a generic tool call from a clearly motivated one.
+
 `cx doctor mcp --json` now summarizes recent audit trends as well:
 
 * total allowed versus denied MCP events
+* execution-status counts (`succeeded`, `failed`, `timed_out`, `denied`)
 * policy-name counts
+* redaction-rule counts
 * recent `traceId` values
 * `toolCatalogVersion`, `toolCatalog`, and `toolCatalogSummary` fields that expose the machine-readable MCP stability contract for automation
 
-For operators who only need the audit ledger, `cx audit summary --json` exposes the same trend view without mixing it into the broader MCP profile report.
+For operators who only need the audit ledger, `cx audit summary --json` exposes the same trend view without mixing it into the broader MCP profile report. `cx audit recent --json` exposes the latest sanitized request envelopes for direct inspection.
 
 For operators or external automation that need only the current MCP tool surface, prefer `cx mcp catalog --json`. It exposes the registered tool set with each tool's `name`, `capability`, and `stability`, plus a summary object for quick inspection. `cx doctor mcp --json` still includes the same catalog fields when you also need the resolved profile, policy state, and audit trend view in one report.
 

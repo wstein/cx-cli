@@ -14,7 +14,9 @@ The durable design is to keep one audit ledger while extending each event with a
 
 Redaction is part of the contract, not a later hardening pass. Free-form fields such as note bodies, replacement text, prompts, and large content blobs should never be copied into the audit log verbatim. The log should keep structural metadata, path hints, hashes, lengths, and small previews where that improves reviewability without turning the audit trail into a replay channel or a secret sink.
 
-Implementation belongs at the MCP tool registration boundary because that is the one place where every tool call has a normalized tool name, typed arguments, policy context, and final execution status.
+Implementation belongs at the MCP tool registration boundary because that is the one place where every tool call has a normalized tool name, typed arguments, policy context, request `_meta`, and final execution status.
+
+Clients that can explain themselves should send `cx/agent-reason` and `cx/user-goal` in MCP request `_meta`. That keeps the request envelope explicit without overloading tool arguments with audit-only fields.
 
 ## Links
 

@@ -541,9 +541,12 @@ secret patterns
 |`cx doctor workflow` |You want a quick recommendation for bundle,
 inspect, or MCP, including mixed-task paths
 
-|`cx audit summary` |You want recent `traceId`, policy, capability, and
-execution trends from `.cx/audit.log` without the full MCP profile
-report
+|`cx audit summary` |You want recent `traceId`, policy, capability,
+execution, and redaction trends from `.cx/audit.log` without the full
+MCP profile report
+
+|`cx audit recent` |You want the latest sanitized request envelopes and
+execution outcomes without opening raw `.cx/audit.log`
 
 |`cx completion` |You want shell-native command and flag completion
 |===
