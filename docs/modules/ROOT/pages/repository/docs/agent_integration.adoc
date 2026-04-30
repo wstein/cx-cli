@@ -269,6 +269,71 @@ Because the server communicates over stdio, clients simply need to
 launch `cx mcp` as a subprocess and bind to its stdin/stdout. The
 examples below follow that pattern.
 
+=== Audit Metadata Contract
+
+Clients that can provide request intent should attach these `_meta`
+fields to MCP `tools/call` requests:
+
+* `cx/agent-reason`
+* `cx/user-goal`
+
+`cx` copies those values into `.cx/audit.log` so operators can review
+what the agent was trying to do without opening prompt transcripts or
+guessing from tool arguments alone.
+
+Minimal request example:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": 42,
+  "method": "tools/call",
+  "params": {
+    "name": "read",
+    "_meta": {
+      "cx/agent-reason": "Inspect the current audit logger implementation.",
+      "cx/user-goal": "Explain how audit logging works today."
+    },
+    "arguments": {
+      "path": "src/mcp/audit.ts",
+      "startLine": 1,
+      "endLine": 120
+    }
+  }
+}
+----
+
+JavaScript client sketch (for clients using the upstream
+`@modelcontextprotocol` SDK):
+
+[source,javascript]
+----
+await client.request(
+  {
+    method: "tools/call",
+    params: {
+      name: "notes_update",
+      _meta: {
+        "cx/agent-reason": "Update the design note with the reviewed wording.",
+        "cx/user-goal": "Finalize the request-tracing documentation."
+      },
+      arguments: {
+        id: "20260430164125",
+        title: "MCP Audit Request Tracing",
+        body: updatedBody
+      }
+    }
+  },
+  CallToolResultSchema,
+);
+----
+
+If a client cannot supply these fields yet, `cx` still records the tool
+request and marks `agentReason` as `"(not provided)"`. Use
+`cx audit summary` to measure missing-reason rates and `cx audit recent`
+to inspect the latest sanitized request envelopes.
+
 Example note lifecycle with MCP tools:
 
 [source,text]
