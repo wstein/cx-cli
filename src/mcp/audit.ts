@@ -139,8 +139,8 @@ export async function collectAuditSummary(
 }
 
 /**
- * Audit logger for MCP policy enforcement events.
- * Writes to .cx/audit.log in JSONL format (one JSON event per line).
+ * Audit logger for finalized MCP tool events.
+ * Writes request-aware JSONL records to .cx/audit.log.
  */
 export class AuditLogger {
   private readonly enabled: boolean;

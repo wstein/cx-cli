@@ -274,7 +274,7 @@ includes ready-to-use <code>jq</code> and Node.js examples.</p>
 </tr>
 <tr>
 <td><code>cx audit summary</code></td>
-<td>Show recent MCP policy and trace trends from <code>.cx/audit.log</code></td>
+<td>Show recent MCP policy, request, and trace trends from <code>.cx/audit.log</code></td>
 </tr>
 <tr>
 <td><code>cx render</code></td>

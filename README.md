@@ -303,7 +303,7 @@ includes ready-to-use `jq` and Node.js examples.
 | `cx doctor fix-overlaps` | Generate or apply exact exclude fixes |
 | `cx doctor mcp` | Show the effective MCP profile and inherited file scopes |
 | `cx doctor secrets` | Scan the master list for suspicious secret patterns |
-| `cx audit summary` | Show recent MCP policy and trace trends from `.cx/audit.log` |
+| `cx audit summary` | Show recent MCP policy, request, and trace trends from `.cx/audit.log` |
 | `cx render` | Render planned sections without building a full bundle |
 | `cx config show-effective` | Show resolved behavioral settings and their sources |
 | `cx completion` | Generate shell completion scripts |

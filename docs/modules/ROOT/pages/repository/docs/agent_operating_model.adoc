@@ -140,18 +140,35 @@ When MCP audit logging is enabled (`[mcp] audit_logging = true` in `cx.toml`), t
 [source,json]
 ----
 {
-  "timestamp": "2025-04-17T14:30:00Z",
+  "schemaVersion": 2,
+  "timestamp": "2026-04-30T16:41:25Z",
   "traceId": "notes_read:observe:allowed:1744900200000",
+  "sessionId": "mcp-session-3d2c2f85",
+  "requestId": "req-000042",
   "tool": "notes_read",
-  "capability": "read",
+  "capability": "observe",
   "decision": "allowed",
   "reason": "Tool notes_read (capability: observe) is allowed",
   "policyName": "default-deny-mutate",
-  "decisionBasis": ["tool_catalog", "policy_allow_list"]
+  "decisionBasis": ["tool_catalog", "policy_allow_list"],
+  "request": {
+    "agentReason": "(not provided)",
+    "args": {
+      "id": "20260430164125"
+    },
+    "redaction": {
+      "applied": false,
+      "rules": []
+    }
+  },
+  "execution": {
+    "status": "succeeded",
+    "durationMs": 12
+  }
 }
 ----
 
-Audit logging is the integration-layer answer to "what did the agent really do?" The `traceId`, `policyName`, and `decisionBasis` fields make the allow-or-deny path explicit instead of leaving later reviewers to infer it from timing alone.
+Audit logging is the integration-layer answer to "what did the agent really do?" The `traceId`, `policyName`, `request`, and `execution` fields make the allow-or-deny path and the actual tool request explicit instead of leaving later reviewers to infer intent from timing alone.
 
 The request-aware evolution of this ledger is documented in xref:architecture:mcp-audit-trace-design.adoc[MCP Audit Trace Design]. That design adds sanitized request arguments, agent rationale, session correlation, and execution status so team review can reconstruct what the agent asked for without turning the audit log into a raw prompt dump.
 
