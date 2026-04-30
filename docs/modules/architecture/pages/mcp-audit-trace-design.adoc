@@ -1,0 +1,191 @@
+= MCP Audit Trace Design
+:page-layout: default
+:page-role: understand
+
+The MCP audit trail must answer two different questions without forcing operators to choose between them:
+
+* "Why was this tool call allowed or denied?"
+* "What did the agent actually ask the tool to do?"
+
+The existing log answers the first question well, but only partially answers the second. This design extends `.cx/audit.log` into a request-aware execution ledger without splitting policy review from operational review.
+
+== Goals
+
+* Preserve the current policy-audit value: capability, allow or deny state, policy name, and decision basis remain explicit.
+* Add request context that makes team review practical: session identity, tool arguments after redaction, agent rationale, and execution status.
+* Keep the log safe to retain and inspect: redact high-risk payloads by default and avoid turning the ledger into a replay mechanism.
+* Keep one registration path for all tools so coverage is uniform across read, observe, plan, and mutate capabilities.
+
+== Event Schema
+
+Each line in `.cx/audit.log` remains one JSON object. The schema is extended rather than duplicated in a second file.
+
+[source,json]
+----
+{
+  "schemaVersion": 2,
+  "timestamp": "2026-04-30T16:41:25.000Z",
+  "traceId": "notes_update:mutate:allowed:1746024085000",
+  "sessionId": "mcp-session-3d2c2f85",
+  "requestId": "req-000042",
+  "tool": "notes_update",
+  "capability": "mutate",
+  "decision": "allowed",
+  "reason": "Tool notes_update (capability: mutate) is allowed",
+  "policyName": "unrestricted",
+  "decisionBasis": ["tool_catalog", "policy_allow_list"],
+  "request": {
+    "agentReason": "Update the design note with the final redaction contract.",
+    "userGoal": "Document and implement request-aware audit logging.",
+    "args": {
+      "id": "20260430164125",
+      "title": "MCP Audit Request Tracing",
+      "body": {
+        "kind": "redacted_text",
+        "sha256": "8c7f...",
+        "length": 1240,
+        "preview": "MCP audit logging must capture..."
+      }
+    },
+    "redaction": {
+      "applied": true,
+      "rules": ["body_text", "large_freeform_text"]
+    }
+  },
+  "execution": {
+    "status": "succeeded",
+    "durationMs": 43
+  }
+}
+----
+
+== Required Fields
+
+[cols="1,3"]
+|===
+|Field |Meaning
+
+|`schemaVersion`
+|Audit schema version. The new request-aware ledger starts at `2`.
+
+|`timestamp`
+|UTC instant when the event is finalized.
+
+|`traceId`
+|Stable per-event identifier kept for compatibility inside the repo's review vocabulary.
+
+|`sessionId`
+|Stable id for the MCP server process lifetime. Groups related tool calls into one operator session.
+
+|`requestId`
+|Monotonic per-session id that makes sequence reconstruction deterministic.
+
+|`tool`
+|Registered MCP tool name.
+
+|`capability`
+|Capability tier from the tool catalog.
+
+|`decision`
+|Policy verdict: `allowed` or `denied`.
+
+|`reason`
+|Human-readable policy decision text.
+
+|`policyName`
+|Resolved policy name such as `default-deny-mutate` or `strict-read-only`.
+
+|`decisionBasis`
+|Structured explanation of the verdict path.
+
+|`request`
+|Request envelope with sanitized arguments and operator-review context.
+
+|`execution`
+|Execution outcome after the handler returns, throws, or times out.
+|===
+
+== Request Envelope
+
+The `request` object contains:
+
+* `agentReason`: required short free-text rationale supplied by the caller when available; otherwise `"(not provided)"`.
+* `userGoal`: optional short description of the current operator task when available from runtime context.
+* `args`: sanitized tool arguments.
+* `redaction`: whether any rule fired and which rules were applied.
+
+The log must prefer structure over raw payload capture. If an argument is safe and already compact, store it directly. If it is sensitive or unbounded, replace it with a descriptor object.
+
+== Execution Envelope
+
+The `execution` object contains:
+
+* `status`: `denied`, `succeeded`, `failed`, or `timed_out`
+* `durationMs`: elapsed runtime when the handler started
+* `error`: short sanitized message only for `failed` or `timed_out`
+
+Denied requests still emit an event. Their `execution.status` is `denied`, and no handler timing is recorded.
+
+== Redaction Rules
+
+Redaction must be deterministic and schema-backed. The initial rules are:
+
+[cols="1,3"]
+|===
+|Rule |Behavior
+
+|`large_freeform_text`
+|Replace large text values with `{ kind, sha256, length, preview }`.
+
+|`body_text`
+|Always redact note bodies, replacement payloads, generated docs content, and other multi-line authored text.
+
+|`prompt_like_input`
+|Redact fields that contain prompt-like or instruction-like blobs even if they are short.
+
+|`binary_or_blob`
+|Replace binary-like payloads or encoded content with `{ kind, sha256, length }`.
+
+|`secret_like_key`
+|Redact values when the key name suggests credentials, tokens, or secrets.
+|===
+
+Additional redaction constraints:
+
+* Keep direct scalar values for ids, booleans, counts, enum-like options, line numbers, and short paths.
+* Keep only a short preview for redacted text, and only when that preview is itself low risk.
+* Never log full note bodies, replacement content, extracted file contents, or generated documentation bodies.
+* Never log tool results in full. Execution metadata is enough for the audit ledger.
+
+== Registration And Wiring
+
+The integration point is `src/mcp/tools/register.ts`.
+
+The runtime flow becomes:
+
+. Build a request context as soon as the MCP tool handler receives normalized args.
+. Sanitize args with a shared redaction helper before any audit write.
+. Record the policy decision together with the request envelope.
+. Run the handler under the existing timeout wrapper.
+. Finalize the same event with `succeeded`, `failed`, or `timed_out`.
+
+This keeps one audit event per tool call while making the final ledger reflect the whole lifecycle instead of just the gate decision.
+
+== Implementation Notes
+
+* `src/mcp/audit.ts` owns the event schema, session id generation, request id sequencing, redaction helpers, and JSONL writes.
+* `src/mcp/enforce.ts` continues to own policy checks, but it should return the decision so `registerCxMcpTool` can log the full event lifecycle.
+* `src/mcp/tools/register.ts` becomes the orchestration point that combines request capture, policy decision, timing, handler execution, and final audit status.
+* `cx audit summary` and `cx doctor mcp` should continue to summarize the ledger without printing raw request payloads.
+
+== Review Benefits
+
+This design lets the team review:
+
+* what the agent asked for
+* why policy allowed or denied it
+* which redactions were applied
+* whether the request completed successfully
+* how a sequence of tool calls maps to one operator task
+
+That closes the gap between policy telemetry and usable behavioral audit.

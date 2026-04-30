@@ -15,6 +15,7 @@
 ** xref:system-map.adoc[System Map]
 ** xref:system-contracts.adoc[System Contracts]
 ** xref:audited-overrides.adoc[Audited Overrides]
+** xref:mcp-audit-trace-design.adoc[MCP Audit Trace Design]
 ** xref:notes-lint-design.adoc[Notes Lint Design]
 ** xref:purity-field-design.adoc[Purity Field Design Draft]
 ** xref:implementation-reference.adoc[Implementation Reference]

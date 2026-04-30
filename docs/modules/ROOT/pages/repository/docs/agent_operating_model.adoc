@@ -135,7 +135,7 @@ Why this stops you: an exploratory session should not silently cross from analys
 
 == Audit Trail
 
-When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool calls are recorded in `.cx/audit.log` with explicit policy provenance:
+When MCP audit logging is enabled (`[mcp] audit_logging = true` in `cx.toml`), tool calls are recorded in `.cx/audit.log` with explicit policy provenance:
 
 [source,json]
 ----
@@ -152,6 +152,8 @@ When MCP audit logging is enabled (`[mcp.auditLogging]` in `cx.toml`), tool call
 ----
 
 Audit logging is the integration-layer answer to "what did the agent really do?" The `traceId`, `policyName`, and `decisionBasis` fields make the allow-or-deny path explicit instead of leaving later reviewers to infer it from timing alone.
+
+The request-aware evolution of this ledger is documented in xref:architecture:mcp-audit-trace-design.adoc[MCP Audit Trace Design]. That design adds sanitized request arguments, agent rationale, session correlation, and execution status so team review can reconstruct what the agent asked for without turning the audit log into a raw prompt dump.
 
 `cx doctor mcp --json` now summarizes recent audit trends as well:
 
