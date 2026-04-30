@@ -4,9 +4,19 @@ Active profile: cx.toml
 Policy: default
 Mutation enabled: yes
 Audit events: 0 (allowed 0, denied 0)
+Audit execution:
+  - denied: 0
+  - failed: 0
+  - succeeded: 0
+  - timed_out: 0
+Agent reason coverage:
+  - missing: 0
+  - provided: 0
 Tool catalog: v1, 37 tools (32 stable, 5 beta, 0 experimental, 0 internal)
 Recent policy trends:
   - (no audit events)
+Recent redaction rules:
+  - (none)
 Recent trace IDs:
   - (none)
 
