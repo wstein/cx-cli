@@ -83,6 +83,11 @@ export interface AuditLogEvent {
   execution: AuditExecutionEnvelope;
 }
 
+export interface AuditRecentEvents {
+  events: AuditLogEvent[];
+  limit: number;
+}
+
 interface AuditLogToolEventParams {
   tool: string;
   capability: McpCapability;
@@ -127,7 +132,9 @@ export interface AuditSummary {
   allowedCount: number;
   deniedCount: number;
   byCapability: Record<McpCapability, number>;
+  byExecutionStatus: Record<AuditExecutionStatus, number>;
   byPolicyName: Record<string, number>;
+  byRedactionRule: Record<AuditRedactionRule, number>;
   recentTraceIds: string[];
 }
 
@@ -136,6 +143,14 @@ export async function collectAuditSummary(
 ): Promise<AuditSummary> {
   const logger = new AuditLogger(workspaceRoot, true);
   return logger.getSummary();
+}
+
+export async function collectRecentAuditEvents(
+  workspaceRoot: string,
+  limit: number,
+): Promise<AuditRecentEvents> {
+  const logger = new AuditLogger(workspaceRoot, true);
+  return logger.getRecentEvents(limit);
 }
 
 /**
@@ -388,6 +403,16 @@ export class AuditLogger {
     return this.logFilePath;
   }
 
+  async getRecentEvents(limit: number): Promise<AuditRecentEvents> {
+    const normalizedLimit = Math.max(1, Math.floor(limit));
+    const events = await this.readLog();
+
+    return {
+      limit: normalizedLimit,
+      events: events.slice(-normalizedLimit).reverse(),
+    };
+  }
+
   /**
    * Summary statistics from audit log.
    */
@@ -404,7 +429,20 @@ export class AuditLogger {
         plan: 0,
         mutate: 0,
       },
+      byExecutionStatus: {
+        denied: 0,
+        failed: 0,
+        succeeded: 0,
+        timed_out: 0,
+      },
       byPolicyName: {},
+      byRedactionRule: {
+        binary_or_blob: 0,
+        body_text: 0,
+        large_freeform_text: 0,
+        prompt_like_input: 0,
+        secret_like_key: 0,
+      },
       recentTraceIds: [],
     };
 
@@ -416,8 +454,12 @@ export class AuditLogger {
       }
       const count = summary.byCapability[event.capability];
       summary.byCapability[event.capability] = (count ?? 0) + 1;
+      summary.byExecutionStatus[event.execution.status] += 1;
       summary.byPolicyName[event.policyName] =
         (summary.byPolicyName[event.policyName] ?? 0) + 1;
+      for (const rule of event.request.redaction.rules) {
+        summary.byRedactionRule[rule] += 1;
+      }
     }
 
     summary.recentTraceIds = events

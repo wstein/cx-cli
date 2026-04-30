@@ -26,7 +26,20 @@ function makeReport(overrides: Partial<DoctorMcpReport> = {}): DoctorMcpReport {
         plan: 0,
         mutate: 0,
       },
+      byExecutionStatus: {
+        denied: 0,
+        failed: 0,
+        succeeded: 0,
+        timed_out: 0,
+      },
       byPolicyName: {},
+      byRedactionRule: {
+        binary_or_blob: 0,
+        body_text: 0,
+        large_freeform_text: 0,
+        prompt_like_input: 0,
+        secret_like_key: 0,
+      },
       recentTraceIds: [],
     },
     toolCatalogVersion: 1,
@@ -122,9 +135,22 @@ describe("printDoctorMcpReport", () => {
             plan: 0,
             mutate: 1,
           },
+          byExecutionStatus: {
+            denied: 1,
+            failed: 1,
+            succeeded: 1,
+            timed_out: 0,
+          },
           byPolicyName: {
             "default-deny-mutate": 2,
             "strict-read-only": 1,
+          },
+          byRedactionRule: {
+            binary_or_blob: 0,
+            body_text: 1,
+            large_freeform_text: 0,
+            prompt_like_input: 0,
+            secret_like_key: 0,
           },
           recentTraceIds: ["trace-3", "trace-2"],
         },
@@ -133,7 +159,9 @@ describe("printDoctorMcpReport", () => {
       capture.io,
     );
     expect(capture.stdout()).toContain("Audit events: 3");
+    expect(capture.stdout()).toContain("Audit execution:");
     expect(capture.stdout()).toContain("default-deny-mutate: 2");
+    expect(capture.stdout()).toContain("body_text: 1");
     expect(capture.stdout()).toContain("trace-3");
   });
 
@@ -171,8 +199,21 @@ describe("collectDoctorMcpReport", () => {
             plan: 0,
             mutate: 1,
           },
+          byExecutionStatus: {
+            denied: 1,
+            failed: 0,
+            succeeded: 1,
+            timed_out: 0,
+          },
           byPolicyName: {
             "default-deny-mutate": 2,
+          },
+          byRedactionRule: {
+            binary_or_blob: 0,
+            body_text: 1,
+            large_freeform_text: 0,
+            prompt_like_input: 0,
+            secret_like_key: 0,
           },
           recentTraceIds: ["trace-2", "trace-1"],
         }),

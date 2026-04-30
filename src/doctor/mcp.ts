@@ -90,6 +90,12 @@ export function printDoctorMcpReport(
     `Audit events: ${report.auditSummary.totalEvents} (allowed ${report.auditSummary.allowedCount}, denied ${report.auditSummary.deniedCount})\n`,
     io,
   );
+  writeStdout(`Audit execution:\n`, io);
+  for (const [status, count] of Object.entries(
+    report.auditSummary.byExecutionStatus,
+  )) {
+    writeStdout(`  - ${status}: ${count}\n`, io);
+  }
   writeStdout(
     `Tool catalog: v${report.toolCatalogVersion}, ${report.toolCatalogSummary.totalTools} tools (${report.toolCatalogSummary.byStability.STABLE} stable, ${report.toolCatalogSummary.byStability.BETA} beta, ${report.toolCatalogSummary.byStability.EXPERIMENTAL} experimental, ${report.toolCatalogSummary.byStability.INTERNAL} internal)\n`,
     io,
@@ -103,6 +109,19 @@ export function printDoctorMcpReport(
   } else {
     for (const [policyName, count] of policyEntries) {
       writeStdout(`  - ${policyName}: ${count}\n`, io);
+    }
+  }
+  writeStdout(`Recent redaction rules:\n`, io);
+  const redactionEntries = Object.entries(
+    report.auditSummary.byRedactionRule,
+  ).sort(
+    (left, right) => right[1] - left[1] || left[0].localeCompare(right[0]),
+  );
+  if (redactionEntries.every(([, count]) => count === 0)) {
+    writeStdout(`  - (none)\n`, io);
+  } else {
+    for (const [rule, count] of redactionEntries) {
+      writeStdout(`  - ${rule}: ${count}\n`, io);
     }
   }
   writeStdout(`Recent trace IDs:\n`, io);

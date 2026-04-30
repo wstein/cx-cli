@@ -642,6 +642,75 @@ export const AuditSummaryCommandJsonSchema = z.object({
     plan: z.number().int().nonnegative(),
     mutate: z.number().int().nonnegative(),
   }),
+  byExecutionStatus: z.object({
+    denied: z.number().int().nonnegative(),
+    failed: z.number().int().nonnegative(),
+    succeeded: z.number().int().nonnegative(),
+    timed_out: z.number().int().nonnegative(),
+  }),
   byPolicyName: z.record(z.string(), z.number().int().nonnegative()),
+  byRedactionRule: z.object({
+    binary_or_blob: z.number().int().nonnegative(),
+    body_text: z.number().int().nonnegative(),
+    large_freeform_text: z.number().int().nonnegative(),
+    prompt_like_input: z.number().int().nonnegative(),
+    secret_like_key: z.number().int().nonnegative(),
+  }),
   recentTraceIds: z.array(z.string()),
+});
+
+const AuditLoggedValueJsonSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.union([
+    z.null(),
+    z.boolean(),
+    z.number(),
+    z.string(),
+    z.array(AuditLoggedValueJsonSchema),
+    z.record(z.string(), AuditLoggedValueJsonSchema),
+  ]),
+);
+
+export const AuditRecentCommandJsonSchema = z.object({
+  command: z.literal("audit recent"),
+  workspaceRoot: z.string(),
+  auditLogPath: z.string(),
+  limit: z.number().int().positive(),
+  events: z.array(
+    z.object({
+      schemaVersion: z.literal(2),
+      timestamp: z.string(),
+      traceId: z.string(),
+      sessionId: z.string(),
+      requestId: z.string(),
+      tool: z.string(),
+      capability: z.enum(["read", "observe", "plan", "mutate"]),
+      path: z.string().optional(),
+      decision: z.enum(["allowed", "denied"]),
+      reason: z.string(),
+      policyName: z.string(),
+      decisionBasis: z.array(z.string()),
+      request: z.object({
+        agentReason: z.string(),
+        args: z.record(z.string(), AuditLoggedValueJsonSchema),
+        redaction: z.object({
+          applied: z.boolean(),
+          rules: z.array(
+            z.enum([
+              "binary_or_blob",
+              "body_text",
+              "large_freeform_text",
+              "prompt_like_input",
+              "secret_like_key",
+            ]),
+          ),
+        }),
+        userGoal: z.string().optional(),
+      }),
+      execution: z.object({
+        durationMs: z.number().int().nonnegative().optional(),
+        error: z.string().optional(),
+        status: z.enum(["denied", "failed", "succeeded", "timed_out"]),
+      }),
+    }),
+  ),
 });

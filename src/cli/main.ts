@@ -319,9 +319,13 @@ export async function main(
             "$0 audit summary --json",
             "Show recent trace IDs, policy trends, and capability totals.",
           )
+          .example(
+            "$0 audit recent --limit 5",
+            "Inspect the latest sanitized audit request envelopes.",
+          )
           .positional("subcommand", {
             type: "string",
-            choices: ["summary"],
+            choices: ["recent", "summary"],
             default: "summary",
           })
           .option("config", {
@@ -335,14 +339,21 @@ export async function main(
             description:
               "Override the workspace root directly instead of resolving it from cx.toml.",
           })
+          .option("limit", {
+            type: "number",
+            default: 10,
+            description:
+              "Number of recent audit events to inspect for 'audit recent'.",
+          })
           .option("json", { type: "boolean", default: false }),
       async (args) => {
         exitCode = await runAuditCommand(
           {
-            subcommand: args.subcommand as "summary",
+            subcommand: args.subcommand as "recent" | "summary",
             config: resolveCliPath(args.config, io.cwd) ?? "cx.toml",
             workspaceRoot: resolveCliPath(args["workspace-root"], io.cwd),
             json: args.json,
+            limit: args.limit,
           },
           io,
         );

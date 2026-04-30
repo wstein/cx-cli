@@ -23,7 +23,20 @@ describe("runAuditCommand", () => {
             plan: 0,
             mutate: 0,
           },
+          byExecutionStatus: {
+            denied: 0,
+            failed: 0,
+            succeeded: 0,
+            timed_out: 0,
+          },
           byPolicyName: {},
+          byRedactionRule: {
+            binary_or_blob: 0,
+            body_text: 0,
+            large_freeform_text: 0,
+            prompt_like_input: 0,
+            secret_like_key: 0,
+          },
           recentTraceIds: [],
         }),
       },
@@ -32,6 +45,7 @@ describe("runAuditCommand", () => {
     expect(exitCode).toBe(0);
     expect(capture.stdout()).toContain("/repo/.cx/audit.log");
     expect(capture.stdout()).toContain("Events: 0");
+    expect(capture.stdout()).toContain("By execution status:");
     expect(capture.stdout()).toContain("(no audit events)");
   });
 
@@ -55,8 +69,21 @@ describe("runAuditCommand", () => {
             plan: 0,
             mutate: 1,
           },
+          byExecutionStatus: {
+            denied: 1,
+            failed: 1,
+            succeeded: 1,
+            timed_out: 0,
+          },
           byPolicyName: {
             "default-deny-mutate": 3,
+          },
+          byRedactionRule: {
+            binary_or_blob: 0,
+            body_text: 1,
+            large_freeform_text: 0,
+            prompt_like_input: 0,
+            secret_like_key: 1,
           },
           recentTraceIds: ["trace-3", "trace-2"],
         }),
@@ -69,6 +96,12 @@ describe("runAuditCommand", () => {
     expect(payload.workspaceRoot).toBe("/repo");
     expect(payload.auditLogPath).toBe("/repo/.cx/audit.log");
     expect(payload.totalEvents).toBe(3);
+    expect(payload.byExecutionStatus).toEqual({
+      denied: 1,
+      failed: 1,
+      succeeded: 1,
+      timed_out: 0,
+    });
   });
 
   test("prefers config.sourceRoot when config exists", async () => {
@@ -95,8 +128,21 @@ describe("runAuditCommand", () => {
             plan: 0,
             mutate: 0,
           },
+          byExecutionStatus: {
+            denied: 0,
+            failed: 0,
+            succeeded: 1,
+            timed_out: 0,
+          },
           byPolicyName: {
             "default-deny-mutate": 1,
+          },
+          byRedactionRule: {
+            binary_or_blob: 0,
+            body_text: 0,
+            large_freeform_text: 0,
+            prompt_like_input: 0,
+            secret_like_key: 0,
           },
           recentTraceIds: ["trace-1"],
         }),
@@ -105,6 +151,120 @@ describe("runAuditCommand", () => {
 
     expect(exitCode).toBe(0);
     expect(capture.stdout()).toContain("/repo/worktree/.cx/audit.log");
+  });
+
+  test("prints recent sanitized audit events in human format", async () => {
+    const capture = createBufferedCommandIo({ cwd: "/repo" });
+    const exitCode = await runAuditCommand(
+      {
+        subcommand: "recent",
+        limit: 2,
+      },
+      capture.io,
+      {
+        configExists: async () => false,
+        readRecentAuditEvents: async () => ({
+          limit: 2,
+          events: [
+            {
+              schemaVersion: 2,
+              timestamp: "2026-04-30T17:00:00.000Z",
+              traceId: "trace-2",
+              sessionId: "mcp-session-1",
+              requestId: "req-000002",
+              tool: "notes_update",
+              capability: "mutate",
+              path: "notes/A.md",
+              decision: "allowed",
+              reason: "allowed",
+              policyName: "unrestricted",
+              decisionBasis: ["tool_catalog", "policy_allow_list"],
+              request: {
+                agentReason: "Update the note body.",
+                args: {
+                  body: {
+                    kind: "redacted_text",
+                    sha256: "abc",
+                    length: 10,
+                    preview: "hello",
+                  },
+                  id: "123",
+                },
+                redaction: {
+                  applied: true,
+                  rules: ["body_text"],
+                },
+                userGoal: "Refresh the note.",
+              },
+              execution: {
+                durationMs: 18,
+                status: "succeeded",
+              },
+            },
+          ],
+        }),
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(capture.stdout()).toContain("Recent audit events:");
+    expect(capture.stdout()).toContain(
+      "trace-2 | notes_update | allowed/succeeded",
+    );
+    expect(capture.stdout()).toContain("reason=Update the note body.");
+    expect(capture.stdout()).toContain('"id": "123"');
+  });
+
+  test("writes recent audit events as JSON when requested", async () => {
+    const capture = createBufferedCommandIo({ cwd: "/repo" });
+    const exitCode = await runAuditCommand(
+      {
+        subcommand: "recent",
+        json: true,
+        limit: 1,
+      },
+      capture.io,
+      {
+        configExists: async () => false,
+        readRecentAuditEvents: async () => ({
+          limit: 1,
+          events: [
+            {
+              schemaVersion: 2,
+              timestamp: "2026-04-30T17:00:00.000Z",
+              traceId: "trace-1",
+              sessionId: "mcp-session-1",
+              requestId: "req-000001",
+              tool: "read",
+              capability: "read",
+              decision: "allowed",
+              reason: "allowed",
+              policyName: "default-deny-mutate",
+              decisionBasis: ["tool_catalog", "policy_allow_list"],
+              request: {
+                agentReason: "(not provided)",
+                args: {
+                  path: "src/index.ts",
+                },
+                redaction: {
+                  applied: false,
+                  rules: [],
+                },
+              },
+              execution: {
+                status: "succeeded",
+              },
+            },
+          ],
+        }),
+      },
+    );
+    const payload = parseJsonOutput<Record<string, unknown>>(capture.stdout());
+
+    expect(exitCode).toBe(0);
+    expect(payload.command).toBe("audit recent");
+    expect(payload.limit).toBe(1);
+    expect(Array.isArray(payload.events)).toBe(true);
   });
 
   test("rejects unknown audit subcommands", async () => {
