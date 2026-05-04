@@ -304,6 +304,53 @@ describe("MCP Audit Logger", () => {
         await cleanup();
       }
     });
+
+    it("normalizes legacy audit entries without request envelopes", async () => {
+      const fs = await import("node:fs/promises");
+      const { logger, cleanup } = await createLogger();
+
+      try {
+        await fs.mkdir(path.dirname(logger.getLogPath()), { recursive: true });
+        await fs.writeFile(
+          logger.getLogPath(),
+          `${JSON.stringify({
+            timestamp: "2026-04-25T12:37:17.888Z",
+            traceId: "list:read:allowed:1777120637891",
+            tool: "list",
+            capability: "read",
+            decision: "allowed",
+            reason: "Tool list (capability: read) is allowed",
+            policyName: "default-deny-mutate",
+            decisionBasis: ["tool_catalog", "policy_allow_list"],
+          })}\n`,
+          "utf8",
+        );
+
+        const events = await logger.readLog();
+        expect(events).toHaveLength(1);
+        expect(events[0]?.request.agentReason).toBe("(not provided)");
+        expect(events[0]?.request.args).toEqual({});
+        expect(events[0]?.request.redaction).toEqual({
+          applied: false,
+          rules: [],
+        });
+        expect(events[0]?.execution.status).toBe("succeeded");
+        expect(events[0]?.sessionId).toBe("legacy-session");
+
+        const summary = await logger.getSummary();
+        expect(summary.totalEvents).toBe(1);
+        expect(summary.allowedCount).toBe(1);
+        expect(summary.byAgentReasonPresence).toEqual({
+          missing: 1,
+          provided: 0,
+        });
+        expect(summary.byPolicyName).toEqual({
+          "default-deny-mutate": 1,
+        });
+      } finally {
+        await cleanup();
+      }
+    });
   });
 
   describe("getRecentEvents", () => {

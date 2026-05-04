@@ -150,6 +150,29 @@ export interface AuditSummary {
   recentTraceIds: string[];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isExecutionStatus(value: unknown): value is AuditExecutionStatus {
+  return (
+    value === "denied" ||
+    value === "failed" ||
+    value === "succeeded" ||
+    value === "timed_out"
+  );
+}
+
+function isRedactionRule(value: unknown): value is AuditRedactionRule {
+  return (
+    value === "binary_or_blob" ||
+    value === "body_text" ||
+    value === "large_freeform_text" ||
+    value === "prompt_like_input" ||
+    value === "secret_like_key"
+  );
+}
+
 export async function collectAuditSummary(
   workspaceRoot: string,
 ): Promise<AuditSummary> {
@@ -391,10 +414,120 @@ export class AuditLogger {
       return content
         .split("\n")
         .filter((line) => line.trim())
-        .map((line) => JSON.parse(line) as AuditLogEvent);
+        .flatMap((line, index) => {
+          try {
+            const normalized = this.normalizeAuditLogEvent(
+              JSON.parse(line) as unknown,
+              index,
+            );
+            return normalized ? [normalized] : [];
+          } catch {
+            return [];
+          }
+        });
     } catch {
       return [];
     }
+  }
+
+  private normalizeAuditLogEvent(
+    raw: unknown,
+    index: number,
+  ): AuditLogEvent | undefined {
+    if (!isRecord(raw)) {
+      return undefined;
+    }
+
+    const capability = raw.capability;
+    if (
+      capability !== "read" &&
+      capability !== "observe" &&
+      capability !== "plan" &&
+      capability !== "mutate"
+    ) {
+      return undefined;
+    }
+
+    const tool = typeof raw.tool === "string" ? raw.tool : "unknown-tool";
+    const decision = raw.decision === "denied" ? "denied" : "allowed";
+    const request = isRecord(raw.request) ? raw.request : {};
+    const legacyRedaction = isRecord(raw.redaction) ? raw.redaction : {};
+    const rawExecution = isRecord(raw.execution) ? raw.execution : {};
+    const redaction = isRecord(request.redaction)
+      ? request.redaction
+      : legacyRedaction;
+    const redactionRules = Array.isArray(redaction.rules)
+      ? redaction.rules.filter(isRedactionRule)
+      : [];
+    const executionStatus = isExecutionStatus(rawExecution.status)
+      ? rawExecution.status
+      : decision === "denied"
+        ? "denied"
+        : "succeeded";
+
+    return {
+      schemaVersion: AUDIT_LOG_SCHEMA_VERSION,
+      timestamp:
+        typeof raw.timestamp === "string"
+          ? raw.timestamp
+          : new Date(0).toISOString(),
+      traceId:
+        typeof raw.traceId === "string"
+          ? raw.traceId
+          : `${tool}:${capability}:${decision}:legacy-${index + 1}`,
+      sessionId:
+        typeof raw.sessionId === "string" ? raw.sessionId : "legacy-session",
+      requestId:
+        typeof raw.requestId === "string"
+          ? raw.requestId
+          : `legacy-${String(index + 1).padStart(6, "0")}`,
+      tool,
+      capability,
+      ...(typeof raw.path === "string" ? { path: raw.path } : {}),
+      decision,
+      reason: typeof raw.reason === "string" ? raw.reason : "(not provided)",
+      policyName:
+        typeof raw.policyName === "string" ? raw.policyName : "unknown-policy",
+      decisionBasis: Array.isArray(raw.decisionBasis)
+        ? raw.decisionBasis.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : ["manual_log"],
+      request: {
+        agentReason:
+          typeof request.agentReason === "string"
+            ? request.agentReason
+            : typeof raw.agentReason === "string"
+              ? raw.agentReason
+              : "(not provided)",
+        args: isRecord(request.args)
+          ? (request.args as Record<string, AuditLoggedValue>)
+          : isRecord(raw.args)
+            ? (raw.args as Record<string, AuditLoggedValue>)
+            : {},
+        redaction: {
+          applied:
+            typeof redaction.applied === "boolean"
+              ? redaction.applied
+              : redactionRules.length > 0,
+          rules: redactionRules,
+        },
+        ...(typeof request.userGoal === "string"
+          ? { userGoal: request.userGoal }
+          : typeof raw.userGoal === "string"
+            ? { userGoal: raw.userGoal }
+            : {}),
+      },
+      execution: {
+        status: executionStatus,
+        ...(typeof rawExecution.durationMs === "number"
+          ? { durationMs: rawExecution.durationMs }
+          : {}),
+        ...(typeof rawExecution.error === "string"
+          ? { error: rawExecution.error }
+          : {}),
+      },
+    };
   }
 
   /**
