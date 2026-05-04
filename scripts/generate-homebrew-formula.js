@@ -59,7 +59,7 @@ if (!tarballPath && requestedVersion !== packageVersion) {
 
 const description =
   packageJson.description ??
-  "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.";
+  "Repository-native toolchain for MCP workspaces and AI handoffs";
 const normalizedDescription = description.replace(/\.\s*$/, "");
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";

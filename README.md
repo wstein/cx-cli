@@ -76,7 +76,7 @@ The strictness is the feature. If a file lands in two sections, if a checksum dr
 
 ## Operator Surfaces
 
-`cx` now exposes four distinct operator surfaces:
+`cx` now exposes four distinct operator surfaces, with a kernel-owned proof path for production bundle integrity:
 
 - native proof path: `cx bundle`, `cx validate`, `cx verify`, `cx extract`
 - live workspace path: `cx mcp`

@@ -68,7 +68,7 @@ Source companion: `README.md`
 <li>Structured <code>--json</code> output for CI and automation</li>
 </ul>
 <h2>Operator Surfaces</h2>
-<p><code>cx</code> now exposes four distinct operator surfaces:</p>
+<p><code>cx</code> now exposes four distinct operator surfaces, with a kernel-owned proof path for production bundle integrity:</p>
 <ul>
 <li>native proof path: <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, <code>cx extract</code></li>
 <li>live workspace path: <code>cx mcp</code></li>

@@ -48,7 +48,7 @@ describe("generate-homebrew-formula.js", () => {
 
     const formula = await fs.readFile(outputPath, "utf8");
     expect(formula).toContain(
-      'desc "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs"',
+      'desc "Repository-native toolchain for MCP workspaces and AI handoffs"',
     );
     expect(formula).not.toContain(
       'desc "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs."',

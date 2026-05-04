@@ -29,7 +29,7 @@ describe("package metadata contract", () => {
     const pkg = await readPackageJson();
 
     expect(pkg.description).toBe(
-      "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.",
+      "Repository-native toolchain for MCP workspaces and AI handoffs",
     );
     expect(pkg.description).not.toContain("built on top of Repomix");
   });
