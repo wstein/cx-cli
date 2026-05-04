@@ -1,6 +1,6 @@
 {
   "name": "@wsmy/cx-cli",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.",
   "license": "MIT",
   "type": "module",
