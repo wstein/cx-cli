@@ -6,7 +6,7 @@
 [![GitHub tag](https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag)](https://github.com/wstein/cx-cli/tags)
 [![License](https://img.shields.io/github/license/wstein/cx-cli)](https://github.com/wstein/cx-cli/blob/main/LICENSE)
 
-`cx` is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.
+cx-cli is a repository-native toolchain for agent-assisted development: it exposes live MCP workspace access, maintains durable project notes, and produces verifiable bundle artifacts for AI handoff. Its goal is to keep exploration, memory, and proof aligned so agents, developers, and CI can inspect the same trusted project context over time.
 
 Mode chooser: [Operating Modes](https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operating-modes/)
 

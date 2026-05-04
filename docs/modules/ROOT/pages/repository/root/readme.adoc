@@ -10,7 +10,7 @@ Source companion: `README.md`
 <a href="https://www.npmjs.com/package/@wsmy/cx-cli"><img src="https://img.shields.io/npm/v/@wsmy/cx-cli?color=informational" alt="npm version"></a>
 <a href="https://github.com/wstein/cx-cli/tags"><img src="https://img.shields.io/github/v/tag/wstein/cx-cli?label=github%20tag" alt="GitHub tag"></a>
 <a href="https://github.com/wstein/cx-cli/blob/main/LICENSE"><img src="https://img.shields.io/github/license/wstein/cx-cli" alt="License"></a></p>
-<p><code>cx</code> is a repository-native toolchain with a kernel-owned proof path, a live MCP workspace surface, and a durable notes layer for AI handoff and verification.</p>
+<p>cx-cli is a repository-native toolchain for agent-assisted development: it exposes live MCP workspace access, maintains durable project notes, and produces verifiable bundle artifacts for AI handoff. Its goal is to keep exploration, memory, and proof aligned so agents, developers, and CI can inspect the same trusted project context over time.</p>
 <p>Mode chooser: <a href="https://wstein.github.io/cx-cli/docs/cx/0.5/manual/operating-modes/">Operating Modes</a></p>
 <h2>Start Here</h2>
 <p>Run <code>cx mcp</code>.</p>
