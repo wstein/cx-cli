@@ -1,7 +1,7 @@
 {
   "name": "@wsmy/cx-cli",
   "version": "0.5.7",
-  "description": "Kernel-owned context bundler for deterministic AI handoff and verification.",
+  "description": "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.",
   "license": "MIT",
   "type": "module",
   "packageManager": "bun@1.3.12",

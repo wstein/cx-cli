@@ -25,11 +25,11 @@ async function readPackageJson(): Promise<{
 }
 
 describe("package metadata contract", () => {
-  test("package description stays kernel-first and not Repomix-first", async () => {
+  test("package description stays repository-native and not Repomix-first", async () => {
     const pkg = await readPackageJson();
 
     expect(pkg.description).toBe(
-      "Kernel-owned context bundler for deterministic AI handoff and verification.",
+      "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.",
     );
     expect(pkg.description).not.toContain("built on top of Repomix");
   });

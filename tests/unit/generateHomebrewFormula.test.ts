@@ -48,10 +48,10 @@ describe("generate-homebrew-formula.js", () => {
 
     const formula = await fs.readFile(outputPath, "utf8");
     expect(formula).toContain(
-      'desc "Kernel-owned context bundler for deterministic AI handoff and verification"',
+      'desc "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs"',
     );
     expect(formula).not.toContain(
-      'desc "Kernel-owned context bundler for deterministic AI handoff and verification."',
+      'desc "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs."',
     );
     expect(formula).toContain('depends_on "node"');
     expect(formula).toContain('system "npm",');

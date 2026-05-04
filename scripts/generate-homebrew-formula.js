@@ -59,7 +59,7 @@ if (!tarballPath && requestedVersion !== packageVersion) {
 
 const description =
   packageJson.description ??
-  "Kernel-owned context bundler for deterministic AI handoff and verification.";
+  "Repository-native toolchain for live MCP workspaces, durable notes, and verifiable AI handoffs.";
 const normalizedDescription = description.replace(/\.\s*$/, "");
 const homepage = packageJson.homepage ?? "https://github.com/wstein/cx-cli";
 const license = packageJson.license ?? "MIT";
