@@ -413,6 +413,17 @@ exclude = []
       );
       expect(editorconfig).toContain("root = true");
       expect(editorconfig).toContain("trim_trailing_whitespace = true");
+      expect(editorconfig).toContain("indent_style = space");
+      expect(editorconfig).toContain("indent_size = 2");
+
+      const markdownlint = await fs.readFile(
+        path.join(tempDir, ".markdownlint.json"),
+        "utf8",
+      );
+      expect(JSON.parse(markdownlint)).toEqual({
+        MD041: false,
+        MD013: false,
+      });
 
       const vscodeMcpJson = await fs.readFile(
         path.join(tempDir, ".vscode", "mcp.json"),

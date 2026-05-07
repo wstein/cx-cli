@@ -21,6 +21,11 @@ const COMMON_REQUIRED_FILES = [
     description: "Workspace editor defaults.",
   },
   {
+    destinationPath: ".markdownlint.json",
+    templateName: ".markdownlint.json",
+    description: "Markdown lint defaults for generated docs and notes.",
+  },
+  {
     destinationPath: "Makefile",
     templateName: "Makefile",
     description: "Workspace-local developer task wrapper.",

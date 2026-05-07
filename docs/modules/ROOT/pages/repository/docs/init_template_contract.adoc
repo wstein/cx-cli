@@ -12,6 +12,7 @@ The universal generated files are:
 * `README.md`
 * `cx.toml`
 * `.editorconfig`
+* `.markdownlint.json`
 * `Makefile`
 * `cx-mcp.toml`
 * `.mcp.json`
