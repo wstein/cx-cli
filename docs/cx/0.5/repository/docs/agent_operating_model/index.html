@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Operating Model | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_integration_layer_responsibilities">Integration-Layer Responsibilities</a></li>
+<li><a href="#_operator_decision_ladder">Operator Decision Ladder</a></li>
+<li><a href="#_policy_consequences_for_agents">Policy Consequences For Agents</a>
+<ul class="sectlevel2">
+<li><a href="#_strict"><code>strict</code></a></li>
+<li><a href="#_default"><code>default</code></a></li>
+<li><a href="#_unrestricted"><code>unrestricted</code></a></li>
+</ul>
+</li>
+<li><a href="#_capability_tiers">Capability Tiers</a></li>
+<li><a href="#intent-taxonomy-for-agents">Intent Taxonomy For Agents</a>
+<ul class="sectlevel2">
+<li><a href="#_read_observe_tools">Read / Observe Tools</a></li>
+<li><a href="#_plan_preview">Plan / Preview</a></li>
+<li><a href="#_write_mutate_tools">Write / Mutate Tools</a></li>
+</ul>
+</li>
+<li><a href="#_why_mutation_policy_denial_stops_you">Why Mutation Policy Denial Stops You</a></li>
+<li><a href="#_audit_trail">Audit Trail</a></li>
+<li><a href="#_integration_examples">Integration Examples</a>
+<ul class="sectlevel2">
+<li><a href="#_interactive_local_session">Interactive Local Session</a></li>
+<li><a href="#_trusted_local_note_mutation_session">Trusted Local Note Mutation Session</a></li>
+</ul>
+</li>
+<li><a href="#_links">Links</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Start with the <a href="../../../architecture/mental-model/" class="xref page">Mental Model</a> for canonical semantics and <a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a> for the operator-facing entrypoint.</p>
+</div>
+<div class="paragraph">
+<p>This document covers the integration layer for agent operators.
+It does not redefine the canonical semantics of the CX triad, Track A vs Track B, MCP policy tiers, or artifact lifecycle. Those meanings live in the <a href="../../../architecture/mental-model/" class="xref page">Mental Model</a>. This document explains what those semantics become when an agent is connected to a repository over MCP.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integration_layer_responsibilities"><a class="anchor" href="#_integration_layer_responsibilities"></a>Integration-Layer Responsibilities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>At the agent layer, the model becomes four practical questions:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Which tools are visible in this session?</p>
+</li>
+<li>
+<p>Which capabilities are allowed, denied, or mutation-gated?</p>
+</li>
+<li>
+<p>Which workflow should the operator invoke next?</p>
+</li>
+<li>
+<p>Which audit trail explains what the agent actually did?</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>That is the scope of this document. Canonical semantics stay upstream in the <a href="../../../architecture/mental-model/" class="xref page">Mental Model</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_operator_decision_ladder"><a class="anchor" href="#_operator_decision_ladder"></a>Operator Decision Ladder</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use the integration layer in this order:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start with <a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a> to choose the right surface.</p>
+</li>
+<li>
+<p>Use <code>cx mcp</code> when the operator needs live agent help on the current checkout.</p>
+</li>
+<li>
+<p>Use <code>cx doctor mcp</code> to confirm the resolved profile, workspace boundary, and policy state.</p>
+</li>
+<li>
+<p>Let the agent operate inside the allowed capability set.</p>
+</li>
+<li>
+<p>Promote work into Track A with <code>cx bundle</code> only when the job must become a reproducible artifact.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the operator sees exactly when a live exploratory session stops being hypothesis work and starts becoming a proof path.</p>
+</div>
+<div class="paragraph">
+<p>The trust shorthand for that ladder is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Source tree:</strong> trusted</p>
+</li>
+<li>
+<p><strong>Notes:</strong> conditional</p>
+</li>
+<li>
+<p><strong>Agent output:</strong> untrusted until verified</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> trusted</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_policy_consequences_for_agents"><a class="anchor" href="#_policy_consequences_for_agents"></a>Policy Consequences For Agents</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The integration layer turns abstract policy into concrete tool visibility.</p>
+</div>
+<div class="sect2">
+<h3 id="_strict"><a class="anchor" href="#_strict"></a><code>strict</code></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Intended for CI and other untrusted automation</p>
+</li>
+<li>
+<p>Agent can read and observe</p>
+</li>
+<li>
+<p>Agent cannot plan or mutate</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_default"><a class="anchor" href="#_default"></a><code>default</code></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Intended for interactive operator sessions</p>
+</li>
+<li>
+<p>Agent can read, observe, and plan</p>
+</li>
+<li>
+<p>Agent cannot mutate notes or workspace files</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_unrestricted"><a class="anchor" href="#_unrestricted"></a><code>unrestricted</code></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Intended only for trusted local sessions</p>
+</li>
+<li>
+<p>Mutate-capability tools still require <code>enable_mutation = true</code></p>
+</li>
+<li>
+<p>Without that explicit flag, the session is still non-mutating</p>
+</li>
+<li>
+<p>Generated <code>cx.toml</code> now includes <code>mcp.enable_mutation = true</code> by default, so this setting is only meaningful when <code>policy = "unrestricted"</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_capability_tiers"><a class="anchor" href="#_capability_tiers"></a>Capability Tiers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The MCP registration wrapper assigns every tool one capability tier. Policy enforcement, audit logging, and allow-or-deny decisions all use the same declaration.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>read</code>: <code>list</code>, <code>grep</code>, <code>read</code>, <code>bundle_list</code></p>
+</li>
+<li>
+<p><code>observe</code>: <code>doctor_*</code>, <code>bundle_validate</code>, <code>bundle_verify</code>, <code>docs_drift</code>, <code>config_show_effective</code>, <code>mcp_catalog</code>, <code>notes_read</code>, <code>notes_search</code>, <code>notes_list</code>, <code>notes_check</code>, <code>notes_drift</code>, <code>notes_trace</code>, <code>notes_ask</code>, <code>notes_coverage</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>, <code>notes_code_links</code>, <code>notes_links</code>, <code>notes_graph</code></p>
+</li>
+<li>
+<p><code>plan</code>: <code>inspect</code>, <code>bundle</code></p>
+</li>
+<li>
+<p><code>mutate</code>: <code>extract</code>, <code>bundle_create</code>, <code>docs_compile</code>, <code>docs_export</code>, <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, <code>replace_repomix_span</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="../governance/#mcp-tool-stability" class="xref page">MCP Tool Stability Tiers</a>
+for tool stability tiers.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="intent-taxonomy-for-agents"><a class="anchor" href="#intent-taxonomy-for-agents"></a>Intent Taxonomy For Agents</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The integration layer also groups tools by intent so prompts, policy
+checks, and agent orchestration can enforce predictable behavior.</p>
+</div>
+<div class="sect2">
+<h3 id="_read_observe_tools"><a class="anchor" href="#_read_observe_tools"></a>Read / Observe Tools</h3>
+<div class="paragraph">
+<p>These tools are for safe inspection, search, and non-mutating note
+reads. Use them when the task is exploratory, investigative, or
+review-only.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>list</code></p>
+</li>
+<li>
+<p><code>grep</code></p>
+</li>
+<li>
+<p><code>read</code></p>
+</li>
+<li>
+<p><code>doctor_mcp</code></p>
+</li>
+<li>
+<p><code>doctor_workflow</code></p>
+</li>
+<li>
+<p><code>doctor_overlaps</code></p>
+</li>
+<li>
+<p><code>doctor_secrets</code></p>
+</li>
+<li>
+<p><code>notes_read</code></p>
+</li>
+<li>
+<p><code>notes_search</code></p>
+</li>
+<li>
+<p><code>notes_list</code></p>
+</li>
+<li>
+<p><code>notes_backlinks</code></p>
+</li>
+<li>
+<p><code>notes_orphans</code></p>
+</li>
+<li>
+<p><code>notes_code_links</code></p>
+</li>
+<li>
+<p><code>notes_links</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_plan_preview"><a class="anchor" href="#_plan_preview"></a>Plan / Preview</h3>
+<div class="paragraph">
+<p>These tools produce deterministic plans or bundle metadata without
+mutating the workspace.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>inspect</code></p>
+</li>
+<li>
+<p><code>bundle</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use them after gathering enough context from the read/observe group, and
+treat their outputs as review artifacts rather than repository changes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_write_mutate_tools"><a class="anchor" href="#_write_mutate_tools"></a>Write / Mutate Tools</h3>
+<div class="paragraph">
+<p>These tools change repository state, notes, or bundle planning
+metadata. Expose them only when the agent is explicitly authorized to
+modify content.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>extract</code></p>
+</li>
+<li>
+<p><code>replace_repomix_span</code></p>
+</li>
+<li>
+<p><code>notes_new</code></p>
+</li>
+<li>
+<p><code>notes_update</code></p>
+</li>
+<li>
+<p><code>notes_rename</code></p>
+</li>
+<li>
+<p><code>notes_delete</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use the read/observe group first to gather context and confirm the
+target location before allowing mutations. <code>extract</code> restores files from
+an existing bundle back into the live workspace boundary, so it belongs
+with the mutate-capability group instead of the planning tools.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_mutation_policy_denial_stops_you"><a class="anchor" href="#_why_mutation_policy_denial_stops_you"></a>Why Mutation Policy Denial Stops You</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When an MCP session denies <code>extract</code>, <code>notes_new</code>, <code>notes_update</code>, <code>notes_delete</code>, <code>notes_rename</code>, or <code>replace_repomix_span</code>, the denial is protecting the read/plan-versus-mutate boundary.</p>
+</div>
+<div class="paragraph">
+<p>Why this stops you: an exploratory session should not silently cross from analysis into repository mutation. <code>cx</code> requires an explicit trust decision before mutate-capability tools appear, so operators can distinguish "the agent may inspect" from "the agent may edit."</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_audit_trail"><a class="anchor" href="#_audit_trail"></a>Audit Trail</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When MCP audit logging is enabled (<code>[mcp] audit_logging = true</code> in <code>cx.toml</code>), tool calls are recorded in <code>.cx/audit.log</code> with explicit policy provenance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "schemaVersion": 2,
+  "timestamp": "2026-04-30T16:41:25Z",
+  "traceId": "notes_read:observe:allowed:1744900200000",
+  "sessionId": "mcp-session-3d2c2f85",
+  "requestId": "req-000042",
+  "tool": "notes_read",
+  "capability": "observe",
+  "decision": "allowed",
+  "reason": "Tool notes_read (capability: observe) is allowed",
+  "policyName": "default-deny-mutate",
+  "decisionBasis": ["tool_catalog", "policy_allow_list"],
+  "request": {
+    "agentReason": "(not provided)",
+    "args": {
+      "id": "20260430164125"
+    },
+    "redaction": {
+      "applied": false,
+      "rules": []
+    }
+  },
+  "execution": {
+    "status": "succeeded",
+    "durationMs": 12
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Audit logging is the integration-layer answer to "what did the agent really do?" The <code>traceId</code>, <code>policyName</code>, <code>request</code>, and <code>execution</code> fields make the allow-or-deny path and the actual tool request explicit instead of leaving later reviewers to infer intent from timing alone.</p>
+</div>
+<div class="paragraph">
+<p>The request-aware evolution of this ledger is documented in <a href="../../../architecture/mcp-audit-trace-design/" class="xref page">MCP Audit Trace Design</a>. That design adds sanitized request arguments, agent rationale, session correlation, and execution status so team review can reconstruct what the agent asked for without turning the audit log into a raw prompt dump.</p>
+</div>
+<div class="paragraph">
+<p>When an MCP client can provide richer context, it should send <code>cx/agent-reason</code> and <code>cx/user-goal</code> through request <code>_meta</code>. <code>cx</code> copies those values into the audit request envelope so later review can distinguish a generic tool call from a clearly motivated one.</p>
+</div>
+<div class="paragraph">
+<p><code>cx doctor mcp --json</code> now summarizes recent audit trends as well:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>total allowed versus denied MCP events</p>
+</li>
+<li>
+<p>execution-status counts (<code>succeeded</code>, <code>failed</code>, <code>timed_out</code>, <code>denied</code>)</p>
+</li>
+<li>
+<p>policy-name counts</p>
+</li>
+<li>
+<p>redaction-rule counts</p>
+</li>
+<li>
+<p>recent <code>traceId</code> values</p>
+</li>
+<li>
+<p><code>toolCatalogVersion</code>, <code>toolCatalog</code>, and <code>toolCatalogSummary</code> fields that expose the machine-readable MCP stability contract for automation</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For operators who only need the audit ledger, <code>cx audit summary --json</code> exposes the same trend view without mixing it into the broader MCP profile report. <code>cx audit recent --json</code> exposes the latest sanitized request envelopes for direct inspection.</p>
+</div>
+<div class="paragraph">
+<p>For operators or external automation that need only the current MCP tool surface, prefer <code>cx mcp catalog --json</code>. It exposes the registered tool set with each tool&#8217;s <code>name</code>, <code>capability</code>, and <code>stability</code>, plus a summary object for quick inspection. <code>cx doctor mcp --json</code> still includes the same catalog fields when you also need the resolved profile, policy state, and audit trend view in one report.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: operators can inspect whether an agent session is behaving as expected without opening raw JSONL logs or guessing which policy path has actually been exercised.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integration_examples"><a class="anchor" href="#_integration_examples"></a>Integration Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_interactive_local_session"><a class="anchor" href="#_interactive_local_session"></a>Interactive Local Session</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp
+cx doctor mcp --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The operator verifies the active policy before handing control to the agent.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_trusted_local_note_mutation_session"><a class="anchor" href="#_trusted_local_note_mutation_session"></a>Trusted Local Note Mutation Session</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[mcp]
+policy = "unrestricted"
+enable_mutation = true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then review the result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes check
+cx notes graph --id &lt;note-id&gt; --depth 2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the review loop that follows trusted note edits, see <a href="../../../manual/workflows/#safe-note-mutation-workflow" class="xref page">Safe Note Mutation</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links"><a class="anchor" href="#_links"></a>Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../../../architecture/mental-model/" class="xref page">Mental Model</a> for canonical semantics</p>
+</li>
+<li>
+<p><a href="../../../manual/operating-modes/" class="xref page">Operating Modes</a> for operator mode selection</p>
+</li>
+<li>
+<p><a href="../agent_integration/" class="xref page">Agent Integration Guide</a> for IDE and client setup</p>
+</li>
+<li>
+<p><a href="../../../manual/workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a> for temporal provenance</p>
+</li>
+<li>
+<p><a href="https://github.com/wstein/cx-cli/blob/main/notes/Agent%20Operating%20Model.md">notes/Agent Operating Model</a> for the knowledge-graph entry</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

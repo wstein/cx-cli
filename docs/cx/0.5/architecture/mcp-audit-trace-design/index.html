@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MCP Audit Trace Design | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="./">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_goals">Goals</a></li>
+<li><a href="#_event_schema">Event Schema</a></li>
+<li><a href="#_required_fields">Required Fields</a></li>
+<li><a href="#_request_envelope">Request Envelope</a></li>
+<li><a href="#_execution_envelope">Execution Envelope</a></li>
+<li><a href="#_redaction_rules">Redaction Rules</a></li>
+<li><a href="#_registration_and_wiring">Registration And Wiring</a></li>
+<li><a href="#_operator_commands">Operator Commands</a></li>
+<li><a href="#_implementation_notes">Implementation Notes</a></li>
+<li><a href="#_review_benefits">Review Benefits</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The MCP audit trail must answer two different questions without forcing operators to choose between them:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>"Why was this tool call allowed or denied?"</p>
+</li>
+<li>
+<p>"What did the agent actually ask the tool to do?"</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The existing log answers the first question well, but only partially answers the second. This design extends <code>.cx/audit.log</code> into a request-aware execution ledger without splitting policy review from operational review.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_goals"><a class="anchor" href="#_goals"></a>Goals</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Preserve the current policy-audit value: capability, allow or deny state, policy name, and decision basis remain explicit.</p>
+</li>
+<li>
+<p>Add request context that makes team review practical: session identity, tool arguments after redaction, agent rationale, and execution status.</p>
+</li>
+<li>
+<p>Keep the log safe to retain and inspect: redact high-risk payloads by default and avoid turning the ledger into a replay mechanism.</p>
+</li>
+<li>
+<p>Keep one registration path for all tools so coverage is uniform across read, observe, plan, and mutate capabilities.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_event_schema"><a class="anchor" href="#_event_schema"></a>Event Schema</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each line in <code>.cx/audit.log</code> remains one JSON object. The schema is extended rather than duplicated in a second file.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "schemaVersion": 2,
+  "timestamp": "2026-04-30T16:41:25.000Z",
+  "traceId": "notes_update:mutate:allowed:1746024085000",
+  "sessionId": "mcp-session-3d2c2f85",
+  "requestId": "req-000042",
+  "tool": "notes_update",
+  "capability": "mutate",
+  "decision": "allowed",
+  "reason": "Tool notes_update (capability: mutate) is allowed",
+  "policyName": "unrestricted",
+  "decisionBasis": ["tool_catalog", "policy_allow_list"],
+  "request": {
+    "agentReason": "Update the design note with the final redaction contract.",
+    "userGoal": "Document and implement request-aware audit logging.",
+    "args": {
+      "id": "20260430164125",
+      "title": "MCP Audit Request Tracing",
+      "body": {
+        "kind": "redacted_text",
+        "sha256": "8c7f...",
+        "length": 1240,
+        "preview": "MCP audit logging must capture..."
+      }
+    },
+    "redaction": {
+      "applied": true,
+      "rules": ["body_text", "large_freeform_text"]
+    }
+  },
+  "execution": {
+    "status": "succeeded",
+    "durationMs": 43
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_required_fields"><a class="anchor" href="#_required_fields"></a>Required Fields</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>schemaVersion</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Audit schema version. The new request-aware ledger starts at <code>2</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>timestamp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UTC instant when the event is finalized.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>traceId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stable per-event identifier kept for compatibility inside the repo&#8217;s review vocabulary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sessionId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stable id for the MCP server process lifetime. Groups related tool calls into one operator session.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>requestId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monotonic per-session id that makes sequence reconstruction deterministic.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Registered MCP tool name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>capability</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Capability tier from the tool catalog.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>decision</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Policy verdict: <code>allowed</code> or <code>denied</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reason</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Human-readable policy decision text.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>policyName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Resolved policy name such as <code>default-deny-mutate</code> or <code>strict-read-only</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>decisionBasis</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Structured explanation of the verdict path.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>request</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Request envelope with sanitized arguments and operator-review context.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>execution</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Execution outcome after the handler returns, throws, or times out.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_request_envelope"><a class="anchor" href="#_request_envelope"></a>Request Envelope</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>request</code> object contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>agentReason</code>: required short free-text rationale supplied by the caller when available; otherwise <code>"(not provided)"</code>.</p>
+</li>
+<li>
+<p><code>userGoal</code>: optional short description of the current operator task when available from runtime context.</p>
+</li>
+<li>
+<p><code>args</code>: sanitized tool arguments.</p>
+</li>
+<li>
+<p><code>redaction</code>: whether any rule fired and which rules were applied.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The log must prefer structure over raw payload capture. If an argument is safe and already compact, store it directly. If it is sensitive or unbounded, replace it with a descriptor object.</p>
+</div>
+<div class="paragraph">
+<p>When a client can supply richer intent, it should send these cx-specific MCP request <code>_meta</code> keys:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx/agent-reason</code></p>
+</li>
+<li>
+<p><code>cx/user-goal</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_execution_envelope"><a class="anchor" href="#_execution_envelope"></a>Execution Envelope</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>execution</code> object contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>status</code>: <code>denied</code>, <code>succeeded</code>, <code>failed</code>, or <code>timed_out</code></p>
+</li>
+<li>
+<p><code>durationMs</code>: elapsed runtime when the handler started</p>
+</li>
+<li>
+<p><code>error</code>: short sanitized message only for <code>failed</code> or <code>timed_out</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Denied requests still emit an event. Their <code>execution.status</code> is <code>denied</code>, and no handler timing is recorded.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_redaction_rules"><a class="anchor" href="#_redaction_rules"></a>Redaction Rules</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Redaction must be deterministic and schema-backed. The initial rules are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Rule</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>large_freeform_text</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replace large text values with <code>{ kind, sha256, length, preview }</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>body_text</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Always redact note bodies, replacement payloads, generated docs content, and other multi-line authored text.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>prompt_like_input</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redact fields that contain prompt-like or instruction-like blobs even if they are short.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>binary_or_blob</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replace binary-like payloads or encoded content with <code>{ kind, sha256, length }</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>secret_like_key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redact values when the key name suggests credentials, tokens, or secrets.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Additional redaction constraints:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Keep direct scalar values for ids, booleans, counts, enum-like options, line numbers, and short paths.</p>
+</li>
+<li>
+<p>Keep only a short preview for redacted text, and only when that preview is itself low risk.</p>
+</li>
+<li>
+<p>Never log full note bodies, replacement content, extracted file contents, or generated documentation bodies.</p>
+</li>
+<li>
+<p>Never log tool results in full. Execution metadata is enough for the audit ledger.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_registration_and_wiring"><a class="anchor" href="#_registration_and_wiring"></a>Registration And Wiring</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The integration point is <code>src/mcp/tools/register.ts</code>.</p>
+</div>
+<div class="paragraph">
+<p>The runtime flow becomes:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Build a request context as soon as the MCP tool handler receives normalized args.</p>
+</li>
+<li>
+<p>Sanitize args with a shared redaction helper before any audit write.</p>
+</li>
+<li>
+<p>Record the policy decision together with the request envelope.</p>
+</li>
+<li>
+<p>Run the handler under the existing timeout wrapper.</p>
+</li>
+<li>
+<p>Finalize the same event with <code>succeeded</code>, <code>failed</code>, or <code>timed_out</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This keeps one audit event per tool call while making the final ledger reflect the whole lifecycle instead of just the gate decision.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_operator_commands"><a class="anchor" href="#_operator_commands"></a>Operator Commands</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Operators consume the ledger through two complementary commands:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx audit summary</code> for aggregate trends, including execution-status counts and redaction-rule counts</p>
+</li>
+<li>
+<p><code>cx audit recent</code> for the latest sanitized request envelopes without opening raw JSONL</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_implementation_notes"><a class="anchor" href="#_implementation_notes"></a>Implementation Notes</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>src/mcp/audit.ts</code> owns the event schema, session id generation, request id sequencing, redaction helpers, and JSONL writes.</p>
+</li>
+<li>
+<p><code>src/mcp/enforce.ts</code> continues to own policy checks, but it should return the decision so <code>registerCxMcpTool</code> can log the full event lifecycle.</p>
+</li>
+<li>
+<p><code>src/mcp/tools/register.ts</code> becomes the orchestration point that combines request capture, policy decision, timing, handler execution, and final audit status.</p>
+</li>
+<li>
+<p><code>cx audit summary</code> and <code>cx doctor mcp</code> should continue to summarize the ledger without printing raw request payloads.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_review_benefits"><a class="anchor" href="#_review_benefits"></a>Review Benefits</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This design lets the team review:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>what the agent asked for</p>
+</li>
+<li>
+<p>why policy allowed or denied it</p>
+</li>
+<li>
+<p>which redactions were applied</p>
+</li>
+<li>
+<p>whether the request completed successfully</p>
+</li>
+<li>
+<p>how a sequence of tool calls maps to one operator task</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That closes the gap between policy telemetry and usable behavioral audit.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Internal API Contract | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="./">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_renderengine">RenderEngine</a></li>
+<li><a href="#_structuredrenderplan">StructuredRenderPlan</a></li>
+<li><a href="#_tokenizerprovider">TokenizerProvider</a></li>
+<li><a href="#_scannerpipeline">ScannerPipeline</a></li>
+<li><a href="#_adapter_oriented_expert_surfaces">Adapter-Oriented Expert Surfaces</a></li>
+<li><a href="#_stability_rules">Stability Rules</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This document records the internal interfaces that <code>cx</code> treats as stable
+architecture seams before any plugin or extension system is introduced.</p>
+</div>
+<div class="paragraph">
+<p>These interfaces are not public package APIs, but they are internal
+contract surfaces. Changes to them should be deliberate, reviewed, and
+accompanied by tests and documentation updates.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_renderengine"><a class="anchor" href="#_renderengine"></a>RenderEngine</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Defined in <a href="https://github.com/wstein/cx-cli/blob/main/src/render/types.ts">src/render/types.ts</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>RenderEngine</code> owns proof-path section rendering.</p>
+</div>
+<div class="paragraph">
+<p>Responsibilities:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>render section output for <code>xml</code>, <code>markdown</code>, <code>json</code>, and <code>plain</code></p>
+</li>
+<li>
+<p>return output token counts</p>
+</li>
+<li>
+<p>return file content hashes</p>
+</li>
+<li>
+<p>return spans where the style requires them</p>
+</li>
+<li>
+<p>return structured plans and plan hashes when required</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Rule:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>proof-path callers depend on <code>RenderEngine</code>, not on a concrete
+renderer</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_structuredrenderplan"><a class="anchor" href="#_structuredrenderplan"></a>StructuredRenderPlan</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Defined in <a href="https://github.com/wstein/cx-cli/blob/main/src/render/types.ts">src/render/types.ts</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>StructuredRenderPlan</code> is the kernel-owned proof model for rendered
+section entries.</p>
+</div>
+<div class="paragraph">
+<p>Responsibilities:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>stable entry ordering</p>
+</li>
+<li>
+<p>stable content identity</p>
+</li>
+<li>
+<p>stable per-entry token counts</p>
+</li>
+<li>
+<p>language tagging when available</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Rule:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>verification logic depends on the structured plan contract, not on
+adapter output shapes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tokenizerprovider"><a class="anchor" href="#_tokenizerprovider"></a>TokenizerProvider</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Defined in <a href="https://github.com/wstein/cx-cli/blob/main/src/shared/tokenizer.ts">src/shared/tokenizer.ts</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>TokenizerProvider</code> owns deterministic token counting.</p>
+</div>
+<div class="paragraph">
+<p>Responsibilities:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>count tokens for in-memory text</p>
+</li>
+<li>
+<p>count tokens for files on disk</p>
+</li>
+<li>
+<p>provide a stable seam between callers and tokenizer implementations</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Current default implementation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/wstein/cx-cli/blob/main/src/shared/tokens.ts">src/shared/tokens.ts</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Rule:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>bundle planning, bundle reporting, and inspect reporting should depend
+on the provider interface instead of calling tokenizer implementations
+directly</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scannerpipeline"><a class="anchor" href="#_scannerpipeline"></a>ScannerPipeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Defined in <a href="https://github.com/wstein/cx-cli/blob/main/src/doctor/scanner.ts">src/doctor/scanner.ts</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>ScannerPipeline</code> owns bundle-stage security scanning.</p>
+</div>
+<div class="paragraph">
+<p>Responsibilities:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>scan source files before proof artifacts are finalized</p>
+</li>
+<li>
+<p>optionally scan rendered bundle artifacts before finalization</p>
+</li>
+<li>
+<p>return structured findings with:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>scanner id</p>
+</li>
+<li>
+<p>profile</p>
+</li>
+<li>
+<p>stage</p>
+</li>
+<li>
+<p>severity</p>
+</li>
+<li>
+<p>proof-blocking status</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>keep scanner selection explicit through known scanner IDs</p>
+</li>
+<li>
+<p>enforce explicit fail/warn handling</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Current default implementation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the reference scanner bridge around the installed oracle scanner</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Current bounded configuration:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>explicit scanner IDs</p>
+</li>
+<li>
+<p>source-stage scanning</p>
+</li>
+<li>
+<p>optional post-pack artifact scanning</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Non-goals:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>plugin discovery</p>
+</li>
+<li>
+<p>open-ended scanner loading</p>
+</li>
+<li>
+<p>implicit proof-path scanner activation</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Rule:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>scanning behavior belongs to the pipeline contract, not to renderer
+helpers</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_adapter_oriented_expert_surfaces"><a class="anchor" href="#_adapter_oriented_expert_surfaces"></a>Adapter-Oriented Expert Surfaces</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The adapter/oracle seam and the <code>cx adapter</code> command family are expert
+diagnostic surfaces.</p>
+</div>
+<div class="paragraph">
+<p>They exist for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>parity diagnostics</p>
+</li>
+<li>
+<p>oracle capability inspection</p>
+</li>
+<li>
+<p>migration and reference testing</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They are not part of ordinary proof-path execution, and production
+bundle or verification flows must not depend on them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_stability_rules"><a class="anchor" href="#_stability_rules"></a>Stability Rules</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add new internal interfaces only when they create a durable ownership
+boundary.</p>
+</li>
+<li>
+<p>Refactors that cross these seams must preserve contract tests and
+runtime behavior.</p>
+</li>
+<li>
+<p>Do not introduce plugin-facing variability into these interfaces until
+the plugin system itself is explicitly implemented.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

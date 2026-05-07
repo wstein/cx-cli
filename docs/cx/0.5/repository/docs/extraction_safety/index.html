@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Extraction Safety | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_why_this_document_exists">Why This Document Exists</a></li>
+<li><a href="#_status_meanings">Status Meanings</a></li>
+<li><a href="#_the_default_safety_rule">The Default Safety Rule</a></li>
+<li><a href="#_what_the_hash_means">What The Hash Means</a></li>
+<li><a href="#_troubleshooting_hash_mismatches">Troubleshooting Hash Mismatches</a></li>
+<li><a href="#_what_degraded_usually_means">What "Degraded" Usually Means</a></li>
+<li><a href="#_why_allow_degraded_is_dangerous">Why <code>--allow-degraded</code> Is Dangerous</a>
+<ul class="sectlevel2">
+<li><a href="#_the_mechanical_chain_of_causality">The Mechanical Chain of Causality</a></li>
+</ul>
+</li>
+<li><a href="#_safe_and_unsafe_use_cases">Safe And Unsafe Use Cases</a></li>
+<li><a href="#_recommended_operator_decision">Recommended Operator Decision</a></li>
+<li><a href="#_practical_examples">Practical Examples</a></li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_why_this_document_exists"><a class="anchor" href="#_why_this_document_exists"></a>Why This Document Exists</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> is a deterministic bundler, not an archiver.</p>
+</div>
+<div class="paragraph">
+<p>For the broader document map and architecture context, see the <a href="../../../onboarding/" class="xref page">Documentation Index</a> and the <a href="../../../architecture/implementation-reference/" class="xref page">Implementation Reference</a>.
+See the <a href="../../../architecture/mental-model/" class="xref page">Mental Model</a> for the canonical artifact lifecycle that extraction sits inside.</p>
+</div>
+<div class="paragraph">
+<p>For packed text files, the bundle contract is the normalized packed representation emitted by the renderer, not the original source file bytes. Verification and extraction therefore work against the rendered bundle content, which is what downstream automation actually consumes.</p>
+</div>
+<div class="paragraph">
+<p>Text extraction uses the manifest&#8217;s <code>outputStartLine</code> and <code>outputEndLine</code> values as the primary locator for XML, Markdown, and plain sections. JSON sections use direct object lookup because the packed content is already stored as structured values in a single JSON object. A bundle that contains text sections without span metadata is rejected at bundle time.</p>
+</div>
+<div class="paragraph">
+<p>Extraction safety sits downstream of bundle safety. The bundle-time dirty-state taxonomy determines whether a bundle may exist at all, while this document explains what happens after a valid bundle has already been written.</p>
+</div>
+<div class="paragraph">
+<p>In practical terms:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>clean</code> and <code>safe_dirty</code> bundles are ordinary inputs to extraction.</p>
+</li>
+<li>
+<p><code>unsafe_dirty</code> never reaches extraction because bundling aborts first.</p>
+</li>
+<li>
+<p><code>forced_dirty</code> is a recorded audit state, not a relaxation of extraction rules.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If a bundle was forced dirty, extraction still uses the manifest as written. The presence of <code>forced_dirty</code> does not weaken hash checking or span validation; it simply tells reviewers that the bundle came from an explicitly overridden working tree.</p>
+</div>
+<div class="paragraph">
+<p>If your promotion pipeline forbids operator overrides, quarantine the bundle before extraction by parsing the manifest <code>dirtyState</code> field in CI. The quarantine logic belongs upstream of extraction, not inside the extractor.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_status_meanings"><a class="anchor" href="#_status_meanings"></a>Status Meanings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> uses four statuses during recovery:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Status</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>intact</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reconstructed content matches the packed-content hash in the manifest</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>copied</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Asset is restored directly from stored bundle content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>degraded</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content can be reconstructed, but the packed slice does not match the manifest hash</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>blocked</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deterministic reconstruction is not possible from the stored section output or its span metadata</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_default_safety_rule"><a class="anchor" href="#_the_default_safety_rule"></a>The Default Safety Rule</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>By default, <code>cx extract</code> writes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>intact</code> text files</p>
+</li>
+<li>
+<p><code>copied</code> assets</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It refuses to write <code>degraded</code> text files unless you explicitly pass:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx extract dist/demo-bundle --to /tmp/restore --allow-degraded</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this stops you: once the recovered packed content no longer matches the manifest hash, the extractor can no longer guarantee that line coordinates and file identity still mean what the rest of the bundle says they mean.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_the_hash_means"><a class="anchor" href="#_what_the_hash_means"></a>What The Hash Means</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The manifest <code>sha256</code> for a packed text file is the hash of the normalized packed content stored in the section output.</p>
+</div>
+<div class="paragraph">
+<p>That is deliberate:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx verify --against</code> re-renders the selected source files through the reference oracle and compares packed-content hashes</p>
+</li>
+<li>
+<p><code>cx extract</code> uses output spans to recover the packed slice and checks it against the packed-content hash recorded in the manifest</p>
+</li>
+<li>
+<p><code>cx bundle</code> records the same packed-content hash that later commands rely on</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the bundle output changes, the hash changes. If the original source file bytes differ in a way that does not change the packed output, the bundle hash stays the same.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting_hash_mismatches"><a class="anchor" href="#_troubleshooting_hash_mismatches"></a>Troubleshooting Hash Mismatches</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When extraction reports <code>manifest_hash_mismatch</code>, the error table shows a short checksum prefix for both the expected and actual content. Use that as the first diagnostic signal, then decide whether the file should be reviewed or the bundle should be rebuilt.</p>
+</div>
+<div class="paragraph">
+<p>Practical checks:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>compare the expected and actual checksum prefixes in the error table</p>
+</li>
+<li>
+<p>re-run <code>cx list --json</code> or <code>cx extract --json</code> if you need the full <code>expectedSha256</code> and <code>actualSha256</code> values</p>
+</li>
+<li>
+<p>confirm whether the section output changed because of a rendering option, a span mismatch, or an actual content edit</p>
+</li>
+<li>
+<p>rebuild the bundle if the packed content is supposed to be stable</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the mismatch is intentional and approximate recovery is acceptable, use <code>--allow-degraded</code>. Otherwise, treat it as a bundle integrity failure and regenerate the bundle.</p>
+</div>
+<div class="paragraph">
+<p>Why this stops you: a hash mismatch is not cosmetic drift. It is evidence that the recovered slice is no longer the same packed content the manifest promised to downstream tooling.</p>
+</div>
+<div class="paragraph">
+<p>Operational extract failures now surface the same guidance in both human and JSON output: a suggested command, a docs reference, and next steps under <code>error.remediation</code>. Treat that payload as the machine-readable recovery path for dashboards and CI summaries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_degraded_usually_means"><a class="anchor" href="#_what_degraded_usually_means"></a>What "Degraded" Usually Means</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A degraded file usually means the stored section output and the parsed recovery path no longer agree on the normalized packed content.</p>
+</div>
+<div class="paragraph">
+<p>That can happen if:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the section wrapper no longer matches the manifest span metadata</p>
+</li>
+<li>
+<p>the stored output was edited after bundling</p>
+</li>
+<li>
+<p>the packed slice itself differs from the manifest hash</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It should not be caused by ordinary source-byte differences that do not affect the packed output.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_allow_degraded_is_dangerous"><a class="anchor" href="#_why_allow_degraded_is_dangerous"></a>Why <code>--allow-degraded</code> Is Dangerous</h2>
+<div class="sectionbody">
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>THE DISASTER SCENARIO</p>
+</div>
+<div class="paragraph">
+<p>Imagine your bundle is degraded by a single missing newline at the top of a file. Every line number in the manifest is now shifted by <code>+1</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>You run an LLM agent that reads the degraded bundle.</p>
+</li>
+<li>
+<p>The agent identifies a vulnerability it thinks is on line 42.</p>
+</li>
+<li>
+<p>Because of the shift, line 42 in the agent&#8217;s view is actually line 41 in the real file.</p>
+</li>
+<li>
+<p>The agent issues a patch to “overwrite line 42”.</p>
+</li>
+<li>
+<p><strong>Result:</strong> the agent blindly overwrites a critical database connection string on the real line 42 that it never even saw.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Your production build breaks silently because the mechanical chain of causality was severed by a “minor” formatting difference.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_the_mechanical_chain_of_causality"><a class="anchor" href="#_the_mechanical_chain_of_causality"></a>The Mechanical Chain of Causality</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Byte shift:</strong> a missing newline or encoding error shifts the character offsets of the entire file.</p>
+</li>
+<li>
+<p><strong>Integer drift:</strong> the manifest records the <code>outputStartLine</code> based on the expected rendering, but the actual recovered slice starts one line earlier or later.</p>
+</li>
+<li>
+<p><strong>Hash mismatch:</strong> <code>cx</code> detects that the recovered slice hash does not match the manifest and marks it <code>degraded</code>.</p>
+</li>
+<li>
+<p><strong>Coordinate failure:</strong> if you bypass this with <code>--allow-degraded</code>, you are handing the LLM a map where every coordinate is off by one.</p>
+</li>
+<li>
+<p><strong>Silent corruption:</strong> the LLM executes a tool such as <code>replace_repomix_span</code> against those wrong coordinates, corrupting the file.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In other words, <code>--allow-degraded</code> can turn one localized representation issue into a broader mapping error. Treat a <code>degraded</code> signal as a hard stop.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_safe_and_unsafe_use_cases"><a class="anchor" href="#_safe_and_unsafe_use_cases"></a>Safe And Unsafe Use Cases</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Safe enough:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a human wants to inspect the recovered file manually</p>
+</li>
+<li>
+<p>an operator needs approximate content for review, not automation</p>
+</li>
+<li>
+<p>the output is being treated as advisory, not authoritative</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Unsafe:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>an automated runner depends on manifest hashes</p>
+</li>
+<li>
+<p>downstream tooling uses <code>outputStartLine</code> and <code>outputEndLine</code></p>
+</li>
+<li>
+<p>another system slices code from the rendered bundle by absolute coordinates</p>
+</li>
+<li>
+<p>the extracted file will be treated as a source-of-truth artifact</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_recommended_operator_decision"><a class="anchor" href="#_recommended_operator_decision"></a>Recommended Operator Decision</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If extraction reports degraded text:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>stop the pipeline</p>
+</li>
+<li>
+<p>inspect which files are degraded</p>
+</li>
+<li>
+<p>decide whether you need human-readable recovery or deterministic machine-safe recovery</p>
+</li>
+<li>
+<p>only use <code>--allow-degraded</code> if approximate output is acceptable</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If deterministic recovery matters, rebuild the bundle from the original source tree instead of forcing degraded fallback.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_practical_examples"><a class="anchor" href="#_practical_examples"></a>Practical Examples</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Human review:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx extract dist/demo-bundle --to /tmp/review --file docs/summary.md --allow-degraded</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is acceptable only if the file is being read by a person.</p>
+</div>
+<div class="paragraph">
+<p>Automation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx extract dist/demo-bundle --to /tmp/runner --verify</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If this reports degraded text, do not append <code>--allow-degraded</code> just to make the job pass. Rebuild or re-bundle from the trusted source instead.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

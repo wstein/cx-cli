@@ -1,0 +1,3971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.23">
+<title>CX Documentation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/github.min.css">
+<style>
+/*! Asciidoctor Tabs | Copyright (c) 2018-present Dan Allen | MIT License */
+.tabs {
+  margin-bottom: 1.25em;
+}
+
+.tablist > ul {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tablist > ul li {
+  align-items: center;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-weight: bold;
+  line-height: 1.5;
+  padding: 0.25em 1em;
+  position: relative;
+}
+
+.tablist > ul li:focus-visible {
+  outline: none;
+}
+
+.tablist.ulist,
+.tablist.ulist > ul li {
+  margin: 0;
+}
+
+.tablist.ulist > ul li + li {
+  margin-left: 0.25em;
+}
+
+.tabs .tablist li::after {
+  content: "";
+  display: block;
+  height: 1px;
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+}
+
+.tabs.is-loading .tablist li:not(:first-child),
+.tabs:not(.is-loading) .tablist li:not(.is-selected) {
+  background-color: #f5f5f5;
+}
+
+.tabs.is-loading .tablist li:first-child::after,
+.tabs:not(.is-loading) .tablist li.is-selected::after {
+  background-color: #fff;
+}
+
+/*
+.tabs:not(.is-loading) .tablist li,
+.tabs:not(.is-loading) .tablist li::after {
+  transition: background-color 200ms ease-in-out;
+}
+*/
+
+.tablist > ul p {
+  line-height: inherit;
+  margin: 0;
+}
+
+.tabpanel {
+  background-color: #fff;
+  padding: 1.25em;
+}
+
+.tablist > ul li,
+.tabpanel {
+  border: 1px solid #dcdcdc;
+}
+
+.tablist > ul li {
+  border-bottom: 0;
+}
+
+.tabs.is-loading .tabpanel + .tabpanel,
+.tabs:not(.is-loading) .tabpanel.is-hidden {
+  display: none;
+}
+
+.tabpanel > :first-child {
+  margin-top: 0;
+}
+
+/* #content is a signature of the Asciidoctor standalone HTML output */
+#content .tabpanel > :last-child,
+#content .tabpanel > :last-child > :last-child,
+#content .tabpanel > :last-child > :last-child > li:last-child > :last-child {
+  margin-bottom: 0;
+}
+
+.tablecontainer {
+  overflow-x: auto;
+}
+
+#content .tablecontainer {
+  margin-bottom: 1.25em;
+}
+
+#content .tablecontainer > table.tableblock {
+  margin-bottom: 0;
+}
+</style>
+</head>
+<body id="index" class="book toc2 toc-left">
+<div id="header">
+<h1>CX Documentation</h1>
+<div class="details">
+<span id="revnumber">version 0.5,</span>
+<span id="revdate">2026-05-07</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#manual:index">Manual</a>
+<ul class="sectlevel2">
+<li><a href="#manual:operator-manual">Operator Manual</a></li>
+<li><a href="#manual:operating-modes">Operating Modes</a></li>
+<li><a href="#manual:config-reference">Configuration Reference</a></li>
+<li><a href="#manual:starter-config">Starter Config</a></li>
+<li><a href="#manual:workflows">Operator Workflows</a></li>
+<li><a href="#manual:release-and-integrity">Release and Integrity</a></li>
+<li><a href="#manual:generated-notes">Generated Notes Index</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>cx</code> now ships a curated documentation site with four cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: expert diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This Antora site is the front door for the curated documentation surface.
+The canonical curated source now spans <code>docs/modules/ROOT/</code> for shared and
+repository-reference content plus <code>docs/modules/onboarding/</code>,
+<code>docs/modules/manual/</code>, and <code>docs/modules/architecture/</code> for the
+published concern-specific modules.</p>
+</div>
+<h2 id="index:::_run" class="discrete">Run</h2>
+<div class="paragraph">
+<p>What to type to ship something today.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx init --stdout</code></p>
+</li>
+<li>
+<p><code>cx inspect --token-breakdown</code></p>
+</li>
+<li>
+<p><code>cx bundle --config cx.toml</code></p>
+</li>
+<li>
+<p><code>cx verify dist/&lt;project&gt;-bundle --against .</code></p>
+</li>
+<li>
+<p><a href="#manual:index">Manual Overview</a> for the shortest route to commands and workflows.</p>
+</li>
+<li>
+<p><a href="#manual:operating-modes">Operating Modes</a> for choosing between live MCP, bundles, and notes.</p>
+</li>
+<li>
+<p><a href="#manual:workflows">Friday to Monday workflow</a> for live exploration to proof handoff.</p>
+</li>
+<li>
+<p><a href="../repository/docs/agent_integration/">Agent integration</a> for repository-local AI workflows.</p>
+</li>
+</ul>
+</div>
+<h2 id="index:::_understand" class="discrete">Understand</h2>
+<div class="paragraph">
+<p>Why CX is shaped this way.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Antora site is the curated documentation surface. The <code>notes/</code> graph remains a separate cognition surface.
+Selected notes may be promoted intentionally, but the notes corpus is not the site source of truth.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../architecture/">Architecture Overview</a> for the arc42-based architecture spine.</p>
+</li>
+<li>
+<p><a href="../architecture/mental-model/">Mental Model</a> for the CX triad and trust spectrum.</p>
+</li>
+<li>
+<p><a href="../architecture/system-contracts/">System Contracts</a> for the proof and handoff boundaries.</p>
+</li>
+<li>
+<p><a href="../architecture/render-kernel-contract/">Render Kernel Contract</a> for native rendering invariants.</p>
+</li>
+<li>
+<p><a href="#manual:release-and-integrity">Release and Integrity</a> for release assurance, schema publishing, and v0.4 closure.</p>
+</li>
+</ul>
+</div>
+<h2 id="index:::_why_this_site_exists" class="discrete">Why this site exists</h2>
+<div class="paragraph">
+<p>The repository already behaves like a governed documentation system rather than a casual Markdown folder.
+Antora gives that system explicit navigation, page classes, breadcrumbs, reusable primers, and a clearer separation between onboarding, reference, architecture, workflows, and release material.</p>
+</div>
+<h2 id="index:::_repository_local_compatibility" class="discrete">Repository-local compatibility</h2>
+<div class="paragraph">
+<p><code>docs/README.md</code> is the only Markdown guide left in <code>docs/</code>.
+It explains the Antora component layout, the arc42 architecture spine,
+and the boundary between curated docs and the separate <code>notes/</code>
+cognition layer.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="manual:index"><a class="anchor" href="#manual:index"></a>Manual</h2>
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../architecture/08-cross-cutting-concepts/">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use this section when you need the operator-facing command model, assurance ladder, workflows, and configuration choices in one curated surface.</p>
+</div>
+<h3 id="manual:index:::_canonical_manual_pages" class="discrete">Canonical manual pages</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#manual:operator-manual">Operator Manual</a></p>
+</li>
+<li>
+<p><a href="#manual:operating-modes">Operating Modes</a></p>
+</li>
+<li>
+<p><a href="#manual:config-reference">Configuration Reference</a></p>
+</li>
+<li>
+<p><a href="#manual:workflows">Operator Workflows</a></p>
+</li>
+<li>
+<p><a href="#manual:release-and-integrity">Release and Integrity</a></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="manual:operator-manual"><a class="anchor" href="#manual:operator-manual"></a>Operator Manual</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>cx</code> is documented as four cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use this page for its local concern first. Return to <a href="../onboarding/">Documentation Index</a> when you need the broader map.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>cx</code> is a repository-native toolchain with a kernel-owned proof path, a
+live MCP workspace surface, and a durable notes layer for AI handoff and
+verification.</p>
+</div>
+<div class="paragraph">
+<p>Use <a href="#manual:operating-modes">Operating Modes</a> for the main
+conceptual entrypoint and <a href="../architecture/mental-model/">Mental Model</a>
+for the canonical CX triad, Track A vs Track B, policy tiers, and
+artifact lifecycle.</p>
+</div>
+<div class="paragraph">
+<p>Use this manual when you already know you are operating <code>cx</code> and want
+the shortest route to commands, assurance levels, and workflow
+decisions.</p>
+</div>
+<div class="paragraph">
+<p>If you are new to the repository:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Read the root <a href="../repository/root/readme/">README</a></p>
+</li>
+<li>
+<p>Read <a href="../architecture/system-map/">System Map</a></p>
+</li>
+<li>
+<p>Return here once you need the operator path instead of the conceptual
+map</p>
+</li>
+</ol>
+</div>
+<hr>
+<h4 id="manual:operator-manual:::_quick_operator_path" class="discrete">Quick Operator Path</h4>
+<div class="paragraph">
+<p>Use the smallest operator sequence that matches the job:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Live workspace path: <code>cx mcp</code></p>
+</li>
+<li>
+<p>Durable cognition path: <code>cx notes</code></p>
+</li>
+<li>
+<p>Curated docs review path: <code>cx docs export</code></p>
+</li>
+<li>
+<p>Native proof path: <code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>,
+<code>cx verify</code>, <code>cx extract</code></p>
+</li>
+<li>
+<p>Recovery or audit: <code>cx list</code>, <code>cx audit</code>, <code>cx doctor</code></p>
+</li>
+<li>
+<p>Adapter/oracle path: expert diagnostics and parity only, not the primary
+operator workflow</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Typical minimal paths:</p>
+</div>
+<h5 id="manual:operator-manual:::_live_agent_path" class="discrete">Live Agent Path</h5>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>cx mcp</code></p>
+</li>
+<li>
+<p><code>cx doctor mcp</code></p>
+</li>
+<li>
+<p><code>cx mcp catalog --json</code></p>
+</li>
+<li>
+<p><code>cx doctor workflow --task "refactor index.ts"</code></p>
+</li>
+</ol>
+</div>
+<h5 id="manual:operator-manual:::_artifact_path" class="discrete">Artifact Path</h5>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>cx init --name demo</code></p>
+</li>
+<li>
+<p><code>cx inspect --token-breakdown</code></p>
+</li>
+<li>
+<p><code>cx bundle --config cx.toml</code></p>
+</li>
+<li>
+<p><code>cx verify --against .</code></p>
+</li>
+<li>
+<p><code>cx extract dist/bundle --to ./restore</code></p>
+</li>
+</ol>
+</div>
+<h5 id="manual:operator-manual:::_extraction_safety" class="discrete">Extraction Safety</h5>
+<div class="paragraph">
+<p>When you extract bundle contents, treat <code>intact</code> and <code>copied</code> outputs as the ordinary safe path.</p>
+</div>
+<div class="paragraph">
+<p>If extraction reports <code>degraded</code>, stop and decide whether you need approximate human review or deterministic machine-safe recovery:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>use <code>cx extract &#8230;&#8203; --allow-degraded</code> only for human inspection</p>
+</li>
+<li>
+<p>do not use degraded output as automation input</p>
+</li>
+<li>
+<p>rebuild the bundle instead of forcing degraded fallback when coordinates, hashes, or downstream edits matter</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: degraded extraction means the recovered packed content no longer matches the manifest contract, so line coordinates and file identity may no longer be trustworthy enough for safe automation.</p>
+</div>
+<div class="paragraph">
+<p>For the full failure model, recovery statuses, and detailed examples, see <a href="../repository/docs/extraction_safety/">Extraction Safety</a>.</p>
+</div>
+<h5 id="manual:operator-manual:::_audited_overrides" class="discrete">Audited Overrides</h5>
+<div class="paragraph">
+<p><code>cx bundle --force</code> and <code>cx bundle --ci</code> are audited overrides. They allow a bundle to be materialized from tracked-file drift only when the operator has chosen that provenance explicitly, and the manifest records <code>forced_dirty</code> or <code>ci_dirty</code> for downstream review. <code>--force</code> also keeps the command running after note-validation errors, so the operator can inspect the resulting artifact and the emitted diagnostics together. Scanner findings remain fatal.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../architecture/audited-overrides/">Audited Overrides</a> before using either flag in release or CI workflows.</p>
+</div>
+<h5 id="manual:operator-manual:::_repository_commands" class="discrete">Repository Commands</h5>
+<div class="paragraph">
+<p>Use the repository-local <code>make</code> targets for day-to-day development:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make test</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the fast unit loop while iterating</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the normal local gate before merging</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want CI-grade confidence before tagging a release</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make release VERSION=vX.Y.Z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You are stepping through the two-phase
+release wizard</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>make certify</code> runs everything <code>make verify</code> does, then performs a clean
+double-build reproducibility check: the <code>dist/</code> tree is hashed, wiped,
+rebuilt, and hashed again. The two hash sets must match exactly. This
+mirrors the CI <code>reproducibility</code> job so the release gate is exercisable
+locally without pushing.</p>
+</div>
+<h4 id="manual:operator-manual:::_assurance_ladder" class="discrete">Assurance Ladder</h4>
+<div class="paragraph">
+<p>Use these commands as a progressive assurance model:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">What it covers</th>
+<th class="tableblock halign-left valign-top">When to run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lint, typecheck, build, Vitest coverage lane, Bun
+compatibility smoke</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">normal pre-merge gate</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run ci:test:coverage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vitest V8 coverage lane with HTML, JSON
+summary, LCOV, and markdown summary output over the full shared suite</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI coverage reporting</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:all</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">full shared repository suite through native Vitest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">broad local execution proof</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused bundle workflow, extraction,
+render-adapter, and JSON CLI lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bundle-heavy local iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused notes graph, note commands,
+linked-note planning, and operator contract lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">notes-heavy local
+iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run test:vitest:planning</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focused planning and schema-integration
+lane</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">overlap, linking, and config-shape iteration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run certify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>verify</code> &#43; contract lane &#43; official
+Repomix reference-oracle smoke &#43; bundle transition matrix smoke
+&#43; release integrity smoke &#43; reproducibility check</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pre-tag
+local CI-equivalent certification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run integrity</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release integrity metadata generation from the
+packed npm tarball</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release artifact staging</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bun run verify-release</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release integrity metadata verification
+against packed tarball</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">release verification and audit</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>make verify</code> and <code>make certify</code> are thin wrappers around
+<code>bun run verify</code> and <code>bun run certify</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vitest coverage is now the authoritative coverage-reporting lane for
+release assurance. Bun remains part of the execution and compatibility
+matrix.</p>
+</div>
+<h5 id="manual:operator-manual:::_cx_commands" class="discrete">CX Commands</h5>
+<div class="paragraph">
+<p>Use <code>cx</code> commands for repository planning, bundle generation,
+verification, and live MCP work.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --name demo
+cx docs export
+cx inspect --token-breakdown
+cx bundle --include-doc-exports
+cx bundle --config cx.toml
+cx mcp
+cx doctor mcp --config cx.toml
+cx mcp catalog --json
+cx doctor secrets --config cx.toml
+cx notes lint
+cx notes lint --write</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>cx init</code> now writes a generated workspace-aware <code>Makefile</code>,
+<code>.editorconfig</code>, <code>cx-mcp.toml</code>, <code>cx.toml</code>, <code>.mcp.json</code>,
+<code>.vscode/mcp.json</code>, and local agent settings in <code>.claude/settings.json</code>
+and <code>.codex/settings.json</code> in addition to <code>notes/</code>. The generated
+<code>cx-mcp.toml</code> is a minimal diff to <code>cx.toml</code> and serves as the MCP
+overlay for the workspace root. The Makefile selects a language-specific
+template when it sees common workspace markers for Rust, Go,
+JavaScript/TypeScript, Python, Java, Elixir, Julia, Crystal, or Zig, and
+otherwise falls back to the base template.</p>
+</div>
+<div class="paragraph">
+<p>For the TypeScript template, the generated <code>Makefile</code> uses
+lockfile-first package-manager selection (<code>bun.lock*</code>,
+<code>pnpm-lock.yaml</code>, <code>yarn.lock</code>, then <code>package-lock.json</code> /
+<code>npm-shrinkwrap.json</code>) and keeps <code>install</code> separate from <code>build</code>. The
+normalized local targets are <code>install</code>, <code>build</code>, <code>test</code>, <code>check</code>,
+<code>lint</code>, <code>verify</code>, <code>certify</code>, <code>clean</code>, and <code>notes</code>. <code>lint</code> and <code>check</code>
+skip with a clear message when the corresponding package scripts are
+absent, and <code>certify</code> falls back to <code>verify</code> unless the workspace
+defines a stricter package-manager <code>certify</code> script. The generated
+<code>cx-mcp.toml</code> is the source-oriented authoring overlay and includes
+<code>src/<strong></code>, <code>package.json</code>, <code>tsconfig*.json</code>, and <code>README.md</code>
+while excluding <code>node_modules/</strong></code>, <code>dist/**</code>, and common
+cache or coverage directories. A companion <code>cx-mcp-build.toml</code> is
+generated for compiled-output inspection. Adjust the authoring and build
+overlays independently if your workspace uses a different layout.</p>
+</div>
+<div class="paragraph">
+<p>The cross-template capability matrix, generated file contract, and
+support levels are documented in
+<a href="../repository/docs/init_template_contract/">Init Template Contract</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>cx init</code> checks each generated target individually. It preserves
+existing files by default and creates any missing init artifacts; use
+<code>--force</code> to overwrite existing generated files.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>--template</code> to explicitly choose an init template by environment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --name demo --template typescript</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>List supported templates with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx init --template-list</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When <code>--template</code> is omitted, <code>cx init</code> autodetects the workspace
+environment from files like <code>package.json</code>, <code>go.mod</code>, <code>pyproject.toml</code>,
+<code>pom.xml</code>, and <code>Cargo.toml</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>cx mcp</code> prefers a colocated <code>cx-mcp.toml</code> overlay. If that file is
+present, it is the default MCP config for the workspace; if it is
+missing, <code>cx</code> falls back to the baseline <code>cx.toml</code> configuration. The
+MCP surface now includes live bundle planning plus note reading, search,
+creation, update, rename, delete, and note-graph inspection tools in
+addition to workspace file browsing.</p>
+</div>
+<div class="paragraph">
+<p><code>cx docs export</code> writes deterministic markdown renderings of the Antora
+assemblies described by the active playbook so operators and downstream
+LLM workflows can
+inspect the final documentation content directly instead of inferring it
+from source AsciiDoc files alone. MultiMarkdown is the default export
+format for this command. The export rewrites Antora-style cross references
+into review-friendly links between the emitted markdown files and reports
+unresolved review-link destinations such as <code>xref:</code> links,
+module-qualified Antora HTML targets, or <code>.adoc</code> destinations. Use
+<code>--playbook</code> when the docs are driven by a playbook other than the
+default <code>antora-playbook.yml</code> at the source root, and use <code>--root-level</code>
+to switch between a single combined assembly (<code>0</code>) and one export per
+assembly or module (<code>1</code>, the default). JSON mode reports structured
+diagnostics when the export is blocked so CI and operators can see the
+exact assembly and unresolved destinations instead of only receiving a
+generic failure. Use <code>--log-output &lt;path&gt;</code> when you want Antora export
+logs written to a file instead of stderr. This overrides
+<code>docs.log_output</code> from <code>cx.toml</code>. Empty log files are deleted
+automatically after the export, so a log path only remains on disk when
+it captured actual output.</p>
+</div>
+<div class="paragraph">
+<p><code>cx bundle --include-doc-exports</code> reuses that same export path and stages
+the generated Antora assemblies under <code>docs.target_dir/</code> inside the bundle. The
+default is <code>{project}-docs-exports</code>, and you can configure it the same
+way as <code>assets.target_dir</code> in <code>cx.toml</code>. The bundle manifest records
+those files as <code>.mmd.txt</code> artifacts in <code>derivedReviewExports</code> so they
+are discoverable, checksum-covered, and still clearly labeled as derived
+review material rather than proof-path section outputs. <code>cx inspect
+--derived-review-exports --json</code> and <code>cx verify --json</code> also summarize the
+derived review exports, including unresolved review-link diagnostics for already
+bundled artifacts. When bundled docs export logging is enabled, the log
+is written to <code>antora-export.log.txt</code> in the bundle root. Empty bundled
+log files are removed automatically and are not recorded as bundle
+content or handover inventory.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>cx mcp catalog --json</code> when you need only the machine-readable MCP
+tool contract. It exposes the registered tool set with stable <code>name</code>,
+<code>capability</code>, and <code>stability</code> fields plus summary counts, without mixing
+in profile resolution or audit state.</p>
+</div>
+<div class="paragraph">
+<p>For concrete integration examples and per-IDE snippets (VS Code/Cline,
+Roo Code, Cursor, Claude Desktop), see the
+<a href="../repository/docs/agent_integration/">Agent Integration Guide</a>.</p>
+</div>
+<h5 id="manual:operator-manual:::_mcp_setup_and_daily_operator_use" class="discrete">MCP Setup And Daily Operator Use</h5>
+<div class="paragraph">
+<p>Use this sequence when you are connecting an agent or IDE to a live
+workspace:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run <code>cx mcp</code> from the repository root.</p>
+</li>
+<li>
+<p>Confirm the resolved profile and file boundary with <code>cx doctor mcp</code>.</p>
+</li>
+<li>
+<p>Inspect the machine-readable tool contract with <code>cx mcp catalog --json</code>.</p>
+</li>
+<li>
+<p>Use <code>cx-mcp.toml</code> when you need an MCP-specific overlay; otherwise
+<code>cx</code> falls back to <code>cx.toml</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Keep the everyday operator rule simple:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>use <code>cx mcp</code> for live reads, searches, planning, and note work</p>
+</li>
+<li>
+<p>use <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, and <code>cx extract</code> for
+proof-path artifacts</p>
+</li>
+<li>
+<p>keep client-specific setup details in the repository reference guide,
+not in the front-door operator path</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If an agent cannot see the right files, verify these before debugging
+anything deeper:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cwd</code> points at the repository root</p>
+</li>
+<li>
+<p>the active profile is the one you expect</p>
+</li>
+<li>
+<p><code>files.include</code> and <code>files.exclude</code> match the intended workspace
+scope</p>
+</li>
+<li>
+<p>mutation is enabled only when you intentionally want a mutate-capable
+session</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Repository-local <code>make</code> shortcuts keep the developer loop compact:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>make test</code> runs the fast Vitest unit suite.</p>
+</li>
+<li>
+<p><code>make verify</code> runs lint, typecheck, build, the Vitest coverage lane,
+and Bun compatibility smoke.</p>
+</li>
+<li>
+<p><code>bun run ci:test:coverage</code> runs the authoritative Vitest V8 coverage
+lane across the shared repository suite, then writes <code>coverage/vitest/</code>
+plus <code>.ci/coverage-summary.md</code> for CI reporting.</p>
+</li>
+<li>
+<p>Treat that Vitest lane as the authoritative release-assurance
+reporting surface. The Bun lanes still prove execution compatibility and
+remain part of the runtime matrix.</p>
+</li>
+<li>
+<p><code>bun run test:contracts</code> runs the contract suite through native
+Vitest.</p>
+</li>
+<li>
+<p><code>bun run test:all</code> runs the full shared suite through native Vitest
+without collecting coverage.</p>
+</li>
+<li>
+<p><code>bun run test:all:full</code> is the explicit Vitest coverage lane for local
+release-assurance checks.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:bundle</code> isolates the slow bundle workflow,
+extraction, render-adapter, and JSON CLI suites.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:notes</code> isolates the slow notes graph and command
+suites, plus linked-note planning and operator contracts.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:planning</code> isolates planning and
+schema-integration suites for overlap, linked-note, and config-shape
+work.</p>
+</li>
+<li>
+<p><code>bun run pages:build</code> assembles the public Pages <code>dist/site/</code> tree
+with <code>/schemas/</code>, <code>/coverage/</code>, and the curated Antora docs site under
+<code>/docs/</code>.</p>
+</li>
+<li>
+<p><code>bun run pages:smoke</code> validates the staged <code>dist/site/</code> tree before a
+workflow publishes it.</p>
+</li>
+<li>
+<p>The latest public HTML coverage view is published at
+<code><a href="https://wstein.github.io/cx-cli/coverage/" class="bare">https://wstein.github.io/cx-cli/coverage/</a></code> from successful <code>develop</code>
+or <code>main</code> CI runs.</p>
+</li>
+<li>
+<p>The curated docs site is published at
+<code><a href="https://wstein.github.io/cx-cli/docs/" class="bare">https://wstein.github.io/cx-cli/docs/</a></code>.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp</code> runs the focused MCP cockpit lane for
+MCP-heavy tests without starting the full repository coverage surface.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp:ui</code> opens the same MCP-focused lane in Vitest
+UI so operators can rerun failures, inspect coverage, and review the
+import graph for slow MCP startup or registration paths.</p>
+</li>
+<li>
+<p><code>bun run test:vitest:mcp:adversarial</code> keeps startup failures,
+malformed runtime responses, and other hostile-boundary MCP cases
+isolated in a smaller cockpit.</p>
+</li>
+<li>
+<p><code>make certify</code> runs everything <code>verify</code> does plus contract tests,
+smoke lanes, release integrity smoke, and reproducibility checks - the
+CI-grade local gate to use before tagging.</p>
+</li>
+<li>
+<p><code>make release VERSION=vX.Y.Z</code> is a wizard: first call starts the
+release candidate on <code>develop</code>, second call with that same tagged
+version finalizes the release after CI is green.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>make</code> targets are wrappers around the corresponding Bun scripts.
+Use them for local ergonomics; use <code>cx</code> when you are working with bundle
+planning, verification, extraction, or MCP sessions.</p>
+</div>
+<div class="paragraph">
+<p>The native MCP server exposes file-based <code>list</code>, <code>grep</code>, and <code>read</code>
+tools over the workspace scope. It also exposes <code>inspect</code>, <code>bundle</code>,
+<code>doctor_mcp</code>, and <code>doctor_workflow</code> tools for live planning,
+plus note-native <code>notes_read</code>, <code>notes_search</code>, <code>notes_new</code>,
+<code>notes_update</code>, <code>notes_rename</code>, <code>notes_delete</code>,
+<code>notes_list</code>, <code>notes_backlinks</code>, <code>notes_orphans</code>,
+<code>notes_code_links</code>, and <code>notes_links</code> tools over the notes
+corpus. Use <code>list</code> to enumerate visible files, <code>grep</code> to search their
+contents, and <code>read</code> to inspect a specific file with optional line
+anchors without switching back to the packaging workflow.</p>
+</div>
+<div class="paragraph">
+<p>Example note search:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "tool": "notes_search",
+  "arguments": {
+    "query": "workflow",
+    "tags": ["agent"],
+    "limit": 5
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>CLI and MCP note commands side by side:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task</th>
+<th class="tableblock halign-left valign-top">CLI</th>
+<th class="tableblock halign-left valign-top">MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Create a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes new --title "Research Note" --body "Initial observation."</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_new(title="Research Note", body="Initial observation.")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Read a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes read --id 20260414120000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_read(id="20260414120000")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Update a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes update --id 20260414120000 --body "Refined observation."</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_update(id="20260414120000", body="Refined observation.")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rename a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes rename --id 20260414120000 --title "Research Note v2"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_rename(id="20260414120000", title="Research Note v2")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Delete a note</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes delete --id 20260414120000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_delete(id="20260414120000")</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inspect the graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes links</code> / <code>cx notes backlinks --id &#8230;&#8203;</code> /
+<code>cx notes orphans</code> / <code>cx notes code-links --id &#8230;&#8203;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes_search(&#8230;&#8203;)</code> / <code>notes_links(&#8230;&#8203;)</code> /
+<code>notes_backlinks(&#8230;&#8203;)</code> / <code>notes_orphans(&#8230;&#8203;)</code> /
+<code>notes_code_links(&#8230;&#8203;)</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Use the CLI for direct on-disk note lifecycle operations. Use MCP when
+the agent needs live search, reads, updates, or graph inspection inside
+an active workspace session.</p>
+</div>
+<div class="paragraph">
+<p><code>cx docs compile --profile architecture|manual|onboarding</code> is the
+repository-owned promotion path from stable notes into generated Antora
+pages. Use note graph tools to validate and inspect note evidence before
+running docs compilation.</p>
+</div>
+<h4 id="manual:operator-manual:::_who_this_manual_is_for" class="discrete">Who This Manual Is For</h4>
+<div class="paragraph">
+<p>This guide is for engineers running <code>cx</code> as an operational tool: local
+bundle authors, CI maintainers, and remote-runner owners.</p>
+</div>
+<div class="paragraph">
+<p>If you are new to the project, read the README first. If you need the
+detailed knobs, read <a href="#manual:config-reference">Configuration Reference</a>.
+If you need the full documentation map, read
+<a href="../onboarding/">Documentation Index</a>.</p>
+</div>
+<h4 id="manual:operator-manual:::_friday_to_monday_map" class="discrete">Friday To Monday Map</h4>
+<div class="paragraph">
+<p>Read the rest of this manual with one concrete timeline in mind:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>SHA-256 sidecars prove the emitted artifacts were not silently edited
+after bundling.</p>
+</li>
+<li>
+<p>The manifest records the exact file inventory, token counts, note
+summaries, and dirty-state provenance that downstream automation relies
+on.</p>
+</li>
+<li>
+<p><code>verify</code> exists so Monday&#8217;s runner can compare the bundle back to a
+source tree instead of trusting a stale directory by habit.</p>
+</li>
+<li>
+<p>Dirty-state gating stops tracked-file drift from becoming an
+unreviewable production input.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The invariants are the mechanisms that keep Friday&#8217;s intent queryable
+and safe on Monday.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#manual:workflows:::friday-to-monday-workflow">Friday to Monday</a>.</p>
+</div>
+<h4 id="manual:operator-manual:::_static_bundle_versus_live_mcp" class="discrete">Static Bundle Versus Live MCP</h4>
+<div class="paragraph">
+<p>See <a href="../architecture/mental-model/">Mental Model</a>.</p>
+</div>
+<div class="paragraph">
+<p>The two main CX workflows are intentionally different:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx bundle</code> produces a static, immutable snapshot for CI, review,
+verification, and handoff.</p>
+</li>
+<li>
+<p><code>cx mcp</code> exposes the live workspace through scoped file, search, and
+note tools for active investigation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They share the same repository boundary rules, but they answer different
+questions. Use the bundle when you need something you can verify later.
+Use MCP when you need the model to explore, search, or update the
+workspace during an ongoing task.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Best for</th>
+<th class="tableblock halign-left valign-top">Typical output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx inspect</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reviewing the planned bundle before writing files</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A
+deterministic plan, token totals, overlap signals, and extractability
+hints</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Producing an immutable artifact for review, CI, or handoff</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle files, manifest, lock file, and checksum sidecar</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exploring the live workspace and maintaining notes during
+active work</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scoped file search, reads, and note tools over the current
+workspace</p></td>
+</tr>
+</tbody>
+</table>
+<h4 id="manual:operator-manual:::_native_path_versus_adapter_path" class="discrete">Native Path Versus Adapter Path</h4>
+<div class="paragraph">
+<p>The shipped operator workflow is kernel-first:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>, and <code>cx extract</code> operate on
+the native proof path</p>
+</li>
+<li>
+<p><code>cx mcp</code> operates on the live workspace path</p>
+</li>
+<li>
+<p><code>cx notes</code> operates on the durable cognition path</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The adapter/oracle surface is separate and expert-facing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>used for parity diagnostics</p>
+</li>
+<li>
+<p>used for oracle capability inspection</p>
+</li>
+<li>
+<p>used for migration and reference testing</p>
+</li>
+<li>
+<p>not required for ordinary bundle, validate, verify, or extract flows</p>
+</li>
+<li>
+<p>not the primary operator story</p>
+</li>
+</ul>
+</div>
+<h4 id="manual:operator-manual:::_core_commands" class="discrete">Core Commands</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Command</th>
+<th class="tableblock halign-left valign-top">Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx init</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need a starter config</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx inspect</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to preview the plan before building</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx bundle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to produce the bundle artifacts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx validate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want schema and structure validation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx verify</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want checksum and source-tree verification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx list</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to browse stored files and statuses</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx extract</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to restore selected files from the bundle</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to start the MCP server with the agent profile</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to manage notes or inspect note graph
+relationships</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor overlaps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A plan fails because one file matches multiple
+sections</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor fix-overlaps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want exact exclude entries generated or
+applied</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to review the effective MCP profile,
+inherited scopes, and recent audit trends</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp catalog --json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the narrow machine-readable MCP tool
+catalog for automation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to audit note-to-code references against
+the VCS-backed planning master list</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor secrets</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want to scan the master list for suspicious
+secret patterns</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx doctor workflow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want a quick recommendation for bundle,
+inspect, or MCP, including mixed-task paths</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx audit summary</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want recent <code>traceId</code>, policy, capability,
+execution, and redaction trends from <code>.cx/audit.log</code> without the full
+MCP profile report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx audit recent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want the latest sanitized request envelopes and
+execution outcomes without opening raw <code>.cx/audit.log</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx completion</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You want shell-native command and flag completion</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="manual:operating-modes"><a class="anchor" href="#manual:operating-modes"></a>Operating Modes</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>cx</code> is documented as four cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Use this page for its local concern first. Return to <a href="../onboarding/">Documentation Index</a> when you need the broader map.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This is the main conceptual entrypoint for <code>cx</code>.</p>
+</div>
+<div class="paragraph">
+<p>Start with the fastest proof of value, then learn the deeper model.</p>
+</div>
+<div class="paragraph">
+<p>The job of this document is mapping, not semantics. For canonical
+definitions, see <a href="../architecture/mental-model/">Mental Model</a>.</p>
+</div>
+<h4 id="manual:operating-modes:::_ultra_minimal_onboarding" class="discrete">Ultra-Minimal Onboarding</h4>
+<div class="paragraph">
+<p>Run this first:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See the agent work on live code.</p>
+</div>
+<div class="paragraph">
+<p>Learn later:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>why <code>Track B = hypothesis generation</code></p>
+</li>
+<li>
+<p>why <code>Track A = proof generation</code></p>
+</li>
+<li>
+<p>why notes are the durable cognition layer</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That order matters. Operators usually trust the model faster after they
+have watched one live MCP session solve a real problem.</p>
+</div>
+<h4 id="manual:operating-modes:::_start_here" class="discrete">Start Here</h4>
+<div class="paragraph">
+<p>If someone is new to <code>cx</code>, do not begin with the full architecture
+lecture. Begin with the live surface:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Run <code>cx mcp</code>.</p>
+</li>
+<li>
+<p>Let the agent do real work against live code.</p>
+</li>
+<li>
+<p>Then explain why the system is split the way it is.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The progressive onboarding model is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx mcp</code> shows the agent working on the current checkout.</p>
+</li>
+<li>
+<p><code>cx notes</code> explains how durable reasoning is preserved.</p>
+</li>
+<li>
+<p><code>cx bundle</code> explains how that work becomes a promotable artifact.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only after the operator has seen the system in motion should you
+introduce the deeper model:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Track B = hypothesis generation</strong></p>
+</li>
+<li>
+<p><strong>Track A = proof generation</strong></p>
+</li>
+<li>
+<p><strong>Notes are the durable cognition layer</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Choose the mode that matches the job you need to do right now.</p>
+</div>
+<h4 id="manual:operating-modes:::_use_cx_mcp" class="discrete">Use <code>cx mcp</code></h4>
+<div class="paragraph">
+<p>Need fast interactive AI help on live code? Use <code>cx mcp</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>live workspace reads and search</p>
+</li>
+<li>
+<p>interactive reasoning over the current checkout</p>
+</li>
+<li>
+<p>note discovery and review during active work</p>
+</li>
+<li>
+<p>planning help before you freeze an artifact</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the workspace is still moving and you need
+the agent to understand what is true right now.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="#manual:workflows:::friday-to-monday-workflow">Friday to Monday</a></p>
+</div>
+<h4 id="manual:operating-modes:::_use_cx_bundle" class="discrete">Use <code>cx bundle</code></h4>
+<div class="paragraph">
+<p>Need a reproducible, promotable artifact? Use <code>cx bundle</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a deterministic handoff for CI, review, or downstream automation</p>
+</li>
+<li>
+<p>manifest, lock file, and checksum sidecar protection</p>
+</li>
+<li>
+<p>later validation and verification</p>
+</li>
+<li>
+<p>extraction under manifest and hash guardrails</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the work must stop being exploratory and
+become an artifact contract.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="#manual:workflows:::friday-to-monday-workflow">Friday to Monday</a></p>
+</div>
+<h4 id="manual:operating-modes:::_use_cx_notes" class="discrete">Use <code>cx notes</code></h4>
+<div class="paragraph">
+<p>Need durable design memory? Use <code>cx notes</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use it when you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>stable architectural intent in version control</p>
+</li>
+<li>
+<p>linked repository knowledge that survives sessions</p>
+</li>
+<li>
+<p>searchable note history and graph review</p>
+</li>
+<li>
+<p>durable context for later humans and agents</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the right choice when the reasoning itself needs to persist, not
+just the current task result.</p>
+</div>
+<div class="paragraph">
+<p>Workflow example: <a href="#manual:workflows:::safe-note-mutation-workflow">Safe Note Mutation</a></p>
+</div>
+<h4 id="manual:operating-modes:::_how_the_modes_fit_together" class="discrete">How The Modes Fit Together</h4>
+<div class="paragraph">
+<p>These are not competing tools. They are the three operating surfaces of
+the same system:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start with <code>cx mcp</code> when you need live understanding.</p>
+</li>
+<li>
+<p>Record durable conclusions with <code>cx notes</code>.</p>
+</li>
+<li>
+<p>Freeze trusted handoff state with <code>cx bundle</code>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Another way to say the same thing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx mcp</code> is where hypotheses are generated and tested against live
+state.</p>
+</li>
+<li>
+<p><code>cx notes</code> is where high-signal reasoning becomes durable repository
+memory.</p>
+</li>
+<li>
+<p><code>cx bundle</code> is where proof is generated for review, CI, and handoff.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="../architecture/mental-model/">Mental Model</a>,
+<a href="#manual:workflows:::friday-to-monday-workflow">Friday to Monday</a>, and
+<a href="#manual:workflows:::safe-note-mutation-workflow">Safe Note Mutation</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual:config-reference"><a class="anchor" href="#manual:config-reference"></a>Configuration Reference</h3>
+<div class="paragraph">
+<p>This document describes the knobs. For the operator workflow, read
+<a href="#manual:operator-manual">Operator Manual</a>. For the invariants behind these
+settings, read <a href="../architecture/implementation-reference/">Architecture</a>.</p>
+</div>
+<h4 id="manual:config-reference:::_json_schema_for_editor_tooling" class="discrete">JSON Schema for Editor Tooling</h4>
+<div class="paragraph">
+<p>A JSON Schema is available at
+<code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json</a></code> to
+enable editor autocomplete, linting, and validation for <code>cx.toml</code> files.
+Inherited overlays such as <code>cx-mcp.toml</code> can use
+<code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json</a></code>.
+These files are the source of truth for the public Pages endpoints, and
+the published npm package also ships <code>schemas/</code> for offline use. GitHub
+Releases mirror the same files as immutable snapshots. These schemas
+validate structural shape and enforce enum constraints.</p>
+</div>
+<div class="paragraph">
+<p>Published schema endpoints are latest-only. This is a breaking public
+contract: retired schema versions are removed from Pages and from the npm
+package instead of kept as compatibility endpoints.</p>
+</div>
+<h5 id="manual:config-reference:::_using_the_schema_in_vs_code_with_taplo" class="discrete">Using the schema in VS Code with Taplo</h5>
+<div class="paragraph">
+<p>Add the following comment directive to the top of your <code>cx.toml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">#:schema https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json
+schema_version = 1
+project_name = "myproject"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The schema directive comment is automatically included in generated
+<code>cx.toml</code> files by <code>cx init</code>, and the MCP overlay template points at the
+overlay schema. The TOML parser safely ignores these comments; they do
+not affect `cx&#8217;s deterministic loading pipeline.</p>
+</div>
+<div class="paragraph">
+<p>Use the published Pages URLs in checked-in repo files and external
+documentation so editors always resolve the same canonical schema
+location.</p>
+</div>
+<h5 id="manual:config-reference:::schema-validation-vs-runtime-validation" class="discrete">Schema validation vs. runtime validation</h5>
+<div class="paragraph">
+<p>The JSON Schema provides <strong>structural validation</strong> for IDE and language
+server use. It ensures that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Required fields exist (<code>schema_version</code>, <code>project_name</code>,
+<code>source_root</code>, <code>sections</code>)</p>
+</li>
+<li>
+<p>Types are correct (strings, numbers, booleans, arrays)</p>
+</li>
+<li>
+<p>Enum constraints are enforced (e.g., <code>dedup.mode</code> must be <code>fail</code>,
+<code>warn</code>, or <code>first-wins</code>)</p>
+</li>
+<li>
+<p>Reserved section names (<code>manifest</code>, <code>assets</code>, <code>bundle</code>) are forbidden</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>However, runtime validation in
+<a href="https://github.com/wstein/cx-cli/blob/main/src/config/load.ts">src/config/load.ts</a> is the <strong>ultimate
+authority</strong> and enforces relational invariants that schemas cannot easily
+express:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A catch-all section must not specify <code>include</code> patterns</p>
+</li>
+<li>
+<p>Duplicate glob patterns are detected and handled per the configured
+mode</p>
+</li>
+<li>
+<p>Project names are filesystem-safe</p>
+</li>
+<li>
+<p>Pattern arrays contain no empty strings</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The schema provides a fast, helpful ergonomic layer before running <code>cx</code>,
+but <code>cx load</code> remains the deterministic, authoritative validator.</p>
+</div>
+<h4 id="manual:config-reference:::_one_level_inheritance_for_agent_profiles" class="discrete">One-Level Inheritance for Agent Profiles</h4>
+<div class="paragraph">
+<p>Project configs can opt into a single inheritance step by setting
+<code>extends</code> at the top level:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">extends = "cx.toml"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is intended for colocated overlays such as <code>cx-mcp.toml</code> inheriting
+from the local <code>cx.toml</code> baseline. The loader resolves the path relative
+to the file that declares <code>extends</code>, loads the base config first, and
+then overlays the child config on top.</p>
+</div>
+<div class="paragraph">
+<p>Inheritance is deliberately shallow:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The base config must not declare its own <code>extends</code>.</p>
+</li>
+<li>
+<p>A second inheritance hop is a hard error during loading.</p>
+</li>
+<li>
+<p>Child values override base values for scalars and tables.</p>
+</li>
+<li>
+<p>Array values concatenate so baseline exclusions remain in force.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This matters most for security-sensitive arrays such as <code>files.exclude</code>:
+the inherited baseline stays present, and the child can only append more
+entries.</p>
+</div>
+<h4 id="manual:config-reference:::_file_discovery" class="discrete">File Discovery</h4>
+<div class="paragraph">
+<p><code>cx</code> builds the master file list from the version control system.
+Section globs then classify files within that list; they never extend
+it.</p>
+</div>
+<h5 id="manual:config-reference:::_files" class="discrete"><code>[files]</code></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>include</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Additional glob patterns to add to the VCS master
+list.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>exclude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>["node_modules/**", "dist/**", "tmp/**"]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Glob patterns removed from the master list after all inclusions.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>follow_symlinks</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether to follow symbolic links during
+filesystem fallback discovery.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unmatched</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"ignore"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">What to do with master-list files not claimed
+by any section: <code>ignore</code>, <code>warn</code>, or <code>fail</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong><code>files.include</code></strong> extends the VCS-derived master list with files that
+match the provided patterns. Use it when you need to bundle generated
+artefacts that are intentionally not tracked by VCS. An empty list means
+the master list is exactly the tracked set.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>files.exclude</code></strong> removes paths from the master list after all
+extensions have been applied. VCS-internal files are always excluded
+regardless of this setting. Use <code>exclude</code> to keep scratch directories,
+build output, or vendored trees out of planning entirely.</p>
+</div>
+<h5 id="manual:config-reference:::sections" class="discrete"><code>[sections.*]</code></h5>
+<div class="paragraph">
+<p>Each section is declared as <code>[sections.&lt;name&gt;]</code> in
+<code>cx.toml</code>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>include</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes, unless <code>catch_all = true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">—</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Glob patterns that
+select files from the master list for this section.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>exclude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Glob patterns that remove files from this
+section after include matching.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>priority</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Numeric priority for overlap resolution. Higher
+values win.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>style</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inherits <code>[repomix].style</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Output style: <code>xml</code>,
+<code>markdown</code>, <code>json</code>, or <code>plain</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>catch_all</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>true</code>, absorbs all master-list files
+not claimed by any other section. Mutually exclusive with <code>include</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong><code>catch_all = true</code></strong> declares a sweep-up section. It runs after all
+normal sections have claimed their files and absorbs whatever remains in
+the master list. At most one catch-all section may be defined per
+project.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[sections.rest]
+catch_all = true
+exclude = ["generated/**"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Section globs are classifiers, not discoverers.</strong> An <code>include</code> pattern
+can only select files already present in the master list. A pattern that
+matches nothing does not cause an error; it simply contributes no files
+to the section.</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[sections.src]
+include = ["src/**"]
+exclude = ["src/**/*.test.ts"]
+priority = 10
+
+[sections.tests]
+include = ["tests/**", "src/**/*.test.ts"]
+priority = 5</code></pre>
+</div>
+</div>
+<h4 id="manual:config-reference:::_shared_handover" class="discrete">Shared Handover</h4>
+<div class="paragraph">
+<p>The shared handover is the single companion artifact that travels with
+the rendered section outputs. It can optionally include bounded
+repository history for operator and agent context.</p>
+</div>
+<h5 id="manual:config-reference:::_handover" class="discrete"><code>[handover]</code></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>include_repo_history</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Include recent Git, Mercurial,
+or Fossil commit messages in the shared handover when bundling from a
+supported VCS worktree.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>repo_history_count</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>25</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of recent commit
+messages to include when repository history is enabled.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[handover]
+include_repo_history = true
+repo_history_count = 25</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When enabled, <code>cx</code> records the newest bounded commit messages in
+deterministic newest-first order for Git, Mercurial, and Fossil
+repositories. Multiline messages are preserved, diffs are never embedded
+in the shared handover, and this setting does not affect proof-path
+section outputs or manifest hashing rules.</p>
+</div>
+<div class="paragraph">
+<p>For <code>json</code> bundles, both the shared handover and JSON section output
+artifacts must satisfy their published schema-shaped contracts:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json</a></code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The repo also keeps the current source files in <code>schemas/</code> for offline
+use. Older schema versions are intentionally not retained on Pages or in
+the package:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>schemas/shared-handover-v2.schema.json</code></p>
+</li>
+<li>
+<p><code>schemas/json-section-output-v1.schema.json</code></p>
+</li>
+</ul>
+</div>
+<h4 id="manual:config-reference:::_notes_gating" class="discrete">Notes Gating</h4>
+<div class="paragraph">
+<p>Notes remain conditional cognition, but higher-assurance pipelines can
+require bundled notes to meet a minimum effective cognition score before
+bundling proceeds.</p>
+</div>
+<h5 id="manual:config-reference:::_notes" class="discrete"><code>[notes]</code></h5>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>require_cognition_score</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimum effective cognition
+score for gated notes. Uses the same drift- and contradiction-adjusted
+scoring model as <code>cx notes check</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>strict_notes_mode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When <code>true</code>, every gated note
+must remain <code>high_signal</code> after pressure adjustments. Requires
+<code>require_cognition_score</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fail_on_drift_pressured_notes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When <code>true</code>,
+bundling fails if any gated note carries note-to-code drift pressure.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>applies_to_sections</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional section names whose
+bundled notes should be gated. When omitted, the gate applies to all
+bundled notes.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[notes]
+require_cognition_score = 80
+strict_notes_mode = true
+fail_on_drift_pressured_notes = true
+applies_to_sections = ["docs"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>strict_notes_mode</code> does not create a separate scoring system.
+It uses the existing cognition labels and requires every gated note to
+stay <code>high_signal</code>. When the gate is active, <code>cx bundle</code> aborts with
+the same non-zero notes exit family used for malformed or duplicate
+notes.</p>
+</div>
+<h5 id="manual:config-reference:::_notes_frontmatter_fields_name" class="discrete"><code>[notes.frontmatter.fields.&lt;name&gt;]</code></h5>
+<div class="paragraph">
+<p>Note frontmatter fields can be constrained per project. Values are open by
+default except for note ids, which must remain timestamp ids in
+<code>YYYYMMDDHHMMSS</code> form.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>required</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field-specific</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether the field must be present.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>"string"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Field type. Supported values are <code>string</code> and
+<code>string_array</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>values</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional allowed values. Entries can be exact strings,
+wildcards using <code>*</code> and <code>?</code>, or JavaScript regex literals such as
+<code>/^v\d+\.\d+$/</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[notes.frontmatter.fields.tags]
+required = false
+type = "string_array"
+values = ["/^[a-z][a-z0-9-]*$/"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual:starter-config"><a class="anchor" href="#manual:starter-config"></a>Starter Config</h3>
+<div class="paragraph">
+<p><code>cx init</code> writes a starter <code>cx.toml</code> that teaches the trust model without changing production defaults.</p>
+</div>
+<div class="paragraph">
+<p>The generated config now calls out the four command paths, explains why <code>dedup.mode = "fail"</code> is strict by default, names note gate scoping through <code>applies_to_sections</code>, and points audited overrides to the architecture page.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Area</th>
+<th class="tableblock halign-left valign-top">Previous starter</th>
+<th class="tableblock halign-left valign-top">Current starter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Command orientation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implicit command list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Four-path preamble aligned with <code>cx --help</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Section ownership</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Section globs only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain master-list inclusion versus section classification</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deduplication</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode = "fail"</code> without context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain deterministic ownership and <code>cx --lenient bundle</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Notes gates</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bare commented examples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments explain gate scope and drift-pressured cognition</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Overrides</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not surfaced</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Audited override block links to <a href="../architecture/audited-overrides/">Audited Overrides</a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The values remain conservative: <code>dedup.mode = "fail"</code>, <code>strict_notes_mode = false</code>, and <code>fail_on_drift_pressured_notes = false</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual:workflows"><a class="anchor" href="#manual:workflows"></a>Operator Workflows</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../architecture/08-cross-cutting-concepts/">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use this page when you need the canonical operator workflows in one place.
+These workflows are part of the manual surface rather than a separate doc class.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#manual:operating-modes">Operating Modes</a> for the mode chooser and <a href="../architecture/mental-model/">Mental Model</a> for the canonical semantics that sit underneath the workflows.</p>
+</div>
+<h4 id="manual:workflows:::friday-to-monday-workflow" class="discrete">Friday To Monday Workflow</h4>
+<div class="paragraph">
+<p>This is the canonical end-to-end workflow for a team that investigates with MCP on Friday night and trusts a promotable artifact on Monday morning.</p>
+</div>
+<h5 id="manual:workflows:::_friday_night_dirty_local_code_fast_ai_help" class="discrete">Friday Night: Dirty Local Code, Fast AI Help</h5>
+<div class="paragraph">
+<p>It is late on Friday. The developer has local tracked changes that are not ready to commit, but still needs fast AI help on the live code.</p>
+</div>
+<div class="paragraph">
+<p>That is a Track B problem, not a clean promotion problem.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Confirm the recommended mode:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx doctor workflow --task "understand the change, update notes, and prepare a handoff bundle"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Start the live MCP server:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Typical MCP call sequence:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">doctor_mcp()
+inspect()
+notes_search(query="dirty state", limit=5)
+notes_read(id="20260413153522")
+read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
+bundle()</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>What happens here:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>doctor_mcp</code> confirms the live workspace boundary.</p>
+</li>
+<li>
+<p><code>inspect</code> and <code>bundle()</code> preview the plan without writing artifact files.</p>
+</li>
+<li>
+<p><code>notes_search</code> and <code>notes_read</code> reuse durable reasoning before the agent broad-scans the workspace.</p>
+</li>
+<li>
+<p><code>read</code> and search tools keep the work grounded in the current repository state.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the developer intentionally enables note mutation in a trusted local session, that workflow belongs in <a href="#manual:workflows:::safe-note-mutation-workflow">Safe Note Mutation</a>, not in the default Friday-night exploratory flow.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the developer gets live reasoning help without pretending the current checkout is already a clean, promotable artifact.</p>
+</div>
+<h5 id="manual:workflows:::_friday_night_closeout_optional_local_review_bundle" class="discrete">Friday Night Closeout: Optional Local Review Bundle</h5>
+<div class="paragraph">
+<p>Sometimes the developer still wants a temporary local snapshot for review, even though the checkout is dirty.</p>
+</div>
+<div class="paragraph">
+<p>That is the exceptional case for a local override:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx bundle --config cx.toml --force</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is acceptable only as a local review aid. The manifest records <code>forced_dirty</code> so nobody has to guess later whether the bundle came from a clean source state.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the override does not erase the provenance problem. It records it. A local operator can still inspect the snapshot, but Monday automation does not have to mistake it for a clean promotion artifact.</p>
+</div>
+<h5 id="manual:workflows:::_friday_closeout_freeze_the_real_handoff" class="discrete">Friday Closeout: Freeze The Real Handoff</h5>
+<div class="paragraph">
+<p>Once the code is committed or the working tree is otherwise returned to a promotable state, switch to Track A and write the actual handoff:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx inspect --config cx.toml --token-breakdown
+cx bundle --config cx.toml
+cx verify dist/demo-bundle --against . --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: Friday&#8217;s live workspace is still moving. The bundle is the moment where <code>cx</code> freezes that state into something Monday can verify instead of merely trust.</p>
+</div>
+<h5 id="manual:workflows:::_what_travels_across_the_weekend" class="discrete">What Travels Across The Weekend</h5>
+<div class="paragraph">
+<p>The handoff is the bundle directory, not the MCP session:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>section outputs</p>
+</li>
+<li>
+<p>manifest</p>
+</li>
+<li>
+<p>lock file</p>
+</li>
+<li>
+<p>checksum sidecar</p>
+</li>
+<li>
+<p>copied assets</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The notes you updated on Friday can also be included in the bundle plan, which keeps reasoning and artifact together.</p>
+</div>
+<div class="paragraph">
+<p>Trust still stays asymmetric across the weekend:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<h5 id="manual:workflows:::_monday_morning_ci_trusts_only_the_clean_path" class="discrete">Monday Morning: CI Trusts Only The Clean Path</h5>
+<div class="paragraph">
+<p>On Monday, CI should trust only the clean, promotable path. It should validate or verify the artifact built from committed source state, not a <code>forced_dirty</code> local convenience bundle.</p>
+</div>
+<div class="paragraph">
+<p>Start with structure and integrity:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx validate dist/demo-bundle
+cx verify dist/demo-bundle --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you have the expected source tree available, compare against it directly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx verify dist/demo-bundle --against /path/to/checkout --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you need files back out for review or downstream work:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx extract dist/demo-bundle --to /tmp/review --verify</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: Monday&#8217;s runner should prove that the artifact still matches Friday&#8217;s bundle contract. Validation checks that the structure exists. Verification checks that the artifact set and, optionally, the source tree still agree. Extraction stays behind the same manifest and hash guardrails.</p>
+</div>
+<h5 id="manual:workflows:::_failure_interpretation" class="discrete">Failure Interpretation</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Dirty-state refusal on Friday means the workspace was not stable enough to freeze as a promotable artifact.</p>
+</li>
+<li>
+<p><code>forced_dirty</code> on Friday means the bundle was only suitable for explicit local review, not for clean CI trust.</p>
+</li>
+<li>
+<p>Checksum failure on Monday means the artifact set in hand is no longer provably the one written on Friday.</p>
+</li>
+<li>
+<p>Degraded extraction means the bundle can no longer reconstruct text deterministically enough for safe automation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Those failures are not friction for its own sake. They are the mechanisms that keep Friday intent queryable and safe on Monday.</p>
+</div>
+<h4 id="manual:workflows:::safe-note-mutation-workflow" class="discrete">Safe Note Mutation</h4>
+<div class="paragraph">
+<p>This workflow explains how note mutation is intentionally denied by default and how a trusted local developer or agent session enables it safely. The generated <code>cx.toml</code> baseline now includes <code>mcp.enable_mutation = true</code> so the operational control is primarily the MCP policy setting.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../repository/docs/agent_operating_model/">Agent Operating Model</a> and <a href="../repository/docs/agent_integration/">Agent Integration Guide</a> for the integration-layer view.</p>
+</div>
+<h5 id="manual:workflows:::_step_1_start_in_default_mcp_mode" class="discrete">Step 1: Start In Default MCP Mode</h5>
+<div class="paragraph">
+<p>The normal interactive starting point is an MCP session that can read, observe, and plan:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[mcp]
+policy = "default"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In that mode, the agent can:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>read source files</p>
+</li>
+<li>
+<p>inspect bundle plans</p>
+</li>
+<li>
+<p>search notes</p>
+</li>
+<li>
+<p>read existing notes</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In that mode, the agent cannot:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>create notes</p>
+</li>
+<li>
+<p>update notes</p>
+</li>
+<li>
+<p>rename notes</p>
+</li>
+<li>
+<p>delete notes</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this stops you: a default MCP session is for live reasoning, not silent repository mutation. The denial protects the boundary between "the agent may inspect" and "the agent may change durable knowledge."</p>
+</div>
+<h5 id="manual:workflows:::_step_2_see_the_denial_for_what_it_is" class="discrete">Step 2: See The Denial For What It Is</h5>
+<div class="paragraph">
+<p>If the agent tries to call a note-mutation tool in default mode, that denial is expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_update(id="20260419090000", body="Refined conclusion.")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The correct response is not to weaken policy casually. First confirm whether this session is actually trusted to change the note graph.</p>
+</div>
+<h5 id="manual:workflows:::_step_3_intentionally_enable_mutation_in_a_trusted_local_session" class="discrete">Step 3: Intentionally Enable Mutation In A Trusted Local Session</h5>
+<div class="paragraph">
+<p>When a local developer explicitly wants the agent to maintain notes, enable mutation in the MCP profile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[mcp]
+policy = "unrestricted"
+enable_mutation = true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then verify the effective profile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx doctor mcp --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: mutation authority becomes an explicit operator decision in versioned configuration instead of an accidental side effect of starting an MCP session.</p>
+</div>
+<h5 id="manual:workflows:::_step_4_mutate_notes_deliberately" class="discrete">Step 4: Mutate Notes Deliberately</h5>
+<h6 id="manual:workflows:::_operator_view" class="discrete">Operator View</h6>
+<div class="paragraph">
+<p>Once mutation is intentionally enabled, the operator can allow the agent to create or revise notes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_new(title="Extraction Guardrail", body="Degraded extraction must stay opt-in because coordinate trust is part of the bundle contract.", tags=["safety", "workflow"])
+notes_update(id="20260419090000", body="Expanded the note with Monday-morning verification guidance.", tags=["workflow", "handoff"])</code></pre>
+</div>
+</div>
+<h6 id="manual:workflows:::_agent_view" class="discrete">Agent View</h6>
+<div class="paragraph">
+<p>From the agent point of view, the safe sequence is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then inspect live context before writing durable knowledge:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">doctor_mcp()
+notes_search(query="dirty state", limit=5)
+notes_read(id="20260413153522")
+read(path="src/cli/commands/bundle.ts", startLine=220, endLine=280)
+inspect()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Only after that review should the mutation happen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_new(
+  title="Dirty State Review Loop",
+  body="Dirty-state refusal protects the proof path by stopping Track A from claiming artifact certainty while tracked code is still moving.\n\n## What\n\nTrack A must refuse a promotable bundle when tracked files are dirty.\n\n## Why\n\nReview and CI need proof-grade source identity, not a moving target.\n\n## How\n\nUse MCP for live reasoning first, then return to a clean tree before bundling.\n\n## Links\n\n- [[Friday Night Monday Morning Provenance]] - shows the time-separated handoff case.\n- src/cli/commands/bundle.ts - dirty-state enforcement path.",
+  tags=["workflow", "provenance", "safety"]
+)
+notes_update(
+  id="20260419153000",
+  body="The repository cognition layer depends on summary-first routing, explicit what/why/how structure, and review after mutation.\n\n## What\n\nThe notes graph is durable reasoning for humans and agents.\n\n## Why\n\nLow-signal notes degrade routing quality and CI trust.\n\n## How\n\nRequire summaries, keep notes atomic, and run governance checks after mutation.\n\n## Links\n\n- [[Safe Note Mutation Workflow]] - policy boundary and audit loop.\n- src/notes/validate.ts - governance enforcement.",
+  tags=["notes", "quality", "workflow"]
+)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the agent reads the current code, prior notes, and the bundle plan before proposing new durable reasoning.</p>
+</div>
+<h5 id="manual:workflows:::_step_5_review_the_result_with_graph_and_audit_commands" class="discrete">Step 5: Review The Result With Graph And Audit Commands</h5>
+<div class="paragraph">
+<p>After note mutation, review the graph instead of assuming the changes fit cleanly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes links
+cx notes backlinks --id 20260419090000
+cx notes graph --id 20260419090000 --depth 2
+cx notes orphans</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use these commands to confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the edited note still links to the right concepts</p>
+</li>
+<li>
+<p>related notes point back where expected</p>
+</li>
+<li>
+<p>no unexpected orphaning happened</p>
+</li>
+<li>
+<p>the change fits the existing knowledge graph instead of fragmenting it</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Trust still stays explicit after the edit:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: safe mutation is not just "permission granted." It is permission plus review. The graph commands make durable knowledge auditable after the edit, not just editable during it.</p>
+</div>
+<h5 id="manual:workflows:::_step_6_reconfirm_the_gate_locally_and_in_ci" class="discrete">Step 6: Reconfirm The Gate Locally And In CI</h5>
+<div class="paragraph">
+<p>Once the mutation is complete, review it through the CLI instead of trusting the edit implicitly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes check
+cx notes graph --id 20260419153000 --depth 2
+cx notes backlinks --id 20260419153000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use the check to verify:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>every new or changed note still has a valid summary</p>
+</li>
+<li>
+<p>no note exceeded the size limits</p>
+</li>
+<li>
+<p>duplicate IDs did not enter the graph</p>
+</li>
+<li>
+<p>broken links or orphaned concepts did not appear</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The same review path has a dedicated CI lane:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run ci:notes:governance</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That lane runs <code>cx notes check</code> directly so cognition-layer quality stays visible as its own gate instead of being buried inside a larger test job.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: note mutation is not finished when the write succeeds. It is finished when the updated cognition layer still passes governance and graph review locally and later in CI.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual:release-and-integrity"><a class="anchor" href="#manual:release-and-integrity"></a>Release and Integrity</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../architecture/08-cross-cutting-concepts/">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use this page when cutting a release, validating the public publish surface, or auditing shipped release artifacts.</p>
+</div>
+<h4 id="manual:release-and-integrity:::release-checklist" class="discrete">Release Checklist</h4>
+<div class="paragraph">
+<p>Use this short checklist when cutting a release.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Two-phase release protocol:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Prepare the release candidate on <code>develop</code>.</p>
+</li>
+<li>
+<p>Finalize the release with a <code>vX.Y.Z</code> tag from the exact green candidate commit.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Bumping <code>package.json</code> on <code>develop</code> starts the release candidate. Use <code>chore(release): start vX.Y.Z</code> for that commit and treat later commits on the candidate path as release-fix follow-ups only.</p>
+</li>
+<li>
+<p>Keep fixing forward on <code>develop</code> until the required CI lanes are green. Do not tag early and do not publish from an ordinary <code>develop</code> success alone.</p>
+</li>
+<li>
+<p>Create and push the release tag from the exact certified <code>develop</code> commit. The release workflow is the finalization step; the version bump is not.</p>
+</li>
+<li>
+<p>The release workflow must verify that the tag matches <code>package.json</code>, that the tagged commit already passed the required CI gates, and that the published artifacts come from that same certified commit.</p>
+</li>
+<li>
+<p>Promote <code>main</code> only after successful publishing, and do it with a fast-forward update to the released commit. Do not rebase <code>main</code> onto the release tag.</p>
+</li>
+<li>
+<p>The release workflow should own that final <code>main</code> fast-forward so the shipped commit and the branch tip stay identical without a manual replay step.</p>
+</li>
+<li>
+<p>Run <code>make certify</code> before tagging. This runs lint, typecheck, build, full test coverage, the contract lane, the official Repomix reference-oracle smoke lane, the Repomix adapter parity guard, bundle transition matrix smoke, release integrity smoke, and a clean double-build reproducibility check. All steps must be green. Use <code>make verify</code> during development; <code>make certify</code> is the pre-tag CI-equivalent gate.</p>
+</li>
+<li>
+<p>The CI workflow validates Bun against the declared minimum runtime (<code>1.3.12</code>) and <code>latest</code> before release automation is allowed to proceed.</p>
+</li>
+<li>
+<p>The Pages publish now assembles one site tree with <code>/schemas/</code> and <code>/coverage/</code>; successful <code>develop</code> or <code>main</code> CI publishes the latest coverage page automatically, while tagged releases still mirror schema files into release assets.</p>
+</li>
+<li>
+<p>Run <code>bun run pages:smoke</code> against the staged <code>dist/site/</code> tree whenever you need to validate the public publish surface locally.</p>
+</li>
+<li>
+<p>If schema files change, update the published Pages site and verify the <code>schemas/</code> index still lists the current versions.</p>
+</li>
+<li>
+<p>The publish workflow runs the same smoke check in non-blocking mode before pushing <code>gh-pages</code>, and the separate <code>Pages Smoke</code> workflow keeps that validation visible on pull requests, <code>develop</code>, and <code>main</code>.</p>
+</li>
+<li>
+<p>If the Pages branch does not exist yet, let the publish workflow create <code>gh-pages</code> on the next run.</p>
+</li>
+<li>
+<p>GitHub Pages must be configured in repository settings to serve from the <code>gh-pages</code> branch.</p>
+</li>
+<li>
+<p>If a new schema version is added, refresh the public <code>$id</code> values in the JSON Schema files and keep the docs pointing at the GitHub Pages host.</p>
+</li>
+<li>
+<p>Mirror the same schema files into the GitHub Release assets for the tagged release.</p>
+</li>
+<li>
+<p>Tagged releases also publish the npm tarball, <code>release-integrity.json</code>, and the generated <code>cx-cli.rb</code> formula into GitHub release assets so the public release payload matches the documented integrity story.</p>
+</li>
+<li>
+<p>Use <code>make release VERSION=vX.Y.Z</code> as the local release wizard. The first call with a new version starts the candidate on <code>develop</code>; the second call with that same tagged version finalizes the release from the certified commit.</p>
+</li>
+<li>
+<p>Ensure <code>package.json</code> version matches the git tag before publishing release artifacts.</p>
+</li>
+<li>
+<p>The release workflow runs on <code>vX.Y.Z</code> tag pushes, plus a manual re-finalization path for an existing tag when needed.</p>
+</li>
+<li>
+<p>The release workflow only finalizes when the tagged commit already has a successful <code>develop</code> CI run; tag presence without certified CI is not enough.</p>
+</li>
+<li>
+<p><code>v0.4</code> is now a closed release line. Further work should tighten contracts, docs, or scanner scope on top of that line rather than reopening the architecture transition itself.</p>
+</li>
+<li>
+<p>The release workflow in <code>.github/workflows/release.yml</code> requires <code>NPM_TOKEN</code> in the <code>node</code> environment so <code>npm publish</code> can authenticate to the npm registry, and <code>HOMEBREW_TAP_PUSH_TOKEN</code> in the <code>homebrew</code> environment so it can authenticate the cross-repo push to <code>wstein/homebrew-tap</code>.</p>
+</li>
+<li>
+<p>Confirm both environment secrets are set before the release workflow starts; the workflow now fails fast if either one is missing.</p>
+</li>
+<li>
+<p>Create <code>HOMEBREW_TAP_PUSH_TOKEN</code> as a fine-grained personal access token in GitHub Settings &#8594; Developer settings &#8594; Personal access tokens &#8594; Fine-grained tokens &#8594; Generate new token.</p>
+</li>
+<li>
+<p>Scope that token to the <code>wstein/homebrew-tap</code> repository only, and grant <code>Contents: Read and write</code> so the release workflow can commit and push <code>Formula/cx-cli.rb</code>.</p>
+</li>
+<li>
+<p>Store the token in the <code>homebrew</code> environment of the source repo under the name <code>HOMEBREW_TAP_PUSH_TOKEN</code>.</p>
+</li>
+<li>
+<p>Release order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Build the package once.</p>
+</li>
+<li>
+<p>Publish the packed tarball to npm.</p>
+</li>
+<li>
+<p>Generate <code>Formula/cx-cli.rb</code> from the same tarball.</p>
+</li>
+<li>
+<p>Commit the formula into <code>wstein/homebrew-tap</code>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Final release promotion order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>develop</code> prepares the candidate.</p>
+</li>
+<li>
+<p>The <code>vX.Y.Z</code> tag finalizes the certified candidate.</p>
+</li>
+<li>
+<p>The release workflow verifies integrity and publishes from that tagged commit.</p>
+</li>
+<li>
+<p><code>main</code> fast-forwards to mirror the shipped commit.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Verify the external tap repo <code>wstein/homebrew-tap</code> accepts direct formula updates from the single release workflow, and remember that the tap repo owns formula validation on push.</p>
+</li>
+</ul>
+</div>
+<h4 id="manual:release-and-integrity:::release-integrity" class="discrete">Release Integrity</h4>
+<div class="paragraph">
+<p>cx-cli releases include cryptographic integrity verification to detect unintended changes and ensure builds are reproducible.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_whats_verified" class="discrete">What&#8217;s Verified</h5>
+<div class="paragraph">
+<p>Each release publishes a <strong>Software Bill of Materials (SBOM)</strong> with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Release version</strong> - semantic version from <code>package.json</code></p>
+</li>
+<li>
+<p><strong>Timestamp</strong> - UTC ISO-8601 timestamp of build</p>
+</li>
+<li>
+<p><strong>Node version</strong> - Node.js version used to build</p>
+</li>
+<li>
+<p><strong>Bun version</strong> - Bun runtime version used to build</p>
+</li>
+<li>
+<p><strong>Tarball name</strong> - published npm tarball filename</p>
+</li>
+<li>
+<p><strong>Tarball hash</strong> - SHA-256 digest of the tarball</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The SBOM is generated at build time, staged as <code>tarball-artifacts/release-integrity.json</code>, and published into the GitHub release assets as <code>release-integrity.json</code>.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_verification_steps" class="discrete">Verification Steps</h5>
+<h6 id="manual:release-and-integrity:::_1_obtain_the_sbom" class="discrete">1. Obtain the SBOM</h6>
+<div class="paragraph">
+<p>Download <code>release-integrity.json</code> from the GitHub release assets page.</p>
+</div>
+<h6 id="manual:release-and-integrity:::_2_run_local_verification" class="discrete">2. Run Local Verification</h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run verify-release</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>reads the SBOM from <code>dist/release-integrity.json</code></p>
+</li>
+<li>
+<p>locates the tarball in <code>tarball-artifacts/</code></p>
+</li>
+<li>
+<p>computes its SHA-256 hash</p>
+</li>
+<li>
+<p>compares against the SBOM hash</p>
+</li>
+<li>
+<p>reports success or failure with details</p>
+</li>
+</ul>
+</div>
+<h6 id="manual:release-and-integrity:::_3_manual_verification" class="discrete">3. Manual Verification</h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Compute tarball hash
+sha256sum cx-cli-X.Y.Z.tgz
+
+# Compare against SBOM
+cat dist/release-integrity.json | jq '.tarballHash'</code></pre>
+</div>
+</div>
+<h5 id="manual:release-and-integrity:::_design" class="discrete">Design</h5>
+<h6 id="manual:release-and-integrity:::_reproducibility" class="discrete">Reproducibility</h6>
+<div class="paragraph">
+<p>The integrity system depends on <strong>reproducible builds</strong>: the same source, dependencies, and compiler versions produce byte-identical output.</p>
+</div>
+<div class="paragraph">
+<p>The CI/CD pipeline includes a <code>reproducibility</code> job that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>builds <code>dist/</code> twice in sequence</p>
+</li>
+<li>
+<p>captures SHA-256 of all <code>dist/*.js</code> files</p>
+</li>
+<li>
+<p>fails if any file differs between runs</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This catches timestamp injection, non-deterministic compilation, or other drift.</p>
+</div>
+<h6 id="manual:release-and-integrity:::_trust_model" class="discrete">Trust Model</h6>
+<div class="paragraph">
+<p>The SBOM is released alongside the npm tarball and generated Homebrew formula as GitHub release assets. Operators can:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>verify the tarball&#8217;s SHA-256 matches the SBOM</p>
+</li>
+<li>
+<p>confirm build environment (Node, Bun versions)</p>
+</li>
+<li>
+<p>audit the release timestamp</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The SBOM itself is <strong>not signed</strong>. For full cryptographic verification, operators should validate the GitHub release against the repository&#8217;s public keys or use GitHub&#8217;s own release verification.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_interpreting_failures" class="discrete">Interpreting Failures</h5>
+<div class="paragraph">
+<p><strong>Hash mismatch</strong> &#8594; tarball has been modified or corrupted. Do not use; re-download from the official GitHub release.</p>
+</div>
+<div class="paragraph">
+<p><strong>Tarball not found</strong> &#8594; missing or renamed tarball. Verify you have the correct artifact.</p>
+</div>
+<div class="paragraph">
+<p><strong>SBOM missing or corrupt</strong> &#8594; release metadata is missing. Contact the maintainers.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_release_integrity_artifact_retention" class="discrete">Release Integrity Artifact Retention</h5>
+<div class="paragraph">
+<p>The SBOM is published as a GitHub release asset alongside the npm tarball and Homebrew formula. Schema files are mirrored into the same release through the tagged Pages/schema workflow. GitHub retains these assets for the lifetime of the release.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_future_enhancements" class="discrete">Future Enhancements</h5>
+<div class="paragraph">
+<p>Planned improvements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>GPG signing of release tarballs</p>
+</li>
+<li>
+<p>signed attestation of reproducible builds</p>
+</li>
+<li>
+<p>supply chain integrity proofs (SLSA provenance)</p>
+</li>
+</ul>
+</div>
+<h4 id="manual:release-and-integrity:::v0-4-release-closure" class="discrete">v0.4 Release Closure</h4>
+<div class="paragraph">
+<p>Use this section when upgrading to <code>cx</code> <code>0.4.0</code> or reviewing what the closed <code>v0.4</code> line established.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_migration_notes_for_0_4_0" class="discrete">Migration Notes For 0.4.0</h5>
+<h5 id="manual:release-and-integrity:::_release_contract" class="discrete">Release contract</h5>
+<div class="paragraph">
+<p><code>cx</code> now explicitly operates as three primary cooperating surfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>immutable snapshots with <code>cx bundle</code></p>
+</li>
+<li>
+<p>live agent protocol with <code>cx mcp</code></p>
+</li>
+<li>
+<p>durable knowledge with <code>cx notes</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Track B generates hypotheses. Track A generates proofs. Notes are the durable cognition layer between them.</p>
+</div>
+<div class="paragraph">
+<p>The shipped proof path is kernel-owned. The remaining adapter/oracle seam is for diagnostics, parity visibility, and reference comparison only.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_what_changed_in_0_4_0" class="discrete">What changed in 0.4.0</h5>
+<h6 id="manual:release-and-integrity:::_1_coverage_and_release_assurance" class="discrete">1. Coverage and release assurance</h6>
+<div class="ulist">
+<ul>
+<li>
+<p>Added a dedicated Vitest coverage lane with HTML and Markdown reporting.</p>
+</li>
+<li>
+<p>Coverage now participates in release assurance and the public Pages surface.</p>
+</li>
+</ul>
+</div>
+<h6 id="manual:release-and-integrity:::_2_mcp_debugging_cockpit" class="discrete">2. MCP debugging cockpit</h6>
+<div class="ulist">
+<ul>
+<li>
+<p>Added focused Vitest MCP lanes and UI-oriented debugging guidance.</p>
+</li>
+<li>
+<p>Added <code>cx mcp catalog --json</code> as the narrow machine-readable MCP contract view.</p>
+</li>
+</ul>
+</div>
+<h6 id="manual:release-and-integrity:::_3_cognition_and_trust_model" class="discrete">3. Cognition and trust model</h6>
+<div class="ulist">
+<ul>
+<li>
+<p>Notes governance, contradiction checks, cognition scoring, and trust propagation are now part of the operating model.</p>
+</li>
+</ul>
+</div>
+<h6 id="manual:release-and-integrity:::_4_canonical_operating_model" class="discrete">4. Canonical operating model</h6>
+<div class="ulist">
+<ul>
+<li>
+<p>The docs now explicitly define Track B as hypothesis generation and Track A as proof generation.</p>
+</li>
+</ul>
+</div>
+<h6 id="manual:release-and-integrity:::_5_adapter_json_contract_naming" class="discrete">5. Adapter JSON contract naming</h6>
+<div class="ulist">
+<ul>
+<li>
+<p>The dedicated <code>cx adapter</code> command owns adapter metadata for machine-readable automation.</p>
+</li>
+<li>
+<p>Top-level JSON payload names are treated as versioned contract surfaces and must not drift silently.</p>
+</li>
+<li>
+<p><code>cx adapter capabilities --json</code> now exposes explicit <code>oracleAdapter</code> and <code>referenceAdapter</code> fields instead of the older <code>repomix</code> naming.</p>
+</li>
+<li>
+<p>CI now includes a single official-<code>repomix</code> reference-oracle smoke lane.</p>
+</li>
+<li>
+<p>The official reference oracle is guarded by an adapter-parity baseline that
+compares rendered bytes, per-file token counts, total tokens, and security
+findings against <code>repomix</code> 1.13.1.</p>
+</li>
+<li>
+<p>The older <code>@wsmy/repomix-cx-fork</code> package is no longer a shipped runtime dependency.</p>
+</li>
+<li>
+<p>The native kernel is now the production proof path for <code>bundle</code>, <code>validate</code>, <code>verify</code>, and <code>extract</code>.</p>
+</li>
+<li>
+<p>Other JSON command surfaces such as <code>cx bundle --json</code>, <code>cx inspect --json</code>, <code>cx list --json</code>, <code>cx validate --json</code>, and <code>cx verify --json</code> no longer embed adapter metadata.</p>
+</li>
+<li>
+<p>The config namespace remains <code>[repomix]</code> in <code>cx.toml</code> for this release.</p>
+</li>
+</ul>
+</div>
+<h5 id="manual:release-and-integrity:::_if_you_use_mcp" class="discrete">If you use MCP</h5>
+<div class="paragraph">
+<p>MCP remains an evolving integration surface. Re-check local integration settings, capability expectations, and policy boundaries. For machine-readable inspection, prefer <code>cx mcp catalog --json</code>; for broader MCP diagnostics, use <code>cx doctor mcp --json</code>.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_operator_surface_summary" class="discrete">Operator surface summary</h5>
+<div class="paragraph">
+<p>Use <code>0.4.0</code> with these explicit surfaces in mind:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>native proof path: <code>bundle</code>, <code>validate</code>, <code>verify</code>, <code>extract</code></p>
+</li>
+<li>
+<p>live workspace path: <code>mcp</code></p>
+</li>
+<li>
+<p>durable cognition path: <code>notes</code></p>
+</li>
+<li>
+<p>adapter/oracle path: diagnostics and parity only</p>
+</li>
+</ul>
+</div>
+<h5 id="manual:release-and-integrity:::_if_you_rely_on_coverage" class="discrete">If you rely on coverage</h5>
+<div class="paragraph">
+<p>Use the Vitest coverage lane and HTML artifact as the primary reporting surface:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run ci:test:coverage</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vitest coverage is now the authoritative coverage-reporting lane for release assurance. Bun remains part of the execution and compatibility matrix.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_if_you_maintain_notes" class="discrete">If you maintain notes</h5>
+<div class="paragraph">
+<p>Run the governance path as part of normal review:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes check
+bun run ci:notes:governance</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notes are still conditional knowledge, not proof-grade artifacts. Governance now surfaces cognition, staleness, contradiction, and trust signals more explicitly.</p>
+</div>
+<h5 id="manual:release-and-integrity:::if-you-consume-schemas" class="discrete">If you consume schemas</h5>
+<div class="paragraph">
+<p>Verify current schema references and Pages-hosted <code>$id</code> values:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/shared-handover-v2.schema.json</a></code></p>
+</li>
+<li>
+<p><code><a href="https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json" class="bare">https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json</a></code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you depend on manifest schemas, treat this line as a breaking schema
+surface. Pages and the npm package publish only the latest schema for each
+family; old manifest and shared-handover schema files are intentionally
+removed instead of retained as compatibility endpoints.</p>
+</div>
+<div class="paragraph">
+<p>For the current native-render contract state, the manifest schema is now <code>v12</code>. The shared handover filename is recorded in <code>handoverFile</code>, and derived Antora review exports are recorded explicitly in <code>derivedReviewExports</code> when <code>cx bundle --include-doc-exports</code> is used. Schema <code>v12</code> also records <code>oracleAdapter</code> package identity so reproducibility is bound to the selected oracle adapter package and version. Shared-handover JSON schema <code>v2</code> is the explicit contract version for <code>recentRepositoryHistory[].message</code>, which preserves full multiline commit messages instead of a subject-only field shape.</p>
+</div>
+<h5 id="manual:release-and-integrity:::_related_release_material" class="discrete">Related release material</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../repository/root/changelog/">CHANGELOG.md</a></p>
+</li>
+<li>
+<p><a href="../architecture/mental-model/">Mental Model</a></p>
+</li>
+<li>
+<p><a href="../repository/docs/governance/#mcp-tool-stability">MCP Tool Stability Tiers</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="manual:generated-notes"><a class="anchor" href="#manual:generated-notes"></a>Generated Notes Index</h3>
+<div class="paragraph">
+<p>This page is generated from the repository notes graph. Edit the source notes instead of this generated block.</p>
+</div>
+<h4 id="manual:generated-notes:::_source_notes" class="discrete">Source Notes</h4>
+<h5 id="manual:generated-notes:::_agent_note_review_loop" class="discrete">Agent Note Review Loop</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419164500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Agent Note Review Loop.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Agent-driven note mutation is a full review loop, not a single write operation: inspect through MCP first, enable mutation intentionally, write durable notes, then run cx notes check and graph review before trusting the updated cognition&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_bundle_verify_extract_workflow_contract" class="discrete">Bundle Verify Extract Workflow Contract</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420124300</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Bundle Verify Extract Workflow Contract.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The bundle to verify to extract path is a contract, not just a convenient command sequence.</p>
+</div>
+<h5 id="manual:generated-notes:::_choose_your_operating_mode" class="discrete">Choose Your Operating Mode</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419104000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Choose Your Operating Mode.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx needs a single front-door explanation that tells operators which surface to use before they learn the deeper internals.</p>
+</div>
+<h5 id="manual:generated-notes:::_cli_command_lifecycle" class="discrete">CLI Command Lifecycle</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415163000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CLI Command Lifecycle.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The CLI command lifecycle in cx is built on yargs and a centralized command dispatch model.</p>
+</div>
+<h5 id="manual:generated-notes:::_cx_obsidian_is_a_human_lens" class="discrete">CX Obsidian Is a Human Lens</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260425130900</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CX Obsidian Is a Human Lens.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Obsidian is a human navigation lens for the note graph, not the authority for repository semantics.</p>
+</div>
+<h5 id="manual:generated-notes:::_developer_command_workflow" class="discrete">Developer Command Workflow</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417105501</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Developer Command Workflow.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>make test is the fast local feedback loop, make verify is the normal pre-merge gate, and make release VERSION=vX.Y.Z is the repository-local two-phase release wizard. Keeping those roles separate keeps the common command quick while maki&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_friday_night_monday_morning_provenance" class="discrete">Friday Night Monday Morning Provenance</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419111000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Friday Night Monday Morning Provenance.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Provenance becomes convincing when shown across time instead of as a static label.</p>
+</div>
+<h5 id="manual:generated-notes:::_friday_to_monday_workflow_contract" class="discrete">Friday To Monday Workflow Contract</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420124200</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Friday To Monday Workflow Contract.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Friday-to-Monday path is a workflow contract for turning live investigation into a trusted handoff.</p>
+</div>
+<h5 id="manual:generated-notes:::_github_actions_triggers" class="discrete">GitHub Actions Triggers</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417112000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/GitHub Actions Triggers.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The CI workflow runs on every branch push and on pull requests, but not on v* tag pushes. Tag finalization belongs to the release workflow instead of the main CI pipeline. Pages publishes the unified /schemas/ and /coverage/ site from su&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_mcp_note_review_workflow" class="discrete">MCP Note Review Workflow</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415153000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Note Review Workflow.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When reviewing repository notes, use manifest-first selection and live MCP note tools instead of opening every Markdown file.</p>
+</div>
+<h5 id="manual:generated-notes:::_mcp_read_path_contract" class="discrete">MCP Read Path Contract</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420124400</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Read Path Contract.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The MCP read path must remain available as the primary live exploration workflow.</p>
+</div>
+<h5 id="manual:generated-notes:::_mcp_vitest_ui_cockpit" class="discrete">MCP Vitest UI Cockpit</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419162000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Vitest UI Cockpit.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The MCP test and debug cockpit is a dedicated Vitest UI entrypoint for the MCP-heavy suite, not a generic replacement for the Bun lanes. It exists so operators can rerun MCP failures interactively, inspect coverage inside the UI, and tra&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_mcp_vitest_ui_troubleshooting" class="discrete">MCP Vitest UI Troubleshooting</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419171500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Vitest UI Troubleshooting.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The MCP Vitest UI troubleshooting flow is intentionally small: use the broad MCP cockpit when you need coverage and import visibility across the MCP boundary, and switch to the adversarial cockpit when the failure is explicitly about sta&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_operational_bifurcation" class="discrete">Operational Bifurcation</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415171000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Operational Bifurcation.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx uses a unified deterministic identity model but bifurcates operation into two distinct paths: Track B generates hypotheses against live state, while Track A generates proof that can survive review, CI, and handoff.</p>
+</div>
+<h5 id="manual:generated-notes:::_safe_note_mutation_workflow" class="discrete">Safe Note Mutation Workflow</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419112000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Safe Note Mutation Workflow.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Safe note mutation is a two-part workflow: explicit authority first, graph review second.</p>
+</div>
+<h5 id="manual:generated-notes:::_safe_note_mutation_workflow_contract" class="discrete">Safe Note Mutation Workflow Contract</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420124500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Safe Note Mutation Workflow Contract.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Safe note mutation is a contract because cognition changes must stay reviewable and bounded.</p>
+</div>
+<h5 id="manual:generated-notes:::_two_phase_release_protocol" class="discrete">Two-Phase Release Protocol</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419194000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Two-Phase Release Protocol.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx-cli release management should separate preparation from publication. develop prepares the versioned candidate and absorbs release-fix commits until the full CI and release-assurance surface is green. The release tag then finalizes tha&#8230;&#8203;</p>
+</div>
+<h5 id="manual:generated-notes:::_workflow_contracts" class="discrete">Workflow Contracts</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420124100</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Workflow Contracts.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Operator workflows should be treated as contracts when later automation depends on them.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 0.5<br>
+Last updated 2026-05-07 09:14:25 UTC
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+<script>
+if (!hljs.initHighlighting.called) {
+  hljs.initHighlighting.called = true
+  ;[].slice.call(document.querySelectorAll('pre.highlight > code[data-lang]')).forEach(function (el) { hljs.highlightBlock(el) })
+}
+</script>
+<script>
+;(function () { /*! Asciidoctor Tabs | Copyright (c) 2018-present Dan Allen | MIT License */
+  'use strict'
+
+  var config = (document.currentScript || {}).dataset || {}
+  var forEach = Array.prototype.forEach
+
+  init(document.querySelectorAll('.tabs'))
+
+  function init (tabsBlocks) {
+    if (!tabsBlocks.length) return
+    forEach.call(tabsBlocks, function (tabs) {
+      var syncIds = tabs.classList.contains('is-sync') ? {} : undefined
+      var tablist = tabs.querySelector('.tablist ul')
+      tablist.setAttribute('role', 'tablist')
+      var start
+      forEach.call(tablist.querySelectorAll('li'), function (tab, idx) {
+        tab.tabIndex = -1
+        tab.setAttribute('role', tab.classList.add('tab') || 'tab')
+        var id, anchor, syncId
+        if (!(id = tab.id) && (anchor = tab.querySelector('a[id]'))) {
+          id = tab.id = anchor.parentNode.removeChild(anchor).id
+        }
+        var panel = id && tabs.querySelector('.tabpanel[aria-labelledby~="' + id + '"]')
+        if (!panel) return idx ? undefined : toggleSelected(tab, true) // invalid state
+        syncIds && (((syncId = tab.textContent.trim()) in syncIds) ? (syncId = undefined) : true) &&
+          (syncIds[(tab.dataset.syncId = syncId)] = tab)
+        idx || (syncIds && (start = { tab: tab, panel: panel })) ? toggleHidden(panel, true) : toggleSelected(tab, true)
+        tab.setAttribute('aria-controls', panel.id)
+        panel.setAttribute('role', 'tabpanel')
+        var onClick = syncId === undefined ? activateTab : activateTabSync
+        tab.addEventListener('click', onClick.bind({ tabs: tabs, tab: tab, panel: panel }))
+      })
+      if (!tabs.closest('.tabpanel')) {
+        forEach.call(tabs.querySelectorAll('.tabpanel table.tableblock'), function (table) {
+          var container = Object.assign(document.createElement('div'), { className: 'tablecontainer' })
+          table.parentNode.insertBefore(container, table).appendChild(table)
+        })
+      }
+      if (start) {
+        var syncGroupId
+        for (var i = 0, lst = tabs.classList, len = lst.length, className; i !== len; i++) {
+          if (!(className = lst.item(i)).startsWith('data-sync-group-id=')) continue
+          tabs.dataset.syncGroupId = syncGroupId = lst.remove(className) || className.slice(19).replace(/\u00a0/g, ' ')
+          break
+        }
+        if (syncGroupId === undefined) tabs.dataset.syncGroupId = syncGroupId = Object.keys(syncIds).sort().join('|')
+        var preferredSyncId = 'syncStorageKey' in config &&
+          window[(config.syncStorageScope || 'local') + 'Storage'].getItem(config.syncStorageKey + '-' + syncGroupId)
+        var tab = preferredSyncId && syncIds[preferredSyncId]
+        tab && Object.assign(start, { tab: tab, panel: document.getElementById(tab.getAttribute('aria-controls')) })
+        toggleSelected(start.tab, true) || toggleHidden(start.panel, false)
+      }
+    })
+    onHashChange()
+    toggleClassOnEach(tabsBlocks, 'is-loading', 'remove')
+    window.setTimeout(toggleClassOnEach.bind(null, tabsBlocks, 'is-loaded', 'add'), 0)
+    window.addEventListener('hashchange', onHashChange)
+  }
+
+  function activateTab (e) {
+    var tab = this.tab
+    var tabs = this.tabs || (this.tabs = tab.closest('.tabs'))
+    var panel = this.panel || (this.panel = document.getElementById(tab.getAttribute('aria-controls')))
+    querySelectorWithSiblings(tabs, '.tablist .tab', 'tab').forEach(function (el) {
+      toggleSelected(el, el === tab)
+    })
+    querySelectorWithSiblings(tabs, '.tabpanel', 'tabpanel').forEach(function (el) {
+      toggleHidden(el, el !== panel)
+    })
+    if (!this.isSync && 'syncStorageKey' in config && 'syncGroupId' in tabs.dataset) {
+      var storageKey = config.syncStorageKey + '-' + tabs.dataset.syncGroupId
+      window[(config.syncStorageScope || 'local') + 'Storage'].setItem(storageKey, tab.dataset.syncId)
+    }
+    if (!e) return
+    var loc = window.location
+    var hashIdx = loc.hash ? loc.href.indexOf('#') : -1
+    if (~hashIdx) window.history.replaceState(null, '', loc.href.slice(0, hashIdx))
+    e.preventDefault()
+  }
+
+  function activateTabSync (e) {
+    activateTab.call(this, e)
+    var thisTabs = this.tabs
+    var thisTab = this.tab
+    var initialY = thisTabs.getBoundingClientRect().y
+    forEach.call(document.querySelectorAll('.tabs'), function (tabs) {
+      if (tabs === thisTabs || tabs.dataset.syncGroupId !== thisTabs.dataset.syncGroupId) return
+      querySelectorWithSiblings(tabs, '.tablist .tab', 'tab').forEach(function (tab) {
+        if (tab.dataset.syncId === thisTab.dataset.syncId) activateTab.call({ tabs: tabs, tab: tab, isSync: true })
+      })
+    })
+    var shiftedBy = thisTabs.getBoundingClientRect().y - initialY
+    if (shiftedBy && (shiftedBy = Math.round(shiftedBy))) window.scrollBy({ top: shiftedBy, behavior: 'instant' })
+  }
+
+  function querySelectorWithSiblings (scope, selector, siblingClass) {
+    var el = scope.querySelector(selector)
+    if (!el) return []
+    var result = [el]
+    while ((el = el.nextElementSibling) && el.classList.contains(siblingClass)) result.push(el)
+    return result
+  }
+
+  function toggleClassOnEach (elements, className, method) {
+    forEach.call(elements, function (el) {
+      el.classList[method](className)
+    })
+  }
+
+  function toggleHidden (el, state) {
+    el.classList[(el.hidden = state) ? 'add' : 'remove']('is-hidden')
+  }
+
+  function toggleSelected (el, state) {
+    el.setAttribute('aria-selected', '' + state)
+    el.classList[state ? 'add' : 'remove']('is-selected')
+    el.tabIndex = state ? 0 : -1
+  }
+
+  function onHashChange () {
+    var id = window.location.hash.slice(1)
+    if (!id) return
+    var tab = document.getElementById(~id.indexOf('%') ? decodeURIComponent(id) : id)
+    if (!(tab && tab.classList.contains('tab'))) return
+    'syncId' in tab.dataset ? activateTabSync.call({ tab: tab }) : activateTab.call({ tab: tab })
+  }
+})()
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://wstein.github.io/cx-cli/schemas/cx-config-v1.schema.json",
+  "title": "CX Configuration Schema (v1)",
+  "description": "JSON Schema for cx.toml configuration files. This schema validates the structural shape and enum constraints. Runtime validation in src/config/load.ts enforces relational invariants (e.g., catch_all restrictions) and semantic rules.",
+  "type": "object",
+  "required": ["schema_version", "project_name", "source_root", "sections"],
+  "properties": {
+    "extends": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional one-level inheritance pointer to a sibling cx.toml file. Use this in agent-specific profiles such as cx-mcp.toml. The runtime loader rejects deeper chaining."
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Configuration schema version. Currently supports version 1 only."
+    },
+    "project_name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+      "description": "Project identifier. Must start with alphanumeric; may contain dots, hyphens, underscores. Used in output paths and manifest naming."
+    },
+    "source_root": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Filesystem root for resolving relative paths and VCS discovery. Typically '.' for the repository root."
+    },
+    "output_dir": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Directory where bundle output files are written. May contain {project} placeholder."
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "extensions": {
+          "type": "object",
+          "properties": {
+            "xml": {
+              "type": "string",
+              "pattern": "^\\.[^/\\\\]+$",
+              "description": "File extension for XML output style. Must start with '.' and contain no path separators."
+            },
+            "json": {
+              "type": "string",
+              "pattern": "^\\.[^/\\\\]+$",
+              "description": "File extension for JSON output style."
+            },
+            "markdown": {
+              "type": "string",
+              "pattern": "^\\.[^/\\\\]+$",
+              "description": "File extension for Markdown output style."
+            },
+            "plain": {
+              "type": "string",
+              "pattern": "^\\.[^/\\\\]+$",
+              "description": "File extension for Plain text output style."
+            }
+          }
+        }
+      }
+    },
+    "repomix": {
+      "type": "object",
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": ["xml", "markdown", "json", "plain"],
+          "description": "Default output style for sections. Sections may override per-section."
+        },
+        "show_line_numbers": {
+          "type": "boolean",
+          "description": "Include line numbers in Repomix output."
+        },
+        "include_empty_directories": {
+          "type": "boolean",
+          "description": "Include empty directories in directory tree output."
+        },
+        "security_check": {
+          "type": "boolean",
+          "description": "Enable security scanning during Repomix rendering."
+        }
+      }
+    },
+    "files": {
+      "type": "object",
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Glob patterns to add files to the VCS master list. Applied before global excludes."
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Glob patterns to remove files from the master list. Acts as security override."
+        },
+        "follow_symlinks": {
+          "type": "boolean",
+          "description": "Whether to follow symbolic links during filesystem discovery."
+        },
+        "unmatched": {
+          "type": "string",
+          "enum": ["ignore", "fail"],
+          "description": "How to handle master-list files not claimed by any section."
+        }
+      }
+    },
+    "dedup": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["fail", "warn", "first-wins"],
+          "description": "How to handle section overlaps when multiple sections claim the same file. 'fail' rejects any overlap; 'warn' logs and deduplicates; 'first-wins' deduplicates silently. Priority values determine ownership in non-fail modes."
+        },
+        "order": {
+          "type": "string",
+          "enum": ["config", "lexical"],
+          "description": "Tiebreaker for sections with equal priority. 'config' uses declaration order in the file; 'lexical' sorts by section name."
+        },
+        "require_explicit_ownership": {
+          "type": "boolean",
+          "description": "When true, overlaps may only be resolved when exactly one matching section has the highest priority. Ties that would fall back to config or lexical order become hard failures."
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "const": "json",
+          "description": "Manifest output format. Currently supports JSON only."
+        },
+        "pretty": {
+          "type": "boolean",
+          "description": "Format JSON with indentation and newlines (readable but larger files)."
+        },
+        "include_file_sha256": {
+          "type": "boolean",
+          "description": "Include SHA-256 checksums for each source file."
+        },
+        "include_output_sha256": {
+          "type": "boolean",
+          "description": "Include SHA-256 checksums for each output bundle."
+        },
+        "include_output_spans": {
+          "type": "boolean",
+          "description": "Include byte span information for output sections."
+        },
+        "include_source_metadata": {
+          "type": "boolean",
+          "description": "Include VCS metadata (commit, branch, author) in the manifest."
+        },
+        "include_linked_notes": {
+          "type": "boolean",
+          "description": "When true, pull notes linked from bundled source files into the bundle plan."
+        }
+      }
+    },
+    "handover": {
+      "type": "object",
+      "properties": {
+        "include_repo_history": {
+          "type": "boolean",
+          "description": "When true, include bounded recent repository history in the shared handover artifact."
+        },
+        "repo_history_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of recent commits to include in the shared handover when repository history is enabled."
+        }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "description": "Notes are the intent-truth layer: durable architectural decisions, invariants, mechanisms, workflows, migrations, and failure modes that can be traced before specs, code, tests, or docs promote them.",
+      "properties": {
+        "require_cognition_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum effective cognition score required for gated notes during bundling. Scores include drift and contradiction pressure."
+        },
+        "strict_notes_mode": {
+          "type": "boolean",
+          "description": "When true, all gated notes must remain high-signal after pressure adjustments. Requires require_cognition_score to be set."
+        },
+        "fail_on_drift_pressured_notes": {
+          "type": "boolean",
+          "description": "When true, bundling fails if any gated note carries note-to-code drift pressure."
+        },
+        "applies_to_sections": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Optional list of section names whose bundled notes should be gated. When omitted, the gate applies to all bundled notes."
+        },
+        "frontmatter": {
+          "type": "object",
+          "description": "Configurable note frontmatter validation. Field values support exact strings, wildcard patterns with * and ?, or JavaScript regex literals like /^v[0-9]+\\\\.[0-9]+$/.",
+          "properties": {
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["string", "string_array"]
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "scanner": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["fail", "warn"],
+          "description": "How the core scanner pipeline handles findings during bundling. 'fail' blocks the bundle; 'warn' emits warnings and continues."
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["reference_secrets"]
+          },
+          "description": "Explicit core scanner IDs enabled for bundle-time and doctor scanning."
+        },
+        "include_post_pack_artifacts": {
+          "type": "boolean",
+          "description": "When true, rerun the enabled scanners over rendered section outputs, the shared handover, and the manifest before the bundle is finalized."
+        }
+      }
+    },
+    "checksums": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "const": "sha256",
+          "description": "Checksum algorithm. Currently supports SHA-256 only."
+        },
+        "file_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Filename for checksum file. May contain {project} placeholder."
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "properties": {
+        "encoding": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Token encoding model name (e.g., 'o200k_base' for Claude 3.5 Sonnet)."
+        }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Glob patterns to select asset files."
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Glob patterns to exclude asset files."
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["copy", "ignore", "fail"],
+          "description": "How to handle asset files. 'copy' copies to targetDir; 'ignore' skips; 'fail' aborts if assets are matched."
+        },
+        "target_dir": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Directory where assets are placed. May contain {project} placeholder."
+        },
+        "layout": {
+          "type": "string",
+          "enum": ["flat", "deep"],
+          "description": "How to organize assets in targetDir. 'flat' places all in root; 'deep' preserves directory structure."
+        }
+      }
+    },
+    "docs": {
+      "type": "object",
+      "description": "Docs are the communication-truth layer. Generated docs should promote stable notes and linked executable specs instead of becoming a competing source of architectural intent.",
+      "properties": {
+        "target_dir": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Directory where review-doc exports are placed. May contain {project} placeholder."
+        },
+        "root_level": {
+          "type": "integer",
+          "enum": [0, 1],
+          "description": "Antora assembly export mode. 0 writes one combined assembly for the whole playbook; 1 writes one exported markdown file per Antora assembly/module."
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "duplicate_entry": {
+          "type": "string",
+          "enum": ["fail", "warn", "first-wins"],
+          "description": "How to handle duplicate glob patterns within the same array. Applies to files.include, files.exclude, sections.*.include, sections.*.exclude, assets.include, assets.exclude."
+        }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["default", "strict", "unrestricted"],
+          "default": "default",
+          "description": "MCP tool access control policy. 'default' denies mutate, 'strict' allows only read/observe, 'unrestricted' allows all (requires enable_mutation = true for write operations)."
+        },
+        "audit_logging": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable audit logging to .cx/audit.log."
+        },
+        "enable_mutation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Explicitly enable mutate-capability MCP tools. Even with policy = 'unrestricted', mutate tools are hidden unless this flag is true."
+        }
+      }
+    },
+    "sections": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Section definitions. Each section is a classifier that selects files from the master list. Reserved names (manifest, assets, bundle) are not allowed.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Glob patterns that select files from the master list for this section. Required unless catch_all = true."
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "default": [],
+            "description": "Glob patterns that remove files from this section after include matching."
+          },
+          "style": {
+            "type": "string",
+            "enum": ["xml", "markdown", "json", "plain"],
+            "description": "Output style for this section. Overrides the default repomix.style."
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Numeric priority for overlap resolution. Higher values win when multiple sections claim the same file."
+          },
+          "catch_all": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, this section absorbs all master-list files not claimed by other sections. Mutually exclusive with include. At most one catch_all section per project."
+          }
+        },
+        "not": {
+          "required": ["catch_all", "include"],
+          "errorMessage": "catch_all sections must not specify include patterns"
+        }
+      },
+      "not": {
+        "allOf": [
+          {
+            "required": ["manifest"]
+          },
+          {
+            "required": ["assets"]
+          },
+          {
+            "required": ["bundle"]
+          }
+        ]
+      },
+      "errorMessage": {
+        "not": "sections must not use reserved names: 'manifest', 'assets', or 'bundle'"
+      }
+    }
+  },
+  "additionalProperties": false
+}

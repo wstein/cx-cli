@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CX Mental Model | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="./">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_cx_triad">CX Triad</a></li>
+<li><a href="#_track_a_vs_b">Track A Vs B</a></li>
+<li><a href="#_policy_tiers">Policy Tiers</a></li>
+<li><a href="#_artifact_lifecycle">Artifact Lifecycle</a></li>
+<li><a href="#_friday_to_monday">Friday To Monday</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is the canonical semantics and operator model for <code>cx</code>.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../../manual/operating-modes/" class="xref page">Operating Modes</a> for the shortest
+path to choosing the right surface before reading the deeper model.
+See <a href="../system-map/" class="xref page">System Map</a> for the compressed
+one-page view. See <a href="../system-contracts/" class="xref page">System Contracts</a> for cognition
+quality, hard boundaries, and trust propagation.</p>
+</div>
+<div class="paragraph">
+<p>When another document needs to explain the CX triad, Track A vs Track B,
+MCP policy tiers, or the artifact lifecycle, it should point here
+instead of restating the full model.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cx_triad"><a class="anchor" href="#_cx_triad"></a>CX Triad</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> is built around three cooperating surfaces:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Immutable snapshots</strong>: <code>cx bundle</code> writes a deterministic artifact set
+that can be validated, verified, transported, and audited later.</p>
+</li>
+<li>
+<p><strong>Live agent protocol</strong>: <code>cx mcp</code> exposes the current workspace through
+scoped MCP tools for search, reads, planning, diagnostics, and note
+operations.</p>
+</li>
+<li>
+<p><strong>Durable knowledge</strong>: <code>cx notes</code> keeps repository knowledge in
+versioned atomic notes that can be queried directly and carried into
+manifests.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The triad is deliberate: bundles carry stable truth across time, MCP
+handles live investigation, and notes preserve reasoning that should
+survive both.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_track_a_vs_b"><a class="anchor" href="#_track_a_vs_b"></a>Track A Vs B</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> has two operating tracks. They share the same workspace boundary,
+file-selection rules, hashing model, and safety invariants. They solve
+different problems.</p>
+</div>
+<div class="paragraph">
+<p>The shortest framing is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Track B = hypothesis generation</strong></p>
+</li>
+<li>
+<p><strong>Track A = proof generation</strong></p>
+</li>
+<li>
+<p><strong>Notes are the durable cognition layer.</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Track B is where an agent or operator asks "what might be true, what
+should I inspect next, and what reasoning should I preserve?" Track A is
+where the system answers "what can we now prove, freeze, verify, and
+hand off?"</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Track</th>
+<th class="tableblock halign-left valign-top">Primary question</th>
+<th class="tableblock halign-left valign-top">Main commands</th>
+<th class="tableblock halign-left valign-top">Output</th>
+<th class="tableblock halign-left valign-top">Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Track A: Proof Generation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"What exact artifact can we prove and hand
+off?"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx inspect</code>, <code>cx bundle</code>, <code>cx validate</code>, <code>cx verify</code>,
+<code>cx extract</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Immutable bundle artifacts plus manifest, lock file, and
+checksums</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need something reviewable, reproducible, and verifiable
+later</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Track B: Hypothesis Generation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"What is true in the workspace right
+now, and what should we examine next?"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cx mcp</code>, <code>cx doctor *</code>,
+<code>cx notes *</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Live workspace reads, plan previews, diagnostics, and
+note maintenance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need interactive investigation, note updates, or
+agent guidance during active work</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Rule of thumb:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use <strong>Track B</strong> to understand, search, diagnose, and document.</p>
+</li>
+<li>
+<p>Use <strong>Track A</strong> to freeze, verify, and hand off.</p>
+</li>
+<li>
+<p>Treat <strong>notes as the durable cognition layer</strong> between exploration and
+proof.</p>
+</li>
+<li>
+<p>Switch from B to A when the work stops being exploratory and starts
+becoming an artifact contract.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The notes surface sits between them as the durable cognition layer. It
+preserves high-signal reasoning so later Track B sessions do not have to
+rediscover everything from raw code, and later Track A bundles can carry
+that reasoning forward in manifest metadata.</p>
+</div>
+<div class="paragraph">
+<p>The trust shorthand is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Source tree: trusted</strong></p>
+</li>
+<li>
+<p><strong>Notes: conditional</strong></p>
+</li>
+<li>
+<p><strong>Agent output: untrusted until verified</strong></p>
+</li>
+<li>
+<p><strong>Bundle: trusted</strong></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_policy_tiers"><a class="anchor" href="#_policy_tiers"></a>Policy Tiers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Policy tiers apply to the live MCP surface, not to immutable bundle
+semantics. Bundle invariants stay hard stops regardless of MCP policy.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">MCP policy</th>
+<th class="tableblock halign-left valign-top">Allowed capabilities</th>
+<th class="tableblock halign-left valign-top">Typical environment</th>
+<th class="tableblock halign-left valign-top">Intended use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>strict</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read &#43; observe</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI, shared runners, untrusted automation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Let agents inspect without mutating or planning freely</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>default</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read &#43; observe &#43; plan</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">interactive engineering
+sessions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Let agents investigate and preview while humans keep mutation
+authority</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unrestricted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read &#43; observe &#43; plan &#43; mutate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">trusted
+local development</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Let agents operate with full workspace authority</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>This is separate from tool stability tiers in
+<a href="../../repository/docs/governance/#mcp-tool-stability" class="xref page">MCP Tool Stability Tiers</a>.
+Stability answers "how locked is this interface?" Policy answers "what
+is this agent allowed to do right now?"</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_artifact_lifecycle"><a class="anchor" href="#_artifact_lifecycle"></a>Artifact Lifecycle</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>An artifact moves through a fixed lifecycle:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Live workspace</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Code, docs, config, and notes are still changing.</p>
+</li>
+<li>
+<p>Track B is the right place for investigation, note updates, and
+planning.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Inspect</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx inspect</code> previews section membership, token counts, overlaps, and
+extraction implications before anything is written.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Bundle</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx bundle</code> freezes the selected workspace state into section outputs,
+manifest, lock file, checksum sidecar, and copied assets.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Validate</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx validate</code> checks structural integrity: the bundle contains the
+required files and the manifest/checksum contract is internally
+coherent.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Verify</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx verify</code> proves the artifact set was not altered after bundling and
+can optionally compare the bundle back to a source tree with
+<code>--against</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Extract</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cx extract</code> reconstructs files under manifest and hash guardrails
+instead of treating the bundle like a blind archive.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Why this protects you: every step narrows trust. Planning tells you what
+would be bundled. Bundling freezes it. Validation confirms the structure
+exists. Verification proves the artifact still matches what was written.
+Extraction refuses reconstructions that would break identity or
+line-coordinate trust.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_friday_to_monday"><a class="anchor" href="#_friday_to_monday"></a>Friday To Monday</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The practical handoff is simple:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Friday</strong>: use Track B to investigate, update notes, and confirm the
+plan.</p>
+</li>
+<li>
+<p><strong>Friday closeout</strong>: switch to Track A and write the bundle.</p>
+</li>
+<li>
+<p><strong>Monday</strong>: validate or verify the handed-off artifact before trusting
+it.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="../../manual/workflows/#friday-to-monday-workflow" class="xref page">Friday to Monday</a>.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

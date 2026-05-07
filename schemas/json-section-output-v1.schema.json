@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wstein.github.io/cx-cli/schemas/json-section-output-v1.schema.json",
+  "title": "cx JSON Section Output Artifact",
+  "description": "Schema for JSON-style section output artifacts emitted by cx bundle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fileSummary", "userProvidedHeader", "directoryStructure", "files"],
+  "properties": {
+    "fileSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generationHeader", "purpose", "fileFormat", "usageGuidelines", "notes"],
+      "properties": {
+        "generationHeader": { "type": "string" },
+        "purpose": { "type": "string" },
+        "fileFormat": { "type": "string" },
+        "usageGuidelines": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "userProvidedHeader": { "type": "string" },
+    "directoryStructure": { "type": "string" },
+    "files": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

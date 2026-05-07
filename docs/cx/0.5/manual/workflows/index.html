@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operator Workflows | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="./">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../architecture/">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../../architecture/01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../../architecture/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#friday-to-monday-workflow">Friday To Monday Workflow</a>
+<ul class="sectlevel2">
+<li><a href="#_friday_night_dirty_local_code_fast_ai_help">Friday Night: Dirty Local Code, Fast AI Help</a></li>
+<li><a href="#_friday_night_closeout_optional_local_review_bundle">Friday Night Closeout: Optional Local Review Bundle</a></li>
+<li><a href="#_friday_closeout_freeze_the_real_handoff">Friday Closeout: Freeze The Real Handoff</a></li>
+<li><a href="#_what_travels_across_the_weekend">What Travels Across The Weekend</a></li>
+<li><a href="#_monday_morning_ci_trusts_only_the_clean_path">Monday Morning: CI Trusts Only The Clean Path</a></li>
+<li><a href="#_failure_interpretation">Failure Interpretation</a></li>
+</ul>
+</li>
+<li><a href="#safe-note-mutation-workflow">Safe Note Mutation</a>
+<ul class="sectlevel2">
+<li><a href="#_step_1_start_in_default_mcp_mode">Step 1: Start In Default MCP Mode</a></li>
+<li><a href="#_step_2_see_the_denial_for_what_it_is">Step 2: See The Denial For What It Is</a></li>
+<li><a href="#_step_3_intentionally_enable_mutation_in_a_trusted_local_session">Step 3: Intentionally Enable Mutation In A Trusted Local Session</a></li>
+<li><a href="#_step_4_mutate_notes_deliberately">Step 4: Mutate Notes Deliberately</a></li>
+<li><a href="#_step_5_review_the_result_with_graph_and_audit_commands">Step 5: Review The Result With Graph And Audit Commands</a></li>
+<li><a href="#_step_6_reconfirm_the_gate_locally_and_in_ci">Step 6: Reconfirm The Gate Locally And In CI</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../../architecture/08-cross-cutting-concepts/" class="xref page">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Use this page when you need the canonical operator workflows in one place.
+These workflows are part of the manual surface rather than a separate doc class.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../operating-modes/" class="xref page">Operating Modes</a> for the mode chooser and <a href="../../architecture/mental-model/" class="xref page">Mental Model</a> for the canonical semantics that sit underneath the workflows.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="friday-to-monday-workflow"><a class="anchor" href="#friday-to-monday-workflow"></a>Friday To Monday Workflow</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is the canonical end-to-end workflow for a team that investigates with MCP on Friday night and trusts a promotable artifact on Monday morning.</p>
+</div>
+<div class="sect2">
+<h3 id="_friday_night_dirty_local_code_fast_ai_help"><a class="anchor" href="#_friday_night_dirty_local_code_fast_ai_help"></a>Friday Night: Dirty Local Code, Fast AI Help</h3>
+<div class="paragraph">
+<p>It is late on Friday. The developer has local tracked changes that are not ready to commit, but still needs fast AI help on the live code.</p>
+</div>
+<div class="paragraph">
+<p>That is a Track B problem, not a clean promotion problem.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Confirm the recommended mode:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx doctor workflow --task "understand the change, update notes, and prepare a handoff bundle"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Start the live MCP server:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Typical MCP call sequence:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">doctor_mcp()
+inspect()
+notes_search(query="dirty state", limit=5)
+notes_read(id="20260413153522")
+read(path="src/cli/commands/bundle.ts", startLine=230, endLine=320)
+bundle()</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>What happens here:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>doctor_mcp</code> confirms the live workspace boundary.</p>
+</li>
+<li>
+<p><code>inspect</code> and <code>bundle()</code> preview the plan without writing artifact files.</p>
+</li>
+<li>
+<p><code>notes_search</code> and <code>notes_read</code> reuse durable reasoning before the agent broad-scans the workspace.</p>
+</li>
+<li>
+<p><code>read</code> and search tools keep the work grounded in the current repository state.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the developer intentionally enables note mutation in a trusted local session, that workflow belongs in <a href="#safe-note-mutation-workflow">Safe Note Mutation</a>, not in the default Friday-night exploratory flow.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the developer gets live reasoning help without pretending the current checkout is already a clean, promotable artifact.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_friday_night_closeout_optional_local_review_bundle"><a class="anchor" href="#_friday_night_closeout_optional_local_review_bundle"></a>Friday Night Closeout: Optional Local Review Bundle</h3>
+<div class="paragraph">
+<p>Sometimes the developer still wants a temporary local snapshot for review, even though the checkout is dirty.</p>
+</div>
+<div class="paragraph">
+<p>That is the exceptional case for a local override:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx bundle --config cx.toml --force</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is acceptable only as a local review aid. The manifest records <code>forced_dirty</code> so nobody has to guess later whether the bundle came from a clean source state.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the override does not erase the provenance problem. It records it. A local operator can still inspect the snapshot, but Monday automation does not have to mistake it for a clean promotion artifact.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_friday_closeout_freeze_the_real_handoff"><a class="anchor" href="#_friday_closeout_freeze_the_real_handoff"></a>Friday Closeout: Freeze The Real Handoff</h3>
+<div class="paragraph">
+<p>Once the code is committed or the working tree is otherwise returned to a promotable state, switch to Track A and write the actual handoff:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx inspect --config cx.toml --token-breakdown
+cx bundle --config cx.toml
+cx verify dist/demo-bundle --against . --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: Friday&#8217;s live workspace is still moving. The bundle is the moment where <code>cx</code> freezes that state into something Monday can verify instead of merely trust.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_what_travels_across_the_weekend"><a class="anchor" href="#_what_travels_across_the_weekend"></a>What Travels Across The Weekend</h3>
+<div class="paragraph">
+<p>The handoff is the bundle directory, not the MCP session:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>section outputs</p>
+</li>
+<li>
+<p>manifest</p>
+</li>
+<li>
+<p>lock file</p>
+</li>
+<li>
+<p>checksum sidecar</p>
+</li>
+<li>
+<p>copied assets</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The notes you updated on Friday can also be included in the bundle plan, which keeps reasoning and artifact together.</p>
+</div>
+<div class="paragraph">
+<p>Trust still stays asymmetric across the weekend:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_monday_morning_ci_trusts_only_the_clean_path"><a class="anchor" href="#_monday_morning_ci_trusts_only_the_clean_path"></a>Monday Morning: CI Trusts Only The Clean Path</h3>
+<div class="paragraph">
+<p>On Monday, CI should trust only the clean, promotable path. It should validate or verify the artifact built from committed source state, not a <code>forced_dirty</code> local convenience bundle.</p>
+</div>
+<div class="paragraph">
+<p>Start with structure and integrity:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx validate dist/demo-bundle
+cx verify dist/demo-bundle --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you have the expected source tree available, compare against it directly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx verify dist/demo-bundle --against /path/to/checkout --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you need files back out for review or downstream work:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx extract dist/demo-bundle --to /tmp/review --verify</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: Monday&#8217;s runner should prove that the artifact still matches Friday&#8217;s bundle contract. Validation checks that the structure exists. Verification checks that the artifact set and, optionally, the source tree still agree. Extraction stays behind the same manifest and hash guardrails.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_failure_interpretation"><a class="anchor" href="#_failure_interpretation"></a>Failure Interpretation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Dirty-state refusal on Friday means the workspace was not stable enough to freeze as a promotable artifact.</p>
+</li>
+<li>
+<p><code>forced_dirty</code> on Friday means the bundle was only suitable for explicit local review, not for clean CI trust.</p>
+</li>
+<li>
+<p>Checksum failure on Monday means the artifact set in hand is no longer provably the one written on Friday.</p>
+</li>
+<li>
+<p>Degraded extraction means the bundle can no longer reconstruct text deterministically enough for safe automation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Those failures are not friction for its own sake. They are the mechanisms that keep Friday intent queryable and safe on Monday.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="safe-note-mutation-workflow"><a class="anchor" href="#safe-note-mutation-workflow"></a>Safe Note Mutation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This workflow explains how note mutation is intentionally denied by default and how a trusted local developer or agent session enables it safely. The generated <code>cx.toml</code> baseline now includes <code>mcp.enable_mutation = true</code> so the operational control is primarily the MCP policy setting.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../../repository/docs/agent_operating_model/" class="xref page">Agent Operating Model</a> and <a href="../../repository/docs/agent_integration/" class="xref page">Agent Integration Guide</a> for the integration-layer view.</p>
+</div>
+<div class="sect2">
+<h3 id="_step_1_start_in_default_mcp_mode"><a class="anchor" href="#_step_1_start_in_default_mcp_mode"></a>Step 1: Start In Default MCP Mode</h3>
+<div class="paragraph">
+<p>The normal interactive starting point is an MCP session that can read, observe, and plan:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[mcp]
+policy = "default"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In that mode, the agent can:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>read source files</p>
+</li>
+<li>
+<p>inspect bundle plans</p>
+</li>
+<li>
+<p>search notes</p>
+</li>
+<li>
+<p>read existing notes</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In that mode, the agent cannot:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>create notes</p>
+</li>
+<li>
+<p>update notes</p>
+</li>
+<li>
+<p>rename notes</p>
+</li>
+<li>
+<p>delete notes</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this stops you: a default MCP session is for live reasoning, not silent repository mutation. The denial protects the boundary between "the agent may inspect" and "the agent may change durable knowledge."</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_see_the_denial_for_what_it_is"><a class="anchor" href="#_step_2_see_the_denial_for_what_it_is"></a>Step 2: See The Denial For What It Is</h3>
+<div class="paragraph">
+<p>If the agent tries to call a note-mutation tool in default mode, that denial is expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_update(id="20260419090000", body="Refined conclusion.")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The correct response is not to weaken policy casually. First confirm whether this session is actually trusted to change the note graph.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_intentionally_enable_mutation_in_a_trusted_local_session"><a class="anchor" href="#_step_3_intentionally_enable_mutation_in_a_trusted_local_session"></a>Step 3: Intentionally Enable Mutation In A Trusted Local Session</h3>
+<div class="paragraph">
+<p>When a local developer explicitly wants the agent to maintain notes, enable mutation in the MCP profile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[mcp]
+policy = "unrestricted"
+enable_mutation = true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then verify the effective profile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx doctor mcp --config cx.toml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: mutation authority becomes an explicit operator decision in versioned configuration instead of an accidental side effect of starting an MCP session.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_4_mutate_notes_deliberately"><a class="anchor" href="#_step_4_mutate_notes_deliberately"></a>Step 4: Mutate Notes Deliberately</h3>
+<div class="sect3">
+<h4 id="_operator_view"><a class="anchor" href="#_operator_view"></a>Operator View</h4>
+<div class="paragraph">
+<p>Once mutation is intentionally enabled, the operator can allow the agent to create or revise notes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_new(title="Extraction Guardrail", body="Degraded extraction must stay opt-in because coordinate trust is part of the bundle contract.", tags=["safety", "workflow"])
+notes_update(id="20260419090000", body="Expanded the note with Monday-morning verification guidance.", tags=["workflow", "handoff"])</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_agent_view"><a class="anchor" href="#_agent_view"></a>Agent View</h4>
+<div class="paragraph">
+<p>From the agent point of view, the safe sequence is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx mcp</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then inspect live context before writing durable knowledge:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">doctor_mcp()
+notes_search(query="dirty state", limit=5)
+notes_read(id="20260413153522")
+read(path="src/cli/commands/bundle.ts", startLine=220, endLine=280)
+inspect()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Only after that review should the mutation happen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">notes_new(
+  title="Dirty State Review Loop",
+  body="Dirty-state refusal protects the proof path by stopping Track A from claiming artifact certainty while tracked code is still moving.\n\n## What\n\nTrack A must refuse a promotable bundle when tracked files are dirty.\n\n## Why\n\nReview and CI need proof-grade source identity, not a moving target.\n\n## How\n\nUse MCP for live reasoning first, then return to a clean tree before bundling.\n\n## Links\n\n- [[Friday Night Monday Morning Provenance]] - shows the time-separated handoff case.\n- src/cli/commands/bundle.ts - dirty-state enforcement path.",
+  tags=["workflow", "provenance", "safety"]
+)
+notes_update(
+  id="20260419153000",
+  body="The repository cognition layer depends on summary-first routing, explicit what/why/how structure, and review after mutation.\n\n## What\n\nThe notes graph is durable reasoning for humans and agents.\n\n## Why\n\nLow-signal notes degrade routing quality and CI trust.\n\n## How\n\nRequire summaries, keep notes atomic, and run governance checks after mutation.\n\n## Links\n\n- [[Safe Note Mutation Workflow]] - policy boundary and audit loop.\n- src/notes/validate.ts - governance enforcement.",
+  tags=["notes", "quality", "workflow"]
+)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why this protects you: the agent reads the current code, prior notes, and the bundle plan before proposing new durable reasoning.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_5_review_the_result_with_graph_and_audit_commands"><a class="anchor" href="#_step_5_review_the_result_with_graph_and_audit_commands"></a>Step 5: Review The Result With Graph And Audit Commands</h3>
+<div class="paragraph">
+<p>After note mutation, review the graph instead of assuming the changes fit cleanly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes links
+cx notes backlinks --id 20260419090000
+cx notes graph --id 20260419090000 --depth 2
+cx notes orphans</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use these commands to confirm:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the edited note still links to the right concepts</p>
+</li>
+<li>
+<p>related notes point back where expected</p>
+</li>
+<li>
+<p>no unexpected orphaning happened</p>
+</li>
+<li>
+<p>the change fits the existing knowledge graph instead of fragmenting it</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Trust still stays explicit after the edit:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Why this protects you: safe mutation is not just "permission granted." It is permission plus review. The graph commands make durable knowledge auditable after the edit, not just editable during it.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_6_reconfirm_the_gate_locally_and_in_ci"><a class="anchor" href="#_step_6_reconfirm_the_gate_locally_and_in_ci"></a>Step 6: Reconfirm The Gate Locally And In CI</h3>
+<div class="paragraph">
+<p>Once the mutation is complete, review it through the CLI instead of trusting the edit implicitly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes check
+cx notes graph --id 20260419153000 --depth 2
+cx notes backlinks --id 20260419153000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use the check to verify:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>every new or changed note still has a valid summary</p>
+</li>
+<li>
+<p>no note exceeded the size limits</p>
+</li>
+<li>
+<p>duplicate IDs did not enter the graph</p>
+</li>
+<li>
+<p>broken links or orphaned concepts did not appear</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The same review path has a dedicated CI lane:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bun run ci:notes:governance</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That lane runs <code>cx notes check</code> directly so cognition-layer quality stays visible as its own gate instead of being buried inside a larger test job.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: note mutation is not finished when the write succeeds. It is finished when the updated cognition layer still passes governance and graph review locally and later in CI.</p>
+</div>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CX Architecture | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="./">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_design_goal">Design Goal</a></li>
+<li><a href="#_canonical_model">Canonical Model</a></li>
+<li><a href="#_philosophy">Philosophy</a></li>
+<li><a href="#_current_implementation_priorities">Current Implementation Priorities</a></li>
+<li><a href="#_system_boundary">System Boundary</a></li>
+<li><a href="#_structured_render_contract">Structured Render Contract</a>
+<ul class="sectlevel2">
+<li><a href="#_enforcement">Enforcement</a></li>
+<li><a href="#_files">Files</a></li>
+</ul>
+</li>
+<li><a href="#_module_layer_rules">Module Layer Rules</a></li>
+<li><a href="#_adapter_boundary">Adapter Boundary</a>
+<ul class="sectlevel2">
+<li><a href="#_current_migration_state">Current Migration State</a></li>
+</ul>
+</li>
+<li><a href="#_pipeline">Pipeline</a>
+<ul class="sectlevel2">
+<li><a href="#_phase_1_build_the_master_base">Phase 1: Build the master base</a></li>
+<li><a href="#_phase_2_apply_global_list_shaping">Phase 2: Apply global list shaping</a></li>
+<li><a href="#_phase_3_classify_into_sections">Phase 3: Classify into sections</a></li>
+<li><a href="#_dirty_state_taxonomy">Dirty state taxonomy</a></li>
+<li><a href="#_section_priority_and_overlap_resolution">Section priority and overlap resolution</a></li>
+<li><a href="#_catch_all_sections">Catch-all sections</a></li>
+</ul>
+</li>
+<li><a href="#_invariants">Invariants</a></li>
+<li><a href="#_category_b_behaviors">Category B Behaviors</a></li>
+<li><a href="#_why_persistent_token_accounting_matters">Why Persistent Token Accounting Matters</a></li>
+<li><a href="#_why_sha_256_matters">Why SHA-256 Matters</a></li>
+<li><a href="#_why_output_spans_matter">Why Output Spans Matter</a></li>
+<li><a href="#_config_safety_and_merge_semantics">Config Safety and Merge Semantics</a>
+<ul class="sectlevel2">
+<li><a href="#_merge_rules">Merge Rules</a></li>
+<li><a href="#_conflict_detection">Conflict Detection</a></li>
+<li><a href="#_why_this_matters">Why This Matters</a></li>
+</ul>
+</li>
+<li><a href="#_extraction_semantics">Extraction Semantics</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Track A produces proof-grade artifacts such as bundles, manifests, hashes, and verification results.
+Track B produces hypotheses, exploratory reasoning, and live workspace investigation state.
+Use the proof path when later humans or CI must trust the output. Use the live path when the work is still moving.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Trust remains asymmetric across the system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>source tree: trusted</p>
+</li>
+<li>
+<p>notes: conditional</p>
+</li>
+<li>
+<p>agent output: untrusted until verified</p>
+</li>
+<li>
+<p>bundle: trusted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This page recaps only the local boundary. Use <a href="../08-cross-cutting-concepts/" class="xref page">Cross-cutting Concepts</a> when you need the full canonical model.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This is the implementation reference for contributors who need to
+understand how the codebase enforces the canonical model.</p>
+</div>
+<div class="paragraph">
+<p>Read this after <a href="../mental-model/" class="xref page">Mental Model</a>,
+<a href="../system-contracts/" class="xref page">System Contracts</a>, and
+<a href="../system-map/" class="xref page">System Map</a>, not before them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_design_goal"><a class="anchor" href="#_design_goal"></a>Design Goal</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> exists to make context bundling reproducible enough for automation.</p>
+</div>
+<div class="paragraph">
+<p>For the documentation map, see <a href="../../onboarding/" class="xref page">Documentation Index</a>.</p>
+</div>
+<div class="paragraph">
+<p>The project now centers a native render kernel because rendering alone
+is not enough for CI/CD. A pipeline also needs deterministic planning,
+exact metadata, verification, and explicit recovery semantics. The
+remaining adapter/oracle seam exists for diagnostics and parity
+visibility, not as the shipped proof path.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_canonical_model"><a class="anchor" href="#_canonical_model"></a>Canonical Model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>See <a href="../../manual/operating-modes/" class="xref page">Operating Modes</a> and
+<a href="../mental-model/" class="xref page">Mental Model</a>.</p>
+</div>
+<div class="paragraph">
+<p>This document starts where the shared mental model stops. The mental
+model defines the CX triad, Track A vs Track B, MCP policy tiers, and
+the artifact lifecycle. Architecture explains how the codebase enforces
+that model with deterministic planning, manifest truth, verification
+rules, and extraction guardrails.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_philosophy"><a class="anchor" href="#_philosophy"></a>Philosophy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> is an operational bundler with a kernel-owned proof path.</p>
+</div>
+<div class="paragraph">
+<p>That distinction explains most of the architecture:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>exploratory packing tolerates heuristics</p>
+</li>
+<li>
+<p>operational bundling needs reproducibility</p>
+</li>
+<li>
+<p>local prompt assembly can accept "close enough"</p>
+</li>
+<li>
+<p>remote automation needs "provably the same"</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is why <code>cx</code> records token accounting in the manifest, writes
+canonical JSON, and protects emitted artifacts with SHA-256 checksums.
+Those are not decorative constraints. They are the mechanisms that let a
+bundle survive time, transport, and automation boundaries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_current_implementation_priorities"><a class="anchor" href="#_current_implementation_priorities"></a>Current Implementation Priorities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The current reliability program avoids broad framework churn and instead
+prioritizes boundary cleanup and clearer ownership.</p>
+</div>
+<div class="paragraph">
+<p>The active modernization targets are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>keeping command I/O injectable instead of process-global</p>
+</li>
+<li>
+<p>keeping workspace context explicit instead of ambient</p>
+</li>
+<li>
+<p>keeping Vitest as the authoritative shared-suite test runner and
+coverage lane</p>
+</li>
+<li>
+<p>keeping Bun limited to explicit runtime compatibility smoke</p>
+</li>
+<li>
+<p>keeping the adapter seam parity-only and out of the shipped proof path</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That means the main architectural work is still about deterministic
+boundaries, not about swapping frameworks for their own sake.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_system_boundary"><a class="anchor" href="#_system_boundary"></a>System Boundary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> does not shell out to the adapter/oracle runtime. It uses a narrow
+boundary and only relies on the small public surface it actually needs
+for diagnostics and parity work.</p>
+</div>
+<div class="paragraph">
+<p>Core responsibility split:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Render kernel (<code>src/render/</code>): proof-path interfaces, ordering, spans,
+and plan hashing</p>
+</li>
+<li>
+<p>Adapter/oracle seam (<code>src/adapter/</code>): parity-only adapter integration
+and runtime capability reporting for expert oracle diagnostics during
+migration</p>
+</li>
+<li>
+<p><code>cx</code> planner: decide which files belong where</p>
+</li>
+<li>
+<p><code>cx</code> manifest layer: describe the bundle in stable JSON</p>
+</li>
+<li>
+<p><code>cx</code> verification layer: confirm artifacts and source-tree alignment</p>
+</li>
+<li>
+<p><code>cx</code> extraction layer: recover files according to manifest truth</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_structured_render_contract"><a class="anchor" href="#_structured_render_contract"></a>Structured Render Contract</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The canonical proof-path contract now lives in
+<a href="../render-kernel-contract/" class="xref page">Render Kernel Contract</a>.
+This section gives architectural context for the current implementation.</p>
+</div>
+<div class="paragraph">
+<p>The stabilized internal seams that sit beneath that contract are
+recorded in
+<a href="../internal-api-contract/" class="xref page">Internal API Contract</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>cx</code> enforces a deterministic structured render contract instead of
+relying on heuristic span parsing. The native kernel owns the production
+proof model; the adapter/oracle seam is comparison-only.</p>
+</div>
+<div class="paragraph">
+<p>The structured render contract is represented as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-ts hljs" data-lang="ts">interface StructuredRenderEntry {
+  path: string;
+  content: string;
+  sha256: string;        // Content hash, not dependent on rendering
+  tokenCount: number;
+}
+
+interface StructuredRenderPlan {
+  entries: StructuredRenderEntry[];
+  ordering: string[];    // Canonical lexicographic ordering
+}</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_enforcement"><a class="anchor" href="#_enforcement"></a>Enforcement</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Deterministic ordering</strong>: All files are sorted lexicographically.
+<code>validatePlanOrdering()</code> enforces this invariant.</p>
+</li>
+<li>
+<p><strong>Content integrity</strong>: Each file&#8217;s sha256 is computed during structured
+extraction, not after rendering. <code>validateEntryHashes()</code> verifies
+consistency.</p>
+</li>
+<li>
+<p><strong>Plan hash</strong>: The manifest stores <code>renderPlanHash</code>, computed from the
+deterministic JSON representation of the plan. This provides
+cryptographic proof that the render plan is correct.</p>
+</li>
+<li>
+<p><strong>Verification</strong>: <code>cx verify</code> now checks:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Ordering is deterministic (no regressions in file order)</p>
+</li>
+<li>
+<p>All entry hashes are consistent (content didn&#8217;t drift)</p>
+</li>
+<li>
+<p>Plan hash is reproducible (render contract is sound)</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_files"><a class="anchor" href="#_files"></a>Files</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>src/render/types.ts</code>: kernel-owned proof-path types</p>
+</li>
+<li>
+<p><code>src/render/engine.ts</code>: render engine interface plus the current
+native-first default implementation</p>
+</li>
+<li>
+<p><code>src/render/native/</code>: native proof-path renderers for XML, Markdown,
+Plain, and JSON section outputs plus shared render helpers</p>
+</li>
+<li>
+<p><code>src/render/structuredPlan.ts</code>: kernel-owned structured plan
+construction for native rendering plus adapter-plan extraction for
+parity/oracle use</p>
+</li>
+<li>
+<p><code>src/render/ordering.ts</code>: deterministic ordering invariant checks</p>
+</li>
+<li>
+<p><code>src/shared/tokenizer.ts</code>: <code>TokenizerProvider</code> interface plus the
+default tokenizer implementation used by bundle, inspect, and render
+planning</p>
+</li>
+<li>
+<p><code>src/doctor/scanner.ts</code>: <code>ScannerPipeline</code> interface plus the
+reference scanner bridge used by <code>cx doctor secrets</code></p>
+</li>
+<li>
+<p><code>src/render/planHash.ts</code>: section and aggregate render-plan hashing</p>
+</li>
+<li>
+<p><code>src/render/spans.ts</code>: style-aware output span helpers</p>
+</li>
+<li>
+<p><code>src/adapter/oracleRender.ts</code>: reference-oracle renderer retained for
+parity checks and compatibility diagnostics</p>
+</li>
+<li>
+<p><code>src/manifest/types.ts</code>: Added <code>renderPlanHash</code> field</p>
+</li>
+<li>
+<p><code>src/manifest/build.ts</code>: Computes aggregate plan hash from sections</p>
+</li>
+<li>
+<p><code>src/bundle/verify.ts</code>: Validates plan integrity during verification</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_module_layer_rules"><a class="anchor" href="#_module_layer_rules"></a>Module Layer Rules</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The codebase enforces strict import directionality. Violations are bugs,
+not style issues.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">config/  shared/  vcs/           ← foundation (no domain imports)
+    ↓
+notes/   planning/  manifest/    ← domain modules
+    ↓
+inspect/  doctor/   adapter/     ← cross-domain orchestration
+    ↓
+mcp/                             ← transport layer (imports domain only)
+    ↓
+cli/commands/                    ← presentation layer (thin shells)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Enforced boundaries:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>planning/</code> must not import from <code>notes/</code>. The planner classifies
+files; note graph enrichment is an orchestration concern.
+<code>notes/planner.ts</code> provides <code>enrichPlanWithLinkedNotes</code> as a
+post-planning step called by the CLI bundle and inspect paths, not by
+the planner itself.</p>
+</li>
+<li>
+<p><code>mcp/</code> must not import from <code>cli/commands/</code>. MCP is a transport layer;
+it imports domain functions from <code>doctor/</code>, <code>inspect/</code>, <code>notes/</code>, and
+<code>planning/</code> directly. The CLI command files are thin presentation shells
+that re-export from those same domain modules.</p>
+</li>
+<li>
+<p>Note CRUD operations (<code>createNewNote</code>, <code>readNote</code>, <code>updateNote</code>,
+<code>renameNote</code>, <code>deleteNote</code>, <code>searchNotes</code>, <code>listNotes</code>) live in
+<code>notes/crud.ts</code>, not in <code>cli/commands/</code>. CLI and MCP both import from
+the domain module.</p>
+</li>
+<li>
+<p>MCP config resolution (<code>resolveMcpConfigPath</code>) lives in
+<code>mcp/config.ts</code>, not in <code>cli/commands/</code>. The CLI mcp command re-exports
+it from there.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Module inventory (domain layer):</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Module</th>
+<th class="tableblock halign-left valign-top">Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes/crud.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Note CRUD I/O and search</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes/graph.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Note link graph construction and queries</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>notes/planner.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Linked-note enrichment for bundle plans</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>planning/masterList.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VCS-anchored master file list construction</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>doctor/mcp.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP profile diagnostic report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>doctor/overlaps.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Section overlap diagnostic report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>doctor/secrets.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Secret scan diagnostic report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>doctor/workflow.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workflow mode recommendation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inspect/report.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle plan inspection report</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/config.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP config path resolution</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/catalog.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared MCP tool catalog and capability metadata</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/register.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared MCP registration wrapper that carries
+capability into enforcement</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/workspace.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace navigation tools</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/bundle.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundle preview and inspect tools</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/doctor.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Doctor diagnostic tools</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mcp/tools/notes.ts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Note CRUD and graph tools</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_adapter_boundary"><a class="anchor" href="#_adapter_boundary"></a>Adapter Boundary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>src/adapter/</code> directory is the explicit boundary between <code>cx</code> core
+logic and the external oracle/reference runtime.</p>
+</div>
+<div class="paragraph">
+<p>This is an expert surface:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>parity diagnostics</p>
+</li>
+<li>
+<p>oracle capability inspection</p>
+</li>
+<li>
+<p>migration and reference testing</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It is not required for ordinary bundle, verify, validate, or extract
+flows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>oracleRender.ts</code> owns parity-only calls into the adapter. Nothing
+outside this module invokes adapter render functions directly.</p>
+</li>
+<li>
+<p><code>capabilities.ts</code> performs runtime feature detection (is
+<code>packStructured</code> available? is <code>renderWithMap</code> available?) so the
+planner and manifest builder never need to know which rendering path was
+taken.</p>
+</li>
+<li>
+<p><code>section.ts</code> provides the render-command wrapper for explicit section
+output without letting the CLI reach into render internals directly.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>[repomix]</code> section in <code>cx.toml</code> is adapter-specific
+configuration. <code>cx.toml</code> keys like <code>show_line_numbers</code>,
+<code>include_empty_directories</code>, and <code>security_check</code> are passed
+through exclusively within adapter/scanner bridge code and are never
+interpreted by the planner, manifest builder, or any other core
+proof-path module. <code>style</code> is the single key shared between the two
+layers: it is used by the planner to determine output file extensions
+and by adapter/oracle code only when comparison tooling needs it.</p>
+</div>
+<div class="paragraph">
+<p>Future external comparison backends should follow the same pattern: a
+new <code>src/&lt;backend&gt;/</code> directory that exposes the same comparison
+seam while keeping core modules unaware of adapter internals.</p>
+</div>
+<div class="sect2">
+<h3 id="_current_migration_state"><a class="anchor" href="#_current_migration_state"></a>Current Migration State</h3>
+<div class="paragraph">
+<p>The proof path now uses a native-only production engine:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>XML, Markdown, Plain, and JSON sections are rendered through the
+native kernel path in <code>src/render/native/</code></p>
+</li>
+<li>
+<p><code>tests/render/nativeParity.test.ts</code> is the release-gating evidence
+that the reference oracle and native kernel still satisfy the same proof
+contract</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This split is intentional. It lets the kernel own the production proof
+path without weakening extraction, verification, or manifest trust.
+Official <code>repomix</code> remains only as an optional reference oracle for
+parity/testing work; the older fork is historical. The reference-oracle lane now
+includes <code>scripts/repomix-adapter-parity.js</code>, which keeps adapter upgrades bound
+to a checked-in <code>repomix</code> 1.13.1 baseline for rendered XML bytes, per-file token
+counts, total token count, and security findings.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pipeline"><a class="anchor" href="#_pipeline"></a>Pipeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>[[1-configuration-load]]
+=== 1. Configuration load</p>
+</div>
+<div class="paragraph">
+<p><code>cx</code> loads <code>cx.toml</code>, expands supported paths, resolves behavioral
+settings, and validates the project configuration.</p>
+</div>
+<div class="paragraph">
+<p>[[2-deterministic-planning]]
+== 2. Deterministic planning</p>
+</div>
+<div class="paragraph">
+<p>Planning is a three-phase pipeline anchored to the VCS-derived master
+list.</p>
+</div>
+<div class="sect2">
+<h3 id="_phase_1_build_the_master_base"><a class="anchor" href="#_phase_1_build_the_master_base"></a>Phase 1: Build the master base</h3>
+<div class="paragraph">
+<p>The planner resolves the source of truth for candidate files from
+version control, not from a broad filesystem walk. The priority order
+is:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Git</strong> — <code>git ls-files --cached</code> provides the tracked set.</p>
+</li>
+<li>
+<p><strong>Fossil</strong> — <code>fossil ls</code> provides the tracked set.</p>
+</li>
+<li>
+<p><strong>Filesystem</strong> — used as a fallback when no VCS root is detected (for
+test environments or unversioned workspaces).</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>That VCS-derived list is the master base for all later planning
+decisions.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Tests validate VCS dispatch using real temporary repositories rather
+than module mocking. This avoids worker-global mock leakage and keeps
+the planner behavior identical to the actual Git/Fossil/Hg provider code
+paths used in production.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_2_apply_global_list_shaping"><a class="anchor" href="#_phase_2_apply_global_list_shaping"></a>Phase 2: Apply global list shaping</h3>
+<div class="paragraph">
+<p>The global <code>[files] include</code> array can extend the master base
+with extra paths that the VCS does not track, such as generated
+artefacts or build outputs. The global <code>[files] exclude</code> array
+is applied after all extensions to remove paths that should never be
+planned.</p>
+</div>
+<div class="paragraph">
+<p>This shaping step changes membership in the master base, but it still
+does not let sections discover new files on their own.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_phase_3_classify_into_sections"><a class="anchor" href="#_phase_3_classify_into_sections"></a>Phase 3: Classify into sections</h3>
+<div class="paragraph">
+<p>Section <code>include</code> and <code>exclude</code> globs are <strong>classifiers</strong>, not
+discoverers. They operate only on the already-computed master base and
+can never add a file that is not already in it. This separates the
+question of <em>what exists</em> from the question of <em>where it belongs</em>.</p>
+</div>
+<div class="paragraph">
+<p>At this stage the planner resolves:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>project name</p>
+</li>
+<li>
+<p>source root</p>
+</li>
+<li>
+<p>output directory</p>
+</li>
+<li>
+<p>VCS provider and working-tree dirty state</p>
+</li>
+<li>
+<p>section membership (including priority-based overlap resolution)</p>
+</li>
+<li>
+<p>copied assets</p>
+</li>
+<li>
+<p>unmatched files</p>
+</li>
+<li>
+<p>overlap and collision failures</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This happens before rendering because the plan must be settled first.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dirty_state_taxonomy"><a class="anchor" href="#_dirty_state_taxonomy"></a>Dirty state taxonomy</h3>
+<div class="paragraph">
+<p>After deriving the master list, the planner classifies the working tree
+into one of four states:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">State</th>
+<th class="tableblock halign-left valign-top">Condition</th>
+<th class="tableblock halign-left valign-top">Default behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>clean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No modified or untracked files</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Plan proceeds normally</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>safe_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only untracked files present</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Plan proceeds with a
+warning</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unsafe_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tracked files have uncommitted modifications</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Planning aborts (exit 7)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forced_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unsafe_dirty</code> overridden with <code>--force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Plan
+proceeds with a warning</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ci_dirty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unsafe_dirty</code> overridden with <code>--ci</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Plan
+proceeds with a warning</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>unsafe_dirty</code> guard exists because a bundle built from a dirty
+tracked file cannot be reliably reproduced or verified later. Two escape
+hatches are available: <code>--force</code> for local experimentation where a human
+is present, and <code>--ci</code> for automated pipelines. Both are recorded in the
+manifest under distinct state labels so audit tooling can distinguish
+human overrides from pipeline overrides.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: a tracked-file bundle built from a moving working
+tree cannot later prove what source state it represents. Refusing to
+proceed by default keeps the artifact contract anchored to reproducible
+input.</p>
+</div>
+<div class="paragraph">
+<p>VCS state is not tracked for filesystem-fallback workspaces. Those
+always produce <code>dirtyState = "clean"</code> and <code>vcsProvider = "none"</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_section_priority_and_overlap_resolution"><a class="anchor" href="#_section_priority_and_overlap_resolution"></a>Section priority and overlap resolution</h3>
+<div class="paragraph">
+<p>Sections are ordered by their <code>priority</code> value (descending) before
+overlap resolution begins. A file claimed by multiple sections is
+assigned to whichever section appears first in the resolved order.
+Sections without an explicit priority are treated as priority 0 and
+their relative order follows <code>dedup.order</code> (config position or lexical)
+as a stable tie-breaker.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_catch_all_sections"><a class="anchor" href="#_catch_all_sections"></a>Catch-all sections</h3>
+<div class="paragraph">
+<p>A section may set <code>catch_all = true</code> instead of providing an
+<code>include</code> list. A catch-all section absorbs all files in the master list
+that were not claimed by any other section. It runs last in the planning
+pipeline, after all normal sections have consumed their files, and may
+still apply an <code>exclude</code> list to filter what it absorbs.</p>
+</div>
+<div class="paragraph">
+<p>At most one catch-all section is permitted per configuration.</p>
+</div>
+<div class="paragraph">
+<p>This same mechanism lets repository notes live in the normal planning
+model. The default <code>docs</code> section now includes <code>notes/**</code>, so
+durable human intent is bundled beside documentation and code-facing
+Markdown instead of being treated as a separate side channel.</p>
+</div>
+<div class="paragraph">
+<p>Three overlap handling strategies are available via <code>dedup.mode</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>fail</code> — planning aborts with an actionable message. <code>cx doctor</code> can
+propose static <code>exclude</code> fixes, or you can set higher <code>priority</code> on the
+owning section and switch to <code>first-wins</code> to avoid static TOML mutations
+entirely.</p>
+</li>
+<li>
+<p><code>warn</code> — conflicts are reported to stderr and resolution proceeds
+using priority order.</p>
+</li>
+<li>
+<p><code>first-wins</code> — overlaps are resolved silently using priority order.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For rapidly evolving codebases where new files frequently match multiple
+sections, <code>dedup.mode = "first-wins"</code> with explicit <code>priority</code> values is
+preferable to accumulating static <code>exclude</code> paths in <code>cx.toml</code>. Static
+excludes become stale as files are renamed or moved, and they generate
+merge conflicts when multiple developers resolve overlaps concurrently
+on separate branches.</p>
+</div>
+<div class="paragraph">
+<p>[[3-section-rendering]]
+=== 3. Section rendering</p>
+</div>
+<div class="paragraph">
+<p>Each section is rendered as one Repomix-compatible output file in the
+configured style:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>xml</code></p>
+</li>
+<li>
+<p><code>markdown</code></p>
+</li>
+<li>
+<p><code>json</code></p>
+</li>
+<li>
+<p><code>plain</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>cx</code> also supplies a section-specific Repomix header through the
+documented <code>output.headerText</code> option so the file itself carries
+cx-oriented handover context without post-processing the generated
+output. That header is intentionally a presentation-layer prolog rather
+than part of the core format semantics: it explains what the artifact
+is, how to interpret logical paths, where edits belong, and which bundle
+contracts remain authoritative.</p>
+</div>
+<div class="paragraph">
+<p>This yields more semantic fluency for humans and AI consumers without
+relaxing the deterministic contract:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>rigid core semantics for markers, directives, manifests, and
+validation</p>
+</li>
+<li>
+<p>expressive consumer guidance in the generated prolog and shared
+handover</p>
+</li>
+<li>
+<p>optional narrative cues that never override canonical bundle data</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The renderer also reports output token counts. If the adapter supports
+exact span capture, <code>cx</code> records absolute <code>outputStartLine</code> and
+<code>outputEndLine</code> values for each packed text file in XML, Markdown, and
+plain sections. Those spans are the primary lookup path for those text
+formats. JSON uses direct object lookup instead of span metadata, and
+JSON-only bundles may omit spans entirely.</p>
+</div>
+<div class="paragraph">
+<p>[[4-shared-handover]]
+=== 4. Shared handover</p>
+</div>
+<div class="paragraph">
+<p><code>cx bundle</code> writes a kernel-rendered shared handover file alongside the
+section outputs. The handover is meant to travel with the section files
+when multiple outputs are handed over together, so the shared context is
+externalized without breaking the self-contained section files.</p>
+</div>
+<div class="paragraph">
+<p>For XML-style bundles, that handover intentionally stays mostly plain
+text. Rare tags such as <code>&lt;section_inventory&gt;</code> and
+<code>&lt;recent_repository_history&gt;</code> act as semantic anchors
+for LLMs and operators rather than as a full XML document contract.</p>
+</div>
+<div class="paragraph">
+<p>[[5-manifest-build]]
+=== 5. Manifest build</p>
+</div>
+<div class="paragraph">
+<p><code>cx</code> writes a canonical manifest that records:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>bundle identity and versions</p>
+</li>
+<li>
+<p>source root and bundle directory</p>
+</li>
+<li>
+<p>VCS provider (<code>git</code>, <code>fossil</code>, or <code>none</code>)</p>
+</li>
+<li>
+<p>dirty state at bundle time (<code>clean</code>, <code>safe_dirty</code>, or
+<code>forced_dirty</code>)</p>
+</li>
+<li>
+<p>list of uncommitted modified files when <code>forced_dirty</code></p>
+</li>
+<li>
+<p>checksum algorithm</p>
+</li>
+<li>
+<p>the shared handover filename (currently stored in the manifest
+<code>handoverFile</code> field)</p>
+</li>
+<li>
+<p>section outputs</p>
+</li>
+<li>
+<p>copied assets</p>
+</li>
+<li>
+<p>repository note metadata, including extracted summaries when notes are
+present</p>
+</li>
+<li>
+<p>per-file token counts</p>
+</li>
+<li>
+<p>source metadata such as size, media type, and mtime</p>
+</li>
+<li>
+<p>output spans for XML, Markdown, and plain sections when exact span
+capture is available; JSON sections do not need them</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The manifest is not just a report. It is the contract other commands
+operate against.</p>
+</div>
+<div class="paragraph">
+<p>[[6-lock-file-and-checksums]]
+=== 6. Lock file and checksums</p>
+</div>
+<div class="paragraph">
+<p><code>cx bundle</code> also writes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a lock file containing the resolved Category B behavioral settings
+used during bundle creation</p>
+</li>
+<li>
+<p>a SHA-256 checksum sidecar covering the manifest, lock file, section
+outputs, and copied assets</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>[[7-post-build-consumers]]
+=== 7. Post-build consumers</p>
+</div>
+<div class="paragraph">
+<p>After bundling, other commands use the recorded state:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>validate</code> checks bundle structure and schema</p>
+</li>
+<li>
+<p><code>verify</code> checks integrity and optional source-tree drift</p>
+</li>
+<li>
+<p><code>list</code> surfaces stored metadata</p>
+</li>
+<li>
+<p><code>extract</code> reconstructs files according to manifest semantics</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_invariants"><a class="anchor" href="#_invariants"></a>Invariants</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some failures are fundamental and intentionally hard:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>section overlap when overlap failure mode is active</p>
+</li>
+<li>
+<p>asset collision between copied assets and packed files</p>
+</li>
+<li>
+<p>missing core adapter contract</p>
+</li>
+<li>
+<p><code>unsafe_dirty</code> working tree without <code>--force</code> (exit code 7)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These are Category A invariants. They are never configurable away
+because doing so would make the bundle ambiguous or unverifiable.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_category_b_behaviors"><a class="anchor" href="#_category_b_behaviors"></a>Category B Behaviors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some operational friction points are configurable:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>overlap handling mode</p>
+</li>
+<li>
+<p>missing cx-specific adapter extension mode</p>
+</li>
+<li>
+<p>duplicate config entry mode</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These are recorded in the lock file so later verification can detect
+drift between the settings used to build the bundle and the settings
+currently in effect.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_persistent_token_accounting_matters"><a class="anchor" href="#_why_persistent_token_accounting_matters"></a>Why Persistent Token Accounting Matters</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Repomix can already calculate token counts while rendering. <code>cx</code> adds a
+different guarantee: those counts are carried forward as part of the
+artifact contract instead of disappearing with a single run.</p>
+</div>
+<div class="paragraph">
+<p>That matters in automation because later verification and downstream
+tooling can read the manifest&#8217;s recorded token counts directly instead
+of re-running a render or relying on a fresh estimate in a different
+environment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_sha_256_matters"><a class="anchor" href="#_why_sha_256_matters"></a>Why SHA-256 Matters</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Checksums are not included for cryptography theater. They prove that the
+artifacts the runner sees are the same artifacts the bundler emitted.</p>
+</div>
+<div class="paragraph">
+<p>Why this protects you: checksum failures are evidence that the artifact
+set in hand is no longer provably the one <code>cx</code> wrote. Verification stops
+before a tampered, partial, or substituted bundle can pass as
+authoritative.</p>
+</div>
+<div class="paragraph">
+<p>That lets <code>verify</code> detect:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>manifest tampering</p>
+</li>
+<li>
+<p>section output drift</p>
+</li>
+<li>
+<p>missing checksum entries</p>
+</li>
+<li>
+<p>copied asset mutation</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For packed text rows, the manifest hash covers the normalized packed
+content emitted by Repomix. That keeps verification aligned with the
+actual handover payload instead of pretending <code>cx</code> is a source-byte
+archiver.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_output_spans_matter"><a class="anchor" href="#_why_output_spans_matter"></a>Why Output Spans Matter</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When exact span capture is available, the manifest can tell downstream
+tooling where each file lives in the rendered section output.</p>
+</div>
+<div class="paragraph">
+<p>Those spans are only useful if the output remains deterministic. That is
+why degraded extraction is treated carefully: once the parser can no
+longer reconstruct the packed output cleanly, absolute coordinates can
+become unsafe for downstream automation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_config_safety_and_merge_semantics"><a class="anchor" href="#_config_safety_and_merge_semantics"></a>Config Safety and Merge Semantics</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Configuration files often inherit from other configurations (e.g.,
+project-specific settings extending organization defaults). <code>cx</code>
+enforces explicit merge semantics to prevent silent overwrites and make
+configuration conflicts visible.</p>
+</div>
+<div class="sect2">
+<h3 id="_merge_rules"><a class="anchor" href="#_merge_rules"></a>Merge Rules</h3>
+<div class="paragraph">
+<p>When merging two configurations (base and override), <code>cx</code> applies these
+rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Scalars</strong>: Override wins (right overwrites left). Conflicting scalar
+values are recorded as conflicts.</p>
+</li>
+<li>
+<p><strong>Arrays</strong>: Append-only semantics (never silent replace). When both base
+and override have non-empty arrays, they are concatenated. This prevents
+accidentally dropping existing patterns or values.</p>
+</li>
+<li>
+<p><strong>Objects</strong>: Deep merge (recursive application of rules). Nested
+structures are merged field-by-field.</p>
+</li>
+<li>
+<p><strong>Undefined</strong>: Treated as "not set". Missing fields in override do not
+affect base values.</p>
+</li>
+<li>
+<p><strong>Null</strong>: Valid overwrite value. Explicit null in override overwrites
+base (unlike undefined).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_conflict_detection"><a class="anchor" href="#_conflict_detection"></a>Conflict Detection</h3>
+<div class="paragraph">
+<p>Every merge operation returns a conflict list documenting:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>path</code>: The configuration path (e.g., <code>files.exclude</code>, <code>dedup.mode</code>)</p>
+</li>
+<li>
+<p><code>reason</code>: Why the conflict occurred (e.g., "scalar value replaced",
+"array append behavior")</p>
+</li>
+<li>
+<p><code>baseValue</code> and <code>overrideValue</code>: The actual conflicting values</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This explicit logging lets operators audit configuration inheritance
+chains and detect unintended changes that silent merges would hide.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_why_this_matters"><a class="anchor" href="#_why_this_matters"></a>Why This Matters</h3>
+<div class="paragraph">
+<p>Configuration is not arbitrary application state. Changes to section
+definitions, file patterns, or dedup rules affect the reproducibility of
+a bundle. By making conflicts visible rather than silent, <code>cx</code> ensures
+that operational decisions about configuration are explicit and
+auditable.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_extraction_semantics"><a class="anchor" href="#_extraction_semantics"></a>Extraction Semantics</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx</code> classifies extraction outcomes as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>intact</code>: reconstructed text matches the packed-content hash in the
+manifest</p>
+</li>
+<li>
+<p><code>copied</code>: asset restored directly from stored bundle content</p>
+</li>
+<li>
+<p><code>degraded</code>: text is recoverable but does not match the packed-content
+hash in the manifest</p>
+</li>
+<li>
+<p><code>blocked</code>: deterministic recovery is not possible from the stored
+output</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>degraded</code> is intentionally not the default success path. It requires
+explicit operator consent with <code>--allow-degraded</code>.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../../repository/docs/extraction_safety/" class="xref page">Extraction Safety</a> for the operational
+consequences.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
