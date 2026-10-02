@@ -187,7 +187,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  # Disabled: the Homebrew tap (wstein/homebrew-tap) is updated manually after a release.
   homebrew:
+    if: false
     needs:
       - gate
       - tarball
@@ -255,7 +257,6 @@ jobs:
       - gate
       - tarball
       - npm
-      - homebrew
     runs-on: ubuntu-latest
     permissions:
       contents: write
