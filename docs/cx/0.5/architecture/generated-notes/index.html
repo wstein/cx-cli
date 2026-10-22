@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generated Notes Index | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="./">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_source_notes">Source Notes</a>
+<ul class="sectlevel2">
+<li><a href="#_0_4_0_architecture_shift">0.4.0 Architecture Shift</a></li>
+<li><a href="#_agent_operating_model">Agent Operating Model</a></li>
+<li><a href="#_antora_and_asciidoctor_adoption_boundary">Antora and AsciiDoctor Adoption Boundary</a></li>
+<li><a href="#_arc42_as_architecture_spine">arc42 as Architecture Spine</a></li>
+<li><a href="#_bundle_extraction_safety_invariants">Bundle Extraction Safety Invariants</a></li>
+<li><a href="#_bundle_index_rename_to_shared_handover">Bundle Index Rename To Shared Handover</a></li>
+<li><a href="#_bundle_sidecar_integrity">Bundle Sidecar Integrity</a></li>
+<li><a href="#_choose_your_operating_mode">Choose Your Operating Mode</a></li>
+<li><a href="#_cli_command_lifecycle">CLI Command Lifecycle</a></li>
+<li><a href="#_config_inheritance_and_overlays">Config Inheritance and Overlays</a></li>
+<li><a href="#_config_merge_model">Config Merge Model</a></li>
+<li><a href="#_cx_constitution">CX Constitution</a></li>
+<li><a href="#_cx_notes_layered_source_of_truth">CX Notes Layered Source of Truth</a></li>
+<li><a href="#_cx_triad">CX Triad</a></li>
+<li><a href="#_internal_api_stabilization">Internal API Stabilization</a></li>
+<li><a href="#_kernel_vs_extension_boundary">Kernel vs Extension Boundary</a></li>
+<li><a href="#_layered_truth_model">Layered Truth Model</a></li>
+<li><a href="#_mcp_import_graph_diagnostics">MCP Import Graph Diagnostics</a></li>
+<li><a href="#_mcp_transport_protocol">MCP Transport Protocol</a></li>
+<li><a href="#_operational_bifurcation">Operational Bifurcation</a></li>
+<li><a href="#_parallel_rendering_invariants">Parallel Rendering Invariants</a></li>
+<li><a href="#_plan_note_coverage_and_sync_audit">Plan: Note Coverage and Sync Audit</a></li>
+<li><a href="#_planning_boundary_enforcement">Planning Boundary Enforcement</a></li>
+<li><a href="#_product_tiering_model">Product Tiering Model</a></li>
+<li><a href="#_proof_path_ownership">Proof Path Ownership</a></li>
+<li><a href="#_render_kernel_constitution">Render Kernel Constitution</a></li>
+<li><a href="#_repomix_adapter_boundary">Repomix Adapter Boundary</a></li>
+<li><a href="#_repomix_decommission_strategy">Repomix Decommission Strategy</a></li>
+<li><a href="#_repository_cognition_layer">Repository Cognition Layer</a></li>
+<li><a href="#_section_ownership_and_overlaps">Section Ownership and Overlaps</a></li>
+<li><a href="#_structured_render_contract">Structured Render Contract</a></li>
+<li><a href="#_system_trust_contract">System Trust Contract</a></li>
+<li><a href="#_test_strategy_hardening">Test Strategy Hardening</a></li>
+<li><a href="#_trust_spectrum_model">Trust Spectrum Model</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This page is generated from the repository notes graph. Edit the source notes instead of this generated block.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_source_notes"><a class="anchor" href="#_source_notes"></a>Source Notes</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_0_4_0_architecture_shift"><a class="anchor" href="#_0_4_0_architecture_shift"></a>0.4.0 Architecture Shift</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420110000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/0.4.0 Architecture Shift.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx 0.4.0 marks a transition from a Repomix-adapter system to a kernel-owned architecture.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_agent_operating_model"><a class="anchor" href="#_agent_operating_model"></a>Agent Operating Model</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417150000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Agent Operating Model.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx-cli provides three complementary workflows: <strong>Bundle</strong> (immutable snapshots), <strong>MCP</strong> (live interactive), and <strong>Notes</strong> (durable knowledge). Each serves a different use case and has distinct policy guarantees.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_antora_and_asciidoctor_adoption_boundary"><a class="anchor" href="#_antora_and_asciidoctor_adoption_boundary"></a>Antora and AsciiDoctor Adoption Boundary</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420183000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Antora and AsciiDoctor Adoption Boundary.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Antora and AsciiDoctor now define the curated documentation surface through a standard Antora component rooted at docs/, with docs/antora.yml, docs/modules/ROOT/pages/, and a separate local UI bundle under docs/ui/, not every text artifa&#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_arc42_as_architecture_spine"><a class="anchor" href="#_arc42_as_architecture_spine"></a>arc42 as Architecture Spine</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420183100</code></p>
+</li>
+<li>
+<p>Source: <code>notes/arc42 as Architecture Spine.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>arc42 fits the architecture and contract layer of cx well, but it should be used as the spine of the curated architecture corpus rather than as the structure for the whole repository.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bundle_extraction_safety_invariants"><a class="anchor" href="#_bundle_extraction_safety_invariants"></a>Bundle Extraction Safety Invariants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415162500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Bundle Extraction Safety Invariants.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx restoration ensures that files extracted from a bundle are exactly as they were captured during the planning phase, preventing degraded or corrupted files from entering a project.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bundle_index_rename_to_shared_handover"><a class="anchor" href="#_bundle_index_rename_to_shared_handover"></a>Bundle Index Rename To Shared Handover</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420122000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Bundle Index Rename To Shared Handover.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The current term "bundle index" is now too narrow because the file already acts as a shared handover artifact for both humans and agents, not just a lookup-oriented section listing.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bundle_sidecar_integrity"><a class="anchor" href="#_bundle_sidecar_integrity"></a>Bundle Sidecar Integrity</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415162000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Bundle Sidecar Integrity.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx uses SHA-256 sidecars and manifest-level checksums to ensure the integrity of a bundle from the moment it is created until it is extracted or verified.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_choose_your_operating_mode"><a class="anchor" href="#_choose_your_operating_mode"></a>Choose Your Operating Mode</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419104000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Choose Your Operating Mode.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx needs a single front-door explanation that tells operators which surface to use before they learn the deeper internals.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_command_lifecycle"><a class="anchor" href="#_cli_command_lifecycle"></a>CLI Command Lifecycle</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415163000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CLI Command Lifecycle.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The CLI command lifecycle in cx is built on yargs and a centralized command dispatch model.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_config_inheritance_and_overlays"><a class="anchor" href="#_config_inheritance_and_overlays"></a>Config Inheritance and Overlays</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415160500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Config Inheritance and Overlays.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx configuration follows a deterministic loading and inheritance pipeline that enables colocated overlays (like cx-mcp.toml) without repeating the entire cx.toml baseline.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_config_merge_model"><a class="anchor" href="#_config_merge_model"></a>Config Merge Model</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417165000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Config Merge Model.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Configuration files often inherit from parent configs: Organization-level defaults → Project-specific overrides System-wide settings → User-local tweaks Pipeline defaults → Job-specific exceptions</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cx_constitution"><a class="anchor" href="#_cx_constitution"></a>CX Constitution</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420120000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CX Constitution.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The CX Constitution defines the non-negotiable rules of the system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cx_notes_layered_source_of_truth"><a class="anchor" href="#_cx_notes_layered_source_of_truth"></a>CX Notes Layered Source of Truth</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260425130000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CX Notes Layered Source of Truth.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx must enforce a layered source-of-truth model instead of treating all repository text as equally authoritative.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cx_triad"><a class="anchor" href="#_cx_triad"></a>CX Triad</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415123000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/CX Triad.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The CX architecture is built upon a triad specifically designed for operational bundling rather than just exploratory context generation. The triad consists of:</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_api_stabilization"><a class="anchor" href="#_internal_api_stabilization"></a>Internal API Stabilization</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420120400</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Internal API Stabilization.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The system must stabilize internal interfaces before adding plugins.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_kernel_vs_extension_boundary"><a class="anchor" href="#_kernel_vs_extension_boundary"></a>Kernel vs Extension Boundary</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420110800</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Kernel vs Extension Boundary.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The system enforces a strict separation between kernel and extensions.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_layered_truth_model"><a class="anchor" href="#_layered_truth_model"></a>Layered Truth Model</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260425120000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Layered Truth Model.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The layered truth model keeps repository cognition explicit: notes preserve intent truth, specs preserve executable rule truth, code preserves implementation truth, tests preserve behavioral truth, and docs preserve communication truth.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mcp_import_graph_diagnostics"><a class="anchor" href="#_mcp_import_graph_diagnostics"></a>MCP Import Graph Diagnostics</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419162500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Import Graph Diagnostics.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Vitest UI is unusually valuable for MCP performance investigation because the MCP stack is registration-heavy and spread across src/cli/commands/mcp.ts, src/mcp/server.ts, src/mcp/policy.ts, src/mcp/workspace.ts, and the tool-registratio&#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mcp_transport_protocol"><a class="anchor" href="#_mcp_transport_protocol"></a>MCP Transport Protocol</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415160000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/MCP Transport Protocol.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx implements the Model Context Protocol (MCP) over a standard input/output (stdio) transport layer.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operational_bifurcation"><a class="anchor" href="#_operational_bifurcation"></a>Operational Bifurcation</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415171000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Operational Bifurcation.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx uses a unified deterministic identity model but bifurcates operation into two distinct paths: Track B generates hypotheses against live state, while Track A generates proof that can survive review, CI, and handoff.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_parallel_rendering_invariants"><a class="anchor" href="#_parallel_rendering_invariants"></a>Parallel Rendering Invariants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260413153645</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Parallel Rendering Invariants.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Parallel rendering improves continuous integration throughput without changing deterministic output.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_plan_note_coverage_and_sync_audit"><a class="anchor" href="#_plan_note_coverage_and_sync_audit"></a>Plan: Note Coverage and Sync Audit</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415164500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Note Coverage and Sync Plan.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This plan outlines the steps to bring the notes/ directory into full alignment with the project&#8217;s complexity and current implementation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_planning_boundary_enforcement"><a class="anchor" href="#_planning_boundary_enforcement"></a>Planning Boundary Enforcement</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415161000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Planning Boundary Enforcement.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx enforces a strict repository boundary during bundle planning and live MCP sessions. This prevents sensitive files from leaking into the agent context or the final bundle.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_product_tiering_model"><a class="anchor" href="#_product_tiering_model"></a>Product Tiering Model</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417143000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Product Tiering Model.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx-cli tools are organized into four stability tiers: <strong>STABLE</strong>, <strong>BETA</strong>, <strong>EXPERIMENTAL</strong>, and <strong>INTERNAL</strong>. This model lets operators understand which tools have locked APIs and which may evolve, and it now applies explicitly to the &#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_proof_path_ownership"><a class="anchor" href="#_proof_path_ownership"></a>Proof Path Ownership</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420121300</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Proof Path Ownership.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The proof path is kernel-owned so render identity, verification, and extraction safety remain auditable even as helpers, plugins, and migration scaffolding evolve around the kernel.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_render_kernel_constitution"><a class="anchor" href="#_render_kernel_constitution"></a>Render Kernel Constitution</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420110100</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Render Kernel Constitution.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The render kernel defines the proof-path behavior of cx.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_repomix_adapter_boundary"><a class="anchor" href="#_repomix_adapter_boundary"></a>Repomix Adapter Boundary</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415123500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Repomix Adapter Boundary.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx strictly isolates its rendering backend using the Repomix Adapter Boundary. The system does not shell out to Repomix via the OS; instead, it uses a narrow in-process module boundary to maintain synchronous, deterministic control over &#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_repomix_decommission_strategy"><a class="anchor" href="#_repomix_decommission_strategy"></a>Repomix Decommission Strategy</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420110600</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Repomix Decommission Strategy.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Repomix was a temporary compatibility layer during the render-kernel migration, and that decommissioning work is now closed for v0.4.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_repository_cognition_layer"><a class="anchor" href="#_repository_cognition_layer"></a>Repository Cognition Layer</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419153000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Repository Cognition Layer.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The notes graph is the repository cognition layer: durable reasoning that agents and humans can query safely only if the graph keeps strong signal-to-noise, summary-first routing, and bounded note size.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_section_ownership_and_overlaps"><a class="anchor" href="#_section_ownership_and_overlaps"></a>Section Ownership and Overlaps</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260415161500</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Section Ownership and Overlaps.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx uses a precise ownership model to distribute files from the master list into named sections. A conflict arises when two or more sections match the same file path.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_structured_render_contract"><a class="anchor" href="#_structured_render_contract"></a>Structured Render Contract</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260417165100</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Structured Render Contract.md</code></p>
+</li>
+<li>
+<p>Code refs: <code>src/bundle/verify.ts</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The original render span computation relied on <strong>heuristic parsing of rendered output</strong>: Markers (XML tags, Markdown headings, plain-text delimiters) were parsed post-render Span calculations were indirect inference, not direct observati&#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_system_trust_contract"><a class="anchor" href="#_system_trust_contract"></a>System Trust Contract</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419200000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/System Trust Contract.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx stays trustworthy only if cognition quality, boundary rules, and trust labels remain explicit. A parseable note is not automatically reliable knowledge, Track B exploration is not automatically Track A proof, and agent output is not a&#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_test_strategy_hardening"><a class="anchor" href="#_test_strategy_hardening"></a>Test Strategy Hardening</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260419093000</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Test Strategy Hardening.md</code></p>
+</li>
+<li>
+<p>Code refs: <code>.github/pull_request_template.md</code>, <code>src/notes/validate.ts</code>, <code>tests/README.md</code>, <code>tests/VERIFY_AGAINST_AUDIT.md</code>, <code>tests/mcp/server.run.test.ts</code>, <code>tests/unit/configLoad.property.test.ts</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The suite had excellent real-world coverage but too much unit-level dependence on filesystem setup. That made core logic tests slower and more fragile than they needed to be.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_trust_spectrum_model"><a class="anchor" href="#_trust_spectrum_model"></a>Trust Spectrum Model</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Note ID: <code>20260420130100</code></p>
+</li>
+<li>
+<p>Source: <code>notes/Trust Spectrum Model.md</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>cx models trust as a spectrum rather than a binary state.</p>
+</div>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

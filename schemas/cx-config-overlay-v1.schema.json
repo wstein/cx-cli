@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://wstein.github.io/cx-cli/schemas/cx-config-overlay-v1.schema.json",
+  "title": "CX Configuration Overlay Schema (v1)",
+  "description": "JSON Schema for inherited cx configuration files such as cx-mcp.toml. This schema validates overlay files that extend a base cx.toml while keeping additionalProperties strict and reusing the base field definitions.",
+  "type": "object",
+  "required": ["extends"],
+  "properties": {
+    "extends": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative path to the base cx.toml file for one-level inheritance."
+    },
+    "schema_version": {
+      "$ref": "./cx-config-v1.schema.json#/properties/schema_version"
+    },
+    "project_name": {
+      "$ref": "./cx-config-v1.schema.json#/properties/project_name"
+    },
+    "source_root": {
+      "$ref": "./cx-config-v1.schema.json#/properties/source_root"
+    },
+    "output_dir": {
+      "$ref": "./cx-config-v1.schema.json#/properties/output_dir"
+    },
+    "output": {
+      "$ref": "./cx-config-v1.schema.json#/properties/output"
+    },
+    "repomix": {
+      "$ref": "./cx-config-v1.schema.json#/properties/repomix"
+    },
+    "files": {
+      "$ref": "./cx-config-v1.schema.json#/properties/files"
+    },
+    "dedup": {
+      "$ref": "./cx-config-v1.schema.json#/properties/dedup"
+    },
+    "manifest": {
+      "$ref": "./cx-config-v1.schema.json#/properties/manifest"
+    },
+    "handover": {
+      "$ref": "./cx-config-v1.schema.json#/properties/handover"
+    },
+    "checksums": {
+      "$ref": "./cx-config-v1.schema.json#/properties/checksums"
+    },
+    "tokens": {
+      "$ref": "./cx-config-v1.schema.json#/properties/tokens"
+    },
+    "assets": {
+      "$ref": "./cx-config-v1.schema.json#/properties/assets"
+    },
+    "docs": {
+      "$ref": "./cx-config-v1.schema.json#/properties/docs"
+    },
+    "config": {
+      "$ref": "./cx-config-v1.schema.json#/properties/config"
+    },
+    "mcp": {
+      "$ref": "./cx-config-v1.schema.json#/properties/mcp"
+    },
+    "sections": {
+      "$ref": "./cx-config-v1.schema.json#/properties/sections"
+    }
+  },
+  "additionalProperties": false
+}

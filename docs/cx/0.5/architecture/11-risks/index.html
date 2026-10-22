@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>11 Risks | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="./">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_post_v0_4_focus">Post-v0.4 focus</a></li>
+<li><a href="#_review_cadence">Review Cadence</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Known risks and pressure points:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Risk</th>
+<th class="tableblock halign-left valign-top">Why it matters</th>
+<th class="tableblock halign-left valign-top">Mitigation</th>
+<th class="tableblock halign-left valign-top">Signal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mutation defaults are misread</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An agent or operator may assume read-only exploration can safely mutate durable notes.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keep MCP mutation behind explicit policy and <code>enable_mutation</code>, then review with notes governance.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP denial output, <code>doctor mcp</code>, note governance checks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Degraded extraction is treated as safe recovery</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Approximate recovery can look like proof if the warning is ignored.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keep degraded extraction opt-in and tie normal extraction to manifest and checksum evidence.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>extract --verify</code>, degraded extraction diagnostics.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanner growth becomes a hidden plugin system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unbounded scanners can change proof behavior without an explicit extension model.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keep scanner IDs bounded and route scanner behavior through <code>ScannerPipeline</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scanner config validation, internal API contract review.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docs drift between curated pages and repository companions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">README, generated repository-reference pages, and Antora docs can disagree about public URLs or release behavior.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prefer Antora as the curated surface, regenerate repository references, and keep Pages smoke checks active.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">docs assurance tests, Pages smoke, broken-link/link-contract reviews.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Architecture vocabulary leaks into operator pages without context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Terms such as Track A, Track B, proof path, and oracle can become barriers to command use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use manual pages for action-first guidance and link to architecture pages for deeper semantics.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">operator feedback, docs assurance tests, onboarding review.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Latest-only schemas surprise pinned consumers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Removing old schema files is intentionally breaking, but stale consumers may discover it late.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Document the breaking contract and fail the Pages build when retired schemas reappear.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">schema index, release notes, <code>pages:build</code> hard failure.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_post_v0_4_focus"><a class="anchor" href="#_post_v0_4_focus"></a>Post-v0.4 focus</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The next line of work is polishing and scoping these boundaries, not another architecture flip.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_review_cadence"><a class="anchor" href="#_review_cadence"></a>Review Cadence</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Review this page when release behavior, schema policy, MCP mutation
+policy, extraction behavior, or scanner activation changes. Each risk
+should either have an active mitigation or be promoted into a concrete
+work item before it becomes normal operating practice.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

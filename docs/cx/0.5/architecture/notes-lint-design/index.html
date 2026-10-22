@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notes Lint Design | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="../07-deployment-view/">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="./">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_drift_taxonomy">Drift Taxonomy</a></li>
+<li><a href="#_auto_fix_decision_matrix">Auto-fix Decision Matrix</a></li>
+<li><a href="#_hard_constraints">Hard Constraints</a></li>
+<li><a href="#_confidence_scoring">Confidence Scoring</a></li>
+<li><a href="#_cli_surface">CLI Surface</a></li>
+<li><a href="#_test_plan">Test Plan</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>cx notes lint</code> is a structural lint surface for note-to-code drift. It runs outside the bundle path and defaults to dry-run.</p>
+</div>
+<div class="paragraph">
+<p>Prerequisite: reconcile <code>notes/CX Semantic Drift Detection.md</code> with actual <code>cx notes drift</code> behavior before expanding lint semantics. Today <code>notes drift</code> reports structural note-to-code drift and validation health; semantic claim/spec/doc comparison remains a design target.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_drift_taxonomy"><a class="anchor" href="#_drift_taxonomy"></a>Drift Taxonomy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Structural categories come from <code>NoteCodePathWarning</code>: <code>missing</code>, <code>outside_master_list</code>, and <code>excluded_from_plan</code>.</p>
+</div>
+<div class="paragraph">
+<p>Semantic contradictions are reported as contradictions and are never auto-fixed.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_auto_fix_decision_matrix"><a class="anchor" href="#_auto_fix_decision_matrix"></a>Auto-fix Decision Matrix</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Category</th>
+<th class="tableblock halign-left valign-top">Auto-fixable?</th>
+<th class="tableblock halign-left valign-top">Trigger</th>
+<th class="tableblock halign-left valign-top">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">missing (file deleted)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">always</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">report only</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">missing (file renamed, single git-follow match)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">confidence &gt;= 0.9</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">rewrite structural frontmatter anchor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">missing (file renamed, ambiguous)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">confidence &lt; 0.9</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">report with candidate list</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outside_master_list</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conditional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--fix-section</code> plus confirmation or <code>--yes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">propose include glob update</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">excluded_from_plan</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">always</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">report; suggest section fix</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contradiction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Never</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">always</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">report only</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stale <code>updated_at</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">always</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">report only; audit metadata requires human review</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stale tags derived from path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">always</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">rewrite frontmatter</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hard_constraints"><a class="anchor" href="#_hard_constraints"></a>Hard Constraints</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Auto-fix never edits prose body content. It may rewrite only frontmatter and structural anchors.</p>
+</div>
+<div class="paragraph">
+<p>Notes lint runs in a separate command path from <code>cx bundle</code>; bundling never triggers note rewrites.</p>
+</div>
+<div class="paragraph">
+<p>Default mode is dry-run. Mutation requires explicit <code>--write</code>.</p>
+</div>
+<div class="paragraph">
+<p>Every auto-fix appends one JSON object to <code>notes/.lint-history.jsonl</code> with note ID, change kind, and before/after hashes. The log is append-only.</p>
+</div>
+<div class="paragraph">
+<p>The mutation contract is captured in <code>notes/Notes Lint Mutation Contract.md</code> and must remain machine-checkable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-typescript hljs" data-lang="typescript">type NotesLintMutationKind =
+  | "frontmatter.path_tags"
+  | "frontmatter.structural_anchor";</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Any new <code>--write</code> behavior extends this enum first, then adds tests proving body-byte preservation and audit history output.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_confidence_scoring"><a class="anchor" href="#_confidence_scoring"></a>Confidence Scoring</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A single git-follow match in the last five commits scores <code>0.95</code>.</p>
+</div>
+<div class="paragraph">
+<p>Multiple candidates score <code>max - second_max</code>.</p>
+</div>
+<div class="paragraph">
+<p>No auto-fix runs below <code>0.9</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cli_surface"><a class="anchor" href="#_cli_surface"></a>CLI Surface</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cx notes lint [--write] [--fix-section] [--note &lt;id&gt;] [--json] [--history]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>--json</code> emits structured findings. <code>--history</code> reads the audit log.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test_plan"><a class="anchor" href="#_test_plan"></a>Test Plan</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Tests cover synthetic note fixtures for the three structural drift categories, dry-run output, <code>--write</code> mutation, body byte preservation by SHA-256, and audit-log round-tripping.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

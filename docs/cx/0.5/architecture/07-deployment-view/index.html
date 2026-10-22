@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>07 Deployment View | CX Documentation</title>
+    <link rel="stylesheet" href="../../../../_/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-shell">
+        <p class="eyebrow">Curated Documentation Surface</p>
+        <h1>CX Documentation</h1>
+        <p class="lede">Kernel-owned proof path, live MCP workspace surface, and durable cognition notes.</p>
+      </div>
+    </header>
+    <div class="site-shell site-layout">
+      <aside class="site-nav">
+        <nav>
+          <p class="nav-title">Navigation</p>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../">Start Here</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/">Docs Index</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/">Manual</a>
+                  </li>
+                  <li>
+                    <a href="../">Architecture</a>
+                  </li>
+                  <li>
+                    <span>Repository Reference Pages</span>
+                  </li>
+                  <li>
+                    <span>Root Repository Companions</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../onboarding/">Docs Index</a>
+                <ul>
+                  <li>
+                    <a href="../../onboarding/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../../manual/">Manual</a>
+                <ul>
+                  <li>
+                    <a href="../../manual/operator-manual/">Operator Manual</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/operating-modes/">Operating Modes</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/config-reference/">Configuration Reference</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/starter-config/">Starter Config</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/workflows/">Operator Workflows</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/release-and-integrity/">Release and Integrity</a>
+                  </li>
+                  <li>
+                    <a href="../../manual/generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <ul>
+              <li>
+                <a href="../">Architecture</a>
+                <ul>
+                  <li>
+                    <a href="../01-introduction-and-goals/">01 Introduction and Goals</a>
+                  </li>
+                  <li>
+                    <a href="../02-constraints/">02 Constraints</a>
+                  </li>
+                  <li>
+                    <a href="../03-context-and-scope/">03 Context and Scope</a>
+                  </li>
+                  <li>
+                    <a href="../04-solution-strategy/">04 Solution Strategy</a>
+                  </li>
+                  <li>
+                    <a href="../05-building-block-view/">05 Building Block View</a>
+                  </li>
+                  <li>
+                    <a href="../06-runtime-view/">06 Runtime View</a>
+                  </li>
+                  <li>
+                    <a href="./">07 Deployment View</a>
+                  </li>
+                  <li>
+                    <a href="../08-cross-cutting-concepts/">08 Cross-cutting Concepts</a>
+                  </li>
+                  <li>
+                    <a href="../09-decisions-and-history/">09 Decisions and History</a>
+                  </li>
+                  <li>
+                    <a href="../10-quality-requirements/">10 Quality Requirements</a>
+                  </li>
+                  <li>
+                    <a href="../11-risks/">11 Risks</a>
+                  </li>
+                  <li>
+                    <a href="../12-glossary/">12 Glossary</a>
+                  </li>
+                  <li>
+                    <a href="../mental-model/">Mental Model</a>
+                  </li>
+                  <li>
+                    <a href="../system-map/">System Map</a>
+                  </li>
+                  <li>
+                    <a href="../system-contracts/">System Contracts</a>
+                  </li>
+                  <li>
+                    <a href="../audited-overrides/">Audited Overrides</a>
+                  </li>
+                  <li>
+                    <a href="../mcp-audit-trace-design/">MCP Audit Trace Design</a>
+                  </li>
+                  <li>
+                    <a href="../notes-lint-design/">Notes Lint Design</a>
+                  </li>
+                  <li>
+                    <a href="../purity-field-design/">Purity Field Design Draft</a>
+                  </li>
+                  <li>
+                    <a href="../implementation-reference/">Implementation Reference</a>
+                  </li>
+                  <li>
+                    <a href="../internal-api-contract/">Internal API Contract</a>
+                  </li>
+                  <li>
+                    <a href="../render-kernel-contract/">Render Kernel Contract</a>
+                  </li>
+                  <li>
+                    <a href="../note-centric-toolchain/">Note-Centric Toolchain</a>
+                  </li>
+                  <li>
+                    <a href="../generated-notes/">Generated Notes Index</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+      <main class="site-main">
+        <article class="doc">
+          <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_main_deployment_surfaces">Main deployment surfaces</a></li>
+<li><a href="#_public_url_layout">Public URL Layout</a></li>
+<li><a href="#_release_topology">Release Topology</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The deployment view is CI- and release-oriented rather than service-oriented.
+<code>cx</code> ships as a toolchain with release gates, published schemas, coverage, and curated documentation rather than as a long-running network service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_main_deployment_surfaces"><a class="anchor" href="#_main_deployment_surfaces"></a>Main deployment surfaces</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Surface</th>
+<th class="tableblock halign-left valign-top">Owned artifacts</th>
+<th class="tableblock halign-left valign-top">Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI proof path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">test results, coverage inputs, contract checks, reproducibility checks</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>make certify</code> and the required CI lanes must pass before release finalization.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pages publish</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">root Pages index, <code>/docs/</code>, <code>/schemas/</code>, optional <code>/coverage/</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pages:build</code> assembles the tree and <code>pages:smoke</code> validates required surfaces.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Schema publish</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">latest-only JSON Schema files under <code>/schemas/</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">retired schema files fail the Pages build instead of being published.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Release assets</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">npm tarball, <code>release-integrity.json</code>, Homebrew formula, mirrored schema files</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the release workflow must run from the exact certified tag commit.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">npm package</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI runtime, generated JavaScript, current schema files, docs-relevant metadata</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">package metadata and release integrity checks must match the tag version.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The docs site now joins schemas and coverage as a first-class Pages publish surface.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_public_url_layout"><a class="anchor" href="#_public_url_layout"></a>Public URL Layout</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Pages root is <code><a href="https://wstein.github.io/cx-cli/" class="bare">https://wstein.github.io/cx-cli/</a></code>.
+The curated Antora site is mounted below <code>/docs/</code>, with versioned Antora
+content such as <code>/docs/cx/0.5/</code>. Schema endpoints are mounted at
+<code>/schemas/</code> and intentionally expose only the latest schema for each
+family. Coverage is mounted at <code>/coverage/</code> when the coverage artifact is
+available.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_release_topology"><a class="anchor" href="#_release_topology"></a>Release Topology</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Releases are two-phase. <code>develop</code> prepares the candidate and CI proves
+it. The <code>vX.Y.Z</code> tag finalizes the exact certified commit, publishes the
+npm package and GitHub release assets, and then <code>main</code> fast-forwards to
+the shipped commit. See <a href="../../manual/release-and-integrity/" class="xref page">Release
+and Integrity</a> for the operational checklist.</p>
+</div>
+</div>
+</div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>
