@@ -189,7 +189,9 @@ It intentionally omits structure and supporting links for now.
       );
 
       try {
-        const report = await checkNotesConsistency("notes", tempDir);
+        const report = await checkNotesConsistency("notes", tempDir, {
+          now: new Date("2026-04-19T00:00:00Z"),
+        });
         expect(report.valid).toBe(true);
         expect(report.lowSignalNotes).toHaveLength(1);
         expect(report.lowSignalNotes[0]?.title).toBe("Sparse Note");
