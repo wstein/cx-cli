@@ -327,10 +327,11 @@ Describe how an operator, reviewer, or later agent should apply it.
   });
 
   test("records cognition signals for valid notes", () => {
-    const result = validateNoteDocuments([
-      doc(
-        "cognition.md",
-        `---
+    const result = validateNoteDocuments(
+      [
+        doc(
+          "cognition.md",
+          `---
 id: 20260413123036
 aliases: []
 tags: []
@@ -355,8 +356,10 @@ Carry the note metadata into manifests and review it in CI.
 - [[Repository Cognition Layer]]
 - [[System Trust Contract]]
 `,
-      ),
-    ], { now: new Date("2026-04-19T00:00:00Z") });
+        ),
+      ],
+      { now: new Date("2026-04-19T00:00:00Z") },
+    );
 
     expect(result.valid).toBe(true);
     expect(result.notes[0]?.cognition.score).toBeGreaterThanOrEqual(60);
