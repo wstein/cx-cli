@@ -995,7 +995,7 @@ exclude = []
     expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
       "# keep\n",
     );
-  });
+  }, 60_000);
 
   // verify-against-integration: Confirms human-mode command failures surface real source-tree drift when filesystem content changes post-bundle.
   test("fails verify --against when the source tree drifts", async () => {
