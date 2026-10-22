@@ -356,7 +356,7 @@ Carry the note metadata into manifests and review it in CI.
 - [[System Trust Contract]]
 `,
       ),
-    ]);
+    ], { now: new Date("2026-04-19T00:00:00Z") });
 
     expect(result.valid).toBe(true);
     expect(result.notes[0]?.cognition.score).toBeGreaterThanOrEqual(60);
