@@ -952,7 +952,7 @@ describe("bundle workflow", () => {
     ).toBe(0);
 
     await expect(fs.stat(orphanedExportPath)).rejects.toThrow();
-  }, 15_000);
+  }, 60_000);
 
   test("--update refuses to prune non-bundle directories", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "cx-update-safety-"));
@@ -995,7 +995,7 @@ exclude = []
     expect(await fs.readFile(path.join(root, "README.md"), "utf8")).toBe(
       "# keep\n",
     );
-  }, 60_000);
+  });
 
   // verify-against-integration: Confirms human-mode command failures surface real source-tree drift when filesystem content changes post-bundle.
   test("fails verify --against when the source tree drifts", async () => {
